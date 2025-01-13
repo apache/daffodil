@@ -17,258 +17,183 @@
 
 package org.apache.daffodil.section13.text_standard_base
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestTextStandardBase {
-  val testDir = "/org/apache/daffodil/section13/text_number_props/"
-  val runner = Runner(
-    testDir,
-    "TextStandardBase.tdml",
-    validateTDMLFile = false,
-    validateDFDLSchemas = false
-  )
+object TestTextStandardBase extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/text_number_props/TextStandardBase.tdml"
 
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = false, validateDFDLSchemas = false)
 }
 
-class TestTextStandardBase {
-  import TestTextStandardBase._
+class TestTextStandardBase extends TdmlTests {
+  val tdmlSuite = TestTextStandardBase
 
   // Tests of min, max, and 1 + max for each numeric data type in all non-base-10 bases
 
-  @Test def test_base2_integer_min(): Unit = { runner.runOneTest("base2_integer_min") }
-  @Test def test_base8_integer_min(): Unit = { runner.runOneTest("base8_integer_min") }
-  @Test def test_base16_integer_min(): Unit = { runner.runOneTest("base16_integer_min") }
+  @Test def base2_integer_min = test
+  @Test def base8_integer_min = test
+  @Test def base16_integer_min = test
 
-  @Test def test_base2_integer_large(): Unit = { runner.runOneTest("base2_integer_large") }
-  @Test def test_base8_integer_large(): Unit = { runner.runOneTest("base8_integer_large") }
-  @Test def test_base16_integer_large(): Unit = { runner.runOneTest("base16_integer_large") }
+  @Test def base2_integer_large = test
+  @Test def base8_integer_large = test
+  @Test def base16_integer_large = test
 
-  @Test def test_base2_long_min(): Unit = { runner.runOneTest("base2_long_min") }
-  @Test def test_base8_long_min(): Unit = { runner.runOneTest("base8_long_min") }
-  @Test def test_base16_long_min(): Unit = { runner.runOneTest("base16_long_min") }
+  @Test def base2_long_min = test
+  @Test def base8_long_min = test
+  @Test def base16_long_min = test
 
-  @Test def test_base2_long_max(): Unit = { runner.runOneTest("base2_long_max") }
-  @Test def test_base8_long_max(): Unit = { runner.runOneTest("base8_long_max") }
-  @Test def test_base16_long_max(): Unit = { runner.runOneTest("base16_long_max") }
+  @Test def base2_long_max = test
+  @Test def base8_long_max = test
+  @Test def base16_long_max = test
 
-  @Test def test_base2_long_max_plus_one(): Unit = {
-    runner.runOneTest("base2_long_max_plus_one")
-  }
-  @Test def test_base8_long_max_plus_one(): Unit = {
-    runner.runOneTest("base8_long_max_plus_one")
-  }
-  @Test def test_base16_long_max_plus_one(): Unit = {
-    runner.runOneTest("base16_long_max_plus_one")
-  }
+  @Test def base2_long_max_plus_one = test
+  @Test def base8_long_max_plus_one = test
+  @Test def base16_long_max_plus_one = test
 
-  @Test def test_base2_int_min(): Unit = { runner.runOneTest("base2_int_min") }
-  @Test def test_base8_int_min(): Unit = { runner.runOneTest("base8_int_min") }
-  @Test def test_base16_int_min(): Unit = { runner.runOneTest("base16_int_min") }
+  @Test def base2_int_min = test
+  @Test def base8_int_min = test
+  @Test def base16_int_min = test
 
-  @Test def test_base2_int_max(): Unit = { runner.runOneTest("base2_int_max") }
-  @Test def test_base8_int_max(): Unit = { runner.runOneTest("base8_int_max") }
-  @Test def test_base16_int_max(): Unit = { runner.runOneTest("base16_int_max") }
+  @Test def base2_int_max = test
+  @Test def base8_int_max = test
+  @Test def base16_int_max = test
 
-  @Test def test_base2_int_max_plus_one(): Unit = {
-    runner.runOneTest("base2_int_max_plus_one")
-  }
-  @Test def test_base8_int_max_plus_one(): Unit = {
-    runner.runOneTest("base8_int_max_plus_one")
-  }
-  @Test def test_base16_int_max_plus_one(): Unit = {
-    runner.runOneTest("base16_int_max_plus_one")
-  }
+  @Test def base2_int_max_plus_one = test
+  @Test def base8_int_max_plus_one = test
+  @Test def base16_int_max_plus_one = test
 
-  @Test def test_base2_short_min(): Unit = { runner.runOneTest("base2_short_min") }
-  @Test def test_base8_short_min(): Unit = { runner.runOneTest("base8_short_min") }
-  @Test def test_base16_short_min(): Unit = { runner.runOneTest("base16_short_min") }
+  @Test def base2_short_min = test
+  @Test def base8_short_min = test
+  @Test def base16_short_min = test
 
-  @Test def test_base2_short_max(): Unit = { runner.runOneTest("base2_short_max") }
-  @Test def test_base8_short_max(): Unit = { runner.runOneTest("base8_short_max") }
-  @Test def test_base16_short_max(): Unit = { runner.runOneTest("base16_short_max") }
+  @Test def base2_short_max = test
+  @Test def base8_short_max = test
+  @Test def base16_short_max = test
 
-  @Test def test_base2_short_max_plus_one(): Unit = {
-    runner.runOneTest("base2_short_max_plus_one")
-  }
-  @Test def test_base8_short_max_plus_one(): Unit = {
-    runner.runOneTest("base8_short_max_plus_one")
-  }
-  @Test def test_base16_short_max_plus_one(): Unit = {
-    runner.runOneTest("base16_short_max_plus_one")
-  }
+  @Test def base2_short_max_plus_one = test
+  @Test def base8_short_max_plus_one = test
+  @Test def base16_short_max_plus_one = test
 
-  @Test def test_base2_byte_min(): Unit = { runner.runOneTest("base2_byte_min") }
-  @Test def test_base8_byte_min(): Unit = { runner.runOneTest("base8_byte_min") }
-  @Test def test_base16_byte_min(): Unit = { runner.runOneTest("base16_byte_min") }
+  @Test def base2_byte_min = test
+  @Test def base8_byte_min = test
+  @Test def base16_byte_min = test
 
-  @Test def test_base2_byte_max(): Unit = { runner.runOneTest("base2_byte_max") }
-  @Test def test_base8_byte_max(): Unit = { runner.runOneTest("base8_byte_max") }
-  @Test def test_base16_byte_max(): Unit = { runner.runOneTest("base16_byte_max") }
+  @Test def base2_byte_max = test
+  @Test def base8_byte_max = test
+  @Test def base16_byte_max = test
 
-  @Test def test_base2_byte_max_plus_one(): Unit = {
-    runner.runOneTest("base2_byte_max_plus_one")
-  }
-  @Test def test_base8_byte_max_plus_one(): Unit = {
-    runner.runOneTest("base8_byte_max_plus_one")
-  }
-  @Test def test_base16_byte_max_plus_one(): Unit = {
-    runner.runOneTest("base16_byte_max_plus_one")
-  }
+  @Test def base2_byte_max_plus_one = test
+  @Test def base8_byte_max_plus_one = test
+  @Test def base16_byte_max_plus_one = test
 
-  @Test def test_base2_uinteger_min(): Unit = { runner.runOneTest("base2_uinteger_min") }
-  @Test def test_base8_uinteger_min(): Unit = { runner.runOneTest("base8_uinteger_min") }
-  @Test def test_base16_uinteger_min(): Unit = { runner.runOneTest("base16_uinteger_min") }
+  @Test def base2_uinteger_min = test
+  @Test def base8_uinteger_min = test
+  @Test def base16_uinteger_min = test
 
-  @Test def test_base2_uinteger_large(): Unit = { runner.runOneTest("base2_uinteger_large") }
-  @Test def test_base8_uinteger_large(): Unit = { runner.runOneTest("base8_uinteger_large") }
-  @Test def test_base16_uinteger_large(): Unit = { runner.runOneTest("base16_uinteger_large") }
+  @Test def base2_uinteger_large = test
+  @Test def base8_uinteger_large = test
+  @Test def base16_uinteger_large = test
 
-  @Test def test_base2_ulong_min(): Unit = { runner.runOneTest("base2_ulong_min") }
-  @Test def test_base8_ulong_min(): Unit = { runner.runOneTest("base8_ulong_min") }
-  @Test def test_base16_ulong_min(): Unit = { runner.runOneTest("base16_ulong_min") }
+  @Test def base2_ulong_min = test
+  @Test def base8_ulong_min = test
+  @Test def base16_ulong_min = test
 
-  @Test def test_base2_ulong_max(): Unit = { runner.runOneTest("base2_ulong_max") }
-  @Test def test_base8_ulong_max(): Unit = { runner.runOneTest("base8_ulong_max") }
-  @Test def test_base16_ulong_max(): Unit = { runner.runOneTest("base16_ulong_max") }
+  @Test def base2_ulong_max = test
+  @Test def base8_ulong_max = test
+  @Test def base16_ulong_max = test
 
-  @Test def test_base2_ulong_max_plus_one(): Unit = {
-    runner.runOneTest("base2_ulong_max_plus_one")
-  }
-  @Test def test_base8_ulong_max_plus_one(): Unit = {
-    runner.runOneTest("base8_ulong_max_plus_one")
-  }
-  @Test def test_base16_ulong_max_plus_one(): Unit = {
-    runner.runOneTest("base16_ulong_max_plus_one")
-  }
+  @Test def base2_ulong_max_plus_one = test
+  @Test def base8_ulong_max_plus_one = test
+  @Test def base16_ulong_max_plus_one = test
 
-  @Test def test_base2_uint_min(): Unit = { runner.runOneTest("base2_uint_min") }
-  @Test def test_base8_uint_min(): Unit = { runner.runOneTest("base8_uint_min") }
-  @Test def test_base16_uint_min(): Unit = { runner.runOneTest("base16_uint_min") }
+  @Test def base2_uint_min = test
+  @Test def base8_uint_min = test
+  @Test def base16_uint_min = test
 
-  @Test def test_base2_uint_max(): Unit = { runner.runOneTest("base2_uint_max") }
-  @Test def test_base8_uint_max(): Unit = { runner.runOneTest("base8_uint_max") }
-  @Test def test_base16_uint_max(): Unit = { runner.runOneTest("base16_uint_max") }
+  @Test def base2_uint_max = test
+  @Test def base8_uint_max = test
+  @Test def base16_uint_max = test
 
-  @Test def test_base2_uint_max_plus_one(): Unit = {
-    runner.runOneTest("base2_uint_max_plus_one")
-  }
-  @Test def test_base8_uint_max_plus_one(): Unit = {
-    runner.runOneTest("base8_uint_max_plus_one")
-  }
-  @Test def test_base16_uint_max_plus_one(): Unit = {
-    runner.runOneTest("base16_uint_max_plus_one")
-  }
+  @Test def base2_uint_max_plus_one = test
+  @Test def base8_uint_max_plus_one = test
+  @Test def base16_uint_max_plus_one = test
 
-  @Test def test_base2_ushort_min(): Unit = { runner.runOneTest("base2_ushort_min") }
-  @Test def test_base8_ushort_min(): Unit = { runner.runOneTest("base8_ushort_min") }
-  @Test def test_base16_ushort_min(): Unit = { runner.runOneTest("base16_ushort_min") }
+  @Test def base2_ushort_min = test
+  @Test def base8_ushort_min = test
+  @Test def base16_ushort_min = test
 
-  @Test def test_base2_ushort_max(): Unit = { runner.runOneTest("base2_ushort_max") }
-  @Test def test_base8_ushort_max(): Unit = { runner.runOneTest("base8_ushort_max") }
-  @Test def test_base16_ushort_max(): Unit = { runner.runOneTest("base16_ushort_max") }
+  @Test def base2_ushort_max = test
+  @Test def base8_ushort_max = test
+  @Test def base16_ushort_max = test
 
-  @Test def test_base2_ushort_max_plus_one(): Unit = {
-    runner.runOneTest("base2_ushort_max_plus_one")
-  }
-  @Test def test_base8_ushort_max_plus_one(): Unit = {
-    runner.runOneTest("base8_ushort_max_plus_one")
-  }
-  @Test def test_base16_ushort_max_plus_one(): Unit = {
-    runner.runOneTest("base16_ushort_max_plus_one")
-  }
+  @Test def base2_ushort_max_plus_one = test
+  @Test def base8_ushort_max_plus_one = test
+  @Test def base16_ushort_max_plus_one = test
 
-  @Test def test_base2_ubyte_min(): Unit = { runner.runOneTest("base2_ubyte_min") }
-  @Test def test_base8_ubyte_min(): Unit = { runner.runOneTest("base8_ubyte_min") }
-  @Test def test_base16_ubyte_min(): Unit = { runner.runOneTest("base16_ubyte_min") }
+  @Test def base2_ubyte_min = test
+  @Test def base8_ubyte_min = test
+  @Test def base16_ubyte_min = test
 
-  @Test def test_base2_ubyte_max(): Unit = { runner.runOneTest("base2_ubyte_max") }
-  @Test def test_base8_ubyte_max(): Unit = { runner.runOneTest("base8_ubyte_max") }
-  @Test def test_base16_ubyte_max(): Unit = { runner.runOneTest("base16_ubyte_max") }
+  @Test def base2_ubyte_max = test
+  @Test def base8_ubyte_max = test
+  @Test def base16_ubyte_max = test
 
-  @Test def test_base2_ubyte_max_plus_one(): Unit = {
-    runner.runOneTest("base2_ubyte_max_plus_one")
-  }
-  @Test def test_base8_ubyte_max_plus_one(): Unit = {
-    runner.runOneTest("base8_ubyte_max_plus_one")
-  }
-  @Test def test_base16_ubyte_max_plus_one(): Unit = {
-    runner.runOneTest("base16_ubyte_max_plus_one")
-  }
+  @Test def base2_ubyte_max_plus_one = test
+  @Test def base8_ubyte_max_plus_one = test
+  @Test def base16_ubyte_max_plus_one = test
 
   // SDE if type is float, double, or decimal in each non-base-10 base
 
-  @Test def test_base2_float_err(): Unit = { runner.runOneTest("base2_float_err") }
-  @Test def test_base8_float_err(): Unit = { runner.runOneTest("base8_float_err") }
-  @Test def test_base16_float_err(): Unit = { runner.runOneTest("base16_float_err") }
+  @Test def base2_float_err = test
+  @Test def base8_float_err = test
+  @Test def base16_float_err = test
 
-  @Test def test_base2_double_err(): Unit = { runner.runOneTest("base2_double_err") }
-  @Test def test_base8_double_err(): Unit = { runner.runOneTest("base8_double_err") }
-  @Test def test_base16_double_err(): Unit = { runner.runOneTest("base16_double_err") }
+  @Test def base2_double_err = test
+  @Test def base8_double_err = test
+  @Test def base16_double_err = test
 
-  @Test def test_base2_decimal_err(): Unit = { runner.runOneTest("base2_decimal_err") }
-  @Test def test_base8_decimal_err(): Unit = { runner.runOneTest("base8_decimal_err") }
-  @Test def test_base16_decimal_err(): Unit = { runner.runOneTest("base16_decimal_err") }
+  @Test def base2_decimal_err = test
+  @Test def base8_decimal_err = test
+  @Test def base16_decimal_err = test
 
   // PE if text number is the empty string
 
-  @Test def test_non_base_10_empty_string_err(): Unit = {
-    runner.runOneTest("non_base_10_empty_string_err")
-  }
+  @Test def non_base_10_empty_string_err = test
 
   // PE if leading sign
 
-  @Test def test_non_base_10_leading_sign_negative_err(): Unit = {
-    runner.runOneTest("non_base_10_leading_sign_negative_err")
-  }
-  @Test def test_non_base_10_leading_sign_positive_err(): Unit = {
-    runner.runOneTest("non_base_10_leading_sign_positive_err")
-  }
+  @Test def non_base_10_leading_sign_negative_err = test
+  @Test def non_base_10_leading_sign_positive_err = test
 
   // PE if text number contains characters not valid in the base
 
-  @Test def test_base2_invalid_char_err(): Unit = {
-    runner.runOneTest("base2_invalid_char_err")
-  }
-  @Test def test_base8_invalid_char_err(): Unit = {
-    runner.runOneTest("base8_invalid_char_err")
-  }
-  @Test def test_base16_invalid_char_err(): Unit = {
-    runner.runOneTest("base16_invalid_char_err")
-  }
+  @Test def base2_invalid_char_err = test
+  @Test def base8_invalid_char_err = test
+  @Test def base16_invalid_char_err = test
 
   // SDE if textStandardBase is not a supported base
 
-  @Test def test_unsupported_base_err(): Unit = { runner.runOneTest("unsupported_base_err") }
+  @Test def unsupported_base_err = test
 
   // Accepts uppercase hex characters, but always unparses to lowercase. Requires two-pass
 
-  @Test def test_base16_uppercase(): Unit = { runner.runOneTest("base16_uppercase") }
+  @Test def base16_uppercase = test
 
   // Leading zeros are accepted during parsing. Requires two-pass
 
-  @Test def test_non_base_10_leading_zeros_ignored(): Unit = {
-    runner.runOneTest("non_base_10_leading_zeros_ignored")
-  }
+  @Test def non_base_10_leading_zeros_ignored = test
 
   // SDE if unparsing a negative number
 
-  @Test def test_non_base_10_unparse_negative_int_err(): Unit = {
-    runner.runOneTest("non_base_10_unparse_negative_int_err")
-  }
-  @Test def test_non_base_10_unparse_negative_uinteger_err(): Unit = {
-    runner.runOneTest("non_base_10_unparse_negative_uinteger_err")
-  }
+  @Test def non_base_10_unparse_negative_int_err = test
+  @Test def non_base_10_unparse_negative_uinteger_err = test
 
   // Unparse always goes to lowercase
 
-  @Test def test_non_base_10_unparse_lower_case(): Unit = {
-    runner.runOneTest("non_base_10_unparse_lower_case")
-  }
-
+  @Test def non_base_10_unparse_lower_case = test
 }

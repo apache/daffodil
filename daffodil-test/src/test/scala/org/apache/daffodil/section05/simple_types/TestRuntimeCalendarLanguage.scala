@@ -17,34 +17,20 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestRuntimeCalendarLanguage {
-  private val testDir = "/org/apache/daffodil/section05/simple_types/"
-
-  val runner = Runner(testDir, "RuntimeCalendarLanguage.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-  }
+object TestRuntimeCalendarLanguage extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/RuntimeCalendarLanguage.tdml"
 }
 
-class TestRuntimeCalendarLanguage {
-  import TestRuntimeCalendarLanguage._
+class TestRuntimeCalendarLanguage extends TdmlTests {
+  val tdmlSuite = TestRuntimeCalendarLanguage
 
-  @Test def test_runtimeCalendarLanguage1(): Unit = {
-    runner.runOneTest("runtimeCalendarLanguage1")
-  }
-  @Test def test_invalidCalendarLanguage1(): Unit = {
-    runner.runOneTest("invalidCalendarLanguage1")
-  }
-  @Test def test_unparseRuntimeCalendarLanguageOVC(): Unit = {
-    runner.runOneTest("unparseRuntimeCalendarLanguageOVC")
-  }
-  @Test def test_unparseRuntimeCalendarLanguageOVCCacheCheck(): Unit = {
-    runner.runOneTest("unparseRuntimeCalendarLanguageOVCCacheCheck")
-  }
+  @Test def runtimeCalendarLanguage1 = test
+  @Test def invalidCalendarLanguage1 = test
+  @Test def unparseRuntimeCalendarLanguageOVC = test
+  @Test def unparseRuntimeCalendarLanguageOVCCacheCheck = test
 }

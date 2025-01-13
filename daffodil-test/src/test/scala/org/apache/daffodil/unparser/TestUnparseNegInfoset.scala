@@ -17,56 +17,36 @@
 
 package org.apache.daffodil.unparser
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparseNegInfoset {
-  val runner = Runner(
-    "/org/apache/daffodil/unparser/",
-    "unparseNegInfosetTest.tdml",
-    validateTDMLFile = false
-  )
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
+object TestUnparseNegInfoset extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/unparser/unparseNegInfosetTest.tdml"
+
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
-class TestUnparseNegInfoset {
-  import TestUnparseNegInfoset._
+class TestUnparseNegInfoset extends TdmlTests {
+  val tdmlSuite = TestUnparseNegInfoset
 
-  @Test def test_schemaElementRoot1Good(): Unit = {
-    runner.runOneTest("schemaElementRoot1Good")
-  }
-  @Test def test_schemaElementRoot2Good(): Unit = {
-    runner.runOneTest("schemaElementRoot2Good")
-  }
+  @Test def schemaElementRoot1Good = test
+  @Test def schemaElementRoot2Good = test
 
-  @Test def test_unexpectedNextNone(): Unit = { runner.runOneTest("unexpectedNextNone") }
-  @Test def test_unexpectedNextSingle(): Unit = { runner.runOneTest("unexpectedNextSingle") }
-  @Test def test_unexpectedNextMultiple(): Unit = {
-    runner.runOneTest("unexpectedNextMultiple")
-  }
+  @Test def unexpectedNextNone = test
+  @Test def unexpectedNextSingle = test
+  @Test def unexpectedNextMultiple = test
 
-  @Test def test_uenxpectedChildNone(): Unit = { runner.runOneTest("unexpectedChildNone") }
-  @Test def test_unexpectedChildSingle(): Unit = { runner.runOneTest("unexpectedChildSingle") }
-  @Test def test_unexpectedChildMultiple(): Unit = {
-    runner.runOneTest("unexpectedChildMultiple")
-  }
-  @Test def test_unexpectedChildSameAsSibling(): Unit = {
-    runner.runOneTest("unexpectedChildSameAsSibling")
-  }
+  @Test def unexpectedChildNone = test
+  @Test def unexpectedChildSingle = test
+  @Test def unexpectedChildMultiple = test
+  @Test def unexpectedChildSameAsSibling = test
 
-  @Test def test_nilledTrueNonNillable(): Unit = { runner.runOneTest("nilledTrueNonNillable") }
-  @Test def test_nilledFalseNonNillable(): Unit = {
-    runner.runOneTest("nilledFalseNonNillable")
-  }
-  @Test def test_nilledSimpleWithContent(): Unit = {
-    runner.runOneTest("nilledSimpleWithContent")
-  }
-  @Test def test_nilledComplexWithContent(): Unit = {
-    runner.runOneTest("nilledComplexWithContent")
-  }
-  @Test def test_nilledBadValue(): Unit = { runner.runOneTest("nilledBadValue") }
+  @Test def nilledTrueNonNillable = test
+  @Test def nilledFalseNonNillable = test
+  @Test def nilledSimpleWithContent = test
+  @Test def nilledComplexWithContent = test
+  @Test def nilledBadValue = test
 }

@@ -17,94 +17,103 @@
 
 package org.apache.daffodil.section07.escapeScheme
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
-import org.junit._
+import org.junit.Ignore
+import org.junit.Test
 
-object TestEscapeScheme {
-  val testDir = "/org/apache/daffodil/section07/escapeScheme/"
-  val runner = Runner(testDir, "escapeScheme.tdml", validateTDMLFile = false)
-  val runnerNeg = Runner(testDir, "escapeSchemeNeg.tdml", validateTDMLFile = false)
-  val runner2 = Runner(testDir, "escapeScenarios.tdml", validateTDMLFile = false)
+object TestEscapeScheme extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/escapeScheme/escapeScheme.tdml"
 
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runnerNeg.reset
-    runner2.reset
-  }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
-class TestEscapeScheme {
-  import TestEscapeScheme._
-  // Debug Template
-  // @Test def test_name() = Debugger.withDebugger {
-  // runner.runOneTest("test_name")
-  // }
+object TestEscapeSchemeNeg extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/escapeScheme/escapeSchemeNeg.tdml"
 
-  @Test def test_escapeSchemeSimple(): Unit = { runner.runOneTest("escapeSchemeSimple") }
-  @Test def test_escapeSchemeEmpty(): Unit = { runner.runOneTest("escapeSchemeEmpty") }
-  @Test def test_escapeSchemeUnused(): Unit = { runner.runOneTest("escapeSchemeUnused") }
-  @Test def test_escapeSchemeFail(): Unit = { runner.runOneTest("escapeSchemeFail") }
-  @Test def test_escapeSchemeFail2(): Unit = { runner.runOneTest("escapeSchemeFail2") }
-  @Test def test_escapeSchemeFail3(): Unit = { runner.runOneTest("escapeSchemeFail3") }
-  @Test def test_escapeSchemeNonEmpty(): Unit = { runner.runOneTest("escapeSchemeNonEmpty") }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
+}
+
+object TestEscapeScenarios extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/escapeScheme/escapeScenarios.tdml"
+
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
+}
+
+class TestEscapeScheme extends TdmlTests {
+  val tdmlSuite = TestEscapeScheme
+
+  @Test def escapeSchemeSimple = test
+  @Test def escapeSchemeEmpty = test
+  @Test def escapeSchemeUnused = test
+  @Test def escapeSchemeFail = test
+  @Test def escapeSchemeFail2 = test
+  @Test def escapeSchemeFail3 = test
+  @Test def escapeSchemeNonEmpty = test
   // DAFFODIL-844
-  // @Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
+  @Ignore @Test def escapeSchemeNonUnique = test
 
-  @Test def test_escapeExpressions_01(): Unit = { runner.runOneTest("escapeExpressions_01") }
-  @Test def test_escapeExpressions_01b(): Unit = { runner.runOneTest("escapeExpressions_01b") }
-  @Test def test_escapeExpressions_02(): Unit = { runner.runOneTest("escapeExpressions_02") }
-  @Test def test_escapeExpressions_03(): Unit = { runner.runOneTest("escapeExpressions_03") }
-  @Test def test_escapeExpressions_04(): Unit = { runner.runOneTest("escapeExpressions_04") }
-  @Test def test_escapeExpressions_05(): Unit = { runner.runOneTest("escapeExpressions_05") }
-  @Test def test_escapeExpressions_06(): Unit = { runner.runOneTest("escapeExpressions_06") }
-  @Test def test_escapeExpressions_07(): Unit = { runner.runOneTest("escapeExpressions_07") }
-  @Test def test_escapeExpressions_08(): Unit = { runner.runOneTest("escapeExpressions_08") }
+  @Test def escapeExpressions_01 = test
+  @Test def escapeExpressions_01b = test
+  @Test def escapeExpressions_02 = test
+  @Test def escapeExpressions_03 = test
+  @Test def escapeExpressions_04 = test
+  @Test def escapeExpressions_05 = test
+  @Test def escapeExpressions_06 = test
+  @Test def escapeExpressions_07 = test
+  @Test def escapeExpressions_08 = test
 
-  @Test def test_escapeSchemeNeg(): Unit = { runnerNeg.runOneTest("escapeSchemeNeg") }
+  @Test def escBlkAllQuotes = test
+  @Test def escBlkEndSame = test
+  @Test def escBlkEndSame2 = test
+  @Test def escBlkEndSame3 = test
+  @Ignore @Test def escBlkMultipleEEC = test
 
-  @Test def test_scenario1_1(): Unit = { runner2.runOneTest("scenario1_1") }
-  @Test def test_scenario1_2(): Unit = { runner2.runOneTest("scenario1_2") }
-  @Test def test_scenario1_3(): Unit = { runner2.runOneTest("scenario1_3") }
-  @Test def test_scenario1_4(): Unit = { runner2.runOneTest("scenario1_4") }
-  @Test def test_scenario1_5(): Unit = { runner2.runOneTest("scenario1_5") }
-  @Test def test_scenario1_6(): Unit = { runner2.runOneTest("scenario1_6") }
-  @Test def test_scenario1_7(): Unit = { runner2.runOneTest("scenario1_7") }
-  @Test def test_scenario1_7_postfix(): Unit = { runner2.runOneTest("scenario1_7_postfix") }
-  @Test def test_scenario1_8(): Unit = { runner2.runOneTest("scenario1_8") }
-  @Test def test_scenario1_8_req_term(): Unit = { runner2.runOneTest("scenario1_8_req_term") }
-  @Test def test_scenario1_9(): Unit = { runner2.runOneTest("scenario1_9") }
-  @Test def test_scenario1_9_postfix(): Unit = { runner2.runOneTest("scenario1_9_postfix") }
-  @Test def test_scenario1_10(): Unit = { runner2.runOneTest("scenario1_10") }
-  @Test def test_scenario1_10_postfix(): Unit = { runner2.runOneTest("scenario1_10_postfix") }
-  @Test def test_scenario1_11(): Unit = { runner2.runOneTest("scenario1_11") }
-  @Test def test_scenario1_11_postfix(): Unit = { runner2.runOneTest("scenario1_11_postfix") }
-  @Test def test_scenario1_12(): Unit = { runner2.runOneTest("scenario1_12") }
-  @Test def test_scenario1_12_postfix(): Unit = { runner2.runOneTest("scenario1_12_postfix") }
-  @Test def test_scenario1_13(): Unit = { runner2.runOneTest("scenario1_13") }
-  @Test def test_scenario1_13_postfix(): Unit = { runner2.runOneTest("scenario1_13_postfix") }
+  @Test def escapeScheme_with_comment = test
+}
 
-  @Test def test_scenario2_1(): Unit = { runner2.runOneTest("scenario2_1") }
-  @Test def test_scenario2_11_req_term(): Unit = { runner2.runOneTest("scenario2_11_req_term") }
-  @Test def test_scenario2_14_req_term(): Unit = { runner2.runOneTest("scenario2_14_req_term") }
+class TestEscapeSchemeNeg extends TdmlTests {
+  val tdmlSuite = TestEscapeSchemeNeg
 
-  @Test def test_scenario3_1(): Unit = { runner2.runOneTest("scenario3_1") }
+  @Test def escapeSchemeNeg = test
+}
 
-  @Test def test_scenario4_7_req_term(): Unit = { runner2.runOneTest("scenario4_7_req_term") }
-  @Test def test_scenario4_9_req_term(): Unit = { runner2.runOneTest("scenario4_9_req_term") }
-  @Test def test_scenario4_10_req_term(): Unit = { runner2.runOneTest("scenario4_10_req_term") }
-  @Test def test_scenario4_12_req_term(): Unit = { runner2.runOneTest("scenario4_12_req_term") }
+class TestEscapeScenarios extends TdmlTests {
+  val tdmlSuite = TestEscapeScenarios
 
-  @Test def test_scenario5_1(): Unit = { runner2.runOneTest("scenario5_1") }
+  @Test def scenario1_1 = test
+  @Test def scenario1_2 = test
+  @Test def scenario1_3 = test
+  @Test def scenario1_4 = test
+  @Test def scenario1_5 = test
+  @Test def scenario1_6 = test
+  @Test def scenario1_7 = test
+  @Test def scenario1_7_postfix = test
+  @Test def scenario1_8 = test
+  @Test def scenario1_8_req_term = test
+  @Test def scenario1_9 = test
+  @Test def scenario1_9_postfix = test
+  @Test def scenario1_10 = test
+  @Test def scenario1_10_postfix = test
+  @Test def scenario1_11 = test
+  @Test def scenario1_11_postfix = test
+  @Test def scenario1_12 = test
+  @Test def scenario1_12_postfix = test
+  @Test def scenario1_13 = test
+  @Test def scenario1_13_postfix = test
 
-  @Test def test_escBlkAllQuotes(): Unit = { runner.runOneTest("escBlkAllQuotes") }
-  @Test def test_escBlkEndSame(): Unit = { runner.runOneTest("escBlkEndSame") }
-  @Test def test_escBlkEndSame2(): Unit = { runner.runOneTest("escBlkEndSame2") }
-  @Test def test_escBlkEndSame3(): Unit = { runner.runOneTest("escBlkEndSame3") }
-  // @Test def test_escBlkMultipleEEC() { runner.runOneTest("escBlkMultipleEEC") } // DAFFODIL-1972
+  @Test def scenario2_1 = test
+  @Test def scenario2_11_req_term = test
+  @Test def scenario2_14_req_term = test
 
-  @Test def test_escapeScheme_with_comment(): Unit = {
-    runner.runOneTest("escapeScheme_with_comment")
-  }
+  @Test def scenario3_1 = test
+
+  @Test def scenario4_7_req_term = test
+  @Test def scenario4_9_req_term = test
+  @Test def scenario4_10_req_term = test
+  @Test def scenario4_12_req_term = test
+
+  @Test def scenario5_1 = test
 }

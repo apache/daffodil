@@ -17,58 +17,52 @@
 
 package org.apache.daffodil.section02.processing_errors
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestProcessingErrors {
-  val testDir = "/org/apache/daffodil/section02/processing_errors/"
+object TestSchemaValidation extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section02/processing_errors/dfdl-schema-validation-diagnostics.tdml"
 
-  val runner =
-    Runner(testDir, "dfdl-schema-validation-diagnostics.tdml", validateTDMLFile = false)
-
-  val runner02 = Runner(
-    testDir,
-    "ProcessingErrors.tdml",
-    validateTDMLFile = false,
-    validateDFDLSchemas = false
-  )
-  val runner02Validate = Runner(
-    testDir,
-    "ProcessingErrors.tdml",
-    validateTDMLFile = true,
-    validateDFDLSchemas = true
-  )
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner02.reset
-    runner02Validate.reset
-  }
-
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
-class TestProcessingErrors {
+object TestProcessingErrorsNoValidate extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section02/processing_errors/ProcessingErrors.tdml"
 
-  import TestProcessingErrors._
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = false, validateDFDLSchemas = false)
+}
 
-  @Test def test_twoDFDLSchemaValidationErrors(): Unit = {
-    runner.runOneTest("twoDFDLSchemaValidationErrors")
-  }
-  @Test def test_twoDFDLSchemaValidationErrors2(): Unit = {
-    runner.runOneTest("twoDFDLSchemaValidationErrors2")
-  }
-  @Test def test_fiveDFDLSchemaValidationErrors(): Unit = {
-    runner.runOneTest("fiveDFDLSchemaValidationErrors")
-  }
+object TestProcessingErrorsValidate extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section02/processing_errors/ProcessingErrors.tdml"
 
-  @Test def test_upaInvalidSchema(): Unit = { runner02Validate.runOneTest("upaInvalidSchema") }
-  @Test def test_upaInvalidSchema2(): Unit = {
-    runner02Validate.runOneTest("upaInvalidSchema2")
-  }
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = true, validateDFDLSchemas = true)
+}
 
-  //  DFDL-756
-  //  @Test def test_delimiterNotFound01() { runner02.runOneTest("delimiterNotFound01") }
+class TestSchemaValidation extends TdmlTests {
+  val tdmlSuite = TestSchemaValidation
 
+  @Test def twoDFDLSchemaValidationErrors = test
+  @Test def twoDFDLSchemaValidationErrors2 = test
+  @Test def fiveDFDLSchemaValidationErrors = test
+}
+
+class TestProcessingErrorsNoValidate extends TdmlTests {
+  val tdmlSuite = TestProcessingErrorsNoValidate
+
+  // DFDL-756
+  @Ignore @Test def delimiterNotFound01 = test
+}
+
+class TestProcessingErrorsValidate extends TdmlTests {
+  val tdmlSuite = TestProcessingErrorsValidate
+
+  @Test def upaInvalidSchema = test
+  @Test def upaInvalidSchema2 = test
 }

@@ -31,7 +31,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-boolean"
+    name="simple_boolean"
     root="simple-boolean">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -48,7 +48,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-byte"
+    name="simple_byte"
     root="simple-byte">
     <tdml:document>
       <tdml:documentPart type="byte">00</tdml:documentPart>
@@ -65,7 +65,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-double"
+    name="simple_double"
     root="simple-double">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
@@ -82,7 +82,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-float"
+    name="simple_float"
     root="simple-float">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -99,7 +99,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-hexBinary"
+    name="simple_hexBinary"
     root="simple-hexBinary">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -116,7 +116,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-hexBinaryPrefixed"
+    name="simple_hexBinaryPrefixed"
     root="simple-hexBinaryPrefixed">
     <tdml:document>
       <tdml:documentPart type="byte">00 04 00 00 00 00</tdml:documentPart>
@@ -133,7 +133,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-int"
+    name="simple_int"
     root="simple-int">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -150,7 +150,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-integer"
+    name="simple_integer"
     root="simple-integer">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -167,7 +167,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-long"
+    name="simple_long"
     root="simple-long">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
@@ -184,7 +184,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-nonNegativeInteger"
+    name="simple_nonNegativeInteger"
     root="simple-nonNegativeInteger">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -201,7 +201,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-short"
+    name="simple_short"
     root="simple-short">
     <tdml:document>
       <tdml:documentPart type="byte">00 00</tdml:documentPart>
@@ -218,7 +218,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-unsignedByte"
+    name="simple_unsignedByte"
     root="simple-unsignedByte">
     <tdml:document>
       <tdml:documentPart type="byte">00</tdml:documentPart>
@@ -235,7 +235,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-unsignedInt"
+    name="simple_unsignedInt"
     root="simple-unsignedInt">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
@@ -252,7 +252,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-unsignedLong"
+    name="simple_unsignedLong"
     root="simple-unsignedLong">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
@@ -269,7 +269,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-unsignedShort"
+    name="simple_unsignedShort"
     root="simple-unsignedShort">
     <tdml:document>
       <tdml:documentPart type="byte">00 00</tdml:documentPart>

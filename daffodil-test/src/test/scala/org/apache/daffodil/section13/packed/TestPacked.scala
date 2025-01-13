@@ -17,104 +17,82 @@
 
 package org.apache.daffodil.section13.packed
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestPacked {
-  val testDir = "/org/apache/daffodil/section13/packed/"
-  val runner = Runner(testDir, "packed.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-  }
-
+object TestPacked extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/packed/packed.tdml"
 }
 
-class TestPacked {
-  import TestPacked._
+class TestPacked extends TdmlTests {
+  val tdmlSuite = TestPacked
 
-  @Test def testHexCharset01(): Unit = { runner.runOneTest("hexCharset01") }
-  @Test def testHexCharset02(): Unit = { runner.runOneTest("hexCharset02") }
-  // @Test def testHexCharset03(): Unit = { runner.runOneTest("hexCharset03") } // textNumberPattern V symbol - DAFFODIL-853
-  @Test def testHexCharset04(): Unit = { runner.runOneTest("hexCharset04") }
+  @Test def hexCharset01 = test
+  @Test def hexCharset02 = test
+  // textNumberPattern V symbol - DAFFODIL-853
+  @Ignore @Test def hexCharset03 = test
+  @Test def hexCharset04 = test
 
-  @Test def testPackedCharset01(): Unit = { runner.runOneTest("packedCharset01") }
-  @Test def testPackedCharset02(): Unit = { runner.runOneTest("packedCharset02") }
-  @Test def testPackedCharset03(): Unit = { runner.runOneTest("packedCharset03") }
-  @Test def testPackedCharset04(): Unit = { runner.runOneTest("packedCharset04") }
-  @Test def testPackedCharset05(): Unit = { runner.runOneTest("packedCharset05") }
-  @Test def testPackedCharset06(): Unit = { runner.runOneTest("packedCharset06") }
-  @Test def testPackedCharset07(): Unit = { runner.runOneTest("packedCharset07") }
-  @Test def testPackedCharset08(): Unit = { runner.runOneTest("packedCharset08") }
-  @Test def testPackedCharset09(): Unit = { runner.runOneTest("packedCharset09") }
-  @Test def testPackedCharset10(): Unit = { runner.runOneTest("packedCharset10") }
+  @Test def packedCharset01 = test
+  @Test def packedCharset02 = test
+  @Test def packedCharset03 = test
+  @Test def packedCharset04 = test
+  @Test def packedCharset05 = test
+  @Test def packedCharset06 = test
+  @Test def packedCharset07 = test
+  @Test def packedCharset08 = test
+  @Test def packedCharset09 = test
+  @Test def packedCharset10 = test
 
-  @Test def testZeroLengthPackedCharset(): Unit = {
-    runner.runOneTest("zeroLengthPackedCharset")
-  }
-  @Test def testRuntimeLengthPackedCharset1(): Unit = {
-    runner.runOneTest("runtimeLengthPackedCharset1")
-  }
-  @Test def testRuntimeLengthPackedCharset2(): Unit = {
-    runner.runOneTest("runtimeLengthPackedCharset2")
-  }
+  @Test def zeroLengthPackedCharset = test
+  @Test def runtimeLengthPackedCharset1 = test
+  @Test def runtimeLengthPackedCharset2 = test
 
-  @Test def testBCDCharset01(): Unit = { runner.runOneTest("bcdCharset01") }
-  @Test def testBCDCharset02(): Unit = { runner.runOneTest("bcdCharset02") }
-  @Test def testBCDCharset03(): Unit = { runner.runOneTest("bcdCharset03") }
-  @Test def testBCDCharset04(): Unit = { runner.runOneTest("bcdCharset04") }
-  @Test def testBCDCharset05(): Unit = { runner.runOneTest("bcdCharset05") }
-  @Test def testBCDCharset06(): Unit = { runner.runOneTest("bcdCharset06") }
-  @Test def testBCDCharset07(): Unit = { runner.runOneTest("bcdCharset07") }
-  @Test def testBCDCharset08(): Unit = { runner.runOneTest("bcdCharset08") }
-  @Test def testBCDCharset09(): Unit = { runner.runOneTest("bcdCharset09") }
-  @Test def testBCDCharset10(): Unit = { runner.runOneTest("bcdCharset10") }
-  @Test def testBCDCharset11(): Unit = { runner.runOneTest("bcdCharset11") }
-  @Test def testBCDCharset12(): Unit = { runner.runOneTest("bcdCharset12") }
-  @Test def testBCDCharset13(): Unit = { runner.runOneTest("bcdCharset13") }
+  @Test def bcdCharset01 = test
+  @Test def bcdCharset02 = test
+  @Test def bcdCharset03 = test
+  @Test def bcdCharset04 = test
+  @Test def bcdCharset05 = test
+  @Test def bcdCharset06 = test
+  @Test def bcdCharset07 = test
+  @Test def bcdCharset08 = test
+  @Test def bcdCharset09 = test
+  @Test def bcdCharset10 = test
+  @Test def bcdCharset11 = test
+  @Test def bcdCharset12 = test
+  @Test def bcdCharset13 = test
 
-  @Test def testPackedNegativeUnsigned(): Unit = { runner.runOneTest("packedNegativeUnsigned") }
-  @Test def testPackedIntTooLarge(): Unit = { runner.runOneTest("packedIntTooLarge") }
-  @Test def testPackedIntMax(): Unit = { runner.runOneTest("packedIntMax") }
+  @Test def packedNegativeUnsigned = test
+  @Test def packedIntTooLarge = test
+  @Test def packedIntMax = test
 
-  @Test def testIBM4690Charset01(): Unit = { runner.runOneTest("IBM4690Charset01") }
-  @Test def testIBM4690Charset02(): Unit = { runner.runOneTest("IBM4690Charset02") }
-  @Test def testIBM4690Charset03(): Unit = { runner.runOneTest("IBM4690Charset03") }
-  @Test def testIBM4690Charset04(): Unit = { runner.runOneTest("IBM4690Charset04") }
-  @Test def testIBM4690Charset05(): Unit = { runner.runOneTest("IBM4690Charset05") }
-  @Test def testIBM4690Charset06(): Unit = { runner.runOneTest("IBM4690Charset06") }
-  @Test def testIBM4690Charset07(): Unit = { runner.runOneTest("IBM4690Charset07") }
-  @Test def testIBM4690Charset08(): Unit = { runner.runOneTest("IBM4690Charset08") }
-  @Test def testIBM4690Charset09(): Unit = { runner.runOneTest("IBM4690Charset09") }
-  @Test def testIBM4690Charset10(): Unit = { runner.runOneTest("IBM4690Charset10") }
+  @Test def IBM4690Charset01 = test
+  @Test def IBM4690Charset02 = test
+  @Test def IBM4690Charset03 = test
+  @Test def IBM4690Charset04 = test
+  @Test def IBM4690Charset05 = test
+  @Test def IBM4690Charset06 = test
+  @Test def IBM4690Charset07 = test
+  @Test def IBM4690Charset08 = test
+  @Test def IBM4690Charset09 = test
+  @Test def IBM4690Charset10 = test
 
-  @Test def testDelimitedPackedIntSeq(): Unit = { runner.runOneTest("DelimitedPackedIntSeq") }
-  @Test def testDelimitedPackedDecSeq(): Unit = { runner.runOneTest("DelimitedPackedDecSeq") }
-  @Test def testDelimitedPackedIntSeqUnparser(): Unit = {
-    runner.runOneTest("DelimitedPackedIntSeqUnparser")
-  }
-  @Test def testDelimitedPackedDecSeqUnparser(): Unit = {
-    runner.runOneTest("DelimitedPackedDecSeqUnparser")
-  }
-  @Test def testDelimitedBCDIntSeq(): Unit = { runner.runOneTest("DelimitedBCDIntSeq") }
-  @Test def testDelimitedBCDDecSeq(): Unit = { runner.runOneTest("DelimitedBCDDecSeq") }
-  @Test def testDelimitedBCDIntSeqUnparser(): Unit = {
-    runner.runOneTest("DelimitedBCDIntSeqUnparser")
-  }
-  @Test def testDelimitedBCDDecSeqUnparser(): Unit = {
-    runner.runOneTest("DelimitedBCDDecSeqUnparser")
-  }
-  @Test def testDelimitedIBM4690IntSeq(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeq") }
-  @Test def testDelimitedIBM4690DecSeq(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeq") }
-  @Test def testDelimitedIBM4690IntSeqUnparser(): Unit = {
-    runner.runOneTest("DelimitedIBM4690IntSeqUnparser")
-  }
-  @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = {
-    runner.runOneTest("DelimitedIBM4690DecSeqUnparser")
-  }
+  @Test def DelimitedPackedIntSeq = test
+  @Test def DelimitedPackedDecSeq = test
+  @Test def DelimitedPackedIntSeqUnparser = test
+  @Test def DelimitedPackedDecSeqUnparser = test
+  @Test def DelimitedBCDIntSeq = test
+  @Test def DelimitedBCDDecSeq = test
+  @Test def DelimitedBCDIntSeqUnparser = test
+  @Test def DelimitedBCDDecSeqUnparser = test
+  @Test def DelimitedIBM4690IntSeq = test
+  @Test def DelimitedIBM4690DecSeq = test
+  @Test def DelimitedIBM4690IntSeqUnparser = test
+  @Test def DelimitedIBM4690DecSeqUnparser = test
 
   // Daffodil-2961
-  @Test def testBCDBigIntToLongExpr(): Unit = { runner.runOneTest("bcdBigIntToLongExpr") }
+  @Test def bcdBigIntToLongExpr = test
 }

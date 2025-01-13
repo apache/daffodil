@@ -17,63 +17,31 @@
 
 package org.apache.daffodil.section07.escapeScheme
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestEscapeSchemeUnparse {
-  val testDir = "/org/apache/daffodil/section07/escapeScheme/"
-  val runner = Runner(testDir, "escapeSchemeUnparse.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
+object TestEscapeSchemeUnparse extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/escapeScheme/escapeSchemeUnparse.tdml"
 }
 
-class TestEscapeSchemeUnparse {
+class TestEscapeSchemeUnparse extends TdmlTests {
+  val tdmlSuite = TestEscapeSchemeUnparse
 
-  import TestEscapeSchemeUnparse._
-
-  @Test def test_unparseDelimitedEscapedString01(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString01")
-  }
-  @Test def test_unparseDelimitedEscapedString02(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString02")
-  }
-  @Test def test_unparseDelimitedEscapedString03(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString03")
-  }
-  @Test def test_unparseDelimitedEscapedString04(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString04")
-  }
-  @Test def test_unparseDelimitedEscapedString05(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString05")
-  }
-  @Test def test_unparseDelimitedEscapedString06(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString06")
-  }
-  @Test def test_unparseDelimitedEscapedString07(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString07")
-  }
-  @Test def test_unparseDelimitedEscapedString08(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString08")
-  }
-  @Test def test_unparseDelimitedEscapedString09(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString09")
-  }
-  @Test def test_unparseDelimitedEscapedString10(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString10")
-  }
-  @Test def test_unparseDelimitedEscapedString12(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString12")
-  }
-  @Test def test_unparseDelimitedEscapedString13(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString13")
-  }
-  @Test def test_unparseDelimitedEscapedString14(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString14")
-  }
+  @Test def unparseDelimitedEscapedString01 = test
+  @Test def unparseDelimitedEscapedString02 = test
+  @Test def unparseDelimitedEscapedString03 = test
+  @Test def unparseDelimitedEscapedString04 = test
+  @Test def unparseDelimitedEscapedString05 = test
+  @Test def unparseDelimitedEscapedString06 = test
+  @Test def unparseDelimitedEscapedString07 = test
+  @Test def unparseDelimitedEscapedString08 = test
+  @Test def unparseDelimitedEscapedString09 = test
+  @Test def unparseDelimitedEscapedString10 = test
+  @Test def unparseDelimitedEscapedString12 = test
+  @Test def unparseDelimitedEscapedString13 = test
+  @Test def unparseDelimitedEscapedString14 = test
 
   /*
    * The following tests demonstrate that for extraEscapedCharacters during Unparsing that:
@@ -85,46 +53,20 @@ class TestEscapeSchemeUnparse {
    * 5. DFDL decimal entities are allowed
    * 6. When an extra escaped character is not present, the text is not escaped.
    * */
-  @Test def test_unparseDelimitedEscapedString15(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString15")
-  }
-  @Test def test_unparseDelimitedEscapedString16(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString16")
-  }
-  @Test def test_unparseDelimitedEscapedString17(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString17")
-  }
-  @Test def test_unparseDelimitedEscapedString18(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString18")
-  }
-  @Test def test_unparseDelimitedEscapedString19(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString19")
-  }
-  @Test def test_unparseDelimitedEscapedString20(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString20")
-  }
-  @Test def test_unparseDelimitedEscapedString21(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString21")
-  }
-  @Test def test_unparseDelimitedEscapedString22(): Unit = {
-    runner.runOneTest("unparseDelimitedEscapedString22")
-  }
+  @Test def unparseDelimitedEscapedString15 = test
+  @Test def unparseDelimitedEscapedString16 = test
+  @Test def unparseDelimitedEscapedString17 = test
+  @Test def unparseDelimitedEscapedString18 = test
+  @Test def unparseDelimitedEscapedString19 = test
+  @Test def unparseDelimitedEscapedString20 = test
+  @Test def unparseDelimitedEscapedString21 = test
+  @Test def unparseDelimitedEscapedString22 = test
 
-  @Test def test_parseDelimitedEscapedString01(): Unit = {
-    runner.runOneTest("parseDelimitedEscapedString01")
-  }
-  @Test def test_parseDelimitedEscapedString03(): Unit = {
-    runner.runOneTest("parseDelimitedEscapedString03")
-  }
-  @Test def test_parseDelimitedEscapedString04(): Unit = {
-    runner.runOneTest("parseDelimitedEscapedString04")
-  }
+  @Test def parseDelimitedEscapedString01 = test
+  @Test def parseDelimitedEscapedString03 = test
+  @Test def parseDelimitedEscapedString04 = test
 
-  @Test def test_runtimeUnparseDelimiterEscapeConflict(): Unit = {
-    runner.runOneTest("runtimeUnparseDelimiterEscapeConflict")
-  }
+  @Test def runtimeUnparseDelimiterEscapeConflict = test
 
-  @Test def test_unparseInvalidExtraEscapedCharacters(): Unit = {
-    runner.runOneTest("unparseInvalidExtraEscapedCharacters")
-  }
+  @Test def unparseInvalidExtraEscapedCharacters = test
 }

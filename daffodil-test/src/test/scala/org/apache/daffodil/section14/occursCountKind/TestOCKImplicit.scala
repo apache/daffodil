@@ -17,53 +17,43 @@
 
 package org.apache.daffodil.section14.occursCountKind
 
-/* This section00 is for testing general features of DFDL that are
- * not related to any specific requirement
- */
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.apache.daffodil.tdml.Runner
-
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestOCKImplicit {
-  val testDir = "/org/apache/daffodil/section14/occursCountKind/"
-  val runner = Runner(testDir, "ockImplicit.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestOCKImplicit extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section14/occursCountKind/ockImplicit.tdml"
 }
 
-class TestOCKImplicit {
-  import TestOCKImplicit._
+class TestOCKImplicit extends TdmlTests {
+  val tdmlSuite = TestOCKImplicit
 
-  @Test def test_ockImplicit1(): Unit = { runner.runOneTest("ockImplicit1") }
-  @Test def test_ockImplicit2(): Unit = { runner.runOneTest("ockImplicit2") }
-  @Test def test_ockImplicit3(): Unit = { runner.runOneTest("ockImplicit3") }
-  @Test def test_ockImplicit4(): Unit = { runner.runOneTest("ockImplicit4") }
-  @Test def test_ockImplicit5(): Unit = { runner.runOneTest("ockImplicit5") }
-  @Test def test_ockImplicit6(): Unit = { runner.runOneTest("ockImplicit6") }
-  @Test def test_ockImplicit7(): Unit = { runner.runOneTest("ockImplicit7") }
-  @Test def test_ockImplicit8(): Unit = { runner.runOneTest("ockImplicit8") }
-  @Test def test_ockImplicit9(): Unit = { runner.runOneTest("ockImplicit9") }
-  @Test def test_ockImplicit10(): Unit = { runner.runOneTest("ockImplicit10") }
-  @Test def test_ockImplicit11(): Unit = { runner.runOneTest("ockImplicit11") }
-  @Test def test_ockImplicit12(): Unit = { runner.runOneTest("ockImplicit12") }
-  @Test def test_ockImplicit13(): Unit = { runner.runOneTest("ockImplicit13") }
-  @Test def test_ockImplicit14(): Unit = { runner.runOneTest("ockImplicit14") }
-  @Test def test_ockImplicit15(): Unit = { runner.runOneTest("ockImplicit15") }
+  @Test def ockImplicit1 = test
+  @Test def ockImplicit2 = test
+  @Test def ockImplicit3 = test
+  @Test def ockImplicit4 = test
+  @Test def ockImplicit5 = test
+  @Test def ockImplicit6 = test
+  @Test def ockImplicit7 = test
+  @Test def ockImplicit8 = test
+  @Test def ockImplicit9 = test
+  @Test def ockImplicit10 = test
+  @Test def ockImplicit11 = test
+  @Test def ockImplicit12 = test
+  @Test def ockImplicit13 = test
+  @Test def ockImplicit14 = test
+  @Test def ockImplicit15 = test
 
-  @Test def test_ockImplicit16(): Unit = { runner.runOneTest("ockImplicit16") }
-  @Test def test_ockImplicit17(): Unit = { runner.runOneTest("ockImplicit17") }
-  @Test def test_ockImplicit18(): Unit = { runner.runOneTest("ockImplicit18") }
-  @Test def test_ockImplicit19(): Unit = { runner.runOneTest("ockImplicit19") }
+  @Test def ockImplicit16 = test
+  @Test def ockImplicit17 = test
+  @Test def ockImplicit18 = test
+  @Test def ockImplicit19 = test
 
-  @Test def test_ockImplicit20(): Unit = { runner.runOneTest("ockImplicit20") }
-  @Test def test_ockImplicit21(): Unit = { runner.runOneTest("ockImplicit21") }
-  @Test def test_ockImplicit22(): Unit = { runner.runOneTest("ockImplicit22") }
-  @Test def test_ockImplicit23(): Unit = { runner.runOneTest("ockImplicit23") }
+  @Test def ockImplicit20 = test
+  @Test def ockImplicit21 = test
+  @Test def ockImplicit22 = test
+  @Test def ockImplicit23 = test
   // DFDL-1662
-  @Test def test_ockImplicit24(): Unit = { runner.runOneTest("ockImplicit24") }
+  @Test def ockImplicit24 = test
 }

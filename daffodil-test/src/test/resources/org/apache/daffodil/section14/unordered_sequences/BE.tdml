@@ -113,7 +113,7 @@
     </infoset>
   </parserTestCase>
 
-  <parserTestCase name="BE004-A" root="seq2" model="BE.dfdl.xsd"
+  <parserTestCase name="BE004_A" root="seq2" model="BE.dfdl.xsd"
     description="Unordered sequences">
     <document>
       <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Y:y0%LF;]]></tdml:documentPart>

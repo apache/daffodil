@@ -120,7 +120,7 @@
     data is defined along with the expected infoset.
   -->
     
-    <tdml:parserTestCase name="parse-test-6" root="input" model="test-6-Schema"
+    <tdml:parserTestCase name="parse_test_6" root="input" model="test-6-Schema"
         description="Test test-6.dfdl.xsd, in the parsing direction">
         
         <tdml:document>

@@ -17,35 +17,23 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestIPv4 {
-
-  val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "TestIPv4.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestIPv4 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/layers/TestIPv4.tdml"
 }
 
-class TestIPv4 {
+class TestIPv4 extends TdmlTests {
+  val tdmlSuite = TestIPv4
 
-  import TestIPv4._
-
-  @Test def test_IPv4_1(): Unit = { runner.runOneTest("IPv4_1") }
-
+  @Test def IPv4_1 = test
   // DAFFODIL-2608
-  @Test def test_IPv4_array(): Unit = { runner.runOneTest("IPv4_array") }
-
-  @Test def test_IPv4_1e(): Unit = { runner.runOneTest("IPv4_1e") }
-
-  @Test def test_IPv4_2(): Unit = { runner.runOneTest("IPv4_2") }
-
-  @Test def test_IPv4_1u(): Unit = { runner.runOneTest("IPv4_1u") }
-  @Test def test_IPv4_2u(): Unit = { runner.runOneTest("IPv4_2u") }
-
+  @Test def IPv4_array = test
+  @Test def IPv4_1e = test
+  @Test def IPv4_2 = test
+  @Test def IPv4_1u = test
+  @Test def IPv4_2u = test
 }

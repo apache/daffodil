@@ -17,142 +17,108 @@
 
 package org.apache.daffodil.section14.sequence_groups
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestSequenceGroups {
-
-  val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
-
-  val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
-  val runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
-
-  @AfterClass def shutDown(): Unit = {
-    runner_01.reset
-    runner_02.reset
-  }
-
+object TestSequenceGroupDelimiters extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section14/sequence_groups/SequenceGroupDelimiters.tdml"
 }
 
-class TestSequenceGroups {
+object TestSequenceGroup extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section14/sequence_groups/SequenceGroup.tdml"
 
-  import TestSequenceGroups._
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
+}
 
-  @Test def test_SeqGrp_01(): Unit = { runner_01.runOneTest("SeqGrp_01") }
-  @Test def test_SeqGrp_02(): Unit = { runner_01.runOneTest("SeqGrp_02") }
-  @Test def test_SeqGrp_03(): Unit = { runner_01.runOneTest("SeqGrp_03") }
-  @Test def test_SeqGrp_04(): Unit = { runner_01.runOneTest("SeqGrp_04") }
-  @Test def test_prefix(): Unit = { runner_01.runOneTest("prefix") }
-  @Test def test_prefix_01(): Unit = { runner_01.runOneTest("prefix_01") }
-  @Test def test_NumSeq_02(): Unit = { runner_01.runOneTest("NumSeq_02") }
-  @Test def test_groupRefInheritProps(): Unit = { runner_01.runOneTest("groupRefInheritProps") }
-  @Test def test_sequenceWithinSequence(): Unit = {
-    runner_01.runOneTest("sequenceWithinSequence")
-  }
-  @Test def test_delimitedByNextInitFail(): Unit = {
-    runner_01.runOneTest("delimitedByNextInitFail")
-  }
-  @Test def test_separatorSuppressionPolicy_never(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalStringArray_1(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalStringArray_1")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalStringArray_2(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalStringArray_2")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalStringArray_3(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalStringArray_3")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_1(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_1")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_2(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_2")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_3(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_3")
-  }
-  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_4(): Unit = {
-    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_4")
-  }
+class TestSequenceGroupDelimiters extends TdmlTests {
+  val tdmlSuite = TestSequenceGroupDelimiters
+
+  @Test def SeqGrp_01 = test
+  @Test def SeqGrp_02 = test
+  @Test def SeqGrp_03 = test
+  @Test def SeqGrp_04 = test
+  @Test def prefix = test
+  @Test def prefix_01 = test
+  @Test def NumSeq_02 = test
+  @Test def groupRefInheritProps = test
+  @Test def sequenceWithinSequence = test
+  @Test def delimitedByNextInitFail = test
+  @Test def separatorSuppressionPolicy_never = test
+  @Test def separatorSuppressionPolicy_never_optionalStringArray_1 = test
+  @Test def separatorSuppressionPolicy_never_optionalStringArray_2 = test
+  @Test def separatorSuppressionPolicy_never_optionalStringArray_3 = test
+  @Test def separatorSuppressionPolicy_never_optionalIntArray_1 = test
+  @Test def separatorSuppressionPolicy_never_optionalIntArray_2 = test
+  @Test def separatorSuppressionPolicy_never_optionalIntArray_3 = test
+  @Test def separatorSuppressionPolicy_never_optionalIntArray_4 = test
+  // DAFFODIL-2171
+  @Test def delimiterScanning_01 = test
+  @Test def delimiterScanning_02 = test
+  @Ignore @Test def delimiterScanning_03 = test
+  @Test def lastElts = test
+}
+
+class TestSequenceGroup extends TdmlTests {
+  val tdmlSuite = TestSequenceGroup
 
   // DAFFODIL-669
-  //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
-  @Test def test_NadaParser(): Unit = { runner_02.runOneTest("nadaParser") }
-  @Test def test_complexEmptyContent(): Unit = { runner_02.runOneTest("complexEmptyContent") }
-  @Test def test_noContentComplexSDE(): Unit = { runner_02.runOneTest("noContentComplexSDE") }
-  @Test def test_noContentAnnotatedComplexSDE(): Unit = {
-    runner_02.runOneTest("noContentAnnotatedComplexSDE")
-  }
+  @Ignore @Test def emptySequenceSDE = test
+  @Test def nadaParser = test
+  @Test def complexEmptyContent = test
+  @Test def noContentComplexSDE = test
+  @Test def noContentAnnotatedComplexSDE = test
 
-  @Test def test_SeqGrp546(): Unit = { runner_02.runOneTest("SeqGrp546") }
+  @Test def SeqGrp546 = test
 
-  @Test def test_SeqGrp_05(): Unit = { runner_02.runOneTest("SeqGrp_05") }
+  @Test def SeqGrp_05 = test
 
-  @Test def test_hiddenGroup1(): Unit = { runner_02.runOneTest("hiddenGroup1") }
-  @Test def test_hiddenGroupSchemaFail(): Unit = {
-    runner_02.runOneTest("hiddenGroupSchemaFail")
-  }
-  @Test def test_hiddenGroupWithAssert(): Unit = {
-    runner_02.runOneTest("hiddenGroupWithAssert")
-  }
-  @Test def test_hiddenGroupWithAssert2(): Unit = {
-    runner_02.runOneTest("hiddenGroupWithAssert2")
-  }
-  @Test def test_hiddenGroupNested(): Unit = { runner_02.runOneTest("hiddenGroupNested") }
-  @Test def test_hiddenGroupNested2(): Unit = { runner_02.runOneTest("hiddenGroupNested2") }
-  @Test def test_nestedGroupRefs(): Unit = { runner_02.runOneTest("nestedGroupRefs") }
-  @Test def test_nestedGroupRefs2(): Unit = { runner_02.runOneTest("nestedGroupRefs2") }
-  @Test def test_nestedGroupRefs3(): Unit = { runner_02.runOneTest("nestedGroupRefs3") }
-  @Test def test_nestedGroupRefs4(): Unit = { runner_02.runOneTest("nestedGroupRefs4") }
-  @Test def test_nestedGroupRefs5(): Unit = { runner_02.runOneTest("nestedGroupRefs5") }
-  @Test def test_hiddenGroupChoice(): Unit = { runner_02.runOneTest("hiddenGroupChoice") }
-  @Test def test_hiddenGroupChoice2(): Unit = { runner_02.runOneTest("hiddenGroupChoice2") }
-  @Test def test_hiddenGroupIgnoredProps(): Unit = {
-    runner_02.runOneTest("hiddenGroupIgnoredProps")
-  }
-  @Test def test_hiddenGroupAttributeNotation(): Unit = {
-    runner_02.runOneTest("hiddenGroupAttributeNotation")
-  }
-  @Test def test_hiddenGroupElementNotation(): Unit = {
-    runner_02.runOneTest("hiddenGroupElementNotation")
-  }
+  @Test def hiddenGroup1 = test
+  @Test def hiddenGroupSchemaFail = test
+  @Test def hiddenGroupWithAssert = test
+  @Test def hiddenGroupWithAssert2 = test
+  @Test def hiddenGroupNested = test
+  @Test def hiddenGroupNested2 = test
+  @Test def nestedGroupRefs = test
+  @Test def nestedGroupRefs2 = test
+  @Test def nestedGroupRefs3 = test
+  @Test def nestedGroupRefs4 = test
+  @Test def nestedGroupRefs5 = test
+  @Test def hiddenGroupChoice = test
+  @Test def hiddenGroupChoice2 = test
+  @Test def hiddenGroupIgnoredProps = test
+  @Test def hiddenGroupAttributeNotation = test
+  @Test def hiddenGroupElementNotation = test
 
   // DFDL-284
-  // @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
+  @Ignore @Test def hiddenGroupLoop = test
 
   // DFDL-598(related to, but this test does not say this is fixed)
-  @Test def test_hiddenGroupRefEmptyString(): Unit = {
-    runner_02.runOneTest("hiddenGroupRefEmptyString")
-  }
-  @Test def test_hiddenGroupRefDoesNotExist(): Unit = {
-    runner_02.runOneTest("hiddenGroupRefDoesNotExist")
-  }
+  @Test def hiddenGroupRefEmptyString = test
+  @Test def hiddenGroupRefDoesNotExist = test
 
-  @Test def test_AC000(): Unit = { runner_02.runOneTest("AC000") }
-  @Test def test_AD000(): Unit = { runner_02.runOneTest("AD000") }
-  @Test def test_AS000(): Unit = { runner_02.runOneTest("AS000") }
+  @Test def AC000 = test
+  @Test def AD000 = test
+  @Test def AS000 = test
 
-  @Test def test_noDefaultSeqKind(): Unit = { runner_02.runOneTest("noDefaultSeqKind") }
-  @Test def test_sequenceWithComplexType(): Unit = {
-    runner_02.runOneTest("sequenceWithComplexType")
-  }
+  @Test def noDefaultSeqKind = test
+  @Test def sequenceWithComplexType = test
 
-  // DAFFODIL-2171
-  @Test def test_delimiterScanning_01(): Unit = { runner_01.runOneTest("delimiterScanning_01") }
-  @Test def test_delimiterScanning_02(): Unit = { runner_01.runOneTest("delimiterScanning_02") }
-  // @Test def test_delimiterScanning_03() { runner_01.runOneTest("delimiterScanning_03") }
-
-  @Test def test_hiddenGroupIVC(): Unit = { runner_02.runOneTest("hiddenGroupIVC") }
+  @Test def hiddenGroupIVC = test
 
   // DAFFODIL-2736
-  @Test def test_multipleElemSameName() = {
-    runner_02.runOneTest("multipleElemSameName")
-  }
-  @Test def test_multipleElemSameNameDifferentNamespaces() = {
-    runner_02.runOneTest("multipleElemSameNameDifferentNamespaces")
-  }
+  @Test def multipleElemSameName = test
+  @Test def multipleElemSameNameDifferentNamespaces = test
+
+  @Test def hiddenGroupSeqWithRequiredElements = test
+  @Test def hiddenGroupChoiceWithAllRequiredBranches = test
+
+  @Test def sequence_group_with_annotation_01 = test
+  @Test def choice_group_with_annotation_01 = test
+
+  @Test def similar_model_groups_01 = test
 }

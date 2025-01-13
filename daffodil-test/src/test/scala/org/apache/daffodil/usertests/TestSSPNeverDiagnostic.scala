@@ -17,25 +17,19 @@
 
 package org.apache.daffodil.usertests
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
+import org.junit.Test
 
-object TestSSPNeverDiagnostic {
-  val testDir = "/org/apache/daffodil/usertests/"
-  val runner = Runner(testDir, "testSSPNeverDiagnostic.tdml.xml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestSSPNeverDiagnostic extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/usertests/testSSPNeverDiagnostic.tdml.xml"
 }
 
-class TestSSPNeverDiagnostic {
+class TestSSPNeverDiagnostic extends TdmlTests {
+  val tdmlSuite = TestSSPNeverDiagnostic
 
   // DAFFODIL-2274
-  //  @Test def testSeparatorSuppressionNeverBadDiagnostic() {
-  //    runner.runOneTest("testSeparatorSuppressionNeverBadDiagnostic")
-  //  }
-
+  @Ignore @Test def testSeparatorSuppressionNeverBadDiagnostic = test
 }

@@ -17,28 +17,21 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestExpressionPropertyWarnings {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testExpressionPropertyWarnings.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestExpressionPropertyWarnings extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section00/general/testExpressionPropertyWarnings.tdml"
 }
 
 /*
  * This test addresses reported issue DAFFODIL-879
  */
-class TestExpressionPropertyWarnings {
+class TestExpressionPropertyWarnings extends TdmlTests {
+  val tdmlSuite = TestExpressionPropertyWarnings
 
-  import TestExpressionPropertyWarnings._
-
-  @Test def test_expressionPropertyWarning1(): Unit = {
-    runner.runOneTest("expressionPropertyWarning1")
-  }
-
+  @Test def expressionPropertyWarning1 = test
 }

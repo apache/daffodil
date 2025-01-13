@@ -17,50 +17,42 @@
 
 package org.apache.daffodil.section23.dfdl_expressions
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestDFDLExpressions3 {
-
-  val testDir = "org/apache/daffodil/section23/dfdl_expressions/"
-  val runner = Runner(testDir, "expressions3.tdml")
-
-  @AfterClass def shutDown() = {
-    runner.reset
-  }
+object TestDFDLExpressions3 extends TdmlSuite {
+  val tdmlResource = "org/apache/daffodil/section23/dfdl_expressions/expressions3.tdml"
 }
 
-class TestDFDLExpressions3 {
-  import TestDFDLExpressions3._
+class TestDFDLExpressions3 extends TdmlTests {
+  val tdmlSuite = TestDFDLExpressions3
 
   // Fix to DAFFODIL-2192 removed the sharing of expression compilation across
   // multiple points of use. So these polymorphic situations no longer cause errors.
-  //
-  //  @Test def test_polymorphic_expr_1() { runner.runOneTest("test_polymorphic_expr_1") }
-  //  @Test def test_polymorphic_expr_2a() { runner.runOneTest("test_polymorphic_expr_2a") }
-  //  @Test def test_polymorphic_expr_2b() { runner.runOneTest("test_polymorphic_expr_2b") }
-  //  @Test def test_polymorphic_expr_3() { runner.runOneTest("test_polymorphic_expr_3") }
-  //  @Test def test_polymorphic_expr_4() { runner.runOneTest("test_polymorphic_expr_4") }
-  //  @Test def test_polymorphic_expr_5() { runner.runOneTest("test_polymorphic_expr_5") }
-  //  @Test def test_polymorphic_expr_6() { runner.runOneTest("test_polymorphic_expr_6") }
+  @Ignore @Test def test_polymorphic_expr_1 = test
+  @Ignore @Test def test_polymorphic_expr_2a = test
+  @Ignore @Test def test_polymorphic_expr_2b = test
+  @Ignore @Test def test_polymorphic_expr_3 = test
+  @Ignore @Test def test_polymorphic_expr_4 = test
+  @Ignore @Test def test_polymorphic_expr_5 = test
+  @Ignore @Test def test_polymorphic_expr_6 = test
 
-  @Test def test_array_self_expr1(): Unit = { runner.runOneTest("test_array_self_expr1") }
-  @Test def test_array_self_expr2(): Unit = { runner.runOneTest("test_array_self_expr2") }
-  @Test def test_array_path_expr1(): Unit = { runner.runOneTest("test_array_path_expr1") }
-  @Test def test_array_path_expr2(): Unit = { runner.runOneTest("test_array_path_expr2") }
-  @Test def test_array_path_expr3(): Unit = { runner.runOneTest("test_array_path_expr3") }
+  @Test def test_array_self_expr1 = test
+  @Test def test_array_self_expr2 = test
+  @Test def test_array_path_expr1 = test
+  @Test def test_array_path_expr2 = test
+  @Test def test_array_path_expr3 = test
 
-  @Test def test_setVariable_neg_01(): Unit = { runner.runOneTest("setVariable_neg_01") }
-
-  // DAFFODIL-2594
-  // @Test def test_setVariable_neg_line_info_01(): Unit = { runner.runOneTest("setVariable_neg_line_info_01") }
-
-  @Test def test_newVariableInstance_neg_01(): Unit = {
-    runner.runOneTest("newVariableInstance_neg_01")
-  }
+  @Test def setVariable_neg_01 = test
 
   // DAFFODIL-2594
-  // @Test def test_newVariableInstance_neg_line_info_01(): Unit = { runner.runOneTest("newVariableInstance_neg_line_info_01") }
+  @Ignore @Test def setVariable_neg_line_info_01 = test
+
+  @Test def newVariableInstance_neg_01 = test
+
+  // DAFFODIL-2594
+  @Ignore @Test def newVariableInstance_neg_line_info_01 = test
 }

@@ -17,26 +17,26 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestIngressXdccBw {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "ingress_xdcc_bw.tdml", TDMLImplementation.DaffodilC)
+object TestIngressXdccBw extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/ingress_xdcc_bw.tdml"
 
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestIngressXdccBw {
-  import TestIngressXdccBw._
+class TestIngressXdccBw extends TdmlTests {
+  val tdmlSuite = TestIngressXdccBw
 
-  @Test def test_ingress_xdcc_bw_111(): Unit = { runner.runOneTest("ingress_xdcc_bw_111") }
-  @Test def test_ingress_xdcc_bw_112(): Unit = { runner.runOneTest("ingress_xdcc_bw_112") }
-  @Test def test_ingress_xdcc_bw_113(): Unit = { runner.runOneTest("ingress_xdcc_bw_113") }
-  @Test def test_ingress_xdcc_bw_114(): Unit = { runner.runOneTest("ingress_xdcc_bw_114") }
-  @Test def test_ingress_xdcc_bw_115(): Unit = { runner.runOneTest("ingress_xdcc_bw_115") }
-  @Test def test_ingress_xdcc_bw_116(): Unit = { runner.runOneTest("ingress_xdcc_bw_116") }
+  @Test def ingress_xdcc_bw_111 = test
+  @Test def ingress_xdcc_bw_112 = test
+  @Test def ingress_xdcc_bw_113 = test
+  @Test def ingress_xdcc_bw_114 = test
+  @Test def ingress_xdcc_bw_115 = test
+  @Test def ingress_xdcc_bw_116 = test
 }

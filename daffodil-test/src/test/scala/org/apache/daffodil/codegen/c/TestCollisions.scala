@@ -17,21 +17,21 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestCollisions {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "collisions.tdml", TDMLImplementation.DaffodilC)
+object TestCollisions extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/collisions.tdml"
 
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestCollisions {
-  import TestCollisions._
+class TestCollisions extends TdmlTests {
+  val tdmlSuite = TestCollisions
 
-  @Test def test_collisions(): Unit = { runner.runOneTest("collisions") }
+  @Test def collisions = test
 }

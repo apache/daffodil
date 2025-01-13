@@ -17,75 +17,40 @@
 
 package org.apache.daffodil.section12.delimiter_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestDelimiterPropertiesUnparse {
-
-  val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
-  val runner = Runner(testDir_02, "DelimiterPropertiesUnparse.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestDelimiterPropertiesUnparse extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section12/delimiter_properties/DelimiterPropertiesUnparse.tdml"
 }
 
-class TestDelimiterPropertiesUnparse {
+class TestDelimiterPropertiesUnparse extends TdmlTests {
+  val tdmlSuite = TestDelimiterPropertiesUnparse
 
-  import TestDelimiterPropertiesUnparse._
-
-  @Test def test_unparseSeparatorLeadingSpace(): Unit = {
-    runner.runOneTest("unparseSeparatorLeadingSpace")
-  }
+  @Test def unparseSeparatorLeadingSpace = test
 
   // DFDL-1493, DFDL-1477
-  // @Test def test_unparseMultipleInitiators04() { runner.runOneTest("unparseMultipleInitiators04") }
-  // @Test def test_unparseMultipleInitiators06() { runner.runOneTest("unparseMultipleInitiators06") }
+  @Ignore @Test def unparseMultipleInitiators04 = test
+  @Ignore @Test def unparseMultipleInitiators06 = test
 
-  @Test def test_unparseMultipleInitiators05(): Unit = {
-    runner.runOneTest("unparseMultipleInitiators05")
-  }
-  @Test def test_unparseMultipleTerminators03(): Unit = {
-    runner.runOneTest("unparseMultipleTerminators03")
-  }
+  @Test def unparseMultipleInitiators05 = test
+  @Test def unparseMultipleTerminators03 = test
 
-  @Test def test_unparseMultipleInitiators01(): Unit = {
-    runner.runOneTest("unparseMultipleInitiators01")
-  }
-  @Test def test_unparseMultipleInitiators02(): Unit = {
-    runner.runOneTest("unparseMultipleInitiators02")
-  }
-  @Test def test_unparseMultipleInitiators03(): Unit = {
-    runner.runOneTest("unparseMultipleInitiators03")
-  }
-  @Test def test_unparseMultipleInitiators07(): Unit = {
-    runner.runOneTest("unparseMultipleInitiators07")
-  }
+  @Test def unparseMultipleInitiators01 = test
+  @Test def unparseMultipleInitiators02 = test
+  @Test def unparseMultipleInitiators03 = test
+  @Test def unparseMultipleInitiators07 = test
 
-  @Test def test_unparseMultipleTerminators01(): Unit = {
-    runner.runOneTest("unparseMultipleTerminators01")
-  }
-  @Test def test_unparseMultipleTerminators02(): Unit = {
-    runner.runOneTest("unparseMultipleTerminators02")
-  }
-  @Test def test_unparseMultipleTerminators04(): Unit = {
-    runner.runOneTest("unparseMultipleTerminators04")
-  }
-  @Test def test_unparseMultipleTerminators05(): Unit = {
-    runner.runOneTest("unparseMultipleTerminators05")
-  }
+  @Test def unparseMultipleTerminators01 = test
+  @Test def unparseMultipleTerminators02 = test
+  @Test def unparseMultipleTerminators04 = test
+  @Test def unparseMultipleTerminators05 = test
 
-  @Test def test_unparseMultipleSeparators01(): Unit = {
-    runner.runOneTest("unparseMultipleSeparators01")
-  }
-  @Test def test_unparseMultipleSeparators02(): Unit = {
-    runner.runOneTest("unparseMultipleSeparators02")
-  }
-  @Test def test_unparseMultipleSeparators03(): Unit = {
-    runner.runOneTest("unparseMultipleSeparators03")
-  }
-
+  @Test def unparseMultipleSeparators01 = test
+  @Test def unparseMultipleSeparators02 = test
+  @Test def unparseMultipleSeparators03 = test
 }

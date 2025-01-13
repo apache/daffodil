@@ -17,67 +17,54 @@
 
 package org.apache.daffodil.section07.property_syntax
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestPropertySyntax {
-  val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
-  val runner1 = Runner(
-    testDir1,
-    "PropertySyntax.tdml",
-    validateTDMLFile = false,
-    validateDFDLSchemas = false
-  )
-  val runner1V = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false)
+object TestPropertySyntax extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/property_syntax/PropertySyntax.tdml"
 
-  @AfterClass def shutDown(): Unit = {
-    runner1.reset
-    runner1V.reset
-  }
-
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = false, validateDFDLSchemas = false)
 }
 
-class TestPropertySyntax {
+object TestPropertySyntaxValidate extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/property_syntax/PropertySyntax.tdml"
 
-  import TestPropertySyntax._
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = false, validateDFDLSchemas = true)
+}
 
-  @Test def test_ShortAndLongForm(): Unit = { runner1.runOneTest("ShortAndLongForm") }
-  @Test def test_ShortAnnotationAndElementForm(): Unit = {
-    runner1.runOneTest("ShortAnnotationAndElementForm")
-  }
-  @Test def test_AnnotationAndElementForm(): Unit = {
-    runner1.runOneTest("AnnotationAndElementForm")
-  }
-  @Test def test_ShortAndElementForm(): Unit = { runner1.runOneTest("ShortAndElementForm") }
-  @Test def test_Lesson3_attribute_form(): Unit = {
-    runner1.runOneTest("Lesson3_attribute_form")
-  }
-  @Test def test_Lesson3_element_form(): Unit = { runner1.runOneTest("Lesson3_element_form") }
-  @Test def test_Lesson3_short_form(): Unit = { runner1.runOneTest("Lesson3_short_form") }
-  @Test def test_encodingEmptyFail(): Unit = { runner1V.runOneTest("encodingEmptyFail") }
+class TestPropertySyntax extends TdmlTests {
+  val tdmlSuite = TestPropertySyntax
 
-  @Test def test_dafProperty1(): Unit = { runner1.runOneTest("dafProperty1") }
-  @Test def test_dafProperty2(): Unit = { runner1.runOneTest("dafProperty2") }
-  @Test def test_dfdlxProperty1(): Unit = { runner1.runOneTest("dfdlxProperty1") }
-  @Test def test_dfdlxProperty2(): Unit = { runner1.runOneTest("dfdlxProperty2") }
+  @Test def ShortAndLongForm = test
+  @Test def ShortAnnotationAndElementForm = test
+  @Test def AnnotationAndElementForm = test
+  @Test def ShortAndElementForm = test
+  @Test def Lesson3_attribute_form = test
+  @Test def Lesson3_element_form = test
+  @Test def Lesson3_short_form = test
 
-  @Test def test_ignoredPropertiesWarning(): Unit = {
-    runner1.runOneTest("ignoredPropertiesWarning")
-  }
+  @Test def dafProperty1 = test
+  @Test def dafProperty2 = test
+  @Test def dfdlxProperty1 = test
+  @Test def dfdlxProperty2 = test
+
+  @Test def ignoredPropertiesWarning = test
+
   // DFDL-1842
-  @Test def test_overlappingProperties1(): Unit = {
-    runner1.runOneTest("overlappingProperties1")
-  }
-  @Test def test_overlappingProperties2(): Unit = {
-    runner1.runOneTest("overlappingProperties2")
-  }
+  @Test def overlappingProperties1 = test
+  @Test def overlappingProperties2 = test
 
-  @Test def test_badElementFormProperty(): Unit = {
-    runner1.runOneTest("badElementFormProperty")
-  }
-  @Test def test_badElementFormProperty2(): Unit = {
-    runner1.runOneTest("badElementFormProperty2")
-  }
+  @Test def badElementFormProperty = test
+  @Test def badElementFormProperty2 = test
+}
+
+class TestPropertySyntaxValidate extends TdmlTests {
+  val tdmlSuite = TestPropertySyntaxValidate
+
+  @Test def encodingEmptyFail = test
 }

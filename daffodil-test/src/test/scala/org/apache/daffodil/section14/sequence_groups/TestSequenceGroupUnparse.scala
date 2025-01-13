@@ -17,30 +17,23 @@
 
 package org.apache.daffodil.section14.sequence_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSequenceGroupUnparse {
-  val runner = Runner(
-    "/org/apache/daffodil/section14/sequence_groups/SequenceGroupUnparse.tdml"
-  )
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestSequenceGroupUnparse extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section14/sequence_groups/SequenceGroupUnparse.tdml"
 }
-class TestSequenceGroupUnparse {
-  import TestSequenceGroupUnparse._
 
-  @Test def test_seqWithOptionals1(): Unit = { runner.runOneTest("seqWithOptionals1") }
-  @Test def test_seqWithOptionals2(): Unit = { runner.runOneTest("seqWithOptionals2") }
-  @Test def test_seqWithOptionals3(): Unit = { runner.runOneTest("seqWithOptionals3") }
-  @Test def test_seqWithOptionals4(): Unit = { runner.runOneTest("seqWithOptionals4") }
-  @Test def test_seqWithOptionals5(): Unit = { runner.runOneTest("seqWithOptionals5") }
+class TestSequenceGroupUnparse extends TdmlTests {
+  val tdmlSuite = TestSequenceGroupUnparse
 
-  @Test def test_seqWithHiddenGroupContainingComplex(): Unit = {
-    runner.runOneTest("seqWithHiddenGroupContainingComplex")
-  }
+  @Test def seqWithOptionals1 = test
+  @Test def seqWithOptionals2 = test
+  @Test def seqWithOptionals3 = test
+  @Test def seqWithOptionals4 = test
+  @Test def seqWithOptionals5 = test
 
+  @Test def seqWithHiddenGroupContainingComplex = test
 }

@@ -17,39 +17,23 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparseChoice2 {
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-
-  val runner = Runner(testDir, "choice-unparse2.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
+object TestUnparseChoice2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice-unparse2.tdml"
 }
 
-class TestUnparseChoice2 {
-  import TestUnparseChoice2._
+class TestUnparseChoice2 extends TdmlTests {
+  val tdmlSuite = TestUnparseChoice2
 
   // DAFFODIL-2259
-  @Test def test_choice_with_array_branch1(): Unit = {
-    runner.runOneTest("choice_with_array_branch1")
-  }
-  @Test def test_choice_with_array_branch2(): Unit = {
-    runner.runOneTest("choice_with_array_branch2")
-  }
-  @Test def test_choice_with_array_branch3(): Unit = {
-    runner.runOneTest("choice_with_array_branch3")
-  }
-  @Test def test_choice_with_presence_bits_followed_by_array(): Unit = {
-    runner.runOneTest("choice_with_presence_bits_followed_by_array")
-  }
+  @Test def choice_with_array_branch1 = test
+  @Test def choice_with_array_branch2 = test
+  @Test def choice_with_array_branch3 = test
+  @Test def choice_with_presence_bits_followed_by_array = test
 
-  @Test def test_choice_defaultable_branch_is_empty(): Unit = {
-    runner.runOneTest("choice_default_branch_is_empty")
-  }
+  @Test def choice_default_branch_is_empty = test
 }

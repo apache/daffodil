@@ -17,54 +17,39 @@
 
 package org.apache.daffodil.section10.representation_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestRepProps2 {
-  val testDir = "/org/apache/daffodil/section10/representation_properties/"
-  val runner = Runner(testDir, "encodings.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestRepProps2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section10/representation_properties/encodings.tdml"
 }
 
-class TestRepProps2 {
-  import TestRepProps2._
+class TestRepProps2 extends TdmlTests {
+  val tdmlSuite = TestRepProps2
 
-  @Test def test_ebcdic1() = { runner.runOneTest("ebcdic1") }
-  @Test def test_bits1() = { runner.runOneTest("bits1") }
-  @Test def test_bits1a() = { runner.runOneTest("bits1a") }
-  @Test def test_bits2() = { runner.runOneTest("bits2") }
-  @Test def test_bits2a() = { runner.runOneTest("bits2a") }
+  @Test def ebcdic1 = test
+  @Test def bits1 = test
+  @Test def bits1a = test
+  @Test def bits2 = test
+  @Test def bits2a = test
 
-  @Test def test_bitsTerm1() = { runner.runOneTest("bitsTerm1") }
+  @Test def bitsTerm1 = test
 
   // fails Left-over data byte 1 limit(bytes) 2
-  @Test def test_bitsTerm2() = { runner.runOneTest("bitsTerm2") }
-  @Test def test_bitsTerm3() = { runner.runOneTest("bitsTerm3") }
+  @Test def bitsTerm2 = test
+  @Test def bitsTerm3 = test
 
-  @Test def test_fiveBitDFI1661DUI001() = { runner.runOneTest("fiveBitDFI1661DUI001") }
-  @Test def test_fiveBitDFI1661DUI001_roundTrip() = {
-    runner.runOneTest("fiveBitDFI1661DUI001_roundTrip")
-  }
+  @Test def fiveBitDFI1661DUI001 = test
+  @Test def fiveBitDFI1661DUI001_roundTrip = test
 
-  @Test def test_sixBit1() = { runner.runOneTest("sixBit1") }
+  @Test def sixBit1 = test
 
-  @Test def test_iso88591msbbitsmisaligned() = {
-    runner.runOneTest("iso88591msbbitsmisaligned")
-  }
-  @Test def test_iso88591lsbbitsmisaligned() = {
-    runner.runOneTest("iso88591lsbbitsmisaligned")
-  }
+  @Test def iso88591msbbitsmisaligned = test
+  @Test def iso88591lsbbitsmisaligned = test
 
-  @Test def test_unalignedCharsetWithMandatory8BitAlignment() = {
-    runner.runOneTest("unalignedCharsetWithMandatory8BitAlignment")
-  }
+  @Test def unalignedCharsetWithMandatory8BitAlignment = test
 
-  @Test def test_automaticAlignedCharsetWithMandatory8BitAlignment() = {
-    runner.runOneTest("automaticAlignedCharsetWithMandatory8BitAlignment")
-  }
+  @Test def automaticAlignedCharsetWithMandatory8BitAlignment = test
 }

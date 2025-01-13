@@ -17,179 +17,118 @@
 
 package org.apache.daffodil.section16.array_optional_elem
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
 import org.junit.Test
-import org.junit._
 
-object TestUnparseArrayOptionalElem {
-
-  val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
-
-  val runner_fixed = Runner(testDir, "UnparseArrayFixedOptionalElem.tdml")
-  val runner_imp = Runner(testDir, "UnparseArrayImplicitOptionalElem.tdml")
-  val runner_parsed = Runner(testDir, "UnparseArrayParsedOptionalElem.tdml")
-  val runner_expr = Runner(testDir, "UnparseArrayExpressionConstant.tdml")
-  val runner_delim = Runner(testDir, "UnparseArrayDelimitedOptionalElem.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runner_fixed.reset
-    runner_imp.reset
-    runner_parsed.reset
-    runner_expr.reset
-    runner_delim.reset
-  }
-
+object TestUnparseArrayOptionalElemFixed extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section16/array_optional_elem/UnparseArrayFixedOptionalElem.tdml"
 }
 
-class TestUnparseArrayOptionalElem {
+object TestUnparseArrayOptionalElemImplicit extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section16/array_optional_elem/UnparseArrayImplicitOptionalElem.tdml"
+}
 
-  import TestUnparseArrayOptionalElem._
+object TestUnparseArrayOptionalElemParsed extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section16/array_optional_elem/UnparseArrayParsedOptionalElem.tdml"
+}
 
-  @Test def test_exprOptPresent(): Unit = { runner_expr.runOneTest("exprOptPresent") }
-  @Test def test_exprOptPresentArray(): Unit = { runner_expr.runOneTest("exprOptPresentArray") }
-  @Test def test_exprOptAbsentArray(): Unit = { runner_expr.runOneTest("exprOptAbsentArray") }
-  @Test def test_exprOptTwoArrays(): Unit = { runner_expr.runOneTest("exprOptTwoArrays") }
-  @Test def test_exprOptScalarThenArray(): Unit = {
-    runner_expr.runOneTest("exprOptScalarThenArray")
-  }
-  @Test def test_exprOptArrayThenScalar(): Unit = {
-    runner_expr.runOneTest("exprOptArrayThenScalar")
-  }
+object TestUnparseArrayOptionalElemDelimited extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section16/array_optional_elem/UnparseArrayDelimitedOptionalElem.tdml"
+}
 
-  @Test def test_exprOptParsedData_01(): Unit = {
-    runner_expr.runOneTest("exprOptParsedData_01")
-  }
-  @Test def test_exprOptParsedData_02(): Unit = {
-    runner_expr.runOneTest("exprOptParsedData_02")
-  }
-  @Test def test_exprOptParsedData_03(): Unit = {
-    runner_expr.runOneTest("exprOptParsedData_03")
-  }
-  @Test def test_exprOptParsedData_04(): Unit = {
-    runner_expr.runOneTest("exprOptParsedData_04")
-  }
-  @Test def test_exprReqAbsentArray_01(): Unit = {
-    runner_expr.runOneTest("exprReqAbsentArray_01")
-  }
+object TestUnparseArrayExpressionConst extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section16/array_optional_elem/UnparseArrayExpressionConstant.tdml"
+}
 
-  @Test def test_fixedUnparseArrayTooManyElements01(): Unit = {
-    runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01")
-  }
-  @Test def test_fixedUnparseArrayTooFewElements01(): Unit = {
-    runner_fixed.runOneTest("fixedUnparseArrayTooFewElements01")
-  }
-  @Test def test_impOptScalarThenArray03(): Unit = {
-    runner_imp.runOneTest("impOptScalarThenArray03")
-  }
-  @Test def test_impOptArrayThenScalar03(): Unit = {
-    runner_imp.runOneTest("impOptArrayThenScalar03")
-  }
+class TestUnparseArrayOptionalElemFixed extends TdmlTests {
+  val tdmlSuite = TestUnparseArrayOptionalElemFixed
 
-  @Test def test_fixedOptPresent(): Unit = { runner_fixed.runOneTest("fixedOptPresent") }
-  @Test def test_fixedOptPresentArray(): Unit = {
-    runner_fixed.runOneTest("fixedOptPresentArray")
-  }
-  @Test def test_fixedOptAbsentArray(): Unit = {
-    runner_fixed.runOneTest("fixedOptAbsentArray")
-  }
-  @Test def test_fixedOptTwoArrays(): Unit = { runner_fixed.runOneTest("fixedOptTwoArrays") }
-  @Test def test_fixedOptScalarThenArray(): Unit = {
-    runner_fixed.runOneTest("fixedOptScalarThenArray")
-  }
-  @Test def test_fixedOptArrayThenScalar(): Unit = {
-    runner_fixed.runOneTest("fixedOptArrayThenScalar")
-  }
+  @Test def fixedUnparseArrayTooManyElements01 = test
+  @Test def fixedUnparseArrayTooFewElements01 = test
+  @Test def fixedOptPresent = test
+  @Test def fixedOptPresentArray = test
+  @Test def fixedOptAbsentArray = test
+  @Test def fixedOptTwoArrays = test
+  @Test def fixedOptScalarThenArray = test
+  @Test def fixedOptArrayThenScalar = test
+}
 
-  @Test def test_impOptPresent(): Unit = { runner_imp.runOneTest("impOptPresent") }
-  @Test def test_impOptPresentArray(): Unit = { runner_imp.runOneTest("impOptPresentArray") }
-  @Test def test_impOptPresentArrayMax2(): Unit = {
-    runner_imp.runOneTest("impOptPresentArrayMax2")
-  }
-  @Test def test_impOptAbsentArray(): Unit = { runner_imp.runOneTest("impOptAbsentArray") }
-  @Test def test_impOptTwoArrays(): Unit = { runner_imp.runOneTest("impOptTwoArrays") }
+class TestUnparseArrayOptionalElemImplicit extends TdmlTests {
+  val tdmlSuite = TestUnparseArrayOptionalElemImplicit
 
-  @Test def test_impOptScalarThenArray(): Unit = {
-    runner_imp.runOneTest("impOptScalarThenArray")
-  }
-  @Test def test_impOptScalarThenArray02(): Unit = {
-    runner_imp.runOneTest("impOptScalarThenArray02")
-  }
+  @Test def impOptScalarThenArray03 = test
+  @Test def impOptArrayThenScalar03 = test
 
-  @Test def test_impOptArrayThenScalar(): Unit = {
-    runner_imp.runOneTest("impOptArrayThenScalar")
-  }
-  @Test def test_impOptArrayThenScalar02(): Unit = {
-    runner_imp.runOneTest("impOptArrayThenScalar02")
-  }
-  @Test def test_impOptArrayThenScalar02parse(): Unit = {
-    runner_imp.runOneTest("impOptArrayThenScalar02parse")
-  }
+  @Test def impOptPresent = test
+  @Test def impOptPresentArray = test
+  @Test def impOptPresentArrayMax2 = test
+  @Test def impOptAbsentArray = test
+  @Test def impOptTwoArrays = test
 
-  @Test def test_scalarThenImpOptArray01(): Unit = {
-    runner_imp.runOneTest("scalarThenImpOptArray01")
-  }
-  @Test def test_scalarThenImpOptArray02(): Unit = {
-    runner_imp.runOneTest("scalarThenImpOptArray02")
-  }
-  @Test def test_scalarThenImpOptArray03(): Unit = {
-    runner_imp.runOneTest("scalarThenImpOptArray03")
-  }
+  @Test def impOptScalarThenArray = test
+  @Test def impOptScalarThenArray02 = test
 
-  @Test def test_parsedOptPresent(): Unit = { runner_parsed.runOneTest("parsedOptPresent") }
-  @Test def test_parsedOptPresentArray(): Unit = {
-    runner_parsed.runOneTest("parsedOptPresentArray")
-  }
-  @Test def test_parsedOptAbsentArray(): Unit = {
-    runner_parsed.runOneTest("parsedOptAbsentArray")
-  }
-  @Test def test_parsedOptTwoArrays(): Unit = { runner_parsed.runOneTest("parsedOptTwoArrays") }
+  @Test def impOptArrayThenScalar = test
+  @Test def impOptArrayThenScalar02 = test
+  @Test def impOptArrayThenScalar02parse = test
 
-  @Test def test_parsedOptScalarThenArray(): Unit = {
-    runner_parsed.runOneTest("parsedOptScalarThenArray")
-  }
-  @Test def test_parsedOptScalarThenArray02(): Unit = {
-    runner_parsed.runOneTest("parsedOptScalarThenArray02")
-  }
-  @Test def test_parsedOptArrayThenScalar(): Unit = {
-    runner_parsed.runOneTest("parsedOptArrayThenScalar")
-  }
-  @Test def test_parsedOptArrayThenScalar02(): Unit = {
-    runner_parsed.runOneTest("parsedOptArrayThenScalar02")
-  }
-  @Test def test_parsedOptArrayThenScalar03(): Unit = {
-    runner_parsed.runOneTest("parsedOptArrayThenScalar03")
-  }
+  @Test def scalarThenImpOptArray01 = test
+  @Test def scalarThenImpOptArray02 = test
+  @Test def scalarThenImpOptArray03 = test
+}
 
-  @Test def test_delimOptPresent(): Unit = { runner_delim.runOneTest("delimOptPresent") }
-  @Test def test_delimOptPresentArray(): Unit = {
-    runner_delim.runOneTest("delimOptPresentArray")
-  }
-  @Test def test_delimOptPresentArrayMax2(): Unit = {
-    runner_delim.runOneTest("delimOptPresentArrayMax2")
-  }
-  @Test def test_delimOptAbsentArray(): Unit = {
-    runner_delim.runOneTest("delimOptAbsentArray")
-  }
-  @Test def test_delimOptTwoArrays(): Unit = { runner_delim.runOneTest("delimOptTwoArrays") }
+class TestUnparseArrayOptionalElemParsed extends TdmlTests {
+  val tdmlSuite = TestUnparseArrayOptionalElemParsed
 
-  @Test def test_delimOptScalarThenArray(): Unit = {
-    runner_delim.runOneTest("delimOptScalarThenArray")
-  }
-  @Test def test_delimOptScalarThenArray02(): Unit = {
-    runner_delim.runOneTest("delimOptScalarThenArray02")
-  }
-  @Test def test_delimOptScalarThenArray03(): Unit = {
-    runner_delim.runOneTest("delimOptScalarThenArray03")
-  }
-  @Test def test_delimOptArrayThenScalar(): Unit = {
-    runner_delim.runOneTest("delimOptArrayThenScalar")
-  }
-  @Test def test_delimOptArrayThenScalar02(): Unit = {
-    runner_delim.runOneTest("delimOptArrayThenScalar02")
-  }
-  @Test def test_delimOptArrayThenScalar03(): Unit = {
-    runner_delim.runOneTest("delimOptArrayThenScalar03")
-  }
+  @Test def parsedOptPresent = test
+  @Test def parsedOptPresentArray = test
+  @Test def parsedOptAbsentArray = test
+  @Test def parsedOptTwoArrays = test
 
+  @Test def parsedOptScalarThenArray = test
+  @Test def parsedOptScalarThenArray02 = test
+  @Test def parsedOptArrayThenScalar = test
+  @Test def parsedOptArrayThenScalar02 = test
+  @Test def parsedOptArrayThenScalar03 = test
+}
+
+class TestUnparseArrayOptionalElemDelimited extends TdmlTests {
+  val tdmlSuite = TestUnparseArrayOptionalElemDelimited
+
+  @Test def delimOptPresent = test
+  @Test def delimOptPresentArray = test
+  @Test def delimOptPresentArrayMax2 = test
+  @Test def delimOptAbsentArray = test
+  @Test def delimOptTwoArrays = test
+
+  @Test def delimOptScalarThenArray = test
+  @Test def delimOptScalarThenArray02 = test
+  @Test def delimOptScalarThenArray03 = test
+  @Test def delimOptArrayThenScalar = test
+  @Test def delimOptArrayThenScalar02 = test
+  @Test def delimOptArrayThenScalar03 = test
+}
+
+class TestUnparseArrayExpressionConst extends TdmlTests {
+  val tdmlSuite = TestUnparseArrayExpressionConst
+
+  @Test def exprOptPresent = test
+  @Test def exprOptPresentArray = test
+  @Test def exprOptAbsentArray = test
+  @Test def exprOptTwoArrays = test
+  @Test def exprOptScalarThenArray = test
+  @Test def exprOptArrayThenScalar = test
+
+  @Test def exprOptParsedData_01 = test
+  @Test def exprOptParsedData_02 = test
+  @Test def exprOptParsedData_03 = test
+  @Test def exprOptParsedData_04 = test
+  @Test def exprReqAbsentArray_01 = test
 }

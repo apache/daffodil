@@ -17,97 +17,68 @@
 
 package org.apache.daffodil.section08.property_scoping
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestPropertyScoping {
-  val testDir = "/org/apache/daffodil/section08/property_scoping/"
-  val runner = Runner(testDir, "PropertyScoping.tdml")
-  val runner_01 = Runner(testDir, "PropertyScoping_01.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner_01.reset
-  }
+object TestPropertyScoping extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section08/property_scoping/PropertyScoping.tdml"
 }
 
-class TestPropertyScoping {
+object TestPropertyScoping01 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section08/property_scoping/PropertyScoping_01.tdml"
+}
 
-  import TestPropertyScoping._
+class TestPropertyScoping extends TdmlTests {
+  val tdmlSuite = TestPropertyScoping
 
-  @Test def test_defaultForm_01(): Unit = { runner.runOneTest("defaultForm_01") }
-  @Test def test_defaultForm_02(): Unit = { runner.runOneTest("defaultForm_02") }
-  @Test def test_defaultForm_03(): Unit = { runner.runOneTest("defaultForm_03") }
-  @Test def test_defaultForm_04(): Unit = { runner.runOneTest("defaultForm_04") }
+  @Test def defaultForm_01 = test
+  @Test def defaultForm_02 = test
+  @Test def defaultForm_03 = test
+  @Test def defaultForm_04 = test
 
-  @Test def test_localAnnotation_01(): Unit = { runner.runOneTest("localAnnotation_01") }
-  @Test def test_localAnnotation_02(): Unit = { runner.runOneTest("localAnnotation_02") }
-  @Test def test_localAnnotation_03(): Unit = { runner.runOneTest("localAnnotation_03") }
-  @Test def test_localAnnotation_04(): Unit = { runner.runOneTest("localAnnotation_04") }
-  @Test def test_localAnnotation_05(): Unit = { runner.runOneTest("localAnnotation_05") }
+  @Test def localAnnotation_01 = test
+  @Test def localAnnotation_02 = test
+  @Test def localAnnotation_03 = test
+  @Test def localAnnotation_04 = test
+  @Test def localAnnotation_05 = test
 
-  @Test def test_property_scoping_01(): Unit = { runner.runOneTest("property_scoping_01") }
-  @Test def test_unparse_property_scoping_01(): Unit = {
-    runner.runOneTest("unparse_property_scoping_01")
-  }
-  @Test def test_property_scoping_06(): Unit = { runner.runOneTest("property_scoping_06") }
-  @Test def test_unparse_property_scoping_06(): Unit = {
-    runner.runOneTest("unparse_property_scoping_06")
-  }
-  @Test def test_group_ref(): Unit = { runner.runOneTest("group_ref") }
-  @Test def test_multipleDefinition(): Unit = { runner.runOneTest("multipleDefinition") }
-  @Test def test_multipleDefinition2(): Unit = { runner.runOneTest("multipleDefinition2") }
-  @Test def test_multipleDefinition3(): Unit = { runner.runOneTest("multipleDefinition3") }
+  @Test def property_scoping_01 = test
+  @Test def unparse_property_scoping_01 = test
+  @Test def property_scoping_06 = test
+  @Test def unparse_property_scoping_06 = test
+  @Test def group_ref = test
+  @Test def multipleDefinition = test
+  @Test def multipleDefinition2 = test
+  @Test def multipleDefinition3 = test
 
-  @Test def test_format_nesting_01(): Unit = { runner.runOneTest("format_nesting_01") }
+  @Test def format_nesting_01 = test
+}
 
-  @Test def test_property_scoping_02(): Unit = { runner_01.runOneTest("property_scoping_02") }
-  @Test def test_unparse_property_scoping_02(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_02")
-  }
-  @Test def test_property_scoping_03(): Unit = { runner_01.runOneTest("property_scoping_03") }
-  @Test def test_unparse_property_scoping_03(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_03")
-  }
-  @Test def test_property_scoping_04(): Unit = { runner_01.runOneTest("property_scoping_04") }
-  @Test def test_property_scoping_05(): Unit = { runner_01.runOneTest("property_scoping_05") }
-  @Test def test_unparse_property_scoping_04(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_04")
-  }
-  @Test def test_unparse_property_scoping_05(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_05")
-  }
-  @Test def test_property_scoping_07(): Unit = { runner_01.runOneTest("property_scoping_07") }
-  @Test def test_unparse_property_scoping_07(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_07")
-  }
-  @Test def test_property_scoping_08(): Unit = { runner_01.runOneTest("property_scoping_08") }
-  @Test def test_unparse_property_scoping_08(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_08")
-  }
-  @Test def test_property_scoping_09(): Unit = { runner_01.runOneTest("property_scoping_09") }
-  @Test def test_unparse_property_scoping_09(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_09")
-  }
-  @Test def test_property_scoping_10(): Unit = { runner_01.runOneTest("property_scoping_10") }
-  @Test def test_unparse_property_scoping_10(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_10")
-  }
-  @Test def test_property_scoping_11(): Unit = { runner_01.runOneTest("property_scoping_11") }
-  @Test def test_unparse_property_scoping_11(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_11")
-  }
-  @Test def test_unparse_property_scoping_12(): Unit = {
-    runner_01.runOneTest("unparse_property_scoping_12")
-  }
-  @Test def test_NearestEnclosingSequenceElementRef(): Unit = {
-    runner_01.runOneTest("NearestEnclosingSequenceElementRef")
-  }
+class TestPropertyScoping01 extends TdmlTests {
+  val tdmlSuite = TestPropertyScoping01
 
-  @Test def test_property_refElementFormFail(): Unit = {
-    runner_01.runOneTest("refElementFormFail")
-  }
+  @Test def property_scoping_02 = test
+  @Test def unparse_property_scoping_02 = test
+  @Test def property_scoping_03 = test
+  @Test def unparse_property_scoping_03 = test
+  @Test def property_scoping_04 = test
+  @Test def property_scoping_05 = test
+  @Test def unparse_property_scoping_04 = test
+  @Test def unparse_property_scoping_05 = test
+  @Test def property_scoping_07 = test
+  @Test def unparse_property_scoping_07 = test
+  @Test def property_scoping_08 = test
+  @Test def unparse_property_scoping_08 = test
+  @Test def property_scoping_09 = test
+  @Test def unparse_property_scoping_09 = test
+  @Test def property_scoping_10 = test
+  @Test def unparse_property_scoping_10 = test
+  @Test def property_scoping_11 = test
+  @Test def unparse_property_scoping_11 = test
+  @Test def unparse_property_scoping_12 = test
+  @Test def NearestEnclosingSequenceElementRef = test
 
+  @Test def refElementFormFail = test
 }

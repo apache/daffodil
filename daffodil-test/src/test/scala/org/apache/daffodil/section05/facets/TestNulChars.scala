@@ -16,26 +16,21 @@
  */
 package org.apache.daffodil.section05.facets
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestNulChars {
-  val runner = Runner("/org/apache/daffodil/section05/facets", "NulChars.tdml")
-
-  @AfterClass def shutDown() = {
-    runner.reset
-  }
+object TestNulChars extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/facets/NulChars.tdml"
 }
 
-import TestNulChars._
-
-class TestNulChars {
+class TestNulChars extends TdmlTests {
+  val tdmlSuite = TestNulChars
 
   // DAFFODIL-2363 &#xE000; (NUL replacement into XML) can't be used in pattern facet. With full validation.
-  @Test def test_nulPattern1() = { runner.runOneTest("nulPattern1") }
+  @Test def nulPattern1 = test
 
-  @Test def test_nulPad1() = { runner.runOneTest("nulPad1") }
-  @Test def test_nulPad2() = { runner.runOneTest("nulPad2") }
+  @Test def nulPad1 = test
+  @Test def nulPad2 = test
 }

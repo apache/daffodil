@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="PadCharTests"
+  description="Section 13 - Pad Character Tests"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns="http://example.com" 
+  xmlns:tns="http://example.com" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="padCharSchemaShortForm">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
+    <xs:element name="shortForm" type="xs:string" dfdl:textStringPadCharacter=" " />
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="short_form_pad_char" root="shortForm" model="padCharSchemaShortForm">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      hello]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>facet-valid</tdml:error>
+      <tdml:error>NonEmptyStringLiteral</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="padCharSchemaLongForm">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
+    <xs:element name="longForm" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:format textStringPadCharacter=" "/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="long_form_pad_char" root="longForm" model="padCharSchemaLongForm">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      hello]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>facet-valid</tdml:error>
+      <tdml:error>NonEmptyStringLiteral</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="padCharSchemaPropertyForm">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
+    <xs:element name="propertyForm" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element>
+            <dfdl:property name="textStringPadCharacter"><![CDATA[ ]]></dfdl:property>
+          </dfdl:element>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="property_form_pad_char" root="propertyForm" model="padCharSchemaPropertyForm">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      hello]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>whitespace</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

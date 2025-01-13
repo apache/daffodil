@@ -17,32 +17,35 @@
 
 package org.apache.daffodil.extensions
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestEnums {
-  val testDir = "/org/apache/daffodil/extensions/enum/"
-
-  val runner = Runner(testDir, "enums.tdml")
-  val runner2 = Runner(testDir, "enumInvalid.tdml", validateTDMLFile = false)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestEnums extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/extensions/enum/enums.tdml"
 }
 
-class TestEnums {
-  import TestEnums._
-  @Test def test_enumValid1(): Unit = { runner.runOneTest("enumValid1") }
-  @Test def test_enumInvalid1(): Unit = { runner.runOneTest("enumInvalid1") }
-  @Test def test_enumMiss1(): Unit = { runner.runOneTest("enumMiss1") }
-  @Test def test_repTypeAlignment(): Unit = { runner.runOneTest("repTypeAlignment") }
+object TestEnumsInvalid extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/extensions/enum/enumInvalid.tdml"
 
-  @Test def test_emptyRepValues(): Unit = { runner2.runOneTest("emptyRepValues") }
-  @Test def test_noRepValues(): Unit = { runner2.runOneTest("noRepValues") }
-  @Test def test_enumRepTypeNonInt(): Unit = { runner2.runOneTest("enumRepTypeNonInt") }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
+}
 
+class TestEnums extends TdmlTests {
+  val tdmlSuite = TestEnums
+
+  @Test def enumValid1 = test
+  @Test def enumInvalid1 = test
+  @Test def enumMiss1 = test
+  @Test def repTypeAlignment = test
+}
+
+class TestEnumsInvalid extends TdmlTests {
+  val tdmlSuite = TestEnumsInvalid
+
+  @Test def emptyRepValues = test
+  @Test def noRepValues = test
+  @Test def enumRepTypeNonInt = test
 }

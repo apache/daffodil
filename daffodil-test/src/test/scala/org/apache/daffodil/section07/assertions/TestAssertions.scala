@@ -17,121 +17,82 @@
 
 package org.apache.daffodil.section07.assertions
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestAssertions {
-  val testDir = "/org/apache/daffodil/section07/assertions/"
-  val runner = Runner(testDir, "assert.tdml", validateTDMLFile = false)
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
-
+object TestAssertions extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/assertions/assert.tdml"
 }
 
-class TestAssertions {
+class TestAssertions extends TdmlTests {
+  val tdmlSuite = TestAssertions
 
-  import TestAssertions._
-
-  @Test def test_assertPass(): Unit = { runner.runOneTest("assertPass") }
-  @Test def test_assertFail1(): Unit = { runner.runOneTest("assertFail1") }
-  @Test def test_assertFail2(): Unit = { runner.runOneTest("assertFail2") }
-  @Test def test_assertFail2_recoverable(): Unit = {
-    runner.runOneTest("assertFail2_recoverable")
-  }
+  @Test def assertPass = test
+  @Test def assertFail1 = test
+  @Test def assertFail2 = test
+  @Test def assertFail2_recoverable = test
 
   // DAFFODIL-752
-  // @Test def test_assertFailShowsValue() { runner.runOneTest("assertFailShowsValue") }
+  @Ignore @Test def assertFailShowsValue = test
 
-  @Test def test_assertFailShowsValue2(): Unit = { runner.runOneTest("assertFailShowsValue2") }
-  @Test def test_assertFailShowsDetails(): Unit = {
-    runner.runOneTest("assertFailShowsDetails")
-  }
-  @Test def test_assertWithWhitespace(): Unit = { runner.runOneTest("assertWithWhitespace") }
-  @Test def test_assertWithWhitespaceAndCdata(): Unit = {
-    runner.runOneTest("assertWithWhitespaceAndCdata")
-  }
+  @Test def assertFailShowsValue2 = test
+  @Test def assertFailShowsDetails = test
+  @Test def assertWithWhitespace = test
+  @Test def assertWithWhitespaceAndCdata = test
 
-  @Test def test_assertGuidesChoice(): Unit = { runner.runOneTest("assertGuidesChoice") }
+  @Test def assertGuidesChoice = test
 
-  @Test def test_assertPatternLiteralTextMatch() = {
-    runner.runOneTest("assertPatternLiteralTextMatch")
-  }
-  @Test def test_assertPatternCombinedTextMatch() = {
-    runner.runOneTest("assertPatternCombinedTextMatch")
-  }
-  @Test def test_assertPatternCombinedTextMatch2() = {
-    runner.runOneTest("assertPatternCombinedTextMatch2")
-  }
-  @Test def test_assertPatternCombinedTextMatch3() = {
-    runner.runOneTest("assertPatternCombinedTextMatch3")
-  }
+  @Test def assertPatternLiteralTextMatch = test
+  @Test def assertPatternCombinedTextMatch = test
+  @Test def assertPatternCombinedTextMatch2 = test
+  @Test def assertPatternCombinedTextMatch3 = test
 
-  @Test def test_assertPatternPass(): Unit = { runner.runOneTest("assertPatternPass") }
-  @Test def test_assertPatternFail(): Unit = { runner.runOneTest("assertPatternFail") }
-  @Test def test_assertPatternPass2(): Unit = { runner.runOneTest("assertPatternPass2") }
-  @Test def test_assertPatternPass3(): Unit = { runner.runOneTest("assertPatternPass3") }
-  @Test def test_assertPatternFail2(): Unit = { runner.runOneTest("assertPatternFail2") }
-  @Test def test_assertPatternFail2_recoverable(): Unit = {
-    runner.runOneTest("assertPatternFail2_recoverable")
-  }
-  @Test def test_assertPatternInitsTerms(): Unit = {
-    runner.runOneTest("assertPatternInitsTerms")
-  }
-  @Test def test_assertOnSequence(): Unit = { runner.runOneTest("assertOnSequence") }
+  @Test def assertPatternPass = test
+  @Test def assertPatternFail = test
+  @Test def assertPatternPass2 = test
+  @Test def assertPatternPass3 = test
+  @Test def assertPatternFail2 = test
+  @Test def assertPatternFail2_recoverable = test
+  @Test def assertPatternInitsTerms = test
+  @Test def assertOnSequence = test
 
-  @Test def test_assertOnGroupRef(): Unit = { runner.runOneTest("assertOnGroupRef") }
-  @Test def test_assertOnElemRef(): Unit = { runner.runOneTest("assertOnElemRef") }
+  @Test def assertOnGroupRef = test
+  @Test def assertOnElemRef = test
 
-  @Test def test_assertPatternMatch(): Unit = { runner.runOneTest("assertPatternMatch") }
-  @Test def test_assertPatternMatch2(): Unit = { runner.runOneTest("assertPatternMatch2") }
+  @Test def assertPatternMatch = test
+  @Test def assertPatternMatch2 = test
 
-  @Test def test_assertMultFormsFail(): Unit = { runner.runOneTest("assertMultFormsFail") }
-  @Test def test_assertMultFormsFail2(): Unit = { runner.runOneTest("assertMultFormsFail2") }
-  @Test def test_assertPatternAndExp(): Unit = { runner.runOneTest("assertPatternAndExp") }
-  @Test def test_assertPatternAndExp2(): Unit = { runner.runOneTest("assertPatternAndExp2") }
-  @Test def test_assertOnSimpleType(): Unit = { runner.runOneTest("assertOnSimpleType") }
-  @Test def test_assertPass2(): Unit = { runner.runOneTest("assertPass2") }
-  @Test def test_assertPatternEmpty(): Unit = { runner.runOneTest("assertPatternEmpty") }
+  @Test def assertMultFormsFail = test
+  @Test def assertMultFormsFail2 = test
+  @Test def assertPatternAndExp = test
+  @Test def assertPatternAndExp2 = test
+  @Test def assertOnSimpleType = test
+  @Test def assertPass2 = test
+  @Test def assertPatternEmpty = test
 
   // DFDL-474
-  //  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
+  @Ignore @Test def assertExpressionEmpty = test
 
-  @Test def test_assertExpressionRef(): Unit = { runner.runOneTest("assertExpressionRef") }
-  @Test def test_assertExpressionRefFail(): Unit = {
-    runner.runOneTest("assertExpressionRefFail")
-  }
-  @Test def test_assertMessage(): Unit = { runner.runOneTest("assertMessage") }
-  @Test def test_unparseAssertionIgnored(): Unit = {
-    runner.runOneTest("unparseAssertionIgnored")
-  }
+  @Test def assertExpressionRef = test
+  @Test def assertExpressionRefFail = test
+  @Test def assertMessage = test
+  @Test def unparseAssertionIgnored = test
 
   // DFDL-2001
-  // @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
-  // @Test def test_testPatternUnicode() { runner.runOneTest("testPatternUnicode") }
-  @Test def test_testPatternHex(): Unit = { runner.runOneTest("testPatternHex") }
-  @Test def test_testPatternFreeFormat(): Unit = { runner.runOneTest("testPatternFreeFormat") }
-  @Test def test_testPatternUregexUword(): Unit = {
-    runner.runOneTest("testPatternUregexUword")
-  }
-  @Test def test_testPatternWordChar(): Unit = { runner.runOneTest("testPatternWordChar") }
+  @Ignore @Test def testPatternX = test
+  @Ignore @Test def testPatternUnicode = test
+  @Test def testPatternHex = test
+  @Test def testPatternFreeFormat = test
+  @Test def testPatternUregexUword = test
+  @Test def testPatternWordChar = test
 
   // JIRA DFDL-1672
-  @Test def testNumberFormatErrorInExprRuntime(): Unit = {
-    runner.runOneTest("testNumberFormatErrorInExprRuntime")
-  }
-  @Test def testNumberFormatErrorInExprCompileTime(): Unit = {
-    runner.runOneTest("testNumberFormatErrorInExprCompileTime")
-  }
+  @Test def testNumberFormatErrorInExprRuntime = test
+  @Test def testNumberFormatErrorInExprCompileTime = test
 
-  @Test def test_assertWithMessageExpression_01(): Unit = {
-    runner.runOneTest("test_assertWithMessageExpression_01")
-  }
-  @Test def test_assertWithMessageExpression_02(): Unit = {
-    runner.runOneTest("test_assertWithMessageExpression_02")
-  }
-
+  @Test def test_assertWithMessageExpression_01 = test
+  @Test def test_assertWithMessageExpression_02 = test
 }

@@ -17,26 +17,18 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSchemaWithoutDFDLNamespace {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testSchemaWithoutDFDLNamespace.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset()
-  }
+object TestSchemaWithoutDFDLNamespace extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section00/general/testSchemaWithoutDFDLNamespace.tdml"
 }
 
-class TestSchemaWithoutDFDLNamespace {
+class TestSchemaWithoutDFDLNamespace extends TdmlTests {
+  val tdmlSuite = TestSchemaWithoutDFDLNamespace
 
-  import TestSchemaWithoutDFDLNamespace._
-
-  @Test def test_schemaWithoutDFDLNamespace(): Unit = {
-    runner.runOneTest("schemaWithoutDFDLNamespace")
-  }
-
+  @Test def schemaWithoutDFDLNamespace = test
 }

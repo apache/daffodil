@@ -17,111 +17,89 @@
 
 package org.apache.daffodil.section17.calc_value_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestOutputValueCalc {
-  private val testDir = "/org/apache/daffodil/section17/calc_value_properties/"
-
-  val runner = Runner(testDir, "outputValueCalc.tdml")
-  val runner2 = Runner(testDir, "outputValueCalc2.tdml")
-  val runner3 = Runner(testDir, "outputValueCalc3.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-    runner2.reset
-    runner3.reset
-  }
+object TestOutputValueCalc1 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section17/calc_value_properties/outputValueCalc.tdml"
 }
 
-class TestOutputValueCalc {
-  import TestOutputValueCalc._
+object TestOutputValueCalc2 extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section17/calc_value_properties/outputValueCalc2.tdml"
+}
 
-  @Test def test_OutputValueCalc_01(): Unit = { runner.runOneTest("OutputValueCalc_01") }
-  @Test def test_OutputValueCalc_02(): Unit = { runner.runOneTest("OutputValueCalc_02") }
-  @Test def test_OutputValueCalc_03(): Unit = { runner.runOneTest("OutputValueCalc_03") }
-  @Test def test_OutputValueCalc_04(): Unit = { runner.runOneTest("OutputValueCalc_04") }
-  @Test def test_OutputValueCalc_05(): Unit = { runner.runOneTest("OutputValueCalc_05") }
-  @Test def test_OutputValueCalc_06(): Unit = { runner.runOneTest("OutputValueCalc_06") }
-  @Test def test_OutputValueCalc_07(): Unit = { runner.runOneTest("OutputValueCalc_07") }
-  @Test def test_OutputValueCalc_08(): Unit = { runner.runOneTest("OutputValueCalc_08") }
+object TestOutputValueCalc3 extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section17/calc_value_properties/outputValueCalc3.tdml"
+}
 
-  @Test def test_binaryInteger_BigEndian(): Unit = {
-    runner.runOneTest("binaryIntegerBigEndian")
-  }
-  @Test def test_binaryInteger_LittleEndian(): Unit = {
-    runner.runOneTest("binaryIntegerLittleEndian")
-  }
+class TestOutputValueCalc1 extends TdmlTests {
+  val tdmlSuite = TestOutputValueCalc1
 
-  @Test def test_ovcHiddenCalculations1(): Unit = {
-    runner2.runOneTest("ovcHiddenCalculations1")
-  }
-  @Test def test_ovcHiddenCalculations2(): Unit = {
-    runner2.runOneTest("ovcHiddenCalculations2")
-  }
-  @Test def test_ovcHiddenCalculations3(): Unit = {
-    runner2.runOneTest("ovcHiddenCalculations3")
-  }
-  @Test def test_hiddenGroupOvcError(): Unit = { runner2.runOneTest("hiddenGroupOvcError") }
-  @Test def test_hiddenGroupArrayWithOvc(): Unit = {
-    runner2.runOneTest("hiddenGroupArrayWithOvc")
-  }
-  @Test def test_optionalWithOvc(): Unit = { runner2.runOneTest("optionalWithOvc") }
+  @Test def OutputValueCalc_01 = test
+  @Test def OutputValueCalc_02 = test
+  @Test def OutputValueCalc_03 = test
+  @Test def OutputValueCalc_04 = test
+  @Test def OutputValueCalc_05 = test
+  @Test def OutputValueCalc_06 = test
+  @Test def OutputValueCalc_07 = test
+  @Test def OutputValueCalc_08 = test
 
-  @Test def test_ovcAllowMissingOVCElem(): Unit = {
-    runner2.runOneTest("ovcAllowMissingOVCElem")
-  }
-  @Test def test_ovcIgnoreOVCElem(): Unit = { runner2.runOneTest("ovcIgnoreOVCElem") }
+  @Test def binaryIntegerBigEndian = test
+  @Test def binaryIntegerLittleEndian = test
 
-  @Test def test_ovc_w_runtime_initiator(): Unit = {
-    runner2.runOneTest("ovc_w_runtime_initiator")
-  }
-  @Test def test_ovc_w_runtime_dec_sep(): Unit = { runner2.runOneTest("ovc_w_runtime_dec_sep") }
-  @Test def test_ovc_w_runtime_group_sep(): Unit = {
-    runner2.runOneTest("ovc_w_runtime_group_sep")
-  }
-  @Test def test_ovc_w_runtime_exp_rep(): Unit = { runner2.runOneTest("ovc_w_runtime_exp_rep") }
-  @Test def test_ovc_w_runtime_cal_lang(): Unit = {
-    runner2.runOneTest("ovc_w_runtime_cal_lang")
-  }
-  @Test def test_ovc_w_runtime_escape_char(): Unit = {
-    runner2.runOneTest("ovc_w_runtime_escape_char")
-  }
-  @Test def test_ovc_w_runtime_escape_escape_char(): Unit = {
-    runner2.runOneTest("ovc_w_runtime_escape_escape_char")
-  }
+  @Test def OutputValueCalc_09 = test
+  @Test def OutputValueCalc_10 = test
 
-  @Test def test_OutputValueCalc_09(): Unit = { runner.runOneTest("OutputValueCalc_09") }
-  @Test def test_OutputValueCalc_10(): Unit = { runner.runOneTest("OutputValueCalc_10") }
-
-  @Test def test_errorZeroArg(): Unit = { runner.runOneTest("errorZeroArg") }
-  @Test def test_errorOneArg(): Unit = { runner.runOneTest("errorOneArg") }
-  @Test def test_errorTwoArg(): Unit = { runner.runOneTest("errorTwoArg") }
-  @Test def test_errorThreeArg(): Unit = { runner.runOneTest("errorThreeArg") }
-
-  // DAFFODIL-2069
-  @Test def test_ovcHexBinaryLSBF1(): Unit = { runner3.runOneTest("rHexBinaryLSBF1") }
-  @Test def test_ovcHexBinaryLSBF2(): Unit = { runner3.runOneTest("rHexBinaryLSBF2") }
-  @Test def test_ovcStringLSBF1(): Unit = { runner3.runOneTest("rStringLSBF1") }
-
-  @Test def test_ovcBitOrderChange(): Unit = { runner3.runOneTest("ovc_bitOrderChange") }
+  @Test def errorZeroArg = test
+  @Test def errorOneArg = test
+  @Test def errorTwoArg = test
+  @Test def errorThreeArg = test
 
   // DAFFODIL-1701
-  @Test def test_refSimpleTypeElemWithOvc(): Unit = {
-    runner.runOneTest("refSimpleTypeElemWithOvc")
-  }
-  @Test def test_refComplexTypeElemNoOvc(): Unit = {
-    runner.runOneTest("refComplexTypeElemNoOvc")
-  }
-  @Test def test_refComplexTypeElemWithOvc(): Unit = {
-    runner.runOneTest("refComplexTypeElemWithOvc")
-  }
+  @Test def refSimpleTypeElemWithOvc = test
+  @Test def refComplexTypeElemNoOvc = test
+  @Test def refComplexTypeElemWithOvc = test
 
   // DAFFODIL-2167
-  @Test def test_arrayWithFollowingOVC(): Unit = { runner.runOneTest("arrayWithFollowingOVC") }
+  @Test def arrayWithFollowingOVC = test
 
   // DAFFODIL-1595
-  @Test def test_OVCTooLargeForElem(): Unit = { runner.runOneTest("OVCTooLargeForElem") }
+  @Test def OVCTooLargeForElem = test
+}
+
+class TestOutputValueCalc2 extends TdmlTests {
+  val tdmlSuite = TestOutputValueCalc2
+
+  @Test def ovcHiddenCalculations1 = test
+  @Test def ovcHiddenCalculations2 = test
+  @Test def ovcHiddenCalculations3 = test
+  @Test def hiddenGroupOvcError = test
+  @Test def hiddenGroupArrayWithOvc = test
+  @Test def optionalWithOvc = test
+
+  @Test def ovcAllowMissingOVCElem = test
+  @Test def ovcIgnoreOVCElem = test
+
+  @Test def ovc_w_runtime_initiator = test
+  @Test def ovc_w_runtime_dec_sep = test
+  @Test def ovc_w_runtime_group_sep = test
+  @Test def ovc_w_runtime_exp_rep = test
+  @Test def ovc_w_runtime_cal_lang = test
+  @Test def ovc_w_runtime_escape_char = test
+  @Test def ovc_w_runtime_escape_escape_char = test
+}
+
+class TestOutputValueCalc3 extends TdmlTests {
+  val tdmlSuite = TestOutputValueCalc3
+
+  // DAFFODIL-2069
+  @Test def rHexBinaryLSBF1 = test
+  @Test def rHexBinaryLSBF2 = test
+  @Test def rStringLSBF1 = test
+
+  @Test def ovc_bitOrderChange = test
 }

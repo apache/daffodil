@@ -17,30 +17,29 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestEgressXdccBw {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "egress_xdcc_bw.tdml", TDMLImplementation.DaffodilC)
-
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+object TestEgressXdccBw extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/egress_xdcc_bw.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestEgressXdccBw {
-  import TestEgressXdccBw._
+class TestEgressXdccBw extends TdmlTests {
+  val tdmlSuite = TestEgressXdccBw
 
-  @Test def test_egress_xdcc_bw_11(): Unit = { runner.runOneTest("egress_xdcc_bw_11") }
-  @Test def test_egress_xdcc_bw_12(): Unit = { runner.runOneTest("egress_xdcc_bw_12") }
-  @Test def test_egress_xdcc_bw_13(): Unit = { runner.runOneTest("egress_xdcc_bw_13") }
-  @Test def test_egress_xdcc_bw_14(): Unit = { runner.runOneTest("egress_xdcc_bw_14") }
-  @Test def test_egress_xdcc_bw_15(): Unit = { runner.runOneTest("egress_xdcc_bw_15") }
-  @Test def test_egress_xdcc_bw_16(): Unit = { runner.runOneTest("egress_xdcc_bw_16") }
-  @Test def test_egress_xdcc_bw_17(): Unit = { runner.runOneTest("egress_xdcc_bw_17") }
-  @Test def test_egress_xdcc_bw_18(): Unit = { runner.runOneTest("egress_xdcc_bw_18") }
-  @Test def test_egress_xdcc_bw_19(): Unit = { runner.runOneTest("egress_xdcc_bw_19") }
-  @Test def test_egress_xdcc_bw_20(): Unit = { runner.runOneTest("egress_xdcc_bw_20") }
+  @Test def egress_xdcc_bw_11 = test
+  @Test def egress_xdcc_bw_12 = test
+  @Test def egress_xdcc_bw_13 = test
+  @Test def egress_xdcc_bw_14 = test
+  @Test def egress_xdcc_bw_15 = test
+  @Test def egress_xdcc_bw_16 = test
+  @Test def egress_xdcc_bw_17 = test
+  @Test def egress_xdcc_bw_18 = test
+  @Test def egress_xdcc_bw_19 = test
+  @Test def egress_xdcc_bw_20 = test
 }

@@ -17,23 +17,20 @@
 
 package org.apache.daffodil.section13.boolean
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestBoolean {
-  val runner = Runner("/org/apache/daffodil/section13/boolean/", "boolean.tdml")
-
-  @AfterClass def shutdown(): Unit = { runner.reset }
-
+object TestBoolean extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/boolean/boolean.tdml"
 }
 
-class TestBoolean {
-  import TestBoolean._
-  @Test def test_booleanDefault(): Unit = { runner.runOneTest("booleanDefault") }
-  @Test def test_booleanDefaultSDE(): Unit = { runner.runOneTest("booleanDefaultSDE") }
-  @Test def test_booleanInputValueCalc(): Unit = { runner.runOneTest("booleanInputValueCalc") }
-  @Test def test_booleanInputValueCalcError(): Unit = {
-    runner.runOneTest("booleanInputValueCalcError")
-  }
+class TestBoolean extends TdmlTests {
+  val tdmlSuite = TestBoolean
+
+  @Test def booleanDefault = test
+  @Test def booleanDefaultSDE = test
+  @Test def booleanInputValueCalc = test
+  @Test def booleanInputValueCalcError = test
 }

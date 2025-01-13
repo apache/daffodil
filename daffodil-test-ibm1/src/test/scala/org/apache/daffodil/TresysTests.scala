@@ -17,172 +17,303 @@
 
 package org.apache.daffodil
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TresysTests {
-
-  val runnerAF = Runner("/test-suite/tresys-contributed/AF.tdml")
-  val runnerAG = Runner("/test-suite/tresys-contributed/AG.tdml")
-  val runnerAP = Runner("/test-suite/tresys-contributed/AP.tdml")
-  val runnerAV000 = Runner("/test-suite/tresys-contributed/AV000.tdml")
-  val runnerAV001 = Runner("/test-suite/tresys-contributed/AV001.tdml")
-  val runnerAV002 = Runner("/test-suite/tresys-contributed/AV002.tdml")
-  val runnerAV003 = Runner("/test-suite/tresys-contributed/AV003.tdml")
-  val runnerAW = Runner("/test-suite/tresys-contributed/AW.tdml")
-  val runnerAX = Runner("/test-suite/tresys-contributed/AX.tdml")
-  val runnerAY = Runner("/test-suite/tresys-contributed/AY.tdml")
-  val runnerAZ = Runner("/test-suite/tresys-contributed/AZ.tdml")
-  val runnerBA = Runner("/test-suite/tresys-contributed/BA.tdml")
-  val runnerBB = Runner("/test-suite/tresys-contributed/BB.tdml")
-  val runnerBC = Runner("/test-suite/tresys-contributed/BC.tdml")
-  val runnerBD = Runner("/test-suite/tresys-contributed/BD.tdml")
-  val runnerBE = Runner("/test-suite/tresys-contributed/BE.tdml")
-  val runnerBF1 = Runner("/test-suite/tresys-contributed/BF.tdml")
-  val runnerBG = Runner("/test-suite/tresys-contributed/BG.tdml")
-  val runnerDelimited = Runner("/test-suite/tresys-contributed/delimTests.tdml")
-  val runnerMB = Runner("/test-suite/tresys-contributed/mixed-binary-text.tdml")
-  val runnerMD = Runner(
-    "/test-suite/tresys-contributed/",
-    "multiple-diagnostics.tdml",
-    compileAllTopLevel = true
-  )
-  val runnerMD_NV = Runner(
-    "/test-suite/tresys-contributed/",
-    "multiple-diagnostics.tdml",
-    compileAllTopLevel = true,
-    validateDFDLSchemas = false
-  )
-  val runnerNG = Runner("/test-suite/tresys-contributed/nested_group_ref.tdml")
-  val runnerNSD = Runner("/test-suite/tresys-contributed/nested-separator-delimited.tdml")
-  val runnerRD = Runner(
-    "/test-suite/tresys-contributed/",
-    "runtime-diagnostics.tdml",
-    compileAllTopLevel = true,
-    validateTDMLFile = false
-  )
-  val runnerSQ = Runner("/test-suite/tresys-contributed/sequence.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runnerAF.reset
-    runnerAG.reset
-    runnerAP.reset
-    runnerAV000.reset
-    runnerAV001.reset
-    runnerAV002.reset
-    runnerAV003.reset
-    runnerAW.reset
-    runnerAX.reset
-    runnerAY.reset
-    runnerAZ.reset
-    runnerBA.reset
-    runnerBB.reset
-    runnerBC.reset
-    runnerBD.reset
-    runnerBE.reset
-    runnerBF1.reset
-    runnerBG.reset
-    runnerDelimited.reset
-    runnerMB.reset
-    runnerMD.reset
-    runnerMD_NV.reset
-    runnerNG.reset
-    runnerNSD.reset
-    runnerRD.reset
-    runnerSQ.reset
-  }
+object TestAF extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AF.tdml"
 }
 
-class TresysTests {
-  import TresysTests._
+object TestAG extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AG.tdml"
+}
 
-  @Test def test_length_delimited_12_03_controversial(): Unit = {
-    runnerDelimited.runOneTest("length_delimited_12_03_controversial")
-  }
+object TestAP extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AP.tdml"
+}
 
-  @Test def test_AX000() = { runnerAX.runOneTest("AX000") } // escape schemes
+object TestAV000 extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AV000.tdml"
+}
 
-  @Test def test_AV000(): Unit = { runnerAV000.runOneTest("AV000") } // needs date
+object TestAV001 extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AV001.tdml"
+}
 
-  @Test def test_AV001(): Unit = { runnerAV001.runOneTest("AV001") } // needs date
+object TestAV002 extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AV002.tdml"
+}
 
-  @Test def test_AV002(): Unit = { runnerAV002.runOneTest("AV002") }
+object TestAV003 extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AV003.tdml"
+}
 
-  @Test def test_AV003(): Unit = { runnerAV003.runOneTest("AV003") } // needs date
+object TestAW extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AW.tdml"
+}
 
-  @Test def test_multiple_diagnostics1(): Unit = {
-    runnerMD.runOneTest("twoMissingTypeDefErrors")
-  }
-  @Test def test_multiple_diagnostics2(): Unit = { runnerMD.runOneTest("manyErrors1") }
-  @Test def test_multiple_diagnostics3(): Unit = { runnerMD_NV.runOneTest("manyErrors2") }
+object TestAX extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AX.tdml"
+}
 
-  @Test def test_nested_separator_delimited_baseline(): Unit = {
-    runnerNSD.runOneTest("baseline")
-  }
+object TestAY extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AY.tdml"
+}
 
-  // Fails in IBM DFDL - ambiguous separator/terminator not accepted.
-  @Test def test_nested_separator_delimited_baseline_ibm(): Unit = {
-    runnerNSD.runOneTest("baseline_ibm")
-  }
+object TestAZ extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AZ.tdml"
+}
 
-  @Test def test_nested_separator_delimited_basicNest(): Unit = {
-    runnerNSD.runOneTest("basicNest")
-  }
-  @Test def test_nested_separator_delimited_basicNest2(): Unit = {
-    runnerNSD.runOneTest("basicNest2")
-  }
+object TestBA extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BA.tdml"
+}
 
-  @Test def test_nested_separator_delimited_nest1(): Unit = { runnerNSD.runOneTest("nest1") }
-  @Test def test_nested_separator_delimited_nest2(): Unit = { runnerNSD.runOneTest("nest2") }
-  @Test def test_nested_separator_delimited_nest3(): Unit = { runnerNSD.runOneTest("nest3") }
+object TestBB extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BB.tdml"
+}
 
-  @Test def test_runtime_diagnostics1(): Unit = { runnerRD.runOneTest("PE1") }
+object TestBC extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BC.tdml"
+}
 
-  @Test def test_seq1(): Unit = { runnerSQ.runOneTest("seq1") }
+object TestBD extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BD.tdml"
+}
 
-  // DFDL-935
-  // @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
-  // @Test def test_t2() { runnerMB.runOneTest("t2") }
-  // @Test def test_t3() { runnerMB.runOneTest("t3") }
-  @Test def test_t1(): Unit = { runnerMB.runOneTest("t1") }
+object TestBE extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BE.tdml"
+}
 
-  @Test def test_nested_group_refs1(): Unit = { runnerNG.runOneTest("nestedGroupRefs1") }
+object TestBF extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BF.tdml"
+}
 
-  @Test def test_AF000(): Unit = { runnerAF.runOneTest("AF000") }
-  @Test def test_AF001(): Unit = { runnerAF.runOneTest("AF001") }
-  @Test def test_AF002(): Unit = { runnerAF.runOneTest("AF002") }
+object TestBG extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/BG.tdml"
+}
 
-  @Test def test_AG000(): Unit = { runnerAG.runOneTest("AG000") } // OK
-  @Test def test_AG001(): Unit = { runnerAG.runOneTest("AG001") } // OK
-  @Test def test_AG002(): Unit = { runnerAG.runOneTest("AG002") } // OK
+object TestDelimited extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/delimTests.tdml"
+}
 
-  @Test def test_AW000(): Unit = { runnerAW.runOneTest("AW000") } // escape schemes
-  @Test def test_AW001(): Unit = { runnerAW.runOneTest("AW001") }
+object TestMixedBinary extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/mixed-binary-text.tdml"
+}
 
-  @Test def test_AY000(): Unit = { runnerAY.runOneTest("AY000") } // escape schemes
+object TestMultipleDiagnostics extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/multiple-diagnostics.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, compileAllTopLevel = true)
+}
 
-  @Test def test_AZ000(): Unit = { runnerAZ.runOneTest("AZ000") } // escape schemes
+object TestMultipleDiagnosticsNoValidate extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/multiple-diagnostics.tdml"
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, compileAllTopLevel = true, validateDFDLSchemas = false)
+}
+
+object TestNestedGroupRef extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/nested_group_ref.tdml"
+}
+
+object TestNestedSeparatorDelimited extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/nested-separator-delimited.tdml"
+}
+
+object TestRuntimeDiagnostics extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/runtime-diagnostics.tdml"
+
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, compileAllTopLevel = true, validateTDMLFile = false)
+}
+
+object TestSequence extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/sequence.tdml"
+}
+
+class TestAF extends TdmlTests {
+  val tdmlSuite = TestAF
+
+  @Test def AF000 = test
+  @Test def AF001 = test
+  @Test def AF002 = test
+}
+
+class TestAG extends TdmlTests {
+  val tdmlSuite = TestAG
+
+  @Test def AG000 = test
+  @Test def AG001 = test
+  @Test def AG002 = test
+}
+
+class TestAP extends TdmlTests {
+  val tdmlSuite = TestAP
+
+  @Ignore @Test def AP000 = test
+}
+
+class TestAV000 extends TdmlTests {
+  val tdmlSuite = TestAV000
+
+  @Test def AV000 = test
+}
+
+class TestAV001 extends TdmlTests {
+  val tdmlSuite = TestAV001
+
+  @Test def AV001 = test
+}
+
+class TestAV002 extends TdmlTests {
+  val tdmlSuite = TestAV002
+
+  @Test def AV002 = test
+}
+
+class TestAV003 extends TdmlTests {
+  val tdmlSuite = TestAV003
+
+  @Test def AV003 = test
+}
+
+class TestAW extends TdmlTests {
+  val tdmlSuite = TestAW
+
+  @Test def AW000 = test
+  @Test def AW001 = test
+}
+
+class TestAX extends TdmlTests {
+  val tdmlSuite = TestAX
+
+  @Test def AX000 = test
+}
+
+class TestAY extends TdmlTests {
+  val tdmlSuite = TestAY
+
+  @Test def AY000 = test
+}
+
+class TestAZ extends TdmlTests {
+  val tdmlSuite = TestAZ
+
+  @Test def AZ000 = test
+}
+
+class TestBA extends TdmlTests {
+  val tdmlSuite = TestBA
 
   // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
   // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
-  // @Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
-  // @Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue
+  @Ignore @Test def BA000 = test
+}
+
+class TestBB extends TdmlTests {
+  val tdmlSuite = TestBB
+
+  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
+  // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
+  @Ignore @Test def BB000 = test
+}
+
+class TestBC extends TdmlTests {
+  val tdmlSuite = TestBC
+
+  @Test def BC000 = test
+}
+
+class TestBD extends TdmlTests {
+  val tdmlSuite = TestBD
+
+  @Test def BD000 = test
+}
+
+class TestBE extends TdmlTests {
+  val tdmlSuite = TestBE
 
   // DFDL-1010
-  @Test def test_BE000(): Unit = { runnerBE.runOneTest("BE000") } // unordered sequences
-  @Test def test_BE001(): Unit = { runnerBE.runOneTest("BE001") }
+  @Test def BE000 = test
+  @Test def BE001 = test
+}
+
+class TestBF extends TdmlTests {
+  val tdmlSuite = TestBF
 
   // DFDL-1010
-  @Test def test_BF000(): Unit = { runnerBF1.runOneTest("BF000") } // unordered sequences
-  @Test def test_BF001(): Unit = { runnerBF1.runOneTest("BF001") }
+  @Test def BF000 = test
+  @Test def BF001 = test
+}
 
-  @Test def test_BG000(): Unit = { runnerBG.runOneTest("BG000") }
+class TestBG extends TdmlTests {
+  val tdmlSuite = TestBG
 
-  @Test def test_BC000(): Unit = { runnerBC.runOneTest("BC000") } // text boolean type
-  @Test def test_BD000(): Unit = { runnerBD.runOneTest("BD000") } // binary boolean type
+  @Test def BG000 = test
+}
 
-  // @Test def test_AP000() { runnerAP.runOneTest("AP000") } // lengthKind endOfParent - DAFFODIL-567
+class TestDelimited extends TdmlTests {
+  val tdmlSuite = TestDelimited
 
+  @Test def length_delimited_12_03_controversial = test
+}
+
+class TestMixedBinary extends TdmlTests {
+  val tdmlSuite = TestMixedBinary
+
+  // DFDL-935
+  @Ignore @Test def encodingErrorPolicy_error = test
+  @Ignore @Test def t2 = test
+  @Ignore @Test def t3 = test
+  @Test def t1 = test
+}
+
+class TestMultipleDiagnostics extends TdmlTests {
+  val tdmlSuite = TestMultipleDiagnostics
+
+  @Test def twoMissingTypeDefErrors = test
+  @Test def manyErrors1 = test
+}
+
+class TestMultipleDiagnosticsNoValidate extends TdmlTests {
+  val tdmlSuite = TestMultipleDiagnosticsNoValidate
+
+  @Test def manyErrors2 = test
+}
+
+class TestNestedGroupRef extends TdmlTests {
+  val tdmlSuite = TestNestedGroupRef
+
+  @Test def nestedGroupRefs1 = test
+}
+
+class TestNestedSeparatorDelimited extends TdmlTests {
+  val tdmlSuite = TestNestedSeparatorDelimited
+
+  @Test def baseline = test
+
+  // Fails in IBM DFDL - ambiguous separator/terminator not accepted.
+  @Test def baseline_ibm = test
+
+  @Test def basicNest = test
+  @Test def basicNest2 = test
+
+  @Test def nest1 = test
+  @Test def nest2 = test
+  @Test def nest3 = test
+}
+
+class TestRuntimeDiagnostics extends TdmlTests {
+  val tdmlSuite = TestRuntimeDiagnostics
+
+  @Test def PE1 = test
+}
+
+class TestSequence extends TdmlTests {
+  val tdmlSuite = TestSequence
+
+  @Test def seq1 = test
 }

@@ -17,41 +17,44 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestExNums {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runnerS = Runner(testDir, "ex_nums.tdml", TDMLImplementation.Daffodil)
-  val runnerC = Runner(testDir, "ex_nums.tdml", TDMLImplementation.DaffodilC)
-
-  @AfterClass def shutDown(): Unit = {
-    runnerS.reset()
-    runnerC.reset()
-  }
+object TestExNums extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/ex_nums.tdml"
 }
 
-class TestExNums {
-  import TestExNums._
+class TestExNums extends TdmlTests {
+  val tdmlSuite = TestExNums
 
-  @Test def s_ex_nums(): Unit = { runnerS.runOneTest("ex_nums") }
-  @Test def s_length(): Unit = { runnerS.runOneTest("length") }
-  @Test def s_parse_error_off(): Unit = { runnerS.runOneTest("parse_error_off") }
-  @Test def s_parse_error_limited(): Unit = { runnerS.runOneTest("parse_error_limited") }
-  @Test def s_parse_error_on(): Unit = { runnerS.runOneTest("parse_error_on") }
-  @Test def s_unparse_error_off(): Unit = { runnerS.runOneTest("unparse_error_off") }
-  @Test def s_unparse_error_limited(): Unit = { runnerS.runOneTest("unparse_error_limited") }
-  @Test def s_unparse_error_on(): Unit = { runnerS.runOneTest("unparse_error_on") }
+  @Test def ex_nums = test
+  @Test def length = test
+  @Test def parse_error_off = test
+  @Test def parse_error_limited = test
+  @Test def parse_error_on = test
+  @Test def unparse_error_off = test
+  @Test def unparse_error_limited = test
+  @Test def unparse_error_on = test
+}
 
-  @Test def c_ex_nums(): Unit = { runnerC.runOneTest("ex_nums") }
-  @Test def c_length(): Unit = { runnerC.runOneTest("length") }
-  @Test def c_parse_error_off(): Unit = { runnerC.runOneTest("parse_error_off") }
-  @Test def c_parse_error_limited(): Unit = { runnerC.runOneTest("parse_error_limitedC") }
-  @Test def c_parse_error_on(): Unit = { runnerC.runOneTest("parse_error_on") }
-  @Test def c_unparse_error_off(): Unit = { runnerC.runOneTest("unparse_error_offC") }
-  @Test def c_unparse_error_limited(): Unit = { runnerC.runOneTest("unparse_error_limitedC") }
-  @Test def c_unparse_error_on(): Unit = { runnerC.runOneTest("unparse_error_onC") }
+object TestExNumsC extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/ex_nums.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
+}
+
+class TestExNumsC extends TdmlTests {
+  val tdmlSuite = TestExNumsC
+
+  @Test def ex_nums = test
+  @Test def length = test
+  @Test def parse_error_off = test
+  @Test def parse_error_limitedC = test
+  @Test def parse_error_on = test
+  @Test def unparse_error_offC = test
+  @Test def unparse_error_limitedC = test
+  @Test def unparse_error_onC = test
 }

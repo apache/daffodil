@@ -17,30 +17,20 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestImportOtherAnnotationSchema {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testImportOtherAnnotationSchema.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestImportOtherAnnotationSchema extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section00/general/testImportOtherAnnotationSchema.tdml"
 }
 
-class TestImportOtherAnnotationSchema {
-
-  import TestImportOtherAnnotationSchema._
+class TestImportOtherAnnotationSchema extends TdmlTests {
+  val tdmlSuite = TestImportOtherAnnotationSchema
 
   // DFDL-1907
-  @Test def test_importOtherAnnotationSchema1(): Unit = {
-    runner.runOneTest("importOtherAnnotationSchema1")
-  }
-  @Test def test_importOtherAnnotationSchema2(): Unit = {
-    runner.runOneTest("importOtherAnnotationSchema2")
-  }
-
+  @Test def importOtherAnnotationSchema1 = test
+  @Test def importOtherAnnotationSchema2 = test
 }

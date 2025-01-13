@@ -17,141 +17,119 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
-import org.junit._
+import org.junit.Ignore
+import org.junit.Test
 
-object TestSimpleTypes2 {
-
-  val testDir = "/org/apache/daffodil/section05/simple_types/"
-
-  val runnerAL = Runner(testDir, "AL.tdml")
-  val runnerWS = Runner(testDir, "WhiteSpace.tdml")
-  val runnerAJ = Runner(testDir, "AJ.tdml")
-  val runnerAK = Runner(testDir, "AK.tdml")
-  val runner1 = Runner(testDir, "BitOrder.tdml")
-  val runnerST = Runner(testDir, "simple-type-bases.tdml")
-
-  val runner = Runner(testDir, "SimpleTypes.tdml")
-  val runner2 = Runner(testDir, "SimpleTypes2.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runnerAL.reset
-    runnerWS.reset
-    runnerAJ.reset
-    runnerAK.reset
-    runner1.reset
-    runnerST.reset
-    runner.reset
-    runner2.reset
-  }
+object TestSimpleTypes2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/SimpleTypes2.tdml"
 }
 
-class TestSimpleTypes2 {
-  import TestSimpleTypes2._
+object TestSimpleTypesAJ extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/AJ.tdml"
+}
 
-  @Test def test_AL000(): Unit = { runnerAL.runOneTest("AL000") }
+object TestSimpleTypesAK extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/AK.tdml"
+}
 
-  @Test def test_AJ000(): Unit = { runnerAJ.runOneTest("AJ000") }
-  @Test def test_AJ001(): Unit = { runnerAJ.runOneTest("AJ001") }
+object TestSimpleTypesAL extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/AL.tdml"
+}
 
-  @Test def test_AK000(): Unit = { runnerAK.runOneTest("AK000") }
-  @Test def test_AK001(): Unit = { runnerAK.runOneTest("AK001") }
+object TestSimpleTypesBitOrder extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/BitOrder.tdml"
+}
 
-  @Test def test_redefinedFormat(): Unit = { runnerWS.runOneTest("redefinedFormat") }
-  @Test def test_whiteSpaceBeforeLax(): Unit = { runnerWS.runOneTest("whiteSpaceBeforeLax") }
-  @Test def test_whiteSpaceAfterLax(): Unit = { runnerWS.runOneTest("whiteSpaceAfterLax") }
-  @Test def test_whiteSpaceDuringLax(): Unit = { runnerWS.runOneTest("whiteSpaceDuringLax") }
-  @Test def test_whiteSpaceBeforeStrict(): Unit = {
-    runnerWS.runOneTest("whiteSpaceBeforeStrict")
-  }
-  @Test def test_whiteSpaceDuringStrict(): Unit = {
-    runnerWS.runOneTest("whiteSpaceDuringStrict")
-  }
-  @Test def test_whiteSpaceAfterStrict(): Unit = {
-    runnerWS.runOneTest("whiteSpaceAfterStrict")
-  }
+object TestSimpleTypesST extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/simple-type-bases.tdml"
+}
+
+object TestSimpleTypesWS extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/WhiteSpace.tdml"
+}
+
+class TestSimpleTypes2 extends TdmlTests {
+  val tdmlSuite = TestSimpleTypes2
+
+  // DAFFODIL-2204
+  @Test def terminatorErrorMessage = test
+}
+
+class TestSimpleTypesAJ extends TdmlTests {
+  val tdmlSuite = TestSimpleTypesAJ
+
+  @Test def AJ000 = test
+  @Test def AJ001 = test
+}
+
+class TestSimpleTypesAK extends TdmlTests {
+  val tdmlSuite = TestSimpleTypesAK
+
+  @Test def AK000 = test
+  @Test def AK001 = test
+}
+
+class TestSimpleTypesAL extends TdmlTests {
+  val tdmlSuite = TestSimpleTypesAL
+
+  @Test def AL000 = test
+}
+
+class TestSimpleTypesBitOrder extends TdmlTests {
+  val tdmlSuite = TestSimpleTypesBitOrder
 
   // THIS TEST won't round trip until encoding for 7-bit ascii is implemented
   // Currently this is set to roundTrip="false"
-  @Test def test_MIL2045_47001D_Page70_TableB_I_with_string(): Unit = {
-    runner1.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string")
-  }
-  @Test def test_MIL2045_47001D_1(): Unit = { runner1.runOneTest("TestMIL2045_47001D_1") }
-  @Test def test_LSBFirstSpan3Bytes(): Unit = { runner1.runOneTest("TestLSBFirstSpan3Bytes") }
-  @Test def test_leastSignificantBitFirst(): Unit = {
-    runner1.runOneTest("leastSignificantBitFirst")
-  }
-  @Test def test_leastSigBitFirstFloat(): Unit = { runner1.runOneTest("leastSigBitFirstFloat") }
-  @Test def test_leastSigBitFirstDouble(): Unit = {
-    runner1.runOneTest("leastSigBitFirstDouble")
-  }
-  @Test def test_leastSignificantBitFirstRTL(): Unit = {
-    runner1.runOneTest("leastSignificantBitFirstRTL")
-  }
-  @Test def test_mostSignificantBitFirst1(): Unit = {
-    runner1.runOneTest("mostSignificantBitFirst1")
-  }
-  @Test def test_mostSigBitFirstFloat(): Unit = { runner1.runOneTest("mostSigBitFirstFloat") }
-  @Test def test_mostSigBitFirstDouble(): Unit = { runner1.runOneTest("mostSigBitFirstDouble") }
-  @Test def test_littleEndianLeastFirstLTR(): Unit = {
-    runner1.runOneTest("littleEndianLeastFirstLTR")
-  }
-  @Test def test_littleEndianLeastFirstRTL(): Unit = {
-    runner1.runOneTest("littleEndianLeastFirstRTL")
-  }
-  @Test def test_bitOrderChangeInvalid2(): Unit = {
-    runner1.runOneTest("bitOrderChangeInvalid2")
-  }
-  @Test def test_bitOrderChangeInvalid2Unparser(): Unit = {
-    runner1.runOneTest("bitOrderChangeInvalid2Unparser")
-  }
-  @Test def test_noByteOrder(): Unit = { runner1.runOneTest("noByteOrder") }
+  @Test def TestMIL2045_47001D_Page70_TableB_I_with_string = test
+  @Test def TestMIL2045_47001D_1 = test
+  @Test def TestLSBFirstSpan3Bytes = test
+  @Test def leastSignificantBitFirst = test
+  @Test def leastSigBitFirstFloat = test
+  @Test def leastSigBitFirstDouble = test
+  @Test def leastSignificantBitFirstRTL = test
+  @Test def mostSignificantBitFirst1 = test
+  @Test def mostSigBitFirstFloat = test
+  @Test def mostSigBitFirstDouble = test
+  @Test def littleEndianLeastFirstLTR = test
+  @Test def littleEndianLeastFirstRTL = test
+  @Test def bitOrderChangeInvalid2 = test
+  @Test def bitOrderChangeInvalid2Unparser = test
+  @Test def noByteOrder = test
 
   // DAFFODIL-897
-  // @Test def test_bitOrderChange() { runner1.runOneTest("bitOrderChange") }
-  // @Test def test_bitOrderDocument() { runner1.runOneTest("bitOrderDocument") }
-  // @Test def test_bitOrderTypeByte() { runner1.runOneTest("bitOrderTypeByte") }
-  // @Test def test_bitOrderChangeInvalid3() { runner1.runOneTest("bitOrderChangeInvalid3") }
-  // @Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }
+  @Ignore @Test def bitOrderChange = test
+  @Ignore @Test def bitOrderDocument = test
+  @Ignore @Test def bitOrderTypeByte = test
+  @Ignore @Test def bitOrderChangeInvalid3 = test
+  @Ignore @Test def bitOrderChangeInvalid = test
 
   // DAFFODIL-1001 fixed.
-  @Test def test_bigEndianLeastFirst(): Unit = { runner1.runOneTest("bigEndianLeastFirst") }
+  @Test def bigEndianLeastFirst = test
 
-  @Test def test_simpleTypeDerivedFromPrimType(): Unit = {
-    runnerST.runOneTest("simpleTypeDerivedFromPrimType")
-  }
-  @Test def test_simpleTypeChainedDerivations(): Unit = {
-    runnerST.runOneTest("simpleTypeChainedDerivations")
-  }
-  @Test def test_simpleTypeOverlapPrimError(): Unit = {
-    runnerST.runOneTest("simpleTypeOverlapPrimError")
-  }
-  @Test def test_simpleTypeOverlapSimpleTypeError(): Unit = {
-    runnerST.runOneTest("simpleTypeOverlapSimpleTypeError")
-  }
+  @Test def mostSigBitFirstLEFloat = test
+  @Test def mostSigBitFirstLEDouble = test
+}
 
-  @Test def test_mostSigBitFirstLEFloat(): Unit = {
-    runner1.runOneTest("mostSigBitFirstLEFloat")
-  }
-  @Test def test_mostSigBitFirstLEDouble(): Unit = {
-    runner1.runOneTest("mostSigBitFirstLEDouble")
-  }
+class TestSimpleTypesST extends TdmlTests {
+  val tdmlSuite = TestSimpleTypesST
 
-  @Test def test_hexBinary_Delimited_04(): Unit = {
-    runner.runOneTest("hexBinary_Delimited_04")
-  }
+  @Test def simpleTypeDerivedFromPrimType = test
+  @Test def simpleTypeChainedDerivations = test
+  @Test def simpleTypeOverlapPrimError = test
+  @Test def simpleTypeOverlapSimpleTypeError = test
+}
 
-  @Test def test_restrictionBaseEmbeddedLeadlingSpace(): Unit = {
-    runner.runOneTest("restrictionBaseEmbeddedLeadingSpace")
-  }
-  @Test def test_restrictionBaseEmbeddedTrailingSpace(): Unit = {
-    runner.runOneTest("restrictionBaseEmbeddedTrailingSpace")
-  }
+class TestSimpleTypesWS extends TdmlTests {
+  val tdmlSuite = TestSimpleTypesWS
 
-  // DAFFODIL-2204
-  @Test def test_terminatorErrorMessage(): Unit = {
-    runner2.runOneTest("terminatorErrorMessage")
-  }
+  @Test def redefinedFormat = test
+  @Test def whiteSpaceBeforeLax = test
+  @Test def whiteSpaceAfterLax = test
+  @Test def whiteSpaceDuringLax = test
+  @Test def whiteSpaceBeforeStrict = test
+  @Test def whiteSpaceDuringStrict = test
+  @Test def whiteSpaceAfterStrict = test
 }

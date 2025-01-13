@@ -16,27 +16,20 @@
  */
 package org.apache.daffodil.section15.choice_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSharedGroups {
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-  lazy val runner = Runner(testDir, "testSharedGroups.tdml")
-
-  @AfterClass def shutDown() = {
-    runner.reset
-  }
+object TestSharedGroups extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/testSharedGroups.tdml"
 }
 
-class TestSharedGroups {
+class TestSharedGroups extends TdmlTests {
+  val tdmlSuite = TestSharedGroups
 
-  import TestSharedGroups._
-
-  @Test def testShowsSharedGroupOkFirstUse() = { runner.runOneTest("Ack") }
+  @Test def Ack = test
   // DAFFODIL-2615 - shared groups problem
-  @Test def testShowsSharedGroupFailsSecondUse() = { runner.runOneTest("Nack") }
-  @Test def testShowsSharedGroupBadElement() = { runner.runOneTest("badElement") }
-
+  @Test def Nack = test
+  @Test def badElement = test
 }

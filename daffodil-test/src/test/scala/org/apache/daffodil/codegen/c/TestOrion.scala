@@ -17,25 +17,25 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestOrion {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "orion.tdml", TDMLImplementation.DaffodilC)
+object TestOrion extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/orion.tdml"
 
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestOrion {
-  import TestOrion._
+class TestOrion extends TdmlTests {
+  val tdmlSuite = TestOrion
 
-  @Test def test_orion_aptina(): Unit = { runner.runOneTest("orion_aptina") }
-  @Test def test_orion_camera(): Unit = { runner.runOneTest("orion_camera") }
-  @Test def test_orion_command(): Unit = { runner.runOneTest("orion_command") }
-  @Test def test_orion_limits(): Unit = { runner.runOneTest("orion_limits") }
-  @Test def test_orion_video(): Unit = { runner.runOneTest("orion_video") }
+  @Test def orion_aptina = test
+  @Test def orion_camera = test
+  @Test def orion_command = test
+  @Test def orion_limits = test
+  @Test def orion_video = test
 }

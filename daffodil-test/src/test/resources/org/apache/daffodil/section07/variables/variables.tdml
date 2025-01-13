@@ -2809,4 +2809,49 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="defaultValue">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
+    <dfdl:defineVariable name="pi" type="xs:double" defaultValue="3.141592653589793" />
+    <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $ex:pi }"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="variables2" root="data" model="defaultValue">
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:data>3.141592653589793</ex:data>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="setVariable">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
+    <dfdl:defineVariable name="x" type="xs:double"/>
+    <xs:element name="data">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:double" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#.###############">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:setVariable ref="ex:x" value="{ . }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="e2" type="xs:double" dfdl:inputValueCalc="{ $ex:x - 0.141592653589793 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="variables3" root="data" model="setVariable">
+    <tdml:document>3.141592653589793</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:data><ex:e1>3.141592653589793</ex:e1><ex:e2>3.0</ex:e2></ex:data>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
