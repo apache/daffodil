@@ -17,41 +17,35 @@
 
 package org.apache.daffodil.section00.general
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
+
+import org.junit.Test
+
 /* This section00 is for testing general features of DFDL that are
  * not related to any specific requirement
  */
 
-import org.apache.daffodil.tdml.Runner
-
-import org.junit.AfterClass
-import org.junit._
-
-object TestParseUnparsePolicy {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "parseUnparsePolicy.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestParseUnparsePolicy extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/parseUnparsePolicy.tdml"
 }
 
-class TestParseUnparsePolicy {
-  import TestParseUnparsePolicy._
+class TestParseUnparsePolicy extends TdmlTests {
+  val tdmlSuite = TestParseUnparsePolicy
 
-  @Test def test_pb_parse(): Unit = { runner.runOneTest("pb_parse") }
-  @Test def test_pb_unparse(): Unit = { runner.runOneTest("pb_unparse") }
-  @Test def test_pp_parse(): Unit = { runner.runOneTest("pp_parse") }
-  @Test def test_pp_unparse(): Unit = { runner.runOneTest("pp_unparse") }
-  @Test def test_pu(): Unit = { runner.runOneTest("pu") }
+  @Test def pb_parse = test
+  @Test def pb_unparse = test
+  @Test def pp_parse = test
+  @Test def pp_unparse = test
+  @Test def pu = test
 
-  @Test def test_ub_parse(): Unit = { runner.runOneTest("ub_parse") }
-  @Test def test_ub_unparse(): Unit = { runner.runOneTest("ub_unparse") }
-  @Test def test_uu_parse(): Unit = { runner.runOneTest("uu_parse") }
-  @Test def test_uu_unparse(): Unit = { runner.runOneTest("uu_unparse") }
-  @Test def test_up(): Unit = { runner.runOneTest("up") }
+  @Test def ub_parse = test
+  @Test def ub_unparse = test
+  @Test def uu_parse = test
+  @Test def uu_unparse = test
+  @Test def up = test
 
-  @Test def test_bb(): Unit = { runner.runOneTest("bb") }
-  @Test def test_bp(): Unit = { runner.runOneTest("bp") }
-  @Test def test_bu(): Unit = { runner.runOneTest("bu") }
-
+  @Test def bb = test
+  @Test def bp = test
+  @Test def bu = test
 }

@@ -17,110 +17,66 @@
 
 package org.apache.daffodil.section13.zoned
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestZoned {
-  val testDir = "/org/apache/daffodil/section13/zoned/"
-  val runner = Runner(testDir, "zoned.tdml")
-  val eRunner = Runner(testDir, "zoned2.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-  }
-
+object TestZoned extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/zoned/zoned.tdml"
 }
 
-class TestZoned {
-  import TestZoned._
+object TestZoned2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/zoned/zoned2.tdml"
+}
 
-  @Test def testZonedPatternFail01(): Unit = {
-    runner.runOneTest("zoned_textNumberPattern_fail01")
-  }
-  @Test def testZonedPatternFail02(): Unit = {
-    runner.runOneTest("zoned_textNumberPattern_fail02")
-  }
-  @Test def testZonedPatternFail03(): Unit = {
-    runner.runOneTest("zoned_textNumberPattern_fail03")
-  }
-  @Test def testZonedPatternFail04(): Unit = {
-    runner.runOneTest("zoned_textNumberPattern_fail04")
-  }
-  @Test def testZonedPatternFail05(): Unit = {
-    runner.runOneTest("zoned_textNumberPattern_fail05")
-  }
-  @Test def testZonedPatternFail06(): Unit = {
-    runner.runOneTest("zoned_textNumberPattern_fail06")
-  }
-  @Test def testZonedFloatFail01(): Unit = { runner.runOneTest("zoned_float_fail01") }
-  @Test def testZonedDoubleFail01(): Unit = { runner.runOneTest("zoned_double_fail01") }
+class TestZoned extends TdmlTests {
+  val tdmlSuite = TestZoned
 
-  @Test def testZonedStandard01(): Unit = { runner.runOneTest("ZonedStandard01") }
-  @Test def testZonedStandard02(): Unit = { runner.runOneTest("ZonedStandard02") }
-  @Test def testZonedStandard03(): Unit = { runner.runOneTest("ZonedStandard03") }
-  @Test def testZonedStandard04(): Unit = { runner.runOneTest("ZonedStandard04") }
-  @Test def testZonedStandard05(): Unit = { runner.runOneTest("ZonedStandard05") }
+  @Test def zoned_textNumberPattern_fail01 = test
+  @Test def zoned_textNumberPattern_fail02 = test
+  @Test def zoned_textNumberPattern_fail03 = test
+  @Test def zoned_textNumberPattern_fail04 = test
+  @Test def zoned_textNumberPattern_fail05 = test
+  @Test def zoned_textNumberPattern_fail06 = test
+  @Test def zoned_float_fail01 = test
+  @Test def zoned_double_fail01 = test
 
-  @Test def testZonedTranslatedEBCDIC01(): Unit = {
-    runner.runOneTest("ZonedTranslatedEBCDIC01")
-  }
-  @Test def testZonedTranslatedEBCDIC02(): Unit = {
-    runner.runOneTest("ZonedTranslatedEBCDIC02")
-  }
-  @Test def testZonedTranslatedEBCDIC03(): Unit = {
-    runner.runOneTest("ZonedTranslatedEBCDIC03")
-  }
-  @Test def testZonedTranslatedEBCDIC04(): Unit = {
-    runner.runOneTest("ZonedTranslatedEBCDIC04")
-  }
-  @Test def testZonedTranslatedEBCDIC05(): Unit = {
-    runner.runOneTest("ZonedTranslatedEBCDIC05")
-  }
+  @Test def ZonedStandard01 = test
+  @Test def ZonedStandard02 = test
+  @Test def ZonedStandard03 = test
+  @Test def ZonedStandard04 = test
+  @Test def ZonedStandard05 = test
 
-  @Test def testZonedCARealiaModified01(): Unit = {
-    runner.runOneTest("ZonedCARealiaModified01")
-  }
-  @Test def testZonedCARealiaModified02(): Unit = {
-    runner.runOneTest("ZonedCARealiaModified02")
-  }
-  @Test def testZonedCARealiaModified03(): Unit = {
-    runner.runOneTest("ZonedCARealiaModified03")
-  }
-  @Test def testZonedCARealiaModified04(): Unit = {
-    runner.runOneTest("ZonedCARealiaModified04")
-  }
-  @Test def testZonedCARealiaModified05(): Unit = {
-    runner.runOneTest("ZonedCARealiaModified05")
-  }
+  @Test def ZonedTranslatedEBCDIC01 = test
+  @Test def ZonedTranslatedEBCDIC02 = test
+  @Test def ZonedTranslatedEBCDIC03 = test
+  @Test def ZonedTranslatedEBCDIC04 = test
+  @Test def ZonedTranslatedEBCDIC05 = test
 
-  @Test def testZonedTandemModified01(): Unit = { runner.runOneTest("ZonedTandemModified01") }
-  @Test def testZonedTandemModified02(): Unit = { runner.runOneTest("ZonedTandemModified02") }
-  @Test def testZonedTandemModified03(): Unit = { runner.runOneTest("ZonedTandemModified03") }
-  @Test def testZonedTandemModified04(): Unit = { runner.runOneTest("ZonedTandemModified04") }
-  @Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") }
+  @Test def ZonedCARealiaModified01 = test
+  @Test def ZonedCARealiaModified02 = test
+  @Test def ZonedCARealiaModified03 = test
+  @Test def ZonedCARealiaModified04 = test
+  @Test def ZonedCARealiaModified05 = test
 
-  @Test def testZonedEBCDICLeadingOverpunchedSign(): Unit = {
-    eRunner.runOneTest("ZonedEBCDICLeadingOverpunchedSign")
-  }
+  @Test def ZonedTandemModified01 = test
+  @Test def ZonedTandemModified02 = test
+  @Test def ZonedTandemModified03 = test
+  @Test def ZonedTandemModified04 = test
+  @Test def ZonedTandemModified05 = test
+}
 
-  @Test def testZonedEBCDICLeadingOverpunchedSign_B5(): Unit = {
-    eRunner.runOneTest("ZonedEBCDICLeadingOverpunchedSign_B5")
-  }
+class TestZoned2 extends TdmlTests {
+  val tdmlSuite = TestZoned2
 
-  @Test def testZonedEBCDICLeadingOverpunchedSignBadDigit(): Unit = {
-    eRunner.runOneTest("ZonedEBCDICLeadingOverpunchedSignBadDigit")
-  }
-  @Test def testZonedEBCDICTrailingOverpunchedSign(): Unit = {
-    eRunner.runOneTest("ZonedEBCDICTrailingOverpunchedSign")
-  }
+  @Test def ZonedEBCDICLeadingOverpunchedSign = test
 
-  @Test def testZonedEBCDICTrailingOverpunchedSign_B2(): Unit = {
-    eRunner.runOneTest("ZonedEBCDICTrailingOverpunchedSign_B2")
-  }
-  @Test def testZonedEBCDICTrailingOverpunchedSignBadDigit(): Unit = {
-    eRunner.runOneTest("ZonedEBCDICTrailingOverpunchedSignBadDigit")
-  }
+  @Test def ZonedEBCDICLeadingOverpunchedSign_B5 = test
 
+  @Test def ZonedEBCDICLeadingOverpunchedSignBadDigit = test
+  @Test def ZonedEBCDICTrailingOverpunchedSign = test
+
+  @Test def ZonedEBCDICTrailingOverpunchedSign_B2 = test
+  @Test def ZonedEBCDICTrailingOverpunchedSignBadDigit = test
 }

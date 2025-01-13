@@ -15,23 +15,30 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime1.layers
+package org.apache.daffodil.section07.defineFormat
 
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
 
+import org.junit.Ignore
 import org.junit.Test
 
-/* This section00 is for testing general features of DFDL that are
- * not related to any specific requirement
- */
-
-object TestAISPayloadArmoring extends TdmlSuite {
-  val tdmlResource = "/org/apache/daffodil/layers/ais.tdml"
+object DefineFormatTests extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/defineFormat/defineFormat.tdml"
 }
 
-class TestAISPayloadArmoring extends TdmlTests {
-  val tdmlSuite = TestAISPayloadArmoring
+class DefineFormatTests extends TdmlTests {
+  val tdmlSuite = DefineFormatTests
 
-  @Test def ais1 = test
+  @Test def format_with_comment = test
+
+  // DFDL-478
+  @Ignore @Test def nameCollision = test
+
+  @Test def defineFormat_01 = test
+  @Test def Lesson3_defineFormat = test
+  @Test def Lesson3_inherit_defineFormat = test
+  @Test def formatOnlyDefine = test
+  @Test def circularRef = test
+  @Test def noNameFormat = test
 }

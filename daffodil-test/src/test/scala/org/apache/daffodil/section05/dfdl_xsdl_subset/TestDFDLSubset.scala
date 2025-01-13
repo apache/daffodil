@@ -17,34 +17,36 @@
 
 package org.apache.daffodil.section05.dfdl_xsdl_subset
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestDFDLSubset {
-
-  val testDir = "/org/apache/daffodil/section05/dfdl_xsdl_subset/"
-  val runner = Runner(testDir, "DFDLSubset.tdml")
-  val runnerNV = Runner(testDir, "DFDLSubset.tdml", validateDFDLSchemas = false)
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-    runnerNV.reset
-  }
-
+object TestDFDLSubset extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/dfdl_xsdl_subset/DFDLSubset.tdml"
 }
 
-class TestDFDLSubset {
+object TestDFDLSubsetNoValidate extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/dfdl_xsdl_subset/DFDLSubset.tdml"
 
-  import TestDFDLSubset._
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateDFDLSchemas = false)
+}
 
-  @Test def test_groupRefGroupRef(): Unit = { { runner.runOneTest("groupRefGroupRef") } }
-  @Test def test_refInitiator3(): Unit = { { runner.runOneTest("refInitiator3") } }
-  @Test def test_groupRef(): Unit = { { runnerNV.runOneTest("groupRef") } }
-  @Test def test_groupRefChoice(): Unit = { runnerNV.runOneTest("groupRefChoice") }
-  @Test def test_badGroupRef(): Unit = { { runner.runOneTest("badGroupRef") } }
-  @Test def test_badSeq(): Unit = { { runner.runOneTest("badSeq") } }
+class TestDFDLSubset extends TdmlTests {
+  val tdmlSuite = TestDFDLSubset
 
-  @Test def test_groupRefDFDL(): Unit = { runner.runOneTest("groupRefDFDL") }
+  @Test def groupRefGroupRef = test
+  @Test def refInitiator3 = test
+  @Test def badGroupRef = test
+  @Test def badSeq = test
+
+  @Test def groupRefDFDL = test
+}
+
+class TestDFDLSubsetNoValidate extends TdmlTests {
+  val tdmlSuite = TestDFDLSubsetNoValidate
+
+  @Test def groupRef = test
+  @Test def groupRefChoice = test
 }

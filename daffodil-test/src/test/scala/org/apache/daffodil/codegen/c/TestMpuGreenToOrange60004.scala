@@ -17,23 +17,21 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestMpuGreenToOrange60004 {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "MPU_green_to_orange_60004.tdml", TDMLImplementation.DaffodilC)
+object TestMpuGreenToOrange60004 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/MPU_green_to_orange_60004.tdml"
 
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestMpuGreenToOrange60004 {
-  import TestMpuGreenToOrange60004._
+class TestMpuGreenToOrange60004 extends TdmlTests {
+  val tdmlSuite = TestMpuGreenToOrange60004
 
-  @Test def test_MPU_green_to_orange_60004(): Unit = {
-    runner.runOneTest("MPU_green_to_orange_60004")
-  }
+  @Test def MPU_green_to_orange_60004 = test
 }

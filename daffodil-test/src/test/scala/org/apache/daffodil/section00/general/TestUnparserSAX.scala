@@ -17,26 +17,19 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparserSAX {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner2 = Runner(testDir, "testUnparserSAX.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner2.reset
-  }
+object TestUnparserSAX extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/testUnparserSAX.tdml"
 }
 
-class TestUnparserSAX {
-  import TestUnparserSAX._
+class TestUnparserSAX extends TdmlTests {
+  val tdmlSuite = TestUnparserSAX
 
-  @Test def test_saxUnparseBatchSize_1() = { runner2.runOneTest("test_saxUnparseBatchSize_1") }
-  @Test def test_saxUnparseBatchSize_5() = { runner2.runOneTest("test_saxUnparseBatchSize_5") }
-  @Test def test_saxUnparseBatchSize_1000() = {
-    runner2.runOneTest("test_saxUnparseBatchSize_1000")
-  }
+  @Test def test_saxUnparseBatchSize_1 = test
+  @Test def test_saxUnparseBatchSize_5 = test
+  @Test def test_saxUnparseBatchSize_1000 = test
 }

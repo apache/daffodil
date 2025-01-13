@@ -17,51 +17,41 @@
 
 package org.apache.daffodil.section24.regular_expressions
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestRegularExpressions {
-  val testDir = "/org/apache/daffodil/section24/regular_expressions/"
-  val runner = Runner(testDir, "RegularExpressions.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestRegularExpressions extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section24/regular_expressions/RegularExpressions.tdml"
 }
 
-class TestRegularExpressions {
+class TestRegularExpressions extends TdmlTests {
 
-  import TestRegularExpressions._
+  val tdmlSuite = TestRegularExpressions
 
-  @Test def test_entity_in_regex_fail(): Unit = { runner.runOneTest("entity_in_regex_fail") }
-  @Test def test_entity_in_regex_fail_2(): Unit = {
-    runner.runOneTest("entity_in_regex_fail_2")
-  }
-  @Test def test_entity_in_regex_fail_3(): Unit = {
-    runner.runOneTest("entity_in_regex_fail_3")
-  }
-  @Test def test_entity_in_regex_fail_4(): Unit = {
-    runner.runOneTest("entity_in_regex_fail_4")
-  }
+  @Test def entity_in_regex_fail = test
+  @Test def entity_in_regex_fail_2 = test
+  @Test def entity_in_regex_fail_3 = test
+  @Test def entity_in_regex_fail_4 = test
 
-  @Test def test_testRegEx_01(): Unit = { runner.runOneTest("testRegEx_01") }
-  @Test def test_testRegEx_02(): Unit = { runner.runOneTest("testRegEx_02") }
-  @Test def test_testRegEx_03(): Unit = { runner.runOneTest("testRegEx_03") }
+  @Test def testRegEx_01 = test
+  @Test def testRegEx_02 = test
+  @Test def testRegEx_03 = test
 
   // DFDL-517
   // // Unsupported Java 7 features (should return Schema Definition Errors)
-  // @Test def test_testRegEx_04() { runner.runOneTest("testRegEx_04") }
-  // @Test def test_testRegEx_05() { runner.runOneTest("testRegEx_05") }
-  // @Test def test_testRegEx_06() { runner.runOneTest("testRegEx_06") }
-  // @Test def test_testRegEx_07() { runner.runOneTest("testRegEx_07") }
+  @Ignore @Test def testRegEx_04 = test
+  @Ignore @Test def testRegEx_05 = test
+  @Ignore @Test def testRegEx_06 = test
+  @Ignore @Test def testRegEx_07 = test
 
   // DFDL-922
-  @Test def test_testRegEx_08(): Unit = { runner.runOneTest("testDFDL-922") }
-  @Test def test_testRegEx_09(): Unit = { runner.runOneTest("testDFDL-922_2") }
+  @Test def testDFDL_922 = test
+  @Test def testDFDL_922_2 = test
 
   // DAFFODIL-809
-  @Test def test_assertWithPattern1(): Unit = { runner.runOneTest("testAssertWithPattern1") }
+  @Test def testAssertWithPattern1 = test
 }

@@ -17,29 +17,22 @@
 
 package org.apache.daffodil.section07.discriminators
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestNestedChoices {
-  val testDir = "/org/apache/daffodil/section07/discriminators/"
-  val runner = Runner(testDir, "nestedChoiceDiscriminator.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestNestedChoices extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section07/discriminators/nestedChoiceDiscriminator.tdml"
 }
 
-class TestNestedChoices {
+class TestNestedChoices extends TdmlTests {
+  val tdmlSuite = TestNestedChoices
 
-  import TestNestedChoices._
-
-  @Test def testNestedChoice1(): Unit = { runner.runOneTest("nestedChoice1") }
-  @Test def testNestedChoice2(): Unit = { runner.runOneTest("nestedChoice2") }
-  @Test def testNestedChoice3(): Unit = { runner.runOneTest("nestedChoice3") }
-  @Test def testNestedChoice3b(): Unit = { runner.runOneTest("nestedChoice3b") }
-  @Test def testNestedChoice4(): Unit = { runner.runOneTest("nestedChoice4") }
-
+  @Test def nestedChoice1 = test
+  @Test def nestedChoice2 = test
+  @Test def nestedChoice3 = test
+  @Test def nestedChoice3b = test
+  @Test def nestedChoice4 = test
 }

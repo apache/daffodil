@@ -17,55 +17,44 @@
 
 package org.apache.daffodil.section02.processing_errors
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestProcessingErrorsUnparse {
-  val testDir = "/org/apache/daffodil/section02/processing_errors/"
+object TestProcessingErrorsUnparseNoValidate extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section02/processing_errors/ProcessingErrorsUnparse.tdml"
 
-  val runner02 = Runner(
-    testDir,
-    "ProcessingErrorsUnparse.tdml",
-    validateTDMLFile = false,
-    validateDFDLSchemas = false
-  )
-  val runner02Validate = Runner(
-    testDir,
-    "ProcessingErrorsUnparse.tdml",
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = false, validateDFDLSchemas = false)
+}
+
+object TestProcessingErrorsUnparseValidate extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section02/processing_errors/ProcessingErrorsUnparse.tdml"
+
+  override def createRunner() = Runner(
+    tdmlDir,
+    tdmlFile,
     validateTDMLFile = true,
     validateDFDLSchemas = true,
     compileAllTopLevel = true
   )
-
-  @AfterClass def shutDown(): Unit = {
-    runner02.reset
-    runner02Validate.reset
-  }
-
 }
 
-class TestProcessingErrorsUnparse {
+class TestProcessingErrorsUnparseNoValidate extends TdmlTests {
+  val tdmlSuite = TestProcessingErrorsUnparseNoValidate
 
-  import TestProcessingErrorsUnparse._
+  @Test def missingNamespacePrefixUnparse = test
+  @Test def incorrectNamespaceUnparse = test
+}
 
-  @Test def test_roundTripErrorHalfwayThrough(): Unit = {
-    runner02Validate.runOneTest("roundTripErrorHalfwayThrough")
-  }
+class TestProcessingErrorsUnparseValidate extends TdmlTests {
+  val tdmlSuite = TestProcessingErrorsUnparseValidate
 
-  @Test def test_upaInvalidSchemaUnparse(): Unit = {
-    runner02Validate.runOneTest("upaInvalidSchemaUnparse")
-  }
-  @Test def test_upaInvalidSchemaUnparse2(): Unit = {
-    runner02Validate.runOneTest("upaInvalidSchemaUnparse2")
-  }
-  @Test def test_missingNamespacePrefixUnparse(): Unit = {
-    runner02.runOneTest("missingNamespacePrefixUnparse")
-  }
-
-  @Test def test_incorrectNamespaceUnparse(): Unit = {
-    runner02.runOneTest("incorrectNamespaceUnparse")
-  }
-
+  @Test def roundTripErrorHalfwayThrough = test
+  @Test def upaInvalidSchemaUnparse = test
+  @Test def upaInvalidSchemaUnparse2 = test
 }

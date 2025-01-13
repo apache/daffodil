@@ -17,136 +17,103 @@
 
 package org.apache.daffodil.section11.content_framing_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestContentFramingProperties {
-
-  private val testDir_02 = "/org/apache/daffodil/section11/content_framing_properties/"
-  val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner2.reset
-  }
+object TestContentFramingProperties extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section11/content_framing_properties/ContentFramingProps.tdml"
 }
 
-class TestContentFramingProperties {
-  import TestContentFramingProperties._
+class TestContentFramingProperties extends TdmlTests {
+  val tdmlSuite = TestContentFramingProperties
 
   // Commented out due to 4byte char decode issue when implementing DFDL-951 - DFDL-965
-  // @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
-  // @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
+  @Ignore @Test def xml_utf8_4byte_chars_01 = test
+  @Ignore @Test def xml_utf8_4byte_chars = test
 
-  @Test def test_UTF_16_01(): Unit = { runner2.runOneTest("UTF_16_01") }
-  @Test def test_xml_illegal_chars_01(): Unit = { runner2.runOneTest("xml_illegal_chars_01") }
-  @Test def test_xml_illegal_chars_02(): Unit = { runner2.runOneTest("xml_illegal_chars_02") }
-  @Test def test_xml_illegal_chars(): Unit = { runner2.runOneTest("xml_illegal_chars") }
+  @Test def UTF_16_01 = test
+  @Test def xml_illegal_chars_01 = test
+  @Test def xml_illegal_chars_02 = test
+  @Test def xml_illegal_chars = test
 
-  @Test def test_alignmentPacked7BitASCII(): Unit = {
-    runner2.runOneTest("alignmentPacked7BitASCII")
-  }
-  @Test def test_alignmentPacked7BitASCII_03(): Unit = {
-    runner2.runOneTest("alignmentPacked7BitASCII_03")
-  }
-  @Test def test_alignmentPacked7BitASCII_04(): Unit = {
-    runner2.runOneTest("alignmentPacked7BitASCII_04")
-  }
+  @Test def alignmentPacked7BitASCII = test
+  @Test def alignmentPacked7BitASCII_03 = test
+  @Test def alignmentPacked7BitASCII_04 = test
   //  DFDL-751 - 7-bit ASCII alignment should be 1 bit, complains that it needs to be 8 bits
-  //  @Test def test_alignmentPacked7BitASCII_02() { runner2.runOneTest("alignmentPacked7BitASCII_02") }
-  //  @Test def test_alignmentPacked7BitASCII_05() { runner2.runOneTest("alignmentPacked7BitASCII_05") }
+  @Ignore @Test def alignmentPacked7BitASCII_02 = test
+  @Ignore @Test def alignmentPacked7BitASCII_05 = test
 
   /*** DFDL-379 X-DFDL-US-ASCII-7-BIT-PACKED text ***/
-  @Test def test_packed7BitASCII1(): Unit = { runner2.runOneTest("packed7BitASCII1") }
-  @Test def test_packed7BitASCII2(): Unit = { runner2.runOneTest("packed7BitASCII2") }
-  @Test def test_packed7BitASCII3() = { runner2.runOneTest("packed7BitASCII3") }
-  @Test def test_packed7BitASCII4() = { runner2.runOneTest("packed7BitASCII4") }
-  @Test def test_packed7BitASCII5() = { runner2.runOneTest("packed7BitASCII5") }
-  @Test def test_packed7BitASCII6() = { runner2.runOneTest("packed7BitASCII6") }
+  @Test def packed7BitASCII1 = test
+  @Test def packed7BitASCII2 = test
+  @Test def packed7BitASCII3 = test
+  @Test def packed7BitASCII4 = test
+  @Test def packed7BitASCII5 = test
+  @Test def packed7BitASCII6 = test
 
-  @Test def test_packed7BitASCII7() = { runner2.runOneTest("packed7BitASCII7") }
-  @Test def test_packed7BitASCII8() = { runner2.runOneTest("packed7BitASCII8") }
-  @Test def test_packed7BitASCII9() = { runner2.runOneTest("packed7BitASCII9") }
-  @Test def test_packed7BitASCII10(): Unit = { runner2.runOneTest("packed7BitASCII10") }
-  @Test def test_packed7BitASCII_unparse(): Unit = {
-    runner2.runOneTest("packed7BitASCII_unparse")
-  }
-  @Test def test_packed7BitASCII_unparse2(): Unit = {
-    runner2.runOneTest("packed7BitASCII_unparse2")
-  }
+  @Test def packed7BitASCII7 = test
+  @Test def packed7BitASCII8 = test
+  @Test def packed7BitASCII9 = test
+  @Test def packed7BitASCII10 = test
+  @Test def packed7BitASCII_unparse = test
+  @Test def packed7BitASCII_unparse2 = test
 
   // DFDL-935 to re-enable, needs encodingErrorPolicy="error"
-  // @Test def test_packed7BitASCII_unparse3() { runner2.runOneTest("packed7BitASCII_unparse3") }
+  @Ignore @Test def packed7BitASCII_unparse3 = test
 
-  @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
+  @Test def encoding_iso_8859_1 = test
 
-  @Test def test_encodingErrorReplace(): Unit = { runner2.runOneTest("encodingErrorReplace") }
+  @Test def encodingErrorReplace = test
   // JIRA Ticket DFDL-1386 - 4-byte utf-8 characters/surrogate-pair issue.
-  @Test def test_encodingNoError(): Unit = { runner2.runOneTest("encodingNoError") }
-  @Test def test_encodingErrorReplace2(): Unit = { runner2.runOneTest("encodingErrorReplace2") }
-  @Test def test_encodingErrorReplace3(): Unit = { runner2.runOneTest("encodingErrorReplace3") }
-  @Test def test_encodingErrorReplace4(): Unit = { runner2.runOneTest("encodingErrorReplace4") }
-  @Test def test_encoding_property_expression(): Unit = {
-    runner2.runOneTest("encoding_property_expression")
-  }
+  @Test def encodingNoError = test
+  @Test def encodingErrorReplace2 = test
+  @Test def encodingErrorReplace3 = test
+  @Test def encodingErrorReplace4 = test
+  @Test def encoding_property_expression = test
 
-  @Test def test_mixedEncoding1(): Unit = { runner2.runOneTest("mixedEncoding1") }
-  @Test def test_mixedEncoding2(): Unit = { runner2.runOneTest("mixedEncoding2") }
+  @Test def mixedEncoding1 = test
+  @Test def mixedEncoding2 = test
 
   // Added for JIRA Ticket DFDL-1288
-  @Test def test_encodingErrorReplace_unparse(): Unit = {
-    runner2.runOneTest("encodingErrorReplace_unparse")
-  }
-  @Test def test_packed7BitASCII11(): Unit = { runner2.runOneTest("packed7BitASCII11") }
-  @Test def test_packed7BitASCII12(): Unit = { runner2.runOneTest("packed7BitASCII12") }
-  @Test def test_packed6BitASCII1(): Unit = { runner2.runOneTest("packed6BitASCII1") }
-  @Test def test_encoding_property_expression2(): Unit = {
-    runner2.runOneTest("encoding_property_expression2")
-  }
-  @Test def test_encoding_property_expression3(): Unit = {
-    runner2.runOneTest("encoding_property_expression3")
-  }
-  @Test def test_encoding_property_expression4(): Unit = {
-    runner2.runOneTest("encoding_property_expression4")
-  }
-  @Test def test_encoding_property_expression2_unparse(): Unit = {
-    runner2.runOneTest("encoding_property_expression2_unparse")
-  }
-  @Test def test_alignmentPacked6BitASCII(): Unit = {
-    runner2.runOneTest("alignmentPacked6BitASCII")
-  }
-  @Test def test_packed6BitASCII_unparse1(): Unit = {
-    runner2.runOneTest("packed6BitASCII_unparse1")
-  }
-  @Test def test_packed6BitASCII_unparse2(): Unit = {
-    runner2.runOneTest("packed6BitASCII_unparse2")
-  }
-  @Test def test_packed6BitASCII3(): Unit = { runner2.runOneTest("packed6BitASCII3") }
-  @Test def test_packed6BitASCII4(): Unit = { runner2.runOneTest("packed6BitASCII4") }
-  @Test def test_packed6BitASCII5(): Unit = { runner2.runOneTest("packed6BitASCII5") }
+  @Test def encodingErrorReplace_unparse = test
+  @Test def packed7BitASCII11 = test
+  @Test def packed7BitASCII12 = test
+  @Test def packed6BitASCII1 = test
+  @Test def encoding_property_expression2 = test
+  @Test def encoding_property_expression3 = test
+  @Test def encoding_property_expression4 = test
+  @Test def encoding_property_expression2_unparse = test
+  @Test def alignmentPacked6BitASCII = test
+  @Test def packed6BitASCII_unparse1 = test
+  @Test def packed6BitASCII_unparse2 = test
+  @Test def packed6BitASCII3 = test
+  @Test def packed6BitASCII4 = test
+  @Test def packed6BitASCII5 = test
   // DAFFODIL-2659
-  @Test def test_packed6BitICAO(): Unit = { runner2.runOneTest("packed6BitICAO") }
+  @Test def packed6BitICAO = test
   // DAFFODIL-2661
-  // @Test def test_packed6BitMSBF(): Unit = { runner2.runOneTest("packed6BitMSBF") }
-  @Test def test_packed6BitMSBF2(): Unit = { runner2.runOneTest("packed6BitMSBF2") }
-  @Test def test_packed5Bit1(): Unit = { runner2.runOneTest("packed5Bit1") }
-  @Test def test_packed5Bit2(): Unit = { runner2.runOneTest("packed5Bit2") }
-  @Test def test_packed5Bit3(): Unit = { runner2.runOneTest("packed5Bit3") }
-  @Test def test_packed5Bit4(): Unit = { runner2.runOneTest("packed5Bit4") }
-  @Test def test_packed5Bit5(): Unit = { runner2.runOneTest("packed5Bit5") }
-  @Test def test_packed5Bit6(): Unit = { runner2.runOneTest("packed5Bit6") }
-  @Test def test_packed5Bit_unparse1(): Unit = { runner2.runOneTest("packed5Bit_unparse1") }
-  @Test def test_packed5Bit_unparse2(): Unit = { runner2.runOneTest("packed5Bit_unparse2") }
-  @Test def test_packed5Bit_unparse3(): Unit = { runner2.runOneTest("packed5Bit_unparse3") }
-  @Test def test_octalLSBF1(): Unit = { runner2.runOneTest("octalLSBF1") }
-  @Test def test_octalLSBF2(): Unit = { runner2.runOneTest("octalLSBF2") }
-  @Test def test_octalLSBF_unparse1(): Unit = { runner2.runOneTest("octalLSBF_unparse1") }
+  @Ignore @Test def packed6BitMSBF = test
+  @Test def packed6BitMSBF2 = test
+  @Test def packed5Bit1 = test
+  @Test def packed5Bit2 = test
+  @Test def packed5Bit3 = test
+  @Test def packed5Bit4 = test
+  @Test def packed5Bit5 = test
+  @Test def packed5Bit6 = test
+  @Test def packed5Bit_unparse1 = test
+  @Test def packed5Bit_unparse2 = test
+  @Test def packed5Bit_unparse3 = test
+  @Test def octalLSBF1 = test
+  @Test def octalLSBF2 = test
+  @Test def octalLSBF_unparse1 = test
   // DFDL-935 to re-enable, needs encodingErrorPolicy="error"
-  // @Test def test_octalLSBF_unparse_error() { runner2.runOneTest("octalLSBF_unparse_error") }
-  @Test def test_octalLSBF3(): Unit = { runner2.runOneTest("octalLSBF3") }
-  @Test def test_hexLSBF1(): Unit = { runner2.runOneTest("hexLSBF1") }
-  @Test def test_hexLSBF2(): Unit = { runner2.runOneTest("hexLSBF2") }
-  @Test def test_hexLSBF_unparse1(): Unit = { runner2.runOneTest("hexLSBF_unparse1") }
-
+  @Ignore @Test def octalLSBF_unparse_error = test
+  @Test def octalLSBF3 = test
+  @Test def hexLSBF1 = test
+  @Test def hexLSBF2 = test
+  @Test def hexLSBF_unparse1 = test
 }

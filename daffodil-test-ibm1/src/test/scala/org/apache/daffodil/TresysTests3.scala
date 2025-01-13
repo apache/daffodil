@@ -17,60 +17,62 @@
 
 package org.apache.daffodil
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TresysTests3 {
-  val testDir = "/test-suite/tresys-contributed/"
-
-  val runnerBF = Runner(
-    testDir,
-    "bitFlagExpression.tdml",
-    compileAllTopLevel = false
-  ) // test has elements that have upward paths past root.
-
-  val runnerAH = Runner(testDir, "AH.tdml", compileAllTopLevel = true)
-
-  val runnerAM = Runner(
-    testDir,
-    "AM.tdml",
-    validateTDMLFile = true,
-    validateDFDLSchemas = false,
-    compileAllTopLevel = true
-  )
-
-  val runnerAU = Runner(
-    testDir,
-    "AU.tdml",
-    validateTDMLFile = true,
-    validateDFDLSchemas = false,
-    compileAllTopLevel = true
-  )
-
-  val runnerBC = Runner(testDir, "BC.tdml")
-  val runnerBD = Runner(testDir, "BD.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runnerBF.reset
-    runnerAH.reset
-    runnerAM.reset
-    runnerAU.reset
-    runnerBC.reset
-    runnerBD.reset
-  }
+object TestBitFlag extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/bitFlagExpression.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, compileAllTopLevel = false)
 }
 
-class TresysTests3 {
-  import TresysTests3._
+object TestAH extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AH.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, compileAllTopLevel = true)
+}
 
-  @Test def test_testNone() = { runnerBF.runOneTest("testNone") }
-  @Test def test_testOne(): Unit = { runnerBF.runOneTest("testOne") }
-  @Test def test_testMany(): Unit = { runnerBF.runOneTest("testMany") }
+object TestAM extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AM.tdml"
+  override def createRunner() = Runner(
+    tdmlDir,
+    tdmlFile,
+    validateTDMLFile = true,
+    validateDFDLSchemas = false,
+    compileAllTopLevel = true
+  )
+}
 
-  @Test def test_AH000(): Unit = { runnerAH.runOneTest("AH000") }
-  @Test def test_AH001(): Unit = { runnerAH.runOneTest("AH001") }
-  @Test def test_AH002(): Unit = { runnerAH.runOneTest("AH002") }
+object TestAU extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/AU.tdml"
+  override def createRunner() = Runner(
+    tdmlDir,
+    tdmlFile,
+    validateTDMLFile = true,
+    validateDFDLSchemas = false,
+    compileAllTopLevel = true
+  )
+}
+
+class TestBitFlag extends TdmlTests {
+  val tdmlSuite = TestBitFlag
+
+  @Test def testNone = test
+  @Test def testOne = test
+  @Test def testMany = test
+}
+
+class TestAH extends TdmlTests {
+  val tdmlSuite = TestAH
+
+  @Test def AH000 = test
+  @Test def AH001 = test
+  @Test def AH002 = test
+}
+
+class TestAM extends TdmlTests {
+  val tdmlSuite = TestAM
 
   // AM is a MIME style example
   // Wasn't working for lack of occursCountKind, and
@@ -86,10 +88,12 @@ class TresysTests3 {
   // This is fixed by specifying daffodil-specific property
   // dfdlx:parseUnparsePolicy="parseOnly", which suppresses the check for this
   // constraint.
+  @Test def AM000 = test
+  @Test def AM001 = test
+}
 
-  @Test def test_AM000(): Unit = { runnerAM.runOneTest("AM000") }
-  @Test def test_AM001(): Unit = { runnerAM.runOneTest("AM001") }
+class TestAU extends TdmlTests {
+  val tdmlSuite = TestAU
 
-  @Test def test_AU000(): Unit = { runnerAU.runOneTest("AU000") } // packed and bcd
-
+  @Test def AU000 = test
 }

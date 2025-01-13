@@ -17,52 +17,33 @@
 
 package org.apache.daffodil.section02.schema_definition_errors
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSDE {
-
-  val testDir = "/org/apache/daffodil/section02/schema_definition_errors/"
-  val runner = Runner(testDir, "SchemaDefinitionErrors.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
-
+object TestSDE extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section02/schema_definition_errors/SchemaDefinitionErrors.tdml"
 }
 
-class TestSDE {
+class TestSDE extends TdmlTests {
+  val tdmlSuite = TestSDE
 
-  import TestSDE._
+  @Test def AS000_rev = test
 
-  @Test def test_AS000_rev(): Unit = { runner.runOneTest("AS000_rev") }
+  @Test def schema_component_err = test
 
-  @Test def test_schema_component_err(): Unit = { runner.runOneTest("schema_component_err") }
+  @Test def schema_line_number = test
+  @Test def schema_warning = test
+  @Test def missing_appinfo_source = test
+  @Test def missing_appinfo_source_nondfdl = test
+  @Test def missing_closing_tag = test
+  @Test def ignoreAttributeFormDefault = test
 
-  @Test def test_schema_line_number(): Unit = { runner.runOneTest("schema_line_number") }
-  @Test def test_schema_warning(): Unit = { runner.runOneTest("schema_warning") }
-  @Test def test_missing_appinfo_source(): Unit = {
-    runner.runOneTest("missing_appinfo_source")
-  }
-  @Test def test_missing_appinfo_source_nondfdl(): Unit = {
-    runner.runOneTest("missing_appinfo_source_nondfdl")
-  }
-  @Test def test_missing_closing_tag(): Unit = { runner.runOneTest("missing_closing_tag") }
-  @Test def test_ignoreAttributeFormDefault(): Unit = {
-    runner.runOneTest("ignoreAttributeFormDefault")
-  }
+  @Test def schema_warning_locally_suppressed = test
 
-  @Test def test_schema_warning_locally_suppressed(): Unit = {
-    runner.runOneTest("schema_warning_locally_suppressed")
-  }
+  @Test def schema_warning_escalated_to_error = test
 
-  @Test def test_schema_warning_escalated_to_error(): Unit = {
-    runner.runOneTest("schema_warning_escalated_to_error")
-  }
-
-  @Test def test_schema_warning_escalated_to_error2(): Unit = {
-    runner.runOneTest("schema_warning_escalated_to_error2")
-  }
+  @Test def schema_warning_escalated_to_error2 = test
 }

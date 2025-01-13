@@ -17,28 +17,27 @@
 
 package org1
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestOrg1 {
-  val runner = Runner("org1", "testStdLayout.tdml")
-  val runner2 = Runner("org1", "testSchemaFilesUnderSrcTest.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner2.reset
-  }
+object TestOrg1StdLayout extends TdmlSuite {
+  val tdmlResource = "/org1/testStdLayout.tdml"
 }
 
-class TestOrg1 {
+object TestOrg1NonEmbedded extends TdmlSuite {
+  val tdmlResource = "/org1/testSchemaFilesUnderSrcTest.tdml"
+}
 
-  import TestOrg1._
+class TestOrg1StdLayout extends TdmlTests {
+  val tdmlSuite = TestOrg1StdLayout
 
-  @Test def test_outer_01() = { runner.runOneTest("outer_01") }
-  @Test def test_schemaFilesUnderSrcTest_01() = {
-    runner2.runOneTest("test_schemaFilesUnderSrcTest_01")
-  }
+  @Test def outer_01 = test
+}
 
+class TestOrg1NonEmbedded extends TdmlTests {
+  val tdmlSuite = TestOrg1NonEmbedded
+
+  @Test def test_schemaFilesUnderSrcTest_01 = test
 }

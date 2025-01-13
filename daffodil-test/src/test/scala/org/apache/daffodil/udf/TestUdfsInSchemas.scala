@@ -16,87 +16,42 @@
  */
 package org.apache.daffodil.udf
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUdfsInSchemas {
-  val testDir = "/org/apache/daffodil/udf/"
+object TestUdfsInSchemas extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/udf/udfs.tdml"
 
-  val runner = Runner(testDir, "udfs.tdml", validateTDMLFile = true)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
-class TestUdfsInSchemas {
-  import TestUdfsInSchemas._
+class TestUdfsInSchemas extends TdmlTests {
+  val tdmlSuite = TestUdfsInSchemas
 
-  @Test def test_udf_defaultNamespace(): Unit = {
-    runner.runOneTest("test_udf_defaultNamespace")
-  }
-  @Test def test_udf_fnNotFound(): Unit = { runner.runOneTest("test_udf_fnNotFound") }
-  @Test def test_udf_numArgsIncorrect(): Unit = {
-    runner.runOneTest("test_udf_numArgsIncorrect")
-  }
-  @Test def test_udf_argsTypesIncorrect(): Unit = {
-    runner.runOneTest("test_udf_argsTypesIncorrect")
-  }
-  @Test def test_udf_noArgs(): Unit = { runner.runOneTest("test_udf_noArgs") }
-  @Test def test_boxedIntParamRetType(): Unit = {
-    runner.runOneTest("test_boxedIntParamRetType")
-  }
-  @Test def test_primitiveIntParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveIntParamRetType")
-  }
-  @Test def test_boxedByteParamRetType(): Unit = {
-    runner.runOneTest("test_boxedByteParamRetType")
-  }
-  @Test def test_primitiveByteParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveByteParamRetType")
-  }
-  @Test def test_primitiveByteArrayParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveByteArrayParamRetType")
-  }
-  @Test def test_boxedShortParamRetType(): Unit = {
-    runner.runOneTest("test_boxedShortParamRetType")
-  }
-  @Test def test_primitiveShortParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveShortParamRetType")
-  }
-  @Test def test_boxedLongParamRetType(): Unit = {
-    runner.runOneTest("test_boxedLongParamRetType")
-  }
-  @Test def test_primitiveLongParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveLongParamRetType")
-  }
-  @Test def test_boxedDoubleParamRetType(): Unit = {
-    runner.runOneTest("test_boxedDoubleParamRetType")
-  }
-  @Test def test_primitiveDoubleParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveDoubleParamRetType")
-  }
-  @Test def test_boxedFloatParamRetType(): Unit = {
-    runner.runOneTest("test_boxedFloatParamRetType")
-  }
-  @Test def test_primitiveFloatParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveFloatParamRetType")
-  }
-  @Test def test_boxedBooleanParamRetType(): Unit = {
-    runner.runOneTest("test_boxedBooleanParamRetType")
-  }
-  @Test def test_primitiveBooleanParamRetType(): Unit = {
-    runner.runOneTest("test_primitiveBooleanParamRetType")
-  }
-  @Test def test_javaBigIntegerParamRetType(): Unit = {
-    runner.runOneTest("test_javaBigIntegerParamRetType")
-  }
-  @Test def test_javaBigDecimalParamRetType(): Unit = {
-    runner.runOneTest("test_javaBigDecimalParamRetType")
-  }
-  @Test def test_stringParamRetType(): Unit = { runner.runOneTest("test_stringParamRetType") }
-
+  @Test def test_udf_defaultNamespace = test
+  @Test def test_udf_fnNotFound = test
+  @Test def test_udf_numArgsIncorrect = test
+  @Test def test_udf_argsTypesIncorrect = test
+  @Test def test_udf_noArgs = test
+  @Test def test_boxedIntParamRetType = test
+  @Test def test_primitiveIntParamRetType = test
+  @Test def test_boxedByteParamRetType = test
+  @Test def test_primitiveByteParamRetType = test
+  @Test def test_primitiveByteArrayParamRetType = test
+  @Test def test_boxedShortParamRetType = test
+  @Test def test_primitiveShortParamRetType = test
+  @Test def test_boxedLongParamRetType = test
+  @Test def test_primitiveLongParamRetType = test
+  @Test def test_boxedDoubleParamRetType = test
+  @Test def test_primitiveDoubleParamRetType = test
+  @Test def test_boxedFloatParamRetType = test
+  @Test def test_primitiveFloatParamRetType = test
+  @Test def test_boxedBooleanParamRetType = test
+  @Test def test_primitiveBooleanParamRetType = test
+  @Test def test_javaBigIntegerParamRetType = test
+  @Test def test_javaBigDecimalParamRetType = test
+  @Test def test_stringParamRetType = test
 }

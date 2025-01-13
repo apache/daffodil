@@ -17,44 +17,28 @@
 
 package org.apache.daffodil.section13.decimal
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestDecimalSigned {
-  val testDir = "/org/apache/daffodil/section13/decimal/"
-  val runner: Runner = Runner(testDir, "TestDecimalSigned.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestDecimalSigned extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/decimal/TestDecimalSigned.tdml"
 }
-class TestDecimalSigned {
-  import TestDecimalSigned._
 
-  @Test def parseTestDecimalSigned_no_binary(): Unit =
-    runner.runOneTest("parseTestDecimalSigned_no_binary")
-  @Test def parseTestdecimalSigned_no_bcd(): Unit =
-    runner.runOneTest("parseTestdecimalSigned_no_bcd")
+class TestDecimalSigned extends TdmlTests {
+  val tdmlSuite = TestDecimalSigned
 
-// DAFFODIL-2957 - the tests below all failing
-// Abort with usage error. Should be unparse error.
-//  @Test def unparseTestDecimalSigned_no_binary(): Unit =
-//    runner.runOneTest("unparseTestDecimalSigned_no_binary")
-// error not detected
-//  @Test def unparseTestdecimalSigned_no_bcd(): Unit =
-//    runner.runOneTest("unparseTestdecimalSigned_no_bcd")
-// error not detected
-//  @Test def parseTestDecimalSigned_no_packed(): Unit =
-//    runner.runOneTest("parseTestDecimalSigned_no_packed")
-// error not detected
-//  @Test def unparseTestDecimalSigned_no_packed(): Unit =
-//    runner.runOneTest("unparseTestDecimalSigned_no_packed")
-// error not detected
-//  @Test def parseTestDecimalSigned_no_ibm4690Packed(): Unit =
-//    runner.runOneTest("parseTestDecimalSigned_no_ibm4690Packed")
-// error not detected
-//  @Test def unparseTestDecimalSigned_no_ibm4690Packed(): Unit =
-//    runner.runOneTest("unparseTestDecimalSigned_no_ibm4690Packed")
+  @Test def parseTestDecimalSigned_no_binary = test
+  @Test def parseTestdecimalSigned_no_bcd = test
+
+  // DAFFODIL-2957 - the tests below all failing
+  // Abort with usage error. Should be unparse error.
+  @Ignore @Test def unparseTestDecimalSigned_no_binary = test
+  @Ignore @Test def unparseTestdecimalSigned_no_bcd = test
+  @Ignore @Test def parseTestDecimalSigned_no_packed = test
+  @Ignore @Test def unparseTestDecimalSigned_no_packed = test
+  @Ignore @Test def parseTestDecimalSigned_no_ibm4690Packed = test
+  @Ignore @Test def unparseTestDecimalSigned_no_ibm4690Packed = test
 }

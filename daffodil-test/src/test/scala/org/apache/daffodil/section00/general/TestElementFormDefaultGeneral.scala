@@ -17,66 +17,31 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
-import org.junit._
 
-object TestElementFormDefaultGeneral {
-
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testElementFormDefault.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestElementFormDefaultGeneral extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/testElementFormDefault.tdml"
 }
 
-class TestElementFormDefaultGeneral {
-  import TestElementFormDefaultGeneral._
+class TestElementFormDefaultGeneral extends TdmlTests {
+  val tdmlSuite = TestElementFormDefaultGeneral
 
-  @Test def test_delimOptPresentQualified01(): Unit = {
-    runner.runOneTest("delimOptPresentQualified01")
-  }
-  @Test def test_delimOptPresentQualified02(): Unit = {
-    runner.runOneTest("delimOptPresentQualified02")
-  }
-  @Test def test_delimOptPresentQualified02_additionalByte(): Unit = {
-    runner.runOneTest("delimOptPresentQualified02_additionalByte")
-  }
-  @Test def test_delimOptPresentQualified03(): Unit = {
-    runner.runOneTest("delimOptPresentQualified03")
-  }
-  @Test def test_delimOptPresentQualified04(): Unit = {
-    runner.runOneTest("delimOptPresentQualified04")
-  }
-  @Test def test_delimOptPresentQualified05(): Unit = {
-    runner.runOneTest("delimOptPresentQualified05")
-  }
+  @Test def delimOptPresentQualified01 = test
+  @Test def delimOptPresentQualified02 = test
+  @Test def delimOptPresentQualified02_additionalByte = test
+  @Test def delimOptPresentQualified03 = test
+  @Test def delimOptPresentQualified04 = test
+  @Test def delimOptPresentQualified05 = test
 
-  @Test def test_delimOptPresentUnqualified01(): Unit = {
-    runner.runOneTest("delimOptPresentUnqualified01")
-  }
-  @Test def test_delimOptPresentUnqualified02(): Unit = {
-    runner.runOneTest("delimOptPresentUnqualified02")
-  }
-  @Test def test_delimOptPresentUnqualified03(): Unit = {
-    runner.runOneTest("delimOptPresentUnqualified03")
-  }
-  @Test def test_delimOptPresentUnqualified04(): Unit = {
-    runner.runOneTest("delimOptPresentUnqualified04")
-  }
-  @Test def test_delimOptPresentMissing(): Unit = {
-    runner.runOneTest("delimOptPresentMissing")
-  }
+  @Test def delimOptPresentUnqualified01 = test
+  @Test def delimOptPresentUnqualified02 = test
+  @Test def delimOptPresentUnqualified03 = test
+  @Test def delimOptPresentUnqualified04 = test
+  @Test def delimOptPresentMissing = test
 
-  @Test def test_delimOptPresentGlobalQualified01(): Unit = {
-    runner.runOneTest("delimOptPresentGlobalQualified01")
-  }
-  @Test def test_delimOptPresentGlobalQualified02(): Unit = {
-    runner.runOneTest("delimOptPresentGlobalQualified02")
-  }
-
+  @Test def delimOptPresentGlobalQualified01 = test
+  @Test def delimOptPresentGlobalQualified02 = test
 }

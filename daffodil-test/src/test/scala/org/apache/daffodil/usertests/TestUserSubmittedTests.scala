@@ -18,76 +18,65 @@
 package org.apache.daffodil.usertests
 
 import org.apache.daffodil.core.dsom.ExpressionCompilers
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
-import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
-import org.junit.Assert._
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
-object TestUserSubmittedTests {
-  val testDir = "/org/apache/daffodil/usertests/"
-  val runner = Runner(testDir, "UserSubmittedTests.tdml")
-  val runner2 = Runner(testDir, "nameDOB_test.tdml")
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner2.reset
-  }
-
+object TestUserSubmittedTests extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/usertests/UserSubmittedTests.tdml"
 }
 
-class TestUserSubmittedTests {
+object TestNameDOB extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/usertests/nameDOB_test.tdml"
+}
 
-  import TestUserSubmittedTests._
+class TestUserSubmittedTests extends TdmlTests {
+  val tdmlSuite = TestUserSubmittedTests
 
-  @Test def test_prefix_separator_as_variable(): Unit = {
-    runner.runOneTest("test_prefix_separator_as_variable")
-  }
-  @Test def test_DFDL_2262(): Unit = { runner.runOneTest("test_DFDL_2262") }
-  @Test def test_DFDL_2586(): Unit = { runner.runOneTest("test_DFDL_2586") }
-  @Test def test_DFDL_2399(): Unit = { runner.runOneTest("test_DFDL_2399") }
+  @Test def test_prefix_separator_as_variable = test
+  @Test def test_DFDL_2262 = test
+  @Test def test_DFDL_2586 = test
+  @Test def test_DFDL_2399 = test
 
   // DAFFODIL-2378 (decided as not a bug. These tests characterize that behavior.)
-  @Test def testTextNumberPattern1(): Unit = { runner.runOneTest("textNumberPattern1") }
-  @Test def testTextNumberPattern2(): Unit = { runner.runOneTest("textNumberPattern2") }
-  @Test def testTextNumberPattern3(): Unit = { runner.runOneTest("textNumberPattern3") }
+  @Test def textNumberPattern1 = test
+  @Test def textNumberPattern2 = test
+  @Test def textNumberPattern3 = test
 
-  @Test def test_nameDOB_test2_pass(): Unit = { runner2.runOneTest("nameDOB_test2_pass") }
-  @Test def test_nameDOB_test2_fail(): Unit = { runner2.runOneTest("nameDOB_test2_fail") }
+  // custom trace debugger runner that just counts the number of lines output by the debugger
+  class CountTraceDebuggerRunner extends TraceDebuggerRunner {
+    var numLines = 0
+    override def lineOutput(line: String) = numLines += 1
+  }
 
-  @Test def test_dfdl_782() = {
+  @Test def test_DFDL_782() = {
     val crunner = new CountTraceDebuggerRunner
     val db = new InteractiveDebugger(crunner, ExpressionCompilers)
 
     // sets the debugger and enables debugging
-    runner.setDebugger(db)
+    tdmlSuite.runner.setDebugger(db)
 
-    // run a test with the debugger and debugging enabled so that we count the lines. runOneTest
-    // will disable debugging when the test completes
-    runner.runOneTest("test_DFDL_782")
+    // run a test with the debugger and debugging enabled so that we count the lines. Running
+    // the test will disable debugging when it completes
+    test
     assertTrue(crunner.numLines > 0)
 
     // reset the numLines counter to 0
     crunner.numLines = 0
 
     // run the test again, this should not count any lines because debugging was disabled when
-    // the previous call to runOneTest finished
-    runner.runOneTest("test_DFDL_782")
+    // the previous test finished
+    test
     assertTrue(crunner.numLines == 0)
-
-    // note that this Runner still has the CountTraceDebuggerRunner set as its debugger, so if
-    // other tests using the same Runner enable debugging via runner.debug and run after this
-    // test, they will use it and it might affect their behavior. Technically this isn't
-    // necessary since no other tests in this suite do this, but it's good habit. But commenting
-    // this line out should not break anything.
-    runner.setDebugger(null)
   }
-
 }
 
-// custom trace debugger runner that just counts the number of lines output by the debugger
-class CountTraceDebuggerRunner extends TraceDebuggerRunner {
-  var numLines = 0
-  override def lineOutput(line: String) = numLines += 1
+class TestNameDOB extends TdmlTests {
+  val tdmlSuite = TestNameDOB
+
+  @Test def nameDOB_test2_pass = test
 }

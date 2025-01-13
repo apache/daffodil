@@ -17,54 +17,34 @@
 
 package org.apache.daffodil.section17.calc_value_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestComputedLengthFields {
-  val testDir = "/org/apache/daffodil/section17/calc_value_properties/"
-
-  val runner = Runner(testDir, "computedLengthFields.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestComputedLengthFields extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section17/calc_value_properties/computedLengthFields.tdml"
 }
 
-class TestComputedLengthFields {
-  import TestComputedLengthFields._
+class TestComputedLengthFields extends TdmlTests {
+  val tdmlSuite = TestComputedLengthFields
 
-  @Test def test_computedLengthAroundPrefixedLengths1p(): Unit = {
-    runner.runOneTest("computedLengthAroundPrefixedLengths1p")
-  }
+  @Test def computedLengthAroundPrefixedLengths1p = test
 
   // DAFFODIL-2626 - deadlock interaction between computed length and prefixed-length strings.
-  // @Test
-  def test_computedLengthAroundPrefixedLengths1u(): Unit = {
-    runner.runOneTest("computedLengthAroundPrefixedLengths1u")
-  }
+  @Test def computedLengthAroundPrefixedLengths1u = test
 
   // This test shows you can work around DAFFODIL-2626 using the dfdlx:alignmentKind='manual' property.
-  @Test def test_computedLengthAroundPrefixedLengths1uWithAlignmentKindManual(): Unit = {
-    runner.runOneTest("computedLengthAroundPrefixedLengths1uWithAlignmentKindManual")
-  }
+  @Test def computedLengthAroundPrefixedLengths1uWithAlignmentKindManual = test
 
-  @Test def test_computedLengthAroundFixedLengths1(): Unit = {
-    runner.runOneTest("computedLengthAroundFixedLengths1")
-  }
+  @Test def computedLengthAroundFixedLengths1 = test
 
   // DAFFODIL-2626 circular deadlock
   // Reproduces one of the circular issues - with prefixed length for the root element surrounding
   // text, where the alignment region isn't optimized out.
-  // @Test
-  def test_prefixedAroundDelimitedString1(): Unit = {
-    runner.runOneTest("prefixedAroundDelimitedString1")
-  }
+  @Test def prefixedAroundDelimitedString1 = test
 
   // This test shows you can work around DAFFODIL-2626 using the dfdlx:alignmentKind='manual' property.
-  @Test def test_prefixedAroundDelimitedString1WithAlignmentKindManual(): Unit = {
-    runner.runOneTest("prefixedAroundDelimitedString1WithAlignmentKindManual")
-  }
+  @Test def prefixedAroundDelimitedString1WithAlignmentKindManual = test
 }

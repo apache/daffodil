@@ -17,24 +17,19 @@
 
 package org.apache.daffodil.unparser
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestEnvelopePayload {
-  val runner = Runner("/org/apache/daffodil/unparser/", "envelopePayload.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
+object TestEnvelopePayload extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/unparser/envelopePayload.tdml"
 }
 
-class TestEnvelopePayload {
-  import TestEnvelopePayload._
+class TestEnvelopePayload extends TdmlTests {
+  val tdmlSuite = TestEnvelopePayload
 
-  @Test def test_ep1(): Unit = { runner.runOneTest("ep1") }
-  @Test def test_ep2(): Unit = { runner.runOneTest("ep2") }
-  @Test def test_ep3(): Unit = { runner.runOneTest("ep3") }
-
+  @Test def ep1 = test
+  @Test def ep2 = test
+  @Test def ep3 = test
 }

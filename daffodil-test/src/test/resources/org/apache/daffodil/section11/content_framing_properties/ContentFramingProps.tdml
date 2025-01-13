@@ -817,7 +817,7 @@
     Schema: iso-8859-1
     Purpose: This test demonstrates that the byte 0xFF does not end data.
   -->
-  <tdml:parserTestCase name="encoding_iso-8859-1" root="e1" model="iso-8859-1"
+  <tdml:parserTestCase name="encoding_iso_8859_1" root="e1" model="iso-8859-1"
     description="">
     <tdml:document>
      <tdml:documentPart type="byte"><![CDATA[FF 31 32 33]]></tdml:documentPart>

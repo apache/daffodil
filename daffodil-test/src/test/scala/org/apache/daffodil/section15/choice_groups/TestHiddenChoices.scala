@@ -17,58 +17,33 @@
 
 package org.apache.daffodil.section15.choice_groups
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestHiddenChoices {
+object TestHiddenChoices extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/HiddenChoices.tdml"
 
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-
-  val runner = Runner(testDir, "HiddenChoices.tdml", validateTDMLFile = true)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
-class TestHiddenChoices {
+class TestHiddenChoices extends TdmlTests {
+  val tdmlSuite = TestHiddenChoices
 
-  import TestHiddenChoices._
+  @Test def parseHiddenGroupRef = test
+  @Test def parseRegularGroupRef = test
+  @Test def parseSeqOfHiddenAndRegularRef = test
+  @Test def parseNestedHiddenAndRegularRef = test
+  @Test def parseNestedHiddenGroupRefs = test
 
-  @Test def test_parseHiddenGroupRef(): Unit = { runner.runOneTest("parseHiddenGroupRef") }
-  @Test def test_parseRegularGroupRef(): Unit = { runner.runOneTest("parseRegularGroupRef") }
-  @Test def test_parseSeqOfHiddenAndRegularRef(): Unit = {
-    runner.runOneTest("parseSeqOfHiddenAndRegularRef")
-  }
-  @Test def test_parseNestedHiddenAndRegularRef(): Unit = {
-    runner.runOneTest("parseNestedHiddenAndRegularRef")
-  }
-  @Test def test_parseNestedHiddenGroupRefs(): Unit = {
-    runner.runOneTest("parseNestedHiddenGroupRefs")
-  }
-
-  @Test def test_unparseHiddenGroupRef(): Unit = { runner.runOneTest("unparseHiddenGroupRef") }
-  @Test def test_unparseRegularGroupRef(): Unit = {
-    runner.runOneTest("unparseRegularGroupRef")
-  }
-  @Test def test_unparseSeqOfHiddenAndRegularRef(): Unit = {
-    runner.runOneTest("unparseSeqOfHiddenAndRegularRef")
-  }
-  @Test def test_unparseNestedHiddenAndRegularRef(): Unit = {
-    runner.runOneTest("unparseNestedHiddenAndRegularRef")
-  }
-  @Test def test_unparseNestedRegularAndHiddenRef(): Unit = {
-    runner.runOneTest("unparseNestedRegularAndHiddenRef")
-  }
-  @Test def test_unparseNestedHiddenGroupRefs(): Unit = {
-    runner.runOneTest("unparseNestedHiddenGroupRefs")
-  }
-  @Test def test_noOVCinHiddenContext(): Unit = { runner.runOneTest("noOVCinHiddenContext") }
-  @Test def test_nestedNoOVCinHiddenContext(): Unit = {
-    runner.runOneTest("nestedNoOVCinHiddenContext")
-  }
-
+  @Test def unparseHiddenGroupRef = test
+  @Test def unparseRegularGroupRef = test
+  @Test def unparseSeqOfHiddenAndRegularRef = test
+  @Test def unparseNestedHiddenAndRegularRef = test
+  @Test def unparseNestedRegularAndHiddenRef = test
+  @Test def unparseNestedHiddenGroupRefs = test
+  @Test def noOVCinHiddenContext = test
+  @Test def nestedNoOVCinHiddenContext = test
 }

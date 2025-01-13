@@ -17,25 +17,20 @@
 
 package org.apache.daffodil.section00.general
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestDFDLFormatPrefixedAttributesSDE {
-
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "dfdlFormatPrefixedAttributesSDE.tdml", validateTDMLFile = false)
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
+object TestDFDLFormatPrefixedAttributesSDE extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section00/general/dfdlFormatPrefixedAttributesSDE.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
-class TestDFDLFormatPrefixedAttributesSDE {
+class TestDFDLFormatPrefixedAttributesSDE extends TdmlTests {
+  val tdmlSuite = TestDFDLFormatPrefixedAttributesSDE
 
-  import TestDFDLFormatPrefixedAttributesSDE._
-
-  @Test def test_dfdl_format_prefixed_attributes_sde(): Unit = {
-    runner.runOneTest("dfdl_format_prefixed_attributes_sde")
-  }
+  @Test def dfdl_format_prefixed_attributes_sde = test
 }

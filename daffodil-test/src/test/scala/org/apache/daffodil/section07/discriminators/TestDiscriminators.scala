@@ -17,122 +17,89 @@
 
 package org.apache.daffodil.section07.discriminators
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestDiscriminators {
-  val testDir = "/org/apache/daffodil/section07/discriminators/"
-  val runner = Runner(testDir, "discriminator.tdml")
-  val runner2 = Runner(testDir, "multipleDiscriminators.tdml")
-  val runner3 = Runner(testDir, "discriminator2.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner2.reset
-    runner3.reset
-  }
-
+object TestDiscriminator extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/discriminators/discriminator.tdml"
 }
 
-class TestDiscriminators {
+object TestDiscriminator2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/discriminators/discriminator2.tdml"
+}
 
-  import TestDiscriminators._
+object TestMultipleDiscriminators extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/discriminators/multipleDiscriminators.tdml"
+}
 
-  @Test def test_discriminatorGuidesChoice(): Unit = {
-    runner.runOneTest("discriminatorGuidesChoice")
-  }
-  @Test def test_discriminatorGuidesChoice2(): Unit = {
-    runner.runOneTest("discriminatorGuidesChoice2")
-  }
-  @Test def test_discriminatorGuidesChoice3(): Unit = {
-    runner.runOneTest("discriminatorGuidesChoice3")
-  }
-  @Test def test_discriminatorGuidesChoice4(): Unit = {
-    runner.runOneTest("discriminatorGuidesChoice4")
-  }
-  @Test def test_discriminatorGuidesChoice5(): Unit = {
-    runner.runOneTest("discriminatorGuidesChoice5")
-  }
+class TestDiscriminator extends TdmlTests {
+  val tdmlSuite = TestDiscriminator
 
-  @Test def test_discrimPatternPass(): Unit = { runner.runOneTest("discrimPatternPass") }
-  @Test def test_discrimPatternFail(): Unit = { runner.runOneTest("discrimPatternFail") }
+  @Test def discriminatorGuidesChoice = test
+  @Test def discriminatorGuidesChoice2 = test
+  @Test def discriminatorGuidesChoice3 = test
+  @Test def discriminatorGuidesChoice4 = test
+  @Test def discriminatorGuidesChoice5 = test
 
-  @Test def test_discrimPatternFail2(): Unit = { runner.runOneTest("discrimPatternFail2") }
-  @Test def test_discrimPatternFail3(): Unit = { runner.runOneTest("discrimPatternFail3") }
-  @Test def test_choiceBranchDiscrim(): Unit = { runner.runOneTest("choiceBranchDiscrim") }
-  @Test def test_unparseDiscrimIgnored(): Unit = { runner.runOneTest("unparseDiscrimIgnored") }
+  @Test def discrimPatternPass = test
+  @Test def discrimPatternFail = test
 
-  @Test def test_discrimInvalidSchema(): Unit = { runner.runOneTest("discrimInvalidSchema") }
-  @Test def test_discrimOnSimpleType(): Unit = { runner.runOneTest("discrimOnSimpleType") }
-  @Test def test_discrimOnGroupRef(): Unit = { runner.runOneTest("discrimOnGroupRef") }
-  @Test def test_discrimOnGroupRef2(): Unit = { runner.runOneTest("discrimOnGroupRef2") }
-  @Test def test_discrimOnElementRef(): Unit = { runner.runOneTest("discrimOnElementRef") }
-  @Test def test_choiceBranchDiscrimFail() = { runner.runOneTest("choiceBranchDiscrimFail") }
+  @Test def discrimPatternFail2 = test
+  @Test def discrimPatternFail3 = test
+  @Test def choiceBranchDiscrim = test
+  @Test def unparseDiscrimIgnored = test
 
-  @Test def test_discrimPatternMatch() = { runner.runOneTest("discrimPatternMatch") }
-  @Test def test_discrimPatternNoMatch() = { runner.runOneTest("discrimPatternNoMatch") }
+  @Test def discrimInvalidSchema = test
+  @Test def discrimOnSimpleType = test
+  @Test def discrimOnGroupRef = test
+  @Test def discrimOnGroupRef2 = test
+  @Test def discrimOnElementRef = test
+  @Test def choiceBranchDiscrimFail = test
 
-  @Test def test_discrimExpression_01() = { runner.runOneTest("discrimExpression_01") }
-  @Test def test_discrimExpression_02() = { runner.runOneTest("discrimExpression_02") }
-  @Test def test_discrimExpression_03() = { runner.runOneTest("discrimExpression_03") }
+  @Test def discrimPatternMatch = test
+  @Test def discrimPatternNoMatch = test
+
+  @Test def discrimExpression_01 = test
+  @Test def discrimExpression_02 = test
+  @Test def discrimExpression_03 = test
 
   // DAFFODIL-1971
-  // @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
+  @Ignore @Test def discrimExpression_04 = test
 
-  @Test def test_discrimFailStopsFollowingAssert1(): Unit = {
-    runner.runOneTest("discrimFailStopsFollowingAssert1")
-  }
-  @Test def test_discrimPEnotSDE1(): Unit = { runner.runOneTest("discrimPEnotSDE1") }
-  @Test def test_assertSDENotPE1(): Unit = { runner.runOneTest("assertSDENotPE1") }
-  @Test def test_occursCountSDENotPE1(): Unit = { runner.runOneTest("occursCountSDENotPE1") }
-  @Test def test_discrimPEvalueLength1(): Unit = { runner.runOneTest("discrimPEvalueLength1") }
-  @Test def test_discrimPEvalueLengthEnclosingParent1(): Unit = {
-    runner.runOneTest("discrimPEvalueLengthEnclosingParent1")
-  }
-  @Test def test_discrimOnChoiceArray_01(): Unit = {
-    runner.runOneTest("discrimOnChoiceArray_01")
-  }
+  @Test def discrimFailStopsFollowingAssert1 = test
+  @Test def discrimPEnotSDE1 = test
+  @Test def assertSDENotPE1 = test
+  @Test def occursCountSDENotPE1 = test
+  @Test def discrimPEvalueLength1 = test
+  @Test def discrimPEvalueLengthEnclosingParent1 = test
+  @Test def discrimOnChoiceArray_01 = test
 
-  @Test def test_multipleDiscriminators1(): Unit = {
-    runner2.runOneTest("multipleDiscriminators1")
-  }
-  @Test def test_multipleDiscriminators2(): Unit = {
-    runner2.runOneTest("multipleDiscriminators2")
-  }
-  @Test def test_multipleDiscriminators3(): Unit = {
-    runner2.runOneTest("multipleDiscriminators3")
-  }
-  @Test def test_multipleDiscriminators4(): Unit = {
-    runner2.runOneTest("multipleDiscriminators4")
-  }
-  @Test def test_multipleDiscriminators5(): Unit = {
-    runner2.runOneTest("multipleDiscriminators5")
-  }
+  @Test def discrimPlacementExpressionSDW = test
+  @Test def discrimPlacementPatternSDW = test
+  @Test def assertPlacementExpressionSDW = test
+  @Test def assertPlacementPatternSDW = test
+}
 
-  @Test def test_discrimPlacementExpressionSDW(): Unit = {
-    runner.runOneTest("discrimPlacementExpressionSDW")
-  }
-  @Test def test_discrimPlacementPatternSDW(): Unit = {
-    runner.runOneTest("discrimPlacementPatternSDW")
-  }
-  @Test def test_assertPlacementExpressionSDW(): Unit = {
-    runner.runOneTest("assertPlacementExpressionSDW")
-  }
-  @Test def test_assertPlacementPatternSDW(): Unit = {
-    runner.runOneTest("assertPlacementPatternSDW")
-  }
+class TestDiscriminator2 extends TdmlTests {
+  val tdmlSuite = TestDiscriminator2
 
-  @Test def test_nameDOB_test1(): Unit = { runner3.runOneTest("nameDOB_test1") }
-  @Test def test_nameDOB_test_bad_date_first_row(): Unit = {
-    runner3.runOneTest("nameDOB_test_bad_date_first_row")
-  }
-
+  @Test def nameDOB_test1 = test
+  @Test def nameDOB_test_bad_date_first_row = test
   // DAFFODIL-2486 - discriminator bug - interaction with separators
-  // @Test def test_nameDOB_test_bad_1(): Unit = { runner3.runOneTest("nameDOB_test_bad_1") }
+  @Ignore @Test def nameDOB_test_bad_1 = test
 
-  @Test def test_nameDOB_test_bad_using_terminators(): Unit = {
-    runner3.runOneTest("nameDOB_test_bad_using_terminators")
-  }
+  @Test def nameDOB_test_bad_using_terminators = test
+}
+
+class TestMultipleDiscriminators extends TdmlTests {
+  val tdmlSuite = TestMultipleDiscriminators
+
+  @Test def multipleDiscriminators1 = test
+  @Test def multipleDiscriminators2 = test
+  @Test def multipleDiscriminators3 = test
+  @Test def multipleDiscriminators4 = test
+  @Test def multipleDiscriminators5 = test
 }

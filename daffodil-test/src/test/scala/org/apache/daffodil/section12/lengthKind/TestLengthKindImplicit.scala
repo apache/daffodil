@@ -17,35 +17,22 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestLengthKindImplicit {
-  val testDir = "/org/apache/daffodil/section12/lengthKind/"
-  val runner_01 = Runner(testDir, "implicit.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner_01.reset
-  }
-
+object TestLengthKindImplicit extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section12/lengthKind/implicit.tdml"
 }
 
-class TestLengthKindImplicit {
+class TestLengthKindImplicit extends TdmlTests {
+  val tdmlSuite = TestLengthKindImplicit
 
-  import TestLengthKindImplicit._
+  @Test def nested_seq = test
+  @Test def nested_seq_01 = test
 
-  // Debug Template
-  // @Test def test_name() = Debugger.withDebugger {
-  // runner.runOneTest("test_name")
-  // }
-
-  @Test def test_nested_seq(): Unit = { runner_01.runOneTest("nested_seq") }
-  @Test def test_nested_seq_01(): Unit = { runner_01.runOneTest("nested_seq_01") }
-
-  @Test def test_implicit_with_len(): Unit = { runner_01.runOneTest("implicit_with_len") }
-  @Test def test_implicit_ignored_len(): Unit = { runner_01.runOneTest("implicit_ignored_len") }
-  @Test def test_implicitLenTime(): Unit = { runner_01.runOneTest("implicitLenTime") }
-
+  @Test def implicit_with_len = test
+  @Test def implicit_ignored_len = test
+  @Test def implicitLenTime = test
 }

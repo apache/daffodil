@@ -17,24 +17,18 @@
 
 package org.apache.daffodil.section23.runtime_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestDynamicSeparator {
-
-  val testDir = "org/apache/daffodil/section23/runtime_properties/"
-  val runner = Runner(testDir, "dynamicSeparator.tdml")
-
-  @AfterClass def shutDown() = {
-    runner.reset
-  }
+object TestDynamicSeparator extends TdmlSuite {
+  val tdmlResource = "org/apache/daffodil/section23/runtime_properties/dynamicSeparator.tdml"
 }
 
-class TestDynamicSeparator {
-  import TestDynamicSeparator._
+class TestDynamicSeparator extends TdmlTests {
+  val tdmlSuite = TestDynamicSeparator
 
   // DAFFODIL-2092
-  @Test def test_dynSepAllWhitespace(): Unit = { runner.runOneTest("dynSepAllWhitespace") }
+  @Test def dynSepAllWhitespace = test
 }

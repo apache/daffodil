@@ -17,56 +17,59 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestChoice2 {
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-
-  val runner = Runner(testDir, "choice1765.tdml")
-  val runner1773 = Runner(testDir, "choice1773.tdml")
-  val runner2162 = Runner(testDir, "choice2162.tdml")
-  val runner2736 = Runner(testDir, "choice2736.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner1773.reset
-    runner2162.reset
-    runner2736.reset
-  }
+object TestChoice1765 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice1765.tdml"
 }
 
-class TestChoice2 {
+object TestChoice1773 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice1773.tdml"
+}
 
-  import TestChoice2._
+object TestChoice2162 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice2162.tdml"
+}
+
+object TestChoice2736 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice2736.tdml"
+}
+
+class TestChoice1765 extends TdmlTests {
+  val tdmlSuite = TestChoice1765
 
   // DFDL-1765
-  @Test def test_backtrack1(): Unit = { runner.runOneTest("backtrack1") }
-  @Test def test_backtrack2(): Unit = { runner.runOneTest("backtrack2") }
-  @Test def test_backtrack3(): Unit = { runner.runOneTest("backtrack2") }
-  @Test def test_backtrack4(): Unit = { runner.runOneTest("backtrack4") }
+  @Test def backtrack1 = test
+  @Test def backtrack2 = test
+  @Test def backtrack3 = test
+  @Test def backtrack4 = test
+}
+
+class TestChoice1773 extends TdmlTests {
+  val tdmlSuite = TestChoice1773
 
   // DFDL-1773
-  @Test def test_choiceSlotAmbiguous1(): Unit = {
-    runner1773.runOneTest("choiceSlotAmbiguous1")
-  }
-  @Test def test_choiceSlotAmbiguous2(): Unit = {
-    runner1773.runOneTest("choiceSlotAmbiguous2")
-  }
+  @Test def choiceSlotAmbiguous1 = test
+  @Test def choiceSlotAmbiguous2 = test
 
   // DAFFODIL-1773
-  @Test def test_queryStyle1(): Unit = { runner1773.runOneTest("queryStyle1") }
-  @Test def test_queryStyle2(): Unit = { runner1773.runOneTest("queryStyle2") }
+  @Test def queryStyle1 = test
+  @Test def queryStyle2 = test
+}
+
+class TestChoice2162 extends TdmlTests {
+  val tdmlSuite = TestChoice2162
 
   // DAFFODIL-2162
-  @Test def test_choiceArrayDirectDispatch1(): Unit = {
-    runner2162.runOneTest("choiceArrayDirectDispatch1")
-  }
+  @Test def choiceArrayDirectDispatch1 = test
+}
+
+class TestChoice2736 extends TdmlTests {
+  val tdmlSuite = TestChoice2736
 
   // DAFFODIL-2736
-  @Test def test_choiceAmbiguousUPA() = {
-    runner2736.runOneTest("choiceAmbiguousUPA")
-  }
+  @Test def choiceAmbiguousUPA = test
 }

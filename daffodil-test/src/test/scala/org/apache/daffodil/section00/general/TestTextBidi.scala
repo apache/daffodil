@@ -17,28 +17,22 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestTextBidi {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testTextBidi.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestTextBidi extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/testTextBidi.tdml"
 }
 
 /*
  * This test addresses reported issue DAFFODIL-2322
  * dfdl:textBidi property errors when used in attribute form
  */
-class TestTextBidi {
+class TestTextBidi extends TdmlTests {
+  val tdmlSuite = TestTextBidi
 
-  import TestTextBidi._
-
-  @Test def test_textBidiNo(): Unit = { runner.runOneTest("textBidiNo") }
-  @Test def test_textBidiYes(): Unit = { runner.runOneTest("textBidiYes") }
-
+  @Test def textBidiNo = test
+  @Test def textBidiYes = test
 }

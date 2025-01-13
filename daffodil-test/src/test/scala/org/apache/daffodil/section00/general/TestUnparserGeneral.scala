@@ -17,114 +17,64 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparserGeneral {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testUnparserGeneral.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestUnparserGeneral extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/testUnparserGeneral.tdml"
 }
-class TestUnparserGeneral {
 
-  import TestUnparserGeneral._
+class TestUnparserGeneral extends TdmlTests {
+  val tdmlSuite = TestUnparserGeneral
 
-  @Test def test_apostrophe_01(): Unit = { runner.runOneTest("apostrophe_01") }
+  @Test def apostrophe_01 = test
 
-  @Test def test_puaPreexistingInfosetChars(): Unit = {
-    runner.runOneTest("puaPreexistingInfosetChars")
-  }
-  @Test def test_puaPreexistingInfosetChars_remapped(): Unit = {
-    runner.runOneTest("puaPreexistingInfosetChars_remapped")
-  }
-  @Test def test_variableWidthComplexType(): Unit = {
-    runner.runOneTest("variableWidthComplexType")
-  }
+  @Test def puaPreexistingInfosetChars = test
+  @Test def puaPreexistingInfosetChars_remapped = test
+  @Test def variableWidthComplexType = test
 
-  @Test def test_puaInfosetChars_CR_CRLF_01(): Unit = {
-    runner.runOneTest("puaInfosetChars_CR_CRLF_01")
-  }
+  @Test def puaInfosetChars_CR_CRLF_01 = test
 
-  @Test def test_puaInfosetChars_CR_CRLF_02(): Unit = {
-    runner.runOneTest("puaInfosetChars_CR_CRLF_02")
-  }
+  @Test def puaInfosetChars_CR_CRLF_02 = test
 
-  @Test def test_puaInfosetChars_01(): Unit = { runner.runOneTest("puaInfosetChars_01") }
-  @Test def test_puaInfosetChars_02(): Unit = { runner.runOneTest("puaInfosetChars_02") }
+  @Test def puaInfosetChars_01 = test
+  @Test def puaInfosetChars_02 = test
 
-  @Test def test_unparseFixedLengthString01(): Unit = {
-    runner.runOneTest("unparseFixedLengthString01")
-  }
-  @Test def test_unparseFixedLengthString02(): Unit = {
-    runner.runOneTest("unparseFixedLengthString02")
-  }
-  @Test def test_unparseFixedLengthString03(): Unit = {
-    runner.runOneTest("unparseFixedLengthString03")
-  }
-  @Test def test_unparseFixedLengthString04(): Unit = {
-    runner.runOneTest("unparseFixedLengthString04")
-  }
-  @Test def test_unparseFixedLengthString05(): Unit = {
-    runner.runOneTest("unparseFixedLengthString05")
-  }
-  @Test def test_unparseFixedLengthString06(): Unit = {
-    runner.runOneTest("unparseFixedLengthString06")
-  }
-  @Test def test_unparseFixedLengthString07(): Unit = {
-    runner.runOneTest("unparseFixedLengthString07")
-  }
+  @Test def unparseFixedLengthString01 = test
+  @Test def unparseFixedLengthString02 = test
+  @Test def unparseFixedLengthString03 = test
+  @Test def unparseFixedLengthString04 = test
+  @Test def unparseFixedLengthString05 = test
+  @Test def unparseFixedLengthString06 = test
+  @Test def unparseFixedLengthString07 = test
 
-  @Test def test_parseFixedLengthString01(): Unit = {
-    runner.runOneTest("parseFixedLengthString01")
-  }
-  @Test def test_parseFixedLengthStringLength0(): Unit = {
-    runner.runOneTest("parseFixedLengthStringLength0")
-  }
+  @Test def parseFixedLengthString01 = test
+  @Test def parseFixedLengthStringLength0 = test
 
-  @Test def test_negativeUnparseTest01(): Unit = { runner.runOneTest("negativeUnparseTest01") }
-  @Test def test_negativeUnparseTest02(): Unit = { runner.runOneTest("negativeUnparseTest02") }
-  @Test def test_negativeUnparseTest03(): Unit = { runner.runOneTest("negativeUnparseTest03") }
-  @Test def test_negativeUnparseTest04(): Unit = { runner.runOneTest("negativeUnparseTest04") }
-  @Test def test_negativeUnparseTest05(): Unit = { runner.runOneTest("negativeUnparseTest05") }
+  @Test def negativeUnparseTest01 = test
+  @Test def negativeUnparseTest02 = test
+  @Test def negativeUnparseTest03 = test
+  @Test def negativeUnparseTest04 = test
+  @Test def negativeUnparseTest05 = test
 
-  @Test def test_unparseDelimitedString01(): Unit = {
-    runner.runOneTest("unparseDelimitedString01")
-  }
-  @Test def test_unparseDelimitedString02(): Unit = {
-    runner.runOneTest("unparseDelimitedString02")
-  }
-  @Test def test_unparseDelimitedString03(): Unit = {
-    runner.runOneTest("unparseDelimitedString03")
-  }
-  @Test def test_unparseDelimitedString04(): Unit = {
-    runner.runOneTest("unparseDelimitedString04")
-  }
-  @Test def test_unparseDelimitedString05(): Unit = {
-    runner.runOneTest("unparseDelimitedString05")
-  }
-  @Test def test_unparseDelimitedString06(): Unit = {
-    runner.runOneTest("unparseDelimitedString06")
-  }
-  @Test def test_unparseDelimitedString07(): Unit = {
-    runner.runOneTest("unparseDelimitedString07")
-  }
+  @Test def unparseDelimitedString01 = test
+  @Test def unparseDelimitedString02 = test
+  @Test def unparseDelimitedString03 = test
+  @Test def unparseDelimitedString04 = test
+  @Test def unparseDelimitedString05 = test
+  @Test def unparseDelimitedString06 = test
+  @Test def unparseDelimitedString07 = test
 
-  @Test def test_parseDelimitedString01(): Unit = {
-    runner.runOneTest("parseDelimitedString01")
-  }
+  @Test def parseDelimitedString01 = test
 
   // DFDL-1650
-  @Test def test_alignmentPaddingOVC1(): Unit = { runner.runOneTest("alignmentPaddingOVC1") }
-  @Test def test_alignmentPaddingOVC2(): Unit = { runner.runOneTest("alignmentPaddingOVC2") }
-  @Test def test_alignmentPaddingOVC3(): Unit = { runner.runOneTest("alignmentPaddingOVC3") }
-  @Test def test_alignmentPaddingOVC4(): Unit = { runner.runOneTest("alignmentPaddingOVC4") }
+  @Test def alignmentPaddingOVC1 = test
+  @Test def alignmentPaddingOVC2 = test
+  @Test def alignmentPaddingOVC3 = test
+  @Test def alignmentPaddingOVC4 = test
 
   // DFDL-1589
-  @Test def test_emptyOutputNewLine1(): Unit = { runner.runOneTest("emptyOutputNewLine1") }
-
+  @Test def emptyOutputNewLine1 = test
 }

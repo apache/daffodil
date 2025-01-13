@@ -16,25 +16,20 @@
  */
 package org.apache.daffodil.section05.facets
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestPatternRanges {
-  val runner = Runner("/org/apache/daffodil/section05/facets", "PatternRanges.tdml")
-
-  @AfterClass def shutDown() = {
-    runner.reset
-  }
+object TestPatternRanges extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/facets/PatternRanges.tdml"
 }
 
-class TestPatternRanges {
-  import org.apache.daffodil.section05.facets.TestPatternRanges._
+class TestPatternRanges extends TdmlTests {
+  val tdmlSuite = TestPatternRanges
 
-  @Test def test_patternRanges1() = { runner.runOneTest("patternRanges1") }
-  @Test def test_patternRanges2() = { runner.runOneTest("patternRanges2") }
-  @Test def test_patternRangesXerces1() = { runner.runOneTest("patternRangesXerces1") }
-  @Test def test_patternRangesXerces2() = { runner.runOneTest("patternRangesXerces2") }
-
+  @Test def patternRanges1 = test
+  @Test def patternRanges2 = test
+  @Test def patternRangesXerces1 = test
+  @Test def patternRangesXerces2 = test
 }

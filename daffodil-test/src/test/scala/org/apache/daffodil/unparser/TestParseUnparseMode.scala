@@ -17,34 +17,24 @@
 
 package org.apache.daffodil.unparser
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestParseUnparseMode {
-  val testDir = "/org/apache/daffodil/unparser/"
-  val runner = Runner(
-    testDir,
-    "parseUnparseModeTest.tdml",
-    validateDFDLSchemas = false
-  ) // there are UPA errors in some test schemas
+object TestParseUnparseMode extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/unparser/parseUnparseModeTest.tdml"
 
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateDFDLSchemas = false)
 }
 
-class TestParseUnparseMode {
+class TestParseUnparseMode extends TdmlTests {
 
-  import TestParseUnparseMode._
+  val tdmlSuite = TestParseUnparseMode
 
-  @Test def test_parse1(): Unit = { runner.runOneTest("parse1") }
-
-  @Test def test_unparse1(): Unit = { runner.runOneTest("unparse1") }
-
-  @Test def test_unparse2(): Unit = { runner.runOneTest("unparse2") }
-
-  @Test def test_unparse3(): Unit = { runner.runOneTest("unparse3") }
+  @Test def parse1 = test
+  @Test def unparse1 = test
+  @Test def unparse2 = test
+  @Test def unparse3 = test
 }

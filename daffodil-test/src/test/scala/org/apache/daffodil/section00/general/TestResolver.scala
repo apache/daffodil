@@ -17,32 +17,17 @@
 
 package org.apache.daffodil.section00.general
 
-/* This section00 is for testing general features of DFDL that are
- * not related to any specific requirement
- */
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.apache.daffodil.tdml.Runner
-
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestResolver {
-  lazy val testDir = "/org/apache/daffodil/section00/general"
-
-  // This TDML file has a DOCTYPE declaration, so we should fail to
-  // load it. However, that happens lazily.
-  val runner1 = Runner(testDir, "TestResolver.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner1.reset
-  }
+object TestResolver extends TdmlSuite {
+  lazy val tdmlResource = "/org/apache/daffodil/section00/general/TestResolver.tdml"
 }
 
-class TestResolver {
+class TestResolver extends TdmlTests {
+  val tdmlSuite = TestResolver
 
-  import TestResolver._
-
-  @Test def test_includeWithNonExistingSchemaLocation(): Unit = {
-    runner1.runOneTest("includeWithNonExistingSchemaLocation")
-  }
+  @Test def includeWithNonExistingSchemaLocation = test
 }
