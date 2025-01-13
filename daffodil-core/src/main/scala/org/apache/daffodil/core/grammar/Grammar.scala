@@ -95,7 +95,7 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
     else
       new SeqCompParser(
         context.runtimeData,
-        parserChildren.toVector,
+        parserChildren.toVector
       )
   }
 

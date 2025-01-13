@@ -229,14 +229,16 @@ abstract class CombinatorParser(override val context: RuntimeData)
 
 final class SeqCompParser(
   context: RuntimeData,
-  val childParsers: Vector[Parser],
+  val childParsers: Vector[Parser]
 ) extends CombinatorParser(context) {
   override lazy val runtimeDependencies = Vector()
   override def childProcessors = childParsers
 
   override def nom = "seq"
 
-  val optDiscrimParser = childParsers.collectFirst { case ae: AssertExpressionEvaluationParser if (ae.discrim) => ae }
+  val optDiscrimParser = childParsers.collectFirst {
+    case ae: AssertExpressionEvaluationParser if (ae.discrim) => ae
+  }
   val nonDiscrimChildren = childParsers.diff(optDiscrimParser.toSeq)
 
   def parse(pstate: PState): Unit = {
@@ -245,8 +247,8 @@ final class SeqCompParser(
 
     // Handle all non discriminator child parsers first
     while ((i < numNonDiscrimChildren) && (pstate.processorStatus eq Success)) {
-        nonDiscrimChildren(i).parse1(pstate)
-        i += 1
+      nonDiscrimChildren(i).parse1(pstate)
+      i += 1
     }
 
     if (optDiscrimParser.isDefined) {

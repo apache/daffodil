@@ -22,10 +22,14 @@ import org.apache.daffodil.core.dsom.Term
 trait HasStatementsGrammarMixin extends GrammarMixin { self: Term =>
 
   // Includes assert/discriminator statements that are not testKind="pattern"
-  private lazy val assertDiscrimExpressionStatementGrams = assertDiscrimExpressionStatements.map { _.gram(self) }
+  private lazy val assertDiscrimExpressionStatementGrams =
+    assertDiscrimExpressionStatements.map { _.gram(self) }
 
   final lazy val dfdlAssertDiscrimExpressionStatementEvaluations =
-    prod("dfdlAssertDiscrimExpressionStatementEvaluations", assertDiscrimExpressionStatementGrams.length > 0) {
+    prod(
+      "dfdlAssertDiscrimExpressionStatementEvaluations",
+      assertDiscrimExpressionStatementGrams.length > 0
+    ) {
       assertDiscrimExpressionStatementGrams.fold(mt) { _ ~ _ }
     }
 
