@@ -92,7 +92,11 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
   final override lazy val parser = {
     if (parserChildren.isEmpty) new NadaParser(context.runtimeData)
     else if (parserChildren.length == 1) parserChildren.head
-    else new SeqCompParser(context.runtimeData, parserChildren.toVector)
+    else
+      new SeqCompParser(
+        context.runtimeData,
+        parserChildren.toVector
+      )
   }
 
   lazy val unparserChildren = {

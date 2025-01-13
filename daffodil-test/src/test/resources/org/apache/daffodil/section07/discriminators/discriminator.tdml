@@ -16,16 +16,16 @@
   limitations under the License.
 -->
 
-<tdml:testSuite 
-  suiteName="Discriminator" 
+<tdml:testSuite
+  suiteName="Discriminator"
   description="Section 7 - Discriminator"
   xmlns:ex="http://example.com" xmlns="http://example.com"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  defaultRoundTrip="true" 
+  defaultRoundTrip="true"
   defaultValidation="on">
 
   <tdml:defineSchema name="discrimAssertPlacement">
@@ -209,7 +209,7 @@
         <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:group>
-    
+
     <xs:group name="namedGroup2">
       <xs:sequence>
         <xs:element name="e3" type="xs:string"
@@ -231,7 +231,7 @@
         </xs:group>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="Item2" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:choice>
@@ -292,7 +292,7 @@
   <!--
     Test name: discrimOnSimpleType
     Schema: s0, root e0
-    Purpose: This test demonstrates the use of a discriminator on a simple 
+    Purpose: This test demonstrates the use of a discriminator on a simple
     type. The document meets the discriminator and should pass.
   -->
 
@@ -309,7 +309,7 @@
   <!--
     Test name: discrimOnGroupRef
     Schema: s0, root Item
-    Purpose: This test demonstrates the use of a discriminator on a group 
+    Purpose: This test demonstrates the use of a discriminator on a group
     reference. The document meets the discriminator and should pass.
   -->
 
@@ -326,11 +326,11 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: discrimOnGroupRef2
     Schema: s0, root Item
-    Purpose: This test demonstrates the use of a discriminator on a group 
+    Purpose: This test demonstrates the use of a discriminator on a group
     reference. The document meets the discriminator and should pass.
   -->
 
@@ -351,7 +351,7 @@
   <!--
     Test name: discrimOnElementRef
     Schema: s0, root Item_01
-    Purpose: This test demonstrates the use of a discriminator on an element 
+    Purpose: This test demonstrates the use of a discriminator on an element
     reference. The document meets the discriminator and should pass.
   -->
 
@@ -402,7 +402,7 @@
   <!--
     Test name: discriminatorGuidesChoice2
     Schema: choice1, root c1
-    Purpose: The element should fail, and the discriminator should still 
+    Purpose: The element should fail, and the discriminator should still
     be checked. The error message should express
     the discriminator failure.
   -->
@@ -684,7 +684,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="discrimExpression">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
@@ -714,8 +714,8 @@
               <xs:sequence>
                 <xs:annotation>
                   <xs:appinfo source="http://www.ogf.org/dfdl/">
-                    <!-- NOTE That this discriminator executes regardless of whether the 
-                    sequence content (int element) below parses successfully. So if that int parse fails, 
+                    <!-- NOTE That this discriminator executes regardless of whether the
+                    sequence content (int element) below parses successfully. So if that int parse fails,
                     the discriminator still will be true, and we will NOT backtrack to have zero occurrences
                     of the ints array. -->
                     <dfdl:discriminator testKind="expression" test='{ fn:true() }' />
@@ -730,30 +730,79 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ints" dfdl:occursCountKind="implicit" minOccurs="0" maxOccurs="5">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <!-- NOTE That this discriminator executes regardless of whether the
+                    sequence content (int element) below parses successfully. So with the discriminator
+                    set to false we will fail to parse any int's and instead parse everything as a
+                    string -->
+                    <dfdl:discriminator testKind="expression" test='{ fn:false() }' />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="int" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="ints" dfdl:occursCountKind="implicit" minOccurs="0" maxOccurs="5">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <!-- NOTE That this discriminator executes regardless of whether
+                    the sequence content (int element) below parses successfully. In
+                    this test the discriminator references a successfully parsing
+                    element in the partial infoset of an otherwise failing sequence body. -->
+                    <dfdl:discriminator testKind="expression" test='{ ex:int1 eq 1 }' />
+                  </xs:appinfo>
+                </xs:annotation>
+                <xs:element name="int1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes" />
+                <xs:element name="int2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:lengthUnits="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
-  
+
   <tdml:parserTestCase name="discrimExpression_01"
     root="e1" model="discrimExpression"
     description="Property Name: test - DFDL-7-076R">
     <tdml:document><![CDATA[123]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>123</e1> 
+        <e1>123</e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:parserTestCase name="discrimExpression_02"
     root="e2" model="discrimExpression"
     description="Property Name: test - DFDL-7-076R">
     <tdml:document>cats</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e2>cats</e2> 
+        <e2>cats</e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:parserTestCase name="discrimExpression_03"
     root="e2" model="discrimExpression"
     description="Property Name: test - DFDL-7-076R">
@@ -765,13 +814,67 @@
 
   <tdml:parserTestCase name="discrimExpression_04"
     root="e3" model="discrimExpression"
-    description="Property Name: test - DFDL-7-076R">
+    description="Verify that a discriminator will prevent backtracking
+      regardless of whether the sequence content parses succesfully">
+    <tdml:document><![CDATA[abc]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to populate ex:ints</tdml:error>
+      <tdml:error>Unable to parse xs:int from text: a</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimExpression_05"
+    root="e4" model="discrimExpression"
+    description="Verify that a failed discriminator will be handled correctly
+    when the body of the sequence parses successfully">
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <string>123</string>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimExpression_06"
+    root="e4" model="discrimExpression"
+    description="Verify correct behavior when the body of a sequence fails and
+    the discriminator fails">
     <tdml:document><![CDATA[abc]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e3>
+        <e4>
           <string>abc</string>
-        </e3>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimExpression_07"
+    root="e5" model="discrimExpression"
+    description="Sequence body fails, but discriminator succeeds and references
+    elements in partial body infoset">
+    <tdml:document><![CDATA[1ab]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Failed to populate ex:ints</tdml:error>
+      <tdml:error>Unable to parse xs:int from text: a</tdml:error>
+      <tdml:error>Schema context: ex:int2</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="discrimExpression_08"
+    root="e5" model="discrimExpression"
+    description="Sequence body fails and so does the discriminator that
+    references partial sequence body infoset">
+    <tdml:document><![CDATA[2ab]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <string>2ab</string>
+        </e5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -964,7 +1067,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="r2">
       <xs:complexType>
         <xs:sequence>
@@ -981,7 +1084,7 @@
     </xs:element>
 
   </tdml:defineSchema>
-  
+
   <!--
     Test name: discrimPatternMatch
     Schema: discrimWithVariable
@@ -1001,7 +1104,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: discrimPatternNoMatch
     Schema: discrimWithVariable
@@ -1036,8 +1139,8 @@
               </xs:appinfo>
             </xs:annotation>
           </xs:sequence>
-          <xs:element name="opt1" minOccurs="0" maxOccurs="1" 
-            dfdl:occursCountKind="implicit" type="xs:string" 
+          <xs:element name="opt1" minOccurs="0" maxOccurs="1"
+            dfdl:occursCountKind="implicit" type="xs:string"
             dfdl:lengthKind="delimited"
             dfdl:terminator=";" />
         </xs:sequence>
@@ -1047,14 +1150,14 @@
     <xs:element name="r0">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="flag" type="xs:int" dfdl:length="1" 
-            dfdl:lengthKind="explicit" minOccurs="0" 
+          <xs:element name="flag" type="xs:int" dfdl:length="1"
+            dfdl:lengthKind="explicit" minOccurs="0"
             dfdl:occursCountKind="implicit" />
           <xs:choice>
             <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
               <xs:annotation>
                 <xs:appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator>{ 
+                  <dfdl:discriminator>{
                     ../flag eq 1 }
                   </dfdl:discriminator>
                 </xs:appinfo>
@@ -1069,13 +1172,13 @@
     <xs:element name="r1">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+          <xs:element name="flag" type="xs:int" dfdl:length="1"
              dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
           <xs:choice>
             <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
               <xs:annotation>
                 <xs:appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:assert>{ 
+                  <dfdl:assert>{
                     ../flag eq 1 }
                   </dfdl:assert>
                 </xs:appinfo>
@@ -1090,11 +1193,11 @@
     <xs:element name="r2">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="count" type="xs:int" dfdl:length="1" 
+          <xs:element name="count" type="xs:int" dfdl:length="1"
             dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
-          <xs:element name="v" type="xs:string" 
-            dfdl:occursCountKind="expression" 
-            dfdl:occursCount="{ ../count }" 
+          <xs:element name="v" type="xs:string"
+            dfdl:occursCountKind="expression"
+            dfdl:occursCount="{ ../count }"
             dfdl:lengthKind="delimited"
             maxOccurs="unbounded" />
         </xs:sequence>
@@ -1104,13 +1207,13 @@
     <xs:element name="r3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+          <xs:element name="flag" type="xs:int" dfdl:length="1"
             dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
           <xs:choice>
             <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
               <xs:annotation>
                 <xs:appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator>{ 
+                  <dfdl:discriminator>{
                     dfdl:valueLength(../flag, 'bytes') ge 1 }
                   </dfdl:discriminator>
                 </xs:appinfo>
@@ -1125,13 +1228,13 @@
     <xs:element name="r4">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="flag" type="xs:int" dfdl:length="1" 
+          <xs:element name="flag" type="xs:int" dfdl:length="1"
             dfdl:lengthKind="explicit" minOccurs="0" dfdl:occursCountKind="implicit" />
           <xs:choice>
             <xs:element name="hasFlag1" type="xs:string" dfdl:lengthKind="delimited">
               <xs:annotation>
                 <xs:appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator>{ 
+                  <dfdl:discriminator>{
                     dfdl:valueLength(.., 'bytes') ge 1 }
                   </dfdl:discriminator>
                 </xs:appinfo>
