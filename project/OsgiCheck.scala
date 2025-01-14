@@ -73,10 +73,10 @@ object OsgiCheckPlugin extends AutoPlugin {
         // flatten all of our tuples so we have a single list of package name ->
         // project owner tuples. At this point, there might be multiple owners
         // for the same package name in this list
-        val packageOwnerTuples = subprojectPackagesAndOwner.flatMap {
-          case (ownedPackages, packageOwner) =>
+        val packageOwnerTuples =
+          subprojectPackagesAndOwner.flatMap { case (ownedPackages, packageOwner) =>
             ownedPackages.map { _ -> packageOwner }
-        }
+          }
 
         // create a map, grouping with a key of package name and value of all of the
         // owners that claim to own it. If only one project owns a package, the value

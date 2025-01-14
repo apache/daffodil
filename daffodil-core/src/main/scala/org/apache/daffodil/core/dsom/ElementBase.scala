@@ -631,8 +631,7 @@ trait ElementBase
             // if they have binary representation we must worry about packed digits, which require 4-bit alignment.
             //
             primType match {
-              case PrimType.Float | PrimType.Double | PrimType.Boolean |
-                  PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
               case _ =>
                 binaryNumberRep match {
                   case BinaryNumberRep.Packed | BinaryNumberRep.Bcd |
