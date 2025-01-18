@@ -1304,7 +1304,10 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val nilOrValue =
-    prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness once emptyness is implemented
+    prod(
+      "nilOrValue",
+      isNillable
+    ) { // TODO: make it exclude emptyness once emptyness is implemented
       SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
     }
 
