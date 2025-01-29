@@ -342,19 +342,30 @@ abstract class ModelGroup protected (index: Int)
     }
   }
 
-  final lazy val elementChildrenInNonHiddenContext: Seq[ElementBase] =
+  final def elementChildrenInNonHiddenContext: Seq[ElementBase] =
     LV(Symbol("elementChildrenInNonHiddenContext")) {
-      val ebs = groupMembers
-        .filter {
-          case gr: GroupRef => !gr.isHidden
-          case _ => true
+      val ebs = this match {
+        case gr: GroupRef if gr.isHidden => Seq.empty
+        case stb: SequenceTermBase if stb.isHidden => Seq.empty
+        case _ => {
+          groupMembers
+            .filter {
+              case gr: GroupRef => !gr.isHidden
+              case stb: SequenceTermBase => !stb.isHidden
+              case eb: ElementBase =>
+                eb.optLexicalParent.forall {
+                  case ref: GroupRef => !ref.isHidden
+                  case stb: SequenceTermBase => !stb.isHidden
+                  case _ => true
+                }
+              case _ => true
+            }
+            .flatMap {
+              case eb: ElementBase => Seq(eb)
+              case gb: ModelGroup => gb.elementChildrenInNonHiddenContext
+            }
         }
-        .flatMap { gm =>
-          gm match {
-            case eb: ElementBase => Seq(eb)
-            case gb: ModelGroup => gb.elementChildren
-          }
-        }
+      }
       ebs
     }.value
 
