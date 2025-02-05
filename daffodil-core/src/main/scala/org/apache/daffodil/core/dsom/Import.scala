@@ -42,7 +42,7 @@ import org.apache.daffodil.lib.xml._
 final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(importNode, xsd, seenArg) {
 
-  final lazy val mapPair = LV('mapPair) {
+  final lazy val mapPair: (NS, DaffodilSchemaSource) = LV('mapPair) {
     val mpOpt = importElementNS.map { ieNS => (ieNS, resolvedLocation) }
     val mp = mpOpt.getOrElse {
       //
@@ -72,7 +72,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     mp
   }.value
 
-  lazy val importElementNS = getAttributeOption("namespace").map { NS(_) }
+  lazy val importElementNS: Option[NS] = getAttributeOption("namespace").map { NS(_) }
 
   override lazy val targetNamespace: NS = LV('targetNamespace) {
     val tns = importElementNS match {

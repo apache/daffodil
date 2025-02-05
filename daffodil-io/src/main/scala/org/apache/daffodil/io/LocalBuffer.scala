@@ -30,7 +30,7 @@ abstract class LocalBuffer[T <: java.nio.Buffer] {
 
   private var tempBuf: Maybe[T] = Nope
 
-  def getBuf(length: Long) = {
+  def getBuf(length: Long): T = {
     Assert.usage(length <= Int.MaxValue)
     if (tempBuf.isEmpty || tempBuf.get.capacity < length) {
       tempBuf = Maybe(allocate(length.toInt))
@@ -54,11 +54,11 @@ trait LocalBufferMixin {
    * Use with OnStack idiom for temporary char buffers
    */
   final class LocalCharBuffer extends LocalBuffer[CharBuffer] {
-    protected def allocate(length: Long) = CharBuffer.allocate(length.toInt)
+    protected def allocate(length: Long): CharBuffer = CharBuffer.allocate(length.toInt)
   }
 
   final class LocalByteBuffer extends LocalBuffer[ByteBuffer] {
-    protected def allocate(length: Long) = ByteBuffer.allocate(length.toInt)
+    protected def allocate(length: Long): ByteBuffer = ByteBuffer.allocate(length.toInt)
   }
 
   final lazy val withLocalCharBuffer = new LocalStack[LocalCharBuffer](new LocalCharBuffer)

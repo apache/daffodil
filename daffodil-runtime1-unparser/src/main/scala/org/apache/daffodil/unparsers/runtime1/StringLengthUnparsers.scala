@@ -33,12 +33,12 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 sealed abstract class StringSpecifiedLengthUnparserBase(val erd: ElementRuntimeData)
   extends TextPrimUnparser {
 
-  override def context = erd
+  override def context: ElementRuntimeData = erd
 
   /**
    * override in nil specified length unparsers
    */
-  protected def contentString(state: UState) =
+  protected def contentString(state: UState): String =
     state.currentInfosetNode.asSimple.dataValueAsString
 
 }
@@ -120,7 +120,7 @@ class StringMaybeTruncateBitsUnparser(
   charsetEv: CharsetEv
 ) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
-  override lazy val runtimeDependencies = Vector(targetLengthInBitsEv, charsetEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector(targetLengthInBitsEv, charsetEv)
 
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
     val cs = charsetEv.evaluate(state)
@@ -257,7 +257,7 @@ class StringMaybeTruncateCharactersUnparser(
   erd: ElementRuntimeData
 ) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
-  override lazy val runtimeDependencies = Vector(lengthInCharactersEv)
+  override lazy val runtimeDependencies: Vector[LengthEv] = Vector(lengthInCharactersEv)
 
   override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream

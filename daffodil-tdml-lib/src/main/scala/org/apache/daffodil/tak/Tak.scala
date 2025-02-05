@@ -35,7 +35,7 @@ import org.apache.daffodil.lib.util._
 
 object Tak {
 
-  def calibrate() = {
+  def calibrate(): Unit = {
     if (takeons == 0.0) {
       testTak
     }

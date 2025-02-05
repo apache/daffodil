@@ -33,7 +33,7 @@ object OKOrError {
 
   val OK = new OKOrError(okValue)
 
-  def Error(s: String) = {
+  def Error(s: String): OKOrError = {
     Assert.usage(s ne null)
     Assert.usage(s != okValue)
     new OKOrError(s)
@@ -41,6 +41,6 @@ object OKOrError {
 }
 
 class OKOrError private (val errMsg: String) extends AnyVal {
-  @inline def isOK = this.errMsg eq OKOrError.okValue
-  @inline def isError = !isOK
+  @inline def isOK: Boolean = this.errMsg eq OKOrError.okValue
+  @inline def isError: Boolean = !isOK
 }

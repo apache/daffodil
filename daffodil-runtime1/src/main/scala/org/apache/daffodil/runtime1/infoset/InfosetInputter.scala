@@ -151,8 +151,8 @@ abstract class InfosetInputter
    */
   val supportsNamespaces: Boolean
 
-  final override lazy val advanceAccessor = InfosetAccessor()
-  final override lazy val inspectAccessor = InfosetAccessor()
+  final override lazy val advanceAccessor: InfosetAccessor = InfosetAccessor()
+  final override lazy val inspectAccessor: InfosetAccessor = InfosetAccessor()
 
   private var documentElement_ : DIDocument = _
 
@@ -161,7 +161,7 @@ abstract class InfosetInputter
    * the infoset the unparser constructed, as well as looking at
    * the data that was output.
    */
-  def documentElement = {
+  def documentElement: DIDocument = {
     Assert.usage(isInitialized, "Must be initialized")
     documentElement_
   }
@@ -203,7 +203,7 @@ abstract class InfosetInputter
 
   private def indent = ("  " * level) + "|"
 
-  override def toString() = {
+  override def toString(): String = {
     indent + "************* STATE ************************\n" +
       indent + "infoStack = " + infoStack + "\n" +
       indent + "********************************************"
@@ -540,7 +540,7 @@ sealed trait InfosetEventKind {
    *
    * Error messages depend on this word order.
    */
-  override def toString() = {
+  override def toString(): String = {
     val cn = Misc.getNameFromClass(this)
     val initialLC = Misc.initialLowerCase(cn)
     val (se, ea) = initialLC.span(_.isLower)
@@ -602,7 +602,7 @@ class InfosetAccessor private (var kind: InfosetEventKind, var info: Info)
    * This toString syntax is depended upon by diagnostic
    * messages, and many tests verify that.
    */
-  override def toString = {
+  override def toString: String = {
     val evLbl = if (kind eq null) "NullKind" else kind.toString
     val erdString = erd match {
       case errERD: ErrorERD => "(invalid) " + erd.namedQName.toExtendedSyntax
@@ -614,8 +614,8 @@ class InfosetAccessor private (var kind: InfosetEventKind, var info: Info)
   /*
    * Methods to use instead of pattern matching
    */
-  def isStart = kind.isInstanceOf[InfosetEventKind.StartKind]
-  def isEnd = kind.isInstanceOf[InfosetEventKind.EndKind]
+  def isStart: Boolean = kind.isInstanceOf[InfosetEventKind.StartKind]
+  def isEnd: Boolean = kind.isInstanceOf[InfosetEventKind.EndKind]
   def isElement = info.isElement
   def isArray = erd.isArray
 
@@ -655,29 +655,29 @@ object InfosetAccessor {
  */
 final class Info private (val v: AnyRef) extends AnyVal with Serializable {
   def node = element
-  def element = {
+  def element: DIElement = {
     Assert.usage(v ne null)
     v.asInstanceOf[DIElement]
   }
-  def isComplexElement = isElement && element.isInstanceOf[DIComplex]
-  def isSimpleElement = isElement && !isComplexElement
-  def asComplex = element.asInstanceOf[DIComplex]
-  def asSimple = element.asInstanceOf[DISimple]
+  def isComplexElement: Boolean = isElement && element.isInstanceOf[DIComplex]
+  def isSimpleElement: Boolean = isElement && !isComplexElement
+  def asComplex: DIComplex = element.asInstanceOf[DIComplex]
+  def asSimple: DISimple = element.asInstanceOf[DISimple]
 
   def isNode = isElement
-  def isElement = {
+  def isElement: Boolean = {
     Assert.usage(v ne null)
     v.isInstanceOf[DIElement]
   }
-  def arrayERD = {
+  def arrayERD: ElementRuntimeData = {
     Assert.usage(v ne null)
     v.asInstanceOf[ElementRuntimeData]
   }
-  def isArrayERD = {
+  def isArrayERD: Boolean = {
     Assert.usage(v ne null)
     v.isInstanceOf[ElementRuntimeData]
   }
-  def erd = v match {
+  def erd: ElementRuntimeData = v match {
     case null => Assert.usageError("v ne null")
     case arrayERD: ElementRuntimeData => arrayERD
     case diElement: DIElement => diElement.erd
@@ -702,13 +702,13 @@ object Info {
       delegate.push(arrayERD)
     }
 
-    def pop() = Info.fromAnyRef(delegate.pop)
+    def pop(): Info = Info.fromAnyRef(delegate.pop)
 
-    def top() = Info.fromAnyRef(delegate.top)
+    def top(): Info = Info.fromAnyRef(delegate.top)
 
     def length = delegate.length
 
-    override def toString() = delegate.toString()
+    override def toString(): String = delegate.toString()
   }
 
   /**

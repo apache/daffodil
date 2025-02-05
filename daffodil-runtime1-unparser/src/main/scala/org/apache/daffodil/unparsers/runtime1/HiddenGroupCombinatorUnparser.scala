@@ -19,6 +19,7 @@ package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.Evaluatable
 
 /**
  * The purpose of this combinator is to increment/decrement the depth counter
@@ -29,9 +30,9 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: Unparser)
   extends CombinatorUnparser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyUnparser)
+  override lazy val childProcessors: Vector[Unparser] = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   def unparse(start: UState): Unit = {
     try {

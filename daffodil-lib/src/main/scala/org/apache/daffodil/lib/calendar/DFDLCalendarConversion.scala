@@ -284,7 +284,7 @@ trait DFDLCalendarConversion {
     )
   }
 
-  protected val emptyCalendar = {
+  protected val emptyCalendar: Calendar = {
     val c = Calendar.getInstance(TimeZone.UNKNOWN_ZONE)
     c.clear()
     c.setLenient(false)

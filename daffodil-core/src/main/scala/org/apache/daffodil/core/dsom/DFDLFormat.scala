@@ -20,7 +20,7 @@ package org.apache.daffodil.core.dsom
 import scala.xml.Node
 
 object DFDLFormat {
-  def apply(node: Node, sd: SchemaDocument) = {
+  def apply(node: Node, sd: SchemaDocument): DFDLFormat = {
     val df = new DFDLFormat(node, sd)
     df.initialize()
     df

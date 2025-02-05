@@ -85,7 +85,7 @@ case object VariableInProcess extends VariableState
  * Class for maintaining the state of a variable
  */
 object VariableInstance {
-  def apply(rd: VariableRuntimeData) = {
+  def apply(rd: VariableRuntimeData): VariableInstance = {
     new VariableInstance(rd)
   }
 }
@@ -338,7 +338,7 @@ class VariableMap private (
     vrds.find { _.globalQName.matches(qName) }
   }
 
-  lazy val context = Assert.invariantFailed("unused.")
+  lazy val context: Nothing = Assert.invariantFailed("unused.")
 
   /**
    * Determine if a call to readVariable will change any state in this

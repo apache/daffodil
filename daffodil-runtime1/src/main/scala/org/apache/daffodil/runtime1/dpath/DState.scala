@@ -34,7 +34,8 @@ import org.apache.daffodil.runtime1.infoset.FakeDINode
 import org.apache.daffodil.runtime1.infoset.InfosetNoNextSiblingException
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData;
+import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData;
 object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
@@ -259,7 +260,7 @@ case class DState(
     _currentValue = DataValue.NoValue
   }
 
-  def currentSimple = {
+  def currentSimple: DISimple = {
     Assert.usage(currentNode != null)
     Assert.usage(mode != null)
     val cs = currentNode.asSimple
@@ -277,11 +278,11 @@ case class DState(
     cs
   }
 
-  def currentElement = currentNode.asInstanceOf[DIElement]
-  def currentArray = currentNode.asInstanceOf[DIArray]
+  def currentElement: DIElement = currentNode.asInstanceOf[DIElement]
+  def currentArray: DIArray = currentNode.asInstanceOf[DIArray]
   def currentComplex = currentNode.asComplex
 
-  def nextSibling = {
+  def nextSibling: DINode = {
     val contents = currentElement.parent.asInstanceOf[DIComplex].contents
 
     // TOOD, currentNode should really know this
@@ -296,7 +297,7 @@ case class DState(
     }
   }
 
-  def runtimeData = {
+  def runtimeData: Maybe[ElementRuntimeData] = {
     if (contextNode.isDefined) One(contextNode.get.erd)
     else Nope
   }
@@ -343,7 +344,7 @@ case class DState(
     _occursIndex = index
   }
 
-  def SDE(formatString: String, args: Any*) = {
+  def SDE(formatString: String, args: Any*): Nothing = {
     if (isCompile) {
       compileInfo.SDE(formatString, args: _*)
     } else {
@@ -412,7 +413,7 @@ class DStateForConstantFolding(
 ) extends DState(Nope, tunable, Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
-  override def currentSimple = currentNode.asInstanceOf[DISimple]
+  override def currentSimple: DISimple = currentNode.asInstanceOf[DISimple]
   override def currentElement = die
   override def currentArray = die
   override def currentComplex = die

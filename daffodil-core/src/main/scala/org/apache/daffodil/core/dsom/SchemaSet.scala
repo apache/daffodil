@@ -35,6 +35,7 @@ import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
+import scala.collection.mutable
 
 object SchemaSet {
   def apply(
@@ -43,7 +44,7 @@ object SchemaSet {
     shouldValidateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
     tunables: DaffodilTunables
-  ) = {
+  ): SchemaSet = {
     val ss = new SchemaSet(
       optPFRootSpec,
       schemaSource,
@@ -61,7 +62,7 @@ object SchemaSet {
     root: String = null,
     optTmpDir: Option[File] = None,
     tunableOpt: Option[DaffodilTunables] = None
-  ) = {
+  ): SchemaSet = {
     val ss = new SchemaSet(sch, rootNamespace, root, optTmpDir, tunableOpt)
     ss.initialize()
     ss
@@ -122,7 +123,7 @@ final class SchemaSet private (
 
   lazy val resolver = DFDLCatalogResolver.get
 
-  override lazy val schemaSet = this
+  override lazy val schemaSet: SchemaSet = this
 
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None
@@ -139,9 +140,9 @@ final class SchemaSet private (
 
   override lazy val diagnosticFile: File = schemaSource.diagnosticFile
 
-  override def warn(th: Diagnostic) = oolagWarn(th)
+  override def warn(th: Diagnostic): Unit = oolagWarn(th)
 
-  override def error(th: Diagnostic) = oolagError(th)
+  override def error(th: Diagnostic): Unit = oolagError(th)
 
   /**
    * This constructor for unit testing only
@@ -167,7 +168,7 @@ final class SchemaSet private (
       tunableOpt.getOrElse(DaffodilTunables())
     )
 
-  lazy val schemaFileList = schemas.map(s => s.uriString)
+  lazy val schemaFileList: Seq[String] = schemas.map(s => s.uriString)
 
   private lazy val isValid: Boolean = {
     if (!shouldValidateDFDLSchemas)
@@ -200,7 +201,7 @@ final class SchemaSet private (
     }
   }
 
-  lazy val validationDiagnostics = {
+  lazy val validationDiagnostics: List[Diagnostic] = {
     val files = allSchemaFiles
     val res = files.flatMap {
       _.validationDiagnostics
@@ -319,7 +320,7 @@ final class SchemaSet private (
   // The trick with this is when to call it. If you call it, as
   // a consequence of computing all of this, it will have to parse
   // every file, every included/imported file, etc.
-  def checkForDuplicateTopLevels() = {
+  def checkForDuplicateTopLevels(): Seq[GlobalComponent with LookupLocation] = {
     groupedTopLevels // demand this.
   }
 
@@ -519,7 +520,7 @@ final class SchemaSet private (
   }
 
   // We'll declare these here at the SchemaSet level since they're global.
-  lazy val predefinedVars = {
+  lazy val predefinedVars: Seq[DFDLDefineVariable] = {
     val nsURI = XMLUtils.DFDL_NAMESPACE.toStringOrNullIfNoNS
 
     val encDFV =
@@ -549,7 +550,7 @@ final class SchemaSet private (
     Seq(encDFV, boDFV, binDFV, outDFV)
   }
 
-  lazy val allDefinedVariables = schemas
+  lazy val allDefinedVariables: Seq[DFDLDefineVariable] = schemas
     .flatMap(_.defineVariables)
     .union(predefinedVars)
 
@@ -675,7 +676,7 @@ final class SchemaSet private (
 }
 
 object TransitiveClosureSchemaComponents {
-  def apply(ssc: Seq[SchemaComponent]) =
+  def apply(ssc: Seq[SchemaComponent]): mutable.LinkedHashSet[SchemaComponent] =
     (new TransitiveClosureSchemaComponents())(ssc)
 }
 
@@ -683,7 +684,7 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
 
   type SSC = Seq[SchemaComponent]
 
-  override protected def func(sc: SchemaComponent) = {
+  override protected def func(sc: SchemaComponent): Seq[SchemaComponent] = {
     val referents: SSC = sc match {
       case asc: AnnotatedSchemaComponent => asc.optReferredToComponent.toSeq
       case _ => Nil

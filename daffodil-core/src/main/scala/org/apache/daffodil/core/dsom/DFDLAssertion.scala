@@ -32,6 +32,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 
 import com.ibm.icu.impl.UnicodeRegex
+import org.apache.daffodil.core.grammar.primitives.ExpressionEvaluatorBase
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
@@ -43,7 +44,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
    * In this case, it's an assertion, so if it has a pattern we have to check that
    * pattern makes sense in the context.
    */
-  override protected def check(term: Term) = checkPattern(term)
+  override protected def check(term: Term): Unit = checkPattern(term)
 
   private lazy val testAttrib = getAttributeOption("test")
 
@@ -110,19 +111,19 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     }
   }
 
-  final lazy val testKind = getAttributeOption("testKind") match {
+  final lazy val testKind: TestKind = getAttributeOption("testKind") match {
     case Some(str) => TestKind(str, decl)
     case None => TestKind.Expression
   }
 
-  final lazy val failureType = getAttributeOption("failureType") match {
+  final lazy val failureType: FailureType = getAttributeOption("failureType") match {
     case Some(str) => FailureType(str, decl)
     case None => FailureType.ProcessingError
   }
 
-  lazy val messageAttrib = getAttributeOption("message")
+  lazy val messageAttrib: Option[String] = getAttributeOption("message")
 
-  final lazy val testTxt = {
+  final lazy val testTxt: String = {
     val rawTxt = (testKind, testBody, testAttrib, testPattern) match {
       case (TestKind.Expression, None, Some(txt), None) => txt
       case (TestKind.Expression, txt, None, None) => txt.get
@@ -163,7 +164,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term): ExpressionEvaluatorBase = LV('gram) {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(term, this)
       case TestKind.Expression => AssertBooleanPrim(term, this)
@@ -174,7 +175,7 @@ final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term): ExpressionEvaluatorBase = LV('gram) {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(term, this)
       case TestKind.Expression => DiscriminatorBooleanPrim(term, this)

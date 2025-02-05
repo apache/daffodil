@@ -110,7 +110,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       false
   }
 
-  final lazy val hasNoSkipRegions = LV('hasNoSkipRegions) {
+  final lazy val hasNoSkipRegions: Boolean = LV('hasNoSkipRegions) {
     leadingSkip == 0 && trailingSkip == 0
   }.value
 
@@ -123,8 +123,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     case AlignmentUnits.Bytes => skipProp * 8
   }
 
-  lazy val leadingSkipInBits = alignmentSkipInBits(leadingSkip)
-  lazy val trailingSkipInBits = alignmentSkipInBits(trailingSkip)
+  lazy val leadingSkipInBits: Int = alignmentSkipInBits(leadingSkip)
+  lazy val trailingSkipInBits: Int = alignmentSkipInBits(trailingSkip)
 
   private lazy val leadingSkipApprox: LengthApprox = {
     LengthExact(leadingSkipInBits)

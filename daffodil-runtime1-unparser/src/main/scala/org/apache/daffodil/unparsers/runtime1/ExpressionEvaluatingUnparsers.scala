@@ -27,6 +27,7 @@ import org.apache.daffodil.runtime1.processors.VariableInProcess
 import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.Processor
 
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
@@ -41,7 +42,7 @@ final class SetVariableSuspendableExpression(
     ustate.setVariable(rd, v, referencingContext)
   }
 
-  override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0)
 }
 
 /**
@@ -60,9 +61,9 @@ final class SetVariableUnparser(
   referencingContext: NonTermRuntimeData
 ) extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
 
   def suspendableExpression =
     new SetVariableSuspendableExpression(expr, context, referencingContext)
@@ -86,7 +87,7 @@ final class NewVariableInstanceDefaultValueSuspendableExpression(
     nvi.setDefaultValue(v) // This also sets variable state to VariableDefined
   }
 
-  override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0)
 }
 
 // When implemented this almost certainly wants to be a combinator
@@ -95,11 +96,11 @@ class NewVariableInstanceStartUnparser(vrd: VariableRuntimeData, trd: TermRuntim
   extends PrimUnparserNoData {
 
   override def context = trd
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
 
-  override def unparse(state: UState) = {
+  override def unparse(state: UState): Unit = {
     val nvi = state.newVariableInstance(vrd)
 
     if (vrd.maybeDefaultValueExpr.isDefined) {
@@ -120,9 +121,9 @@ class NewVariableInstanceEndUnparser(vrd: VariableRuntimeData, trd: TermRuntimeD
   extends PrimUnparserNoData {
 
   override def context = trd
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
 
-  override def unparse(state: UState) = state.removeVariableInstance(vrd)
+  override def unparse(state: UState): Unit = state.removeVariableInstance(vrd)
 }

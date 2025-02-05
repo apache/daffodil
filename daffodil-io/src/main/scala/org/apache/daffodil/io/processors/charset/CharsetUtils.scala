@@ -51,7 +51,7 @@ object CharsetUtils {
    * it is worthwhile to keep this in case we end up trying to support
    * Java 7 at some point in the future.
    */
-  lazy val hasJava7DecoderBug = {
+  lazy val hasJava7DecoderBug: Boolean = {
     val decoder = StandardCharsets.UTF_8.newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPORT)
     decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
@@ -139,8 +139,8 @@ trait EncoderDecoderMixin extends LocalBufferMixin {
     tuple
   }
 
-  def getDecoder(charset: BitsCharset) = getDecoderInfo(charset).coder
-  def getDecoderInfo(charset: BitsCharset) = {
+  def getDecoder(charset: BitsCharset): BitsCharsetDecoder = getDecoderInfo(charset).coder
+  def getDecoderInfo(charset: BitsCharset): DecoderInfo = {
     // threadCheck()
     var entry = decoderCache.get(charset)
     if (entry eq null) {
@@ -152,8 +152,8 @@ trait EncoderDecoderMixin extends LocalBufferMixin {
     entry
   }
 
-  def getEncoder(charset: BitsCharset) = getEncoderInfo(charset).coder
-  def getEncoderInfo(charset: BitsCharset) = {
+  def getEncoder(charset: BitsCharset): BitsCharsetEncoder = getEncoderInfo(charset).coder
+  def getEncoderInfo(charset: BitsCharset): EncoderInfo = {
     // threadCheck()
     var entry = encoderCache.get(charset)
     if (entry eq null) {

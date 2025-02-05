@@ -43,7 +43,7 @@ abstract class BinaryBooleanUnparserBase(
 
   def getBitLength(s: ParseOrUnparseState): Int
 
-  lazy val toBits = lengthUnits match {
+  lazy val toBits: Int = lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
     case _ =>
@@ -116,7 +116,7 @@ class BinaryBooleanUnparser(
     lengthUnits
   ) {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[JLong]] = Vector(lengthEv)
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val nBytesAsJLong = lengthEv.evaluate(s)
@@ -140,7 +140,7 @@ class BinaryBooleanMinimumLengthUnparser(
     lengthUnits
   ) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = 32
 

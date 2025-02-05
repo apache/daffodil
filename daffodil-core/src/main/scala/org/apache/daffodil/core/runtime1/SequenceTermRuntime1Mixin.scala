@@ -28,7 +28,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
   def modelGroupRuntimeData = sequenceRuntimeData
 
-  lazy val sequenceRuntimeData = {
+  lazy val sequenceRuntimeData: SequenceRuntimeData = {
     new SequenceRuntimeData(
       position,
       Delay('SequencePartialNextElementResolver, this, partialNextElementResolver),

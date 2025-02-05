@@ -26,7 +26,7 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 class ConvertNonBaseTenTextNumberParser(override val context: ElementRuntimeData, base: Int)
   extends TextPrimParser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   private val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 

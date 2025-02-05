@@ -282,7 +282,7 @@ object DFDL {
       }
     }
 
-    def getDiagnostics = {
+    def getDiagnostics: Seq[Diagnostic] = {
       (diagnostics.toSet ++ resultState.diagnostics.toSet ++ resultStatusDiagnostics.toSet).toSeq
     }
 
@@ -290,8 +290,8 @@ object DFDL {
       diagnostics = d +: diagnostics
     }
 
-    def isError = isProcessingError || isValidationError
-    def isProcessingError = resultState.processorStatus != Success
-    def isValidationError = resultState.validationStatus != true
+    def isError: Boolean = isProcessingError || isValidationError
+    def isProcessingError: Boolean = resultState.processorStatus != Success
+    def isValidationError: Boolean = resultState.validationStatus != true
   }
 }

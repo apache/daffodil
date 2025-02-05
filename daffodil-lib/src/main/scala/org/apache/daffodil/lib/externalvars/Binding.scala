@@ -41,7 +41,7 @@ class Binding(
   scope: scala.xml.NamespaceBinding = null
 ) {
 
-  override def toString() = {
+  override def toString(): String = {
     "<binding name='" + varQName + "'>" + varValue + "</binding>"
   }
 
@@ -56,7 +56,7 @@ class Binding(
     }
   }
 
-  def globalQName =
+  def globalQName: GlobalQName =
     if (scope ne null)
       QName.createGlobal(varQName.local, varQName.namespace, scope)
     else

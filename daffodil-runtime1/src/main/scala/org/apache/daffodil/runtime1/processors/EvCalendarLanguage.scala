@@ -25,11 +25,12 @@ import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
+import java.util.regex.Pattern
 
 object LocaleConverter extends Converter[String, ULocale] {
 
   val regex = "([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)"
-  val localePattern = java.util.regex.Pattern.compile(regex)
+  val localePattern: Pattern = java.util.regex.Pattern.compile(regex)
 
   protected def convert(b: String, context: ThrowsSDE, forUnparse: Boolean): ULocale = {
     val m = localePattern.matcher(b)
@@ -57,7 +58,7 @@ class CalendarLanguageEv(
     eci
   )
   with InfosetCachedEvaluatable[ULocale] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 class CalendarEv(
@@ -70,9 +71,9 @@ class CalendarEv(
 ) extends Evaluatable[Calendar](eci)
   with InfosetCachedEvaluatable[Calendar] {
 
-  override lazy val runtimeDependencies = Seq(localeEv)
+  override lazy val runtimeDependencies: Seq[CalendarLanguageEv] = Seq(localeEv)
 
-  override def compute(state: ParseOrUnparseState) = {
+  override def compute(state: ParseOrUnparseState): Calendar = {
     // Used to configure the dataFormatter
     val locale = localeEv.evaluate(state)
     val cal = Calendar.getInstance(locale)
@@ -106,9 +107,9 @@ class DateTimeFormatterEv(
 ) extends Evaluatable[ThreadLocal[SimpleDateFormat]](eci)
   with InfosetCachedEvaluatable[ThreadLocal[SimpleDateFormat]] {
 
-  override lazy val runtimeDependencies = Seq(localeEv)
+  override lazy val runtimeDependencies: Seq[CalendarLanguageEv] = Seq(localeEv)
 
-  override def compute(state: ParseOrUnparseState) = {
+  override def compute(state: ParseOrUnparseState): ThreadLocal[SimpleDateFormat] with Serializable = {
     val calendar = calendarEv.evaluate(state)
     val locale = localeEv.evaluate(state)
 

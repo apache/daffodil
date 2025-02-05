@@ -28,7 +28,7 @@ import org.apache.daffodil.core.runtime1.TermRuntime1Mixin
 trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1Mixin {
   self: Term =>
 
-  override protected final def grammarContext = this
+  override protected final def grammarContext: Term = this
 
   def termContentBody: Gram
 
@@ -40,11 +40,11 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
   protected lazy val hasEncoding = optionEncodingRaw.isDefined
 
   // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
-  protected final lazy val dfdlScopeBegin = prod("dfdlScopeBegin", newVarStarts.length > 0) {
+  protected final lazy val dfdlScopeBegin: Gram = prod("dfdlScopeBegin", newVarStarts.length > 0) {
     newVarStarts.fold(mt) { _ ~ _ }
   }
 
-  protected final lazy val dfdlScopeEnd = prod("dfdlScopeEnd", newVarEnds.length > 0) {
+  protected final lazy val dfdlScopeEnd: Gram = prod("dfdlScopeEnd", newVarEnds.length > 0) {
     newVarEnds.fold(mt) { _ ~ _ }
   }
 
@@ -57,14 +57,14 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
    * in the property environment shouldn't get you an MTA region. It has
    * to be textual.
    */
-  protected final lazy val mtaBase = prod("mandatoryTextAlignment", hasEncoding) {
+  protected final lazy val mtaBase: Gram = prod("mandatoryTextAlignment", hasEncoding) {
     MandatoryTextAlignment(this, knownEncodingAlignmentInBits, false)
   }
 
   /**
    * Mandatory text alignment for delimiters
    */
-  final lazy val delimMTA = prod(
+  final lazy val delimMTA: Gram = prod(
     "delimMTA", {
       hasDelimiters
     }

@@ -24,6 +24,7 @@ import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.core.grammar.RootGrammarMixin
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.XMLUtils
+import scala.xml.Elem
 
 object Root {
   def apply(
@@ -31,7 +32,7 @@ object Root {
     parentArg: SchemaDocument,
     namedQNameArg: NamedQName,
     globalElementDecl: GlobalElementDecl
-  ) = {
+  ): Root = {
     val r = new Root(defXML, parentArg, namedQNameArg, globalElementDecl)
     r.initialize()
     r
@@ -52,7 +53,7 @@ final class Root private (
   with RootGrammarMixin
   with RootView {
 
-  final override lazy val xml = {
+  final override lazy val xml: Elem = {
     val elem = XMLUtils.getXSDElement(defXML.scope)
     val res = elem % new UnprefixedAttribute("ref", refQName.toQNameString, scala.xml.Null)
     res
@@ -119,7 +120,7 @@ final class Root private (
   final lazy val numComponents =
     allComponents.length
 
-  final lazy val allComponentSSCDs =
+  final lazy val allComponentSSCDs: Seq[String] =
     allComponents.map { _.shortSchemaComponentDesignator }.distinct
 
   final lazy val numUniqueComponents =
@@ -141,7 +142,7 @@ final class Root private (
     }.flatten
   }
 
-  lazy val allERefs = allComponents
+  lazy val allERefs: Seq[String] = allComponents
     .filter {
       case er: ElementRef => true
       case _ => false
@@ -149,7 +150,7 @@ final class Root private (
     .map { _.shortSchemaComponentDesignator }
     .distinct
 
-  lazy val allGRefs = allComponents
+  lazy val allGRefs: Seq[String] = allComponents
     .filter {
       case _: GroupRef => true
       case _ => false
@@ -157,7 +158,7 @@ final class Root private (
     .map { _.shortSchemaComponentDesignator }
     .distinct
 
-  lazy val allCTRefs = {
+  lazy val allCTRefs: Seq[String] = {
     val cts = allComponents.collect {
       case e: ElementDeclMixin
           if (e.optComplexType.isDefined &&
@@ -171,7 +172,7 @@ final class Root private (
 
 case class RefSpec(from: SchemaComponent, to: GlobalComponent, index: Int) {
 
-  override def toString = "RefSpec(from=" +
+  override def toString: String = "RefSpec(from=" +
     from.shortSchemaComponentDesignator + ", to=" +
     to.shortSchemaComponentDesignator + ", " + index +
     ")"

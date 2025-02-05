@@ -438,7 +438,7 @@ trait Base {
   var charPos: Int = -1
   var charPosEnd: Int = -1
 
-  def clear() = {
+  def clear(): Unit = {
     isMatched = false
     charPos = -1
     charPosEnd = -1
@@ -458,7 +458,7 @@ class CharDelim(val char: Char, ignoreCase: Boolean) extends DelimBase {
 
   lazy val typeName = "CharDelim"
 
-  def printStr = {
+  def printStr: String = {
     val res = typeName + "(" + char + ")"
     res
   }
@@ -519,12 +519,12 @@ class NLDelim extends DelimBase with NL {
     }
   }
 
-  def printStr = {
+  def printStr: String = {
     val res = typeName
     res
   }
 
-  def unparseValue(outputNewLine: String) = {
+  def unparseValue(outputNewLine: String): String = {
     outputNewLine
   }
 }
@@ -606,7 +606,7 @@ abstract class WSPBase extends DelimBase with WSP {
     isMatched
   }
 
-  def printStr = {
+  def printStr: String = {
     val res = typeName
     res
   }
@@ -615,7 +615,7 @@ abstract class WSPBase extends DelimBase with WSP {
 class WSPDelim extends WSPBase with WSP {
   override lazy val typeName = "WSPDelim"
 
-  override def printStr = {
+  override def printStr: String = {
     val res = typeName
     res
   }
@@ -625,7 +625,7 @@ class WSPDelim extends WSPBase with WSP {
 class WSPPlusDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP+Delim"
 
-  override def printStr = {
+  override def printStr: String = {
     val res = typeName
     res
   }
@@ -635,7 +635,7 @@ class WSPPlusDelim extends WSPBase with WSP {
 class WSPStarDelim extends WSPBase with WSP {
   override lazy val typeName = "WSP*Delim"
 
-  override def printStr = {
+  override def printStr: String = {
     val res = typeName
     res
   }

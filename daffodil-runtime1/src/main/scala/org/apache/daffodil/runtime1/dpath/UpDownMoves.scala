@@ -22,6 +22,7 @@ import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.InfosetNoSuchChildElementException
+import scala.xml.Node
 
 /**
  * Moves to above the root element so that an absolute path
@@ -72,7 +73,7 @@ case class DownElement(nqn: NamedQName) extends RecipeOp {
     dstate.setCurrentNode(c.asInstanceOf[DIElement])
   }
 
-  override def toXML = {
+  override def toXML: Node = {
     toXML(nqn.toQNameString)
   }
 
@@ -106,7 +107,7 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 
-  override def toXML = {
+  override def toXML: Node = {
     toXML(new scala.xml.Text(nqn.toQNameString) ++ indexRecipe.toXML)
   }
 
@@ -124,7 +125,7 @@ case class DownArray(nqn: NamedQName) extends RecipeOp {
     dstate.setCurrentNode(arr.asInstanceOf[DIArray])
   }
 
-  override def toXML = {
+  override def toXML: Node = {
     toXML(nqn.toQNameString)
   }
 
@@ -140,7 +141,7 @@ case class DownArrayExists(nqn: NamedQName) extends RecipeOp {
       throw new InfosetNoSuchChildElementException(now, nqn)
   }
 
-  override def toXML = {
+  override def toXML: Node = {
     toXML(nqn.toQNameString)
   }
 

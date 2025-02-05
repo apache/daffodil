@@ -28,9 +28,9 @@ import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 class HiddenGroupCombinatorParser(ctxt: ModelGroupRuntimeData, bodyParser: Parser)
   extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override lazy val childProcessors: Vector[Parser] = Vector(bodyParser)
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def parse(start: PState): Unit = {
     try {

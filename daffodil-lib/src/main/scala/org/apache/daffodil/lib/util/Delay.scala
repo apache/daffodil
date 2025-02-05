@@ -88,7 +88,7 @@ final class Delay[T] private (private var box: Delay.Box[T], ctxt1: AnyRef)
     v
   }
 
-  def hasValue = box eq null
+  def hasValue: Boolean = box eq null
 
   /**
    * For creating a delay object purely to satisfy a type requirement
@@ -112,7 +112,7 @@ final class Delay[T] private (private var box: Delay.Box[T], ctxt1: AnyRef)
     str
   }
 
-  override def preSerialization = {
+  override def preSerialization: Any = {
     if (!hasValue) {
       Assert.invariant(box ne null)
       val msg = s"No value for delay. Containing object not initialized? ID Symbol:$ctxt1 " +

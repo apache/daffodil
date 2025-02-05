@@ -23,6 +23,7 @@ import org.apache.daffodil.core.dsom.IIUtils.IIMap
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
+import scala.collection.immutable
 
 /**
  * A schema document corresponds to one file usually named with an ".xsd" extension.
@@ -52,7 +53,7 @@ object XMLSchemaDocument {
     sfArg: Option[DFDLSchemaFile],
     seenBeforeArg: IIMap,
     isBootStrapSD: Boolean
-  ) = {
+  ): XMLSchemaDocument = {
     val xsd =
       new XMLSchemaDocument(xmlArg, schemaSetArg, ii, sfArg, seenBeforeArg, isBootStrapSD)
     xsd.initialize()
@@ -89,7 +90,7 @@ final class XMLSchemaDocument private (
   final protected lazy val seenBefore = seenBeforeArg
 
   final override lazy val schemaFile = sfArg
-  final override lazy val optXMLSchemaDocument = Some(this)
+  final override lazy val optXMLSchemaDocument: Some[XMLSchemaDocument] = Some(this)
 
   /**
    * Error checks on the xs:schema element itself.
@@ -106,19 +107,19 @@ final class XMLSchemaDocument private (
     }
   }
 
-  final lazy val elementFormDefault = {
+  final lazy val elementFormDefault: String = {
     val efdAttr = (xml \ "@elementFormDefault").text
     if (efdAttr == "") "unqualified"
     else qualOrUnqual(efdAttr, "element")
   }
 
-  final lazy val attributeFormDefault = {
+  final lazy val attributeFormDefault: String = {
     val afdAttr = (xml \ "@attributeFormDefault").text
     if (afdAttr == "") "unqualified"
     else qualOrUnqual(afdAttr, "attribute")
   }
 
-  final lazy val checkUnsupportedAttributes = LV('checkUnsupportedAttributes) {
+  final lazy val checkUnsupportedAttributes: Boolean = LV('checkUnsupportedAttributes) {
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""
@@ -189,7 +190,7 @@ final class XMLSchemaDocument private (
 }
 
 object SchemaDocument {
-  def apply(xmlSDoc: XMLSchemaDocument) = {
+  def apply(xmlSDoc: XMLSchemaDocument): SchemaDocument = {
     val sd = new SchemaDocument(xmlSDoc)
     sd.initialize()
     sd
@@ -204,21 +205,21 @@ object SchemaDocument {
 final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   extends AnnotatedSchemaComponent {
 
-  protected override def initialize() = {
+  protected override def initialize(): Unit = {
     super.initialize()
   }
 
   final override val xml = xmlSDoc.xml
-  final override lazy val optLexicalParent = Some(xmlSDoc)
-  final override lazy val optXMLSchemaDocument = Some(xmlSDoc)
+  final override lazy val optLexicalParent: Some[XMLSchemaDocument] = Some(xmlSDoc)
+  final override lazy val optXMLSchemaDocument: Some[XMLSchemaDocument] = Some(xmlSDoc)
 
-  final lazy val version = (xml \ "@version").text
+  final lazy val version: String = (xml \ "@version").text
 
   override lazy val optReferredToComponent = None
 
-  override lazy val optSchemaDocument = Some(this)
+  override lazy val optSchemaDocument: Some[SchemaDocument] = Some(this)
 
-  lazy val schema = schemaSet.getSchema(targetNamespace).getOrElse {
+  lazy val schema: Schema = schemaSet.getSchema(targetNamespace).getOrElse {
     Assert.invariantFailed("schema not found for schema document's namespace.")
   }
 
@@ -240,37 +241,37 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
     Some(res)
   }
 
-  protected lazy val emptyFormatFactory = DFDLFormat(newDFDLAnnotationXML("format"), this)
-  protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
+  protected lazy val emptyFormatFactory: DFDLFormat = DFDLFormat(newDFDLAnnotationXML("format"), this)
+  protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = a.isInstanceOf[DFDLFormat]
 
-  lazy val globalElementDecls = {
+  lazy val globalElementDecls: immutable.Seq[GlobalElementDecl] = {
     val xmlelts = (xml \ "element")
     val decls = xmlelts.map { GlobalElementDecl(_, this) }
     decls
   }
-  lazy val globalSimpleTypeDefs = (xml \ "simpleType").map { GlobalSimpleTypeDef(_, this) }
-  lazy val globalComplexTypeDefs = (xml \ "complexType").map { GlobalComplexTypeDef(_, this) }
-  lazy val globalGroupDefs = (xml \ "group").map { GlobalGroupDef(_, this) }
+  lazy val globalSimpleTypeDefs: immutable.Seq[GlobalSimpleTypeDef] = (xml \ "simpleType").map { GlobalSimpleTypeDef(_, this) }
+  lazy val globalComplexTypeDefs: immutable.Seq[GlobalComplexTypeDef] = (xml \ "complexType").map { GlobalComplexTypeDef(_, this) }
+  lazy val globalGroupDefs: immutable.Seq[GlobalGroupDef] = (xml \ "group").map { GlobalGroupDef(_, this) }
 
-  lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
+  lazy val defaultFormat: DFDLFormat = formatAnnotation.asInstanceOf[DFDLFormat]
 
-  lazy val defineFormats = annotationObjs.collect { case df: DFDLDefineFormat => df }
-  lazy val defineEscapeSchemes = annotationObjs.collect {
+  lazy val defineFormats: immutable.Seq[DFDLDefineFormat] = annotationObjs.collect { case df: DFDLDefineFormat => df }
+  lazy val defineEscapeSchemes: immutable.Seq[DFDLDefineEscapeSchemeFactory] = annotationObjs.collect {
     case des: DFDLDefineEscapeSchemeFactory => des
   }
-  lazy val defineVariables = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
+  lazy val defineVariables: immutable.Seq[DFDLDefineVariable] = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
 
   /**
    * by name getters for the global things that can be referenced.
    */
-  def getGlobalElementDecl(name: String) = globalElementDecls.find { _.name == name }
-  def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }
-  def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
-  def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
+  def getGlobalElementDecl(name: String): Option[GlobalElementDecl] = globalElementDecls.find { _.name == name }
+  def getGlobalSimpleTypeDef(name: String): Option[GlobalSimpleTypeDef] = globalSimpleTypeDefs.find { _.name == name }
+  def getGlobalComplexTypeDef(name: String): Option[GlobalComplexTypeDef] = globalComplexTypeDefs.find { _.name == name }
+  def getGlobalGroupDef(name: String): Option[GlobalGroupDef] = globalGroupDefs.find { _.name == name }
 
-  def getDefineFormat(name: String) = defineFormats.find { _.namedQName.local == name }
-  def getDefineVariable(name: String) = defineVariables.find { _.name == name }
-  def getDefaultFormat = this.defaultFormat
-  def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
+  def getDefineFormat(name: String): Option[DFDLDefineFormat] = defineFormats.find { _.namedQName.local == name }
+  def getDefineVariable(name: String): Option[DFDLDefineVariable] = defineVariables.find { _.name == name }
+  def getDefaultFormat: DFDLFormat = this.defaultFormat
+  def getDefineEscapeScheme(name: String): Option[DFDLDefineEscapeSchemeFactory] = defineEscapeSchemes.find { _.name == name }
 
 }

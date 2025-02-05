@@ -34,6 +34,6 @@ case object Success extends ProcessorResult {
 
 case class Failure(cause: Diagnostic) extends ProcessorResult {
   override def isSuccess = false
-  lazy val msg = Misc.getSomeMessage(cause).get
-  override def toString = "Failure(" + msg + ")"
+  lazy val msg: String = Misc.getSomeMessage(cause).get
+  override def toString: String = "Failure(" + msg + ")"
 }

@@ -73,7 +73,7 @@ abstract class CompiledExpression[+T <: AnyRef](val qName: NamedQName, value: An
 
   DataValue.assertValueIsNotDataValue(value)
 
-  final def toBriefXML(depth: Int = -1) = {
+  final def toBriefXML(depth: Int = -1): String = {
     "'" + prettyExpr + "'"
   }
 
@@ -83,19 +83,19 @@ abstract class CompiledExpression[+T <: AnyRef](val qName: NamedQName, value: An
    * particularly for `Array[Byte]`. It prints a useless thing like "[@0909280".
    * Use of `stringOf` prints "Array(....)".
    */
-  lazy val prettyExpr = stringOf(value)
+  lazy val prettyExpr: String = stringOf(value)
 
   /**
    * Tells us if the expression is the constant empty string (that is, it is "").
    */
-  final lazy val isConstantEmptyString = value == ""
+  final lazy val isConstantEmptyString: Boolean = value == ""
 
   /**
    * Tells us if the expression can match the empty string. We know it can if the expression
    * is a DFDL entity like %ES; or %WSP*. We do not know whether it can if it is a more
    * complicated constant or runtime expression.
    */
-  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;"
+  final lazy val isKnownCanMatchEmptyString: Boolean = value == "%ES;" || value == "%WSP*;"
 
   /**
    * used to obtain a constant value.
@@ -135,7 +135,7 @@ abstract class CompiledExpression[+T <: AnyRef](val qName: NamedQName, value: An
 
 object ReferencedElementInfos {
 
-  val None = Set.empty.asInstanceOf[Set[DPathElementCompileInfo]]
+  val None: Set[DPathElementCompileInfo] = Set.empty.asInstanceOf[Set[DPathElementCompileInfo]]
 
 }
 
@@ -146,7 +146,7 @@ final case class ConstantExpression[+T <: AnyRef](qn: NamedQName, kind: NodeInfo
 
   override def evaluate(state: ParseOrUnparseState) = value
 
-  override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
+  override def run(dstate: DState): Unit = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
 
   final def evaluateForwardReferencing(
     state: ParseOrUnparseState,
@@ -265,7 +265,7 @@ class DPathCompileInfo(
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  override def toString = "DPathCompileInfo(%s)".format(path)
+  override def toString: String = "DPathCompileInfo(%s)".format(path)
 
   /**
    * The contract here supports the semantics of ".." in paths.
@@ -407,7 +407,7 @@ class DPathElementCompileInfo(
    */
   var isReferencedByExpressions = false
 
-  override def toString = "DPathElementCompileInfo(%s)".format(name)
+  override def toString: String = "DPathElementCompileInfo(%s)".format(name)
 
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
@@ -520,7 +520,7 @@ class DPathElementCompileInfo(
   final def noMatchError(
     step: StepQName,
     possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo
-  ) = {
+  ): Nothing = {
     //
     // didn't find a exact match.
     // So all the rest of this is about providing a meaningful
@@ -579,7 +579,7 @@ class DPathElementCompileInfo(
     step: StepQName,
     matches: Seq[DPathElementCompileInfo],
     expr: ImplementsThrowsOrSavesSDE
-  ) = {
+  ): Unit = {
     expr.SDW(
       WarnID.QueryStylePathExpression,
       "Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",

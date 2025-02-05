@@ -28,12 +28,13 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import org.apache.daffodil.runtime1.dsom.CompiledExpression
 
 trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
 
   requiredEvaluationsAlways(variableRuntimeData.initialize)
 
-  final lazy val variableRuntimeData = {
+  final lazy val variableRuntimeData: VariableRuntimeData = {
     val index = this.schemaSet.allDefinedVariables.indexOf(this)
     val vrd = new VariableRuntimeData(
       this.schemaFileLocation,
@@ -55,7 +56,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
 
   final override lazy val runtimeData = variableRuntimeData
 
-  lazy val maybeDefaultValueExpr = {
+  lazy val maybeDefaultValueExpr: Maybe[CompiledExpression[AnyRef]] = {
     val compilationTargetType = primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>
@@ -87,7 +88,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
    * variable definition. Also allows diagnostic messages to
    * point to this location instead of the original definition
    */
-  final override lazy val variableRuntimeData = {
+  final override lazy val variableRuntimeData: VariableRuntimeData = {
     val globalVRD = defv.variableRuntimeData
     val vrd = new VariableRuntimeData(
       this.schemaFileLocation,
@@ -110,7 +111,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
     vrd
   }
 
-  lazy val maybeDefaultValueExpr = {
+  lazy val maybeDefaultValueExpr: Maybe[CompiledExpression[AnyRef]] = {
     val compilationTargetType = defv.primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>

@@ -22,6 +22,7 @@ import scala.xml.Node
 import org.apache.daffodil.core.dsom.walker.GroupRefView
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.xml.HasRefMixin
+import org.apache.daffodil.lib.xml.RefQName
 
 trait GroupRef extends GroupRefView { self: ModelGroup =>
 
@@ -36,9 +37,9 @@ trait GroupRef extends GroupRefView { self: ModelGroup =>
    */
   override def isHidden: Boolean
 
-  final override lazy val optReferredToComponent = Some(referredToComponent)
+  final override lazy val optReferredToComponent: Some[GlobalGroupDef] = Some(referredToComponent)
 
-  final override protected lazy val groupMembersDef = LV('groupMembers) {
+  final override protected lazy val groupMembersDef: Seq[Term] = LV('groupMembers) {
     groupDef.groupMembersNotShared
   }.value
 
@@ -52,7 +53,7 @@ trait GroupRef extends GroupRefView { self: ModelGroup =>
   override protected final lazy val emptyFormatFactory: DFDLFormatAnnotation =
     new DFDLGroup(newDFDLAnnotationXML("group"), this)
 
-  override protected final def isMyFormatAnnotation(a: DFDLAnnotation) =
+  override protected final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean =
     a.isInstanceOf[DFDLAnnotation]
 
 }
@@ -75,7 +76,7 @@ object GroupRefFactory {
     refLexicalParent: SchemaComponent,
     position: Int,
     isHidden: Boolean
-  ) = {
+  ): ModelGroup with GroupRef = {
     val f = new GroupRefFactory(refXML, refLexicalParent, position, isHidden)
     f.groupRef
   }
@@ -99,9 +100,9 @@ final class GroupRefFactory private (
   with NestingLexicalMixin
   with HasRefMixin {
 
-  final def qname = this.refQName
+  final def qname: RefQName = this.refQName
 
-  lazy val groupRef = {
+  lazy val groupRef: ModelGroup with GroupRef = {
     val gdef = refLexicalParent.schemaSet.getGlobalGroupDef(qname).getOrElse {
       SDE("Referenced group definition not found: %s", this.ref)
     }
@@ -114,7 +115,7 @@ final class GroupRefFactory private (
     gref
   }
 
-  override val diagnosticDebugNameImpl = "group reference " + refQName
+  override val diagnosticDebugNameImpl: String = "group reference " + refQName
 
 }
 
@@ -125,7 +126,7 @@ object SequenceGroupRef {
     refLexicalParent: SchemaComponent,
     positionArg: Int,
     isHidden: Boolean
-  ) = {
+  ): SequenceGroupRef = {
     val sgr =
       new SequenceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
     sgr.initialize()
@@ -154,7 +155,7 @@ final class SequenceGroupRef private (
 
   override def hiddenGroupRefOption = nf
 
-  override lazy val groupDef = LV('groupDef) { globalGroupDef }.value
+  override lazy val groupDef: GlobalSequenceGroupDef = LV('groupDef) { globalGroupDef }.value
 
 }
 
@@ -165,7 +166,7 @@ object ChoiceGroupRef {
     refLexicalParent: SchemaComponent,
     positionArg: Int,
     isHidden: Boolean
-  ) = {
+  ): ChoiceGroupRef = {
     val cgr =
       new ChoiceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
     cgr.initialize()
@@ -186,7 +187,7 @@ final class ChoiceGroupRef private (
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
 
-  override lazy val groupDef = LV('cgrGroupDef) { globalGroupDef }.value
+  override lazy val groupDef: GlobalChoiceGroupDef = LV('cgrGroupDef) { globalGroupDef }.value
 
   private lazy val cgd = groupDef.asInstanceOf[GlobalChoiceGroupDef]
 

@@ -96,7 +96,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   private lazy val referencedDefineFormat = qns.flatMap { case qn =>
     schemaSet.getDefineFormat(qn)
   }
-  lazy val referencedFormat = referencedDefineFormat.map { _.formatAnnotation }
+  lazy val referencedFormat: Option[DFDLFormat] = referencedDefineFormat.map { _.formatAnnotation }
 
   /**
    * gets the dfdl:ref short form attribute, or if we have a long
@@ -317,7 +317,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   /**
    * For unit testing convenience, or for use when debugging.
    */
-  def getPropertyForUnitTest(propName: String) =
+  def getPropertyForUnitTest(propName: String): String =
     justThisOneProperties.get(propName).get._1
 
   /**

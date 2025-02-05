@@ -115,7 +115,7 @@ class Registers() extends Poolable with Serializable {
    * Consumes one character (in the sense of advancing the data stream past the bits of that character's code points.
    * Then peeks ahead one further, and returns the peeked character.
    */
-  def nextChar() = {
+  def nextChar(): Char = {
     if (charIterator.hasNext) charIterator.next()
     charIterator.peek()
   }
@@ -132,7 +132,7 @@ class Registers() extends Poolable with Serializable {
    * here. I.e., data0 and data1 are always two characters lookahead
    * into the data stream.
    */
-  def advance() = {
+  def advance(): Unit = {
     data0 = charIterator.peek()
     data1 = charIterator.peek2()
   }

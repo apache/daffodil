@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextStringJustification
+import scala.util.matching.Regex
 
 object DFDLRegularExpressions {
 
@@ -26,7 +27,7 @@ object DFDLRegularExpressions {
     escapeEscape: String,
     delim: String,
     dotMatchesAll: Boolean = true
-  ) = {
+  ): Regex = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
@@ -43,7 +44,7 @@ object DFDLRegularExpressions {
     padChar: String,
     justification: TextStringJustification,
     dotMatchesAll: Boolean = true
-  ) = {
+  ): Regex = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         (if (
@@ -65,7 +66,7 @@ object DFDLRegularExpressions {
     contentPattern
   }
 
-  def getSameEscapeRegEx(escape: String, delim: String, dotMatchesAll: Boolean = true) = {
+  def getSameEscapeRegEx(escape: String, delim: String, dotMatchesAll: Boolean = true): Regex = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         """(.*?)""" + // content [before]. lazy so it won't absorb pad characters
@@ -83,7 +84,7 @@ object DFDLRegularExpressions {
     padChar: String,
     justification: TextStringJustification,
     dotMatchesAll: Boolean = true
-  ) = {
+  ): Regex = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
         (if (
@@ -115,7 +116,7 @@ object DFDLRegularExpressions {
     escape: String,
     delim: String,
     dotMatchesAll: Boolean = true
-  ) = {
+  ): Regex = {
     // Based upon assumption that String.format ignores extra arguments for which there
     // are no specifiers
     //
@@ -150,7 +151,7 @@ object DFDLRegularExpressions {
     delim: String,
     justification: TextStringJustification,
     dotMatchesAll: Boolean = true
-  ) = {
+  ): Regex = {
     // Based upon assumption that String.format ignores extra arguments for which there
     // are no specifiers
     //

@@ -24,7 +24,7 @@ final class InitiatedContentDiscrimOnIndexGreaterThanMinParser(
   min: Int,
   override val context: ElementRuntimeData
 ) extends PrimParser {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   final def parse(start: PState): Unit = {
     if (start.arrayIterationPos > min)
@@ -34,7 +34,7 @@ final class InitiatedContentDiscrimOnIndexGreaterThanMinParser(
 
 final class InitiatedContentDiscrimChoiceParser(override val context: TermRuntimeData)
   extends PrimParser {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   final def parse(start: PState): Unit = {
     start.resolvePointOfUncertainty()
@@ -44,7 +44,7 @@ final class InitiatedContentDiscrimChoiceParser(override val context: TermRuntim
 final class InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(
   override val context: TermRuntimeData
 ) extends PrimParser {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   final def parse(start: PState): Unit = {
     if (start.arrayIterationPos == 1)
@@ -56,7 +56,7 @@ final class InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(
   min: Int,
   override val context: ElementRuntimeData
 ) extends PrimParser {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   final def parse(start: PState): Unit = {
     // Resolves PoUs associated with arrays with some minimum number of

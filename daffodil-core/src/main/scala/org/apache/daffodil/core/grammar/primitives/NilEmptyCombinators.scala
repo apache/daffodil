@@ -37,9 +37,9 @@ case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram)
   lazy val nilUnparser = nilGram.unparser
   lazy val valueUnparser = valueGram.unparser
 
-  override lazy val parser = SimpleNilOrValueParser(ctxt.erd, nilParser, valueParser)
+  override lazy val parser: SimpleNilOrValueParser = SimpleNilOrValueParser(ctxt.erd, nilParser, valueParser)
 
-  override lazy val unparser = SimpleNilOrValueUnparser(ctxt.erd, nilUnparser, valueUnparser)
+  override lazy val unparser: SimpleNilOrValueUnparser = SimpleNilOrValueUnparser(ctxt.erd, nilUnparser, valueUnparser)
 
 }
 
@@ -54,9 +54,9 @@ case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gr
   lazy val nilUnparser = nilGram.unparser
   lazy val contentUnparser = contentGram.unparser
 
-  override lazy val parser = ComplexNilOrContentParser(ctxt.erd, nilParser, contentParser)
+  override lazy val parser: ComplexNilOrContentParser = ComplexNilOrContentParser(ctxt.erd, nilParser, contentParser)
 
-  override lazy val unparser =
+  override lazy val unparser: ComplexNilOrContentUnparser =
     ComplexNilOrContentUnparser(ctxt.erd, nilUnparser, contentUnparser)
 
 }

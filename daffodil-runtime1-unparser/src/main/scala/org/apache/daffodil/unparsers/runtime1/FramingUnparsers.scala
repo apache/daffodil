@@ -26,9 +26,9 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 class SkipRegionUnparser(skipInBits: Int, override val context: TermRuntimeData)
   extends AlignmentPrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override def runtimeDependencies: Vector[Nothing] = Vector()
 
-  override def unparse(state: UState) = {
+  override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     if (!dos.skip(skipInBits, state)) UE(state, "Unable to skip %s(bits).", skipInBits)
   }
@@ -39,7 +39,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
   def alignmentInBits: Int
   def rd: TermRuntimeData
 
-  def test(ustate: UState) = {
+  def test(ustate: UState): Boolean = {
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
       Logger.log.debug(
@@ -73,7 +73,7 @@ class AlignmentFillUnparser(alignmentInBits: Int, override val context: TermRunt
   extends AlignmentPrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Vector()
+  override def runtimeDependencies: Vector[Nothing] = Vector()
 
   override def suspendableOperation =
     new AlignmentFillUnparserSuspendableOperation(alignmentInBits, context)

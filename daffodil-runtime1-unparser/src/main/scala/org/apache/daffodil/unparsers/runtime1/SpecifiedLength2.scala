@@ -195,7 +195,7 @@ class SimpleTypeRetryUnparserSuspendableOperation(
     }
   }
 
-  protected def test(state: UState) = {
+  protected def test(state: UState): Boolean = {
     state.currentInfosetNode.asSimple.hasValue
   }
 
@@ -213,7 +213,7 @@ class SimpleTypeRetryUnparser(
 
   override final def runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toSeq.toVector
 
-  final override lazy val childProcessors = Vector(vUnparser)
+  final override lazy val childProcessors: Vector[Unparser] = Vector(vUnparser)
 
   def suspendableOperation = new SimpleTypeRetryUnparserSuspendableOperation(
     context,
@@ -226,7 +226,7 @@ class SimpleTypeRetryUnparser(
 class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
@@ -244,7 +244,7 @@ class CaptureEndOfContentLengthUnparser(
   maybeFixedLengthInBits: MaybeULong
 ) extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
@@ -275,7 +275,7 @@ class CaptureEndOfContentLengthUnparser(
 class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
@@ -291,7 +291,7 @@ class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData
 class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
@@ -320,7 +320,7 @@ class TargetLengthOperation(
 
   override val isReadOnly = true
 
-  override def toString =
+  override def toString: String =
     "target length for " + rd.diagnosticDebugName + " expr " + targetLengthEv.lengthInBitsEv.lengthEv
       .toBriefXML()
 
@@ -480,7 +480,7 @@ class ElementUnusedUnparser(
 ) extends PrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = Vector(targetLengthEv)
+  override lazy val runtimeDependencies: Vector[UnparseTargetLengthInBitsEv] = Vector(targetLengthEv)
 
   override def suspendableOperation =
     new ElementUnusedUnparserSuspendableOperation(
@@ -584,7 +584,7 @@ class ChoiceUnusedUnparser(
 ) extends PrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def suspendableOperation = suspendableOp
 }
@@ -604,13 +604,13 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
     }
   }
 
-  protected def numPadChars(skipInBits: Long, charWidthInBits: Long) =
+  protected def numPadChars(skipInBits: Long, charWidthInBits: Long): Long =
     skipInBits / charWidthInBits // discarding any fragment of a character
 
-  protected final def charset(state: UState) =
+  protected final def charset(state: UState): BitsCharset =
     maybeCharsetEv.get.evaluate(state)
 
-  protected final def charWidthInBits(charset: BitsCharset) = {
+  protected final def charWidthInBits(charset: BitsCharset): Int = {
     val res = charset.maybeFixedWidth.get
     res
   }
@@ -678,7 +678,7 @@ class OnlyPaddingUnparser(
 ) extends TextPrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = Vector(targetLengthEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[MaybeJULong]] = Vector(targetLengthEv)
 
   override def suspendableOperation =
     new OnlyPaddingUnparserSuspendableOperation(
@@ -710,7 +710,7 @@ class NilLiteralCharacterUnparserSuspendableOperation(
   // We don't wait for the valueLength, because the unparsed
   // nil is part of the valueLength
   //
-  override def test(state: UState) =
+  override def test(state: UState): Boolean =
     hasTargetLength(state) && {
       val e = state.currentInfosetNode.asInstanceOf[DISimple]
       val isNilled = e.isNilled
@@ -735,7 +735,7 @@ class NilLiteralCharacterUnparser(
 ) extends TextPrimUnparser
   with SuspendableUnparser {
 
-  override lazy val runtimeDependencies = Vector(targetLengthEv)
+  override lazy val runtimeDependencies: Vector[UnparseTargetLengthInBitsEv] = Vector(targetLengthEv)
 
   override def suspendableOperation = new NilLiteralCharacterUnparserSuspendableOperation(
     context,
@@ -763,7 +763,7 @@ class RightCenteredPaddingUnparserSuspendaableOperation(
     maybePadChar
   ) {
 
-  override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
+  override def numPadChars(skipInBits: Long, charWidthInBits: Long): Long = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
     numChars / 2
   }
@@ -812,7 +812,7 @@ class LeftCenteredPaddingUnparserSuspendableOperation(
     maybePadChar
   ) {
 
-  override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
+  override def numPadChars(skipInBits: Long, charWidthInBits: Long): Long = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
     if ((numChars & 1) == 0)
       numChars / 2
@@ -922,7 +922,7 @@ class PrefixLengthSuspendableOperation(
 
   override val isReadOnly = true
 
-  override def toString = "prefix length for " + rd.diagnosticDebugName
+  override def toString: String = "prefix length for " + rd.diagnosticDebugName
 
   /**
    * This override indicates that this operation itself doesn't correspond

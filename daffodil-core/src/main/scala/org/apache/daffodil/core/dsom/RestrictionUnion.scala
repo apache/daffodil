@@ -38,7 +38,7 @@ import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
 
 object Restriction {
-  def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
+  def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase): Restriction = {
     val r = new Restriction(xmlArg, simpleTypeDef)
     r.initialize()
     r
@@ -54,7 +54,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
   with NestingLexicalMixin
   with TypeChecks {
 
-  protected override def initialize() = {
+  protected override def initialize(): Unit = {
     super.initialize()
     optUnion
   }
@@ -210,7 +210,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     combined.toSeq
   }
 
-  final lazy val remoteBaseFacets = LV('remoteBaseFacets) {
+  final lazy val remoteBaseFacets: Seq[FacetValue] = LV('remoteBaseFacets) {
     optBaseTypeDef match {
       case Some(gstd) => gstd.optRestriction.toSeq.flatMap { _.combinedBaseFacets }
       case None => Nil
@@ -235,7 +235,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
 }
 
 object Union {
-  def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
+  def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase): Union = {
     val u = new Union(xmlArg, simpleTypeDef)
     u.initialize()
     u
@@ -250,7 +250,7 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
   with NestingLexicalMixin {
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "union")
 
-  protected override def initialize() = {
+  protected override def initialize(): Unit = {
     super.initialize()
     unionMemberTypes
   }

@@ -69,10 +69,11 @@ import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
+import scala.xml.Node
 
 case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
-  override def computeValue(v: DataValuePrimitive, dstate: DState) = {
+  override def computeValue(v: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     val value = asBigDecimal(v.getAnyRef).abs
     argType match {
       case _: NodeInfo.UnsignedNumeric.Kind => value
@@ -544,7 +545,7 @@ case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNRoundHalfToEvenKind {
 
-  override def computeValue(value: DataValuePrimitive, dstate: DState) = {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     val roundedValue = compute(value, 0)
     roundedValue
   }
@@ -568,7 +569,7 @@ case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
     dstate: DState
-  ) = {
+  ): DataValuePrimitive = {
     val precision = asInt(arg2.getAnyRef)
     val roundedValue = compute(arg1, precision)
     roundedValue
@@ -714,7 +715,7 @@ case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentValue(res)
   }
 
-  override def toXML = toXML(recipe.toXML)
+  override def toXML: Node = toXML(recipe.toXML)
 
 }
 
@@ -726,7 +727,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentValue(!res)
   }
 
-  override def toXML = toXML(recipe.toXML)
+  override def toXML: Node = toXML(recipe.toXML)
 
 }
 
@@ -764,7 +765,7 @@ case class FNLocalName0() extends RecipeOp {
  */
 case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
-  override def computeValue(value: DataValuePrimitive, dstate: DState) = {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     Assert.usageError(
       "not to be called. DPath compiler should be answering this without runtime calls."
     )
@@ -835,7 +836,7 @@ case class FNNamespaceUri0() extends RecipeOp {
  */
 case class FNNamespaceUri1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
-  override def computeValue(value: DataValuePrimitive, dstate: DState) = {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     Assert.usageError(
       "not to be called. DPath compiler should be answering this without runtime calls."
     )
@@ -869,7 +870,7 @@ case class FNNamespaceUri1(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
 case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
-  override def computeValue(value: DataValuePrimitive, dstate: DState) = argType match {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValuePrimitive = argType match {
 
     case NodeInfo.Decimal => {
       val bd = asBigDecimal(value.getAnyRef)
@@ -887,7 +888,7 @@ case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
 case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
-  override def computeValue(value: DataValuePrimitive, dstate: DState) = argType match {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValuePrimitive = argType match {
 
     case NodeInfo.Decimal => {
       val bd = asBigDecimal(value.getAnyRef)
@@ -905,7 +906,7 @@ case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
 case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
-  override def computeValue(value: DataValuePrimitive, dstate: DState) = {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     val res: DataValuePrimitive = argType match {
       case NodeInfo.Decimal => {
         val bd = asBigDecimal(value.getAnyRef)
@@ -1196,7 +1197,7 @@ case class FNErrorFunctionException(
   with FNErrorException
 
 case class FNError(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
-  override def computeValue(values: List[DataValuePrimitive], dstate: DState) = {
+  override def computeValue(values: List[DataValuePrimitive], dstate: DState): DataValuePrimitive = {
     val maybeSFL =
       if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
       else Nope

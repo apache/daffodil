@@ -41,6 +41,7 @@ import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
+import scala.util.matching.Regex
 
 abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {
@@ -48,7 +49,7 @@ abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   protected val xsdType = "dateTime"
   protected val prettyType = "DateTime"
 
-  override def toString = "to(xs:" + xsdType + ")"
+  override def toString: String = "to(xs:" + xsdType + ")"
 }
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
@@ -58,7 +59,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   protected def implicitPattern: String
   protected def validFormatCharacters: Seq[Char]
 
-  val firstDay = e.calendarFirstDayOfWeek match {
+  val firstDay: Int = e.calendarFirstDayOfWeek match {
     case CalendarFirstDayOfWeek.Sunday => Calendar.SUNDAY
     case CalendarFirstDayOfWeek.Monday => Calendar.MONDAY
     case CalendarFirstDayOfWeek.Tuesday => Calendar.TUESDAY
@@ -70,15 +71,15 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 
   val calendarDaysInFirstWeek = e.calendarDaysInFirstWeek.toInt
 
-  val calendarCheckPolicy = e.calendarCheckPolicy match {
+  val calendarCheckPolicy: Boolean = e.calendarCheckPolicy match {
     case CalendarCheckPolicy.Strict => false
     case CalendarCheckPolicy.Lax => true
   }
 
-  val TimeZoneRegex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
+  val TimeZoneRegex: Regex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
 
   // Binary calendars with a BinaryCalendarRep of 'bcd' or 'ibm4690Packed' should ignore the calendarTimeZone option
-  val tzStr = if (
+  val tzStr: String = if (
     e.representation == Representation.Binary && e.binaryCalendarRep != BinaryCalendarRep.Packed
   ) {
     ""
@@ -243,7 +244,7 @@ case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBa
   protected override val prettyType = "Date"
   protected override val infosetPattern = "uuuu-MM-ddxxx"
   protected override val implicitPattern = "uuuu-MM-dd"
-  protected override val validFormatCharacters =
+  protected override val validFormatCharacters: Seq[Char] =
     if (e.representation == Representation.Binary) {
       "dDeFMuwWyY".toSeq
     } else {
@@ -256,7 +257,7 @@ case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBa
   protected override val prettyType = "Time"
   protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
   protected override val implicitPattern = "HH:mm:ssZ"
-  protected override val validFormatCharacters =
+  protected override val validFormatCharacters: Seq[Char] =
     if (e.representation == Representation.Binary) {
       "hHkKmsS".toSeq
     } else {
@@ -270,7 +271,7 @@ case class ConvertTextDateTimePrim(e: ElementBase)
   protected override val prettyType = "DateTime"
   protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
   protected override val implicitPattern = "uuuu-MM-dd'T'HH:mm:ss"
-  protected override val validFormatCharacters =
+  protected override val validFormatCharacters: Seq[Char] =
     if (e.representation == Representation.Binary) {
       "dDeFhHkKmMsSuwWyY".toSeq
     } else {

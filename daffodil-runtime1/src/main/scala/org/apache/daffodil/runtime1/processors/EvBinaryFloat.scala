@@ -24,6 +24,6 @@ class BinaryFloatRepEv(expr: CompiledExpression[String], eci: DPathElementCompil
   extends EvaluatableConvertedExpression[String, BinaryFloatRep](expr, BinaryFloatRep, eci)
   with InfosetCachedEvaluatable[BinaryFloatRep] {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
 }

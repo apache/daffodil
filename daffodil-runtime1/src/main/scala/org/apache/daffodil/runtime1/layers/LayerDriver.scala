@@ -54,7 +54,7 @@ object LayerDriver {
     instance
   }
 
-  def handleThrowableWithoutLayer(t: Throwable) = {
+  def handleThrowableWithoutLayer(t: Throwable): Nothing = {
     t match {
       case u: UnsuppressableException => throw t
       case pe: ProcessingError => throw pe // already a PE. Do not further mess with it.
@@ -177,7 +177,7 @@ class LayerDriver private (val layer: Layer) {
     newDOS
   }
 
-  def handleThrowable(t: Throwable) = {
+  def handleThrowable(t: Throwable): Nothing = {
     t match {
       case u: UnsuppressableException => throw t
       case pe: ProcessingError => throw pe // already a PE. Do not further mess with it.

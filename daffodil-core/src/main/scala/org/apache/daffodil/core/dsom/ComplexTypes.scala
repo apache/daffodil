@@ -40,8 +40,8 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   /**
    * Convenience methods for unit testing. Just makes tests a bit more compact and clearer.
    */
-  final def sequence = group.asInstanceOf[LocalSequence]
-  final def choice = group.asInstanceOf[Choice]
+  final def sequence: LocalSequence = group.asInstanceOf[LocalSequence]
+  final def choice: Choice = group.asInstanceOf[Choice]
 
   private lazy val <complexType>{xmlChildren @ _*}</complexType> = xml
 
@@ -98,7 +98,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
 }
 
 object GlobalComplexTypeDef {
-  def apply(xmlArg: Node, schemaDocumentArg: SchemaDocument) = {
+  def apply(xmlArg: Node, schemaDocumentArg: SchemaDocument): GlobalComplexTypeDef = {
     val gctd = new GlobalComplexTypeDef(xmlArg, schemaDocumentArg)
     gctd.initialize()
     gctd

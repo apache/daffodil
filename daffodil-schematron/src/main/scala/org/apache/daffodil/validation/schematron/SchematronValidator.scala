@@ -57,8 +57,8 @@ object SchematronValidator {
   val name = "schematron"
 
   object ConfigKeys {
-    val schPath = s"$name.path"
-    val svrlOutputFile = s"$name.svrl.file"
+    val schPath: String = s"$name.path"
+    val svrlOutputFile: String = s"$name.svrl.file"
   }
 }
 

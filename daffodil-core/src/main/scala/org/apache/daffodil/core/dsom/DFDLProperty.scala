@@ -33,7 +33,7 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
    * Variable use to differentiate between same properities that are provided
    * via differnt means (i.e. daf:property, name="dfdlx:...").
    */
-  lazy val propertyNamespace = {
+  lazy val propertyNamespace: NS = {
     if (super.name.startsWith("dfdlx:")) {
       XMLUtils.DFDLX_NAMESPACE
     } else {
@@ -47,12 +47,12 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
    * property name. The propertyNamespace above can be used to determine if
    * this property was defined as an extension or not.
    */
-  override val name = super.name.stripPrefix("dfdlx:")
+  override val name: String = super.name.stripPrefix("dfdlx:")
 
   override lazy val namedQName: NamedQName =
     QName.createGlobal(name, propertyNamespace, xml.scope)
 
-  override lazy val path = formatAnnotation.path + "::" + diagnosticDebugName
+  override lazy val path: String = formatAnnotation.path + "::" + diagnosticDebugName
 
   //  override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC
   //
@@ -61,7 +61,7 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
 
   // TODO: if we grab the value from here, then any qnames inside that value
   // have to be resolved by THIS Object
-  lazy val value = {
+  lazy val value: String = {
     val values: Option[NodeSeq] = xml match {
       case <dfdl:property/> => None
       case <daf:property/> => None

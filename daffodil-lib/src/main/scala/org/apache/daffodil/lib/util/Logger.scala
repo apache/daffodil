@@ -30,5 +30,5 @@ import com.typesafe.scalalogging.{ Logger => ScalaLogger }
  *
  */
 object Logger {
-  val log = ScalaLogger("org.apache.daffodil")
+  val log: ScalaLogger = ScalaLogger("org.apache.daffodil")
 }

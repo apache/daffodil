@@ -26,6 +26,7 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 import com.ibm.icu.util.Calendar
+import org.apache.daffodil.runtime1.processors.{ Evaluatable, InfosetCachedEvaluatable }
 
 case class ConvertTextCalendarUnparser(
   override val context: ElementRuntimeData,
@@ -37,7 +38,7 @@ case class ConvertTextCalendarUnparser(
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[Object] with InfosetCachedEvaluatable[_ <: Object]] = Vector(calendarEv, dateTimeFormatterEv)
 
   def unparse(state: UState): Unit = {
 

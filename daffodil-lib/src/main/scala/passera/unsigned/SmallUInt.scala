@@ -39,23 +39,23 @@ trait SmallUInt[U <: Unsigned[U, UInt, Int]]
   override def toByte = intValue.toByte
   override def toShort = intValue.toShort
   override def toInt = intValue
-  override def toLong = intValue & 0xffffffffL
+  override def toLong: Long = intValue & 0xffffffffL
   override def toFloat = intValue.toFloat
   override def toDouble = intValue.toDouble
   override def toChar = intValue.toChar
-  def toBigInt = JBigInt.valueOf(intValue)
+  def toBigInt: JBigInt = JBigInt.valueOf(intValue)
 
-  def toUByte = UByte(intValue.toByte)
-  def toUShort = UShort(intValue.toShort)
-  def toUInt = UInt(intValue)
-  def toULong = ULong(intValue & 0xffffffffL)
+  def toUByte: UByte = UByte(intValue.toByte)
+  def toUShort: UShort = UShort(intValue.toShort)
+  def toUInt: UInt = UInt(intValue)
+  def toULong: ULong = ULong(intValue & 0xffffffffL)
 
   override def byteValue = intValue.toByte
   override def shortValue = intValue.toShort
   override def intValue: Int
-  override def longValue = (intValue & 0xffffffffL)
-  override def floatValue = (intValue & 0xffffffffL).toFloat
-  override def doubleValue = (intValue & 0xffffffffL).toDouble
+  override def longValue: Long = (intValue & 0xffffffffL)
+  override def floatValue: Float = (intValue & 0xffffffffL).toFloat
+  override def doubleValue: Double = (intValue & 0xffffffffL).toDouble
 
   def +(x: Int)(implicit d: DummyImplicit): Int = this.toInt + x
   def -(x: Int)(implicit d: DummyImplicit): Int = this.toInt - x
@@ -196,11 +196,11 @@ trait SmallUInt[U <: Unsigned[U, UInt, Int]]
   def >>>(x: UInt) = UInt(intValue >>> (x.toInt & 0x1f))
   def >>>(x: ULong) = UInt(intValue >>> (x.toLong & 0x1f).toInt)
 
-  override def toString = (intValue & 0xffffffffL).toString
+  override def toString: String = (intValue & 0xffffffffL).toString
 
   def +(x: java.lang.String) = this.toString + x
 
-  def toHexString = (intValue & 0xffffffffL).toHexString
-  def toOctalString = (intValue & 0xffffffffL).toOctalString
-  def toBinaryString = (intValue & 0xffffffffL).toBinaryString
+  def toHexString: String = (intValue & 0xffffffffL).toHexString
+  def toOctalString: String = (intValue & 0xffffffffL).toOctalString
+  def toBinaryString: String = (intValue & 0xffffffffL).toBinaryString
 }

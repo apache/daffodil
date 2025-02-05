@@ -28,24 +28,26 @@ import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.unparsers.runtime1._
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.{ DelimiterParseEv, EscapeSchemeParseEv, EscapeSchemeUnparseEv, InitiatorParseEv, InitiatorUnparseEv, SeparatorParseEv, SeparatorUnparseEv, TerminatorParseEv, TerminatorUnparseEv }
 
 case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram)
   extends Terminal(sq, !body.isEmpty) {
-  lazy val pInit =
+  lazy val pInit: Maybe[InitiatorParseEv] =
     if (sq.initiatorParseEv.isConstantEmptyString) Nope else One(sq.initiatorParseEv)
-  lazy val pSep =
+  lazy val pSep: Maybe[SeparatorParseEv] =
     if (sq.hasSeparator && !sq.separatorParseEv.isConstantEmptyString) One(sq.separatorParseEv)
     else Nope
-  lazy val pTerm =
+  lazy val pTerm: Maybe[TerminatorParseEv] =
     if (sq.terminatorParseEv.isConstantEmptyString) Nope else One(sq.terminatorParseEv)
 
-  lazy val uInit =
+  lazy val uInit: Maybe[InitiatorUnparseEv] =
     if (sq.initiatorParseEv.isConstantEmptyString) Nope else One(sq.initiatorUnparseEv)
-  lazy val uSep =
+  lazy val uSep: Maybe[SeparatorUnparseEv] =
     if (sq.hasSeparator && !sq.separatorParseEv.isConstantEmptyString)
       One(sq.separatorUnparseEv)
     else Nope
-  lazy val uTerm =
+  lazy val uTerm: Maybe[TerminatorUnparseEv] =
     if (sq.terminatorParseEv.isConstantEmptyString) Nope else One(sq.terminatorUnparseEv)
 
   lazy val parser: DaffodilParser = new DelimiterStackParser(
@@ -60,14 +62,14 @@ case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram)
 
 case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram)
   extends Terminal(ch, !body.isEmpty) {
-  lazy val pInit =
+  lazy val pInit: Maybe[InitiatorParseEv] =
     if (ch.initiatorParseEv.isConstantEmptyString) Nope else One(ch.initiatorParseEv)
-  lazy val pTerm =
+  lazy val pTerm: Maybe[TerminatorParseEv] =
     if (ch.terminatorParseEv.isConstantEmptyString) Nope else One(ch.terminatorParseEv)
 
-  lazy val uInit =
+  lazy val uInit: Maybe[InitiatorUnparseEv] =
     if (ch.initiatorParseEv.isConstantEmptyString) Nope else One(ch.initiatorUnparseEv)
-  lazy val uTerm =
+  lazy val uTerm: Maybe[TerminatorUnparseEv] =
     if (ch.terminatorParseEv.isConstantEmptyString) Nope else One(ch.terminatorUnparseEv)
 
   lazy val parser: DaffodilParser = new DelimiterStackParser(
@@ -82,19 +84,19 @@ case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram)
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram)
   extends Terminal(e, !body.isEmpty) {
-  lazy val pInit =
+  lazy val pInit: Maybe[InitiatorParseEv] =
     if (e.initiatorParseEv.isConstantEmptyString) Nope else One(e.initiatorParseEv)
-  lazy val pTerm =
+  lazy val pTerm: Maybe[TerminatorParseEv] =
     if (e.terminatorParseEv.isConstantEmptyString) Nope else One(e.terminatorParseEv)
 
-  lazy val uInit =
+  lazy val uInit: Maybe[InitiatorUnparseEv] =
     if (e.initiatorParseEv.isConstantEmptyString) Nope else One(e.initiatorUnparseEv)
-  lazy val uTerm =
+  lazy val uTerm: Maybe[TerminatorUnparseEv] =
     if (e.terminatorParseEv.isConstantEmptyString) Nope else One(e.terminatorUnparseEv)
 
-  lazy val delims = (pInit.toList ++ pTerm.toList)
+  lazy val delims: List[DelimiterParseEv] = (pInit.toList ++ pTerm.toList)
 
-  override def toString() = {
+  override def toString(): String = {
     val delimAttrib =
       delims.map { _.toString }.map { XMLUtils.escape(_).toString() }.mkString(" ")
     "<" + Misc.getNameFromClass(this) + " delims='" + delimAttrib + "'>" +
@@ -117,11 +119,11 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram)
 case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram)
   extends Terminal(e, !body.isEmpty) {
 
-  val schemeParseOpt = e.optionEscapeScheme.map { _.escapeSchemeParseEv }
-  val schemeUnparseOpt = e.optionEscapeScheme.map { _.escapeSchemeUnparseEv }
+  val schemeParseOpt: Option[EscapeSchemeParseEv] = e.optionEscapeScheme.map { _.escapeSchemeParseEv }
+  val schemeUnparseOpt: Option[EscapeSchemeUnparseEv] = e.optionEscapeScheme.map { _.escapeSchemeUnparseEv }
 
-  val schemeParseIsConstant = schemeParseOpt.map(_.isConstant).getOrElse(true)
-  val schemeUnparseIsConstant = schemeUnparseOpt.map(_.isConstant).getOrElse(true)
+  val schemeParseIsConstant: Boolean = schemeParseOpt.map(_.isConstant).getOrElse(true)
+  val schemeUnparseIsConstant: Boolean = schemeUnparseOpt.map(_.isConstant).getOrElse(true)
 
   Assert.invariant(!schemeParseIsConstant || !schemeUnparseIsConstant)
 

@@ -241,7 +241,7 @@ abstract class Evaluatable[+T <: AnyRef](
    * Use by way of
    *      override lazy val qName = dafName("foobar")
    */
-  protected def dafName(local: String) = GlobalQName(Some("dafint"), local, XMLUtils.dafintURI)
+  protected def dafName(local: String): GlobalQName = GlobalQName(Some("dafint"), local, XMLUtils.dafintURI)
 
   /**
    * Override if this evaluatable needs to use a different evaluate mode
@@ -251,7 +251,7 @@ abstract class Evaluatable[+T <: AnyRef](
    */
   protected def maybeUseUnparserMode: Maybe[EvalMode] = Maybe(UnparserNonBlocking)
 
-  override def toString = "(%s@%x, %s)".format(
+  override def toString: String = "(%s@%x, %s)".format(
     qName,
     this.hashCode(),
     (if (isConstant) "constant: " + constValue else "runtime")
@@ -271,7 +271,7 @@ abstract class Evaluatable[+T <: AnyRef](
    * This QName is used in the XML representation of these Evaluatables, if they are to be displayed, which is
    * mostly for various debug purposes.
    */
-  lazy val qName = if (qNameArg eq null) dafName(Misc.getNameFromClass(this)) else qNameArg
+  lazy val qName: NamedQName = if (qNameArg eq null) dafName(Misc.getNameFromClass(this)) else qNameArg
 
   protected def getCachedOrComputeAndCache(state: State): T
 
@@ -300,7 +300,7 @@ abstract class Evaluatable[+T <: AnyRef](
   /**
    * Preferred for use in the runtime.
    */
-  @inline final def maybeConstant = Maybe.fromMaybeAnyRef[T](constValue_)
+  @inline final def maybeConstant: Maybe[T] = Maybe.fromMaybeAnyRef[T](constValue_)
   @inline final def isConstant = constValue_.isDefined
   @inline final def constValue = maybeConstant.get
 
@@ -308,7 +308,7 @@ abstract class Evaluatable[+T <: AnyRef](
    * Schema compiler wants to use map call, so we need a scala option type
    * for that. So this variant supplies that.
    */
-  @inline final def optConstant = {
+  @inline final def optConstant: Option[T] = {
     maybeConstant.toScalaOption
   }
 
@@ -365,7 +365,7 @@ abstract class Evaluatable[+T <: AnyRef](
     res
   }
 
-  protected def toSDE(e: Diagnostic, state: ParseOrUnparseState) = {
+  protected def toSDE(e: Diagnostic, state: ParseOrUnparseState): Nothing = {
     state.SDE(e)
   }
 }
@@ -456,9 +456,9 @@ abstract class EvaluatableExpression[ExprType <: AnyRef](
 ) extends Evaluatable[ExprType](ci)
   with ExprEvalMixin[ExprType] {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override final def toBriefXML(depth: Int = -1) =
+  override final def toBriefXML(depth: Int = -1): String =
     "<EvaluatableExpression eName='" + ci.diagnosticDebugName + "' expr=" + expr
       .toBriefXML() + " />"
 
@@ -478,9 +478,9 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 
   protected def converter: Converter[ExprType, ConvertedType]
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override final def toBriefXML(depth: Int = -1) =
+  override final def toBriefXML(depth: Int = -1): String =
     if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 
   override protected def compute(state: ParseOrUnparseState): ConvertedType = {

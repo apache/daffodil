@@ -47,7 +47,7 @@ class BCDIntegerRuntimeLengthUnparser(
 ) extends BCDIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector(lengthEv)
 }
 
 final class BCDIntegerDelimitedUnparser(e: ElementRuntimeData)
@@ -59,7 +59,7 @@ final class BCDIntegerDelimitedUnparser(e: ElementRuntimeData)
 final class BCDIntegerMinimumLengthUnparser(e: ElementRuntimeData)
   extends BCDIntegerBaseUnparser(e) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])
@@ -91,7 +91,7 @@ class BCDDecimalRuntimeLengthUnparser(
 ) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[JLong]] = Vector(lengthEv)
 }
 
 final class BCDDecimalDelimitedUnparser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
@@ -105,7 +105,7 @@ final class BCDDecimalMinimumLengthUnparser(
   binaryDecimalVirtualPoint: Int
 ) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])

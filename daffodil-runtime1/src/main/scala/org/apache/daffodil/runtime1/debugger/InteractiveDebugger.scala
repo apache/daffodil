@@ -48,6 +48,7 @@ import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateForSuspension
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
+import scala.collection.mutable
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -73,14 +74,14 @@ class InteractiveDebugger(
 
   case class DebugException(str: String, cause: Throwable)
     extends java.lang.Exception(str, cause) {
-    override def toString = "Debugger error: " + Misc.getSomeMessage(this).get
+    override def toString: String = "Debugger error: " + Misc.getSomeMessage(this).get
     def this(str: String) = this(str, null)
   }
 
   trait Disablable {
     var enabled = true
-    def disable() = { enabled = false }
-    def enable() = { enabled = true }
+    def disable(): Unit = { enabled = false }
+    def enable(): Unit = { enabled = true }
   }
 
   case class Breakpoint(id: Int, breakpoint: String) extends Disablable {
@@ -111,11 +112,11 @@ class InteractiveDebugger(
     var breakOnFailure: Boolean = false
 
     /* list of breakpoints */
-    val breakpoints = collection.mutable.ListBuffer[Breakpoint]()
+    val breakpoints: mutable.ListBuffer[Breakpoint] = collection.mutable.ListBuffer[Breakpoint]()
     var breakpointIndex: Int = 1
 
     /* list of displays */
-    val displays = collection.mutable.ListBuffer[Display]()
+    val displays: mutable.ListBuffer[Display] = collection.mutable.ListBuffer[Display]()
     var displayIndex: Int = 1
 
     /* whether to remove hidden elements when displaying the infoset */
@@ -132,7 +133,7 @@ class InteractiveDebugger(
      * duplicate commands. That can be configured, but jline's history is much
      * more useful with the history behaving that way. This is really only used
      * for the 'history' command. */
-    val history = scala.collection.mutable.ListBuffer[String]()
+    val history: mutable.ListBuffer[String] = scala.collection.mutable.ListBuffer[String]()
 
     /* keeps track of which parse step we're on for trace output */
     var parseStep = 0
@@ -669,7 +670,7 @@ class InteractiveDebugger(
     val desc = ""
     val longDesc = ""
     override lazy val short = ""
-    override val subcommands = Seq(
+    override val subcommands: Seq[DebugCommand] = Seq(
       Break,
       Clear,
       Complete,
@@ -704,7 +705,7 @@ class InteractiveDebugger(
     object Break extends DebugCommand with DebugCommandValidateSingleArg {
       val name = "break"
       val desc = "create a breakpoint"
-      val longDesc = """|Usage: b[reak] <element_id>
+      val longDesc: String = """|Usage: b[reak] <element_id>
                         |
                         |Create a breakpoint, causing the debugger to stop when the element
                         |with the <element_id> name is created.
@@ -727,7 +728,7 @@ class InteractiveDebugger(
     object Clear extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "clear"
       val desc = "clear the screen"
-      val longDesc = """|Usage: cl[ear]
+      val longDesc: String = """|Usage: cl[ear]
                         |
                         |Clear the screen.""".stripMargin
       override lazy val short = "cl"
@@ -751,7 +752,7 @@ class InteractiveDebugger(
     object Complete extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "complete"
       val desc = "disable all debugger actions and continue"
-      val longDesc = """|Usage: comp[lete]
+      val longDesc: String = """|Usage: comp[lete]
                         |
                         |Continue parsing the input data until parsing is complete. All
                         |breakpoints are ignored.""".stripMargin
@@ -771,7 +772,7 @@ class InteractiveDebugger(
     object Condition extends DebugCommand {
       val name = "condition"
       val desc = "set a DFDL expression to stop at breakpoint"
-      val longDesc = """|Usage: cond[ition] <breakpoint_id> <dfdl_expression>
+      val longDesc: String = """|Usage: cond[ition] <breakpoint_id> <dfdl_expression>
                         |
                         |Set a condition on a specified breakpoint. When a breakpoint
                         |is encountered, the debugger only pauses if the DFDL expression
@@ -822,7 +823,7 @@ class InteractiveDebugger(
     object Continue extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "continue"
       val desc = "continue parsing until a breakpoint is found"
-      val longDesc = """|Usage: c[ontinue]
+      val longDesc: String = """|Usage: c[ontinue]
                         |
                         |Continue parsing the input data until a breakpoint is encountered. At
                         |which point, pause parsing and display a debugger console to the user.""".stripMargin
@@ -839,13 +840,13 @@ class InteractiveDebugger(
     object Delete extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "delete"
       val desc = "delete breakpoints and displays"
-      val longDesc = """|Usage: d[elete] <type> <id>
+      val longDesc: String = """|Usage: d[elete] <type> <id>
                         |
                         |Remove a breakpoint or display.
                         |
                         |Example: delete breakpoint 1
                         |         delete display 1""".stripMargin
-      override val subcommands = Seq(DeleteBreakpoint, DeleteDisplay)
+      override val subcommands: Seq[DebugCommand with DebugCommandValidateInt] = Seq(DeleteBreakpoint, DeleteDisplay)
 
       def act(
         args: Seq[String],
@@ -861,7 +862,7 @@ class InteractiveDebugger(
       object DeleteBreakpoint extends DebugCommand with DebugCommandValidateInt {
         val name = "breakpoint"
         val desc = "delete a breakpoint"
-        val longDesc = """|Usage: d[elete] b[reakpoint] <breakpoint_id>
+        val longDesc: String = """|Usage: d[elete] b[reakpoint] <breakpoint_id>
                           |
                           |Remove a breakpoint created using the 'breakpoint' command.
                           |
@@ -884,7 +885,7 @@ class InteractiveDebugger(
       object DeleteDisplay extends DebugCommand with DebugCommandValidateInt {
         val name = "display"
         val desc = "delete a display"
-        val longDesc = """|Usage: d[elete] di[splay] <display_id>
+        val longDesc: String = """|Usage: d[elete] di[splay] <display_id>
                           |
                           |Remove a display created using the 'display' command.
                           |
@@ -909,14 +910,14 @@ class InteractiveDebugger(
     object Disable extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "disable"
       val desc = "disable breakpoints and displays"
-      val longDesc = """|Usage: dis[able] <type> <id>
+      val longDesc: String = """|Usage: dis[able] <type> <id>
                         |
                         |Disable a breakpoint or display.
                         |
                         |Example: disable breakpoint 1
                         |         disable display 1""".stripMargin
       override lazy val short = "dis"
-      override val subcommands = Seq(DisableBreakpoint, DisableDisplay)
+      override val subcommands: Seq[DebugCommand with DebugCommandValidateInt] = Seq(DisableBreakpoint, DisableDisplay)
 
       def act(
         args: Seq[String],
@@ -932,7 +933,7 @@ class InteractiveDebugger(
       object DisableBreakpoint extends DebugCommand with DebugCommandValidateInt {
         val name = "breakpoint"
         val desc = "disable a breakpoint"
-        val longDesc = """|Usage: dis[able] b[reakpoint] <breakpoint_id>
+        val longDesc: String = """|Usage: dis[able] b[reakpoint] <breakpoint_id>
                           |
                           |Disable a breakpoint with the specified id. This causes the breakpoint
                           |to be skipped during debugging.
@@ -956,7 +957,7 @@ class InteractiveDebugger(
       object DisableDisplay extends DebugCommand with DebugCommandValidateInt {
         val name = "display"
         val desc = "disable a display"
-        val longDesc = """|Usage: d[isable] di[splay] <display_id>
+        val longDesc: String = """|Usage: d[isable] di[splay] <display_id>
                           |
                           |Disable a display with the specified id. This causes the display command
                           |to be skipped during debugging.
@@ -982,14 +983,14 @@ class InteractiveDebugger(
     object Display extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "display"
       val desc = "show value of expression each time program stops"
-      val longDesc = """|Usage: di[splay] <debugger_command>
+      val longDesc: String = """|Usage: di[splay] <debugger_command>
                         |
                         |Execute a debugger command (limited to eval, info, and clear) every time a
                         |there is a pause in the debugger.
                         |
                         |Example: display info infoset""".stripMargin
       override lazy val short = "di"
-      override val subcommands = Seq(Eval, Info, Clear)
+      override val subcommands: Seq[DebugCommand] = Seq(Eval, Info, Clear)
 
       def act(
         args: Seq[String],
@@ -1005,13 +1006,13 @@ class InteractiveDebugger(
     object Enable extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "enable"
       val desc = "enable breakpoints and displays"
-      val longDesc = """|Usage: e[nable] <type> <id>
+      val longDesc: String = """|Usage: e[nable] <type> <id>
                         |
                         |Enable a breakpoint or display.
                         |
                         |Example: enable breakpoint 1
                         |         enable display 1""".stripMargin
-      override val subcommands = Seq(EnableBreakpoint, EnableDisplay)
+      override val subcommands: Seq[DebugCommand with DebugCommandValidateInt] = Seq(EnableBreakpoint, EnableDisplay)
 
       def act(
         args: Seq[String],
@@ -1027,7 +1028,7 @@ class InteractiveDebugger(
       object EnableBreakpoint extends DebugCommand with DebugCommandValidateInt {
         val name = "breakpoint"
         val desc = "enable a breakpoint"
-        val longDesc = """|Usage: e[nable] b[reakpoint] <breakpoint_id>
+        val longDesc: String = """|Usage: e[nable] b[reakpoint] <breakpoint_id>
                           |
                           |Enable a breakpoint with the specified id. This causes the breakpoint
                           |to be evaluated during debugging.
@@ -1051,7 +1052,7 @@ class InteractiveDebugger(
       object EnableDisplay extends DebugCommand with DebugCommandValidateInt {
         val name = "display"
         val desc = "enable a display"
-        val longDesc = """|Usage: e[nable] di[splay] <display_id>
+        val longDesc: String = """|Usage: e[nable] di[splay] <display_id>
                           |
                           |Enable a display with the specified id. This causes the display command
                           |to be run during debugging.
@@ -1077,7 +1078,7 @@ class InteractiveDebugger(
       val name = "eval"
       val desc = "evaluate a DFDL expression"
       override lazy val short = "ev"
-      val longDesc = """|Usage: ev[al] <dfdl_expression>
+      val longDesc: String = """|Usage: ev[al] <dfdl_expression>
                         |
                         |Evaluate a DFDL expression.
                         |
@@ -1193,13 +1194,13 @@ class InteractiveDebugger(
     object Help extends DebugCommand {
       val name = "help"
       val desc = "display information about a command"
-      val longDesc = """|Usage: h[elp] [command]
+      val longDesc: String = """|Usage: h[elp] [command]
                         |
                         |Display help. If a command is given, display help information specific
                         |to that command and its subcommands.
                         |
                         |Example: help info""".stripMargin
-      override val subcommands = Seq(
+      override val subcommands: Seq[DebugCommand] = Seq(
         Break,
         Clear,
         Complete,
@@ -1236,7 +1237,7 @@ class InteractiveDebugger(
       val name = "history"
       override lazy val short = "hi"
       val desc = "display the history of commands"
-      val longDesc = """|Usage: hi[story] [outfile]
+      val longDesc: String = """|Usage: hi[story] [outfile]
                         |
                         |Display the history of commands. If an argument is given, write
                         |the history to the specified file rather then printing it to the
@@ -1292,7 +1293,7 @@ class InteractiveDebugger(
     object Info extends DebugCommand {
       val name = "info"
       val desc = "display information"
-      val longDesc = """|Usage: i[nfo] <item>...
+      val longDesc: String = """|Usage: i[nfo] <item>...
                         |
                         |Print internal information to the console. <item> can be specified
                         |multiple times to display multiple pieces of information. <items>
@@ -1300,7 +1301,7 @@ class InteractiveDebugger(
                         |to the previous <item>
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands =
+      override val subcommands: Seq[DebugCommand] =
         Seq(
           InfoBitLimit,
           InfoBitPosition,
@@ -1663,7 +1664,7 @@ class InteractiveDebugger(
         val desc = "display differences since the previous pause in the debugger"
         val longDesc = desc
 
-        lazy val infoDiffables = Info.subcommands.collect { case diffable: InfoDiffable =>
+        lazy val infoDiffables: Seq[DebugCommand with InfoDiffable] = Info.subcommands.collect { case diffable: InfoDiffable =>
           diffable
         }
 
@@ -1862,7 +1863,7 @@ class InteractiveDebugger(
       }
 
       abstract class InfoProcessorBase extends DebugCommand with DebugCommandValidateZeroArgs {
-        val desc = "display the current Daffodil " + name
+        val desc: String = "display the current Daffodil " + name
         val longDesc = desc
         def act(
           args: Seq[String],
@@ -1945,7 +1946,7 @@ class InteractiveDebugger(
         val name = "variables"
         override lazy val short = "v"
         val desc = "display in-scope state of variables"
-        val longDesc = """|Usage: v[ariables] [<name>...]
+        val longDesc: String = """|Usage: v[ariables] [<name>...]
                           |
                           |Display the in-scope state of variables matching <name>'s. If no
                           |names are given, displays the in-scope state of all variabes.""".stripMargin
@@ -2025,7 +2026,7 @@ class InteractiveDebugger(
     object Quit extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "quit"
       val desc = "immediately abort all processing"
-      val longDesc = """|Usage: q[uit]
+      val longDesc: String = """|Usage: q[uit]
                         |
                         |Immediately abort all processing.""".stripMargin
       override lazy val short = "q"
@@ -2041,13 +2042,13 @@ class InteractiveDebugger(
     object Set extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "set"
       val desc = "modify debugger configuration"
-      val longDesc = """|Usage: set <setting> <value>
+      val longDesc: String = """|Usage: set <setting> <value>
                         |
                         |Change a debugger setting, the list of settings are below.
                         |
                         |Example: set breakOnlyOnCreation false
                         |         set dataLength 100""".stripMargin
-      override val subcommands = Seq(
+      override val subcommands: Seq[DebugCommand] = Seq(
         SetBreakOnFailure,
         SetBreakOnlyOnCreation,
         SetDataLength,
@@ -2075,7 +2076,7 @@ class InteractiveDebugger(
         val name = "breakOnlyOnCreation"
         val desc =
           "whether or not breakpoints should occur only on element creation, or always (default: true)"
-        val longDesc = """|Usage: set breakOnlyOnCreation|booc <value>
+        val longDesc: String = """|Usage: set breakOnlyOnCreation|booc <value>
                           |
                           |Set whether or not breakpoints should only be evaluated on element creation.
                           |<value> must be either true/false or 1/0. If true, breakpoints only stop on
@@ -2103,7 +2104,7 @@ class InteractiveDebugger(
       object SetBreakOnFailure extends DebugCommand with DebugCommandValidateBoolean {
         val name = "breakOnFailure"
         val desc = "whether or not the debugger should break on failures (default: false)"
-        val longDesc = """|Usage: set breakOnFailure|bof <value>
+        val longDesc: String = """|Usage: set breakOnFailure|bof <value>
                           |
                           |Set whether or not the debugger should break on failures. If set to false
                           |the normal processing occurs. If set to true, any errors cause a break.
@@ -2132,7 +2133,7 @@ class InteractiveDebugger(
         val name = "dataLength"
         val desc =
           "set the maximum number of bytes of the data to display. If negative, display all input data (default: 70)"
-        val longDesc = """|Usage: set dataLength|dl <value>
+        val longDesc: String = """|Usage: set dataLength|dl <value>
                           |
                           |Set the number of bytes to display when displaying input data. If
                           |negative, display all input data. This only affects the 'info data'
@@ -2155,7 +2156,7 @@ class InteractiveDebugger(
       object SetDiffExcludes extends DebugCommand {
         val name = "diffExcludes"
         val desc = "set info commands to exclude in the 'info diff' commanad"
-        val longDesc = """|Usage: set diffExcludes|de <commands...>
+        val longDesc: String = """|Usage: set diffExcludes|de <commands...>
                           |
                           |Set info comamnds to exclude in the 'info diff' command. Multiple arguments
                           |separated by a space excludes multiple commands. Zero arguments excludes no
@@ -2187,7 +2188,7 @@ class InteractiveDebugger(
       object SetInfosetLines extends DebugCommand with DebugCommandValidateInt {
         val name = "infosetLines"
         val desc = "set the maximum number of lines of the infoset to display (default: -1)"
-        val longDesc = """|Usage: set infosetLines|il <value>
+        val longDesc: String = """|Usage: set infosetLines|il <value>
                           |
                           |Set the maximum number of lines to display when displaying the infoset.
                           |This only affects the 'info infoset' command. This shows the last
@@ -2211,7 +2212,7 @@ class InteractiveDebugger(
         val name = "infosetParents"
         val desc =
           "set the number of parent elements to show when displaying the infoset (default: -1)"
-        val longDesc = """|Usage: set infosetParents|ip <value>
+        val longDesc: String = """|Usage: set infosetParents|ip <value>
                           |
                           |Set the number of parent elements to show when displaying the infoset.
                           |This only affects the 'info infoset' command. A value of zero will only
@@ -2235,7 +2236,7 @@ class InteractiveDebugger(
         val name = "removeHidden"
         val desc =
           "set whether or not to remove Daffodil internal attributes when displaying the infoset (default: false)"
-        val longDesc = """|Usage: set removeHidden|rh <value>
+        val longDesc: String = """|Usage: set removeHidden|rh <value>
                           |
                           |Set whether or not hidden elements (e.g through the use of
                           |dfdl:hiddenGroupRef) should be displayed. This effects the 'eval' and
@@ -2263,7 +2264,7 @@ class InteractiveDebugger(
       object SetRepresentation extends DebugCommand {
         val name = "representation"
         val desc = "set the output when displaying data (default: text)"
-        val longDesc = """|Usage: set representation|rp <value>
+        val longDesc: String = """|Usage: set representation|rp <value>
                           |
                           |Set the output when displaying data. <value> must be either
                           |'text' or 'binary'. Defaults to 'text'.
@@ -2300,7 +2301,7 @@ class InteractiveDebugger(
       object SetWrapLength extends DebugCommand with DebugCommandValidateInt {
         val name = "wrapLength"
         val desc = "set the maximum number of bytes to display before wrapping (default: 80)"
-        val longDesc = """|Usage: set wrapLength|wl <value>
+        val longDesc: String = """|Usage: set wrapLength|wl <value>
                           |
                           |Set the number of characters at which point output wraps. This only
                           |affects the 'info data' and 'info infoset' commands. A length less
@@ -2324,7 +2325,7 @@ class InteractiveDebugger(
     object Step extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "step"
       val desc = "execute a single parser step"
-      val longDesc = """|Usage: s[tep]
+      val longDesc: String = """|Usage: s[tep]
                         |
                         |Perform a single parse action, pause parsing, and display a debugger
                         |prompt.""".stripMargin
@@ -2340,7 +2341,7 @@ class InteractiveDebugger(
     object Trace extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "trace"
       val desc = "same as continue, but runs display commands during every step"
-      val longDesc = """|Usage: t[race]
+      val longDesc: String = """|Usage: t[race]
                         |
                         |Continue parsing the input data until a breakpoint is encountered,
                         |while running display commands after every parse step. When a

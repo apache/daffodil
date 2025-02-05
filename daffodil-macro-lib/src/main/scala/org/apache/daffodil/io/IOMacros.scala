@@ -30,7 +30,7 @@ object IOMacros {
    * is called.
    *
    */
-  def withBitLengthLimitMacroForInput(c: Context)(lengthLimitInBits: c.Tree)(body: c.Tree) = {
+  def withBitLengthLimitMacroForInput(c: Context)(lengthLimitInBits: c.Tree)(body: c.Tree): c.universe.Tree = {
 
     import c.universe._
 

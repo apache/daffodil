@@ -37,7 +37,7 @@ import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
  */
 object DFA {
   def FinalState = -1
-  def EndOfDataChar = -1.toChar // -1 means EndOfData
+  def EndOfDataChar: Char = -1.toChar // -1 means EndOfData
   def EndOfData = -3
 }
 
@@ -139,7 +139,7 @@ object DFADelimiter {
 
   private def containsCtrlOrWS(s: String) = controlOrWhitespace.findFirstMatchIn(s).isDefined
 
-  def strForDiagnostic(s: String) =
+  def strForDiagnostic(s: String): String =
     if (containsCtrlOrWS(s))
       s"'$s' ('${Misc.remapStringToVisibleGlyphs(s)}')"
     else s"'$s'"
@@ -156,7 +156,7 @@ trait DFADelimiter extends DFA {
 
   // We frequently want to know if a delimiter is ES or not when iterating over
   // delimiters, so cache the result of this comparison
-  final val isES = lookingFor == "%ES;"
+  final val isES: Boolean = lookingFor == "%ES;"
 
   def unparseValue: String
 

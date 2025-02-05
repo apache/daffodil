@@ -19,6 +19,7 @@ package org.apache.daffodil.lib.util
 
 import java.util.regex.Matcher
 import scala.collection.mutable
+import java.util.regex.Pattern
 
 sealed abstract class LocalStackBase[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) {
 
@@ -68,7 +69,7 @@ class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit))
     }
   }
 
-  override final protected def stack = tl.get()
+  override final protected def stack: mutable.ArrayStack[T] = tl.get()
 
 }
 
@@ -111,7 +112,7 @@ private[util] object An_example_of_OnStack_use {
    * should just reset them onto new strings
    * and use them over and over.
    */
-  val pattern = "ab*".r.pattern // imagine a really big expensive pattern to compile.
+  val pattern: Pattern = "ab*".r.pattern // imagine a really big expensive pattern to compile.
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 

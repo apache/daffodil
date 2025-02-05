@@ -59,7 +59,7 @@ trait Unsigned[U <: Unsigned[U, Promoted, SignedPromoted], Promoted <: Unsigned[
 
   // Implementing ScalaNumber
   def isWhole: Boolean = true
-  def underlying = this
+  def underlying: Unsigned[U,Promoted,SignedPromoted] = this
 
   def +(x: SignedPromoted)(implicit d: DummyImplicit): SignedPromoted
   def -(x: SignedPromoted)(implicit d: DummyImplicit): SignedPromoted

@@ -42,7 +42,7 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
 
   final override val xml = xmlArg
 
-  final override val optLexicalParent = Option(annotatedSCArg)
+  final override val optLexicalParent: Option[AnnotatedSchemaComponent] = Option(annotatedSCArg)
 
   final lazy val annotatedSC = annotatedSCArg
 

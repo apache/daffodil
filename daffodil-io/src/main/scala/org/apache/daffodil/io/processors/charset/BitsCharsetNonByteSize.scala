@@ -55,14 +55,14 @@ trait BitsCharsetNonByteSize extends BitsCharset {
 
   val replacementCharCode: Int
 
-  def averageCharsPerByte() = averageCharsPerBit() * 8.0f
-  def averageCharsPerBit() = 1.0f / bitWidthOfACodeUnit
-  def maxCharsPerByte() = maxCharsPerBit() * 8.0f
-  def maxCharsPerBit() = 1.0f / bitWidthOfACodeUnit
-  def averageBytesPerChar() = 1 / averageCharsPerByte()
-  def averageBitsPerChar() = 1 / averageCharsPerBit()
-  def maxBytesPerChar() = 1 / maxCharsPerByte()
-  def maxBitsPerChar() = 1 / maxCharsPerBit()
+  def averageCharsPerByte(): Float = averageCharsPerBit() * 8.0f
+  def averageCharsPerBit(): Float = 1.0f / bitWidthOfACodeUnit
+  def maxCharsPerByte(): Float = maxCharsPerBit() * 8.0f
+  def maxCharsPerBit(): Float = 1.0f / bitWidthOfACodeUnit
+  def averageBytesPerChar(): Float = 1 / averageCharsPerByte()
+  def averageBitsPerChar(): Float = 1 / averageCharsPerBit()
+  def maxBytesPerChar(): Float = 1 / maxCharsPerByte()
+  def maxBitsPerChar(): Float = 1 / maxCharsPerBit()
 
   Assert.usage(decodeString.length == (1 << bitWidthOfACodeUnit))
   Assert.usage(bitWidthOfACodeUnit <= 8 && bitWidthOfACodeUnit >= 1)
@@ -74,7 +74,7 @@ trait BitsCharsetNonByteSize extends BitsCharset {
 
   override def mandatoryBitAlignment = 1
 
-  override def maybeFixedWidth = MaybeInt(bitWidthOfACodeUnit)
+  override def maybeFixedWidth: MaybeInt = MaybeInt(bitWidthOfACodeUnit)
 
   //
   // Note: because this array is only 256, these non-bit width encodings
@@ -107,11 +107,11 @@ trait BitsCharsetNonByteSize extends BitsCharset {
     arr
   }
 
-  def codeToChar(code: Int) = {
+  def codeToChar(code: Int): Char = {
     decodeString.charAt(code)
   }
 
-  def charToCode(char: Char) =
+  def charToCode(char: Char): MaybeInt =
     if (char < 256) encodeArray(char)
     else MaybeInt.Nope
 }
@@ -169,7 +169,7 @@ final class BitsCharsetNonByteSizeEncoder(
    *
    * We want to avoid re-implementing all the error handling and flush/end logic.
    */
-  val thisEncoder = this
+  val thisEncoder: BitsCharsetNonByteSizeEncoder = this
 
   protected object ProxyJavaCharset extends JavaCharset("proxyCharset", Array()) {
     override def newEncoder(): JavaCharsetEncoder =
@@ -184,21 +184,21 @@ final class BitsCharsetNonByteSizeEncoder(
 
   def malformedInputAction(): CodingErrorAction = proxy.malformedInputAction()
   def unmappableCharacterAction(): CodingErrorAction = proxy.unmappableCharacterAction()
-  def onMalformedInput(action: CodingErrorAction) = { proxy.onMalformedInput(action); this }
-  def onUnmappableCharacter(action: CodingErrorAction) = {
+  def onMalformedInput(action: CodingErrorAction): BitsCharsetNonByteSizeEncoder = { proxy.onMalformedInput(action); this }
+  def onUnmappableCharacter(action: CodingErrorAction): BitsCharsetNonByteSizeEncoder = {
     proxy.onUnmappableCharacter(action); this
   }
-  def replacement() = proxy.replacement()
-  def replaceWith(newReplacement: Array[Byte]) = { proxy.replaceWith(newReplacement); this }
+  def replacement(): Array[Byte] = proxy.replacement()
+  def replaceWith(newReplacement: Array[Byte]): BitsCharsetNonByteSizeEncoder = { proxy.replaceWith(newReplacement); this }
 
-  def encode(in: CharBuffer, out: ByteBuffer, endOfInput: Boolean) =
+  def encode(in: CharBuffer, out: ByteBuffer, endOfInput: Boolean): CoderResult =
     proxy.encode(in, out, endOfInput)
-  def flush(out: ByteBuffer) = proxy.flush(out)
+  def flush(out: ByteBuffer): CoderResult = proxy.flush(out)
 
   private var partialByte: Int = 0
   private var partialByteLenInBits: Int = 0
 
-  def reset() = {
+  def reset(): BitsCharsetNonByteSizeEncoder = {
     partialByte = 0
     partialByteLenInBits = 0
     proxy.reset()

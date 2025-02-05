@@ -29,11 +29,11 @@ package passera
 import scala.language.implicitConversions
 
 package object unsigned {
-  implicit def ubyte2uint(x: UByte) = UInt(x.toInt)
-  implicit def ushort2uint(x: UShort) = UInt(x.toInt)
-  implicit def ubyte2ulong(x: UByte) = ULong(x.toLong)
-  implicit def ushort2ulong(x: UShort) = ULong(x.toLong)
-  implicit def uint2ulong(x: UInt) = ULong(x.toLong)
+  implicit def ubyte2uint(x: UByte): UInt = UInt(x.toInt)
+  implicit def ushort2uint(x: UShort): UInt = UInt(x.toInt)
+  implicit def ubyte2ulong(x: UByte): ULong = ULong(x.toLong)
+  implicit def ushort2ulong(x: UShort): ULong = ULong(x.toLong)
+  implicit def uint2ulong(x: UInt): ULong = ULong(x.toLong)
 
   implicit def signedIntOps(x: Int) = new SignedIntOps(x)
   implicit def signedLongOps(x: Long) = new SignedLongOps(x)
@@ -46,10 +46,10 @@ package object unsigned {
   implicit def richerUInt(x: UInt) = new RicherUInt(x.toInt)
 
   class FloatOps(x: Float) {
-    def toUByte = UByte(x.toByte)
-    def toUShort = UShort(x.toShort)
-    def toUInt = UInt(x.toInt)
-    def toULong = ULong(x.toLong)
+    def toUByte: UByte = UByte(x.toByte)
+    def toUShort: UShort = UShort(x.toShort)
+    def toUInt: UInt = UInt(x.toInt)
+    def toULong: ULong = ULong(x.toLong)
     def +(y: UInt) = x + y.toFloat
     def -(y: UInt) = x - y.toFloat
     def *(y: UInt) = x * y.toFloat
@@ -58,10 +58,10 @@ package object unsigned {
   }
 
   class DoubleOps(x: Double) {
-    def toUByte = UByte(x.toByte)
-    def toUShort = UShort(x.toShort)
-    def toUInt = UInt(x.toInt)
-    def toULong = ULong(x.toLong)
+    def toUByte: UByte = UByte(x.toByte)
+    def toUShort: UShort = UShort(x.toShort)
+    def toUInt: UInt = UInt(x.toInt)
+    def toULong: ULong = ULong(x.toLong)
     def +(y: UInt) = x + y.toDouble
     def -(y: UInt) = x - y.toDouble
     def *(y: UInt) = x * y.toDouble
@@ -70,10 +70,10 @@ package object unsigned {
   }
 
   class SignedIntOps(x: Int) {
-    def toUByte = UByte((x & 0xff).toByte)
-    def toUShort = UShort((x & 0xffff).toShort)
-    def toUInt = UInt(x)
-    def toULong = ULong(x.toLong)
+    def toUByte: UByte = UByte((x & 0xff).toByte)
+    def toUShort: UShort = UShort((x & 0xffff).toShort)
+    def toUInt: UInt = UInt(x)
+    def toULong: ULong = ULong(x.toLong)
 
     def +(y: UByte) = x + y.toInt
     def -(y: UByte) = x - y.toInt
@@ -105,10 +105,10 @@ package object unsigned {
   }
 
   class SignedLongOps(x: Long) {
-    def toUByte = UByte((x & 0xffL).toByte)
-    def toUShort = UShort((x & 0xffffL).toShort)
-    def toUInt = UInt((x & 0xffffffffL).toInt)
-    def toULong = ULong(x)
+    def toUByte: UByte = UByte((x & 0xffL).toByte)
+    def toUShort: UShort = UShort((x & 0xffffL).toShort)
+    def toUInt: UInt = UInt((x & 0xffffffffL).toInt)
+    def toULong: ULong = ULong(x)
     def +(y: UInt) = x + y.toLong
     def -(y: UInt) = x - y.toLong
     def *(y: UInt) = x * y.toLong
@@ -125,7 +125,7 @@ package object unsigned {
   }
 
   trait UByteOrdering extends Ordering[UByte] {
-    def compare(x: UByte, y: UByte) =
+    def compare(x: UByte, y: UByte): Int =
       if (x < y) -1
       else if (x == y) 0
       else 1
@@ -133,7 +133,7 @@ package object unsigned {
   implicit object UByteOrdering extends UByteOrdering
 
   trait UShortOrdering extends Ordering[UShort] {
-    def compare(x: UShort, y: UShort) =
+    def compare(x: UShort, y: UShort): Int =
       if (x < y) -1
       else if (x == y) 0
       else 1
@@ -141,7 +141,7 @@ package object unsigned {
   implicit object UShortOrdering extends UShortOrdering
 
   trait UIntOrdering extends Ordering[UInt] {
-    def compare(x: UInt, y: UInt) =
+    def compare(x: UInt, y: UInt): Int =
       if (x < y) -1
       else if (x == y) 0
       else 1
@@ -149,7 +149,7 @@ package object unsigned {
   implicit object UIntOrdering extends UIntOrdering
 
   trait ULongOrdering extends Ordering[ULong] {
-    def compare(x: ULong, y: ULong) =
+    def compare(x: ULong, y: ULong): Int =
       if (x < y) -1
       else if (x == y) 0
       else 1
@@ -217,16 +217,16 @@ package object unsigned {
   implicit object ULongIsIntegral extends ULongIsIntegral with ULongOrdering
 
   class RicherUInt(rep: Int) {
-    def bitCount = Integer.bitCount(rep)
-    def highestOneBit = Integer.highestOneBit(rep)
-    def lowestOneBit = Integer.lowestOneBit(rep)
-    def numberOfLeadingZeros = Integer.numberOfLeadingZeros(rep)
-    def numberOfTrailingZeros = Integer.numberOfTrailingZeros(rep)
-    def reverse = UInt(Integer.reverse(rep))
-    def reverseBytes = UInt(Integer.reverseBytes(rep))
-    def rotateLeft(dist: Int) = UInt(Integer.rotateLeft(rep, dist))
-    def rotateRight(dist: Int) = UInt(Integer.rotateRight(rep, dist))
-    def signum = if (rep == 0) 0 else 1
+    def bitCount: Int = Integer.bitCount(rep)
+    def highestOneBit: Int = Integer.highestOneBit(rep)
+    def lowestOneBit: Int = Integer.lowestOneBit(rep)
+    def numberOfLeadingZeros: Int = Integer.numberOfLeadingZeros(rep)
+    def numberOfTrailingZeros: Int = Integer.numberOfTrailingZeros(rep)
+    def reverse: UInt = UInt(Integer.reverse(rep))
+    def reverseBytes: UInt = UInt(Integer.reverseBytes(rep))
+    def rotateLeft(dist: Int): UInt = UInt(Integer.rotateLeft(rep, dist))
+    def rotateRight(dist: Int): UInt = UInt(Integer.rotateRight(rep, dist))
+    def signum: Int = if (rep == 0) 0 else 1
   }
 
   class RichUInt(x: UInt) {
@@ -238,8 +238,8 @@ package object unsigned {
       else if (x > y) -1
       else 0
     }
-    def max(y: UInt) = if (x < y) y else x
-    def min(y: UInt) = if (x > y) y else x
+    def max(y: UInt): UInt = if (x < y) y else x
+    def min(y: UInt): UInt = if (x > y) y else x
 
     def +(y: Int) = x.toInt + y
     def -(y: Int) = x.toInt - y

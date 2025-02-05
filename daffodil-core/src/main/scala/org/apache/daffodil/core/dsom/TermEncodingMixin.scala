@@ -47,7 +47,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         this.subset((textBidi eq YesNo.No), "Property value textBidi='yes' is not supported.")
     }
 
-  protected final lazy val defaultEncodingErrorPolicy = {
+  protected final lazy val defaultEncodingErrorPolicy: EncodingErrorPolicy.Replace.type = {
     val policy =
       if (self.tunable.requireEncodingErrorPolicyProperty) {
         encodingErrorPolicy
@@ -82,7 +82,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * so that we can decide things at compile time when possible.
    */
 
-  final lazy val isKnownEncoding = {
+  final lazy val isKnownEncoding: Boolean = {
     val isKnown = this.encodingEv.isConstant
     if (isKnown) {
       val encName = encodingEv.optConstant.get.toUpperCase()
@@ -98,7 +98,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * When the encoding is known, this tells us the mandatory
    * alignment required. This is always 1 or 8.
    */
-  override final lazy val knownEncodingAlignmentInBits = {
+  override final lazy val knownEncodingAlignmentInBits: Int = {
     if (alignmentKindDefaulted == AlignmentKind.Manual) 1 // disables any encoding alignment
     else if (isKnownEncoding) {
       schemaDefinitionWarningWhen(
@@ -232,7 +232,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * Not the same as AlignedMixin.isKnownToBeTextAligned. That depends on this but
    * goes further to consider whether alignment is achieved even when this is false.
    */
-  final lazy val hasTextAlignment = {
+  final lazy val hasTextAlignment: Boolean = {
     val av = alignmentValueInBits
     val kav = this.knownEncodingAlignmentInBits
     av % kav == 0

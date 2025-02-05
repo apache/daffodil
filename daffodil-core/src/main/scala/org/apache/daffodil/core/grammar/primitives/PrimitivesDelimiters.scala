@@ -35,7 +35,7 @@ object INoWarn5 { ImplicitsSuppressUnusedImportWarning() }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(es, guard) {
 
-  lazy val eName = e.toString()
+  lazy val eName: String = e.toString()
 
 }
 
@@ -63,7 +63,7 @@ abstract class DelimiterText(
 
   lazy val textParser = new TextParser(e.termRuntimeData)
 
-  val isDelimited = e match {
+  val isDelimited: Boolean = e match {
     case elemB: ElementBase => elemB.lengthKind == LengthKind.Delimited
     case _ => false
   }
@@ -91,7 +91,7 @@ case class Terminator(e: Term) extends DelimiterText(e, e, DelimiterTextType.Ter
 }
 
 abstract class StringDelimBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
-  override def toString = "StringDelimBase[" + name + "]"
+  override def toString: String = "StringDelimBase[" + name + "]"
 
   def checkDelimiterDistinctness(
     escapeSchemeKind: EscapeKind,

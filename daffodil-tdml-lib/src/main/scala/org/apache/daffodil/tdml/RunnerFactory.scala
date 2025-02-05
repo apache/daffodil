@@ -113,7 +113,7 @@ object Runner {
    * A test or test suite can override this to specify more or different implementations
    * that the test should pass for.
    */
-  def defaultImplementationsDefaultDefault = TDMLImplementation.values.map(_.toString)
+  def defaultImplementationsDefaultDefault: Array[String] = TDMLImplementation.values.map(_.toString)
 
   /**
    * By default we don't run Daffodil negative TDML tests against cross-testers.
@@ -204,7 +204,7 @@ final class Runner private (
   // avoid unnecessary allocations/computations. So all access of the
   // underlying test suite should occur through this function, which is
   // synchronized to ensure we only ever create one per Runner.
-  def getTS = this.synchronized {
+  def getTS: DFDLTestSuite = this.synchronized {
     if (ts == null) {
       val elemOrURISchemaSource: Any = source match {
         case Left(l) => l
@@ -230,7 +230,7 @@ final class Runner private (
     ts
   }
 
-  def runOneTest(testName: String, leakCheck: Boolean = false) =
+  def runOneTest(testName: String, leakCheck: Boolean = false): Unit =
     try {
       getTS.runOneTest(testName, leakCheck)
     } finally {
@@ -268,17 +268,17 @@ final class Runner private (
     ts = null
   }
 
-  def trace = {
+  def trace: Runner = {
     getTS.trace
     this
   }
 
-  def setDebugger(db: AnyRef) = {
+  def setDebugger(db: AnyRef): Unit = {
     getTS.setDebugger(db)
     debug
   }
 
-  def debug() = {
+  def debug(): Unit = {
     getTS.setDebugging(true)
   }
 

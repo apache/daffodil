@@ -38,7 +38,7 @@ trait SuspendableExpression extends Suspension {
 
   protected def expr: CompiledExpression[AnyRef]
 
-  override def toString =
+  override def toString: String =
     "SuspendableExpression(" + rd.diagnosticDebugName + ", expr=" + expr.prettyExpr + ")"
 
   protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit

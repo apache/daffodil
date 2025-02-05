@@ -150,7 +150,7 @@ class AllDelimiterIterator(d: mutable.ArrayBuffer[DFADelimiter])
   override def isRemote(): Boolean =
     Assert.usageError("Not be used, no concept of local/remote here")
 
-  override def isOfInterest(delim: DFADelimiter) = {
+  override def isOfInterest(delim: DFADelimiter): Boolean = {
     // all delimiters except for ES
     !delim.isES
   }

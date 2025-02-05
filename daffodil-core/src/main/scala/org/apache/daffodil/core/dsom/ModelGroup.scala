@@ -223,7 +223,7 @@ object TermFactory {
     lexicalParent: GroupDefLike,
     position: Int,
     nodesAlreadyTrying: Set[Node] = Set()
-  ) = {
+  ): Term = {
     val childTerm: Term = child match {
       case <element>{_*}</element> => {
         val refProp = child.attribute("ref").map { _.text }
@@ -268,12 +268,12 @@ abstract class ModelGroup protected (index: Int)
    * FIXME: DAFFODIL-2132. This tells us if framing is expressed on the schema.
    * It does NOT tell us if that framing occupies bits in the data stream or not.
    */
-  final lazy val hasFraming =
+  final lazy val hasFraming: Boolean =
     hasInitiator ||
       hasTerminator ||
       !hasNoSkipRegions
 
-  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
+  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation: Boolean = {
     hasFraming ||
     // or if all arms of the choice have statically required instances.
     groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
@@ -314,7 +314,7 @@ abstract class ModelGroup protected (index: Int)
    */
   protected def groupMembersDef: Seq[Term]
 
-  final lazy val representedMembers = groupMembers.filter { _.isRepresented }
+  final lazy val representedMembers: Seq[Term] = groupMembers.filter { _.isRepresented }
 
   def xmlChildren: Seq[Node]
 
@@ -324,7 +324,7 @@ abstract class ModelGroup protected (index: Int)
 
   private def prettyIndex = "[" + index + "]" // 1-based indexing in XML/XSD
 
-  override protected lazy val diagnosticDebugNameImpl = prettyBaseName + prettyIndex
+  override protected lazy val diagnosticDebugNameImpl: String = prettyBaseName + prettyIndex
 
   override lazy val alignmentValueInBits: JInt = {
     this.alignment match {
@@ -370,9 +370,9 @@ abstract class ModelGroup protected (index: Int)
 
   protected final lazy val prettyBaseName = xml.label
 
-  final lazy val sequenceChildren = groupMembers.collect { case s: SequenceTermBase => s }
-  final lazy val choiceChildren = groupMembers.collect { case s: ChoiceTermBase => s }
-  final lazy val groupRefChildren = groupMembers.collect { case s: GroupRef => s }
+  final lazy val sequenceChildren: Seq[SequenceTermBase] = groupMembers.collect { case s: SequenceTermBase => s }
+  final lazy val choiceChildren: Seq[ChoiceTermBase] = groupMembers.collect { case s: ChoiceTermBase => s }
+  final lazy val groupRefChildren: Seq[Term with GroupRef] = groupMembers.collect { case s: GroupRef => s }
 
   final override lazy val termChildren = groupMembers
 

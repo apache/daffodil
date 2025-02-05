@@ -43,7 +43,7 @@ object Coroutine {
     * hopefully unlikely that a user will create enough parallel SAX unparse
     * calls to cause issues.
     */
-  val executionContext = new ExecutionContext {
+  val executionContext: ExecutionContext = new ExecutionContext {
     private val threadPool = Executors.newCachedThreadPool()
     def execute(runnable: Runnable): Unit = threadPool.submit(runnable)
 

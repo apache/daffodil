@@ -34,7 +34,7 @@ import org.apache.daffodil.runtime1.processors.Success
 trait HasKnownLengthInBits {
   def lengthInBits: Int
 
-  def getBitLength(s: ParseOrUnparseState) = {
+  def getBitLength(s: ParseOrUnparseState): Int = {
     lengthInBits
   }
 }
@@ -45,7 +45,7 @@ trait HasRuntimeExplicitLength {
   def lengthEv: Evaluatable[JLong]
 
   // binary numbers will use this conversion. Others won't.
-  lazy val toBits = lengthUnits match {
+  lazy val toBits: Int = lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
     case _ =>

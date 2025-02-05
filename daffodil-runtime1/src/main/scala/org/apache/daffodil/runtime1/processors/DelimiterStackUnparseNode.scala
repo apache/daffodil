@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
 
 object EmptyDelimiterStackUnparseNode {
-  val empty = Array[DFADelimiter]()
+  val empty: Array[DFADelimiter] = Array[DFADelimiter]()
   val node = new DelimiterStackUnparseNode(empty, empty, empty)
   def apply() = node
 }

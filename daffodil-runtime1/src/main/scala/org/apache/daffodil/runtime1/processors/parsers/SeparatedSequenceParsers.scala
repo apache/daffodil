@@ -30,7 +30,7 @@ trait Separated { self: SequenceChildParser =>
 
   import SeparatorPosition._
 
-  protected final val separatorHelper = spos match {
+  protected final val separatorHelper: SeparatorParseHelper = spos match {
     case Prefix => new PrefixSeparatorHelper(sep, childParser, this)
     case Infix => new InfixSeparatorHelper(sep, childParser, this)
     case Postfix =>
@@ -131,7 +131,7 @@ final class OrderedSeparatedSequenceParser(
   childrenArg: Vector[SequenceChildParser]
 ) extends SequenceParserBase(rd, childrenArg, isOrdered = true) {
 
-  override lazy val childProcessors = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
+  override lazy val childProcessors: Vector[Parser] = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
 }
 
 final class UnorderedSeparatedSequenceParser(
@@ -141,5 +141,5 @@ final class UnorderedSeparatedSequenceParser(
   childrenArg: Vector[SequenceChildParser]
 ) extends SequenceParserBase(rd, childrenArg, isOrdered = false) {
 
-  override lazy val childProcessors = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
+  override lazy val childProcessors: Vector[Parser] = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
 }

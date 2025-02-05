@@ -22,6 +22,7 @@ import java.net.URI
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.UniquenessCache
+import org.apache.daffodil.lib.util.Maybe
 
 /**
  * Central factory for, and class to represent namespace URIs
@@ -78,7 +79,7 @@ object NoNamespace extends NS(null) {
   override def isNoNamespace = true
   override def isUnspecified = false
   override def toString = "No_Namespace"
-  override def uri = Assert.usageError("No-namespace has no URI.")
+  override def uri: URI = Assert.usageError("No-namespace has no URI.")
   override def optURI = Nope
   override def toStringOrNullIfNoNS: String =
     null // most places in Java APIs, no namespace is represented by null.
@@ -93,7 +94,7 @@ object UnspecifiedNamespace extends NS(null) {
   override def isNoNamespace = false
   override def isUnspecified = true
   override def toString = "Unspecified_Namespace"
-  override def uri = Assert.usageError("UnspecifiedNamespace has no URI.")
+  override def uri: URI = Assert.usageError("UnspecifiedNamespace has no URI.")
   override def optURI = Nope
   override def toStringOrNullIfNoNS: String =
     null // most places in Java APIs, no namespace is represented by null.
@@ -103,12 +104,12 @@ object UnspecifiedNamespace extends NS(null) {
 sealed class NS protected (uriArg: URI) extends Serializable { // protected constructor. Must use factory.
   override def toString = uri.toString
   def uri = uriArg
-  def optURI = One(uriArg)
+  def optURI: Maybe[URI] = One(uriArg)
   def toStringOrNullIfNoNS = uri.toString
   def isNoNamespace = false
   def isUnspecified = false
-  override def hashCode() = toString.hashCode()
-  def explainForMsg = "in namespace " + toString
+  override def hashCode(): Int = toString.hashCode()
+  def explainForMsg: String = "in namespace " + toString
 
   /**
    * The readResolve function is called when these objects are deserialized. We

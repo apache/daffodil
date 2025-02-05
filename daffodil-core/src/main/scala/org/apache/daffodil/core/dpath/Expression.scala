@@ -103,7 +103,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
    */
   lazy val schemaFileLocation = compileInfo.schemaFileLocation
 
-  lazy val conversions = {
+  lazy val conversions: List[RecipeOp] = {
     val inh = inherentType
     val tt = targetType
     val res = Conversion.conversionOps(inh, tt, this)
@@ -113,7 +113,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
   private lazy val compiledDPath_ = LV('compiledDPath) { compiledDPath }
   def compiledDPath: CompiledDPath
 
-  final lazy val parentOpt = Option(parent)
+  final lazy val parentOpt: Option[Expression] = Option(parent)
 
   final lazy val parent: Expression = {
     if (!this.hasOOLAGRootSetup)
@@ -232,16 +232,16 @@ abstract class ExpressionLists(val lst: List[Expression]) extends Expression {
 
 trait BinaryExpMixin { self: ExpressionLists =>
   Assert.invariant(children.length == 2)
-  def left = children(0)
-  def right = children(1)
+  def left: Expression = children(0)
+  def right: Expression = children(1)
   def op: String
-  def text = left.text + " " + op + " " + right.text
+  def text: String = left.text + " " + op + " " + right.text
 }
 
 trait BooleanExpression extends BinaryExpMixin {
   self: ExpressionLists =>
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
@@ -279,7 +279,7 @@ case class ComparisonExpression(op: String, adds: List[Expression])
     }
   }
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
@@ -289,7 +289,7 @@ case class ComparisonExpression(op: String, adds: List[Expression])
 
   override def targetTypeForSubexpression(child: Expression): NodeInfo.Kind = convergedArgType
 
-  lazy val convergedArgType = (left.inherentType, right.inherentType) match {
+  lazy val convergedArgType: NodeInfo.Kind = (left.inherentType, right.inherentType) match {
     // String => Numeric conversions are not allowed for comparison Ops.
     //
     // See http://www.w3.org/TR/xpath20/#mapping
@@ -421,7 +421,7 @@ trait NumericExpression extends BinaryExpMixin {
     }
   }
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
@@ -549,7 +549,7 @@ case class WholeExpression(
 
   override lazy val compiledDPath = ifor.compiledDPath
 
-  override lazy val children = List(ifor)
+  override lazy val children: List[Expression] = List(ifor)
 
 }
 
@@ -559,12 +559,12 @@ case class IfExpression(ifthenelse: List[Expression]) extends ExpressionLists(if
     IF(predicate.compiledDPath, thenPart.compiledDPath, elsePart.compiledDPath)
   )
 
-  override def text =
+  override def text: String =
     "if (" + predicate.text + ") then " + thenPart.text + " else " + elsePart.text
   lazy val List(predicate, thenPart, elsePart) = ifthenelse
   val op = "if"
 
-  override def targetTypeForSubexpression(subexp: Expression) = {
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
     Assert.invariant(children.contains(subexp))
     if (subexp == predicate)
       NodeInfo.Boolean
@@ -572,7 +572,7 @@ case class IfExpression(ifthenelse: List[Expression]) extends ExpressionLists(if
       this.targetType
   }
 
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     (thenPart.inherentType, elsePart.inherentType) match {
       case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
         NodeInfoUtils.generalizeArgAndResultTypesForNumericOp(op, left, right)._2
@@ -606,7 +606,7 @@ case class MultiplicativeExpression(op: String, unarys: List[Expression])
 
 case class UnaryExpression(op: String, exp: Expression) extends ExpressionLists(List(exp)) {
 
-  override def text = "( " + op + " (" + exp.text + "))"
+  override def text: String = "( " + op + " (" + exp.text + "))"
 
   override def inherentType: NodeInfo.Kind = exp.inherentType
 
@@ -616,7 +616,7 @@ case class UnaryExpression(op: String, exp: Expression) extends ExpressionLists(
       exp.inherentType // negate the inherent type, then we'll convert to whatever the target wants.
     }
 
-  override lazy val compiledDPath =
+  override lazy val compiledDPath: CompiledDPath =
     if (op == "+") {
       // no conversions because we passed on target type to subexpression
       exp.compiledDPath
@@ -628,11 +628,11 @@ case class UnaryExpression(op: String, exp: Expression) extends ExpressionLists(
 abstract class PathExpression() extends Expression {
   def steps: List[StepExpression]
 
-  override def text = steps.map { _.text }.mkString("/")
+  override def text: String = steps.map { _.text }.mkString("/")
 
   override lazy val inherentType: NodeInfo.Kind = steps.last.inherentType
 
-  override def targetTypeForSubexpression(subexp: Expression) = {
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
     parent.targetTypeForSubexpression(this)
   }
 
@@ -667,7 +667,7 @@ abstract class PathExpression() extends Expression {
     else true
   }
 
-  def isSelf = steps match {
+  def isSelf: Boolean = steps match {
     case List(Self(_)) => true
     case _ => false
   }
@@ -676,11 +676,11 @@ abstract class PathExpression() extends Expression {
 case class RootPathExpression(relPath: Option[RelativePathExpression])
   extends PathExpression() {
 
-  override def text = "/" + super.text
+  override def text: String = "/" + super.text
 
-  override lazy val steps = relPath.map { _.steps }.getOrElse(Nil)
+  override lazy val steps: List[StepExpression] = relPath.map { _.steps }.getOrElse(Nil)
 
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     if (!(steps == Nil)) steps.last.inherentType
     else {
       rootElement.optPrimType match {
@@ -694,7 +694,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
     }
   }
 
-  override def targetTypeForSubexpression(subexp: Expression) = {
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
     Assert.usage(relPath.isDefined)
     Assert.invariant(subexp == relPath.get)
     super.targetTypeForSubexpression(this)
@@ -702,7 +702,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
 
   override lazy val children = relPath.toSeq
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val rel = relPath.map { rp => rp.compiledDPath.ops.toList }.getOrElse(Nil)
     // note that no conversion is needed here since the compiledDPath of the
     // relative path includes the necessary conversions
@@ -714,7 +714,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
 case class RelativePathExpression(stepsRaw: List[StepExpression], isEvaluatedAbove: Boolean)
   extends PathExpression() {
 
-  lazy val isAbsolutePath = {
+  lazy val isAbsolutePath: Boolean = {
     parent != null && parent.isInstanceOf[RootPathExpression]
   }
 
@@ -754,7 +754,7 @@ case class RelativePathExpression(stepsRaw: List[StepExpression], isEvaluatedAbo
     res
   }
 
-  override lazy val steps = {
+  override lazy val steps: List[StepExpression] = {
     // Optimize out all self steps, since those don't change the expression at all
     val noSelfSteps = stepsRaw.filter { case Self(None) => false; case _ => true }
     if (noSelfSteps.length == 0) {
@@ -783,7 +783,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     )
   }
 
-  def relPathErr() = {
+  def relPathErr(): Nothing = {
     // This path expression cannot be compiled because we went past the root. This normally
     // should be an SDE with a RelativePathPastRootError. However, if we don't have any element
     // compile infos or the current root is not the distinguished root that Daffodil is
@@ -814,7 +814,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
   // Combination of lazy val and a protected def is an idiom
   // that enables a lazy calculation to call super.
-  final lazy val stepElements = {
+  final lazy val stepElements: Seq[DPathElementCompileInfo] = {
     val res = stepElementDefs
     // We cannot check Assert.invariant(res.isDefinedAt(0))
     // since that would prevent us from detecting illegal paths past root
@@ -825,18 +825,18 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   protected def stepElementDefs: Seq[DPathElementCompileInfo]
 
   // Note: all instances are distinct regardless of contents.
-  override def equals(x: Any) = x match {
+  override def equals(x: Any): Boolean = x match {
     case ar: AnyRef => this._eq_(ar)
     case _ => false
   }
 
-  override def hashCode() = super.hashCode()
+  override def hashCode(): Int = super.hashCode()
 
   final override def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
     stepElements.contains(elem)
   }
 
-  lazy val stepQName = {
+  lazy val stepQName: StepQName = {
     val e = QName.resolveStep(
       step,
       namespaces,
@@ -863,7 +863,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     res
   }
 
-  lazy val relPathParent = {
+  lazy val relPathParent: RelativePathExpression = {
     parentOpt match {
       case Some(rel: RelativePathExpression) => rel
       case Some(x) =>
@@ -874,17 +874,17 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
 
   lazy val isAbsolutePath = relPathParent.isAbsolutePath
 
-  lazy val positionInStepsSequence = {
+  lazy val positionInStepsSequence: Int = {
     val steps = relPathParent.steps
     steps.indexOf(this)
   }
 
-  lazy val isFirstStep = {
+  lazy val isFirstStep: Boolean = {
     val res = (positionInStepsSequence == 0)
     res
   }
 
-  lazy val isLastStep = {
+  lazy val isLastStep: Boolean = {
     val res = positionInStepsSequence == (relPathParent.steps.length - 1)
     res
   }
@@ -928,7 +928,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     else NodeInfo.Complex
   }
 
-  override def targetTypeForSubexpression(subexp: Expression) = {
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.ArrayIndex.type = {
     Assert.invariant(pred.isDefined)
     Assert.invariant(pred.get == subexp)
     NodeInfo.ArrayIndex
@@ -1025,7 +1025,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
 sealed abstract class SelfStepExpression(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkIfNodeIndexedLikeArray()
     new CompiledDPath(SelfMove)
   }
@@ -1065,7 +1065,7 @@ case class Self2(s: String, predArg: Option[PredicateExpression])
 sealed abstract class UpStepExpression(s: String, predArg: Option[PredicateExpression])
   extends StepExpression(s, predArg) {
 
-  final override lazy val compiledDPath = {
+  final override lazy val compiledDPath: CompiledDPath = {
     val areAllArrays = isLastStep && stepElements.forall {
       _.isArray
     } && targetType == NodeInfo.Array
@@ -1126,7 +1126,7 @@ class PathExpressionNoContextError extends ThinException
 case class NamedStep(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val d = downwardStep
     val res = new CompiledDPath(d)
     res
@@ -1134,7 +1134,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
 
   lazy val dpathElementCompileInfos = stepElements
 
-  lazy val downwardStep = {
+  lazy val downwardStep: RecipeOp with Product = {
     val nqn = dpathElementCompileInfos.head.namedQName
     if (isArray) {
       if (pred.isDefined) {
@@ -1265,10 +1265,10 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
  */
 case class PredicateExpression(ifOr: Expression) extends Expression {
 
-  override def text = "[" + ifOr.text + "]"
+  override def text: String = "[" + ifOr.text + "]"
 
   override lazy val inherentType = NodeInfo.ArrayIndex
-  override def targetTypeForSubexpression(subexp: Expression) = {
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.ArrayIndex.type = {
     Assert.invariant(ifOr == subexp)
     NodeInfo.ArrayIndex
   }
@@ -1283,7 +1283,7 @@ abstract class PrimaryExpression(expressions: List[Expression])
 
 abstract class LiteralExpressionBase(value: Any) extends PrimaryExpression(Nil) {
 
-  override def text = {
+  override def text: String = {
     value match {
       case s: String => s
       case _ => value.toString
@@ -1329,7 +1329,7 @@ abstract class LiteralExpressionBase(value: Any) extends PrimaryExpression(Nil) 
     new CompiledDPath(Literal(litValue) +: conversions)
   }
 
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     litValue.getAnyRef match {
       case s: String => NodeInfo.String
       case i: JBigInt => NodeInfo.Integer
@@ -1343,7 +1343,7 @@ abstract class LiteralExpressionBase(value: Any) extends PrimaryExpression(Nil) 
     }
   }
 
-  override def targetTypeForSubexpression(subexp: Expression) =
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind =
     Assert.usageError("literal expressions have no subexpressions")
 }
 
@@ -1355,7 +1355,7 @@ case class LiteralExpression(v: Any) extends LiteralExpressionBase(v)
  * It has to behave like a function call with respect to target type.
  */
 case class LiteralBooleanExpression(v: Any) extends LiteralExpressionBase(v) {
-  override lazy val targetType = {
+  override lazy val targetType: NodeInfo.Kind = {
     val res = parent.targetType
     res
   }
@@ -1363,25 +1363,25 @@ case class LiteralBooleanExpression(v: Any) extends LiteralExpressionBase(v) {
 
 case class VariableRef(val qnameString: String) extends PrimaryExpression(Nil) {
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val vrefOp = VRef(vrd, compileInfo)
     new CompiledDPath(vrefOp +: conversions)
   }
-  override def text = "$" + qnameString
+  override def text: String = "$" + qnameString
 
   lazy val theQName: RefQName = resolveRef(qnameString)
 
-  lazy val vrd = compileInfo.variableMap
+  lazy val vrd: VariableRuntimeData = compileInfo.variableMap
     .getVariableRuntimeData(theQName)
     .getOrElse(SDE("Undefined variable: %s", text))
 
-  lazy val varType = {
+  lazy val varType: NodeInfo.PrimType = {
     val vt = vrd.primType
     vt
   }
 
   override lazy val inherentType: NodeInfo.Kind = varType
-  override def targetTypeForSubexpression(subexp: Expression) =
+  override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind =
     Assert.usageError("variable reference expressions have no subexpressions")
 }
 
@@ -2204,10 +2204,10 @@ abstract class FunctionCallBase(
   functionQName: RefQName,
   expressions: List[Expression]
 ) extends ExpressionLists(expressions) {
-  override def text =
+  override def text: String =
     functionQNameString + "(" + expressions.map { _.text }.mkString(", ") + ")"
 
-  override lazy val targetType = {
+  override lazy val targetType: NodeInfo.Kind = {
     val res = parent.targetType
     res
   }
@@ -2219,7 +2219,7 @@ abstract class FunctionCallBase(
     }
     if (!isArrayOrOptional) argArrayOrOptionalErr()
   }
-  protected def argArrayOrOptionalErr() = {
+  protected def argArrayOrOptionalErr(): Nothing = {
     SDE(
       "The %s function requires an array or optional path expression.",
       functionQName.toPrettyString
@@ -2229,11 +2229,11 @@ abstract class FunctionCallBase(
   final def checkArgCount(n: Int): Unit = {
     if (expressions.length != n) argCountErr(n)
   }
-  final def argCountErr(n: Int) = {
+  final def argCountErr(n: Int): Nothing = {
     SDE("The %s function requires %s argument(s).", functionQName.toPrettyString, n)
   }
 
-  final def argCountTooFewErr(n: Int) = {
+  final def argCountTooFewErr(n: Int): Nothing = {
     //
     // Digression: below illustrates what is a hard problem in internationalization
     // of software, which is called pluralization.
@@ -2253,7 +2253,7 @@ abstract class FunctionCallBase(
     SDE("The %s function requires at least %s argument(s).", functionQName.toPrettyString, n)
   }
 
-  final def argCountTooManyErr(n: Int) = {
+  final def argCountTooManyErr(n: Int): Nothing = {
     SDE(
       "The %s function requires no more than %s argument(s).",
       functionQName.toPrettyString,
@@ -2274,7 +2274,7 @@ abstract class FunctionCallArrayOrOptionalBase(
 
   def funcName: String
 
-  lazy val arrPath = args(0) match {
+  lazy val arrPath: PathExpression = args(0) match {
     case pe: PathExpression => pe
     case _ => subsetError("The %s function must contain a path.", funcName)
   }
@@ -2293,7 +2293,7 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
 
   override lazy val inherentType: NodeInfo.Kind = NodeInfo.Long
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(1)
     checkArgArrayOrOptional(0)
     val arg0Recipe = args(0).compiledDPath
@@ -2311,7 +2311,7 @@ case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[
 
   override lazy val inherentType: NodeInfo.Kind = NodeInfo.AnyType
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(1)
     checkArgArrayOrOptional(0)
     subsetError("fn:exactly-one is not supported.")
@@ -2335,7 +2335,7 @@ case class FNRoundHalfToEvenExpr(
       )
   }
 
-  override lazy val children = List(valueExpr, precisionExpr)
+  override lazy val children: List[Expression] = List(valueExpr, precisionExpr)
 
   override lazy val inherentType = valueExpr.inherentType
 
@@ -2363,7 +2363,7 @@ case class FNOneArgMathExpr(
   constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     schemaDefinitionUnless(
       argInherentType.isSubtypeOf(NodeInfo.Numeric),
       "Argument must be of numeric type but was %s.",
@@ -2372,7 +2372,7 @@ case class FNOneArgMathExpr(
     argInherentType
   }
 
-  lazy val argInherentType = {
+  lazy val argInherentType: NodeInfo.Kind = {
     schemaDefinitionUnless(
       args.length == 1,
       "Function %s takes 1 argument.",
@@ -2383,7 +2383,7 @@ case class FNOneArgMathExpr(
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = inherentType
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
     val c = conversions
@@ -2414,7 +2414,7 @@ case class FNTwoArgsMathExpr(
     constructor
   ) {
 
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     schemaDefinitionUnless(
       argInherentType.isSubtypeOf(NodeInfo.Numeric),
       "First argument must be of numeric type but was %s.",
@@ -2423,7 +2423,7 @@ case class FNTwoArgsMathExpr(
     argInherentType
   }
 
-  lazy val argInherentType = {
+  lazy val argInherentType: NodeInfo.Kind = {
     schemaDefinitionUnless(
       args.length == 2,
       "Function %s takes 2 arguments.",
@@ -2448,7 +2448,7 @@ case class DFDLXShiftExpr(
   args: List[Expression],
   constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     val argInherentType = args(0).inherentType
     schemaDefinitionUnless(
       argInherentType.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) ||
@@ -2487,7 +2487,7 @@ case class DFDLXBitBinaryExpr(
   args: List[Expression],
   constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     val arg0Type = args(0).inherentType
     val arg1Type = args(1).inherentType
     val argInherentType = if (arg1Type.isSubtypeOf(arg0Type)) arg0Type else arg1Type
@@ -2519,7 +2519,7 @@ case class DFDLXBitUnaryExpr(
   args: List[Expression],
   constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
-  override lazy val inherentType = {
+  override lazy val inherentType: NodeInfo.Kind = {
     val arg0Type = args(0).inherentType
     schemaDefinitionUnless(
       arg0Type.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) || arg0Type.isSubtypeOf(
@@ -2563,7 +2563,7 @@ case class FNZeroArgExpr(
     Assert.impossible()
   // $COVERAGE-ON$
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(0)
     val c = conversions
     val res = new CompiledDPath(constructor() +: c)
@@ -2584,7 +2584,7 @@ case class FNOneArgExpr(
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
@@ -2609,7 +2609,7 @@ case class FNOneArgExprConversionDisallowed(
 
   override lazy val conversions = Nil
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
@@ -2642,7 +2642,7 @@ abstract class FNTwoArgsExprBase(
       Assert.invariantFailed("subexpression %s is not an argument.".format(subexp))
   }
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val arg1Recipe = arg1.compiledDPath
     val arg2Recipe = arg2.compiledDPath
     val recipe = constructor(List(arg1Recipe, arg2Recipe))
@@ -2724,7 +2724,7 @@ sealed abstract class LengthExprBase(
     constructor
   ) {
 
-  protected final def leafReferencedElements = {
+  protected final def leafReferencedElements: Set[DPathElementCompileInfo] = {
     val path = args(0) match {
       case arg: PathExpression => arg
       case _ => {
@@ -2809,7 +2809,7 @@ case class FNThreeArgsExpr(
     }
   }
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val arg1Path = arg1.compiledDPath
     val arg2Path = arg2.compiledDPath
     val arg3Path = arg3.compiledDPath
@@ -2836,7 +2836,7 @@ case class XSConverterExpr(
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind =
     resultType // NodeInfo.AnyType
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
     val c = conversions // additional final conversions are added
@@ -2858,7 +2858,7 @@ case class FNArgListExpr(
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     if (args.length < 1) argCountTooFewErr(1)
     new CompiledDPath(constructor(args.map { _.compiledDPath }) +: conversions)
   }
@@ -2872,7 +2872,7 @@ case class FNErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind =
     NodeInfo.String
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     if (args.length > 3) argCountTooManyErr(3)
     Assert.invariant(conversions == Nil)
     new CompiledDPath(FNError(args.map { _.compiledDPath }))
@@ -2888,7 +2888,7 @@ case class DFDLOccursIndexExpr(nameAsParsed: String, fnQName: RefQName, args: Li
   override lazy val children = Nil
   override def text = "dfdl:occursIndex"
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     schemaDefinitionUnless(
       args.length == 0,
       "Function %s takes no arguments.",
@@ -2929,7 +2929,7 @@ case class DFDLSetBitsExpr(nameAsParsed: String, fnQName: RefQName, args: List[E
   override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind =
     NodeInfo.UnsignedByte
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(8)
     new CompiledDPath(DFDLSetBits(args.map { _.compiledDPath }) +: conversions)
   }
@@ -2943,7 +2943,7 @@ case class DFDLCheckConstraintsExpr(
 
   override lazy val children = args
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(1)
     val argDPath = args(0).compiledDPath
     val c = conversions
@@ -2968,7 +2968,7 @@ case class DFDLCheckRangeExpr(
 
   override lazy val children = args
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     val argDPath = arg1.compiledDPath
     val rangeFrom = arg2.compiledDPath
     val rangeTo = arg3.compiledDPath
@@ -3052,7 +3052,7 @@ case class DAFErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind =
     Assert.invariantFailed("no subexpressions")
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(0)
     Assert.invariant(conversions == Nil)
     new CompiledDPath(DAFError)
@@ -3070,7 +3070,7 @@ case class UserDefinedFunctionCallExpr(
 
   override lazy val inherentType = resultType
 
-  lazy val argToArgType = {
+  lazy val argToArgType: Map[Expression,NodeInfo.Kind] = {
     /*
      * Note that this checkArgCount is necessary as zip will mask any length
      * inconsistencies. Putting the check in $compiledDPath ought to, but doesn't
@@ -3087,7 +3087,7 @@ case class UserDefinedFunctionCallExpr(
     }
   }
 
-  override lazy val compiledDPath = {
+  override lazy val compiledDPath: CompiledDPath = {
     checkArgCount(argTypes.length)
     val recipes = args.map { _.compiledDPath }
     val res = new CompiledDPath(constructor(nameAsParsed, recipes) +: conversions)

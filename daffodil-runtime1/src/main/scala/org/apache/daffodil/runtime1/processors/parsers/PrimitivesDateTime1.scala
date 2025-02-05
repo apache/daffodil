@@ -30,6 +30,7 @@ import org.apache.daffodil.runtime1.processors.DateTimeFormatterEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 
 import com.ibm.icu.util.Calendar
+import org.apache.daffodil.runtime1.processors.{ Evaluatable, InfosetCachedEvaluatable }
 
 case class ConvertTextCalendarParser(
   override val context: ElementRuntimeData,
@@ -41,7 +42,7 @@ case class ConvertTextCalendarParser(
   dateTimeFormatterEv: DateTimeFormatterEv
 ) extends TextPrimParser {
 
-  override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[Object] with InfosetCachedEvaluatable[_ <: Object]] = Vector(calendarEv, dateTimeFormatterEv)
 
   def parse(start: PState): Unit = {
     val node = start.simpleElement
@@ -134,7 +135,7 @@ case class ConvertBinaryCalendarSecMilliParser(
   lengthInBits: Int
 ) extends PrimParser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def parse(start: PState): Unit = {
 

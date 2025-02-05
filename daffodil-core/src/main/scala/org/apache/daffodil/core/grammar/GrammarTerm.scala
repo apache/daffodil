@@ -68,7 +68,7 @@ abstract class Gram(contextArg: SchemaComponent)
 
   val context: SchemaComponent = contextArg
 
-  def term = context.asInstanceOf[Term]
+  def term: Term = context.asInstanceOf[Term]
 
   /**
    * Some grammar terms (productions specifically) have an indirection
@@ -82,7 +82,7 @@ abstract class Gram(contextArg: SchemaComponent)
 
   def name: String = diagnosticDebugName
 
-  override lazy val path = context.path + "%" + diagnosticDebugName
+  override lazy val path: String = context.path + "%" + diagnosticDebugName
 
   def isEmpty =
     false // they are by default not empty. Overridden in the cases where they could be.

@@ -98,6 +98,7 @@ import org.rogach.scallop.exceptions.GenericScallopException
 import org.slf4j.event.Level
 import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
+import java.nio.file.Path
 
 class ScallopExitException(val exitCode: Int) extends Exception
 
@@ -160,7 +161,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
+  implicit def validateConverter: ValueConverter[ValidationMode.Type] = singleArgConverter[ValidationMode.Type]((s: String) => {
     import ValidatorPatterns._
     s match {
       case "on" => ValidationMode.Full
@@ -181,7 +182,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     }
   })
 
-  implicit def infosetTypeConverter = singleArgConverter[InfosetType.Type]((s: String) => {
+  implicit def infosetTypeConverter: ValueConverter[InfosetType.Type] = singleArgConverter[InfosetType.Type]((s: String) => {
     try {
       InfosetType.withName(s.toLowerCase)
     } catch {
@@ -195,7 +196,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     }
   })
 
-  implicit def implementationConverter = singleArgConverter[TDMLImplementation]((s: String) => {
+  implicit def implementationConverter: ValueConverter[TDMLImplementation] = singleArgConverter[TDMLImplementation]((s: String) => {
     val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
     if (!optImplementation.isDefined) {
       throw new Exception(
@@ -211,7 +212,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     eQN.get
   }
 
-  def singleArgConverter[A](conv: String => A) = new ValueConverter[A] {
+  def singleArgConverter[A](conv: String => A): ValueConverter[A] = new ValueConverter[A] {
     def parse(s: List[(String, List[String])]) = {
       s match {
         case (_, i :: Nil) :: Nil =>
@@ -229,9 +230,9 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val argType = ArgType.SINGLE
   }
 
-  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
+  implicit def rootNSConverter: ValueConverter[RefQName] = org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
 
-  implicit def fileResourceURIConverter = singleArgConverter[URISchemaSource]((s: String) => {
+  implicit def fileResourceURIConverter: ValueConverter[URISchemaSource] = singleArgConverter[URISchemaSource]((s: String) => {
     val optResolved =
       try {
         val uri =
@@ -323,8 +324,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   shortSubcommandsHelp()
 
   // Global Options
-  val verbose = tally(descr = "Increment verbosity level, one level for each -v")
-  val version = opt[Boolean](descr = "Show Daffodil's version")
+  val verbose: ScallopOption[Int] = tally(descr = "Increment verbosity level, one level for each -v")
+  val version: ScallopOption[Boolean] = opt[Boolean](descr = "Show Daffodil's version")
 
   // Parse Subcommand Options
   object parse extends scallop.Subcommand("parse") {
@@ -339,18 +340,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     descr("Parse data to a DFDL infoset")
     helpWidth(width)
 
-    val config = opt[File](
+    val config: ScallopOption[File] = opt[File](
       short = 'c',
       argName = "file",
       descr = "XML file containing configuration items"
     )
-    val vars = props[String](
+    val vars: scallop.LazyMap[String,String] = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
       descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
-    val infosetType = opt[InfosetType.Type](
+    val infosetType: ScallopOption[InfosetType.Type] = opt[InfosetType.Type](
       short = 'I',
       argName = "infoset_type",
       descr = "Infoset type to output. Type can be: " + InfosetType.values.mkString(
@@ -358,26 +359,26 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
     )
-    val output = opt[String](
+    val output: ScallopOption[String] = opt[String](
       argName = "file",
       descr =
         "Output file to write infoset to. If not given or is -, infoset is written to stdout."
     )
-    val parser =
+    val parser: ScallopOption[File] =
       opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
-    val path = opt[String](
+    val path: ScallopOption[String] = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start parsing",
       hidden = true
     )
-    val rootNS = opt[RefQName](
+    val rootNS: ScallopOption[RefQName] = opt[RefQName](
       "root",
       argName = "node",
       descr = "Root element to use. Can be prefixed with {namespace}. " +
         "Must be a top-level element. Defaults to first top-level element of DFDL schema. " +
         "Only valid with the --schema option."
     )
-    val schema =
+    val schema: ScallopOption[URISchemaSource] =
       opt[URISchemaSource](
         "schema",
         argName = "file",
@@ -385,14 +386,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       )(
         fileResourceURIConverter
       )
-    val stream = toggle(
+    val stream: ScallopOption[Boolean] = toggle(
       noshort = true,
       default = Some(false),
       descrYes =
         "When left over data exists, parse again with remaining data, separating infosets by a NUL character",
       descrNo = "Stop after the first parse, throwing an error if left over data exists"
     )
-    val tunables = props[String](
+    val tunables: scallop.LazyMap[String,String] = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
@@ -405,18 +406,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
-    val debug = opt[Option[String]](
+    val debug: ScallopOption[Option[String]] = opt[Option[String]](
       argName = "file",
       descr =
         "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided. " +
           "Cannot be used with --trace option."
     )(optionalValueConverter[String](a => a))
-    val trace = opt[Boolean](
+    val trace: ScallopOption[Boolean] = opt[Boolean](
       descr = "Run this program with verbose trace output. " +
         "Cannot be used with the --debug option."
     )
 
-    val infile = trailArg[String](
+    val infile: ScallopOption[String] = trailArg[String](
       required = false,
       descr = "Input file to parse. If not specified, or a value of -, reads from stdin."
     )
@@ -468,18 +469,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     descr("Unparse a DFDL infoset")
     helpWidth(width)
 
-    val config = opt[File](
+    val config: ScallopOption[File] = opt[File](
       short = 'c',
       argName = "file",
       descr = "XML file containing configuration items"
     )
-    val vars = props[String](
+    val vars: scallop.LazyMap[String,String] = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
       descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
-    val infosetType = opt[InfosetType.Type](
+    val infosetType: ScallopOption[InfosetType.Type] = opt[InfosetType.Type](
       short = 'I',
       argName = "infoset_type",
       descr = "Infoset type to output. Type can be: " + InfosetType.values.mkString(
@@ -487,25 +488,25 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
     )
-    val output = opt[String](
+    val output: ScallopOption[String] = opt[String](
       argName = "file",
       descr = "Output file to write data to. If not given or is -, data is written to stdout."
     )
-    val parser =
+    val parser: ScallopOption[File] =
       opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
-    val path = opt[String](
+    val path: ScallopOption[String] = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start unparsing",
       hidden = true
     )
-    val rootNS = opt[RefQName](
+    val rootNS: ScallopOption[RefQName] = opt[RefQName](
       "root",
       argName = "node",
       descr = "Root element to use. Can be prefixed with {namespace}. " +
         "Must be a top-level element. Defaults to first top-level element of DFDL schema. " +
         "Only valid with the --schema option."
     )
-    val schema =
+    val schema: ScallopOption[URISchemaSource] =
       opt[URISchemaSource](
         "schema",
         argName = "file",
@@ -513,13 +514,13 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       )(
         fileResourceURIConverter
       )
-    val stream = toggle(
+    val stream: ScallopOption[Boolean] = toggle(
       noshort = true,
       default = Some(false),
       descrYes = "Split the input data on the NUL character, and unparse each chuck separately",
       descrNo = "Treat the entire input data as one infoset"
     )
-    val tunables = props[String](
+    val tunables: scallop.LazyMap[String,String] = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
@@ -532,17 +533,17 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
-    val debug = opt[Option[String]](
+    val debug: ScallopOption[Option[String]] = opt[Option[String]](
       argName = "file",
       descr =
         "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided. " +
           "Cannot be used with --trace option."
     )(optionalValueConverter[String](a => a))
-    val trace = opt[Boolean](
+    val trace: ScallopOption[Boolean] = opt[Boolean](
       descr = "Run this program with verbose trace output. " +
         "Cannot be used with the --debug option."
     )
-    val infile = trailArg[String](
+    val infile: ScallopOption[String] = trailArg[String](
       required = false,
       descr = "Input file to unparse. If not specified, or a value of -, reads from stdin."
     )
@@ -588,42 +589,42 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     descr("Save a Daffodil parser for reuse")
     helpWidth(width)
 
-    val config = opt[File](
+    val config: ScallopOption[File] = opt[File](
       short = 'c',
       argName = "file",
       descr = "XML file containing configuration items"
     )
-    val vars = props[String](
+    val vars: scallop.LazyMap[String,String] = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
       descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
-    val path = opt[String](
+    val path: ScallopOption[String] = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start parsing",
       hidden = true
     )
-    val rootNS = opt[RefQName](
+    val rootNS: ScallopOption[RefQName] = opt[RefQName](
       "root",
       argName = "node",
       descr =
         "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
     )
-    val schema = opt[URISchemaSource](
+    val schema: ScallopOption[URISchemaSource] = opt[URISchemaSource](
       "schema",
       required = true,
       argName = "file",
       descr = "DFDL schema to use to create parser"
     )(fileResourceURIConverter)
-    val tunables = props[String](
+    val tunables: scallop.LazyMap[String,String] = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
       descr = "Tunable configuration options to change Daffodil's behavior"
     )
 
-    val outfile = trailArg[String](
+    val outfile: ScallopOption[String] = trailArg[String](
       required = false,
       descr =
         "Output file to save parser to. If not specified, or a value of -, saves to stdout."
@@ -648,30 +649,30 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     descr("List or execute TDML tests")
     helpWidth(width)
 
-    val implementation = opt[TDMLImplementation](
+    val implementation: ScallopOption[TDMLImplementation] = opt[TDMLImplementation](
       short = 'I',
       argName = "implementation",
       descr = "Implementation to run TDML tests. Choose one of %s. Defaults to %s."
         .format(TDMLImplementation.values.mkString(", "), TDMLImplementation.Daffodil.toString),
       default = None
     )
-    val info =
+    val info: ScallopOption[Int] =
       tally(descr = "Increment test result information output level, one level for each -i")
-    val list = opt[Boolean](descr = "Show names and descriptions instead of running test cases")
-    val regex = opt[Boolean](descr = "Treat <testnames...> as regular expressions")
-    val debug = opt[Option[String]](
+    val list: ScallopOption[Boolean] = opt[Boolean](descr = "Show names and descriptions instead of running test cases")
+    val regex: ScallopOption[Boolean] = opt[Boolean](descr = "Treat <testnames...> as regular expressions")
+    val debug: ScallopOption[Option[String]] = opt[Option[String]](
       argName = "file",
       descr =
         "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided. " +
           "Cannot be used with --trace option."
     )(optionalValueConverter[String](a => a))
-    val trace = opt[Boolean](
+    val trace: ScallopOption[Boolean] = opt[Boolean](
       descr = "Run this program with verbose trace output. " +
         "Cannot be used with the --debug option."
     )
-    val tdmlfile =
+    val tdmlfile: ScallopOption[String] =
       trailArg[String](required = true, descr = "Test Data Markup Language (TDML) file")
-    val testnames = trailArg[List[String]](
+    val testnames: ScallopOption[List[String]] = trailArg[List[String]](
       required = false,
       descr = "Name(s) of test cases in tdmlfile. If not given, all tests in tdmlfile are run."
     )
@@ -694,18 +695,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     descr("Run performance test")
     helpWidth(width)
 
-    val config = opt[File](
+    val config: ScallopOption[File] = opt[File](
       short = 'c',
       argName = "file",
       descr = "XML file containing configuration items"
     )
-    val vars = props[String](
+    val vars: scallop.LazyMap[String,String] = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
       descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
-    val infosetType = opt[InfosetType.Type](
+    val infosetType: ScallopOption[InfosetType.Type] = opt[InfosetType.Type](
       short = 'I',
       argName = "infoset_type",
       descr = "Infoset type to output. Type can be: " + InfosetType.values.mkString(
@@ -713,27 +714,27 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
     )
-    val number = opt[Int](
+    val number: ScallopOption[Int] = opt[Int](
       short = 'N',
       argName = "number",
       default = Some(1),
       descr = "Total number of files to process. Defaults to 1."
     )
-    val parser =
+    val parser: ScallopOption[File] =
       opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
-    val path = opt[String](
+    val path: ScallopOption[String] = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start parsing or unparsing",
       hidden = true
     )
-    val rootNS = opt[RefQName](
+    val rootNS: ScallopOption[RefQName] = opt[RefQName](
       "root",
       argName = "node",
       descr = "Root element to use. Can be prefixed with {namespace}. " +
         "Must be a top-level element. Defaults to first top-level element of DFDL schema. " +
         "Only valid with the --schema option."
     )
-    val schema =
+    val schema: ScallopOption[URISchemaSource] =
       opt[URISchemaSource](
         "schema",
         argName = "file",
@@ -741,20 +742,20 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       )(
         fileResourceURIConverter
       )
-    val threads = opt[Int](
+    val threads: ScallopOption[Int] = opt[Int](
       short = 't',
       argName = "threads",
       default = Some(1),
       descr = "Number of threads to use. Defaults to 1."
     )
-    val tunables = props[String](
+    val tunables: scallop.LazyMap[String,String] = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val unparse = opt[Boolean](
+    val unparse: ScallopOption[Boolean] = opt[Boolean](
       default = Some(false),
       descr = "Perform unparse instead of parse for performance test"
     )
@@ -765,7 +766,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
 
-    val infile = trailArg[String](
+    val infile: ScallopOption[String] = trailArg[String](
       required = true,
       descr = "Input file or directory containing input files to parse or unparse"
     )
@@ -819,31 +820,31 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr(s"Generate $languageName code from a DFDL schema")
       helpWidth(width)
 
-      val config = opt[File](
+      val config: ScallopOption[File] = opt[File](
         short = 'c',
         argName = "file",
         descr = "XML file containing configuration items"
       )
-      val rootNS = opt[RefQName](
+      val rootNS: ScallopOption[RefQName] = opt[RefQName](
         "root",
         argName = "node",
         descr =
           "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
       )
-      val schema = opt[URISchemaSource](
+      val schema: ScallopOption[URISchemaSource] = opt[URISchemaSource](
         "schema",
         required = true,
         argName = "file",
         descr = "DFDL schema to use to create parser"
       )(fileResourceURIConverter)
-      val tunables = props[String](
+      val tunables: scallop.LazyMap[String,String] = props[String](
         name = 'T',
         keyName = "tunable",
         valueName = "value",
         descr = "Tunable configuration options to change Daffodil's behavior"
       )
 
-      val outdir = trailArg[String](
+      val outdir: ScallopOption[String] = trailArg[String](
         required = false,
         descr =
           s"Output directory in which to create '$language' subdirectory. If not specified, uses current directory."
@@ -873,19 +874,19 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     descr("Encode an XML file with EXI")
     helpWidth(width)
 
-    val output = opt[String](
+    val output: ScallopOption[String] = opt[String](
       argName = "file",
       descr =
         "Output file to write the encoded/decoded file to. If not given or is -, data is written to stdout."
     )
-    val schema = opt[URISchemaSource](
+    val schema: ScallopOption[URISchemaSource] = opt[URISchemaSource](
       "schema",
       argName = "file",
       descr = "DFDL schema to use for schema aware encoding/decoding."
     )(fileResourceURIConverter)
-    val decode =
+    val decode: ScallopOption[Boolean] =
       opt[Boolean](default = Some(false), descr = "Decode input file from EXI to XML.")
-    val infile = trailArg[String](
+    val infile: ScallopOption[String] = trailArg[String](
       required = false,
       descr = "Input XML file to encode. If not specified, or a value of -, reads from stdin."
     )
@@ -918,34 +919,34 @@ object Main {
   }
 
   // write blobs to $PWD/daffodil-blobs/*.bin
-  val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
+  val blobDir: Path = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
   val blobSuffix = ".bin"
 
   object ExitCode extends Enumeration {
 
-    val Success = Value(0)
-    val Failure = Value(1)
+    val Success: Value = Value(0)
+    val Failure: Value = Value(1)
 
-    val FileNotFound = Value(2)
-    val OutOfMemory = Value(3)
-    val BugFound = Value(4)
-    val NotYetImplemented = Value(5)
+    val FileNotFound: Value = Value(2)
+    val OutOfMemory: Value = Value(3)
+    val BugFound: Value = Value(4)
+    val NotYetImplemented: Value = Value(5)
 
-    val ParseError = Value(20)
-    val UnparseError = Value(21)
-    val GenerateCodeError = Value(23)
-    val TestError = Value(24)
-    val PerformanceTestError = Value(25)
-    val ConfigError = Value(26)
+    val ParseError: Value = Value(20)
+    val UnparseError: Value = Value(21)
+    val GenerateCodeError: Value = Value(23)
+    val TestError: Value = Value(24)
+    val PerformanceTestError: Value = Value(25)
+    val ConfigError: Value = Value(26)
 
-    val LeftOverData = Value(31)
-    val InvalidParserException = Value(32)
-    val BadExternalVariable = Value(33)
-    val UserDefinedFunctionError = Value(34)
-    val UnableToCreateProcessor = Value(35)
-    val LayerExecutionError = Value(36)
+    val LeftOverData: Value = Value(31)
+    val InvalidParserException: Value = Value(32)
+    val BadExternalVariable: Value = Value(33)
+    val UserDefinedFunctionError: Value = Value(34)
+    val UnableToCreateProcessor: Value = Value(35)
+    val LayerExecutionError: Value = Value(36)
 
-    val Usage = Value(64)
+    val Usage: Value = Value(64)
   }
 }
 
@@ -956,7 +957,7 @@ class Main(
 ) {
   import Main._
 
-  val traceCommands = Seq(
+  val traceCommands: Seq[String] = Seq(
     "display info parser",
     "display info data",
     "display info infoset",
@@ -979,7 +980,7 @@ class Main(
    * @param bindings A sequence of Bindings (external variables)
    * @param bindingsToOverride The sequence of Bindings that could be overridden.
    */
-  def overrideBindings(bindings: Seq[Binding], bindingsToOverride: Seq[Binding]) = {
+  def overrideBindings(bindings: Seq[Binding], bindingsToOverride: Seq[Binding]): Seq[Binding] = {
     val inBoth = bindings.intersect(bindingsToOverride).distinct
     val bindingsMinusBoth = bindings.diff(inBoth)
     val bindingsToOverrideMinusBoth = bindingsToOverride.diff(inBoth)
@@ -1025,7 +1026,7 @@ class Main(
     savedParser: File,
     path: Option[String],
     mode: ValidationMode.Type
-  ) = {
+  ): Option[DFDL.DataProcessor] = {
     try {
       val compiler = Compiler()
       val processor = Timer.getResult("reloading", compiler.reload(savedParser))
@@ -1165,7 +1166,7 @@ class Main(
   }
 
   // assumes that the DaffodilLogger is the instance used by the CLI
-  lazy val daffodilLogger = Logger.log.underlying.asInstanceOf[DaffodilLogger]
+  lazy val daffodilLogger: DaffodilLogger = Logger.log.underlying.asInstanceOf[DaffodilLogger]
 
   // Set a log level and stream for this Thread only
   def setLogLevel(verbose: Int): Unit = {

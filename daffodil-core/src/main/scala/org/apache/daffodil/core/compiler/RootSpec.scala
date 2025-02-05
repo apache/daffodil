@@ -31,14 +31,14 @@ import org.apache.daffodil.lib.xml.NS
  * Which it will do so long as it is unambiguous.
  */
 case class RootSpec(ns: Option[NS], name: String) {
-  override def toString() = {
+  override def toString(): String = {
     val nsStr = ns.getOrElse("")
     "{" + nsStr + "}" + name
   }
 }
 
 object RootSpec {
-  def makeRootSpec(optName: Option[String], optNamespace: Option[String]) = {
+  def makeRootSpec(optName: Option[String], optNamespace: Option[String]): Option[RootSpec] = {
     val ns = optNamespace.map { NS(_) }
     if (optNamespace.isDefined && optName.isEmpty)
       Assert.usageError(

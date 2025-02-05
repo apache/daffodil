@@ -58,7 +58,7 @@ class SchemaDefinitionErrorFromWarning(sdw: SchemaDefinitionWarning)
   ) {
 
   override def isError = true
-  override def modeName = super.modeName + " Warning Escalated"
+  override def modeName: String = super.modeName + " Warning Escalated"
 
 }
 
@@ -209,7 +209,7 @@ abstract class SchemaDefinitionDiagnosticBase(
     args: _*
   ) {
 
-  override def equals(other: Any) = {
+  override def equals(other: Any): Boolean = {
     super.equals(other) && {
       other match {
         case sddb: SchemaDefinitionDiagnosticBase => {
@@ -220,12 +220,12 @@ abstract class SchemaDefinitionDiagnosticBase(
     }
   }
 
-  override def hashCode = {
+  override def hashCode: Int = {
     super.hashCode() +
       annotationContext.hashCode()
   }
 
-  override protected def schemaContextString =
+  override protected def schemaContextString: String =
     super.schemaContextString + annotationContextString
 
   private def annotationContextString =

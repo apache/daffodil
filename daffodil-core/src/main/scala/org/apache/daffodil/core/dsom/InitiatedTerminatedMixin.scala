@@ -44,7 +44,7 @@ trait InitiatedTerminatedMixin
    * Whether the representation of a term in the data stream "has an initiator", as in the initiator
    * occupies a non-zero number of bits in the data stream, is an entirely different question.
    */
-  lazy val hasInitiator = {
+  lazy val hasInitiator: Boolean = {
     val hasOne = !initiatorExpr.isConstantEmptyString
     hasOne
   }
@@ -53,7 +53,7 @@ trait InitiatedTerminatedMixin
    * True if the term's initiator cannot match zero-length data. This answers the entirely different
    * question of whether the initiator occupies a non-zero number of bits in the data stream.
    */
-  lazy val hasNonZeroLengthInitiator = {
+  lazy val hasNonZeroLengthInitiator: Boolean = {
     val hasOne = !initiatorExpr.isKnownCanMatchEmptyString
     hasOne
   }
@@ -72,7 +72,7 @@ trait InitiatedTerminatedMixin
    * Whether the representation of a term in the data stream "has a terminator", as in the terminator
    * occupies a non-zero number of bits, is an entirely different question.
    */
-  lazy val hasTerminator = {
+  lazy val hasTerminator: Boolean = {
     val hasOne = !terminatorExpr.isConstantEmptyString
     hasOne
   }
@@ -113,12 +113,12 @@ trait InitiatedTerminatedMixin
       InitiatedContent(immediatelyEnclosingModelGroup.get, this)
     }
 
-  lazy val initiatorRegion = prod("initiatorRegion", hasInitiator) {
+  lazy val initiatorRegion: Gram = prod("initiatorRegion", hasInitiator) {
     initiatorItself ~ initiatorDiscriminator
   }
   private lazy val initiatorItself = delimMTA ~ Initiator(this)
 
-  lazy val terminatorRegion = prod("terminatorRegion", hasTerminator) {
+  lazy val terminatorRegion: Gram = prod("terminatorRegion", hasTerminator) {
     delimMTA ~ Terminator(this)
   }
 
@@ -129,6 +129,6 @@ trait InitiatedTerminatedMixin
    * <p>
    * Override in SequenceTermBase to also check for separator.
    */
-  lazy val hasDelimiters = hasInitiator || hasTerminator
+  lazy val hasDelimiters: Boolean = hasInitiator || hasTerminator
 
 }

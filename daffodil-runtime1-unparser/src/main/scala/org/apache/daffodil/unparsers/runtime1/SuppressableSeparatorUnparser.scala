@@ -41,7 +41,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
   with StreamSplitter
   with AlignmentFillUnparserSuspendableMixin {
 
-  override val alignmentInBits =
+  override val alignmentInBits: Int =
     if (sepMtaAlignmentMaybe.isDefined) sepMtaAlignmentMaybe.get
     else 0
 
@@ -205,7 +205,7 @@ final class SuppressableSeparatorUnparser private (
 
   override val childProcessors: Vector[Processor] = Vector(sepUnparser)
 
-  override def runtimeDependencies = Vector()
+  override def runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 object SuppressableSeparatorUnparser {
@@ -214,7 +214,7 @@ object SuppressableSeparatorUnparser {
     sepUnparser: Unparser,
     context: TermRuntimeData,
     suspendableOperation: SuspendableOperation
-  ) = {
+  ): SuppressableSeparatorUnparser = {
     val res = new SuppressableSeparatorUnparser(sepUnparser, context, suspendableOperation)
     Processor.initialize(res)
     res

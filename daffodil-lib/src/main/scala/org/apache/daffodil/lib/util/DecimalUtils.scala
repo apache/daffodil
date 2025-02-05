@@ -24,7 +24,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryNumberCheckPoli
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
 
 object PackedSignCodes {
-  def apply(signCodes: String, policy: BinaryNumberCheckPolicy) = {
+  def apply(signCodes: String, policy: BinaryNumberCheckPolicy): PackedSignCodes = {
     val str = signCodes.replaceAll("\\s", "")
     val chars = str.toCharArray()
     Assert.invariant(chars.length == 4)

@@ -53,7 +53,7 @@ case class UserDefinedFunctionFatalErrorException(
    * reflection portions.
    *
    */
-  val classesOfInterest = List(udfOfInterest, providerOfInterest).filterNot(Misc.isNullOrBlank)
+  val classesOfInterest: List[String] = List(udfOfInterest, providerOfInterest).filterNot(Misc.isNullOrBlank)
   if (classesOfInterest.nonEmpty) {
     val curStackTrace = cause.getStackTrace
     val indexLastUdfEntry =

@@ -32,6 +32,8 @@ import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.runtime1.processors.parsers.NotParsableParser
 import org.apache.daffodil.runtime1.processors.unparsers.NotUnparsableUnparser
+import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 trait SchemaSetRuntime1Mixin {
   self: SchemaSet =>
@@ -47,7 +49,7 @@ trait SchemaSetRuntime1Mixin {
     vmap
   }.value
 
-  lazy val parser = LV('parser) {
+  lazy val parser: Parser = LV('parser) {
     val par =
       if (generateParser) root.document.parser
       else new NotParsableParser(root.erd)
@@ -55,7 +57,7 @@ trait SchemaSetRuntime1Mixin {
     par
   }.value
 
-  lazy val unparser = LV('unparser) {
+  lazy val unparser: Unparser = LV('unparser) {
     val unp =
       if (generateUnparser) root.document.unparser
       else new NotUnparsableUnparser(root.erd)

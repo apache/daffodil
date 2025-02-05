@@ -46,7 +46,7 @@ class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], tci: DPat
     tci
   )
   with InfosetCachedEvaluatable[List[String]] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
@@ -56,7 +56,7 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPa
     tci
   )
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
@@ -66,7 +66,7 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathComp
     tci
   )
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 class TextNumberFormatEv(
@@ -87,7 +87,7 @@ class TextNumberFormatEv(
 ) extends Evaluatable[DecimalFormat](tci)
   with InfosetCachedEvaluatable[DecimalFormat] {
 
-  override lazy val runtimeDependencies =
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] =
     (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toVector
 
   private def checkUnique(
@@ -243,7 +243,7 @@ class TextBooleanTrueRepEv(
     tci
   )
   with InfosetCachedEvaluatable[List[String]] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override final protected def compute(state: ParseOrUnparseState): List[String] = {
     if (mustBeSameLength) {
@@ -277,5 +277,5 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], tci: DPathCompileI
     tci
   )
   with InfosetCachedEvaluatable[List[String]] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }

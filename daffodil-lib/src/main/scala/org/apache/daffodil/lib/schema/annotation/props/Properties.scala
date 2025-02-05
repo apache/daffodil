@@ -21,6 +21,7 @@ import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.util.Misc._
 import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.RefQName
 
 /**
  * Enum class as basis for our DFDL properties
@@ -85,7 +86,7 @@ abstract class EnumBase
 abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase with Converter[String, A] {
   class Value extends EnumValueBase { self: A =>
-    override lazy val toString = {
+    override lazy val toString: String = {
       val theVal = this
       val cn = getNameFromClass(this)
       val en = cn match {
@@ -151,7 +152,7 @@ trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with SavesErrorsAnd
   /**
    * prints all the properties on the object.
    */
-  def verboseToString = {
+  def verboseToString: String = {
     val className = getNameFromClass(this)
     val props = toStringFunctionList
       .map { f => f.apply() }
@@ -174,7 +175,7 @@ trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with SavesErrorsAnd
    * Note: no error checking is required, as we assume the schema has already been
    * validated, so we only have to deal with the valid formats for Boolean.
    */
-  def convertToBoolean(pv: String) = {
+  def convertToBoolean(pv: String): Boolean = {
     pv match {
       case "true" => true
       case "false" => false
@@ -189,15 +190,15 @@ trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with SavesErrorsAnd
    * Note: no error checking is required, as we assume the schema has already been
    * validated, so we only have to deal with the valid formats for Int.
    */
-  def convertToInt(pv: String) = {
+  def convertToInt(pv: String): Int = {
     pv.toInt
   }
 
-  def convertToDouble(pv: String) = {
+  def convertToDouble(pv: String): Double = {
     pv.toDouble
   }
 
-  def convertToFloat(pv: String) = {
+  def convertToFloat(pv: String): Float = {
     pv.toFloat
   }
 
@@ -205,13 +206,13 @@ trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with SavesErrorsAnd
    * There's no conversion to do here, but to eliminate a special case in the code generator
    * we always generate a call to a convertToTYPE function.
    */
-  def convertToString(pv: String) = {
+  def convertToString(pv: String): String = {
     // TODO DFDL String Literal processing to deal with
     // entities and raw bytes
     pv
   }
 
-  def convertToQName(pv: String, pl: LookupLocation) = {
+  def convertToQName(pv: String, pl: LookupLocation): RefQName = {
     pl.resolveQName(pv)
   }
 

@@ -85,10 +85,10 @@ sealed trait NillableZeroLengthMixin { self: ZeroLengthDetector =>
  * not hexBinary.
  */
 class NillableZeroLengthDetector extends ZeroLengthDetector with NillableZeroLengthMixin {
-  override def isKnownNonZeroLength(diElement: DIElement) = isNillableKnownNonZeroLength(
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean = isNillableKnownNonZeroLength(
     diElement
   )
-  override def isKnownZeroLength(diElement: DIElement) = isNillableKnownZeroLength(diElement)
+  override def isKnownZeroLength(diElement: DIElement): Boolean = isNillableKnownZeroLength(diElement)
 }
 
 sealed trait StringZeroLengthMixin { self: ZeroLengthDetector =>
@@ -148,10 +148,10 @@ sealed trait StringZeroLengthMixin { self: ZeroLengthDetector =>
  * Use when the element is of simple type string, not nillable.
  */
 class StringZeroLengthDetector extends ZeroLengthDetector with StringZeroLengthMixin {
-  override def isKnownNonZeroLength(diElement: DIElement) = isStringKnownNonZeroLength(
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean = isStringKnownNonZeroLength(
     diElement
   )
-  override def isKnownZeroLength(diElement: DIElement) = isStringKnownZeroLength(diElement)
+  override def isKnownZeroLength(diElement: DIElement): Boolean = isStringKnownZeroLength(diElement)
 
 }
 
@@ -206,10 +206,10 @@ sealed trait HexBinaryZeroLengthMixin { self: ZeroLengthDetector =>
  * Use when the element is of simple type hexBinary, not nillable.
  */
 class HexBinaryZeroLengthDetector extends ZeroLengthDetector with HexBinaryZeroLengthMixin {
-  override def isKnownNonZeroLength(diElement: DIElement) = isHexBinaryKnownNonZeroLength(
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean = isHexBinaryKnownNonZeroLength(
     diElement
   )
-  override def isKnownZeroLength(diElement: DIElement) = isHexBinaryKnownZeroLength(diElement)
+  override def isKnownZeroLength(diElement: DIElement): Boolean = isHexBinaryKnownZeroLength(diElement)
 }
 
 /**
@@ -223,9 +223,9 @@ object NeverZeroLengthDetector extends ZeroLengthDetector {
 }
 
 object PossiblyZeroLengthModelGroupDetector extends ZeroLengthDetector {
-  override def isKnownNonZeroLength(diElement: DIElement) =
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean =
     Assert.usageError("Not for use on Model Groups")
-  override def isKnownZeroLength(diElement: DIElement) =
+  override def isKnownZeroLength(diElement: DIElement): Boolean =
     Assert.usageError("Not for use on Model Groups")
   override def isKnownNonZeroLengthModelGroup = false
   override def isKnownZeroLengthModelGroup = false
@@ -234,20 +234,20 @@ object PossiblyZeroLengthModelGroupDetector extends ZeroLengthDetector {
 object PossiblyZeroArrayOccurrencesDetector extends ZeroLengthDetector {
   override def isKnownNonZeroLength(diElement: DIElement) = false
   override def isKnownZeroLength(diElement: DIElement) = false
-  override def isKnownNonZeroLengthModelGroup =
+  override def isKnownNonZeroLengthModelGroup: Boolean =
     Assert.usageError("Not for use on recurring elements")
-  override def isKnownZeroLengthModelGroup =
+  override def isKnownZeroLengthModelGroup: Boolean =
     Assert.usageError("Not for use on recurring elements")
 }
 
 object NotRepresentedZeroLengthDetector extends ZeroLengthDetector {
-  override def isKnownNonZeroLength(diElement: DIElement) =
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean =
     Assert.usageError("Not for use on computed elements")
-  override def isKnownZeroLength(diElement: DIElement) =
+  override def isKnownZeroLength(diElement: DIElement): Boolean =
     Assert.usageError("Not for use on computed elements")
-  override def isKnownNonZeroLengthModelGroup =
+  override def isKnownNonZeroLengthModelGroup: Boolean =
     Assert.usageError("Not for use on computed elements")
-  override def isKnownZeroLengthModelGroup =
+  override def isKnownZeroLengthModelGroup: Boolean =
     Assert.usageError("Not for use on computed elements")
 }
 
@@ -259,12 +259,12 @@ class NillableStringZeroLengthDetector
   with NillableZeroLengthMixin
   with StringZeroLengthMixin {
 
-  override def isKnownNonZeroLength(diElement: DIElement) =
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean =
     if (diElement.isNilled)
       isNillableKnownNonZeroLength(diElement)
     else isStringKnownNonZeroLength(diElement)
 
-  override def isKnownZeroLength(diElement: DIElement) =
+  override def isKnownZeroLength(diElement: DIElement): Boolean =
     if (diElement.isNilled)
       isNillableKnownZeroLength(diElement)
     else
@@ -279,12 +279,12 @@ class NillableHexBinaryZeroLengthDetector
   with NillableZeroLengthMixin
   with HexBinaryZeroLengthMixin {
 
-  override def isKnownNonZeroLength(diElement: DIElement) =
+  override def isKnownNonZeroLength(diElement: DIElement): Boolean =
     if (diElement.isNilled)
       isNillableKnownNonZeroLength(diElement)
     else isHexBinaryKnownNonZeroLength(diElement)
 
-  override def isKnownZeroLength(diElement: DIElement) =
+  override def isKnownZeroLength(diElement: DIElement): Boolean =
     if (diElement.isNilled)
       isNillableKnownZeroLength(diElement)
     else

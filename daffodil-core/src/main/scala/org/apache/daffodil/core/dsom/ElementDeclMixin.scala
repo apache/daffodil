@@ -24,6 +24,7 @@ import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.core.dsom.walker.TypeView
 
 trait ElementLikeMixin extends AnnotatedSchemaComponent with ProvidesDFDLStatementMixin {
 
@@ -37,7 +38,7 @@ trait ElementLikeMixin extends AnnotatedSchemaComponent with ProvidesDFDLStateme
   protected final lazy val emptyFormatFactory =
     new DFDLElement(newDFDLAnnotationXML("element"), this)
 
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = a.isInstanceOf[DFDLElement]
 }
 
 /**
@@ -47,7 +48,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
 
   override final def isSimpleType: Boolean = optSimpleType.isDefined
 
-  override final def isComplexType = !isSimpleType
+  override final def isComplexType: Boolean = !isSimpleType
 
   final def primType = optSimpleType.get.primType
 
@@ -65,7 +66,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
   final def sequence = complexType.sequence
   final def choice = complexType.choice
 
-  final override lazy val optReferredToComponent = typeDef match {
+  final override lazy val optReferredToComponent: Option[AnnotatedSchemaComponent] = typeDef match {
     case std: SimpleTypeDefBase => Some(std)
     case ctd: ComplexTypeBase =>
       None // in DFDL v1.0 complex types are not annotated, so can't carry properties nor statements.
@@ -90,7 +91,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
       }
     }.value
 
-  final lazy val optComplexType =
+  final lazy val optComplexType: Option[ComplexTypeBase] =
     optNamedComplexType.orElse(optImmediateComplexType.collect { case ct: ComplexTypeBase =>
       ct
     })
@@ -110,7 +111,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
     res
   }
 
-  final lazy val immediateType = optImmediateSimpleType.orElse(optImmediateComplexType)
+  final lazy val immediateType: Option[SchemaComponent with NonPrimTypeMixin with TypeBase with TypeView] = optImmediateSimpleType.orElse(optImmediateComplexType)
 
   final lazy val typeDef: TypeBase = LV('TypeBase) {
     (immediateType, namedType) match {
@@ -137,7 +138,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
       } else None
     }.value
 
-  final lazy val typeName = getAttributeOption("type")
+  final lazy val typeName: Option[String] = getAttributeOption("type")
 
   final lazy val namedTypeQName: Option[RefQName] = typeName.map { resolveQName(_) }
 
@@ -149,14 +150,14 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
     }
   }
 
-  final lazy val optSimpleType =
+  final lazy val optSimpleType: Option[SimpleTypeBase] =
     optNamedSimpleType.orElse(optImmediateSimpleType.collect { case st: SimpleTypeBase => st })
 
-  final lazy val defaultAttr = xml.attribute("default")
+  final lazy val defaultAttr: Option[Seq[Node]] = xml.attribute("default")
 
-  final lazy val fixedAttr = xml.attribute("fixed")
+  final lazy val fixedAttr: Option[Seq[Node]] = xml.attribute("fixed")
 
-  final lazy val defaultValueAsString = {
+  final lazy val defaultValueAsString: String = {
     Assert.usage(hasDefaultValue)
     val dv = defaultAttr.get.text
     schemaDefinitionWhen(
@@ -167,10 +168,10 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
     dv
   }
 
-  final lazy val fixedValueAsString = {
+  final lazy val fixedValueAsString: String = {
     Assert.usage(hasFixedValue)
     fixedAttr.get.text
   }
 
-  final lazy val isNillable = (xml \ "@nillable").text == "true"
+  final lazy val isNillable: Boolean = (xml \ "@nillable").text == "true"
 }

@@ -32,7 +32,7 @@ trait ModelGroupRuntime1Mixin { self: ModelGroup =>
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
 
-  protected lazy val groupMembersRuntimeData = {
+  protected lazy val groupMembersRuntimeData: Seq[TermRuntimeData] = {
     val res = this match {
       case mg: ModelGroup =>
         mg.groupMembers.map {

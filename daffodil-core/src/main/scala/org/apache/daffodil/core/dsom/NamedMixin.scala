@@ -30,7 +30,7 @@ import org.apache.daffodil.lib.xml._
  */
 trait NamedMixin extends GetAttributesMixin with NamedMixinBase {
 
-  def name = getAttributeOption("name").getOrElse(Misc.getNameFromClass(this))
+  def name: String = getAttributeOption("name").getOrElse(Misc.getNameFromClass(this))
 
   override def xml: Node
   def schemaDocument: SchemaDocument
@@ -49,7 +49,7 @@ sealed trait PrefixAndNamespaceMixin {
   def xml: Node
   def schemaDocument: SchemaDocument
 
-  final lazy val prefix =
+  final lazy val prefix: String =
     xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
 
   lazy val namespace: NS = schemaDocument.targetNamespace
@@ -78,7 +78,7 @@ trait LocalNonElementComponentMixin
 
 trait LocalElementComponentMixin extends LocalComponentMixinBase with ElementFormDefaultMixin {
 
-  final override def isQualified = elementFormDefault == "qualified"
+  final override def isQualified: Boolean = elementFormDefault == "qualified"
 
 }
 
@@ -92,7 +92,7 @@ sealed trait GlobalComponent extends NamedMixin with PrefixAndNamespaceMixin {
 
   override def namedQName: NamedQName = globalQName
 
-  final lazy val globalQName =
+  final lazy val globalQName: GlobalQName =
     QName.createGlobal(name, namespace, xml.scope)
 
   def shortSchemaComponentDesignator: String
@@ -169,12 +169,12 @@ trait ElementFormDefaultMixin {
   /**
    * handle elementFormDefault to qualify
    */
-  final lazy val namespace =
+  final lazy val namespace: NS =
     if (xmlSchemaDocument.elementFormDefault == "unqualified")
       NoNamespace // unqualified means no namespace
     else xmlSchemaDocument.targetNamespace
 
-  final lazy val prefix =
+  final lazy val prefix: String =
     if (xmlSchemaDocument.elementFormDefault == "unqualified")
       "" // unqualified means no prefix
     else {

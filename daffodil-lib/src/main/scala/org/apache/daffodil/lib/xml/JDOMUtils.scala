@@ -20,10 +20,11 @@ package org.apache.daffodil.lib.xml
 import scala.xml._
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.jdom2.{ Element, Namespace }
 
 object JDOMUtils {
 
-  val xsiNS = org.jdom2.Namespace.getNamespace("xsi", XMLUtils.XSI_NAMESPACE.toString)
+  val xsiNS: Namespace = org.jdom2.Namespace.getNamespace("xsi", XMLUtils.XSI_NAMESPACE.toString)
 
   import scala.language.reflectiveCalls // allows structural type - the def toXML below.
 
@@ -31,7 +32,7 @@ object JDOMUtils {
    * JDOM is no longer our infoset, but we will still want to convert
    * into it for Java users who want JDOM.
    */
-  def Infoset2JDOM(node: { def toXML: scala.xml.NodeSeq }) = {
+  def Infoset2JDOM(node: { def toXML: scala.xml.NodeSeq }): Seq[Element] = {
     val scalaXML = node.toXML
     elem2Element(scalaXML)
   }
@@ -107,7 +108,7 @@ object JDOMUtils {
     jdomNode
   }
 
-  def isNil(e: org.jdom2.Element) = {
+  def isNil(e: org.jdom2.Element): Boolean = {
     val nilAttr = e.getAttribute("nil", xsiNS)
     val res =
       if (nilAttr == null) false

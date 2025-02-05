@@ -27,7 +27,8 @@ import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
 import org.apache.daffodil.runtime1.processors.TextJustificationType
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
-import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock;
+import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock
+import org.apache.daffodil.runtime1.processors.{ Evaluatable, InfosetCachedEvaluatable };
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
 import java.nio.charset.StandardCharsets
@@ -49,7 +50,7 @@ class StringDelimitedParser(
 ) extends TextPrimParser
   with CaptureParsingValueLength {
 
-  override val runtimeDependencies = Vector(fieldDFAEv, context.encInfo.charsetEv)
+  override val runtimeDependencies: Vector[Evaluatable[Object] with InfosetCachedEvaluatable[_ <: Object]] = Vector(fieldDFAEv, context.encInfo.charsetEv)
 
   override val charsetEv = context.encInfo.charsetEv
 

@@ -82,7 +82,7 @@ abstract class Diagnostic protected (
     args: _*
   )
 
-  final def toss =
+  final def toss: Nothing =
     throw this // good place for a breakpoint.
 
   def isValidation = false
@@ -107,7 +107,7 @@ abstract class Diagnostic protected (
     }
   }
 
-  override def hashCode = {
+  override def hashCode: Int = {
     schemaContext.hashCode +
       dataContext.hashCode +
       maybeCause.hashCode +
@@ -175,7 +175,7 @@ abstract class Diagnostic protected (
     res
   }
 
-  protected def schemaContextString =
+  protected def schemaContextString: String =
     if (schemaContext.isEmpty) ""
     else {
       val ddn = schemaContext.get.diagnosticDebugName

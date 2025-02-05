@@ -34,7 +34,7 @@ import org.jdom2.ProcessingInstruction
 import org.jdom2.Text
 
 object JDOMInfosetInputter {
-  protected val JDOM_XSI_NAMESPACE = Namespace.getNamespace(XMLUtils.XSI_NAMESPACE)
+  protected val JDOM_XSI_NAMESPACE: Namespace = Namespace.getNamespace(XMLUtils.XSI_NAMESPACE)
 }
 
 class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
@@ -135,7 +135,7 @@ class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
     !atDocumentEnd
   }
 
-  override def fini = {
+  override def fini: Unit = {
     stack.clear
   }
 

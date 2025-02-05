@@ -187,8 +187,8 @@ case class ConvertZonedNumberPrim(e: ElementBase)
     ev
   }
 
-  val opindex = e.textNumberPattern.indexOf('+')
-  val opl = {
+  val opindex: Int = e.textNumberPattern.indexOf('+')
+  val opl: OverpunchLocation.Value = {
     if (opindex == 0)
       OverpunchLocation.Start
     else if (opindex == e.textNumberPattern.length - 1)

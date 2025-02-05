@@ -84,7 +84,7 @@ abstract class UState(
     vrd: VariableRuntimeData,
     newValue: DataValuePrimitive,
     referringContext: ThrowsSDE
-  ) =
+  ): Unit =
     vbox.vmap.setVariable(vrd, newValue, referringContext, this)
 
   /**
@@ -122,7 +122,7 @@ abstract class UState(
    */
   def popTRD(trd: TermRuntimeData): TermRuntimeData
 
-  override def toString = {
+  override def toString: String = {
     val elt =
       if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString
       else ""
@@ -158,13 +158,13 @@ abstract class UState(
   def advanceOrError: InfosetAccessor
   def isInspectArrayEnd: Boolean
 
-  override def dataStream = Maybe(dataOutputStream)
+  override def dataStream: Maybe[DirectOrBufferedDataOutputStream] = Maybe(dataOutputStream)
 
   override def currentNode = currentInfosetNodeMaybe
 
   override def hasInfoset = currentInfosetNodeMaybe.isDefined
 
-  override def infoset = {
+  override def infoset: DIElement = {
     Assert.invariant(Maybe.WithNulls.isDefined(currentInfosetNode))
     currentInfosetNode match {
       case a: DIArray => {
@@ -201,7 +201,7 @@ abstract class UState(
 
   lazy val unparseResult = new UnparseResult(dataProc.get, this)
 
-  def bitPos0b = if (dataOutputStream.maybeAbsBitPos0b.isDefined)
+  def bitPos0b: Long = if (dataOutputStream.maybeAbsBitPos0b.isDefined)
     dataOutputStream.maybeAbsBitPos0b.get
   else 0L
 
@@ -463,13 +463,13 @@ final class UStateForSuspension(
   // $COVERAGE-ON$
 
   override def groupPos = 0 // was die, but this is called when copying state during debugging
-  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
+  override def currentInfosetNodeMaybe: Maybe[DINode] = Maybe(currentInfosetNode)
   override def arrayIterationPos = arrayIterationIndex
   override def occursPos = occursIndex
   override def childPos = 0 // was die, but this is called when copying state during debugging.
 
   override def localDelimiters = delimiterStackMaybe.get.top
-  override def allTerminatingMarkup = {
+  override def allTerminatingMarkup: List[DFADelimiter] = {
     delimiterStackMaybe.get.iterator.flatMap { dnode =>
       dnode.separator ++ dnode.terminator
     }.toList
@@ -484,11 +484,11 @@ final class UStateForSuspension(
 
   override def documentElement = mainUState.documentElement
 
-  override def incrementHiddenDef =
+  override def incrementHiddenDef: Unit =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def decrementHiddenDef =
+  override def decrementHiddenDef: Unit =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def withinHiddenNest =
+  override def withinHiddenNest: Boolean =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
 }
 
@@ -608,13 +608,13 @@ final class UStateMain private (
   override def inspect: Boolean = inputter.inspect
   override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
   // $COVERAGE-OFF$ // unused, but necessary to meet requirements of Cursor[T]
-  override def fini = Assert.usageError("Not to be used on UState")
+  override def fini: Unit = Assert.usageError("Not to be used on UState")
   // $COVERAGE-ON$
   /**
    * Use this so if there isn't an event we get a clean diagnostic message saying
    * that is what has gone wrong.
    */
-  override def inspectOrError = {
+  override def inspectOrError: InfosetAccessor = {
     val m = inspectMaybe
     if (m.isEmpty)
       Assert.invariantFailed(
@@ -623,7 +623,7 @@ final class UStateMain private (
     m.get
   }
 
-  override def advanceOrError = {
+  override def advanceOrError: InfosetAccessor = {
     val m = advanceMaybe
     if (m.isEmpty)
       Assert.invariantFailed(
@@ -632,7 +632,7 @@ final class UStateMain private (
     m.get
   }
 
-  override def isInspectArrayEnd = {
+  override def isInspectArrayEnd: Boolean = {
     if (!inspect) false
     else {
       val p = inspectAccessor
@@ -654,36 +654,36 @@ final class UStateMain private (
 
   override val currentInfosetNodeStack = new MStackOfMaybe[DINode]
 
-  override val arrayIterationIndexStack = MStackOfLong()
+  override val arrayIterationIndexStack: MStackOfLong = MStackOfLong()
   arrayIterationIndexStack.push(1L)
-  override def moveOverOneArrayIterationIndexOnly() =
+  override def moveOverOneArrayIterationIndexOnly(): Unit =
     arrayIterationIndexStack.push(arrayIterationIndexStack.pop + 1)
   override def arrayIterationPos = arrayIterationIndexStack.top
 
-  override val occursIndexStack = MStackOfLong()
+  override val occursIndexStack: MStackOfLong = MStackOfLong()
   occursIndexStack.push(1L)
-  override def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop + 1)
+  override def moveOverOneOccursIndexOnly(): Unit = occursIndexStack.push(occursIndexStack.pop + 1)
   override def occursPos = occursIndexStack.top
 
-  override val groupIndexStack = MStackOfLong()
+  override val groupIndexStack: MStackOfLong = MStackOfLong()
   groupIndexStack.push(1L)
-  override def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
+  override def moveOverOneGroupIndexOnly(): Unit = groupIndexStack.push(groupIndexStack.pop + 1)
   override def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  override val childIndexStack = MStackOfLong()
+  override val childIndexStack: MStackOfLong = MStackOfLong()
   childIndexStack.push(1L)
-  override def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
+  override def moveOverOneElementChildOnly(): Unit = childIndexStack.push(childIndexStack.pop + 1)
   override def childPos = childIndexStack.top
 
   override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
 
   val delimiterStack = new MStackOf[DelimiterStackUnparseNode]()
-  override def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
+  override def pushDelimiters(node: DelimiterStackUnparseNode): Unit = delimiterStack.push(node)
   override def popDelimiters() = delimiterStack.pop
   override def localDelimiters = delimiterStack.top
-  override def allTerminatingMarkup = {
+  override def allTerminatingMarkup: List[DFADelimiter] = {
     delimiterStack.iterator.flatMap { dnode =>
       dnode.separator ++ dnode.terminator
     }.toList
@@ -710,13 +710,13 @@ final class UStateMain private (
 
   def suspensions = suspensionTracker.suspensions
 
-  final override def pushTRD(trd: TermRuntimeData) =
+  final override def pushTRD(trd: TermRuntimeData): Unit =
     inputter.pushTRD(trd)
 
   final override def maybeTopTRD(): Maybe[TermRuntimeData] =
     inputter.maybeTopTRD()
 
-  final override def popTRD(trd: TermRuntimeData) = {
+  final override def popTRD(trd: TermRuntimeData): TermRuntimeData = {
     val poppedTRD = inputter.popTRD()
     if (poppedTRD ne trd)
       Assert.invariantFailed("TRDs do not match. Expected: " + trd + " got " + poppedTRD)
@@ -725,7 +725,7 @@ final class UStateMain private (
 
   final override def documentElement = inputter.documentElement
 
-  override def toString = {
+  override def toString: String = {
     val elt =
       if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString
       else ""

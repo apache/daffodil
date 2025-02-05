@@ -87,7 +87,7 @@ trait Pool[T <: Poolable] {
     // thing.setPoolDebugLabel(null)
   }
 
-  final def isInUse(thing: T) = {
+  final def isInUse(thing: T): Boolean = {
     inUse.contains(thing)
   }
 

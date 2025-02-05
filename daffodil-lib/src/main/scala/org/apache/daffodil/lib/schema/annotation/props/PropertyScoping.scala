@@ -56,7 +56,7 @@ sealed abstract class PropertyLookupResult(val pname: String) extends Serializab
    */
   def isFromDefaultFormat: Boolean
 
-  lazy val toOption = this match {
+  lazy val toOption: Option[String] = this match {
     case Found(value, _, _, _) => Some(value)
     case _: NotFound => None
   }
@@ -128,7 +128,7 @@ trait PropTypes {
 
   type PropMap = Map[String, (String, LookupLocation)]
 
-  val emptyPropMap = Map.empty.asInstanceOf[PropMap]
+  val emptyPropMap: PropMap = Map.empty.asInstanceOf[PropMap]
 }
 
 trait FindPropertyMixin extends PropTypes {
@@ -211,7 +211,7 @@ trait FindPropertyMixin extends PropTypes {
     requireProperty(prop)
   }
 
-  final def requireProperty(prop: PropertyLookupResult) = {
+  final def requireProperty(prop: PropertyLookupResult): Found = {
     val res = prop match {
       case f: Found => f
       //

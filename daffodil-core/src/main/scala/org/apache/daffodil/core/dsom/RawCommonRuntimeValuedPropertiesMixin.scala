@@ -18,32 +18,33 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.lib.schema.annotation.props.PropertyMixin
+import org.apache.daffodil.lib.schema.annotation.props.{ Found, PropertyLookupResult }
 
 trait RawCommonRuntimeValuedPropertiesMixin extends PropertyMixin {
-  protected final lazy val optionByteOrderRaw =
+  protected final lazy val optionByteOrderRaw: PropertyLookupResult =
     findPropertyOption("byteOrder", expressionAllowed = true)
-  protected final lazy val byteOrderRaw = requireProperty(optionByteOrderRaw)
-  protected final lazy val optionEncodingRaw =
+  protected final lazy val byteOrderRaw: Found = requireProperty(optionByteOrderRaw)
+  protected final lazy val optionEncodingRaw: PropertyLookupResult =
     findPropertyOption("encoding", expressionAllowed = true)
-  protected final lazy val encodingRaw = requireProperty(optionEncodingRaw)
-  protected final lazy val optionOutputNewLineRaw =
+  protected final lazy val encodingRaw: Found = requireProperty(optionEncodingRaw)
+  protected final lazy val optionOutputNewLineRaw: PropertyLookupResult =
     findPropertyOption("outputNewLine", expressionAllowed = true)
-  protected final lazy val outputNewLineRaw = requireProperty(optionOutputNewLineRaw)
+  protected final lazy val outputNewLineRaw: Found = requireProperty(optionOutputNewLineRaw)
 
-  protected final lazy val optionFillByteRaw = findPropertyOption("fillByte")
-  protected final lazy val fillByteRaw = requireProperty(optionFillByteRaw)
+  protected final lazy val optionFillByteRaw: PropertyLookupResult = findPropertyOption("fillByte")
+  protected final lazy val fillByteRaw: Found = requireProperty(optionFillByteRaw)
 }
 
 trait RawDelimitedRuntimeValuedPropertiesMixin extends RawCommonRuntimeValuedPropertiesMixin {
 
-  protected final lazy val optionInitiatorRaw =
+  protected final lazy val optionInitiatorRaw: PropertyLookupResult =
     findPropertyOption("initiator", expressionAllowed = true)
-  protected final lazy val initiatorRaw = requireProperty(optionInitiatorRaw)
-  protected final lazy val optionTerminatorRaw =
+  protected final lazy val initiatorRaw: Found = requireProperty(optionInitiatorRaw)
+  protected final lazy val optionTerminatorRaw: PropertyLookupResult =
     findPropertyOption("terminator", expressionAllowed = true)
-  protected final lazy val terminatorRaw = requireProperty(optionTerminatorRaw)
-  protected final lazy val optionChoiceLengthRaw = findPropertyOption("choiceLength")
-  protected final lazy val choiceLengthRaw = requireProperty(optionChoiceLengthRaw)
+  protected final lazy val terminatorRaw: Found = requireProperty(optionTerminatorRaw)
+  protected final lazy val optionChoiceLengthRaw: PropertyLookupResult = findPropertyOption("choiceLength")
+  protected final lazy val choiceLengthRaw: Found = requireProperty(optionChoiceLengthRaw)
 }
 
 trait RawElementRuntimeValuedPropertiesMixin
@@ -52,38 +53,38 @@ trait RawElementRuntimeValuedPropertiesMixin
 
   // these are almost certainly not in scope, but on the local object
   // but not always. A type might define fixed length things for example.
-  protected final lazy val optionLengthRaw =
+  protected final lazy val optionLengthRaw: PropertyLookupResult =
     findPropertyOption("length", expressionAllowed = true)
-  protected final lazy val lengthRaw = requireProperty(optionLengthRaw)
-  protected final lazy val optionOccursCountRaw =
+  protected final lazy val lengthRaw: Found = requireProperty(optionLengthRaw)
+  protected final lazy val optionOccursCountRaw: PropertyLookupResult =
     findPropertyOption("occursCount", expressionAllowed = true)
-  protected final lazy val occursCountRaw = requireProperty(optionOccursCountRaw)
+  protected final lazy val occursCountRaw: Found = requireProperty(optionOccursCountRaw)
 }
 
 trait RawSequenceRuntimeValuedPropertiesMixin extends RawDelimitedRuntimeValuedPropertiesMixin {
 
-  protected final lazy val optionSeparatorRaw =
+  protected final lazy val optionSeparatorRaw: PropertyLookupResult =
     findPropertyOption("separator", expressionAllowed = true)
-  protected final lazy val separatorRaw = requireProperty(optionSeparatorRaw)
+  protected final lazy val separatorRaw: Found = requireProperty(optionSeparatorRaw)
 }
 
 trait RawEscapeSchemeRuntimeValuedPropertiesMixin extends PropertyMixin {
   // package private because used in unit test
-  final lazy val optionEscapeCharacterRaw =
+  final lazy val optionEscapeCharacterRaw: PropertyLookupResult =
     findPropertyOption("escapeCharacter", expressionAllowed = true)
   private[dsom] final lazy val escapeCharacterRaw = requireProperty(optionEscapeCharacterRaw)
-  final lazy val optionEscapeEscapeCharacterRaw =
+  final lazy val optionEscapeEscapeCharacterRaw: PropertyLookupResult =
     findPropertyOption("escapeEscapeCharacter", expressionAllowed = true)
-  protected final lazy val escapeEscapeCharacterRaw = requireProperty(
+  protected final lazy val escapeEscapeCharacterRaw: Found = requireProperty(
     optionEscapeEscapeCharacterRaw
   )
-  protected final lazy val optionEscapeBlockStartRaw = findPropertyOption("escapeBlockStart")
-  protected final lazy val escapeBlockStartRaw = requireProperty(optionEscapeBlockStartRaw)
-  protected final lazy val optionEscapeBlockEndRaw = findPropertyOption("escapeBlockEnd")
-  protected final lazy val escapeBlockEndRaw = requireProperty(optionEscapeBlockEndRaw)
-  protected final lazy val optionExtraEscapedCharactersRaw =
+  protected final lazy val optionEscapeBlockStartRaw: PropertyLookupResult = findPropertyOption("escapeBlockStart")
+  protected final lazy val escapeBlockStartRaw: Found = requireProperty(optionEscapeBlockStartRaw)
+  protected final lazy val optionEscapeBlockEndRaw: PropertyLookupResult = findPropertyOption("escapeBlockEnd")
+  protected final lazy val escapeBlockEndRaw: Found = requireProperty(optionEscapeBlockEndRaw)
+  protected final lazy val optionExtraEscapedCharactersRaw: PropertyLookupResult =
     findPropertyOption("extraEscapedCharacters", expressionAllowed = true)
-  protected final lazy val extraEscapedCharactersRaw = requireProperty(
+  protected final lazy val extraEscapedCharactersRaw: Found = requireProperty(
     optionExtraEscapedCharactersRaw
   )
 
@@ -91,41 +92,41 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin extends PropertyMixin {
 
 trait RawSimpleTypeRuntimeValuedPropertiesMixin extends RawCommonRuntimeValuedPropertiesMixin {
 
-  protected final lazy val optionTextStandardDecimalSeparatorRaw =
+  protected final lazy val optionTextStandardDecimalSeparatorRaw: PropertyLookupResult =
     findPropertyOption("textStandardDecimalSeparator", expressionAllowed = true)
-  protected final lazy val textStandardDecimalSeparatorRaw = requireProperty(
+  protected final lazy val textStandardDecimalSeparatorRaw: Found = requireProperty(
     optionTextStandardDecimalSeparatorRaw
   )
-  protected final lazy val optionTextStandardGroupingSeparatorRaw =
+  protected final lazy val optionTextStandardGroupingSeparatorRaw: PropertyLookupResult =
     findPropertyOption("textStandardGroupingSeparator", expressionAllowed = true)
-  protected final lazy val textStandardGroupingSeparatorRaw = requireProperty(
+  protected final lazy val textStandardGroupingSeparatorRaw: Found = requireProperty(
     optionTextStandardGroupingSeparatorRaw
   )
 
-  protected final lazy val optionBinaryFloatRepRaw =
+  protected final lazy val optionBinaryFloatRepRaw: PropertyLookupResult =
     findPropertyOption("binaryFloatRep", expressionAllowed = true)
-  protected final lazy val binaryFloatRepRaw = requireProperty(optionBinaryFloatRepRaw)
-  protected final lazy val optionTextBooleanTrueRepRaw =
+  protected final lazy val binaryFloatRepRaw: Found = requireProperty(optionBinaryFloatRepRaw)
+  protected final lazy val optionTextBooleanTrueRepRaw: PropertyLookupResult =
     findPropertyOption("textBooleanTrueRep", expressionAllowed = true)
-  protected final lazy val textBooleanTrueRepRaw = requireProperty(optionTextBooleanTrueRepRaw)
-  protected final lazy val optionTextBooleanFalseRepRaw =
+  protected final lazy val textBooleanTrueRepRaw: Found = requireProperty(optionTextBooleanTrueRepRaw)
+  protected final lazy val optionTextBooleanFalseRepRaw: PropertyLookupResult =
     findPropertyOption("textBooleanFalseRep", expressionAllowed = true)
-  protected final lazy val textBooleanFalseRepRaw = requireProperty(
+  protected final lazy val textBooleanFalseRepRaw: Found = requireProperty(
     optionTextBooleanFalseRepRaw
   )
-  protected final lazy val optionCalendarLanguageRaw =
+  protected final lazy val optionCalendarLanguageRaw: PropertyLookupResult =
     findPropertyOption("calendarLanguage", expressionAllowed = true)
-  protected final lazy val calendarLanguageRaw = requireProperty(optionCalendarLanguageRaw)
-  protected final lazy val optionBinaryBooleanTrueRepRaw = findPropertyOption(
+  protected final lazy val calendarLanguageRaw: Found = requireProperty(optionCalendarLanguageRaw)
+  protected final lazy val optionBinaryBooleanTrueRepRaw: PropertyLookupResult = findPropertyOption(
     "binaryBooleanTrueRep"
   )
-  protected final lazy val binaryBooleanTrueRepRaw = requireProperty(
+  protected final lazy val binaryBooleanTrueRepRaw: Found = requireProperty(
     optionBinaryBooleanTrueRepRaw
   )
-  protected final lazy val optionBinaryBooleanFalseRepRaw = findPropertyOption(
+  protected final lazy val optionBinaryBooleanFalseRepRaw: PropertyLookupResult = findPropertyOption(
     "binaryBooleanFalseRep"
   )
-  protected final lazy val binaryBooleanFalseRepRaw = requireProperty(
+  protected final lazy val binaryBooleanFalseRepRaw: Found = requireProperty(
     optionBinaryBooleanFalseRepRaw
   )
 

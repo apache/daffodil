@@ -34,9 +34,9 @@ final case class MaybeDouble private (__rep: Long) extends AnyVal {
     if (isDefined) java.lang.Double.longBitsToDouble(__rep) else noneGet
   // @inline final def getOrElse(alternate: Double): Double = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline final def isDefined = __rep != MaybeDouble.undefValue
-  @inline final def isEmpty = !isDefined
-  override def toString = if (isEmpty) "Nope" else "MaybeDouble(" + get + ")"
+  @inline final def isDefined: Boolean = __rep != MaybeDouble.undefValue
+  @inline final def isEmpty: Boolean = !isDefined
+  override def toString: String = if (isEmpty) "Nope" else "MaybeDouble(" + get + ")"
   // @inline final def map(f: Double => Double): MaybeDouble = if (isEmpty) MaybeDouble.Nope else MaybeDouble(f(get))
 }
 
@@ -65,9 +65,9 @@ final case class MaybeFloat private (__rep: Long) extends AnyVal {
     if (isDefined) java.lang.Float.intBitsToFloat(__rep.toInt) else noneGet
   // @inline final def getOrElse(alternate: Float): Float = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline final def isDefined = __rep != MaybeFloat.undefValue
-  @inline final def isEmpty = !isDefined
-  override def toString = if (isEmpty) "Nope" else "MaybeFloat(" + get + ")"
+  @inline final def isDefined: Boolean = __rep != MaybeFloat.undefValue
+  @inline final def isEmpty: Boolean = !isDefined
+  override def toString: String = if (isEmpty) "Nope" else "MaybeFloat(" + get + ")"
 }
 
 object MaybeFloat {

@@ -55,7 +55,7 @@ object UserDefinedFunctionService {
       lookupMethod
     }
 
-    def lookupMethod() = {
+    def lookupMethod(): Method = {
       val m = decClass.getMethod(methodName, paramTypes: _*)
       m
     }
@@ -88,9 +88,9 @@ object UserDefinedFunctionService {
   private val initializedUserDefinedFunctionsCache
     : HashMap[NamespaceUriAndName, Option[UserDefinedFunctionCallingInfo]] = HashMap()
 
-  lazy val classUserDefinedFunctionIdentification = classOf[UserDefinedFunctionIdentification]
-  lazy val classUserDefinedFunction = classOf[UserDefinedFunction]
-  lazy val currentClassPath = Misc.classPath.map(_.toString).mkString("\n")
+  lazy val classUserDefinedFunctionIdentification: Class[UserDefinedFunctionIdentification] = classOf[UserDefinedFunctionIdentification]
+  lazy val classUserDefinedFunction: Class[UserDefinedFunction] = classOf[UserDefinedFunction]
+  lazy val currentClassPath: String = Misc.classPath.map(_.toString).mkString("\n")
 
   {
     //

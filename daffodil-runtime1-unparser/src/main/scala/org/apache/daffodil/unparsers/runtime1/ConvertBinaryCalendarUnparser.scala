@@ -28,6 +28,7 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 import com.ibm.icu.util.Calendar
+import org.apache.daffodil.runtime1.processors.Evaluatable
 
 case class ConvertBinaryCalendarSecMilliUnparser(
   override val context: ElementRuntimeData,
@@ -40,7 +41,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   protected def putNumber(
     dos: DataOutputStream,

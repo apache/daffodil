@@ -32,7 +32,7 @@ class TextPaddingParser(val padChar: Char, override val context: TermRuntimeData
   override lazy val name: String = "TextPaddingParser"
   override lazy val info: String = "padChar='" + padChar + "'"
 
-  val paddingDFA = CreatePaddingDFA(padChar, context)
+  val paddingDFA: DFADelimiter = CreatePaddingDFA(padChar, context)
 
   def parse(
     state: PState,

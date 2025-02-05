@@ -28,7 +28,7 @@ import org.apache.daffodil.lib.xml.NS
 object Implicits {
 
   object ImplicitsSuppressUnusedImportWarning {
-    def apply() = if (scala.math.random.isNaN()) Assert.impossible()
+    def apply(): Unit = if (scala.math.random.isNaN()) Assert.impossible()
   }
 
   /**

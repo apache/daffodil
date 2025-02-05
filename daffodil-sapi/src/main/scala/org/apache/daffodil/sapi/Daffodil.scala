@@ -101,9 +101,9 @@ object Daffodil {
  */
 object ValidationMode extends Enumeration {
   type ValidationMode = Value
-  val Off = Value(10)
-  val Limited = Value(20)
-  val Full = Value(30)
+  val Off: Value = Value(10)
+  val Limited: Value = Value(20)
+  val Full: Value = Value(30)
 
   case class Custom(v: Validator) extends ValidationMode {
     val id: Int = 100
@@ -268,7 +268,7 @@ class ProcessorFactory private[sapi] (private var pf: SProcessorFactory)
    * @param path path to an element to use as the parsing root, relative to the distinguished root node. Currently, must be set to "/"
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor.isError]] before using it.
    */
-  def onPath(path: String) = {
+  def onPath(path: String): DataProcessor = {
     val dp = pf.onPath(path).asInstanceOf[SDataProcessor]
     new DataProcessor(dp)
   }
@@ -510,7 +510,7 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
    *
    * @param handler - the handler is called-back during the walk as each metadata structure is encountered.
    */
-  def walkMetadata(handler: MetadataHandler) = dp.walkMetadata(handler)
+  def walkMetadata(handler: MetadataHandler): Unit = dp.walkMetadata(handler)
 
   /**
    *  Obtain a new [[DaffodilParseXMLReader]] from the current [[DataProcessor]].

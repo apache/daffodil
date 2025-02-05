@@ -21,7 +21,7 @@ import scala.reflect.macros.blackbox.Context
 
 object TimeTrackerMacros {
 
-  def trackMacro(c: Context)(name: c.Tree)(body: c.Tree) = {
+  def trackMacro(c: Context)(name: c.Tree)(body: c.Tree): c.universe.Tree = {
     import c.universe._
 
     val startTime = TermName(c.freshName)
@@ -36,14 +36,14 @@ object TimeTrackerMacros {
     q"""
     {
       val $startTime = System.nanoTime
-      TimeTracker.childrenTimeStack.push(0)
+      TimeTracker.childrenTimeStackLike += 0
       
       val $result = try {
         $body
       } finally {
         val $endTime = System.nanoTime
         val $timeTaken = $endTime - $startTime
-        val $childrenTime = TimeTracker.childrenTimeStack.pop()
+        val $childrenTime = TimeTracker.childrenTimeStackLike.remove(TimeTracker.childrenTimeStackLike.length - 1)
         val $selfTime = $timeTaken - $childrenTime
 
         val $key = $name
@@ -55,8 +55,8 @@ object TimeTrackerMacros {
           $sectionTime.count += 1
         }
 
-        if (!TimeTracker.childrenTimeStack.isEmpty) {
-          TimeTracker.childrenTimeStack.push(TimeTracker.childrenTimeStack.pop + $timeTaken) 
+        if (!TimeTracker.childrenTimeStackLike.isEmpty) {
+          TimeTracker.childrenTimeStackLike += (TimeTracker.childrenTimeStackLike.remove(TimeTracker.childrenTimeStackLike.length - 1) + $timeTaken)
         }
       }
 

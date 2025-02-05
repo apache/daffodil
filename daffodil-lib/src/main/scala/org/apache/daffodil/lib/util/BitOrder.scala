@@ -52,7 +52,7 @@ object Bits {
   /**
    * Iterative. Obvious, but slow.
    */
-  def asLSBitFirst1(b: Int) = {
+  def asLSBitFirst1(b: Int): Int = {
     assert(b >= 0)
     var res = 0
     var bits = b
@@ -63,7 +63,7 @@ object Bits {
     res
   }
 
-  val LSBitTable = {
+  val LSBitTable: Array[Int] = {
     val ints = 0 to 255
     val table = ints.map { asLSBitFirst1(_) }
     table.toArray
@@ -263,7 +263,7 @@ object Bits {
    *
    * Implements 2^N exponentiation with shifting 1 << N.
    */
-  def littleEndianBitValue(bitPosition: Int, bitStringLength: Int) = {
+  def littleEndianBitValue(bitPosition: Int, bitStringLength: Int): Int = {
     assert(bitPosition >= 1) // one based
     assert(bitStringLength >= 1)
     assert(bitStringLength >= bitPosition) // bit pos within the bit string length

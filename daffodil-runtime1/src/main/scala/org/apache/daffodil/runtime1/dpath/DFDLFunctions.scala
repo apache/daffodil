@@ -75,7 +75,7 @@ case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
   override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueString =
     constructLiteral(str.getString)
 
-  def constructLiteral(s: String) = {
+  def constructLiteral(s: String): String = {
     val sb = new StringBuilder
     s.foreach(c => {
       c match {

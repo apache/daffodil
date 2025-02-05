@@ -23,7 +23,7 @@ import scala.xml.Utility
 import org.apache.daffodil.lib.xml.XMLUtils
 
 object DFDLDefineFormat {
-  def apply(node: Node, sd: SchemaDocument) = {
+  def apply(node: Node, sd: SchemaDocument): DFDLDefineFormat = {
     val df = new DFDLDefineFormat(node, sd)
     df.initialize()
     df
@@ -34,7 +34,7 @@ final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLDefiningAnnotation(node, sd) // Note: DefineFormat is not a format annotation
   {
 
-  lazy val formatAnnotation = LV('formatAnnotation) {
+  lazy val formatAnnotation: DFDLFormat = LV('formatAnnotation) {
     XMLUtils.removeComments(Utility.trim(node)) match {
       case <defineFormat>{f @ <format>{_*}</format>}</defineFormat> =>
         DFDLFormat(f, sd)

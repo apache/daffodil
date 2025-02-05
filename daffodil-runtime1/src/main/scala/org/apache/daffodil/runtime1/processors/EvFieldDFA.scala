@@ -28,7 +28,7 @@ class FieldDFAParseEv(val escapeSchemeEv: Maybe[EscapeSchemeParseEv], ci: DPathC
 
   override lazy val runtimeDependencies = escapeSchemeEv.toList
 
-  def compute(state: ParseOrUnparseState) = {
+  def compute(state: ParseOrUnparseState): DFAField = {
 
     val fieldDFA =
       if (escapeSchemeEv.isDefined) {

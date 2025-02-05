@@ -121,7 +121,7 @@ class FuzzRandomSingleByte(data: Array[Byte], offset: Int, endOffset: Int)
 
 class FuzzRandomByteRuns(data: Array[Byte], offset: Int, endOffset: Int)
   extends FuzzRandomSingleByte(data, offset, endOffset) {
-  override def runLength = r.nextInt(dataLen - (offset + endOffset) - 1)
+  override def runLength: Int = r.nextInt(dataLen - (offset + endOffset) - 1)
 }
 
 /**
@@ -146,7 +146,7 @@ class FuzzParseTester(
 
   val okParses = new mutable.HashSet[(Node, Array[Byte], XMLDifferenceException)]
 
-  protected def handleParseError(p: ParseError, testData: Array[Byte], i: Int) = {
+  protected def handleParseError(p: ParseError, testData: Array[Byte], i: Int): Unit = {
     // do nothing by default
   }
 
@@ -218,7 +218,7 @@ class LayerParseTester(
     }
   }
 
-  override def run(nTrials: Int) = {
+  override def run(nTrials: Int): Unit = {
     super.run(nTrials)
     if (unexpectedThrowClasses.size > 0) {
       unexpectedThrowClasses.foreach { c =>

@@ -35,6 +35,7 @@ import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.processors.VariableMap
+import scala.xml.Elem
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
@@ -70,7 +71,7 @@ trait SchemaComponent
 
   def xml: Node
 
-  final lazy val localSuppressSchemaDefinitionWarnings = {
+  final lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] = {
     val optAttr =
       xml.attribute(XMLUtils.EXT_NS_APACHE, "suppressSchemaDefinitionWarnings").map { _.text }
     val warnStrs: Seq[String] =
@@ -168,7 +169,7 @@ trait SchemaComponent
    * messages; hence, it is very important that it be
    * very dependable.
    */
-  override lazy val path = {
+  override lazy val path: String = {
     val list = scPath.filter { isComponentForSSCD(_) }
     val p = list.map { _.diagnosticDebugName }.mkString("::")
     p
@@ -254,7 +255,7 @@ trait SchemaComponent
    *
    * Makes sure to inherit the scope so we have all the namespace bindings.
    */
-  protected final def newDFDLAnnotationXML(label: String) = {
+  protected final def newDFDLAnnotationXML(label: String): Elem = {
     //
     // This is not a "wired" dfdl prefix.
     // Rather, we are creating a new nested binding for the dfdl prefix to the right DFDL uri.
@@ -283,7 +284,7 @@ trait SchemaComponent
 }
 
 object Schema {
-  def apply(namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet) = {
+  def apply(namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet): Schema = {
     val s = new Schema(namespace, schemaDocs, schemaSetArg)
     s.initialize()
     s
@@ -344,27 +345,27 @@ final class Schema private (
     }
     noneOrOne(res, name)
   }
-  def getGlobalSimpleTypeDef(name: String) =
+  def getGlobalSimpleTypeDef(name: String): Option[GlobalSimpleTypeDef] =
     noneOrOne(schemaDocuments.flatMap { _.getGlobalSimpleTypeDef(name) }, name)
-  def getGlobalComplexTypeDef(name: String) =
+  def getGlobalComplexTypeDef(name: String): Option[GlobalComplexTypeDef] =
     noneOrOne(schemaDocuments.flatMap { _.getGlobalComplexTypeDef(name) }, name)
-  def getGlobalGroupDef(name: String) =
+  def getGlobalGroupDef(name: String): Option[GlobalGroupDef] =
     noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
-  def getDefineFormat(name: String) =
+  def getDefineFormat(name: String): Option[DFDLDefineFormat] =
     noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
-  def getDefineVariable(name: String) =
+  def getDefineVariable(name: String): Option[DFDLDefineVariable] =
     noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
-  def getDefineEscapeScheme(name: String) =
+  def getDefineEscapeScheme(name: String): Option[DFDLDefineEscapeSchemeFactory] =
     noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
 
   // used for bulk checking of uniqueness
 
-  lazy val globalElementDecls = schemaDocuments.flatMap(_.globalElementDecls)
-  lazy val globalGroupDefs = schemaDocuments.flatMap(_.globalGroupDefs)
-  lazy val globalSimpleTypeDefs = schemaDocuments.flatMap(_.globalSimpleTypeDefs)
-  lazy val globalComplexTypeDefs = schemaDocuments.flatMap(_.globalComplexTypeDefs)
-  lazy val defineFormats = schemaDocuments.flatMap(_.defineFormats)
-  lazy val defineEscapeSchemes = schemaDocuments.flatMap(_.defineEscapeSchemes)
-  lazy val defineVariables = schemaDocuments.flatMap(_.defineVariables)
+  lazy val globalElementDecls: Seq[GlobalElementDecl] = schemaDocuments.flatMap(_.globalElementDecls)
+  lazy val globalGroupDefs: Seq[GlobalGroupDef] = schemaDocuments.flatMap(_.globalGroupDefs)
+  lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] = schemaDocuments.flatMap(_.globalSimpleTypeDefs)
+  lazy val globalComplexTypeDefs: Seq[GlobalComplexTypeDef] = schemaDocuments.flatMap(_.globalComplexTypeDefs)
+  lazy val defineFormats: Seq[DFDLDefineFormat] = schemaDocuments.flatMap(_.defineFormats)
+  lazy val defineEscapeSchemes: Seq[DFDLDefineEscapeSchemeFactory] = schemaDocuments.flatMap(_.defineEscapeSchemes)
+  lazy val defineVariables: Seq[DFDLDefineVariable] = schemaDocuments.flatMap(_.defineVariables)
 
 }

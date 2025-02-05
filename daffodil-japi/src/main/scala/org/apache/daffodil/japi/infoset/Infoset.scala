@@ -427,23 +427,23 @@ abstract class InfosetInputterProxy extends InfosetInputter {
    */
   protected val infosetInputter: SInfosetInputter
 
-  override def getEventType() = infosetInputter.getEventType()
-  override def getLocalName() = infosetInputter.getLocalName()
-  override def getNamespaceURI() = infosetInputter.getNamespaceURI()
+  override def getEventType(): InfosetInputterEventType = infosetInputter.getEventType()
+  override def getLocalName(): String = infosetInputter.getLocalName()
+  override def getNamespaceURI(): String = infosetInputter.getNamespaceURI()
   override def getSimpleText(
     primType: NodeInfo.Kind,
     runtimeProperties: java.util.Map[String, String]
   ): String = {
     infosetInputter.getSimpleText(primType, runtimeProperties)
   }
-  override def getSimpleText(primType: NodeInfo.Kind) = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     // $COVERAGE-OFF$
     Assert.impossible()
     // $COVERAGE-ON$
   }
-  override def hasNext() = infosetInputter.hasNext()
-  override def isNilled() = infosetInputter.isNilled()
-  override def next() = infosetInputter.next()
+  override def hasNext(): Boolean = infosetInputter.hasNext()
+  override def isNilled(): MaybeBoolean = infosetInputter.isNilled()
+  override def next(): Unit = infosetInputter.next()
   override lazy val supportsNamespaces = infosetInputter.supportsNamespaces
 
   override def fini = infosetInputter.fini

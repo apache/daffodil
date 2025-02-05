@@ -35,9 +35,9 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
   // @inline final def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
   // @inline final def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
   private def noneGet = throw new NoSuchElementException("Nope.get")
-  @inline final def isDefined = __rep != MaybeULong.undefValue
-  @inline final def isEmpty = !isDefined
-  override def toString = if (isEmpty) "Nope" else "One(" + get + ")"
+  @inline final def isDefined: Boolean = __rep != MaybeULong.undefValue
+  @inline final def isEmpty: Boolean = !isDefined
+  override def toString: String = if (isEmpty) "Nope" else "One(" + get + ")"
 
   // No map function or other monad features because we don't want usage
   // to EVER involve allocating closures/anonymous functions.
@@ -45,14 +45,14 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
   // The work-around: write an if-then-else like if (foo.isDefined) foo.get else MaybeULong.Nope
   // verbose but known-to-be-fast
 
-  @inline def toMaybeJULong =
+  @inline def toMaybeJULong: MaybeJULong =
     if (isEmpty) MaybeJULong.Nope else new MaybeJULong(MaybeULong(__rep))
 }
 
 object MaybeULong {
   private val undefValue = -1L
 
-  @inline final def apply(v: Long) = {
+  @inline final def apply(v: Long): MaybeULong = {
     Assert.usage(v >= 0)
     new MaybeULong(v)
   }
@@ -76,7 +76,7 @@ final class MaybeJULong(mi: MaybeULong) extends Serializable {
   // @inline final def getOrElse(alternate: Long): Long = mi.getOrElse(alternate)
   // @inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
   @inline final def isDefined = mi.isDefined
-  @inline final def isEmpty = !isDefined
+  @inline final def isEmpty: Boolean = !isDefined
   override def toString = mi.toString
 
   @inline def toMaybeULong = mi

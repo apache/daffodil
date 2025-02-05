@@ -36,6 +36,7 @@ import org.apache.daffodil.runtime1.processors.EscapeSchemeCharUnparseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
 import org.apache.daffodil.runtime1.processors.ExtraEscapedCharsEv
+import org.apache.daffodil.lib.util.Maybe
 
 final class DFDLEscapeScheme(
   node: Node,
@@ -84,7 +85,7 @@ final class DFDLEscapeScheme(
   override def verifyPropValue(key: String, value: String): Boolean =
     super.verifyPropValue(key, value)
 
-  final lazy val escapeCharacterEv = LV('escapeCharacterEv) {
+  final lazy val escapeCharacterEv: EscapeCharEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
     val expr = ExpressionCompilers.String.compileProperty(
       qn,
@@ -98,7 +99,7 @@ final class DFDLEscapeScheme(
     ev
   }.value
 
-  final lazy val optionEscapeEscapeCharacterEv = LV('optionEscapeEscapeCharacterEv) {
+  final lazy val optionEscapeEscapeCharacterEv: Maybe[EscapeEscapeCharEv] = LV('optionEscapeEscapeCharacterEv) {
     val qn = this.qNameForProperty("escapeEscapeCharacter")
     escapeEscapeCharacterRaw match {
       case Found("", loc, _, _) => Nope
@@ -121,7 +122,7 @@ final class DFDLEscapeScheme(
     }
   }.value
 
-  final lazy val optionExtraEscapedCharactersEv = LV('optionExtraEscapedCharacters) {
+  final lazy val optionExtraEscapedCharactersEv: Maybe[ExtraEscapedCharsEv] = LV('optionExtraEscapedCharacters) {
     val qn = this.qNameForProperty("extraEscapedCharacters")
     extraEscapedCharactersRaw match {
       case Found("", _, _, _) => Nope
@@ -186,7 +187,7 @@ final class DFDLEscapeScheme(
 }
 
 object DFDLDefineEscapeSchemeFactory {
-  def apply(node: Node, decl: SchemaDocument) = {
+  def apply(node: Node, decl: SchemaDocument): DFDLDefineEscapeSchemeFactory = {
     val desf = new DFDLDefineEscapeSchemeFactory(node, decl)
     desf.initialize()
     desf
@@ -195,11 +196,11 @@ object DFDLDefineEscapeSchemeFactory {
 
 final class DFDLDefineEscapeSchemeFactory private (node: Node, decl: SchemaDocument)
   extends DFDLDefiningAnnotation(node, decl) {
-  def forComponent(pointOfUse: SchemaComponent) = DFDLDefineEscapeScheme(node, decl, pointOfUse)
+  def forComponent(pointOfUse: SchemaComponent): DFDLDefineEscapeScheme = DFDLDefineEscapeScheme(node, decl, pointOfUse)
 }
 
 object DFDLDefineEscapeScheme {
-  def apply(node: Node, sd: SchemaDocument, pointOfUse: SchemaComponent) = {
+  def apply(node: Node, sd: SchemaDocument, pointOfUse: SchemaComponent): DFDLDefineEscapeScheme = {
     val des = new DFDLDefineEscapeScheme(node, sd, pointOfUse)
     des.initialize()
     des
@@ -235,7 +236,7 @@ final class DFDLDefineEscapeScheme private (
    */
   lazy val referringComponent: Option[SchemaComponent] = Some(pointOfUse)
 
-  lazy val escapeScheme = {
+  lazy val escapeScheme: DFDLEscapeScheme = {
     val des = Utility.trim(node)
     val res = des match {
       case <dfdl:defineEscapeScheme>{

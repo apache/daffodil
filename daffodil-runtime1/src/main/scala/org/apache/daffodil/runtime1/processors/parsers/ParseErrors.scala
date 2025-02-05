@@ -42,7 +42,7 @@ class ParseError(
   def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], kind: String, args: Any*) =
     this(rd, loc, Maybe.Nope, Maybe(kind), args: _*)
 
-  override def toParseError = this
+  override def toParseError: ParseError = this
 }
 
 final class CharsetNotByteAlignedError(
@@ -133,7 +133,7 @@ class GeneralParseFailure(msg: String) extends ThinDiagnostic(Nope, Nope, Nope, 
  */
 trait DoSDEMixin {
 
-  protected final def doSDE(e: Throwable, state: ParseOrUnparseState) = {
+  protected final def doSDE(e: Throwable, state: ParseOrUnparseState): Nothing = {
     e match {
       case sde: SchemaDefinitionDiagnosticBase => {
         state.setFailed(sde)

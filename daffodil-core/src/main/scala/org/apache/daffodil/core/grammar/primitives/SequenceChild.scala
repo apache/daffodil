@@ -27,6 +27,8 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.unparsers.runtime1._
+import org.apache.daffodil.runtime1.processors.{ ElementRuntimeData, ModelGroupRuntimeData }
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 /**
  * A SequenceChild is exactly that, a child Term of a Sequence
@@ -93,7 +95,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
   protected lazy val sepMtaGram = sq.delimMTA
 
-  protected lazy val sepGram = {
+  protected lazy val sepGram: Gram = {
     sscb match {
       case _: PositionalLike => {
         sgtb.checkSeparatorTerminatorConflict
@@ -104,14 +106,14 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
     sq.sequenceSeparator
   }
 
-  protected lazy val sepParser = (sepMtaGram ~ sepGram).parser
-  protected lazy val sepUnparser = (sepMtaGram ~ sepGram).unparser
+  protected lazy val sepParser: Parser = (sepMtaGram ~ sepGram).parser
+  protected lazy val sepUnparser: Unparser = (sepMtaGram ~ sepGram).unparser
 
   final protected def srd = sq.sequenceRuntimeData
   final protected def trd = child.termRuntimeData
   final def termRuntimeData = trd
-  final protected lazy val mgrd = child.asInstanceOf[ModelGroup].modelGroupRuntimeData
-  final protected lazy val erd = child.asInstanceOf[ElementBase].elementRuntimeData
+  final protected lazy val mgrd: ModelGroupRuntimeData = child.asInstanceOf[ModelGroup].modelGroupRuntimeData
+  final protected lazy val erd: ElementRuntimeData = child.asInstanceOf[ElementBase].elementRuntimeData
 
   private lazy val childElement = child.asInstanceOf[ElementBase]
   private lazy val childModelGroup = child.asInstanceOf[ModelGroup]
@@ -449,7 +451,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     res
   }
 
-  override lazy val separatedHelper = {
+  override lazy val separatedHelper: SeparatedHelper = {
     term match {
       case _: ModelGroup => sepGroupHelper
       case _: ElementBase => sepScalarElementHelper
@@ -530,7 +532,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     }
   }
 
-  override lazy val unseparatedHelper = {
+  override lazy val unseparatedHelper: UnseparatedHelper = {
     term match {
       case _: ModelGroup => unsepGroupHelper
       case _: ElementBase => unsepScalarElementHelper

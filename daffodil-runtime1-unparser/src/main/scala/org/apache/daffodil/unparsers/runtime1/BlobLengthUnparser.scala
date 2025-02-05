@@ -25,10 +25,11 @@ import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.Evaluatable
 
 abstract class BlobUnparserBase(override val context: ElementRuntimeData) extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   protected def getLengthInBits(state: UState): Long
 

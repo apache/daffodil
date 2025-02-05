@@ -196,7 +196,7 @@ class DataProcessor(
   // avoid large memory allocations. The alternative is to use a ThreadLocal
   // companion object, but that would have not access to tunables, so one could
   // not configure the size of the regex match buffers.
-  @transient lazy val regexMatchState = new ThreadLocal[(CharBuffer, LongBuffer)] {
+  @transient lazy val regexMatchState: ThreadLocal[(CharBuffer, LongBuffer)] = new ThreadLocal[(CharBuffer, LongBuffer)] {
     override def initialValue = {
       val cb = CharBuffer.allocate(tunables.maximumRegexMatchLengthInCharacters)
       val lb = LongBuffer.allocate(tunables.maximumRegexMatchLengthInCharacters)
@@ -245,7 +245,7 @@ class DataProcessor(
     )
   }
 
-  def debugger = {
+  def debugger: Debugger = {
     Assert.invariant(areDebugging)
     optDebugger.get
   }
@@ -541,7 +541,7 @@ class DataProcessor(
     unparse(inputter, outStream)
   }
 
-  def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
+  def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream): UnparseResult = {
     inputter.initialize(ssrd.elementRuntimeData, tunables)
     val unparserState =
       UState.createInitialUState(outStream, this, inputter, areDebugging)
@@ -700,7 +700,7 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
   else dp.ssrd.elementRuntimeData.encodingInfo
 
   override def isScannable = encodingInfo.isScannable
-  override def encodingName = {
+  override def encodingName: String = {
     Assert.invariant(encodingInfo.isKnownEncoding)
     // we're not supporting runtime-calculated encodings yet so not
     // capturing that information (what the actual runtime-value of encoding was

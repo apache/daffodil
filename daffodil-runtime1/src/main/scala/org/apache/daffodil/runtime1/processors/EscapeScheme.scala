@@ -26,12 +26,13 @@ import org.apache.daffodil.runtime1.processors.dfa.CreateDelimiterDFA
 import org.apache.daffodil.runtime1.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
 import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
+import org.apache.daffodil.runtime1.processors.dfa.DFAField
 
 sealed abstract class EscapeSchemeParserHelper
 case class EscapeSchemeCharParserHelper(val ec: Char, val eec: MaybeChar)
   extends EscapeSchemeParserHelper {
 
-  override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
+  override def toString(): String = "<EscapeSchemeChar escapeChar='" + ec +
     "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") + "'/>"
 }
 case class EscapeSchemeBlockParserHelper(
@@ -48,9 +49,9 @@ case class EscapeSchemeBlockParserHelper(
     CreateDelimiterDFA(DelimiterTextType.Other, ci, blockStart, false)
   val blockEndDFA: DFADelimiter =
     CreateDelimiterDFA(DelimiterTextType.Other, ci, blockEnd, false)
-  val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
+  val fieldEscDFA: DFAField = CreateFieldDFA(blockEndDFA, eec)
 
-  override def toString() =
+  override def toString(): String =
     "<EscapeSchemeBlock escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString else "") +
       "' blockStart='" + blockStart + "' blockEnd='" + blockEnd + "'/>"
 }
@@ -75,7 +76,7 @@ case class EscapeSchemeCharUnparserHelper(
   val extraEscCharsDFAs: Array[DFADelimiter] =
     CreateDelimiterDFA(DelimiterTextType.Other, ci, extraEscChar.map(_.toString), false)
 
-  override val lookingFor = {
+  override val lookingFor: Array[DFADelimiter] = {
     val res: Array[DFADelimiter] =
       if (escEscCharDFA.isDefined)
         escCharDFA +: escCharDFA +: escEscCharDFA.get +: escEscCharDFA.get +: extraEscCharsDFAs
@@ -83,7 +84,7 @@ case class EscapeSchemeCharUnparserHelper(
     res
   }
 
-  override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
+  override def toString(): String = "<EscapeSchemeChar escapeChar='" + ec +
     "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString
                               else "") + "' extraEscapedChars='" + extraEscChar.mkString(
       " "
@@ -104,13 +105,13 @@ case class EscapeSchemeBlockUnparserHelper(
     CreateDelimiterDFA(DelimiterTextType.Other, ci, blockEnd, false)
   val blockStartDFA: DFADelimiter =
     CreateDelimiterDFA(DelimiterTextType.Other, ci, blockStart, false)
-  val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
+  val fieldEscDFA: DFAField = CreateFieldDFA(blockEndDFA, eec)
   val extraEscCharsDFAs: Array[DFADelimiter] =
     CreateDelimiterDFA(DelimiterTextType.Other, ci, extraEscChar.map(_.toString), false)
 
-  override val lookingFor = blockStartDFA +: extraEscCharsDFAs
+  override val lookingFor: Array[DFADelimiter] = blockStartDFA +: extraEscCharsDFAs
 
-  override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + (if (eec.isDefined)
+  override def toString(): String = "<EscapeSchemeBlock escapeEscapeChar='" + (if (eec.isDefined)
                                                                          eec.get.toString
                                                                        else "") +
     "' blockStart='" + blockStart + "' blockEnd='" + blockEnd + "' generateEscapeBlock='" + generateEscapeBlock + "'/>"

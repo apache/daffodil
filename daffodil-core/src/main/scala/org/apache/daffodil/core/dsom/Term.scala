@@ -228,9 +228,9 @@ trait Term
    */
   def termChildren: Seq[Term]
 
-  final val tID = UUID.randomUUID()
+  final val tID: UUID = UUID.randomUUID()
 
-  final lazy val isRepresented = this match {
+  final lazy val isRepresented: Boolean = this match {
     case eb: ElementBase => {
       val isRep = eb.inputValueCalcOption.isInstanceOf[NotFound]
       if (!isRep) {
@@ -310,7 +310,7 @@ trait Term
    *
    * Nil if enclosed by a choice def, or this is the root.
    */
-  final lazy val priorSiblings = {
+  final lazy val priorSiblings: Seq[Term] = {
     optLexicalParent match {
       case Some(stb: SequenceTermBase) => stb.groupMembers.take(position - 1)
       case Some(gsgd: GlobalSequenceGroupDef) => gsgd.groupMembers.take(position - 1)
@@ -323,7 +323,7 @@ trait Term
    *
    * Nil if enclosed by a choice def, or this is the root.
    */
-  final lazy val laterSiblings = {
+  final lazy val laterSiblings: Seq[Term] = {
     optLexicalParent match {
       case Some(stb: SequenceTermBase) => stb.groupMembers.drop(position)
       case Some(gsgd: GlobalSequenceGroupDef) => gsgd.groupMembers.drop(position)
@@ -336,7 +336,7 @@ trait Term
    *
    * Nil if enclosed by a choice def, or this is the root.
    */
-  final lazy val allSiblings = {
+  final lazy val allSiblings: Seq[Term] = {
     optLexicalParent match {
       case Some(stb: SequenceTermBase) => stb.groupMembers
       case Some(gsgd: GlobalSequenceGroupDef) => gsgd.groupMembers
@@ -540,7 +540,7 @@ trait Term
    * This means whether the enclosing sequence's separator (if one is defined) is
    * relevant.
    */
-  final lazy val isLastDeclaredRepresentedInSequence = {
+  final lazy val isLastDeclaredRepresentedInSequence: Boolean = {
     val res = laterSiblings.forall(!_.isRepresented)
     res
   }

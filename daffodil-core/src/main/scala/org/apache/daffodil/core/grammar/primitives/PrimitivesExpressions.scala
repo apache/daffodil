@@ -51,6 +51,8 @@ import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceEndUnparser
 import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceStartUnparser
 import org.apache.daffodil.unparsers.runtime1.SetVariableUnparser
+import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
@@ -93,7 +95,7 @@ abstract class AssertBase(
 
   override val forWhat = ForParser
 
-  lazy val msgExpr = {
+  lazy val msgExpr: CompiledExpression[String] = {
     if (msgOpt.isDefined) {
       ExpressionCompilers.String.compileExpression(
         qn,
@@ -148,7 +150,7 @@ case class InitiatedContent(mg: ModelGroup, t: Term) extends Terminal(t, true) {
 
   override val forWhat = ForParser
 
-  override def parser = {
+  override def parser: Parser = {
     // Each of the parsers that this could create always appear immediately
     // after an initiator parser. So they can all assume that the previous
     // initiator was successfully parsed and thus resolve points of uncertainty
@@ -198,7 +200,7 @@ case class InitiatedContent(mg: ModelGroup, t: Term) extends Terminal(t, true) {
 case class SetVariable(stmt: DFDLSetVariable, override val term: Term)
   extends ExpressionEvaluatorBase(stmt.annotatedSC) {
 
-  val baseName = "SetVariable[" + stmt.varQName.local + "]"
+  val baseName: String = "SetVariable[" + stmt.varQName.local + "]"
 
   override lazy val exprText = stmt.value
   override lazy val exprNamespaces = stmt.xml.scope
@@ -283,7 +285,7 @@ case class NewVariableInstanceEnd(
  * reported on relevant objects.
  */
 abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Terminal(e, true) {
-  override def toString = baseName + "(" + exprText + ")"
+  override def toString: String = baseName + "(" + exprText + ")"
 
   def baseName: String
   def exprNamespaces: scala.xml.NamespaceBinding
@@ -293,9 +295,9 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   def nodeKind: NodeInfo.Kind
 
-  protected def qn = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
+  protected def qn: GlobalQName = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
 
-  lazy val expr = LV('expr) {
+  lazy val expr: CompiledExpression[AnyRef] = LV('expr) {
     ExpressionCompilers.AnyRef.compileExpression(
       qn,
       nodeKind,
@@ -316,13 +318,13 @@ abstract class ValueCalcBase(e: ElementBase, property: PropertyLookupResult)
   override lazy val exprText = exprProp.value
   override lazy val exprNamespaces = exprProp.location.namespaces
   override lazy val exprNoPrefixNamespace = exprProp.location.noPrefixNamespace
-  override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
+  override lazy val exprComponent: SchemaComponent = exprProp.location.asInstanceOf[SchemaComponent]
 
   lazy val pt = e.primType // .typeRuntimeData
   override lazy val nodeKind = pt
   lazy val ptn = pt.name
 
-  lazy val exprProp = property.asInstanceOf[Found]
+  lazy val exprProp: Found = property.asInstanceOf[Found]
 
 }
 
@@ -335,13 +337,13 @@ case class InputValueCalc(e: ElementBase, property: PropertyLookupResult)
     new IVCParser(expr, e.elementRuntimeData)
   }
 
-  override lazy val unparser = Assert.usageError("Not to be called on InputValueCalc class.")
+  override lazy val unparser: Unparser = Assert.usageError("Not to be called on InputValueCalc class.")
 }
 
 abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discrim: Boolean)
   extends ExpressionEvaluatorBase(decl) {
 
-  override val baseName = if (discrim) "Discriminator" else "Assert"
+  override val baseName: String = if (discrim) "Discriminator" else "Assert"
   override lazy val exprText = stmt.messageAttrib.get
   override lazy val exprNamespaces = decl.namespaces
   override lazy val exprNoPrefixNamespace = decl.noPrefixNamespace
@@ -349,12 +351,12 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
 
   override def nodeKind = NodeInfo.String
 
-  lazy val testPattern = {
+  lazy val testPattern: String = {
     PatternChecker.checkPattern(stmt.testTxt, decl)
     stmt.testTxt
   }
 
-  lazy val msgExpr =
+  lazy val msgExpr: CompiledExpression[AnyRef] =
     if (stmt.messageAttrib.isDefined) {
       expr
     } else {

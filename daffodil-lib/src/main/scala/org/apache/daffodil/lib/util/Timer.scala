@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 object Timer {
 
@@ -156,7 +157,7 @@ object TakTimer {
     takUnit
   }
 
-  def timeInTakeons(call: => Any, message: String = null) = {
+  def timeInTakeons(call: => Any, message: String = null): Double = {
     takeon // force initialization
     val nanos = Timer.getTimeNS(message, call)
     nanos / takeon
@@ -186,7 +187,7 @@ object TimeTracker {
    * complete, but our parsers are nested making that difficult with standard
    * profilers. This makes that much easier.
    */
-  val childrenTimeStack = scala.collection.mutable.Stack[Long]()
+  val childrenTimeStackLike: mutable.ListBuffer[Long] = scala.collection.mutable.ListBuffer[Long]()
 
   /**
    * Used to measure a section of code that might get called multiple times.
@@ -257,6 +258,6 @@ object TimeTracker {
 
   def clear(): Unit = {
     sectionTimes.clear()
-    childrenTimeStack.clear()
+    childrenTimeStackLike.clear()
   }
 }

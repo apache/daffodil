@@ -33,13 +33,13 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 class EscapeCharEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](expr, EscapeCharacterCooker, ci)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 class EscapeEscapeCharEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](expr, EscapeEscapeCharacterCooker, ci)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 class ExtraEscapedCharsEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, Seq[String]](
@@ -48,7 +48,7 @@ class ExtraEscapedCharsEv(expr: CompiledExpression[String], ci: DPathCompileInfo
     ci
   )
   with InfosetCachedEvaluatable[Seq[String]] {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }
 
 trait EscapeSchemeCommonEv {
@@ -103,9 +103,9 @@ class EscapeSchemeCharParseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeParseEv(ci) {
 
-  override val runtimeDependencies = Vector(escapeChar) ++ optEscapeEscapeChar.toList
+  override val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector(escapeChar) ++ optEscapeEscapeChar.toList
 
-  def compute(state: ParseOrUnparseState) = {
+  def compute(state: ParseOrUnparseState): EscapeSchemeCharParserHelper = {
     val escChar = escapeChar.evaluate(state).charAt(0)
     val optEscEscChar = evalAndConvertEEC(state)
     new EscapeSchemeCharParserHelper(escChar, optEscEscChar)
@@ -119,10 +119,10 @@ class EscapeSchemeCharUnparseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeUnparseEv(ci) {
 
-  override val runtimeDependencies =
+  override val runtimeDependencies: Seq[Evaluatable[AnyRef]] =
     Vector(escapeChar) ++ optEscapeEscapeChar.toList ++ extraEscapedChars.toList
 
-  def compute(state: ParseOrUnparseState) = {
+  def compute(state: ParseOrUnparseState): EscapeSchemeCharUnparserHelper = {
     val escChar = escapeChar.evaluate(state).charAt(0)
     val optEscEscChar = evalAndConvertEEC(state)
     val extEscChars = evalAndConvertExtraEscapedCharacters(state)
@@ -144,10 +144,10 @@ class EscapeSchemeBlockParseEv(
 
   override val runtimeDependencies = optEscapeEscapeChar.toList
 
-  val bs = EscapeBlockStartCooker.convertConstant(blockStart, ci, forUnparse = false)
-  val be = EscapeBlockEndCooker.convertConstant(blockEnd, ci, forUnparse = false)
+  val bs: String = EscapeBlockStartCooker.convertConstant(blockStart, ci, forUnparse = false)
+  val be: String = EscapeBlockEndCooker.convertConstant(blockEnd, ci, forUnparse = false)
 
-  def compute(state: ParseOrUnparseState) = {
+  def compute(state: ParseOrUnparseState): EscapeSchemeBlockParserHelper = {
     val optEscEscChar = evalAndConvertEEC(state)
     new EscapeSchemeBlockParserHelper(optEscEscChar, bs, be, ci)
   }
@@ -162,12 +162,12 @@ class EscapeSchemeBlockUnparseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeUnparseEv(ci) {
 
-  override val runtimeDependencies = optEscapeEscapeChar.toList ++ extraEscapedChars.toList
+  override val runtimeDependencies: Seq[Evaluatable[AnyRef]] = optEscapeEscapeChar.toList ++ extraEscapedChars.toList
 
-  val bs = EscapeBlockStartCooker.convertConstant(blockStart, ci, forUnparse = true)
-  val be = EscapeBlockEndCooker.convertConstant(blockEnd, ci, forUnparse = true)
+  val bs: String = EscapeBlockStartCooker.convertConstant(blockStart, ci, forUnparse = true)
+  val be: String = EscapeBlockEndCooker.convertConstant(blockEnd, ci, forUnparse = true)
 
-  def compute(state: ParseOrUnparseState) = {
+  def compute(state: ParseOrUnparseState): EscapeSchemeBlockUnparserHelper = {
     val optEscEscChar = evalAndConvertEEC(state)
     val extEscChars = evalAndConvertExtraEscapedCharacters(state)
     new EscapeSchemeBlockUnparserHelper(

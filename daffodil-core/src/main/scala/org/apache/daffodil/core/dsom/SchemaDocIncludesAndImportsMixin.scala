@@ -25,6 +25,7 @@ import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NoNamespace
+import java.io.File
 
 /**
  * Mixin for SchemaDocument
@@ -44,8 +45,8 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
    * If an included schema DOES have a targetNamespace, it must match what we're
    * included into.
    */
-  lazy val sdTNSAttrib = this.getAttributeOption("targetNamespace").map { NS(_) }
-  lazy val sdTargetNS = sdTNSAttrib.getOrElse(NoNamespace)
+  lazy val sdTNSAttrib: Option[NS] = this.getAttributeOption("targetNamespace").map { NS(_) }
+  lazy val sdTargetNS: NS = sdTNSAttrib.getOrElse(NoNamespace)
 
   /**
    * A schema document gets its target namespace from the targetNamespace attribute
@@ -138,7 +139,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     importElementNS: Option[NS],
     schemaDocsNS: NS,
     schemaDocContainingTheImportStatement: XMLSchemaDocument
-  ) = {
+  ): NS = {
     (
       importElementNS,
       schemaDocsNS,
@@ -175,11 +176,11 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     }
   }
 
-  override lazy val uriString = {
+  override lazy val uriString: String = {
     this.fileAttribute.map(_.toString).getOrElse("file:unknown")
   }
 
-  override lazy val diagnosticFile = if (self.schemaFile.isDefined) {
+  override lazy val diagnosticFile: File = if (self.schemaFile.isDefined) {
     self.schemaFile.get.diagnosticFile
   } else {
     // in the case of a boostrap/fake schema document, schemaFile can be None, so we want
@@ -192,8 +193,8 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   // val iiXML: Node = xml // override in SchemaSet
 
-  lazy val impNodes = (xml \ "import")
-  lazy val incNodes = (xml \ "include")
+  lazy val impNodes: NodeSeq = (xml \ "import")
+  lazy val incNodes: NodeSeq = (xml \ "include")
 
   val mtList: List[IIBase] = Nil
 

@@ -44,7 +44,7 @@ abstract class ElementParserBase(
   eRepTypeParser: Maybe[Parser]
 ) extends CombinatorParser(erd) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
   def parseBegin(pstate: PState): Unit

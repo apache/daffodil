@@ -34,7 +34,7 @@ case class ConvertTextBooleanUnparser(
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
+  override lazy val runtimeDependencies: Vector[EvaluatableConvertedExpression[String,List[String]] with InfosetCachedEvaluatable[List[String]]] = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
 
   def unparse(state: UState): Unit = {
 

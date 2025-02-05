@@ -34,7 +34,7 @@ object BitsCharset5BitPackedLSBF
   }
   with BitsCharsetNonByteSize {
 
-  override def charToCode(char: Char) = {
+  override def charToCode(char: Char): MaybeInt = {
     if (char == 'I') MaybeInt(1)
     else if (char == 'O') MaybeInt(0)
     else super.charToCode(char)

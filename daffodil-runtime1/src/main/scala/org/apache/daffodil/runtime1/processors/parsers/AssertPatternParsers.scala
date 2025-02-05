@@ -24,6 +24,7 @@ import org.apache.daffodil.lib.util.OnStack
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.runtime1.processors._
+import java.util.regex.Pattern
 
 trait AssertParserMixin {
   def messageExpr: CompiledExpression[AnyRef]
@@ -73,14 +74,14 @@ class AssertPatternParser(
   override val failureType: FailureType
 ) extends PrimParser
   with AssertParserMixin {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override def toBriefXML(depthLimit: Int = -1) = {
+  override def toBriefXML(depthLimit: Int = -1): String = {
     val kindString = if (discrim) "Discriminator" else "Assertion"
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
   }
 
-  lazy val pattern =
+  lazy val pattern: Pattern =
     ("(?s)" + testPattern).r.pattern // imagine a really big expensive pattern to compile.
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 

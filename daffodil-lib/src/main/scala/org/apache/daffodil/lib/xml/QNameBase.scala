@@ -192,7 +192,7 @@ object QName {
     targetNamespace: NS,
     isQualified: Boolean,
     scope: scala.xml.NamespaceBinding
-  ) = {
+  ): LocalDeclQName = {
     val ns = if (isQualified) targetNamespace else NoNamespace
     // TODO: where we parse xmlSchemaDocument, a check for
     // xs:schema with no target namespace, but elementFormDefault 'qualified'
@@ -219,7 +219,7 @@ object QName {
     res
   }
 
-  def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
+  def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding): GlobalQName = {
     GlobalQName(optPrefix(scope, targetNamespace), name, targetNamespace)
   }
 
@@ -249,7 +249,7 @@ protected sealed abstract class QNameSyntaxExceptionBase(
   cause: Option[Throwable]
 ) extends Exception(offendingSyntax.getOrElse(null), cause.getOrElse(null)) {
 
-  override def getMessage = {
+  override def getMessage: String = {
     val intro = "Invalid syntax for " + kind + " "
     val details = (offendingSyntax, cause) match {
       case (Some(syntax), Some(cause)) => "'%s'. Caused by: '%s'".format(syntax, cause)
@@ -286,9 +286,9 @@ trait QNameBase extends Serializable {
   /**
    * For purposes of hashCode and equals, we disregard the prefix
    */
-  override lazy val hashCode = namespace.hashCode + local.hashCode
+  override lazy val hashCode: Int = namespace.hashCode + local.hashCode
 
-  override def equals(other: Any) = {
+  override def equals(other: Any): Boolean = {
     val res = other match {
       case qn: QNameBase => (local =:= qn.local && namespace =:= qn.namespace)
       case _ => false
@@ -389,7 +389,7 @@ sealed abstract class NamedQName(prefix: Option[String], local: String, namespac
     Assert.usage(!namespace.isUnspecified)
   }
 
-  lazy val toRefQName = RefQName(prefix, local, namespace)
+  lazy val toRefQName: RefQName = RefQName(prefix, local, namespace)
 }
 
 /**
@@ -466,8 +466,8 @@ final case class RefQName(prefix: Option[String], local: String, namespace: NS)
     }
   }
 
-  lazy val toStepQName = StepQName(prefix, local, namespace)
-  lazy val toGlobalQName = GlobalQName(prefix, local, namespace)
+  lazy val toStepQName: StepQName = StepQName(prefix, local, namespace)
+  lazy val toGlobalQName: GlobalQName = GlobalQName(prefix, local, namespace)
 }
 
 /**
@@ -553,7 +553,7 @@ protected trait RefQNameFactoryBase[T] {
 
 object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
 
-  override def constructor(prefix: Option[String], local: String, namespace: NS) =
+  override def constructor(prefix: Option[String], local: String, namespace: NS): RefQName =
     RefQName(prefix, local, namespace)
 
   /**
@@ -570,7 +570,7 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
 
 object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
 
-  override def constructor(prefix: Option[String], local: String, namespace: NS) =
+  override def constructor(prefix: Option[String], local: String, namespace: NS): StepQName =
     StepQName(prefix, local, namespace)
 
   /**

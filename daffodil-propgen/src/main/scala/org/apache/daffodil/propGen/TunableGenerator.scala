@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.propGen
 
+import scala.xml.{ Node, NodeSeq }
 class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xml.Node) {
 
-  val top = """
+  val top: String = """
     |/*
     | * Licensed to the Apache Software Foundation (ASF) under one or more
     | * contributor license agreements.  See the NOTICE file distributed with
@@ -90,7 +91,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |case class DaffodilTunables private (
     """.trim.stripMargin
 
-  val middle = """
+  val middle: String = """
     |  extends Serializable {
     |
     |  def withTunables(tunables: Map[String, String]): DaffodilTunables = {
@@ -101,7 +102,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |    tunable match {
     """.trim.stripMargin
 
-  val bottom = """
+  val bottom: String = """
     |      case _ => throw new IllegalArgumentException("Unknown tunable: " + tunable)
     |    }
     |  }
@@ -113,12 +114,12 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |}
     """.trim.stripMargin
 
-  val tunablesRoot = (schemaRootConfig \ "element").find(_ \@ "name" == "tunables").get
-  val tunableNodes = tunablesRoot \\ "all" \ "element"
+  val tunablesRoot: Node = (schemaRootConfig \ "element").find(_ \@ "name" == "tunables").get
+  val tunableNodes: NodeSeq = tunablesRoot \\ "all" \ "element"
 
-  val excludedSimpleTypes =
+  val excludedSimpleTypes: Seq[String] =
     Seq("TunableEmptyElementParsePolicy", "TunableSuppressSchemaDefinitionWarnings")
-  val tunableSimpleTypeNodes = (schemaRootConfig \ "simpleType")
+  val tunableSimpleTypeNodes: NodeSeq = (schemaRootConfig \ "simpleType")
     .filter { st => (st \@ "name").startsWith("Tunable") }
     .filter { st => !excludedSimpleTypes.contains(st \@ "name") }
 
@@ -243,8 +244,8 @@ class PrimitiveTunable(
     restrictionCheck("<", maxExclusive)
   ).flatten.mkString("\n")
 
-  override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
-  override val scalaConversion = s"""
+  override val scalaDefinition: String = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
+  override val scalaConversion: String = s"""
     |case "${name}" => {
     |  val v = scala.util.Try(value.to${scalaType}).getOrElse { throwInvalidTunableValue(tunable, value) }
     |${restrictionChecks}
@@ -255,8 +256,8 @@ class PrimitiveTunable(
 
 class FileTunable(override val name: String, default: String) extends TunableBase {
 
-  override val scalaDefinition = s"""val ${name}: java.io.File = new java.io.File(${default})"""
-  override val scalaConversion = s"""
+  override val scalaDefinition: String = s"""val ${name}: java.io.File = new java.io.File(${default})"""
+  override val scalaConversion: String = s"""
     |case "${name}" => {
     |  this.copy(${name} = new java.io.File(value))
     |}
@@ -269,8 +270,8 @@ class EnumTunable(override val name: String, schemaType: String, schemaDefault: 
   private val scalaType = schemaType.stripPrefix("daf:Tunable")
   private val scalaDefault = scalaType + "." + schemaDefault.head.toUpper + schemaDefault.tail
 
-  override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
-  override val scalaConversion = s"""
+  override val scalaDefinition: String = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
+  override val scalaConversion: String = s"""
     |case "${name}" => {
     |  val vOpt = ${scalaType}.optionStringToEnum("${scalaType}", value)
     |  val v = vOpt.getOrElse { throwInvalidTunableValue(tunable, value) }
@@ -286,7 +287,7 @@ class EnumListTunable(
   listType: String
 ) extends TunableBase {
 
-  val scalaDefault = {
+  val scalaDefault: String = {
     val trimmedDefault = schemaDefault.trim
     if (trimmedDefault == "") {
       "Nil"
@@ -298,8 +299,8 @@ class EnumListTunable(
 
   }
 
-  override val scalaDefinition = s"val ${name}: Seq[${listType}] = ${scalaDefault}"
-  override val scalaConversion = s"""
+  override val scalaDefinition: String = s"val ${name}: Seq[${listType}] = ${scalaDefault}"
+  override val scalaConversion: String = s"""
     |case "${name}" => {
     |  val values = value.split("\\\\s+").toSeq.map { v =>
     |    val vOpt = ${listType}.optionStringToEnum("${listType}", v)
@@ -366,7 +367,7 @@ class TunableEnumDefinition(
     |}
 """.stripMargin
 
-  val scalaEnumeration = {
+  val scalaEnumeration: String = {
     top + "\n" + scalaEnums.mkString("\n") + "\n" + values + "\n" + bottom
   }
 

@@ -65,7 +65,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
     res
   }
 
-  override def isEmpty = super.isEmpty || alternatives.isEmpty
+  override def isEmpty: Boolean = super.isEmpty || alternatives.isEmpty
 
   // dfdl:choiceLength is always specified in bytes
   private lazy val choiceLengthInBits: MaybeInt = ch.choiceLengthKind match {

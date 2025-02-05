@@ -40,7 +40,7 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
    * empty representations, and to all aspects of framing - alignment, skip, delimiters
    * etc.
    */
-  final lazy val isContentRegionLengthKnownToBeGreaterThanZero =
+  final lazy val isContentRegionLengthKnownToBeGreaterThanZero: Boolean =
     LV('isContentRegionLengthKnownToBeGreaterThanZero) {
       val pt = primType
       val res = lengthKind match {

@@ -32,6 +32,7 @@ import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.runtime1.processors.unparsers._
 import org.apache.daffodil.unparsers.runtime1.SpecifiedLengthExplicitImplicitUnparser
 import org.apache.daffodil.unparsers.runtime1._
+import java.util.regex.Pattern
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {
@@ -43,7 +44,7 @@ abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gr
     p
   }
 
-  lazy val eUnparser = {
+  lazy val eUnparser: Unparser = {
     val u = eGram.unparser
     u
   }
@@ -65,7 +66,7 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
 
   val kind = "Pattern"
 
-  lazy val pattern =
+  lazy val pattern: Pattern =
     try {
       e.lengthPattern.r.pattern // imagine a really big expensive pattern to compile.
     } catch {
@@ -121,7 +122,7 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
 
   Assert.usage(bitsMultiplier > 0)
 
-  lazy val kind = "Explicit_" + e.lengthUnits.toString
+  lazy val kind: String = "Explicit_" + e.lengthUnits.toString
 
   lazy val parser: Parser = {
     if (eParser.isEmpty) eParser
@@ -140,7 +141,7 @@ class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
   extends SpecifiedLengthCombinatorBase(e, eGram)
   with SpecifiedLengthExplicitImplicitUnparserMixin {
 
-  lazy val kind = "Implicit_" + e.lengthUnits.toString
+  lazy val kind: String = "Implicit_" + e.lengthUnits.toString
 
   lazy val toBits = 1
 
@@ -154,7 +155,7 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
 
   Assert.usage(bitsMultiplier > 0)
 
-  lazy val kind = "Prefixed_" + e.lengthUnits.toString
+  lazy val kind: String = "Prefixed_" + e.lengthUnits.toString
 
   private lazy val erd = e.elementRuntimeData
   private lazy val plerd = e.prefixedLengthElementDecl.elementRuntimeData

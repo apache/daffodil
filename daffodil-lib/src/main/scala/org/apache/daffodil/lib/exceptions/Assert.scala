@@ -88,12 +88,12 @@ class Abort(m: String, th: Throwable) extends UnsuppressableException(m, th) {
 }
 
 class Assert {
-  def shortBacktrace = {
+  def shortBacktrace: String = {
     val frames = Thread.currentThread().getStackTrace().toList.take(6).tail.tail
     frames.map { _.toString }.mkString("\n")
   }
 
-  def toss(x: Throwable) = {
+  def toss(x: Throwable): Nothing = {
     throw x
   }
 }
@@ -210,7 +210,7 @@ object Assert extends Assert {
    * the compiler can't assure you, but you still believe you are being exhaustive). Under program
    * maintenance people break these things. Hence, use this to catch those kinds of fall throughs.
    */
-  def impossibleCase(x: Any = null) = {
+  def impossibleCase(x: Any = null): Nothing = {
     val extra =
       if (x == null) ""
       else " Value was: " + x + "."
@@ -228,7 +228,7 @@ object Assert extends Assert {
    * This is different from an impossible - those are for situations which
    * are simpler to show are impossible.
    */
-  def invariantFailed(msg: String = "") = {
+  def invariantFailed(msg: String = ""): Nothing = {
     abort("Invariant broken. " + msg)
   }
   // $COVERAGE-ON$

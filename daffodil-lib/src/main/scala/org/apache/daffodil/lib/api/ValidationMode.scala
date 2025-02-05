@@ -24,7 +24,7 @@ object ValidationMode extends Enum {
     extends EnumValueType
     with Ordered[Type]
     with Serializable {
-    def compare(that: ValidationMode.Type) = this.mode - that.mode
+    def compare(that: ValidationMode.Type): Int = this.mode - that.mode
   }
   case object Off extends Type(10)
   case object Limited extends Type(20)

@@ -101,7 +101,7 @@ sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
 final class BlobSpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: LengthInBitsEv)
   extends BlobLengthParser(erd) {
 
-  override val runtimeDependencies = Vector(lengthEv)
+  override val runtimeDependencies: Vector[LengthInBitsEv] = Vector(lengthEv)
 
   override def getLengthInBits(pstate: PState): Long = {
     lengthEv.evaluate(pstate).get

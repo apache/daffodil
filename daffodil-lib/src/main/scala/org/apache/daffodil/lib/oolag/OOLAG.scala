@@ -42,8 +42,8 @@ object OOLAG {
   private val indent_ = new ThreadLocal[Int] {
     override def initialValue = 0
   }
-  final def indent = indent_.get()
-  final def setIndent(i: Int) = indent_.set(i)
+  final def indent: Int = indent_.get()
+  final def setIndent(i: Int): Unit = indent_.set(i)
 
   /**
    * For when we can continue to gather more errors after one error
@@ -60,7 +60,7 @@ object OOLAG {
    * Anyplace that calls keepGoing should have a comment saying why it
    * is using it. There should be very few places that use it.
    */
-  def keepGoing[T](alt: => T)(body: => T) = {
+  def keepGoing[T](alt: => T)(body: => T): T = {
     try {
       body
     } catch {
@@ -92,7 +92,7 @@ object OOLAG {
     def this(oolagContext: OOLAGHost) = this(oolagContext, OneArg)
     def this() = this(null, ZeroArgs)
 
-    final protected override def oolagContextViaArgs = {
+    final protected override def oolagContextViaArgs: Option[OOLAGHost] = {
       Option(oolagContextArg) // Option since Option(null) is None.
     }
   }
@@ -180,7 +180,7 @@ object OOLAG {
      * computing whatever attribute we were trying to compute, and put that
      * attribute in the 'already been tried' state.
      */
-    final def assuming(pred: Boolean) = {
+    final def assuming(pred: Boolean): Unit = {
       if (!pred) throw AssumptionFailed
     }
 
@@ -189,7 +189,7 @@ object OOLAG {
      * or we were constructed with no args, and in that case someone must call
      * setOOLAGContext before we access the oolagContext.
      */
-    final lazy val optOolagContext = nArgs match {
+    final lazy val optOolagContext: Option[OOLAGHost] = nArgs match {
       case ZeroArgs => {
         Assert.usage(
           oolagContextViaSet != None,
@@ -664,14 +664,14 @@ object OOLAG {
       value_ = Maybe(res)
     }
 
-    protected final def oolagFinalize() = {
+    protected final def oolagFinalize(): Unit = {
       setIndent(indent - 2)
       Logger.log.trace(" " * indent + s"pop: ${thisThing}")
       if (oolagContext.currentOVList.nonEmpty)
         oolagContext.currentOVList = oolagContext.currentOVList.tail
     }
 
-    final def hasError = alreadyTriedThis.isDefined && !hasValue
+    final def hasError: Boolean = alreadyTriedThis.isDefined && !hasValue
 
     /**
      * forces the value, then boolean result tells you if
@@ -679,7 +679,7 @@ object OOLAG {
      * which prevent a value from being computed.
      */
 
-    final def isError = {
+    final def isError: Boolean = {
       val res =
         if (alreadyTriedThis.isDefined) !hasValue
         else {
@@ -786,7 +786,7 @@ case class ErrorsNotYetRecorded(diags: Seq[Diagnostic]) extends OOLAGRethrowExce
   def cause1: Option[Throwable] = Some(diags(0))
   def lv: OOLAG.OOLAGValueBase = null
 
-  override def getMessage() = {
+  override def getMessage(): String = {
     if (diags.length == 1) diags(0).getMessage()
     else diags.map { Misc.getSomeMessage(_).get }.mkString("\n")
   }
@@ -807,7 +807,7 @@ private[oolag] case class AlreadyTried(val lv: OOLAG.OOLAGValueBase)
 // that are not being seen until runtime.
 final case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAG.OOLAGValueBase)
   extends OOLAGRethrowException(th) {
-  override val cause1 = Some(th)
+  override val cause1: Some[Diagnostic] = Some(th)
 }
 
 private[oolag] case object AssumptionFailed extends OOLAGRethrowException {
@@ -819,7 +819,7 @@ final case class CircularDefinition(
   val lv: OOLAG.OOLAGValueBase,
   list: Seq[OOLAG.OOLAGValueBase]
 ) extends Exception {
-  override def getMessage() = {
+  override def getMessage(): String = {
     "OOLAG Cycle (of " + list.length + ") through " + list.mkString(", ")
   }
 }

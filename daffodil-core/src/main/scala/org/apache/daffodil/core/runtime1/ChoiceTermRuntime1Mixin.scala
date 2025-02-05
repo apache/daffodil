@@ -32,6 +32,7 @@ import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
+import org.apache.daffodil.runtime1.dsom.CompiledExpression
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
@@ -44,7 +45,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
    */
   protected def alternatives: Seq[Gram]
 
-  final protected lazy val choiceDispatchKeyExpr = {
+  final protected lazy val choiceDispatchKeyExpr: CompiledExpression[String] = {
     val qn = this.qNameForProperty("choiceDispatchKey")
     ExpressionCompilers.String.compileProperty(
       qn,
@@ -55,7 +56,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     )
   }
 
-  final lazy val choiceDispatchKeyEv = {
+  final lazy val choiceDispatchKeyEv: ChoiceDispatchKeyEv = {
     Assert.invariant(isDirectDispatch)
     val ev = new ChoiceDispatchKeyEv(choiceDispatchKeyExpr, ci)
     ev.compile(tunable)
@@ -199,7 +200,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   final lazy val modelGroupRuntimeData = choiceRuntimeData
 
-  final lazy val choiceRuntimeData = {
+  final lazy val choiceRuntimeData: ChoiceRuntimeData = {
     new ChoiceRuntimeData(
       position,
       Delay('ChoicePartialNextElementResolver, this, partialNextElementResolver),

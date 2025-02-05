@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 object ElementRef {
-  def apply(xmlArg: Node, lexicalParent: GroupDefLike, position: Int) = {
+  def apply(xmlArg: Node, lexicalParent: GroupDefLike, position: Int): ElementRef = {
     val er = new ElementRef(xmlArg, lexicalParent, position)
     er.initialize()
     er
@@ -44,7 +44,7 @@ abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, posi
   with NestingLexicalMixin {
 
   override lazy val xml = xmlArg
-  final override lazy val optLexicalParent = Option(parentArg)
+  final override lazy val optLexicalParent: Option[SchemaComponent] = Option(parentArg)
   final override lazy val position = positionArg
 
   def complexType: ComplexTypeBase = this.referencedElement.complexType
@@ -57,10 +57,10 @@ abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, posi
   def isSimpleType: Boolean = this.referencedElement.isSimpleType
   def simpleType: SimpleTypeBase = this.referencedElement.simpleType
   def primType: NodeInfo.PrimType = this.referencedElement.primType
-  def optSimpleType = this.referencedElement.optSimpleType
-  def optComplexType = this.referencedElement.optComplexType
+  def optSimpleType: Option[SimpleTypeBase] = this.referencedElement.optSimpleType
+  def optComplexType: Option[ComplexTypeBase] = this.referencedElement.optComplexType
 
-  override lazy val optReferredToComponent = Some(referencedElement)
+  override lazy val optReferredToComponent: Some[GlobalElementDecl] = Some(referencedElement)
 
   /**
    * Note: since the namedQName might not exist, we cannot use
@@ -74,7 +74,7 @@ abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, posi
 
   override lazy val name = refQName.local
 
-  override lazy val prefix = refQName.prefix.getOrElse(null)
+  override lazy val prefix: String = refQName.prefix.getOrElse(null)
 
   // Need to go get the Element we are referencing
   lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
@@ -99,7 +99,7 @@ abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, posi
 
   override lazy val namespace = refQName.namespace
 
-  override protected lazy val diagnosticDebugNameImpl = "element reference " + refQName
+  override protected lazy val diagnosticDebugNameImpl: String = "element reference " + refQName
 
   override def typeDef = referencedElement.typeDef
 

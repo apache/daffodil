@@ -27,14 +27,14 @@
 package passera.unsigned
 
 class UInt(val intValue: Int) extends AnyVal with SmallUInt[UInt] with Serializable {
-  override def toUInt = this
+  override def toUInt: UInt = this
   // private def intRep = intValue
 }
 
 object UInt {
-  def MinValue = UInt(0)
-  def MaxValue = UInt(~0)
+  def MinValue: UInt = UInt(0)
+  def MaxValue: UInt = UInt(~0)
 
   def apply(x: Int) = new UInt(x)
-  def unapply(x: UInt) = Some((x.intValue))
+  def unapply(x: UInt): Some[Int] = Some((x.intValue))
 }

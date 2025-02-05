@@ -31,6 +31,7 @@ import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import org.apache.daffodil.runtime1.processors.Processor
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -40,9 +41,9 @@ abstract class ExpressionEvaluationParser(
   override val context: RuntimeData
 ) extends PrimParserNoData {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
 
   /**
    * Modifies the PState
@@ -88,7 +89,7 @@ final class NewVariableInstanceStartParser(vrd: VariableRuntimeData, trd: TermRu
 
   override def context = trd
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def parse(start: PState): Unit = {
     val nvi = start.newVariableInstance(vrd)
@@ -109,9 +110,9 @@ final class NewVariableInstanceEndParser(vrd: VariableRuntimeData, trd: TermRunt
   extends PrimParser {
 
   override def context = trd
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  def parse(start: PState) = {
+  def parse(start: PState): Unit = {
     start.removeVariableInstance(vrd)
   }
 }

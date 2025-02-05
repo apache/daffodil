@@ -30,7 +30,7 @@ object ListUtils {
     }
   }
 
-  def preceding[T](lst: Seq[T], valueToFind: Any) = {
+  def preceding[T](lst: Seq[T], valueToFind: Any): Seq[T] = {
     val res = preceding1(lst, valueToFind, Nil)
     res
   }

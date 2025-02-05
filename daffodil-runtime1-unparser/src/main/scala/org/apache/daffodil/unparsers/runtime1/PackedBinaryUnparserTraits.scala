@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import java.lang.{ Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
-
+import java.lang.{Number => JNumber}
+import java.math.{BigDecimal => JBigDecimal, BigInteger => JBigInteger}
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.lib.exceptions.Assert

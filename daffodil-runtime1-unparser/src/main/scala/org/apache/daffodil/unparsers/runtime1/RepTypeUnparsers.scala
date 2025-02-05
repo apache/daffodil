@@ -26,6 +26,7 @@ import org.apache.daffodil.runtime1.infoset.Infoset
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.Evaluatable
 
 class RepTypeUnparser(
   repTypeUnparser: Unparser,
@@ -34,9 +35,9 @@ class RepTypeUnparser(
   logicalValuesMap: Map[DataValueString, DataValueNumber]
 ) extends CombinatorUnparser(e) {
 
-  override def childProcessors = Vector(repTypeUnparser)
+  override def childProcessors: Vector[Unparser] = Vector(repTypeUnparser)
 
-  override def runtimeDependencies = Vector()
+  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   protected def unparse(ustate: UState): Unit = {
     Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)

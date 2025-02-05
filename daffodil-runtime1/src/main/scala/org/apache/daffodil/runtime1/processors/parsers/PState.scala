@@ -70,7 +70,7 @@ import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
 
 object MPState {
 
-  def apply() = {
+  def apply(): MPState = {
     val obj = new MPState()
     obj.init
     obj
@@ -112,33 +112,33 @@ object MPState {
 
 class MPState private () {
 
-  val arrayIterationIndexStack = MStackOfLong()
-  val occursIndexStack = MStackOfLong()
+  val arrayIterationIndexStack: MStackOfLong = MStackOfLong()
+  val occursIndexStack: MStackOfLong = MStackOfLong()
 
-  def moveOverOneArrayIterationIndexOnly() =
+  def moveOverOneArrayIterationIndexOnly(): Unit =
     arrayIterationIndexStack.push(arrayIterationIndexStack.pop + 1)
 
   def arrayIterationPos = arrayIterationIndexStack.top
 
-  def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop + 1)
+  def moveOverOneOccursIndexOnly(): Unit = occursIndexStack.push(occursIndexStack.pop + 1)
   def occursPos = occursIndexStack.top
 
-  val groupIndexStack = MStackOfLong()
-  def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
+  val groupIndexStack: MStackOfLong = MStackOfLong()
+  def moveOverOneGroupIndexOnly(): Unit = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = MStackOfLong()
-  def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
-  def childPos = {
+  val childIndexStack: MStackOfLong = MStackOfLong()
+  def moveOverOneElementChildOnly(): Unit = childIndexStack.push(childIndexStack.pop + 1)
+  def childPos: Long = {
     val res = childIndexStack.top
     Assert.invariant(res >= 1)
     res
   }
 
   val delimiters = new mutable.ArrayBuffer[DFADelimiter]
-  val delimitersLocalIndexStack = MStackOfInt()
+  val delimitersLocalIndexStack: MStackOfInt = MStackOfInt()
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
@@ -176,7 +176,7 @@ final class PState private (
 ) // Runtime tunables obtained from DataProcessor)
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
-  override def currentNode = Maybe(infoset)
+  override def currentNode: Maybe[DIElement] = Maybe(infoset)
 
   def output = walker.outputter
 
@@ -225,7 +225,7 @@ final class PState private (
    */
   val pointsOfUncertainty = new MStackOf[PState.Mark]()
 
-  override def dataStream = One(dataInputStream)
+  override def dataStream: Maybe[InputSourceDataInputStream] = One(dataInputStream)
 
   def saveDelimitedParseResult(result: Maybe[dfa.ParseResult]): Unit = {
     // threadCheck()
@@ -255,7 +255,7 @@ final class PState private (
     m
   }
 
-  def isInUse(m: PState.Mark) = {
+  def isInUse(m: PState.Mark): Boolean = {
     markPool.isInUse(m)
   }
 
@@ -276,7 +276,7 @@ final class PState private (
     markPool.returnToPool(m)
   }
 
-  override def toString() = {
+  override def toString(): String = {
     // threadCheck()
     val hidden = if (withinHiddenNest) "hidden " else ""
     "PState( bitPos=%s status=%s %s)".format(bitPos0b, processorStatus, hidden)
@@ -305,7 +305,7 @@ final class PState private (
     }
     res
   }
-  def parentDocument = infoset.asInstanceOf[InfosetDocument]
+  def parentDocument: InfosetDocument = infoset.asInstanceOf[InfosetDocument]
 
   def setEndBitLimit(bitLimit0b: Long): Unit = {
     dataInputStream.setBitLimit0b(MaybeULong(bitLimit0b))
@@ -600,7 +600,7 @@ object PState {
    */
   class Mark extends Poolable {
 
-    override def toString() = {
+    override def toString(): String = {
       if (disMark ne null)
         "bitPos: %s, context: %s [%s] (%s)".format(
           bitPos0b.toString,
@@ -618,8 +618,8 @@ object PState {
 
     def bitPos0b = disMark.bitPos0b
 
-    val simpleElementState = DISimpleState()
-    val complexElementState = DIComplexState()
+    val simpleElementState: DISimpleState = DISimpleState()
+    val complexElementState: DIComplexState = DIComplexState()
     var element: DIElement = _
     var elementLastChild: Maybe[DIElement] = _
     var disMark: DataInputStream.Mark = _
@@ -672,7 +672,7 @@ object PState {
       this.variableMap = ps.variableMap
     }
 
-    def restoreInfoset(ps: PState) = {
+    def restoreInfoset(ps: PState): Unit = {
       Assert.invariant(this.element eq ps.thisElement)
       this.element match {
         case s: DISimple => simpleElementState.restoreInto(this.element)

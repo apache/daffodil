@@ -30,6 +30,7 @@ import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
+import scala.collection.immutable
 
 /**
  * Only objects from which we generate processors (parsers/unparsers)
@@ -55,7 +56,7 @@ object ResolvesProperties {
    * immediate element--properties on a reference or defaults should not be
    * taken into account.
    */
-  val localOnlyProperties = Seq(
+  val localOnlyProperties: Seq[String] = Seq(
     "choiceBranchKey",
     "hiddenGroupRef"
   )
@@ -322,7 +323,7 @@ trait AnnotatedSchemaComponent
     }
   }
 
-  protected final lazy val shareKey = ShareKey(actualDef.xml, propEnv)
+  protected final lazy val shareKey: ShareKey = ShareKey(actualDef.xml, propEnv)
 
   /**
    * For property combining only. E.g., doesn't refer from an element
@@ -450,7 +451,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
     dais
   }
 
-  lazy val dfdlAppInfos = {
+  lazy val dfdlAppInfos: NodeSeq = {
     val ais = (annotationNode \ "appinfo")
     getDFDLAppinfos(ais)
   }
@@ -459,7 +460,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  final lazy val annotationObjs = {
+  final lazy val annotationObjs: immutable.Seq[DFDLAnnotation] = {
     val objs = dfdlAppInfos.flatMap { dai =>
       {
         val children = dai.child
@@ -488,12 +489,12 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
    */
   protected def emptyFormatFactory: DFDLFormatAnnotation
 
-  final lazy val formatAnnotationExpectedName =
+  final lazy val formatAnnotationExpectedName: String =
     emptyFormatFactory.xml.asInstanceOf[scala.xml.Elem].label
 
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
-  final lazy val formatAnnotation = {
+  final lazy val formatAnnotation: DFDLFormatAnnotation = {
     val format = annotationObjs.collect {
       case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa
     }

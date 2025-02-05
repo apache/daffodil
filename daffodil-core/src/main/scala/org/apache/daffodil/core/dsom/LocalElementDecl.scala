@@ -37,7 +37,7 @@ sealed abstract class LocalElementDeclBase(
 }
 
 object LocalElementDecl {
-  def apply(xml: Node, lexicalParent: SchemaComponent, position: Int) = {
+  def apply(xml: Node, lexicalParent: SchemaComponent, position: Int): LocalElementDecl = {
     val led = new LocalElementDecl(xml, lexicalParent, position)
     led.initialize()
     led
@@ -64,7 +64,7 @@ sealed abstract class QuasiElementDeclBase(xml: Node, lexicalParent: SchemaCompo
 }
 
 object PrefixLengthQuasiElementDecl {
-  def apply(xml: Node, lexicalParent: SchemaComponent) = {
+  def apply(xml: Node, lexicalParent: SchemaComponent): PrefixLengthQuasiElementDecl = {
     val pl = new PrefixLengthQuasiElementDecl(xml, lexicalParent)
     pl.initialize()
     pl
@@ -75,7 +75,7 @@ class PrefixLengthQuasiElementDecl private (xml: Node, lexicalParent: SchemaComp
   extends QuasiElementDeclBase(xml, lexicalParent) {}
 
 object RepTypeQuasiElementDecl {
-  def apply(xml: Node, lexicalParent: SchemaComponent) = {
+  def apply(xml: Node, lexicalParent: SchemaComponent): RepTypeQuasiElementDecl = {
     val rt = new RepTypeQuasiElementDecl(xml, lexicalParent)
     rt.initialize()
     rt

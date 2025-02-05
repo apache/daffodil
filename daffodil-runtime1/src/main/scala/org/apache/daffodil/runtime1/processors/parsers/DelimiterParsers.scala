@@ -33,7 +33,7 @@ import org.apache.daffodil.runtime1.processors.dfa.TextParser
 
 object DelimiterTextType extends Enum {
   abstract sealed trait Type extends EnumValueType {
-    override lazy val toString =
+    override lazy val toString: String =
       Misc.initialLowerCase(getClass().getSimpleName.replace("$", ""))
   }
   case object Initiator extends Type

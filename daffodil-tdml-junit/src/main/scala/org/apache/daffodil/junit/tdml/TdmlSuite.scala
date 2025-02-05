@@ -59,7 +59,7 @@ trait TdmlSuite {
   /**
    * Lazily build the runner when needed
    */
-  final lazy val runner = createRunner()
+  final lazy val runner: Runner = createRunner()
 
   /**
    * Ensure all resources associated with the Runner (e.g. cached compiled schemas, parsed TDML

@@ -36,6 +36,7 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 import passera.unsigned.{ UByte, UInt, ULong, UShort }
+import scala.xml.Node
 
 /**
  * This is the "logical" shift left.
@@ -235,7 +236,7 @@ case class DFDLXTrace(recipe: CompiledDPath, msg: String)
 
   // This is toXML for the case class object, not the infoset node it is
   // dealing with.
-  override def toXML = toXML(recipe.toXML)
+  override def toXML: Node = toXML(recipe.toXML)
 
 }
 

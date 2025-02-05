@@ -51,13 +51,13 @@ trait Suspension extends Serializable {
    */
   val isReadOnly = false
 
-  def UE(ustate: UState, s: String, args: Any*) = {
+  def UE(ustate: UState, s: String, args: Any*): Nothing = {
     UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
 
   private var savedUstate_ : UState = null
 
-  final def savedUstate = {
+  final def savedUstate: UState = {
     Assert.invariant(savedUstate_ ne null)
     // Assert above fails if no suspension state created yet. Can't ask for ustate.
     // means we are pre-evaluating to decide if we need to suspend.
@@ -254,7 +254,7 @@ trait Suspension extends Serializable {
     }
   }
 
-  final def blockedLocation = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(
+  final def blockedLocation: String = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(
     maybeExc,
     maybeNodeOrVar,
     maybeInfo,

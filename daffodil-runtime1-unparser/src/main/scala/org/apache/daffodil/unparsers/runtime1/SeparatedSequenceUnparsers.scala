@@ -48,7 +48,7 @@ trait Separated { self: SequenceChildUnparser =>
 
   def isPositional: Boolean
 
-  val childProcessors = Vector(childUnparser, sep)
+  val childProcessors: Vector[Unparser] = Vector(childUnparser, sep)
 }
 
 sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
@@ -66,7 +66,7 @@ sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
 ) extends SequenceChildUnparser(childUnparser, srd, trd)
   with Separated {
 
-  override def unparse(state: UState) = childUnparser.unparse1(state)
+  override def unparse(state: UState): Unit = childUnparser.unparse1(state)
 }
 
 class ScalarOrderedSeparatedSequenceChildUnparser(
@@ -110,7 +110,7 @@ class RepOrderedSeparatedSequenceChildUnparser(
 ) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Separated {
 
-  override def checkArrayPosAgainstMaxOccurs(state: UState) =
+  override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean =
     state.arrayIterationPos <= maxRepeats(state)
 }
 

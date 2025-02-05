@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.util.Misc
 
 object TDMLException {
 
-  def msgWithImpl(msg: String, implementation: Option[String]) =
+  def msgWithImpl(msg: String, implementation: Option[String]): String =
     implementation
       .map { impl =>
         "(Implementation: " + impl + ") " + msg

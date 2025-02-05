@@ -75,7 +75,7 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
     )
   }
 
-  def loadingDiagnostics = loaderSDEs ++ loaderSDWs
+  def loadingDiagnostics: Seq[Diagnostic] = loaderSDEs ++ loaderSDWs
 
   /**
    * Converts the accumulated SAXParseErrors into SDEs and SDWs
@@ -105,11 +105,11 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
     }
   }
 
-  def warning(exception: SAXParseException) = {
+  def warning(exception: SAXParseException): Unit = {
     loaderWarnings_ :+= exception
   }
 
-  def error(exception: SAXParseException) = {
+  def error(exception: SAXParseException): Unit = {
     loaderErrors_ :+= exception
   }
 
@@ -117,7 +117,7 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
    * Called on a fatal exception. The parser/validator throws the exception after
    * this call returns.
    */
-  def fatalError(exception: SAXParseException) = error(
+  def fatalError(exception: SAXParseException): Unit = error(
     exception
   ) // same as non-fatal exception.
 }
@@ -142,7 +142,7 @@ final class DFDLSchemaFile(
    * This is the schema document we are contained in, not the one
    * we are referring to.
    */
-  override lazy val optSchemaDocument = {
+  override lazy val optSchemaDocument: Option[SchemaDocument] = {
     // the one containing the reference to the file
     // Not the schema document in this file (that one is iiSchemaDocument).
     val res = iiParent.optSchemaDocument
@@ -217,7 +217,7 @@ final class DFDLSchemaFile(
     true
   }.value
 
-  lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
+  lazy val iiXMLSchemaDocument: XMLSchemaDocument = LV('iiXMLSchemaDocument) {
     val res = makeXMLSchemaDocument(seenBefore, Some(this))
     if (res.isDFDLSchema && sset.shouldValidateDFDLSchemas) {
       //
@@ -239,7 +239,7 @@ final class DFDLSchemaFile(
     res
   }.value
 
-  lazy val iiSchemaDocument = {
+  lazy val iiSchemaDocument: SchemaDocument = {
     val res = SchemaDocument(iiXMLSchemaDocument)
     res
   }

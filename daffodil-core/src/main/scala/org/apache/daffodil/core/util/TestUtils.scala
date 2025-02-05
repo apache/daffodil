@@ -55,10 +55,10 @@ object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
  */
 object TestUtils {
 
-  def assertEquals[T](expected: T, actual: T) =
+  def assertEquals[T](expected: T, actual: T): Unit =
     if (expected != actual) throw new AssertionError("assertEquals failed.")
 
-  def testString(testSchema: Node, data: String, areTracing: Boolean = false) = {
+  def testString(testSchema: Node, data: String, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
     runSchemaOnRBC(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
   }
 
@@ -161,7 +161,7 @@ object TestUtils {
     } else p
   }
 
-  def compileSchema(testSchema: Node) = {
+  def compileSchema(testSchema: Node): DataProcessor = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) throwDiagnostics(pf.getDiagnostics)
@@ -254,17 +254,17 @@ object TestUtils {
  */
 
 object Fakes {
-  def fakeDP = new Fakes().fakeDP
-  def fakeElem = new Fakes().fakeElem
-  def fakeSD = new Fakes().fakeSD
-  def fakeGroupRef = new Fakes().fakeGroupRef
-  def fakeChoiceGroupRef = new Fakes().fakeChoiceGroupRef
-  def fakeSequenceGroupRef = new Fakes().fakeSequenceGroupRef
-  def fakeGroupRefFactory = new Fakes().fakeGroupRefFactory
+  def fakeDP: DFDL.DataProcessor = new Fakes().fakeDP
+  def fakeElem: GlobalElementDecl = new Fakes().fakeElem
+  def fakeSD: SchemaDocument = new Fakes().fakeSD
+  def fakeGroupRef: ChoiceGroupRef = new Fakes().fakeGroupRef
+  def fakeChoiceGroupRef: ChoiceGroupRef = new Fakes().fakeChoiceGroupRef
+  def fakeSequenceGroupRef: SequenceGroupRef = new Fakes().fakeSequenceGroupRef
+  def fakeGroupRefFactory: ModelGroup with GroupRef = new Fakes().fakeGroupRefFactory
 }
 
 class Fakes private () {
-  lazy val sch = SchemaUtils.dfdlTestSchema(
+  lazy val sch: Elem = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -288,20 +288,20 @@ class Fakes private () {
     </xs:group>
   )
   val DummyPrimitiveFactory = null
-  val tunables = DaffodilTunables()
+  val tunables: DaffodilTunables = DaffodilTunables()
   lazy val xsd_sset: SchemaSet = SchemaSet(sch, "http://example.com", "fake")
-  lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
-  lazy val fakeSD = xsd_schema.schemaDocuments(0)
-  lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get
+  lazy val xsd_schema: Schema = xsd_sset.getSchema(NS("http://example.com")).get
+  lazy val fakeSD: SchemaDocument = xsd_schema.schemaDocuments(0)
+  lazy val fakeElem: GlobalElementDecl = fakeSD.getGlobalElementDecl("fake").get
 
-  lazy val fakeCT =
+  lazy val fakeCT: GlobalComplexTypeDef =
     fakeSD.getGlobalElementDecl("fake2").get.typeDef.asInstanceOf[GlobalComplexTypeDef]
   lazy val fakeSequence = fakeCT.sequence
   lazy val Seq(fs1, fs2, fs3) = fakeSequence.groupMembers
-  lazy val fakeChoiceGroupRef = fs1.asInstanceOf[ChoiceGroupRef]
+  lazy val fakeChoiceGroupRef: ChoiceGroupRef = fs1.asInstanceOf[ChoiceGroupRef]
   lazy val fakeGroupRef = fakeChoiceGroupRef
-  lazy val fakeSequenceGroupRef = fs3.asInstanceOf[SequenceGroupRef]
-  lazy val fakeGroupRefFactory = GroupRefFactory(fs1.xml, fs1, 1, false)
+  lazy val fakeSequenceGroupRef: SequenceGroupRef = fs3.asInstanceOf[SequenceGroupRef]
+  lazy val fakeGroupRefFactory: ModelGroup with GroupRef = GroupRefFactory(fs1.xml, fs1, 1, false)
 
   private class FakeDataProcessor extends DFDL.DataProcessor {
     override def save(output: DFDL.Output): Unit = {}
@@ -418,7 +418,7 @@ class StreamParser private (val schema: Node) {
    *
    * @return a Result object containing the results of the parse including diagnostic information.
    */
-  def parse = {
+  def parse: StreamParser.Result = {
     if (dis == null)
       throw new IllegalStateException("Input stream must be provided by setInputStream() call.")
     val res: DFDL.ParseResult = dp.parse(dis, outputter)

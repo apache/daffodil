@@ -107,7 +107,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
 
   protected def apparentXMLChildren: Seq[Node]
 
-  final override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
+  final override lazy val hasDelimiters: Boolean = hasInitiator || hasTerminator || hasSeparator
 
   protected def hiddenGroupRefOption: PropertyLookupResult
 
@@ -142,7 +142,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
       res
     }
 
-  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+  final override lazy val hasKnownRequiredSyntax: Boolean = LV('hasKnownRequiredSyntax) {
     if (hasFraming) true
     else {
       lazy val memberHasRequiredSyntax = representedMembers.exists { member =>
@@ -278,7 +278,7 @@ trait SequenceDefMixin
 
   protected def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
 
-  final lazy val apparentXMLChildren = (xml \\ "sequence").head.child
+  final lazy val apparentXMLChildren: Seq[Node] = (xml \\ "sequence").head.child
 
   def xmlChildren: Seq[Node] = apparentXMLChildren
 
@@ -286,7 +286,7 @@ trait SequenceDefMixin
   // attribute, not a format property in the usual sense.
   // So we retrieve it by this lower-level mechanism which only combines short and long form.
   //
-  final lazy val hiddenGroupRefOption = LV('hiddenGroupRefOption) {
+  final lazy val hiddenGroupRefOption: PropertyLookupResult = LV('hiddenGroupRefOption) {
     findPropertyOption("hiddenGroupRef")
   }.value
 
@@ -300,7 +300,7 @@ trait SequenceDefMixin
     }
   }
 
-  final lazy val hiddenGroupRefXML = LV('hiddenGroupRefXML) {
+  final lazy val hiddenGroupRefXML: Elem = LV('hiddenGroupRefXML) {
     val Found(qname, _, _, _) = hiddenGroupRefOption
     // synthesize a group reference here.
     val contextScope = xml.asInstanceOf[Elem].scope

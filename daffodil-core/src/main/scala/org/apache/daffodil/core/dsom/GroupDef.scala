@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 
 object GlobalGroupDef {
 
-  def apply(defXML: Node, schemaDocument: SchemaDocument) = {
+  def apply(defXML: Node, schemaDocument: SchemaDocument): GlobalGroupDef = {
     val trimmedXml = scala.xml.Utility.trim(defXML)
     trimmedXml match {
       case <group>{contents @ _*}</group> => {
@@ -117,7 +117,7 @@ sealed abstract class GlobalGroupDef(
   with ResolvesLocalProperties // for dfdl:choiceBranchKey
   {
 
-  def groupMembers = {
+  def groupMembers: Seq[Term] = {
     validateChoiceBranchKey()
     checkForGroupDefAnnotations()
     this.groupMembersNotShared
@@ -145,7 +145,7 @@ sealed abstract class GlobalGroupDef(
       )
   }
 
-  final override lazy val name = defXML
+  final override lazy val name: String = defXML
     .attribute("name")
     .map { _.text }
     .getOrElse(Assert.invariantFailed("Global group def without name attribute."))
@@ -154,7 +154,7 @@ sealed abstract class GlobalGroupDef(
 }
 
 object GlobalSequenceGroupDef {
-  def apply(defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument) = {
+  def apply(defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument): GlobalSequenceGroupDef = {
     val gsgd = new GlobalSequenceGroupDef(defXMLArg, seqXML, schemaDocument)
     gsgd.initialize()
     gsgd
@@ -178,7 +178,7 @@ final class GlobalSequenceGroupDef private (
 }
 
 object GlobalChoiceGroupDef {
-  def apply(defXMLArg: Node, xml: Node, schemaDocument: SchemaDocument) = {
+  def apply(defXMLArg: Node, xml: Node, schemaDocument: SchemaDocument): GlobalChoiceGroupDef = {
     val gsgd = new GlobalChoiceGroupDef(defXMLArg, xml, schemaDocument)
     gsgd.initialize()
     gsgd

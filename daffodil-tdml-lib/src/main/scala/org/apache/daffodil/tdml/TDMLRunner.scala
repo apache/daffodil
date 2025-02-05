@@ -82,6 +82,8 @@ import org.apache.daffodil.tdml.processor.TDMLParseResult
 import org.apache.daffodil.tdml.processor.TDMLUnparseResult
 
 import org.apache.commons.io.IOUtils
+import org.xml.sax.ErrorHandler
+import scala.collection.immutable
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -193,7 +195,7 @@ class DFDLTestSuite private[tdml] (
   val defaultIgnoreUnexpectedValidationErrorsDefault: Boolean
 ) {
 
-  val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
+  val TMP_DIR: String = System.getProperty("java.io.tmpdir", ".")
 
   aNodeFileOrURISchemaSource match {
     case _: URISchemaSource => // ok
@@ -276,7 +278,7 @@ class DFDLTestSuite private[tdml] (
     res
   }
 
-  lazy val errorHandler = new org.xml.sax.ErrorHandler {
+  lazy val errorHandler: ErrorHandler = new org.xml.sax.ErrorHandler {
     def warning(exception: SAXParseException) = {
       loadingExceptions += exception
     }
@@ -302,7 +304,7 @@ class DFDLTestSuite private[tdml] (
    * test suite object.
    */
   lazy val loader = new DaffodilXMLLoader(errorHandler)
-  lazy val optTDMLSchema =
+  lazy val optTDMLSchema: Option[URI] =
     if (validateTDMLFile) {
       Some(XMLUtils.tdmlURI)
     } else {
@@ -359,7 +361,7 @@ class DFDLTestSuite private[tdml] (
     case _ => Assert.usageError("not a Node, File, or URL")
   } // end match
 
-  lazy val ts = {
+  lazy val ts: Node = {
     if (tsRaw eq null) {
       // must have been a loader error
       reportLoadingErrors()
@@ -368,7 +370,7 @@ class DFDLTestSuite private[tdml] (
     }
   }
 
-  lazy val isTDMLFileValid = {
+  lazy val isTDMLFileValid: Boolean = {
     (ts ne null) &&
     loadingExceptions.isEmpty
   }
@@ -383,40 +385,40 @@ class DFDLTestSuite private[tdml] (
     checkAllTopLevel = flag
   }
 
-  lazy val parserTestCases = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
+  lazy val parserTestCases: immutable.Seq[ParserTestCase] = (ts \ "parserTestCase").map { node => ParserTestCase(node, this) }
   //
   // Note: IBM started this TDML file format. They call an unparser test a "serializer" test.
   // We call it an UnparserTestCase
   //
-  lazy val unparserTestCases = (ts \ "unparserTestCase").map { node =>
+  lazy val unparserTestCases: immutable.Seq[UnparserTestCase] = (ts \ "unparserTestCase").map { node =>
     UnparserTestCase(node, this)
   }
 
-  lazy val testCases = {
+  lazy val testCases: Seq[TestCase] = {
     val tcs: Seq[TestCase] = parserTestCases ++ unparserTestCases
     ensureUnique("parser or unparser test cases", tcs) { _.tcName }
     tcs
   }
 
-  lazy val testCaseMap = testCases.map { tc => (tc.tcName -> tc) }.toMap
-  lazy val suiteName = (ts \ "@suiteName").text
-  lazy val suiteID = (ts \ "@ID").text
-  lazy val description = (ts \ "@description").text
-  lazy val defaultRoundTrip = {
+  lazy val testCaseMap: Map[String,TestCase] = testCases.map { tc => (tc.tcName -> tc) }.toMap
+  lazy val suiteName: String = (ts \ "@suiteName").text
+  lazy val suiteID: String = (ts \ "@ID").text
+  lazy val description: String = (ts \ "@description").text
+  lazy val defaultRoundTrip: RoundTrip = {
     val str = (ts \ "@defaultRoundTrip").text
     if (str == "") defaultRoundTripDefault else DFDLTestSuite.standardizeRoundTrip(str)
   }
-  lazy val defaultValidation = {
+  lazy val defaultValidation: String = {
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
-  lazy val defaultValidationMode = ValidationMode.fromString(defaultValidation)
+  lazy val defaultValidationMode: ValidationMode.Type = ValidationMode.fromString(defaultValidation)
 
-  lazy val defaultConfig = {
+  lazy val defaultConfig: String = {
     val str = (ts \ "@defaultConfig").text
     str
   }
-  lazy val defaultImplementations = {
+  lazy val defaultImplementations: Seq[String] = {
     val str = (ts \ "@defaultImplementations").text
     if (str == "") defaultImplementationsDefault
     else {
@@ -424,22 +426,22 @@ class DFDLTestSuite private[tdml] (
       str.split("""\s+""").toSeq
     }
   }
-  lazy val defaultIgnoreUnexpectedWarnings = {
+  lazy val defaultIgnoreUnexpectedWarnings: Boolean = {
     val str = (ts \ "@defaultIgnoreUnexpectedWarnings").text
     if (str == "") defaultIgnoreUnexpectedWarningsDefault else str.toBoolean
   }
-  lazy val defaultIgnoreUnexpectedValidationErrors = {
+  lazy val defaultIgnoreUnexpectedValidationErrors: Boolean = {
     val str = (ts \ "@defaultIgnoreUnexpectedValidationErrors").text
     if (str == "") defaultIgnoreUnexpectedValidationErrorsDefault else str.toBoolean
   }
 
-  lazy val embeddedSchemas = {
+  lazy val embeddedSchemas: immutable.Seq[DefinedSchema] = {
     val res = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
     ensureUnique("defineSchema", res) { _.name }
     res
   }
 
-  lazy val embeddedConfigs = {
+  lazy val embeddedConfigs: immutable.Seq[DefinedConfig] = {
     val res = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
     ensureUnique("defineConfig", res) { _.name }
     res
@@ -457,18 +459,18 @@ class DFDLTestSuite private[tdml] (
   }
 
   var areTracing = false
-  def trace = {
+  def trace: DFDLTestSuite = {
     areTracing = true
     this
   }
 
   var areDebugging = false
-  def setDebugging(flag: Boolean) = {
+  def setDebugging(flag: Boolean): Unit = {
     areDebugging = flag
   }
 
   var daffodilDebugger: AnyRef = null
-  def setDebugger(db: AnyRef) = {
+  def setDebugger(db: AnyRef): Unit = {
     daffodilDebugger = db
   }
 
@@ -513,7 +515,7 @@ class DFDLTestSuite private[tdml] (
     es
   }
 
-  def findSchemaFileName(modelName: String) = findTDMLResource(modelName)
+  def findSchemaFileName(modelName: String): Option[URI] = findTDMLResource(modelName)
 
   def findEmbeddedConfig(configName: String): Option[DefinedConfig] = {
     val ecfg = embeddedConfigs.find { defCfg => defCfg.name == configName }
@@ -523,7 +525,7 @@ class DFDLTestSuite private[tdml] (
     }
   }
 
-  def findConfigFileName(configName: String) = findTDMLResource(configName)
+  def findConfigFileName(configName: String): Option[URI] = findTDMLResource(configName)
 
   def ensureUnique[T](name: String, seq: Seq[T])(f: T => String): Unit = {
     val grouped = seq.groupBy(f)
@@ -637,7 +639,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     if (tcImplementations == "") defaultImplementations
     else tcImplementations.split("""\s+""").toSeq
 
-  def toss(t: Throwable, implString: Option[String]) = {
+  def toss(t: Throwable, implString: Option[String]): Nothing = {
     t match {
       case e: TDMLException => throw e
       case e: UnsuppressableException => throw e
@@ -646,12 +648,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     }
   }
 
-  final def isCrossTest(implString: String) = implString != "daffodil"
+  final def isCrossTest(implString: String): Boolean = implString != "daffodil"
 
   final def isNegativeTest = optExpectedErrors.isDefined
 
-  lazy val document = (testCaseXML \ "document").headOption.map { node => Document(node, this) }
-  lazy val optExpectedOrInputInfoset = (testCaseXML \ "infoset").headOption.map { node =>
+  lazy val document: Option[Document] = (testCaseXML \ "document").headOption.map { node => Document(node, this) }
+  lazy val optExpectedOrInputInfoset: Option[Infoset] = (testCaseXML \ "infoset").headOption.map { node =>
     new Infoset(node, this)
   }
   lazy val optExpectedErrors: Option[Seq[ExpectedErrors]] = {
@@ -669,10 +671,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     if (s.nonEmpty) Some(s) else None
   }
 
-  val tcName = (testCaseXML \ "@name").text
-  lazy val tcID = (testCaseXML \ "@ID").text
-  lazy val id = tcName + (if (tcID != "") "(" + tcID + ")" else "")
-  lazy val rootAttrib = (testCaseXML \ "@root").text
+  val tcName: String = (testCaseXML \ "@name").text
+  lazy val tcID: String = (testCaseXML \ "@ID").text
+  lazy val id: String = tcName + (if (tcID != "") "(" + tcID + ")" else "")
+  lazy val rootAttrib: String = (testCaseXML \ "@root").text
   lazy val optRootNSAttrib: Option[String] = {
     val attr = testCaseXML.asInstanceOf[Elem].attribute("rootNS")
     if (attr.isDefined) {
@@ -688,7 +690,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       (infoset.label, infoset.namespace)
     } else (null, null)
 
-  lazy val rootName = {
+  lazy val rootName: String = {
     if (rootAttrib == "") infosetRootName
     else if (this.optExpectedOrInputInfoset.isDefined) {
       if (infosetRootName != rootAttrib)
@@ -701,7 +703,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     } else rootAttrib
   }
 
-  def getRootNamespaceString() = {
+  def getRootNamespaceString(): String = {
     if (this.optRootNSAttrib.isDefined) {
       optRootNSAttrib.get
     } else if (optExpectedOrInputInfoset.isDefined)
@@ -739,8 +741,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     }
   }
 
-  lazy val model = (testCaseXML \ "@model").text
-  lazy val config = (testCaseXML \ "@config").text
+  lazy val model: String = (testCaseXML \ "@model").text
+  lazy val config: String = (testCaseXML \ "@config").text
   lazy val tcRoundTrip: String = (testCaseXML \ "@roundTrip").text
   lazy val roundTrip: RoundTrip =
     if (tcRoundTrip == "") defaultRoundTrip else DFDLTestSuite.standardizeRoundTrip(tcRoundTrip)
@@ -754,8 +756,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     if (tcIgnoreUnexpectedValidationErrors == "") defaultIgnoreUnexpectedValidationErrors
     else tcIgnoreUnexpectedValidationErrors.toBoolean
 
-  lazy val description = (testCaseXML \ "@description").text
-  lazy val unsupported = (testCaseXML \ "@unsupported").text match {
+  lazy val description: String = (testCaseXML \ "@description").text
+  lazy val unsupported: Boolean = (testCaseXML \ "@unsupported").text match {
     case "true" => true
     case "false" => false
     case _ => false
@@ -777,11 +779,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     implString: Option[String]
   ): Unit
 
-  lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map { defSchema =>
+  lazy val optEmbeddedSchema: Option[EmbeddedSchemaSource] = parent.findEmbeddedSchema(model).map { defSchema =>
     defSchema.schemaSource
   }
 
-  lazy val optSchemaFileURI =
+  lazy val optSchemaFileURI: Option[URI] =
     if (model == "") None
     else parent.findSchemaFileName(model)
 
@@ -899,9 +901,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     }
   }
 
-  lazy val tunables = cfg.map { _.tunablesMap }.getOrElse(Map.empty)
+  lazy val tunables: Map[String,String] = cfg.map { _.tunablesMap }.getOrElse(Map.empty)
 
-  lazy val tunableObj = DaffodilTunables(tunables)
+  lazy val tunableObj: DaffodilTunables = DaffodilTunables(tunables)
 
   lazy val externalVarBindings: Seq[Binding] =
     cfg.map { _.externalVariableBindings }.getOrElse(Seq())
@@ -1047,7 +1049,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
+  lazy val optExpectedInfoset: Option[Infoset] = this.optExpectedOrInputInfoset
 
   override def runProcessor(
     compileResult: TDML.CompileResult,
@@ -1059,7 +1061,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
     implString: Option[String]
-  ) = {
+  ): Unit = {
 
     Assert.usage(
       optLengthLimitInBits.isDefined,
@@ -1547,7 +1549,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  lazy val optInputInfoset = this.optExpectedOrInputInfoset
+  lazy val optInputInfoset: Option[Infoset] = this.optExpectedOrInputInfoset
 
   lazy val inputInfoset = optInputInfoset.get
 
@@ -1561,7 +1563,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
     implString: Option[String]
-  ) = {
+  ): Unit = {
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
@@ -2138,40 +2140,40 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   //
   final val DEFAULT_USE_DEFAULT_NAMESPACE_VALUE = true
 
-  val name = (xml \ "@name").text.toString
-  val elementFormDefault = {
+  val name: String = (xml \ "@name").text.toString
+  val elementFormDefault: String = {
     val value = (xml \ "@elementFormDefault").text.toString
 
     if (value == "") DEFAULT_ELEMENT_FORM_DEFAULT_VALUE
     else value
   }
-  val useDefaultNamespace = {
+  val useDefaultNamespace: Boolean = {
     val value = (xml \ "@useDefaultNamespace").text.toString
     if (value == "") DEFAULT_USE_DEFAULT_NAMESPACE_VALUE
     else value.toBoolean
   }
 
-  val defineFormats = (xml \ "defineFormat")
-  val defaultFormats = (xml \ "format")
-  val defineVariables = (xml \ "defineVariable")
-  val defineEscapeSchemes = (xml \ "defineEscapeScheme")
+  val defineFormats: NodeSeq = (xml \ "defineFormat")
+  val defaultFormats: NodeSeq = (xml \ "format")
+  val defineVariables: NodeSeq = (xml \ "defineVariable")
+  val defineEscapeSchemes: NodeSeq = (xml \ "defineEscapeScheme")
 
-  val globalElementDecls = {
+  val globalElementDecls: NodeSeq = {
     val res = (xml \ "element")
     res
   }
-  val globalSimpleTypeDefs = (xml \ "simpleType")
-  val globalComplexTypeDefs = (xml \ "complexType")
-  val globalGroupDefs = (xml \ "group")
-  val globalIncludes = (xml \ "include")
-  val globalImports = (xml \ "import")
+  val globalSimpleTypeDefs: NodeSeq = (xml \ "simpleType")
+  val globalComplexTypeDefs: NodeSeq = (xml \ "complexType")
+  val globalGroupDefs: NodeSeq = (xml \ "group")
+  val globalIncludes: NodeSeq = (xml \ "include")
+  val globalImports: NodeSeq = (xml \ "import")
 
-  val importIncludes = globalImports ++ globalIncludes
-  val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
-  val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
+  val importIncludes: NodeSeq = globalImports ++ globalIncludes
+  val dfdlTopLevels: NodeSeq = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
+  val xsdTopLevels: NodeSeq = globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
   private val parentDiagnosticFileName = parent.tsURISchemaSource.diagnosticFile.getPath
-  val fileName = if (parentDiagnosticFileName.nonEmpty) {
+  val fileName: String = if (parentDiagnosticFileName.nonEmpty) {
     parentDiagnosticFileName
   } else {
     parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
@@ -2179,7 +2181,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
       case None => ""
     }
   }
-  lazy val xsdSchema =
+  lazy val xsdSchema: Elem =
     SchemaUtils.dfdlTestSchema(
       importIncludes,
       dfdlTopLevels,
@@ -2190,18 +2192,18 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
       useDefaultNamespace = useDefaultNamespace
     )
 
-  lazy val schemaSource = EmbeddedSchemaSource(xsdSchema, name)
+  lazy val schemaSource: EmbeddedSchemaSource = EmbeddedSchemaSource(xsdSchema, name)
 }
 
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {
-  val name = (xml \ "@name").text.toString
-  val dafConfig = DaffodilConfig.fromXML(xml)
+  val name: String = (xml \ "@name").text.toString
+  val dafConfig: DaffodilConfig = DaffodilConfig.fromXML(xml)
   def externalVariableBindings = dafConfig.externalVariableBindings
   def tunablesMap = dafConfig.tunablesMap
 
   // Add additional compiler tunable variables here
 
-  val fileName = parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
+  val fileName: String = parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
     case Some(seqNodes) => seqNodes.toString
     case None => ""
   }
@@ -2232,7 +2234,7 @@ case object RTL extends ByteOrderType
 case object LTR extends ByteOrderType
 
 case class Document(d: NodeSeq, parent: TestCase) {
-  lazy val documentExplicitBitOrder = (d \ "@bitOrder").toString match {
+  lazy val documentExplicitBitOrder: Option[BitOrderType] = (d \ "@bitOrder").toString match {
     case "LSBFirst" => Some(LSBFirst)
     case "MSBFirst" => Some(MSBFirst)
     case "" => None
@@ -2366,7 +2368,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
    * These are all lazy val, since if data is coming from a file these aren't
    * needed at all.
    */
-  final lazy val documentBits = {
+  final lazy val documentBits: List[String] = {
     val nFragBits = (nBits.toInt % 8)
     val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
     val addOnBits = "0" * nAddOnBits
@@ -2408,14 +2410,14 @@ case class Document(d: NodeSeq, parent: TestCase) {
       _.nBits
     } sum
 
-  final lazy val documentBytes = bits2Bytes(documentBits)
+  final lazy val documentBytes: Array[Byte] = bits2Bytes(documentBits)
 
   /**
    * this 'data' is the kind our parser's parse method expects.
    * Note: this is def data so that the input is re-read every time.
    * Needed if you run the same test over and over.
    */
-  final def data = {
+  final def data: InputStream = {
     if (isDPFile) {
       // direct I/O to the file. No 'bits' lowering involved.
       val dp = documentParts.head.asInstanceOf[FileDocumentPart]
@@ -2432,7 +2434,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
   /**
    * data coming from a file?
    */
-  val isDPFile = {
+  val isDPFile: Boolean = {
     val res = documentParts.nonEmpty &&
       documentParts.head.isInstanceOf[FileDocumentPart]
     if (res) {
@@ -2452,7 +2454,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     Assert.usageError("encoding %s requires bitOrder='%s'".format(encName, partBitOrd))
   }
 
-  lazy val encoder = {
+  lazy val encoder: BitsCharsetEncoder = {
     val upperName = encodingName.toUpperCase
     val cs = CharsetUtils.getCharset(upperName)
     cs match {
@@ -2474,7 +2476,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     enc
   }
 
-  lazy val textContentWithoutEntities = {
+  lazy val textContentWithoutEntities: String = {
     if (replaceDFDLEntities) {
       try {
         EntityReplacer {
@@ -2542,7 +2544,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     bitStrings
   }
 
-  lazy val dataBits = {
+  lazy val dataBits: Seq[String] = {
     val bytesAsStrings =
       encoder.bitsCharset match {
         case nbs: BitsCharsetNonByteSize =>
@@ -2557,7 +2559,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
 class ByteDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
   val validHexDigits = "0123456789abcdefABCDEF"
 
-  lazy val dataBits = {
+  lazy val dataBits: List[String] = {
     val hexBytes = partByteOrder match {
       case LTR => {
         val ltrDigits = hexDigits.sliding(2, 2).toList
@@ -2576,7 +2578,7 @@ class ByteDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     bits
   }
 
-  lazy val hexDigits = CanonData.canonicalizeData(validHexDigits, partRawContent)
+  lazy val hexDigits: String = CanonData.canonicalizeData(validHexDigits, partRawContent)
 
 }
 
@@ -2584,9 +2586,9 @@ final class BitsDocumentPart(part: Node, parent: Document)
   extends DataDocumentPart(part, parent) {
   val validBits = "01"
 
-  lazy val bitDigits = CanonData.canonicalizeData(validBits, partRawContent)
+  lazy val bitDigits: String = CanonData.canonicalizeData(validBits, partRawContent)
 
-  lazy val dataBits = partByteOrder match {
+  lazy val dataBits: Seq[String] = partByteOrder match {
     case LTR => {
       val ltrBigits = bitDigits.sliding(8, 8).toList
       ltrBigits
@@ -2603,7 +2605,7 @@ final class BitsDocumentPart(part: Node, parent: Document)
 
 class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) {
 
-  override lazy val nBits =
+  override lazy val nBits: Long =
     if (lengthInBytes != -1L) lengthInBytes * 8
     else -1L // signifies we do not know how many.
 
@@ -2626,7 +2628,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
    * Must be def, so that if you run a test repeatedly it will supply the data
    * again every time.
    */
-  def fileDataInput = {
+  def fileDataInput: InputStream = {
     val is = url.openStream()
     is
   }
@@ -2641,7 +2643,7 @@ sealed abstract class DataDocumentPart(part: Node, parent: Document)
 
   def dataBits: Seq[String]
 
-  lazy val lengthInBits = dataBits.map {
+  lazy val lengthInBits: Int = dataBits.map {
     _.length
   } sum
   override lazy val nBits: Long = lengthInBits
@@ -2672,9 +2674,9 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     bitOrd
   }
 
-  lazy val partBitOrder = explicitBitOrder.getOrElse(parent.documentBitOrder)
+  lazy val partBitOrder: BitOrderType = explicitBitOrder.getOrElse(parent.documentBitOrder)
 
-  lazy val partByteOrder = {
+  lazy val partByteOrder: ByteOrderType = {
     val bo = (part \ "@byteOrder").toString match {
       case "RTL" => {
         Assert.usage(
@@ -2697,7 +2699,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
   /**
    * Only trim nodes that aren't PCData (aka <![CDATA[...]]>)
    */
-  lazy val trimmedParts = part.child.flatMap { childNode =>
+  lazy val trimmedParts: Seq[Node] = part.child.flatMap { childNode =>
     childNode match {
       case scala.xml.PCData(s) => Some(childNode)
       case scala.xml.Text(s) => Some(childNode)
@@ -2852,7 +2854,7 @@ object DiagnosticType extends Enumeration {
 }
 
 abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
-  lazy val matchAttrib = if ((n \ "@match").text == "") {
+  lazy val matchAttrib: String = if ((n \ "@match").text == "") {
     "all"
   } else {
     (n \ "@match").text
@@ -2873,7 +2875,7 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
-  val diagnosticNodes = (node \\ "error")
+  val diagnosticNodes: NodeSeq = (node \\ "error")
   override def isError = true
   override def diagnosticType: DiagnosticType = DiagnosticType.Error
 
@@ -2882,7 +2884,7 @@ case class ExpectedErrors(node: NodeSeq, parent: TestCase)
 case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
-  val diagnosticNodes = (node \\ "warning")
+  val diagnosticNodes: NodeSeq = (node \\ "warning")
   override def isError = false
   override def diagnosticType: DiagnosticType = DiagnosticType.Warning
 
@@ -2891,7 +2893,7 @@ case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
 case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
-  val diagnosticNodes = (node \\ "error")
+  val diagnosticNodes: NodeSeq = (node \\ "error")
   override def isError = true
   override def diagnosticType: DiagnosticType = DiagnosticType.ValidationError
 
@@ -2914,7 +2916,7 @@ object UTF8Encoder {
     bytes
   }
 
-  def byteList(args: Int*) = args.map {
+  def byteList(args: Int*): Seq[Byte] = args.map {
     _.toByte
   }
 
@@ -3135,7 +3137,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
 object GlobalTDMLCompileResultCache {
   val expireTimeSeconds = 30
-  val cache = {
+  val cache: TDMLCompileResultCache = {
     new TDMLCompileResultCache(Some(expireTimeSeconds))
   }
 }

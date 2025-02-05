@@ -32,5 +32,5 @@ object BitsCharsetDefinitionRegistry {
    */
   def find(name: String): Option[BitsCharsetDefinition] = bitsCharsetDefinitionMap.get(name)
 
-  def supportedEncodingsString = bitsCharsetDefinitionMap.keySet.mkString(", ")
+  def supportedEncodingsString: String = bitsCharsetDefinitionMap.keySet.mkString(", ")
 }

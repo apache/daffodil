@@ -71,15 +71,15 @@ import org.xml.sax.helpers.DefaultHandler
 object InfosetType extends Enumeration {
   type Type = Value
 
-  val EXI = Value("exi")
-  val EXISA = Value("exisa")
-  val JDOM = Value("jdom")
-  val JSON = Value("json")
-  val NULL = Value("null")
-  val SAX = Value("sax")
-  val SCALA_XML = Value("scala-xml")
-  val W3CDOM = Value("w3cdom")
-  val XML = Value("xml")
+  val EXI: Value = Value("exi")
+  val EXISA: Value = Value("exisa")
+  val JDOM: Value = Value("jdom")
+  val JSON: Value = Value("json")
+  val NULL: Value = Value("null")
+  val SAX: Value = Value("sax")
+  val SCALA_XML: Value = Value("scala-xml")
+  val W3CDOM: Value = Value("w3cdom")
+  val XML: Value = Value("xml")
 
   /**
    * Get an InfosetHandler, with the goal of doing as much initialization/work

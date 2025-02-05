@@ -158,5 +158,5 @@ trait ToBriefXMLImpl {
     }
   }
 
-  override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
+  override def toString: String = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }

@@ -73,7 +73,7 @@ trait LeafPropProvider extends LookupLocation with PropTypes {
    * Intended for use comparing to see if two prop providers are equivalent
    * in terms of providing the same property values.
    */
-  final lazy val justThisOnePropertyPairsSet = justThisOneProperties.map { case (s1, (s2, _)) =>
+  final lazy val justThisOnePropertyPairsSet: Set[(String, String)] = justThisOneProperties.map { case (s1, (s2, _)) =>
     (s1, s2)
   }.toSet
 
@@ -111,7 +111,7 @@ trait LeafPropProvider extends LookupLocation with PropTypes {
 final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
   extends PropTypes {
 
-  override def toString() = Misc.getNameFromClass(this) + "(" + forAnnotation + ")"
+  override def toString(): String = Misc.getNameFromClass(this) + "(" + forAnnotation + ")"
 
   /**
    * This is a sequence of sets basically for debug/maintenance reasons.
@@ -178,7 +178,7 @@ trait OverlapCheckMixin {
    * check for overlap.
    */
 
-  protected final def checkNonOverlap(providers: Seq[ChainPropProvider]) = {
+  protected final def checkNonOverlap(providers: Seq[ChainPropProvider]): Unit = {
 
     /**
      * given a list, take the first, make sure it is non-overlapping with

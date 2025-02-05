@@ -23,6 +23,7 @@ import org.apache.daffodil.core.grammar.primitives.AssertBase
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.runtime1.dsom._
+import scala.collection.immutable
 
 trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMixin {
   self: Term =>
@@ -85,16 +86,16 @@ trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMix
     stmtSets.toSet
   }
 
-  final protected lazy val statementContentParserReferencedElementInfos =
+  final protected lazy val statementContentParserReferencedElementInfos: Set[DPathElementCompileInfo] =
     statementReferencedElementInfos(x => getParserExprReferencedElements(x, creis(_)))
 
-  final protected lazy val statementContentUnparserReferencedElementInfos =
+  final protected lazy val statementContentUnparserReferencedElementInfos: Set[DPathElementCompileInfo] =
     statementReferencedElementInfos(x => getUnparserExprReferencedElements(x, creis(_)))
 
-  final protected lazy val statementValueParserReferencedElementInfos =
+  final protected lazy val statementValueParserReferencedElementInfos: Set[DPathElementCompileInfo] =
     statementReferencedElementInfos(x => getParserExprReferencedElements(x, vreis(_)))
 
-  final protected lazy val statementValueUnparserReferencedElementInfos =
+  final protected lazy val statementValueUnparserReferencedElementInfos: Set[DPathElementCompileInfo] =
     statementReferencedElementInfos(x => getUnparserExprReferencedElements(x, vreis(_)))
 }
 
@@ -219,7 +220,7 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
   final lazy val lowPriorityStatements: Seq[DFDLStatement] =
     setVariableStatements ++ nonPatternAsserts ++ nonPatternDiscrims
 
-  final protected lazy val localStatements = this.annotationObjs.collect {
+  final protected lazy val localStatements: immutable.Seq[DFDLStatement] = this.annotationObjs.collect {
     case st: DFDLStatement => st
   }
 
@@ -272,7 +273,7 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
     nvis
   }
 
-  final protected lazy val localSetVariableStatements = {
+  final protected lazy val localSetVariableStatements: Seq[DFDLSetVariable] = {
     val svs = localStatements.collect { case sv: DFDLSetVariable => sv }
     checkDistinctVariableNames(svs)
   }

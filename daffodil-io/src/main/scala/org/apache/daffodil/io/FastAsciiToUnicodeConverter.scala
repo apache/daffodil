@@ -18,13 +18,14 @@
 package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
+import java.nio.CharBuffer
 
 /**
  * Highly optimized converter for Ascii to Unicode
  */
 object FastAsciiToUnicodeConverter {
 
-  def convert(bb: ByteBuffer) = {
+  def convert(bb: ByteBuffer): CharBuffer = {
     val cb = ByteBuffer.allocate(2 * bb.limit())
     val cbChar = cb.asCharBuffer()
     //
@@ -56,7 +57,7 @@ object FastAsciiToUnicodeConverter {
     cb.asCharBuffer()
   }
 
-  val UnicodeReplacementCharacter = 0xfffd.toChar
+  val UnicodeReplacementCharacter: Char = 0xfffd.toChar
 
   /**
    * Convert a single byte of ascii to unicode.
@@ -65,13 +66,13 @@ object FastAsciiToUnicodeConverter {
    * replacement character.
    */
   @inline
-  def convertByte(byte: Byte) = {
+  def convertByte(byte: Byte): Char = {
     if (byte < 0) UnicodeReplacementCharacter
     else byte.toChar
   }
 
   @inline
-  def convertInt(int: Int) = {
+  def convertInt(int: Int): Char = {
     val i = int & 0xff
     if (i > 127) UnicodeReplacementCharacter
     else i.toChar

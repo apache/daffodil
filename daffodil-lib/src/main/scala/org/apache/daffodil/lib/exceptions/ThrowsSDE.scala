@@ -51,7 +51,7 @@ trait ThrowsSDE {
   /**
    * Centralize throwing for debug convenience
    */
-  final def toss(th: Throwable) = {
+  final def toss(th: Throwable): Nothing = {
     throw th // good place for a breakpoint
   }
 
@@ -85,11 +85,11 @@ trait ThrowsSDE {
    * not to implement. Not merely short term (haven't coded it yet, but intending to),
    * more like things we've chosen to defer intentionally to some future release.
    */
-  def subset(testThatWillThrowIfFalse: Boolean, msg: String, args: Any*) = {
+  def subset(testThatWillThrowIfFalse: Boolean, msg: String, args: Any*): Unit = {
     if (!testThatWillThrowIfFalse) subsetError(msg, args: _*)
   }
 
-  def subsetError(msg: String, args: Any*) = {
+  def subsetError(msg: String, args: Any*): Nothing = {
     val msgTxt = msg.format(args: _*)
     SDE("Subset: " + msgTxt)
   }

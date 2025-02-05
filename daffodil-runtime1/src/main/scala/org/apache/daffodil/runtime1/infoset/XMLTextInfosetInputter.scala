@@ -33,9 +33,10 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
+import com.ctc.wstx.stax.{ WstxInputFactory, WstxOutputFactory }
 
 object XMLTextInfoset {
-  lazy val xmlInputFactory = {
+  lazy val xmlInputFactory: WstxInputFactory = {
     val fact = new com.ctc.wstx.stax.WstxInputFactory()
     // Disable coalescing. We use getElementText() almost everywhere in this
     // inputter, which coalesces simple type content regardless of this
@@ -61,7 +62,7 @@ object XMLTextInfoset {
     fact
   }
 
-  lazy val xmlOutputFactory = {
+  lazy val xmlOutputFactory: WstxOutputFactory = {
     val fact = new com.ctc.wstx.stax.WstxOutputFactory()
     fact
   }

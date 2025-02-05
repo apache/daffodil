@@ -44,6 +44,7 @@ import com.ibm.icu.impl.number.Padder.PadPosition
 import com.ibm.icu.impl.number.PatternStringParser
 import com.ibm.icu.impl.number.PatternStringParser.ParsedPatternInfo
 import com.ibm.icu.text.DecimalFormat
+import scala.util.matching.Regex
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
@@ -101,7 +102,7 @@ private[primitives] object TextNumberPatternUtils {
    * A regex which matches textNumberPatterns that legally use the V
    * (implied decimal point) character.
    */
-  lazy val vRegexStandard = {
+  lazy val vRegexStandard: Regex = {
 
     //
     // Each of the capture groups is defined here in order
@@ -149,7 +150,7 @@ private[primitives] object TextNumberPatternUtils {
    * A regex which matches textNumberPatterns that legally use the P
    * (implied decimal point) character, on the LEFT of the digits.
    */
-  lazy val pOnLeftRegexStandard = {
+  lazy val pOnLeftRegexStandard: Regex = {
     //
     // Each of the capture groups is defined here in order
     //
@@ -172,7 +173,7 @@ private[primitives] object TextNumberPatternUtils {
    * A regex which matches textNumberPatterns that legally use the P
    * (implied decimal point) character, on the RIGHT of the digits.
    */
-  lazy val pOnRightRegexStandard = {
+  lazy val pOnRightRegexStandard: Regex = {
     //
     // Each of the capture groups is defined here in order
     //
@@ -191,7 +192,7 @@ private[primitives] object TextNumberPatternUtils {
     re
   }
 
-  lazy val vRegexZoned = {
+  lazy val vRegexZoned: Regex = {
     // Note: for zoned, can only have a positive pattern
     // Prefix or suffix can only be '+' character, to
     // indicate leading or trailing sign, and can only
@@ -235,7 +236,7 @@ private[primitives] object TextNumberPatternUtils {
     }
   }
 
-  lazy val pOnLeftRegexZoned = {
+  lazy val pOnLeftRegexZoned: Regex = {
     // Note: for zoned, can only have a positive pattern
     // Prefix or suffix can only be '+' character, to
     // indicate leading or trailing sign, and can only
@@ -257,7 +258,7 @@ private[primitives] object TextNumberPatternUtils {
     re
   }
 
-  lazy val pOnRightRegexZoned = {
+  lazy val pOnRightRegexZoned: Regex = {
     // Note: for zoned, can only have a positive pattern
     // Prefix or suffix can only be '+' character, to
     // indicate leading or trailing sign, and can only
@@ -334,7 +335,7 @@ trait ConvertTextNumberMixin {
    * but cannot be used as an operational pattern given that
    * potentially lots of things have been removed from it.
    */
-  final protected lazy val patternWithoutEscapedChars = {
+  final protected lazy val patternWithoutEscapedChars: String = {
     // note: tick == apos == ' == single quote.
     // First remove entirely all escaped ticks ie., ''
     val noEscapedTicksRegex = """''""".r
@@ -347,8 +348,8 @@ trait ConvertTextNumberMixin {
     res
   }
 
-  protected final lazy val hasV = patternWithoutEscapedChars.contains("V")
-  protected final lazy val hasP = patternWithoutEscapedChars.contains("P")
+  protected final lazy val hasV: Boolean = patternWithoutEscapedChars.contains("V")
+  protected final lazy val hasP: Boolean = patternWithoutEscapedChars.contains("P")
 
   /**
    * Analogous to the property dfdl:binaryDecimalVirtualPoint
@@ -397,7 +398,7 @@ trait ConvertTextNumberMixin {
   // since that's what the schema author wrote and expects to see.
   // But if the pattern has P or V, then we need ICU at runtime to use the original
   // but with the P or V removed since the P and V don't actually represent anything in the data.
-  final protected lazy val runtimePattern = {
+  final protected lazy val runtimePattern: String = {
     if (hasV || hasP) {
       val patternWithoutPV = TextNumberPatternUtils.removeUnquotedPV(pattern)
       patternWithoutPV
@@ -525,8 +526,8 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
     }
   }
 
-  val zeroRepsRaw = e.textStandardZeroRep.filter { _ != "" }
-  val zeroRepsRegex = zeroRepsRaw.map { zr =>
+  val zeroRepsRaw: List[String] = e.textStandardZeroRep.filter { _ != "" }
+  val zeroRepsRegex: List[Regex] = zeroRepsRaw.map { zr =>
     val d = new Delimiter()
     d.compileDelimiter(zr, e.ignoreCaseBool)
     // add '^' and '$' to require the regular expression to match the entire

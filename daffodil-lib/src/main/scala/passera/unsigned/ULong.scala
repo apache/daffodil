@@ -34,10 +34,10 @@ case class ULong(override val longValue: Long)
   with Serializable {
   private[unsigned] def rep = longValue
 
-  def toUByte = UByte((rep & 0xffffffffL).toByte)
-  def toUShort = UShort((rep & 0xffffffffL).toShort)
-  def toUInt = UInt((rep & 0xffffffffL).toInt)
-  def toULong = this
+  def toUByte: UByte = UByte((rep & 0xffffffffL).toByte)
+  def toUShort: UShort = UShort((rep & 0xffffffffL).toShort)
+  def toUInt: UInt = UInt((rep & 0xffffffffL).toInt)
+  def toULong: ULong = this
 
   override def toByte: Byte = (rep & 0x7fffffffffffffffL).toByte
   override def toChar: Char = (rep & 0x7fffffffffffffffL).toChar
@@ -159,7 +159,7 @@ case class ULong(override val longValue: Long)
     }
   }
 
-  override def toString =
+  override def toString: String =
     if (rep >= 0L)
       rep.toString
     else
@@ -240,9 +240,9 @@ case class ULong(override val longValue: Long)
 }
 
 object ULong {
-  val MinValue = ULong(0L)
+  val MinValue: ULong = ULong(0L)
   val Zero = MinValue
-  val MaxValue = ULong(~0L)
+  val MaxValue: ULong = ULong(~0L)
 
   val MaxValueAsBigInt = new JBigInt("FFFFFFFFFFFFFFFF", 16)
 
@@ -256,5 +256,5 @@ object ULong {
     ULong(bi)
   }
 
-  def fromHexString(hexDigits: String) = ULong(hexDigits, 16)
+  def fromHexString(hexDigits: String): ULong = ULong(hexDigits, 16)
 }

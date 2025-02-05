@@ -700,7 +700,7 @@ trait Facets { self: Restriction =>
     localFacet: String,
     remoteFacet: String,
     facetType: Facet.Type
-  ) = {
+  ): String = {
     // Assumes both local and remote facets exist
     // Only for Numeric facets
     //
@@ -736,14 +736,14 @@ trait Facets { self: Restriction =>
     } else ""
   }
 
-  protected def getCombinedValue(theType: Facet.Type) = {
+  protected def getCombinedValue(theType: Facet.Type): java.math.BigDecimal = {
     val lValue = getLocalValue(theType)
     val rValue = getRemoteFacetValue(theType)
     val cValue = getFacetValue(lValue, rValue, theType, true)
     cValue
   }
 
-  protected lazy val getCombinedValueEnum = {
+  protected lazy val getCombinedValueEnum: Values = {
     val lValue = getLocalValue(Facet.enumeration)
     val rValue = getRemoteFacetValue(Facet.enumeration)
     lValue.foreach(e => {

@@ -88,7 +88,7 @@ class RegionSplitUnparser(override val context: TermRuntimeData)
 
   override val childProcessors: Vector[Processor] = Vector()
 
-  override def runtimeDependencies = Vector()
+  override def runtimeDependencies: Vector[Nothing] = Vector()
 
   override lazy val suspendableOperation = new RegionSplitSuspendableOperation(context)
 
@@ -121,7 +121,7 @@ final class RegionSplitSuspendableOperation(override val rd: TermRuntimeData)
 }
 
 object RegionSplitUnparser {
-  def apply(trd: TermRuntimeData) = {
+  def apply(trd: TermRuntimeData): RegionSplitUnparser = {
     val unp = new RegionSplitUnparser(trd)
     Processor.initialize(unp)
     unp

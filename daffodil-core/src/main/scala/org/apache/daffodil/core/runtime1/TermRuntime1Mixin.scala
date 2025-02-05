@@ -43,7 +43,7 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 sealed trait PossibleNextElements {
   import PossibleNextElements._
   def pnes: Seq[PossibleNextElement]
-  final def isClosed = !isOpen
+  final def isClosed: Boolean = !isOpen
   def isOpen: Boolean
 }
 
@@ -87,8 +87,8 @@ object PossibleNextElements {
    * the associated Term (QuasiElements is the use case).
    */
   case object DoNotUse extends PossibleNextElements {
-    override def pnes = Assert.usageError("do not use")
-    override def isOpen = Assert.usageError("do not use")
+    override def pnes: Seq[PossibleNextElement] = Assert.usageError("do not use")
+    override def isOpen: Boolean = Assert.usageError("do not use")
   }
 }
 

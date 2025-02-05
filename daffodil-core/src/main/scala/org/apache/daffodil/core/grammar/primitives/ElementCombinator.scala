@@ -53,6 +53,7 @@ import org.apache.daffodil.unparsers.runtime1.OnlyPaddingUnparser
 import org.apache.daffodil.unparsers.runtime1.RightCenteredPaddingUnparser
 import org.apache.daffodil.unparsers.runtime1.RightFillUnparser
 import org.apache.daffodil.unparsers.runtime1.SimpleTypeRetryUnparser
+import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -75,7 +76,7 @@ class ElementCombinator(
 ) extends NamedGram(context)
   with Padded {
 
-  override def toString = subComb.toString()
+  override def toString: String = subComb.toString()
 
   lazy val subComb = new ElementParseAndUnspecifiedLength(
     context,
@@ -242,7 +243,7 @@ case class SimpleTypeRetry(ctxt: ElementBase, v: Gram) extends Terminal(ctxt, tr
   // (e.g. there won't be things like padding/fill) then we can use that length
   // during unparsing to provide more information about buffered data output
   // streams which can be used to help to avoid deadlocked suspensions.
-  lazy val maybeExactTargetLength = {
+  lazy val maybeExactTargetLength: Maybe[UnparseTargetLengthInBitsEv] = {
     if (!ctxt.shouldAddPadding && !ctxt.shouldAddFill && !ctxt.shouldCheckExcessLength) {
       ctxt.maybeUnparseTargetLengthInBitsEv
     } else {
@@ -255,7 +256,7 @@ case class SimpleTypeRetry(ctxt: ElementBase, v: Gram) extends Terminal(ctxt, tr
 }
 
 case class CaptureContentLengthStart(ctxt: ElementBase) extends Terminal(ctxt, true) {
-  override def parser =
+  override def parser: Parser =
     if (ctxt.shouldCaptureParseContentLength)
       new CaptureStartOfContentLengthParser(ctxt.erd)
     else
@@ -269,7 +270,7 @@ case class CaptureContentLengthStart(ctxt: ElementBase) extends Terminal(ctxt, t
 }
 
 case class CaptureContentLengthEnd(ctxt: ElementBase) extends Terminal(ctxt, true) {
-  override def parser =
+  override def parser: Parser =
     if (ctxt.shouldCaptureParseContentLength)
       new CaptureEndOfContentLengthParser(ctxt.erd)
     else
@@ -283,7 +284,7 @@ case class CaptureContentLengthEnd(ctxt: ElementBase) extends Terminal(ctxt, tru
 }
 
 case class CaptureValueLengthStart(ctxt: ElementBase) extends Terminal(ctxt, true) {
-  override def parser =
+  override def parser: Parser =
     if (ctxt.shouldCaptureParseValueLength)
       new CaptureStartOfValueLengthParser(ctxt.erd)
     else
@@ -297,7 +298,7 @@ case class CaptureValueLengthStart(ctxt: ElementBase) extends Terminal(ctxt, tru
 }
 
 case class CaptureValueLengthEnd(ctxt: ElementBase) extends Terminal(ctxt, true) {
-  override def parser =
+  override def parser: Parser =
     if (ctxt.shouldCaptureParseValueLength)
       new CaptureEndOfValueLengthParser(ctxt.erd)
     else
@@ -398,7 +399,7 @@ abstract class ElementCombinatorBase(
   // - test discriminators (must be attempted even if the parsing of element or setVariable statements fail)
   // - test asserts
 
-  lazy val patDiscrim = {
+  lazy val patDiscrim: Maybe[Parser] = {
     val pd = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern)
     Assert.invariant(pd.size <= 1)
     if (pd.isEmpty) {
@@ -407,13 +408,13 @@ abstract class ElementCombinatorBase(
       pd.head.gram(context).maybeParser
     }
   }
-  lazy val patAssert = context.assertStatements
+  lazy val patAssert: Array[Parser] = context.assertStatements
     .filter(_.testKind == TestKind.Pattern)
     .map(_.gram(context).parser)
     .toArray
-  lazy val pSetVar =
+  lazy val pSetVar: Array[Parser] =
     context.setVariableStatements.map(_.gram(context).parser).toArray.filterNot { _.isEmpty }
-  lazy val testDiscrim = {
+  lazy val testDiscrim: Maybe[Parser] = {
     val td = context.discriminatorStatements.filter(_.testKind == TestKind.Expression)
     Assert.invariant(td.size <= 1)
     if (td.isEmpty) {
@@ -422,7 +423,7 @@ abstract class ElementCombinatorBase(
       td.head.gram(context).maybeParser
     }
   }
-  lazy val testAssert = context.assertStatements
+  lazy val testAssert: Array[Parser] = context.assertStatements
     .filter(_.testKind == TestKind.Expression)
     .map(_.gram(context).parser)
     .toArray
@@ -437,7 +438,7 @@ abstract class ElementCombinatorBase(
 
   def parser: Parser
 
-  lazy val uSetVar = context.setVariableStatements.map(_.gram(context).unparser).toArray
+  lazy val uSetVar: Array[Unparser] = context.setVariableStatements.map(_.gram(context).unparser).toArray
 
   lazy val eBeforeUnparser: Maybe[Unparser] = eGramBefore.maybeUnparser
 

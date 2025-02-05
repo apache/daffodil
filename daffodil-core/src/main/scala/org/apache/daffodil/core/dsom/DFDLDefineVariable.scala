@@ -33,15 +33,16 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.lib.xml.RefQName
 
 object DFDLDefineVariable {
-  def apply(node: Node, doc: SchemaDocument) = {
+  def apply(node: Node, doc: SchemaDocument): DFDLDefineVariable = {
     val dv = new DFDLDefineVariable(node, doc)
     dv.initialize()
     dv
   }
 
-  def apply(node: Node, doc: SchemaDocument, nsURI: String) = {
+  def apply(node: Node, doc: SchemaDocument, nsURI: String): DFDLDefineVariable = {
     val dv = new DFDLDefineVariable(node, doc) {
       override lazy val namespace = NS(nsURI)
       override lazy val targetNamespace = NS(nsURI)
@@ -60,9 +61,9 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
 
   private lazy val typeQNameString = getAttributeOption("type").getOrElse("xs:string")
 
-  final lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
+  final lazy val external: Boolean = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
 
-  final lazy val direction = {
+  final lazy val direction: VariableDirection = {
     val directionStr =
       getAttributeOption(XMLUtils.DFDLX_NAMESPACE, "direction").getOrElse("both")
     VariableDirection(directionStr, this)
@@ -71,7 +72,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
   private lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   private lazy val defaultValueAsElement = node.child.text.trim
 
-  final lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
+  final lazy val defaultValue: Option[String] = (defaultValueAsAttribute, defaultValueAsElement) match {
     case (None, "") => None
     case (None, str) => Some(str)
     case (Some(str), "") => Some(str)
@@ -82,7 +83,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
       )
   }
 
-  final lazy val typeQName = {
+  final lazy val typeQName: RefQName = {
     val eQN = QName.resolveRef(
       typeQNameString,
       namespaces,
@@ -95,7 +96,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
     res
   }
 
-  final lazy val primType = PrimType
+  final lazy val primType: PrimType = PrimType
     .fromNameString(typeQName.local)
     .getOrElse(
       this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString)
@@ -110,10 +111,10 @@ sealed abstract class VariableReference(node: Node, decl: AnnotatedSchemaCompone
 
   requiredEvaluationsIfActivated(varQName)
 
-  final lazy val ref = getAttributeRequired("ref")
-  final lazy val varQName = resolveQName(ref)
+  final lazy val ref: String = getAttributeRequired("ref")
+  final lazy val varQName: RefQName = resolveQName(ref)
 
-  final lazy val defv = decl.schemaSet
+  final lazy val defv: DFDLDefineVariable = decl.schemaSet
     .getDefineVariable(varQName)
     .getOrElse(this.schemaDefinitionError("Variable definition not found: %s", ref))
 }
@@ -144,7 +145,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   private lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   private lazy val defaultValueAsElement = node.child.text.trim
 
-  final lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
+  final lazy val defaultValue: Option[String] = (defaultValueAsAttribute, defaultValueAsElement) match {
     case (None, "") => None
     case (None, str) => Some(str)
     case (Some(str), "") => Some(str)
@@ -155,7 +156,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
       )
   }
 
-  final lazy val value = (attrValue, eltValue) match {
+  final lazy val value: String = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v
     case (Some(v), "") => v
     case (Some(v), ev) if (ev != "") =>
@@ -164,11 +165,11 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
       decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term): NewVariableInstanceStart = LV('gram) {
     NewVariableInstanceStart(decl, this, term)
   }.value
 
-  final def endGram(term: Term) = LV('endGram) {
+  final def endGram(term: Term): NewVariableInstanceEnd = LV('endGram) {
     NewVariableInstanceEnd(decl, this, term)
   }.value
 }
@@ -179,7 +180,7 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   private lazy val attrValue = getAttributeOption("value")
   private lazy val <dfdl:setVariable>{eltChildren @ _*}</dfdl:setVariable> = node
   private lazy val eltValue = eltChildren.text.trim
-  final lazy val value = (attrValue, eltValue) match {
+  final lazy val value: String = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v
     case (Some(v), "") => v
     case (Some(v), ev) if (ev != "") =>
@@ -188,7 +189,7 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
       decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term): SetVariable = LV('gram) {
     SetVariable(this, term)
   }.value
 }

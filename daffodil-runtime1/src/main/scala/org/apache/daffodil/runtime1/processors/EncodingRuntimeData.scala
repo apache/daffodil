@@ -27,6 +27,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
+import org.apache.daffodil.io.processors.charset.{ BitsCharsetEncoder, DecoderInfo, EncoderInfo }
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -52,13 +53,13 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
   /**
    * Note that the canonical form for encoding names is all upper case.
    */
-  final lazy val knownEncodingName = {
+  final lazy val knownEncodingName: String = {
     Assert.invariant(isKnownEncoding)
     val res = charsetEv.optConstant.get.name
     res
   }
 
-  final lazy val knownEncodingCharset = {
+  final lazy val knownEncodingCharset: BitsCharset = {
     CharsetUtils.getCharset(knownEncodingName)
   }
 
@@ -68,7 +69,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
    * variable-width character sets require scanning to determine
    * their end.
    */
-  final lazy val knownEncodingIsFixedWidth = {
+  final lazy val knownEncodingIsFixedWidth: Boolean = {
     if (!isKnownEncoding)
       false
     else {
@@ -77,11 +78,11 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
     }
   }
 
-  final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(
+  final lazy val knownEncodingWidthInBits: Int = encodingMinimumCodePointWidthInBits(
     knownEncodingCharset
   )
 
-  final def encodingMinimumCodePointWidthInBits(cs: BitsCharset) = {
+  final def encodingMinimumCodePointWidthInBits(cs: BitsCharset): Int = {
     val res = cs match {
       case StandardBitsCharsets.UTF_8 => 8
       case _ => cs.maybeFixedWidth.get
@@ -89,16 +90,16 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
     res
   }
 
-  final lazy val knownEncodingIsUnicode = {
+  final lazy val knownEncodingIsUnicode: Boolean = {
     if (!isKnownEncoding) { false }
     else { knownEncodingName.toUpperCase.startsWith("UTF") }
   }
 
-  final lazy val mustBeAnEncodingWith8BitAlignment = {
+  final lazy val mustBeAnEncodingWith8BitAlignment: Boolean = {
     !isKnownEncoding || knownEncodingAlignmentInBits == 8
   }
 
-  final lazy val couldBeVariableWidthEncoding = !knownEncodingIsFixedWidth
+  final lazy val couldBeVariableWidthEncoding: Boolean = !knownEncodingIsFixedWidth
 
   final def knownFixedWidthEncodingInCharsToBits(nChars: Long): Long = {
     Assert.usage(isKnownEncoding)
@@ -122,21 +123,21 @@ final class EncodingRuntimeData(
   with ImplementsThrowsSDE
   with Serializable {
 
-  lazy val runtimeDependencies = Vector(charsetEv)
+  lazy val runtimeDependencies: Vector[CharsetEv] = Vector(charsetEv)
 
-  def getDecoderInfo(state: ParseOrUnparseState) = {
+  def getDecoderInfo(state: ParseOrUnparseState): DecoderInfo = {
     val cs = charsetEv.evaluate(state)
     val dec = state.getDecoderInfo(cs)
     dec
   }
 
-  def getEncoderInfo(state: ParseOrUnparseState) = {
+  def getEncoderInfo(state: ParseOrUnparseState): EncoderInfo = {
     val cs = charsetEv.evaluate(state)
     val enc = state.getEncoderInfo(cs)
     enc
   }
 
-  def getEncoder(state: ParseOrUnparseState, cs: BitsCharset) = {
+  def getEncoder(state: ParseOrUnparseState, cs: BitsCharset): BitsCharsetEncoder = {
     val enc = state.getEncoder(cs)
     enc
   }

@@ -458,7 +458,7 @@ sealed trait DITerm {
   final lazy val parserEvalCache = new EvalCache
   final lazy val unparserEvalCache = new EvalCache
 
-  def evalCache(state: ParseOrUnparseState) = state match {
+  def evalCache(state: ParseOrUnparseState): EvalCache = state match {
     case p: PState => parserEvalCache
     case _ => unparserEvalCache
   }
@@ -487,7 +487,7 @@ sealed abstract class LengthState(ie: DIElement) {
 
   protected def flavor: String
 
-  override def toString() = {
+  override def toString(): String = {
     lazy val stDOSid =
       if (maybeStartDataOutputStream.isDefined)
         "DOS(id=%s)".format(maybeStartDataOutputStream.get.id.toString)
@@ -580,29 +580,29 @@ sealed abstract class LengthState(ie: DIElement) {
     }
   }
 
-  def isStartUndef = {
+  def isStartUndef: Boolean = {
     val r = maybeStartPos0bInBits.isEmpty
     if (r) Assert.invariant(maybeStartDataOutputStream.isEmpty)
     r
   }
 
-  def isEndUndef = {
+  def isEndUndef: Boolean = {
     val r = maybeEndPos0bInBits.isEmpty
     if (r) Assert.invariant(maybeEndDataOutputStream.isEmpty)
     r
   }
 
-  def isStartAbsolute = {
+  def isStartAbsolute: Boolean = {
     maybeStartPos0bInBits.isDefined &&
     maybeStartDataOutputStream.isEmpty
   }
 
-  def isEndAbsolute = {
+  def isEndAbsolute: Boolean = {
     maybeEndPos0bInBits.isDefined &&
     maybeEndDataOutputStream.isEmpty
   }
 
-  def isStartRelative = {
+  def isStartRelative: Boolean = {
     val res = maybeStartDataOutputStream.isDefined
     if (res) {
       Assert.invariant(maybeStartPos0bInBits.isDefined)
@@ -610,7 +610,7 @@ sealed abstract class LengthState(ie: DIElement) {
     res
   }
 
-  def isEndRelative = {
+  def isEndRelative: Boolean = {
     val res = maybeEndDataOutputStream.isDefined
     if (res) {
       Assert.invariant(maybeEndPos0bInBits.isDefined)
@@ -784,7 +784,7 @@ class ContentLengthState(ie: DIElement) extends LengthState(ie) {
 
   override def flavor = "contentLen"
 
-  override def throwUnknown = {
+  override def throwUnknown: Nothing = {
     Assert.invariant(ie ne null)
     ie.erd.toss(new InfosetContentLengthUnknownException(this, ie, ie.runtimeData))
   }
@@ -795,7 +795,7 @@ class ValueLengthState(ie: DIElement) extends LengthState(ie) {
 
   override def flavor = "valueLen"
 
-  override def throwUnknown = {
+  override def throwUnknown: Nothing = {
     Assert.invariant(ie ne null)
     ie.erd.toss(new InfosetValueLengthUnknownException(this, ie, ie.runtimeData))
   }
@@ -870,24 +870,24 @@ sealed trait DIElementSharedMembersMixin {
   /*
    * Initialized on demand
    */
-  protected final def clearContentLength() = {
+  protected final def clearContentLength(): Unit = {
     if (_contentLength eq null) ()
     else _contentLength.clear()
   }
 
-  def contentLength = {
+  def contentLength: ContentLengthState = {
     if (_contentLength eq null) {
       _contentLength = allocContentLength
     }
     _contentLength
   }
 
-  protected final def clearValueLength() = {
+  protected final def clearValueLength(): Unit = {
     if (_valueLength eq null) ()
     else _valueLength.clear()
   }
 
-  def valueLength = {
+  def valueLength: ValueLengthState = {
     if (_valueLength eq null) {
       _valueLength = allocValueLength
     }
@@ -971,7 +971,7 @@ final class DIComplexState private ()
   with DIComplexSharedImplMixin
 
 object DIComplexState {
-  def apply() = { val c = new DIComplexState(); c.clear(); c }
+  def apply(): DIComplexState = { val c = new DIComplexState(); c.clear(); c }
 }
 
 sealed trait DISimpleSharedMembersMixin {
@@ -1017,7 +1017,7 @@ final class DISimpleState private ()
   with DISimpleSharedImplMixin
 
 object DISimpleState {
-  def apply() = { val s = new DISimpleState(); s.clear(); s }
+  def apply(): DISimpleState = { val s = new DISimpleState(); s.clear(); s }
 }
 
 /**
@@ -1060,7 +1060,7 @@ sealed trait DIElement
   /**
    * This is purely to make debugging easier.
    */
-  override def toString = {
+  override def toString: String = {
     val cl = Misc.getNameFromClass(this)
     val n = trd.name
     val clStr = if (_contentLength eq null) "" else " " + contentLength.toString()
@@ -1083,7 +1083,7 @@ sealed trait DIElement
     case _ => false
   }
 
-  def isRootDoc = this match {
+  def isRootDoc: Boolean = this match {
     case doc: DIDocument => !doc.isCompileExprFalseRoot
     case _ => false
   }
@@ -1093,7 +1093,7 @@ sealed trait DIElement
     else toParent.toRootDoc
   }
 
-  def toParent = {
+  def toParent: DIComplex = {
     if (parent eq null)
       erd.toss(new InfosetNoParentException(this, erd))
     diParent
@@ -1116,7 +1116,7 @@ sealed trait DIElement
 
   def parent = _parent
 
-  def diParent = _parent.asInstanceOf[DIComplex]
+  def diParent: DIComplex = _parent.asInstanceOf[DIComplex]
 
   def setParent(p: DIComplex): Unit = {
     Assert.invariant(_parent eq null)
@@ -1189,7 +1189,7 @@ final class DIArray(
   // since all children of an array must have the same visibility, we can just
   // inspect the isHidden property of the first child to determine if the
   // entire array is hidden.
-  override def isHidden = _contents(0).isHidden
+  override def isHidden: Boolean = _contents(0).isHidden
 
   // Marks/blocks are never taken on arrays, so the infosetWalkerBlockCount
   // would normally be zero for arrays. The infosetWalkerBlockCount is used to determine
@@ -1212,11 +1212,11 @@ final class DIArray(
   // is removed, and we immediately call walk() to walk the new array element
   // (assuming there are no other PoU's in scope). This process is repeated for
   // each speculatively parsed array element.
-  override def infosetWalkerBlockCount =
+  override def infosetWalkerBlockCount: Int =
     parent.infosetWalkerBlockCount +
       (if (_contents(0) == null) 0 else _contents(0).infosetWalkerBlockCount)
 
-  override def toString = "DIArray(" + namedQName + "," + _contents + ")"
+  override def toString: String = "DIArray(" + namedQName + "," + _contents + ")"
 
   def namedQName = erd.namedQName
 
@@ -1326,7 +1326,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   override def maybeLastChild: Maybe[DINode] = Nope
 
-  def setDefaultedDataValue(defaultedValue: DataValuePrimitive) = {
+  def setDefaultedDataValue(defaultedValue: DataValuePrimitive): Unit = {
     setDataValue(defaultedValue)
     _isDefaulted = true
   }

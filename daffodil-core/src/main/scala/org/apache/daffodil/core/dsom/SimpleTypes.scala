@@ -29,6 +29,7 @@ import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 
 trait TypeBase {
   def optRestriction: Option[Restriction] = None
@@ -64,16 +65,16 @@ final class PrimitiveType private (tn: PrimType) extends SimpleTypeBase with Nam
   override def namedQName = typeNode.globalQName
   override def namespace = namedQName.namespace
   override def prefix = namedQName.prefix.get
-  override def xml = Assert.invariantFailed("Primitive types do not have XML")
-  override def schemaDocument =
+  override def xml: Node = Assert.invariantFailed("Primitive types do not have XML")
+  override def schemaDocument: SchemaDocument =
     Assert.invariantFailed("Primitive types do not have schemaDocument")
 
   /*
    * These methods don't really make sense here, but are needed by NamedMixin
    */
-  override def SDE(id: String, args: Any*) =
+  override def SDE(id: String, args: Any*): Nothing =
     Assert.invariantFailed("Primitive types shouldn't ever have an SDE")
-  override def schemaFileLocation =
+  override def schemaFileLocation: SchemaFileLocation =
     Assert.invariantFailed("Primitive types don't have a schemaFileLocation")
 
   override def toString = namedQName.toQNameString
@@ -81,7 +82,7 @@ final class PrimitiveType private (tn: PrimType) extends SimpleTypeBase with Nam
 
 object PrimitiveType {
 
-  def apply(typeNode: PrimType) = {
+  def apply(typeNode: PrimType): PrimitiveType = {
     typeNode match {
       case PrimType.String => String
       case PrimType.Int => Int
@@ -143,7 +144,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 
   def toOpt[R <: AnyRef](b: Boolean, v: => R): Option[R] = Misc.boolToOpt(b, v)
 
-  lazy val noFacetChecks =
+  lazy val noFacetChecks: Boolean =
     optRestriction
       .map { r =>
         if (
@@ -157,11 +158,11 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 
   // override def name = diagnosticDebugName // don't do this. names are used by diagnosticDebugName
 
-  override final lazy val optReferredToComponent = optRestriction.flatMap { _.optBaseTypeDef }
+  override final lazy val optReferredToComponent: Option[GlobalSimpleTypeDef] = optRestriction.flatMap { _.optBaseTypeDef }
   override final lazy val emptyFormatFactory =
     new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
-  override final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+  override final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = a.isInstanceOf[DFDLSimpleType]
 
   override final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
@@ -179,7 +180,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     }
   }
 
-  final lazy val restrictions = {
+  final lazy val restrictions: Seq[Restriction] = {
     val thisR = optRestriction.toSeq
     val res = thisR ++
       thisR.flatMap { _.derivationBaseRestrictions }
@@ -207,7 +208,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 }
 
 object LocalSimpleTypeDef {
-  def apply(xmlArg: Node, lexicalParent: SchemaComponent) = {
+  def apply(xmlArg: Node, lexicalParent: SchemaComponent): LocalSimpleTypeDef = {
     val lstd = new LocalSimpleTypeDef(xmlArg, lexicalParent)
     lstd.initialize()
     lstd
@@ -235,7 +236,7 @@ final class LocalSimpleTypeDef private (xmlArg: Node, lexicalParent: SchemaCompo
 }
 
 object GlobalSimpleTypeDef {
-  def apply(xmlArg: Node, schemaDocumentArg: SchemaDocument) = {
+  def apply(xmlArg: Node, schemaDocumentArg: SchemaDocument): GlobalSimpleTypeDef = {
     val gstd = new GlobalSimpleTypeDef(xmlArg, schemaDocumentArg)
     gstd.initialize()
     gstd
@@ -248,7 +249,7 @@ final class GlobalSimpleTypeDef private (xmlArg: Node, schemaDocumentArg: Schema
   with NestingLexicalMixin
   with NamedMixin {
 
-  override lazy val name = super[NamedMixin].name
+  override lazy val name: String = super[NamedMixin].name
 }
 
 /*

@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.debugger
 import java.io.PrintStream
 
 class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebuggerRunner {
-  val traceIter = Seq(
+  val traceIter: Iterator[String] = Seq(
     "set infosetParents 1",
     "display info parser",
     "display info bitPosition",

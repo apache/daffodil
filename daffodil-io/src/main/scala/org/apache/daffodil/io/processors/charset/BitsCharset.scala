@@ -51,7 +51,7 @@ import org.apache.daffodil.lib.util.MaybeInt
  */
 trait BitsCharset extends Serializable {
   final override def hashCode = name.hashCode
-  final override def equals(other: Any) = other match {
+  final override def equals(other: Any): Boolean = other match {
     case bcs: BitsCharset => this.name == bcs.name
     case _ => false
   }
@@ -76,7 +76,7 @@ trait BitsCharset extends Serializable {
    */
   def maybeFixedWidth: MaybeInt
 
-  final def padCharWidthInBits = {
+  final def padCharWidthInBits: Int = {
     if (maybeFixedWidth.isDefined)
       maybeFixedWidth.get
     else {
@@ -143,8 +143,8 @@ trait IsResetMixin {
  */
 trait BitsCharsetJava extends BitsCharset {
 
-  @transient lazy val javaCharset = JavaCharset.forName(name)
-  @transient final override lazy val maybeFixedWidth = {
+  @transient lazy val javaCharset: JavaCharset = JavaCharset.forName(name)
+  @transient final override lazy val maybeFixedWidth: MaybeInt = {
     val enc = javaCharset.newEncoder()
     val avg = enc.averageBytesPerChar()
     val max = enc.maxBytesPerChar()
@@ -208,43 +208,43 @@ final class BitsCharsetWrappingJavaCharsetEncoder(
 ) extends BitsCharsetEncoder {
 
   def setInitialBitOffset(offset: Int): Unit = Assert.usageError("Not to be called.")
-  def averageBytesPerChar() = enc.averageBytesPerChar()
-  def averageBitsPerChar() = averageBytesPerChar() / 8.0f
-  def maxBytesPerChar() = enc.maxBytesPerChar()
-  def maxBitsPerChar() = maxBytesPerChar() / 8.0f
-  def replacement() = enc.replacement()
-  def replaceWith(newReplacement: Array[Byte]) = {
+  def averageBytesPerChar(): Float = enc.averageBytesPerChar()
+  def averageBitsPerChar(): Float = averageBytesPerChar() / 8.0f
+  def maxBytesPerChar(): Float = enc.maxBytesPerChar()
+  def maxBitsPerChar(): Float = maxBytesPerChar() / 8.0f
+  def replacement(): Array[Byte] = enc.replacement()
+  def replaceWith(newReplacement: Array[Byte]): BitsCharsetWrappingJavaCharsetEncoder = {
     Assert.usage(isReset)
     enc.replaceWith(newReplacement);
     this
   }
-  def flush(out: ByteBuffer) = {
+  def flush(out: ByteBuffer): CoderResult = {
     Assert.usage(!isReset)
     enc.flush(out)
   }
-  def reset() = {
+  def reset(): BitsCharsetWrappingJavaCharsetEncoder = {
     enc.reset();
     isReset = true
     this
   }
   def isMandatoryAlignmentNeeded = isReset
-  def malformedInputAction() = enc.malformedInputAction()
-  def onMalformedInput(action: CodingErrorAction) = {
+  def malformedInputAction(): CodingErrorAction = enc.malformedInputAction()
+  def onMalformedInput(action: CodingErrorAction): BitsCharsetWrappingJavaCharsetEncoder = {
     Assert.usage(isReset)
     enc.onMalformedInput(action);
     this
   }
-  def unmappableCharacterAction() = enc.malformedInputAction()
-  def onUnmappableCharacter(action: CodingErrorAction) = {
+  def unmappableCharacterAction(): CodingErrorAction = enc.malformedInputAction()
+  def onUnmappableCharacter(action: CodingErrorAction): BitsCharsetWrappingJavaCharsetEncoder = {
     Assert.usage(isReset)
     enc.onUnmappableCharacter(action);
     this
   }
-  def encode(in: CharBuffer, out: ByteBuffer, endOfInput: Boolean) = {
+  def encode(in: CharBuffer, out: ByteBuffer, endOfInput: Boolean): CoderResult = {
     isReset = false
     enc.encode(in, out, endOfInput)
   }
-  protected def encodeLoop(in: CharBuffer, out: ByteBuffer) =
+  protected def encodeLoop(in: CharBuffer, out: ByteBuffer): CoderResult =
     Assert.usageError("Not to be called")
 }
 

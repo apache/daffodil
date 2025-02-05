@@ -118,7 +118,7 @@ import org.apache.daffodil.lib.xml.XMLUtils
 object IIUtils {
   type IIMap = Delay[ListMap[(NS, DaffodilSchemaSource), IIBase]]
   private val empty = new ListMap[(NS, DaffodilSchemaSource), IIBase]()
-  val emptyIIMap = Delay('IIMapEmpty, this, empty).force
+  val emptyIIMap: Delay[ListMap[(NS, DaffodilSchemaSource),IIBase]] = Delay('IIMapEmpty, this, empty).force
 }
 
 /**
@@ -130,7 +130,7 @@ abstract class IIBase(
   val seenBefore: IIMap
 ) extends SchemaComponent
   with NestingLexicalMixin {
-  final override def optLexicalParent = Option(xsdArg)
+  final override def optLexicalParent: Option[XMLSchemaDocument] = Option(xsdArg)
 
   /**
    * An import/include requires only that we can access the
@@ -145,7 +145,7 @@ abstract class IIBase(
    * compilation.
    */
 
-  protected final lazy val notSeenThisBefore = LV('notSeenThisBefore) {
+  protected final lazy val notSeenThisBefore: Boolean = LV('notSeenThisBefore) {
     val mp = mapPair
     val res = seenBefore.value.get(mp) match {
       case Some(_) => false
@@ -179,7 +179,7 @@ abstract class IIBase(
     res
   }.value
 
-  final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
+  final lazy val schemaLocationProperty: Option[String] = getAttributeOption("schemaLocation")
 
   protected final def isValidURI(uri: String): Boolean = {
     try { new URI(uri) }
@@ -226,7 +226,7 @@ abstract class IIBase(
 
   protected def mapPair: (NS, DaffodilSchemaSource)
 
-  protected final lazy val mapTuple = LV('mapTuple) {
+  protected final lazy val mapTuple: ((NS, DaffodilSchemaSource), IIBase) = LV('mapTuple) {
     val tuple = (mapPair, this)
     tuple
   }.value
@@ -274,7 +274,7 @@ abstract class IIBase(
 
   private def classPath = Misc.classPath
 
-  protected final lazy val whereSearched =
+  protected final lazy val whereSearched: String =
     if (classPath.length == 0) " Classpath was empty."
     else " Searched these classpath locations: \n" + classPathLines + "\n"
 }

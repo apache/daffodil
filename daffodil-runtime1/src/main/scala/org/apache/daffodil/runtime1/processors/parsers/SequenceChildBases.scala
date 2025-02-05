@@ -315,7 +315,7 @@ abstract class RepeatingChildParser(
     result
   }
 
-  override def toString = "Rep" + baseName + "(" + childParser.toString + ")"
+  override def toString: String = "Rep" + baseName + "(" + childParser.toString + ")"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..."
@@ -433,7 +433,7 @@ abstract class OccursCountExactParser(
 
   final override def isBoundedMax = true
 
-  final override def minRepeats(pstate: ParseOrUnparseState) = maxRepeats(pstate)
+  final override def minRepeats(pstate: ParseOrUnparseState): Long = maxRepeats(pstate)
 
   final override def maxRepeats(pstate: ParseOrUnparseState): Long = erd.maxOccurs match {
     case -1 => Long.MaxValue
@@ -456,13 +456,13 @@ abstract class OccursCountExpressionParser(
   val occursCountEv: OccursCountEv
 ) extends RepeatingChildParser(childParser, srd, erd, "Expression") {
 
-  final override def pouStatus = PoUStatus.NoPoU
+  final override def pouStatus: PoUStatus = PoUStatus.NoPoU
 
-  final override lazy val runtimeDependencies = Vector(occursCountEv)
+  final override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector(occursCountEv)
 
   final override def isBoundedMax = true
 
-  final override def minRepeats(pstate: ParseOrUnparseState) = maxRepeats(pstate)
+  final override def minRepeats(pstate: ParseOrUnparseState): Long = maxRepeats(pstate)
 
   final override def maxRepeats(pstate: ParseOrUnparseState): Long = {
     val ocInt = occursCountEv.evaluate(pstate)

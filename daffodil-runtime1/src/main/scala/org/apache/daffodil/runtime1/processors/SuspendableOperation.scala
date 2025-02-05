@@ -38,7 +38,7 @@ trait SuspendableOperation extends Suspension {
 
   override def rd: RuntimeData
 
-  override def toString =
+  override def toString: String =
     "%s for %s".format(Misc.getNameFromClass(this), rd.diagnosticDebugName)
 
   /**

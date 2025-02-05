@@ -30,10 +30,10 @@ case class UByte(override val byteValue: Byte)
   extends AnyVal
   with SmallUInt[UByte]
   with Serializable {
-  override def intValue = byteValue & 0xff
+  override def intValue: Int = byteValue & 0xff
 }
 
 object UByte {
-  def MinValue = UByte(0)
-  def MaxValue = UByte(~0)
+  def MinValue: UByte = UByte(0)
+  def MaxValue: UByte = UByte(~0)
 }

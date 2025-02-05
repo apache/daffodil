@@ -296,7 +296,7 @@ class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
    * @param path path to an element to use as the parsing root, relative to the distinguished root node. Currently, must be set to "/"
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
    */
-  def onPath(path: String) = {
+  def onPath(path: String): DataProcessor = {
     val dp = pf.onPath(path).asInstanceOf[SDataProcessor]
     val res = new DataProcessor(dp)
     res.isError // ensure all errors have been detected before we return the DP

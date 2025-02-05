@@ -42,12 +42,12 @@ object Position {
   final val LINE_BITS = 20
 
   /** Number of bits used to encode the column number */
-  final val COLUMN_BITS = 31 - LINE_BITS // no negatives => 31
+  final val COLUMN_BITS: Int = 31 - LINE_BITS // no negatives => 31
   /** Mask to decode the line number */
-  final val LINE_MASK = (1 << LINE_BITS) - 1
+  final val LINE_MASK: Int = (1 << LINE_BITS) - 1
 
   /** Mask to decode the column number */
-  final val COLUMN_MASK = (1 << COLUMN_BITS) - 1
+  final val COLUMN_MASK: Int = (1 << COLUMN_BITS) - 1
 
   final def line(pos: Int): Int = (pos >> COLUMN_BITS) & LINE_MASK
 
@@ -326,7 +326,7 @@ class DaffodilConstructingLoader private[xml] (
   /**
    * Drops processing instructions
    */
-  override def procInstr(pos: Int, target: String, txt: String) = {
+  override def procInstr(pos: Int, target: String, txt: String): Null = {
     // returning null drops processing instructions
     null
   }

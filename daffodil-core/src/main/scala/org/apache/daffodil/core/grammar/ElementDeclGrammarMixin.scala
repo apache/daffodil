@@ -24,7 +24,7 @@ trait RootGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root
   { self: Root =>
 
-  final lazy val document = prod("document") {
+  final lazy val document: Gram = prod("document") {
     schemaDefinitionUnless(isScalar, "The document element cannot be an array.")
     UnicodeByteOrderMark(this) ~ documentElement
   }

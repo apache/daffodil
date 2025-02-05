@@ -257,24 +257,24 @@ object NodeInfo extends Enum {
       case _ => QName.createGlobal(name, NoNamespace, scala.xml.TopScope)
     }
   }
-  val ClassString = classOf[java.lang.String]
-  val ClassIntBoxed = classOf[java.lang.Integer]
-  val ClassIntPrim = classOf[scala.Int]
-  val ClassByteBoxed = classOf[java.lang.Byte]
-  val ClassBytePrim = classOf[scala.Byte]
-  val ClassShortBoxed = classOf[java.lang.Short]
-  val ClassShortPrim = classOf[scala.Short]
-  val ClassLongBoxed = classOf[java.lang.Long]
-  val ClassLongPrim = classOf[scala.Long]
-  val ClassJBigInt = classOf[java.math.BigInteger]
-  val ClassJBigDecimal = classOf[java.math.BigDecimal]
-  val ClassDoubleBoxed = classOf[java.lang.Double]
-  val ClassDoublePrim = classOf[scala.Double]
-  val ClassFloatBoxed = classOf[java.lang.Float]
-  val ClassFloatPrim = classOf[scala.Float]
-  val ClassPrimByteArray = classOf[Array[scala.Byte]]
-  val ClassBooleanBoxed = classOf[java.lang.Boolean]
-  val ClassBooleanPrim = classOf[scala.Boolean]
+  val ClassString: Class[String] = classOf[java.lang.String]
+  val ClassIntBoxed: Class[Integer] = classOf[java.lang.Integer]
+  val ClassIntPrim: Class[Int] = classOf[scala.Int]
+  val ClassByteBoxed: Class[JByte] = classOf[java.lang.Byte]
+  val ClassBytePrim: Class[Byte] = classOf[scala.Byte]
+  val ClassShortBoxed: Class[JShort] = classOf[java.lang.Short]
+  val ClassShortPrim: Class[Short] = classOf[scala.Short]
+  val ClassLongBoxed: Class[JLong] = classOf[java.lang.Long]
+  val ClassLongPrim: Class[Long] = classOf[scala.Long]
+  val ClassJBigInt: Class[JBigInt] = classOf[java.math.BigInteger]
+  val ClassJBigDecimal: Class[JBigDecimal] = classOf[java.math.BigDecimal]
+  val ClassDoubleBoxed: Class[JDouble] = classOf[java.lang.Double]
+  val ClassDoublePrim: Class[Double] = classOf[scala.Double]
+  val ClassFloatBoxed: Class[JFloat] = classOf[java.lang.Float]
+  val ClassFloatPrim: Class[Float] = classOf[scala.Float]
+  val ClassPrimByteArray: Class[Array[Byte]] = classOf[Array[scala.Byte]]
+  val ClassBooleanBoxed: Class[JBoolean] = classOf[java.lang.Boolean]
+  val ClassBooleanPrim: Class[Boolean] = classOf[scala.Boolean]
 
   /**
    * Used to obtain a corresponding DFDL PrimType object given the
@@ -330,7 +330,7 @@ object NodeInfo extends Enum {
    * It is the return type of the dfdlx:error() function. It's a subtype of
    * every type (except some special singletons like ArrayType).
    */
-  lazy val Nothing = new TypeNode(
+  lazy val Nothing: TypeNode with Boolean.Kind with Complex.Kind with Array.Kind with ArrayIndex.Kind with Double.Kind with Float.Kind with Date.Kind with Time.Kind with DateTime.Kind with UnsignedByte.Kind with Byte.Kind with HexBinary.Kind with NonEmptyString.Kind with AnyURI.Kind = new TypeNode(
     Seq(
       Boolean,
       Complex,
@@ -644,11 +644,11 @@ object NodeInfo extends Enum {
         f
       }
       protected override def fromNumberNoCheck(n: Number): DataValueFloat = n.floatValue
-      override val min = -JFloat.MAX_VALUE.doubleValue
+      override val min: Double = -JFloat.MAX_VALUE.doubleValue
       override val max = JFloat.MAX_VALUE.doubleValue
       // we cannot use min/max.toString for minStr/maxStr because min/max are doubles so
       // toString would have a precision different than Float.MaxValue.toString
-      override val minStr = "-" + JFloat.MAX_VALUE.toString
+      override val minStr: String = "-" + JFloat.MAX_VALUE.toString
       override val maxStr = JFloat.MAX_VALUE.toString
       override val isSigned: Boolean = true
       override val minWidth: MaybeInt = MaybeInt(32)
@@ -667,9 +667,9 @@ object NodeInfo extends Enum {
         d
       }
       protected override def fromNumberNoCheck(n: Number): DataValueDouble = n.doubleValue
-      override val min = -JDouble.MAX_VALUE
+      override val min: Double = -JDouble.MAX_VALUE
       override val max = JDouble.MAX_VALUE
-      override val minStr = "-" + JDouble.MAX_VALUE.toString
+      override val minStr: String = "-" + JDouble.MAX_VALUE.toString
       override val maxStr = JDouble.MAX_VALUE.toString
       override val isSigned: Boolean = true
       override val minWidth: MaybeInt = MaybeInt(64)

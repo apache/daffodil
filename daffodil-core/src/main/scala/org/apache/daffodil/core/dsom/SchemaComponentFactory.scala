@@ -46,7 +46,7 @@ trait SchemaFileLocatableImpl extends SchemaFileLocatable { self: SchemaComponen
     else None
   }
 
-  final override lazy val columnAttribute =
+  final override lazy val columnAttribute: Option[String] =
     xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME).map { _.text }
 
   final override lazy val fileAttribute: Option[String] = {
@@ -85,7 +85,7 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
    * in xsi:nil attributes, which is how we represent nilled elements
    * when we convert to XML.
    */
-  override final lazy val namespaces = {
+  override final lazy val namespaces: NamespaceBinding = {
     val scope = xml.scope
     val foundXsiURI = scope.getURI("xsi")
     val xsiURI = XMLUtils.xsiURI.toString
@@ -115,6 +115,6 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
    */
   def noPrefixNamespace: NS = xmlSchemaDocument.noPrefixNamespace
 
-  final lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
+  final lazy val targetNamespacePrefix: String = xml.scope.getPrefix(targetNamespace.toString)
 
 }

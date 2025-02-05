@@ -35,7 +35,7 @@ import org.apache.daffodil.lib.exceptions.Assert
  */
 package object equality {
 
-  def EqualitySuppressUnusedImportWarning() = {
+  def EqualitySuppressUnusedImportWarning(): Unit = {
     if (scala.math.random.isNaN) Assert.impossible()
   }
 

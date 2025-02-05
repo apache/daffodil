@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.TextJustificationType
+import org.apache.daffodil.runtime1.processors.CharsetEv
 
 abstract class LiteralNilOfSpecifiedLengthParserBase(erd: ElementRuntimeData)
   extends TextPrimParser
@@ -28,7 +29,7 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(erd: ElementRuntimeData)
 
   private val eName = erd.name
 
-  override val runtimeDependencies = Vector(erd.encInfo.charsetEv)
+  override val runtimeDependencies: Vector[CharsetEv] = Vector(erd.encInfo.charsetEv)
   override val context = erd
 
   override val charsetEv = erd.encInfo.charsetEv

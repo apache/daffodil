@@ -18,7 +18,9 @@
 package org.apache.daffodil.core.grammar
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.exceptions.Assert;
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser;
 object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.compiler.ForParser
 import org.apache.daffodil.core.compiler.ForUnparser
@@ -41,12 +43,12 @@ abstract class BinaryGram(context: SchemaComponent, childrenArg: Seq[Gram])
   protected def open: String
   protected def close: String
 
-  lazy val children = {
+  lazy val children: Seq[Gram] = {
     val c = childrenArg
     c
   }
 
-  override def toString = {
+  override def toString: String = {
     Assert.invariant(children != null)
     Assert.invariant(open != null)
     Assert.invariant(op != null)
@@ -64,7 +66,7 @@ abstract class BinaryGram(context: SchemaComponent, childrenArg: Seq[Gram])
  * Flattens nests of these into a flat list of terms.
  */
 object SeqComp {
-  def apply(context: SchemaComponent, p: => Gram, q: => Gram) = {
+  def apply(context: SchemaComponent, p: => Gram, q: => Gram): SeqComp = {
     val children = (p, q) match {
       case (ps: SeqComp, qs: SeqComp) => {
         ps.children ++ qs.children
@@ -84,18 +86,18 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
   protected final override def open = "("
   protected final override def close = ")"
 
-  lazy val parserChildren =
+  lazy val parserChildren: Seq[Parser] =
     children.filter(_.forWhat != ForUnparser).map { _.parser }.filterNot {
       _.isInstanceOf[NadaParser]
     }
 
-  final override lazy val parser = {
+  final override lazy val parser: Parser = {
     if (parserChildren.isEmpty) new NadaParser(context.runtimeData)
     else if (parserChildren.length == 1) parserChildren.head
     else new SeqCompParser(context.runtimeData, parserChildren.toVector)
   }
 
-  lazy val unparserChildren = {
+  lazy val unparserChildren: Seq[Unparser] = {
     val unparserKeptChildren =
       children.filter(x => !x.isEmpty && (x.forWhat != ForParser))
     val unparsers =
@@ -107,7 +109,7 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
     unparsers
   }
 
-  final override lazy val unparser = {
+  final override lazy val unparser: Unparser = {
     if (unparserChildren.isEmpty) new NadaUnparser(context.runtimeData)
     else if (unparserChildren.length == 1) unparserChildren.head
     else new SeqCompUnparser(context.runtimeData, unparserChildren.toVector)
@@ -127,12 +129,12 @@ abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
   // It causes much grief if toString uses complicated things that can fail or
   // that end up needing the name of this NamedGram again.
 
-  override def name = context match {
+  override def name: String = context match {
     case nm: NamedMixin => nm.name
     case _ => super.name
   }
 
-  override def toString = "<" + name + ">" + super.name + "</" + name + ">"
+  override def toString: String = "<" + name + ">" + super.name + "</" + name + ">"
 }
 
 /**
@@ -141,6 +143,6 @@ abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
 abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
   extends NamedGram(contextArg) {
 
-  override def isEmpty = !guard
+  override def isEmpty: Boolean = !guard
 
 }

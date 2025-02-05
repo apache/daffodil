@@ -39,9 +39,9 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
   def constructorName: String
   def maxHexDigits: Int
 
-  lazy val nfeMsg =
+  lazy val nfeMsg: String =
     "%s cannot be cast to dfdl:" + constructorName + "\ndfdl:" + constructorName + " received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
-  lazy val hexMsg =
+  lazy val hexMsg: String =
     "dfdl:" + constructorName + " received string violates maximum hex digits.  Received %s expected a max of " + maxHexDigits
 
   protected def convert(longValue: DataValueLong, dstate: DState): DataValuePrimitive

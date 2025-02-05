@@ -32,7 +32,7 @@ import org.apache.daffodil.lib.util.Misc
 final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
   import DataInputStream._
 
-  override final protected val cst = new AnyRef with DataStreamCommonState
+  override final protected val cst: DataStreamCommonState = new AnyRef with DataStreamCommonState
 
   var str: String = null
   var dis: DataInputStream = null
@@ -63,7 +63,7 @@ final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
   override def markPos = dis.markPos
   override def mark(requestorID: String): DataInputStream.Mark = dis.mark(requestorID)
   override def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
-  override def resetPos(m: MarkPos) = dis.resetPos(m)
+  override def resetPos(m: MarkPos): Unit = dis.resetPos(m)
   override def skipChars(nChars: Long, finfo: FormatInfo): Boolean =
     dis.skipChars(nChars, finfo)
   override def getSomeString(nChars: Long, finfo: FormatInfo): Maybe[String] =

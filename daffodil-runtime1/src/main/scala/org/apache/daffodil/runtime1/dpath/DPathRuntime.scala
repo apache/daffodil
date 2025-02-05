@@ -40,6 +40,7 @@ import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.VariableException
 import org.apache.daffodil.runtime1.processors.VariableHasNoValue
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import scala.xml.{ Elem, Node }
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -48,7 +49,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   override def toString =
     toXML.toString
 
-  def toXML = <CompiledDPath>{ops.map { _.toXML }}</CompiledDPath>
+  def toXML: Elem = <CompiledDPath>{ops.map { _.toXML }}</CompiledDPath>
 
   /**
    * For parsing or for backward-referencing expressions when unparsing.
@@ -199,7 +200,7 @@ case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE) extends RecipeOp {
     dstate.setCurrentValue(value)
   }
 
-  override def toXML = toXML("$" + vrd.globalQName.toPrettyString)
+  override def toXML: Node = toXML("$" + vrd.globalQName.toPrettyString)
 
 }
 
@@ -207,7 +208,7 @@ case class Literal(v: DataValuePrimitive) extends RecipeOp {
   override def run(dstate: DState): Unit = {
     dstate.setCurrentValue(v)
   }
-  override def toXML = toXML(v.toString)
+  override def toXML: Node = toXML(v.toString)
 
 }
 
@@ -232,7 +233,7 @@ case class IF(
     Assert.invariant(dstate.currentValue.isDefined)
   }
 
-  override def toXML =
+  override def toXML: Elem =
     <if>
       <pred>{predRecipe.toXML}</pred>
       <then>{thenPartRecipe.toXML}</then>
@@ -253,7 +254,7 @@ case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: Compi
   extends RecipeOp
   with BinaryOpMixin {
 
-  override def op = Misc.getNameFromClass(cop)
+  override def op: String = Misc.getNameFromClass(cop)
 
   override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
@@ -271,7 +272,7 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
   extends RecipeOp
   with BinaryOpMixin {
 
-  override def op = Misc.getNameFromClass(nop)
+  override def op: String = Misc.getNameFromClass(nop)
 
   override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
@@ -296,7 +297,7 @@ trait NumericOp {
 
 abstract class Converter extends RecipeOp {
 
-  def typeNames = {
+  def typeNames: (String, String) = {
     // This is a total hack. Grab the type names of this converter
     // by spliting the class name at the "To" in the middle.
     val names = Misc.getNameFromClass(this).split("To").toList

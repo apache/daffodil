@@ -54,21 +54,21 @@ class SchemaFileLocation protected (
 ) extends LocationInSchemaFile
   with Serializable {
 
-  override def lineDescription = lineNumber match {
+  override def lineDescription: String = lineNumber match {
     case Some(num) => " line " + num
     case None => ""
   }
 
-  override def columnDescription = columnNumber match {
+  override def columnDescription: String = columnNumber match {
     case Some(num) => " column " + num
     case None => ""
   }
 
   override val toString = contextToString
 
-  override def fileDescription = " in " + diagnosticFile
+  override def fileDescription: String = " in " + diagnosticFile
 
-  override def locationDescription = {
+  override def locationDescription: String = {
     val showInfo = lineDescription != "" || fileDescription != ""
     val info = lineDescription + columnDescription + fileDescription
     val txt = if (showInfo) "Location" + info else ""
@@ -88,26 +88,26 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
     case None => None
   }
 
-  override lazy val lineDescription = lineNumber match {
+  override lazy val lineDescription: String = lineNumber match {
     case Some(num) => " line " + num
     case None => ""
   }
 
-  lazy val columnNumber = columnAttribute match {
+  lazy val columnNumber: Option[String] = columnAttribute match {
     case Some(seqNodes) => Some(seqNodes.toString)
     case None => None
   }
 
-  override lazy val columnDescription = columnNumber match {
+  override lazy val columnDescription: String = columnNumber match {
     case Some(num) => " column " + num
     case None => ""
   }
 
-  override lazy val fileDescription = {
+  override lazy val fileDescription: String = {
     " in " + diagnosticFile
   }
 
-  override lazy val locationDescription = {
+  override lazy val locationDescription: String = {
     val showInfo = lineDescription != "" || fileDescription != ""
     val info = lineDescription + columnDescription + fileDescription
     val txt = if (showInfo) "Location" + info else ""
@@ -116,7 +116,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
 
   def diagnosticFile: File
 
-  override lazy val schemaFileLocation = SchemaFileLocation(this)
+  override lazy val schemaFileLocation: SchemaFileLocation = SchemaFileLocation(this)
 }
 
 class XercesSchemaFileLocation(

@@ -62,7 +62,7 @@ object InputSourceDataInputStream {
  */
 final class MarkState() extends DataStreamCommonState with DataInputStream.Mark {
 
-  override def equals(other: Any) = other match {
+  override def equals(other: Any): Boolean = other match {
     case ar: AnyRef => this eq ar // only if the same object
     case _ => false
   }
@@ -99,7 +99,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
 
   import DataInputStream._
 
-  override def toString = {
+  override def toString: String = {
     val bp0b = bitPos0b
     val bl0b = bitLimit0b
     val bl0b1 = if (bl0b.isDefined) bl0b.get.toString else "none"
@@ -557,7 +557,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     }
   }
 
-  final def hasData() = isDefinedForLength(1)
+  final def hasData(): Boolean = isDefinedForLength(1)
 
   def skip(nBits: Long, finfo: FormatInfo): Boolean = {
     // threadCheck()
@@ -636,7 +636,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     }
   }
 
-  lazy val skipCharBuffer = CharBuffer.allocate(32)
+  lazy val skipCharBuffer: CharBuffer = CharBuffer.allocate(32)
 
   def skipChars(nChars: Long, finfo: FormatInfo): Boolean = {
     // threadCheck()
@@ -818,8 +818,8 @@ class InputSourceDataInputStreamCharIteratorState {
   var bitPositionAtLastFetch0b = 0L
 
   // CharBuffer and LongBuffer for some amount of cache lookahead
-  var decodedChars = CharBuffer.allocate(8)
-  var bitPositions = LongBuffer.allocate(8)
+  var decodedChars: CharBuffer = CharBuffer.allocate(8)
+  var bitPositions: LongBuffer = LongBuffer.allocate(8)
 
   var moreDataAvailable: Boolean = true
 

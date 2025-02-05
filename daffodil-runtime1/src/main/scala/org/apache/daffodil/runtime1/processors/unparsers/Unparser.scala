@@ -35,7 +35,7 @@ sealed trait Unparser extends Processor {
 
   protected def unparse(ustate: UState): Unit
 
-  final def unparse1(ustate: UState, ignore: AnyRef = null) = {
+  final def unparse1(ustate: UState, ignore: AnyRef = null): Unit = {
     Assert.invariant(isInitialized)
     val savedProc = ustate.maybeProcessor
     ustate.setProcessor(this)
@@ -80,7 +80,7 @@ sealed trait Unparser extends Processor {
     ustate.setMaybeProcessor(savedProc)
   }
 
-  def UE(ustate: UState, s: String, args: Any*) = {
+  def UE(ustate: UState, s: String, args: Any*): Nothing = {
     UnparseError(One(context.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
 
@@ -139,12 +139,12 @@ trait SuspendableUnparser extends PrimUnparser {
 final class ErrorUnparser(override val context: TermRuntimeData = null)
   extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def unparse(ustate: UState): Unit = {
     Assert.abort("Error Unparser")
   }
-  override lazy val childProcessors = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
 
   override def toBriefXML(depthLimit: Int = -1) = "<error/>"
   override def toString = "Error Unparser"
@@ -154,7 +154,7 @@ final class SeqCompUnparser(context: RuntimeData, val childUnparsers: Vector[Unp
   extends CombinatorUnparser(context)
   with ToBriefXMLImpl {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override val childProcessors = childUnparsers
 
@@ -179,17 +179,17 @@ case class DummyUnparser(primitiveName: String) extends PrimUnparserNoData {
 
   override def context = null
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def isEmpty = true
 
   def unparse(state: UState): Unit =
     state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
 
-  override lazy val childProcessors = Vector()
-  override def toBriefXML(depthLimit: Int = -1) =
+  override lazy val childProcessors: Vector[Processor] = Vector()
+  override def toBriefXML(depthLimit: Int = -1): String =
     "<dummy primitive=\"%s\"/>".format(primitiveName)
-  override def toString = "DummyUnparser (%s)".format(primitiveName)
+  override def toString: String = "DummyUnparser (%s)".format(primitiveName)
 }
 
 case class NotUnparsableUnparser(override val context: ElementRuntimeData)
@@ -206,6 +206,6 @@ case class NotUnparsableUnparser(override val context: ElementRuntimeData)
     context.toss(rsde)
   }
 
-  override lazy val childProcessors = Vector()
-  override lazy val runtimeDependencies = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }

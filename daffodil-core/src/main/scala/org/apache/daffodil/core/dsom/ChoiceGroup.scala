@@ -24,6 +24,7 @@ import org.apache.daffodil.core.grammar.ChoiceGrammarMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.Choice_AnnotationMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.{ Found, PropertyLookupResult }
 
 /**
  *
@@ -61,7 +62,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 
 trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
 
-  protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
+  protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = a.isInstanceOf[DFDLChoice]
 
   protected override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
@@ -73,7 +74,7 @@ trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
   protected def emptyFormatFactory: DFDLFormatAnnotation =
     new DFDLChoice(newDFDLAnnotationXML("choice"), this)
 
-  lazy val xmlChildren = xml match {
+  lazy val xmlChildren: Seq[Node] = xml match {
     case <choice>{c @ _*}</choice> => c
     case <group>{_*}</group> => {
       val ch = this match {
@@ -99,11 +100,11 @@ abstract class ChoiceTermBase(
   requiredEvaluationsIfActivated(branchesAreNonOptional)
   requiredEvaluationsIfActivated(branchesAreNotIVCElements)
 
-  final protected lazy val optionChoiceDispatchKeyRaw =
+  final protected lazy val optionChoiceDispatchKeyRaw: PropertyLookupResult =
     findPropertyOption("choiceDispatchKey", expressionAllowed = true)
-  final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
+  final protected lazy val choiceDispatchKeyRaw: Found = requireProperty(optionChoiceDispatchKeyRaw)
 
-  final lazy val isDirectDispatch = {
+  final lazy val isDirectDispatch: Boolean = {
     val isDD = optionChoiceDispatchKeyRaw.isDefined
     if (isDD && initiatedContent == YesNo.Yes) {
       SDE("dfdl:initiatedContent must not equal 'yes' when dfdl:choiceDispatchKey is defined")
@@ -111,7 +112,7 @@ abstract class ChoiceTermBase(
     isDD
   }
 
-  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+  final override lazy val hasKnownRequiredSyntax: Boolean = LV('hasKnownRequiredSyntax) {
     if (hasFraming) true
     // else if (isKnownToBeAligned) true //TODO: Alignment may not occur; hence, cannot be part of determining whether there is known syntax.
     else {
@@ -128,7 +129,7 @@ abstract class ChoiceTermBase(
     }
   }.value
 
-  final lazy val noBranchesFound = LV('noBranchesFound) {
+  final lazy val noBranchesFound: Unit = LV('noBranchesFound) {
     if (groupMembers.size == 0) {
       SDE("choice element must contain one or more branches")
     }
@@ -155,7 +156,7 @@ abstract class ChoiceTermBase(
    * This latter need to be allowed, because while they do not have known required syntax they do
    * have to be executed for side-effect.
    */
-  final lazy val branchesAreNonOptional = LV('branchesAreNonOptional) {
+  final lazy val branchesAreNonOptional: Unit = LV('branchesAreNonOptional) {
     val branchesOk = groupMembers.map { branch =>
       val realBranch = branch match {
         case impliedSeq: ChoiceBranchImpliedSequence => impliedSeq.groupMembers(0)
@@ -169,7 +170,7 @@ abstract class ChoiceTermBase(
     assuming(branchesOk.forall { x => x })
   }.value
 
-  final lazy val branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
+  final lazy val branchesAreNotIVCElements: Unit = LV('branchesAreNotIVCElements) {
     val branchesOk = groupMembers.map { branch =>
       if (!branch.isRepresented) {
         branch.schemaDefinitionErrorButContinue(
@@ -183,7 +184,7 @@ abstract class ChoiceTermBase(
 }
 
 object Choice {
-  def apply(xmlArg: Node, lexicalParent: SchemaComponent, position: Int) = {
+  def apply(xmlArg: Node, lexicalParent: SchemaComponent, position: Int): Choice = {
     val c = new Choice(xmlArg, lexicalParent, position)
     c.initialize()
     c

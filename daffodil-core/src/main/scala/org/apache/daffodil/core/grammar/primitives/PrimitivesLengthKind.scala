@@ -58,6 +58,9 @@ import org.apache.daffodil.unparsers.runtime1.StringDelimitedUnparser
 import org.apache.daffodil.unparsers.runtime1.StringMaybeTruncateBitsUnparser
 import org.apache.daffodil.unparsers.runtime1.StringMaybeTruncateCharactersUnparser
 import org.apache.daffodil.unparsers.runtime1.StringNoTruncateUnparser
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.{ EscapeSchemeParseEv, EscapeSchemeUnparseEv }
+import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
 
 case class HexBinarySpecifiedLength(e: ElementBase) extends Terminal(e, true) {
 
@@ -108,7 +111,7 @@ abstract class StringDelimited(e: ElementBase) extends StringDelimBase(e, true) 
 
   lazy val cname = toString
 
-  lazy val eName = e.toString()
+  lazy val eName: String = e.toString()
 
   lazy val leftPaddingOpt: Option[TextPaddingParser] = {
     if (!parsingPadChar.isDefined) None
@@ -116,18 +119,18 @@ abstract class StringDelimited(e: ElementBase) extends StringDelimBase(e, true) 
   }
 
   // TODO: move out of parser and into the dsom
-  lazy val escapeSchemeParseEvOpt = if (es.isDefined) One(es.get.escapeSchemeParseEv) else Nope
-  lazy val escapeSchemeUnparseEvOpt =
+  lazy val escapeSchemeParseEvOpt: Maybe[EscapeSchemeParseEv] = if (es.isDefined) One(es.get.escapeSchemeParseEv) else Nope
+  lazy val escapeSchemeUnparseEvOpt: Maybe[EscapeSchemeUnparseEv] =
     if (es.isDefined) One(es.get.escapeSchemeUnparseEv) else Nope
 
   // TODO: move out of parser and into the dsom
-  lazy val fieldDFAParseEv = {
+  lazy val fieldDFAParseEv: FieldDFAParseEv = {
     val ev = new FieldDFAParseEv(escapeSchemeParseEvOpt, context.dpathCompileInfo)
     ev.compile(context.tunable)
     ev
   }
 
-  val textDelimitedParser = {
+  val textDelimitedParser: TextDelimitedParserBase = {
     val isBlockEscapeScheme = es.isDefined && es.get.escapeKind == EscapeKind.EscapeBlock
     if (isBlockEscapeScheme) {
       new TextDelimitedParserWithEscapeBlock(justificationTrim, parsingPadChar, e.erd)

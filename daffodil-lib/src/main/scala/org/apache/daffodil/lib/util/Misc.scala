@@ -39,6 +39,7 @@ import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 
 import passera.unsigned.UByte
+import java.net.URL
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -63,13 +64,13 @@ object Misc {
   /**
    * Removes a suffix string, if it is found.
    */
-  def stripSuffix(s: String, suffix: String) = {
+  def stripSuffix(s: String, suffix: String): String = {
     if (s.endsWith(suffix))
       s.substring(0, s.length - suffix.length)
     else s
   }
 
-  def stripQuotes(s: String) = {
+  def stripQuotes(s: String): String = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s
     val stripLast =
       if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1)
@@ -77,12 +78,12 @@ object Misc {
     stripLast
   }
 
-  def isNullOrBlank(s: String) = {
+  def isNullOrBlank(s: String): Boolean = {
     val b = Option(s).isEmpty || s.trim.isEmpty
     b
   }
 
-  def isFileURI(uri: URI) = {
+  def isFileURI(uri: URI): Boolean = {
     if (uri.isAbsolute()) {
       val protocol = uri.toURL.getProtocol()
       val result = protocol == "file"
@@ -251,7 +252,7 @@ object Misc {
     res
   }
 
-  lazy val classPath = {
+  lazy val classPath: Seq[URL] = {
     val cl = this.getClass().getClassLoader()
     val urls = cl match {
       case url: URLClassLoader => url.getURLs().toSeq
@@ -452,7 +453,7 @@ object Misc {
    * Replacing these with the picture characters (designed for this purpose)
    * in the unicode x2400 block helps.
    */
-  def remapStringToVisibleGlyphs(s: String) =
+  def remapStringToVisibleGlyphs(s: String): String =
     nonGlyphToVisibleGlyphsRemapper.remap(s)
 
   object nonGlyphToVisibleGlyphsRemapper extends CharacterSetRemapper {
@@ -604,7 +605,7 @@ object Misc {
     }
   }
 
-  def remapOneByteToVisibleGlyph(b: Byte) =
+  def remapOneByteToVisibleGlyph(b: Byte): Char =
     remapControlOrLineEndingToVisibleGlyphs(byteToChar(b))
 
   /**

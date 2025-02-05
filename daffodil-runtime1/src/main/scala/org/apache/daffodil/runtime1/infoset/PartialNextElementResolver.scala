@@ -192,7 +192,7 @@ sealed trait PartialNextElementResolver extends Serializable {
 
   def currentPossibleNextElements: Seq[ElementRuntimeData]
 
-  final def currentPossibleNamedQNames = currentPossibleNextElements.map { _.namedQName }
+  final def currentPossibleNamedQNames: Seq[NamedQName] = currentPossibleNextElements.map { _.namedQName }
 }
 
 /**
@@ -210,7 +210,7 @@ class DoNotUseThisResolver(trd: TermRuntimeData) extends PartialNextElementResol
 
   override def toString() = "DoNotUseThisResolver"
 
-  override val currentPossibleNextElements = Seq()
+  override val currentPossibleNextElements: Seq[ElementRuntimeData] = Seq()
 }
 
 class NoNextElement(trd: TermRuntimeData, isRequiredStreamingUnparserEvent: Boolean)
@@ -231,7 +231,7 @@ class NoNextElement(trd: TermRuntimeData, isRequiredStreamingUnparserEvent: Bool
 
   override def toString() = "NoNextElement"
 
-  override val currentPossibleNextElements = Seq()
+  override val currentPossibleNextElements: Seq[ElementRuntimeData] = Seq()
 
 }
 
@@ -272,9 +272,9 @@ class OnlyOnePossibilityForNextElement(
     }
   }
 
-  override def toString() = "OnlyOne(" + nqn + ")"
+  override def toString(): String = "OnlyOne(" + nqn + ")"
 
-  override lazy val currentPossibleNextElements = Seq(nextERD)
+  override lazy val currentPossibleNextElements: Seq[ElementRuntimeData] = Seq(nextERD)
 }
 
 class SeveralPossibilitiesForNextElement(
@@ -357,7 +357,7 @@ class SeveralPossibilitiesForNextElement(
     }
   }
 
-  override def toString() = "Several(" + nextERDMap.keySet.mkString(", ") + ")"
+  override def toString(): String = "Several(" + nextERDMap.keySet.mkString(", ") + ")"
 
   override lazy val currentPossibleNextElements = nextERDMap.values.toSeq
 }

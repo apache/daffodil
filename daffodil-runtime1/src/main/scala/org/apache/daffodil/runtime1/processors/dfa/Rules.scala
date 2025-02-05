@@ -71,10 +71,10 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
   // this is just one way to plumb the things together.
   // it depends on every state having a unique name
   //
-  lazy val EECState = findState("EECState")
-  lazy val ECState = findState("ECState")
-  lazy val StartState = findState("StartState")
-  lazy val PTERMState = findState("PTERM0")
+  lazy val EECState: Int = findState("EECState")
+  lazy val ECState: Int = findState("ECState")
+  lazy val StartState: Int = findState("StartState")
+  lazy val PTERMState: Int = findState("PTERM0")
 
   def printStr(): String = states.mkString
 
@@ -187,7 +187,7 @@ class StartStateUnambiguousEscapeChar(
 ) extends State(states) {
 
   val stateName: String = "StartState"
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     PauseRule,
     new Rule {
       override def test(r: Registers): Boolean =
@@ -208,7 +208,7 @@ class StartStateUnambiguousEscapeChar(
 class StartState(states: => ArrayBuffer[State], val stateNum: Int) extends State(states) {
 
   val stateName: String = "StartState"
-  val rules = ArrayBuffer(PauseRule, EndOfDataCharRule, StartStateRule)
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(PauseRule, EndOfDataCharRule, StartStateRule)
 }
 
 class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
@@ -216,7 +216,7 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
 
   val stateName = "StartState"
   val stateNum: Int = 0
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = r.data0 == padChar
 
@@ -246,7 +246,7 @@ class StartStateEscapeBlock(
 ) extends State(states) {
   val stateName: String = "StartState"
 
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = couldBeFirstChar(r.data0, blockEnd)
 
@@ -290,7 +290,7 @@ class StartStateEscapeChar(
     override def act(r: Registers): Unit = r.nextState = EECState
   }
 
-  val rules_NO_EEC_BUT_EC_TERM_SAME = ArrayBuffer(
+  val rules_NO_EEC_BUT_EC_TERM_SAME: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean =
         (r.data0 == EC) && couldBeFirstChar(r.data1, r.delimitersIter)
@@ -303,7 +303,7 @@ class StartStateEscapeChar(
     StartStateRule
   )
 
-  val rules_EEC_EC_SAME_NOT_TERM = ArrayBuffer(
+  val rules_EEC_EC_SAME_NOT_TERM: ArrayBuffer[Rule] = ArrayBuffer(
     PauseRule,
     NextStateEECRule,
     new Rule {
@@ -316,10 +316,10 @@ class StartStateEscapeChar(
     StartStateRule
   )
 
-  val rules_EEC_TERM_SAME_NOT_EC =
+  val rules_EEC_TERM_SAME_NOT_EC: ArrayBuffer[Rule] =
     ArrayBuffer(PauseRule, NextStateEECRule, NextStateECRule, EndOfDataCharRule, StartStateRule)
 
-  val rules_EC_TERM_SAME_NOT_EEC = ArrayBuffer(
+  val rules_EC_TERM_SAME_NOT_EEC: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = r.data0 == EC && r.data1 == EC
 
@@ -339,7 +339,7 @@ class StartStateEscapeChar(
     StartStateRule
   )
 
-  val rules_EC_EEC_TERM_SAME = ArrayBuffer(
+  val rules_EC_EEC_TERM_SAME: ArrayBuffer[Rule] = ArrayBuffer(
     PauseRule,
     new Rule {
       override def test(r: Registers): Boolean =
@@ -370,7 +370,7 @@ class StartStateEscapeChar(
     StartStateRule
   )
 
-  val rules_Unambiguous = ArrayBuffer(
+  val rules_Unambiguous: ArrayBuffer[Rule] = ArrayBuffer(
     PauseRule,
     new Rule {
       override def test(r: Registers): Boolean = EEC.isDefined && r.data0 == EEC.get
@@ -447,7 +447,7 @@ class ECState(states: => ArrayBuffer[State], val EC: Char, val stateNum: Int)
   extends State(states) {
 
   val stateName = "ECState"
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     // ECState, means that data0 is EC
     //
     new Rule {
@@ -504,7 +504,7 @@ class EECState(
 ) extends State(states) {
 
   val stateName = "EECState"
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     // Because this is about EC and EEC we can
     // just write these rules down statically.
     // The real delim compiler would generate a flock of rules
@@ -538,7 +538,7 @@ class EECStateBlock(
 ) extends State(states) {
 
   val stateName = "EECState"
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     // Because this is about EC and EEC we can
     // just write these rules down statically.
     // The real delim compiler would generate a flock of rules
@@ -582,7 +582,7 @@ class EECStateBlock(
 abstract class DelimStateBase(states: => ArrayBuffer[State]) extends State(states) {
   var stateName: String = null
 
-  def setStateName(name: String) = stateName = name
+  def setStateName(name: String): Unit = stateName = name
 
   def rules: ArrayBuffer[Rule]
 
@@ -604,7 +604,7 @@ class CharState(
 ) extends DelimStateBase(states) {
 
   stateName = "CharState(" + char + ")"
-  val rulesToThisState = ArrayBuffer(new Rule {
+  val rulesToThisState: ArrayBuffer[Rule] = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
 
     override def act(r: Registers): Unit = {
@@ -614,7 +614,7 @@ class CharState(
     }
   })
 
-  val rules = ArrayBuffer(new Rule {
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
 
     override def act(r: Registers): Unit = {
@@ -658,7 +658,7 @@ class WSPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: 
   extends WSPBase(states) {
 
   stateName = "WSPState"
-  val rulesToThisState = ArrayBuffer(new Rule {
+  val rulesToThisState: ArrayBuffer[Rule] = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
 
     override def act(r: Registers): Unit = {
@@ -668,7 +668,7 @@ class WSPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: 
     }
   })
 
-  val rules = ArrayBuffer(new Rule {
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
 
     override def act(r: Registers): Unit = {
@@ -685,7 +685,7 @@ class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateN
   extends WSPRepeats(states) {
 
   stateName = "WSPPlusState"
-  val rulesToThisState = ArrayBuffer(new Rule {
+  val rulesToThisState: ArrayBuffer[Rule] = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
 
     override def act(r: Registers): Unit = {
@@ -694,7 +694,7 @@ class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateN
       r.nextState = stateNum // This state
     }
   })
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = checkMatch(r.data0)
 
@@ -721,7 +721,7 @@ class WSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateN
 
   stateName = "WSPStarState"
 
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = checkMatch(r.data0)
 
@@ -768,7 +768,7 @@ class NLState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: I
 
   stateName = "NLState"
 
-  val rules = ArrayBuffer(
+  val rules: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = {
         isCR(r.data0) && isLF(r.data1)
@@ -817,7 +817,7 @@ class ESState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: I
    * empty-string corner case required by the %ES; character class. This will
    * immediately match while consuming no characters.
    */
-  lazy val rules = ArrayBuffer(
+  lazy val rules: ArrayBuffer[Rule] = ArrayBuffer(
     new Rule {
       override def test(r: Registers): Boolean = true
 

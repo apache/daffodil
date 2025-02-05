@@ -146,7 +146,7 @@ object XercesValidator {
     stream
   })
 
-  def fromFiles(schemaFileNames: Seq[String]) =
+  def fromFiles(schemaFileNames: Seq[String]): XercesValidator =
     fromURIs(schemaFileNames.map { new URI(_) })
 }
 

@@ -28,7 +28,7 @@ object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value
   val P_LESS_THAN_Q, P_GREATER_THAN_Q, P_EQUAL_Q, P_NOT_EQUAL_Q = Value
 
-  val fieldsForComparison = Array(
+  val fieldsForComparison: Array[Int] = Array(
     Calendar.EXTENDED_YEAR,
     Calendar.MONTH,
     Calendar.DAY_OF_MONTH,
@@ -257,7 +257,7 @@ case class DFDLDateTime(calendar: Calendar, override val hasTimeZone: Boolean)
 
   override def toString(): String = DFDLDateTimeConversion.toXMLString(this)
 
-  override def equals(other: Any) = other match {
+  override def equals(other: Any): Boolean = other match {
     case that: DFDLDateTime => dateTimeEqual(this, that)
     case _ => Assert.invariantFailed("xs:dateTime can only ever be compared with xs:dateTime")
   }
@@ -269,7 +269,7 @@ case class DFDLDateTime(calendar: Calendar, override val hasTimeZone: Boolean)
   def >=(that: DFDLDateTime): Boolean = !dateTimeLessThan(this, that)
   def <=(that: DFDLDateTime): Boolean = !dateTimeGreaterThan(this, that)
 
-  protected lazy val normalizedCalendar = normalizeCalendar(calendar)
+  protected lazy val normalizedCalendar: Calendar = normalizeCalendar(calendar)
 
   def getDateTimePlusFourteenHours: DFDLDateTime = {
     Assert.invariant(!hasTimeZone)

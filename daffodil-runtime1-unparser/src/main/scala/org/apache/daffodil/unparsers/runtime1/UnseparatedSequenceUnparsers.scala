@@ -24,7 +24,7 @@ import org.apache.daffodil.runtime1.processors.{ SequenceRuntimeData, TermRuntim
 
 trait Unseparated { self: SequenceChildUnparser =>
 
-  val childProcessors = Vector(childUnparser)
+  val childProcessors: Vector[Unparser] = Vector(childUnparser)
 }
 
 class ScalarOrderedUnseparatedSequenceChildUnparser(
@@ -34,7 +34,7 @@ class ScalarOrderedUnseparatedSequenceChildUnparser(
 ) extends SequenceChildUnparser(childUnparser, srd, trd)
   with Unseparated {
 
-  override protected def unparse(state: UState) = childUnparser.unparse1(state)
+  override protected def unparse(state: UState): Unit = childUnparser.unparse1(state)
 }
 
 class RepOrderedUnseparatedSequenceChildUnparser(

@@ -68,6 +68,8 @@ import org.apache.daffodil.runtime1.processors.TextStandardGroupingSeparatorEv
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInCharactersEv
 import org.apache.daffodil.unparsers.runtime1.NilStringLiteralForUnparserEv
+import java.lang
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 
 /*
  * These are the DFDL properties which can have their values come
@@ -113,18 +115,18 @@ trait TermRuntimeValuedPropertiesMixin
     }
   }.value
 
-  final lazy val encodingEv = {
+  final lazy val encodingEv: EncodingEv = {
     val ev = new EncodingEv(encodingExpr, tci)
     ev.compile(tunable)
     ev
   }
 
-  final lazy val charsetEv = {
+  final lazy val charsetEv: CharsetEv = {
     if (maybeCharsetEv.isEmpty) encodingRaw // required property
     maybeCharsetEv.get
   }
 
-  final lazy val maybeCharsetEv =
+  final lazy val maybeCharsetEv: Maybe[CharsetEv] =
     if (optionEncodingRaw.isDefined) {
       val ev = new CharsetEv(encodingEv, tci)
       ev.compile(tunable)
@@ -132,7 +134,7 @@ trait TermRuntimeValuedPropertiesMixin
     } else
       Nope
 
-  final lazy val fillByteEv = {
+  final lazy val fillByteEv: FillByteEv = {
     val ev = new FillByteEv(fillByte, charsetEv, tci)
     ev.compile(tunable)
     ev
@@ -142,7 +144,7 @@ trait TermRuntimeValuedPropertiesMixin
    * Property OutputNewLine
    */
 
-  lazy val outputNewLineEv = {
+  lazy val outputNewLineEv: OutputNewLineEv = {
     val outputNewLineExpr = {
       val qn = this.qNameForProperty("outputNewLine")
       ExpressionCompilers.String.compileProperty(
@@ -161,7 +163,7 @@ trait TermRuntimeValuedPropertiesMixin
   /**
    * Use when we might or might not need the outputNewLine property
    */
-  lazy val maybeOutputNewLineEv = {
+  lazy val maybeOutputNewLineEv: Maybe[OutputNewLineEv] = {
     if (optionOutputNewLineRaw.isDefined)
       One(outputNewLineEv)
     else
@@ -182,7 +184,7 @@ trait TermRuntimeValuedPropertiesMixin
   override protected def propertyValueReferencedElementInfos =
     myPropertyValueReferencedElementInfos
 
-  lazy val ignoreCaseBool = ignoreCase == YesNo.Yes
+  lazy val ignoreCaseBool: Boolean = ignoreCase == YesNo.Yes
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
@@ -196,7 +198,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     }
   }
 
-  final protected lazy val initiatorExpr = {
+  final protected lazy val initiatorExpr: CompiledExpression[String] = {
     val qn = this.qNameForProperty("initiator")
     val typeIfStaticallyKnown = NodeInfo.String
     val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -210,20 +212,20 @@ trait DelimitedRuntimeValuedPropertiesMixin
     )
   }
 
-  lazy val initiatorParseEv = {
+  lazy val initiatorParseEv: InitiatorParseEv = {
     val ev = new InitiatorParseEv(initiatorExpr, decl.ignoreCaseBool, decl.tci)
     ev.compile(tunable)
     ev
   }
-  lazy val initiatorUnparseEv = {
+  lazy val initiatorUnparseEv: InitiatorUnparseEv = {
     val ev = new InitiatorUnparseEv(initiatorExpr, outputNewLineEv, decl.tci)
     ev.compile(tunable)
     ev
   }
 
-  final def initiatorLoc = (this.diagnosticDebugName, this.path)
+  final def initiatorLoc: (String, String) = (this.diagnosticDebugName, this.path)
 
-  final protected lazy val terminatorExpr = LV('terminator) {
+  final protected lazy val terminatorExpr: CompiledExpression[String] = LV('terminator) {
     val qn = this.qNameForProperty("terminator")
     val typeIfStaticallyKnown = NodeInfo.String
     val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -238,9 +240,9 @@ trait DelimitedRuntimeValuedPropertiesMixin
     )
   }.value
 
-  final def terminatorLoc = (this.diagnosticDebugName, this.path)
+  final def terminatorLoc: (String, String) = (this.diagnosticDebugName, this.path)
 
-  lazy val terminatorParseEv = {
+  lazy val terminatorParseEv: TerminatorParseEv = {
     val ev = new TerminatorParseEv(
       terminatorExpr,
       isLengthKindDelimited,
@@ -250,7 +252,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     ev.compile(tunable)
     ev
   }
-  lazy val terminatorUnparseEv = {
+  lazy val terminatorUnparseEv: TerminatorUnparseEv = {
     val ev =
       new TerminatorUnparseEv(terminatorExpr, isLengthKindDelimited, outputNewLineEv, decl.tci)
     ev.compile(tunable)
@@ -284,12 +286,12 @@ trait ElementRuntimeValuedPropertiesMixin
     )
   }.value
 
-  final lazy val byteOrderEv = {
+  final lazy val byteOrderEv: ByteOrderEv = {
     if (maybeByteOrderEv.isEmpty) byteOrderRaw // must be defined
     maybeByteOrderEv.get
   }
 
-  final lazy val maybeByteOrderEv = {
+  final lazy val maybeByteOrderEv: Maybe[ByteOrderEv] = {
     if (isSimpleType && (primType == PrimType.HexBinary || primType == PrimType.AnyURI)) {
       // xs:hexBinary and xs:anyURI types should ignore the byteOrder property and
       // effectively always use a bigEndian byteOrder. One way to accomplish
@@ -311,7 +313,7 @@ trait ElementRuntimeValuedPropertiesMixin
     }
   }
 
-  protected final lazy val lengthExpr = {
+  protected final lazy val lengthExpr: CompiledExpression[lang.Long] = {
     val qn = this.qNameForProperty("length")
     ExpressionCompilers.JLong.compileProperty(
       qn,
@@ -348,7 +350,7 @@ trait ElementRuntimeValuedPropertiesMixin
     ev
   }
 
-  final lazy val lengthEv = {
+  final lazy val lengthEv: LengthEv = {
     val ev =
       lengthKind match {
         case LengthKind.Explicit => explicitLengthEv
@@ -458,7 +460,7 @@ trait ElementRuntimeValuedPropertiesMixin
     res
   }
 
-  protected final lazy val optionTextOutputMinLength = findPropertyOption("textOutputMinLength")
+  protected final lazy val optionTextOutputMinLength: PropertyLookupResult = findPropertyOption("textOutputMinLength")
 
   /**
    * We only use textOutputMinLength in a very narrow set of circumstances.
@@ -577,7 +579,7 @@ trait ElementRuntimeValuedPropertiesMixin
   // implementation, the ".." does get literally evaluated.
   //
 
-  lazy val occursCountExpr = LV('occursCount) {
+  lazy val occursCountExpr: CompiledExpression[lang.Long] = LV('occursCount) {
     val qn = this.qNameForProperty("occursCount")
     val isEvaluatedAbove = true
     ExpressionCompilers.JLong.compileProperty(
@@ -590,20 +592,20 @@ trait ElementRuntimeValuedPropertiesMixin
     )
   }.value
 
-  lazy val occursCountEv = {
+  lazy val occursCountEv: OccursCountEv = {
     val ev = new OccursCountEv(occursCountExpr, eci)
     ev.compile(tunable)
     ev
   }
 
-  lazy val nilStringLiteralForUnparserEv = {
+  lazy val nilStringLiteralForUnparserEv: NilStringLiteralForUnparserEv = {
     val ev =
       new NilStringLiteralForUnparserEv(tci, maybeOutputNewLineEv, rawNilValuesForUnparse.head)
     ev.compile(tunable)
     ev
   }
 
-  lazy val maybeLiteralNilEv = {
+  lazy val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv] = {
     if (this.isNillable && (this.nilKind eq NilKind.LiteralValue))
       One(nilStringLiteralForUnparserEv)
     else
@@ -789,19 +791,19 @@ trait SequenceRuntimeValuedPropertiesMixin
     )
   }
 
-  lazy val separatorParseEv = {
+  lazy val separatorParseEv: SeparatorParseEv = {
     val ev = new SeparatorParseEv(separatorExpr, decl.ignoreCaseBool, decl.tci)
     ev.compile(tunable)
     ev
   }
 
-  lazy val separatorUnparseEv = {
+  lazy val separatorUnparseEv: SeparatorUnparseEv = {
     val ev = new SeparatorUnparseEv(separatorExpr, outputNewLineEv, decl.tci)
     ev.compile(tunable)
     ev
   }
 
-  final def separatorLoc = (this.diagnosticDebugName, this.path)
+  final def separatorLoc: (String, String) = (this.diagnosticDebugName, this.path)
 
   private lazy val myPropertyContentReferencedElementInfos =
     super.propertyContentReferencedElementInfos ++
@@ -836,7 +838,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     c
   }.value
 
-  final lazy val textStandardDecimalSeparatorEv = {
+  final lazy val textStandardDecimalSeparatorEv: TextStandardDecimalSeparatorEv = {
     val ev = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, eci)
     ev.compile(tunable)
     ev
@@ -854,7 +856,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     c
   }.value
 
-  final lazy val textStandardGroupingSeparatorEv = {
+  final lazy val textStandardGroupingSeparatorEv: TextStandardGroupingSeparatorEv = {
     val ev = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, eci)
     ev.compile(tunable)
     ev
@@ -872,7 +874,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     c
   }.value
 
-  final lazy val textStandardExponentRepEv = {
+  final lazy val textStandardExponentRepEv: TextStandardExponentRepEv = {
     val ev = new TextStandardExponentRepEv(textStandardExponentRepExpr, eci)
     ev.compile(tunable)
     ev
@@ -889,12 +891,12 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     )
   }.value
 
-  final lazy val binaryFloatRepEv = {
+  final lazy val binaryFloatRepEv: BinaryFloatRepEv = {
     if (maybeBinaryFloatRepEv.isEmpty) binaryFloatRepRaw // property is required
     maybeBinaryFloatRepEv.get
   }
 
-  final lazy val maybeBinaryFloatRepEv = {
+  final lazy val maybeBinaryFloatRepEv: Maybe[BinaryFloatRepEv] = {
     if (optionBinaryFloatRepRaw.isDefined) {
       val ev = new BinaryFloatRepEv(binaryFloatRepExpr, eci)
       ev.compile(tunable)
@@ -926,7 +928,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     )
   }.value
 
-  final lazy val textBooleanTrueRepEv = {
+  final lazy val textBooleanTrueRepEv: TextBooleanTrueRepEv = {
     val mustBeSameLength =
       (((this.lengthKind eq LengthKind.Explicit) || (this.lengthKind eq LengthKind.Implicit)) &&
         ((this.textPadKind eq TextPadKind.None) || (this.textTrimKind eq TextTrimKind.None)))
@@ -940,13 +942,13 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     ev
   }
 
-  final lazy val textBooleanFalseRepEv = {
+  final lazy val textBooleanFalseRepEv: TextBooleanFalseRepEv = {
     val ev = new TextBooleanFalseRepEv(textBooleanFalseRepExpr, eci)
     ev.compile(tunable)
     ev
   }
 
-  final lazy val calendarLanguage = LV('calendarLanguage) {
+  final lazy val calendarLanguage: CompiledExpression[String] = LV('calendarLanguage) {
     val qn = this.qNameForProperty("calendarLanguage")
     val c = ExpressionCompilers.String.compileProperty(
       qn,

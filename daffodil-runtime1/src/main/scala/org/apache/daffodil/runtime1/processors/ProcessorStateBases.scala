@@ -63,6 +63,7 @@ import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
+import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -102,7 +103,7 @@ trait SetProcessorMixin {
 
   final def maybeProcessor = maybeProcessor_
 
-  final def processor = {
+  final def processor: Processor = {
     Assert.usage(maybeProcessor_.isDefined) // failure means setProcessor wasn't called.
     maybeProcessor_.value
   }
@@ -313,7 +314,7 @@ abstract class ParseOrUnparseState protected (
     decoderEntry.coder
   }
 
-  final def decoder = {
+  final def decoder: BitsCharsetDecoder = {
     if (decoderCache eq null)
       decoderCache = getDecoder()
     decoderCache
@@ -327,7 +328,7 @@ abstract class ParseOrUnparseState protected (
       ee.replacingCoder
   }
 
-  final def encoder = {
+  final def encoder: BitsCharsetEncoder = {
     if (encoderCache eq null)
       encoderCache = getEncoder()
     encoderCache
@@ -473,7 +474,7 @@ abstract class ParseOrUnparseState protected (
    */
   final def dState = _dState
 
-  def copyStateForDebugger = {
+  def copyStateForDebugger: TupleForDebugger = {
     TupleForDebugger(
       currentLocation,
       bitPos0b,
@@ -489,18 +490,18 @@ abstract class ParseOrUnparseState protected (
     )
   }
 
-  final override def schemaFileLocation = getContext().schemaFileLocation
+  final override def schemaFileLocation: SchemaFileLocation = getContext().schemaFileLocation
 
   def dataStream: Maybe[DataStreamCommon]
 
   def bitPos0b: Long
   def bitLimit0b: MaybeULong
-  final def bytePos0b = bitPos0b >> 3
-  final def bytePos1b = (bitPos0b >> 3) + 1
-  final def bitPos1b = bitPos0b + 1
-  final def bitLimit1b =
+  final def bytePos0b: Long = bitPos0b >> 3
+  final def bytePos1b: Long = (bitPos0b >> 3) + 1
+  final def bitPos1b: Long = bitPos0b + 1
+  final def bitLimit1b: MaybeULong =
     if (bitLimit0b.isDefined) MaybeULong(bitLimit0b.get + 1) else MaybeULong.Nope
-  final def whichBit0b = bitPos0b % 8
+  final def whichBit0b: Long = bitPos0b % 8
 
   // TODO: many off-by-one errors due to not keeping strong separation of
   // one-based and zero-based indexes.
@@ -520,7 +521,7 @@ abstract class ParseOrUnparseState protected (
 
   def hasInfoset: Boolean
 
-  final def maybeERD = {
+  final def maybeERD: Maybe[ElementRuntimeData] = {
     if (hasInfoset)
       Maybe(getContext())
     else
@@ -554,19 +555,19 @@ abstract class ParseOrUnparseState protected (
    */
   def notifyDebugging(flag: Boolean): Unit
 
-  final def SDE(str: String, args: Any*) = {
+  final def SDE(str: String, args: Any*): Nothing = {
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
     ctxt.toss(rsde)
   }
 
-  final def SDEButContinue(str: String, args: Any*) = {
+  final def SDEButContinue(str: String, args: Any*): Unit = {
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
     diagnostics = rsde :: diagnostics
   }
 
-  final def SDW(warnID: WarnID, str: String, args: Any*) = {
+  final def SDW(warnID: WarnID, str: String, args: Any*): Unit = {
     val ctxt = getContext()
     val lssdw = ctxt.localSuppressSchemaDefinitionWarnings
     val tssdw = tunable.suppressSchemaDefinitionWarnings
@@ -590,10 +591,10 @@ abstract class ParseOrUnparseState protected (
   object dfaRegistersPool {
     private val pool = new RegistersPool()
 
-    def getFromPool(requestorID: String) =
+    def getFromPool(requestorID: String): Registers =
       pool.getFromPool(requestorID)
 
-    def returnToPool(r: Registers) = pool.returnToPool(r)
+    def returnToPool(r: Registers): Unit = pool.returnToPool(r)
 
     def finalCheck() = pool.finalCheck
   }
@@ -677,7 +678,7 @@ final class CompileState(
         One(tci)
       ) // for expressions evaluated in debugger, default expressions for top-level variable decls.
 
-  def currentNode = Maybe(infoset.asInstanceOf[DINode])
+  def currentNode: Maybe[DINode] = Maybe(infoset.asInstanceOf[DINode])
 
   def notifyDebugging(flag: Boolean): Unit = {
     // do nothing
@@ -702,9 +703,9 @@ final class CompileState(
     newValue: DataValuePrimitive,
     referringContext: ThrowsSDE
   ): Unit = Assert.usageError("Not to be used.")
-  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE) =
+  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive =
     Assert.usageError("Not to be used.")
-  override def newVariableInstance(vrd: VariableRuntimeData) =
+  override def newVariableInstance(vrd: VariableRuntimeData): VariableInstance =
     Assert.usageError("Not to be used.")
   override def removeVariableInstance(vrd: VariableRuntimeData): Unit =
     Assert.usageError("Not to be used.")

@@ -22,6 +22,8 @@ import scala.xml.Node
 import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.xml.NS
 
 /**
  * enclosingGoalNS is None if this include
@@ -35,7 +37,7 @@ import org.apache.daffodil.lib.util.Logger
 final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(xml, xsd, seenArg) {
 
-  protected final lazy val mapPair = LV('mapPair) {
+  protected final lazy val mapPair: (NS, DaffodilSchemaSource) = LV('mapPair) {
     // for an include, the targetNamespace of the schema document that contained us is right.
     val mp = (targetNamespace, resolvedLocation)
     mp
@@ -47,7 +49,7 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   lazy val resolvedNamespaceURI = None // include doesn't have a namespace.
 
   // include always has a schemaLocation
-  lazy val resolvedLocation = LV('resolvedLocation) {
+  lazy val resolvedLocation: DaffodilSchemaSource = LV('resolvedLocation) {
     resolvedSchemaLocation match {
       case Some(rsl) => {
         //

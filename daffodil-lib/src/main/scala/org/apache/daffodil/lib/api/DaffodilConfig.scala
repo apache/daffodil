@@ -37,7 +37,7 @@ object DaffodilConfig {
    * @param xml
    * @return
    */
-  def fromXML(xml: Node) = {
+  def fromXML(xml: Node): DaffodilConfig = {
     val optBindingsNode = (xml \ "externalVariableBindings").headOption
     val extVarBindings = optBindingsNode.map { Binding.getBindings(_) }.getOrElse(Seq())
     val optTunablesXML =
@@ -47,7 +47,7 @@ object DaffodilConfig {
     new DaffodilConfig(extVarBindings, tunablesMap)
   }
 
-  def fromSchemaSource(source: DaffodilSchemaSource) = {
+  def fromSchemaSource(source: DaffodilSchemaSource): DaffodilConfig = {
     val loader = new DaffodilXMLLoader()
     try {
       var node = loader.load(source, None) // might not be daf:dfdlConfig, so don't validate.
@@ -67,11 +67,11 @@ object DaffodilConfig {
     }
   }
 
-  def fromURI(uri: URI) = fromSchemaSource(
+  def fromURI(uri: URI): DaffodilConfig = fromSchemaSource(
     URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
   )
 
-  def fromFile(file: File) = fromSchemaSource(
+  def fromFile(file: File): DaffodilConfig = fromSchemaSource(
     URISchemaSource(file, file.toURI)
   )
 

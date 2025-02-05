@@ -71,7 +71,7 @@ final class TraceDebuggerRunner extends DebuggerRunner {
     // do nothing
   }
   def getCommand(): String = ""
-  def lineOutput(line: String) = {
+  def lineOutput(line: String): Unit = {
     // do nothing
   }
   def fini(): Unit = {

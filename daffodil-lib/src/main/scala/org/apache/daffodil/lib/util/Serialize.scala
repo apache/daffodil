@@ -24,7 +24,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 
 trait PreSerialization extends Serializable {
 
-  val me = this.getClass()
+  val me: Class[_ <: PreSerialization] = this.getClass()
   Assert.usage(
     PreSerialization.classHasWriteObjectMethod(me),
     String.format("Class %s does not implement the method writeObject.", me.getName())
@@ -42,7 +42,7 @@ trait PreSerialization extends Serializable {
   /**
    * Use this to insure we pre-serialize only once.
    */
-  final lazy val preSerializationOnlyOnce = {
+  final lazy val preSerializationOnlyOnce: Any = {
     // println("preSerializing " + this) // good place for a breakpoint
     preSerialization
   }

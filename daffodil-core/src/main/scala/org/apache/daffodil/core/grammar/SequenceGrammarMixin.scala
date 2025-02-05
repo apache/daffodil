@@ -28,7 +28,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen._
 trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
   self: SequenceTermBase =>
 
-  final override lazy val groupContentDef = prod("groupContentDef") {
+  final override lazy val groupContentDef: Gram = prod("groupContentDef") {
     if (isLayered) layerContent
     else sequenceContent
   }
@@ -219,11 +219,11 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
    * These are static properties even though the delimiters can have runtime-computed values.
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
-  final lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
+  final lazy val hasPrefixSep: Boolean = sepExpr(SeparatorPosition.Prefix)
 
-  final lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
+  final lazy val hasInfixSep: Boolean = sepExpr(SeparatorPosition.Infix)
 
-  final lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
+  final lazy val hasPostfixSep: Boolean = sepExpr(SeparatorPosition.Postfix)
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
   private def sepExpr(pos: => SeparatorPosition): Boolean = {
@@ -238,7 +238,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
    * Whether the representation of a term in the data stream "has a separator", as in a specific separator
    * occupies a non-zero number of bits, is an entirely different question.
    */
-  lazy val hasSeparator = !separatorParseEv.isConstantEmptyString
+  lazy val hasSeparator: Boolean = !separatorParseEv.isConstantEmptyString
 
   /**
    * Note that the sequence separator does not include the delimMTA grammar
@@ -247,10 +247,10 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
    * potential alignment. Grammars are expected to handle the delimMTA when
    * necessary
    */
-  lazy val sequenceSeparatorMTA = prod("sequenceSeparatorMTA", hasSeparator) {
+  lazy val sequenceSeparatorMTA: Gram = prod("sequenceSeparatorMTA", hasSeparator) {
     delimMTA
   }
-  lazy val sequenceSeparator = prod("separator", hasSeparator) {
+  lazy val sequenceSeparator: Gram = prod("separator", hasSeparator) {
     SequenceSeparator(this)
   }
 

@@ -68,11 +68,11 @@ trait ElementBase
   with OverlapCheckMixin
   with ElementBaseView {
 
-  protected override def initialize() = {
+  protected override def initialize(): Unit = {
     super.initialize()
   }
 
-  override final def eBase = this
+  override final def eBase: ElementBase = this
 
   lazy val init: Unit = {
     schemaSet.elementBaseInstanceCount += 1
@@ -97,7 +97,7 @@ trait ElementBase
 
   override def name: String
 
-  final lazy val inputValueCalcOption =
+  final lazy val inputValueCalcOption: PropertyLookupResult =
     findPropertyOption("inputValueCalc", expressionAllowed = true)
 
   final lazy val outputValueCalcOption: PropertyLookupResult = {
@@ -142,7 +142,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:contentLength( thingy )
    */
-  override final protected lazy val calcContentParserReferencedElementInfos =
+  override final protected lazy val calcContentParserReferencedElementInfos: Set[DPathElementCompileInfo] =
     if (this.inputValueCalcOption.isDefined)
       ivcCompiledExpression.contentReferencedElementInfos
     else
@@ -152,7 +152,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an OVC
    * that calls dfdl:contentLength( thingy )
    */
-  override final protected lazy val calcContentUnparserReferencedElementInfos =
+  override final protected lazy val calcContentUnparserReferencedElementInfos: Set[DPathElementCompileInfo] =
     if (this.outputValueCalcOption.isDefined)
       ovcCompiledExpression.contentReferencedElementInfos
     else
@@ -162,7 +162,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:valueLength( thingy )
    */
-  override final protected lazy val calcValueParserReferencedElementInfos =
+  override final protected lazy val calcValueParserReferencedElementInfos: Set[DPathElementCompileInfo] =
     if (this.inputValueCalcOption.isDefined) {
       val ivcCE = ivcCompiledExpression
       val setERs = ivcCE.valueReferencedElementInfos
@@ -174,7 +174,7 @@ trait ElementBase
    * The DPathElementInfo objects referenced within an IVC
    * that calls dfdl:valueLength( thingy )
    */
-  override final protected lazy val calcValueUnparserReferencedElementInfos =
+  override final protected lazy val calcValueUnparserReferencedElementInfos: Set[DPathElementCompileInfo] =
     if (this.outputValueCalcOption.isDefined)
       ovcCompiledExpression.valueReferencedElementInfos
     else
@@ -443,7 +443,7 @@ trait ElementBase
 
   def isQuasiElement: Boolean = false // overriden by RepTypeQuasiElementDecl
 
-  final protected lazy val optTruncateSpecifiedLengthString =
+  final protected lazy val optTruncateSpecifiedLengthString: Option[Boolean] =
     Option(truncateSpecifiedLengthString =:= YesNo.Yes)
   // because of the way text numbers are unparsed, we don't know that
   // the string is for a text number. So we need this property for numbers and other text
@@ -471,14 +471,14 @@ trait ElementBase
     }
   }.value
 
-  final lazy val elementChildrenCompileInfo =
+  final lazy val elementChildrenCompileInfo: Seq[DPathElementCompileInfo] =
     elementChildren.map {
       _.dpathElementCompileInfo
     }
 
-  final lazy val isOutputValueCalc = outputValueCalcOption.isInstanceOf[Found]
+  final lazy val isOutputValueCalc: Boolean = outputValueCalcOption.isInstanceOf[Found]
 
-  final override lazy val impliedRepresentation = {
+  final override lazy val impliedRepresentation: Representation = {
     val rep = if (isSimpleType) {
       primType match {
         case PrimType.HexBinary => Representation.Binary
@@ -684,7 +684,7 @@ trait ElementBase
    * it means in dfdl:lengthUnits units, which could be characters, and those can
    * be fixed or variable width.
    */
-  final lazy val isFixedLength = {
+  final lazy val isFixedLength: Boolean = {
     (lengthKind =:= LengthKind.Explicit && lengthEv.isConstant) ||
     isImplicitLengthString
     // FIXME: there are lots of other cases where things are fixed length
@@ -694,7 +694,7 @@ trait ElementBase
     // Also, things like packed and zoned decimal are usually fixed length, sometimes delimited.
   }
 
-  final lazy val isImplicitLengthString =
+  final lazy val isImplicitLengthString: Boolean =
     isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
 
   final lazy val fixedLengthValue: Long = {
@@ -730,14 +730,14 @@ trait ElementBase
     }
   }
 
-  final lazy val isLengthAlwaysNonZero = {
+  final lazy val isLengthAlwaysNonZero: Boolean = {
     Assert.usage(isRepresented)
     if (hasFixedLengthOf(0)) false
     else if (isFixedLength) true
     else false
   }
 
-  final lazy val fixedLength = {
+  final lazy val fixedLength: Long = {
     if (isFixedLength) repElement.lengthEv.optConstant.get.longValue() else -1L
     // FIXME: shouldn't even be asking for this if not isFixedLength
     // try changing to Assert.usage(isFixedLength)
@@ -847,9 +847,9 @@ trait ElementBase
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  protected final lazy val hasNilValueInitiator =
+  protected final lazy val hasNilValueInitiator: Boolean =
     hasNonEmptyDelimiter(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  protected final lazy val hasNilValueTerminator =
+  protected final lazy val hasNilValueTerminator: Boolean =
     hasNonEmptyDelimiter(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
@@ -860,13 +860,13 @@ trait ElementBase
    * The difference is due to for unparsing the %NL; is treated specially
    * because it must be computed based on dfdl:outputNewLine.
    */
-  final lazy val cookedNilValuesForParse = cookedNilValue(forUnparse = false)
-  final lazy val rawNilValuesForParse = rawNilValueList(forUnparse = false)
+  final lazy val cookedNilValuesForParse: List[String] = cookedNilValue(forUnparse = false)
+  final lazy val rawNilValuesForParse: List[String] = rawNilValueList(forUnparse = false)
 
-  final lazy val cookedNilValuesForUnparse = cookedNilValue(forUnparse = true)
-  final lazy val rawNilValuesForUnparse = rawNilValueList(forUnparse = false)
+  final lazy val cookedNilValuesForUnparse: List[String] = cookedNilValue(forUnparse = true)
+  final lazy val rawNilValuesForUnparse: List[String] = rawNilValueList(forUnparse = false)
 
-  final lazy val hasESNilValue = rawNilValuesForParse.contains("%ES;")
+  final lazy val hasESNilValue: Boolean = rawNilValuesForParse.contains("%ES;")
 
   /**
    * Determines if the nil representation is one that has non-zero-length
@@ -884,7 +884,7 @@ trait ElementBase
    * have both zero-length and non-zero-length representations which cause
    * a nilled element to be created by the parser.
    */
-  final lazy val hasNilValueRequiredSyntax = isNillable &&
+  final lazy val hasNilValueRequiredSyntax: Boolean = isNillable &&
     ((isDefinedNilLit && (hasNilValueInitiator || hasNilValueTerminator)) ||
       (isDefinedNilLit && !hasESNilValue) ||
       (isDefinedNilValue && (hasInitiator || hasTerminator)) ||
@@ -892,9 +892,9 @@ trait ElementBase
       // cause a nil value to be created.
       (isDefinedNilValue && (isSimpleType && (simpleType.primType =:= PrimType.String || simpleType.primType =:= PrimType.HexBinary) && !hasESNilValue)))
 
-  final lazy val hasEmptyValueInitiator =
+  final lazy val hasEmptyValueInitiator: Boolean =
     hasNonEmptyDelimiter(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
-  final lazy val hasEmptyValueTerminator = hasNonEmptyDelimiter(
+  final lazy val hasEmptyValueTerminator: Boolean = hasNonEmptyDelimiter(
     terminatorParseEv,
     emptyValueDelimiterPolicy,
     EVDP.Both,
@@ -962,7 +962,7 @@ trait ElementBase
    *
    * False if the type can't be empty.
    */
-  final lazy val hasEmptyValueZLSyntax =
+  final lazy val hasEmptyValueZLSyntax: Boolean =
     !hasEmptyValueInitiator && !hasEmptyValueTerminator && isSimpleType &&
       (simpleType.primType =:= PrimType.String ||
         simpleType.primType =:= PrimType.HexBinary)
@@ -1311,7 +1311,7 @@ trait ElementBase
     }
   }.value
 
-  final lazy val defaultParseUnparsePolicy =
+  final lazy val defaultParseUnparsePolicy: ParseUnparsePolicy =
     optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
 
   /**

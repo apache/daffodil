@@ -30,7 +30,7 @@ class ByteBufferOutputStream(val byteBuffer: ByteBuffer) extends OutputStream {
 
   byteBuffer.limit(byteBuffer.capacity())
 
-  def write(b: Int) = byteBuffer.put(b.toByte)
+  def write(b: Int): Unit = byteBuffer.put(b.toByte)
 
-  def size() = byteBuffer.position()
+  def size(): Int = byteBuffer.position()
 }

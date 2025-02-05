@@ -39,7 +39,7 @@ class DataLoc(
 ) extends DataLocation {
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
-  override def toString() = {
+  override def toString(): String = {
     "byte " + bitPos1b / 8 + (if (bitLimit1b.isDefined) " limit(bytes) " + bitLimit1b.get / 8
                               else "")
   }
@@ -171,5 +171,5 @@ class DataLoc(
     s
   }
 
-  def aligned128BitsPos = (bitPos1b >> 7) << 7
+  def aligned128BitsPos: Long = (bitPos1b >> 7) << 7
 }

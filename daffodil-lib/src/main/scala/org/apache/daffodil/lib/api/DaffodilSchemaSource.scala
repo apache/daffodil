@@ -74,12 +74,12 @@ object URISchemaSource {
 class URISchemaSource protected (diagnosticFilepath: File, val uri: URI)
   extends DaffodilSchemaSource {
 
-  override def equals(other: Any) = other match {
+  override def equals(other: Any): Boolean = other match {
     case oth: URISchemaSource => this.uri == oth.uri
     case _ => false
   }
 
-  override def hashCode() = uri.hashCode()
+  override def hashCode(): Int = uri.hashCode()
 
   private lazy val url = uri.toURL
 
@@ -111,7 +111,7 @@ class URISchemaSource protected (diagnosticFilepath: File, val uri: URI)
     }
   }
 
-  override def newInputSource() = {
+  override def newInputSource(): InputSource = {
     fileModTime // demand this so we have it recorded
     val is = new InputSource(url.openStream())
     is.setSystemId(uri.toString)
@@ -146,19 +146,19 @@ class InputStreamSchemaSource(
   blameName: String,
   extension: String
 ) extends DaffodilSchemaSource {
-  lazy val tempSchemaFile =
+  lazy val tempSchemaFile: File =
     XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
   lazy val tempURI = tempSchemaFile.toURI
-  lazy val csName = {
+  lazy val csName: String = {
     val xmlStream = XmlStreamReader.builder().setFile(tempSchemaFile).get()
     val csName = xmlStream.getEncoding()
     xmlStream.close()
     csName
   }
 
-  def isXSD = Assert.usageError("isXSD not supported for InputStreamInputSource")
+  def isXSD: Boolean = Assert.usageError("isXSD not supported for InputStreamInputSource")
 
-  override def newInputSource() = {
+  override def newInputSource(): InputSource = {
     val is = new FileInputStream(tempSchemaFile)
     val inSrc = new InputSource(is)
     inSrc.setEncoding(csName)
@@ -182,7 +182,7 @@ protected sealed abstract class NodeSchemaSourceBase(
 
   def blameName: String
 
-  override def newInputSource() = {
+  override def newInputSource(): InputSource = {
     val inSrc = new InputSource(this.uriForLoading.toURL().openStream())
     inSrc.setSystemId(blameName)
     inSrc
@@ -196,7 +196,7 @@ case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
     optTmpDir,
     XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint)
   ) {
-  override val blameName =
+  override val blameName: String =
     if (nameHint != "") "unittest:" + nameHint
     else uriForLoading.toString
 }
@@ -214,7 +214,7 @@ case class EmbeddedSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
   ) {
   override val blameName = nameHint
 
-  override val diagnosticFile =
+  override val diagnosticFile: File =
     XMLUtils
       .getOptTDMLFileFromNode(node)
       .getOrElse(super.diagnosticFile)

@@ -23,6 +23,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.TextBooleanFalseRepEv
 import org.apache.daffodil.runtime1.processors.TextBooleanTrueRepEv
+import org.apache.daffodil.runtime1.processors.{ EvaluatableConvertedExpression, InfosetCachedEvaluatable }
 
 case class ConvertTextBooleanParser(
   override val context: ElementRuntimeData,
@@ -31,7 +32,7 @@ case class ConvertTextBooleanParser(
   ignoreCase: Boolean
 ) extends TextPrimParser {
 
-  override lazy val runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
+  override lazy val runtimeDependencies: Vector[EvaluatableConvertedExpression[String,List[String]] with InfosetCachedEvaluatable[List[String]]] = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
 
   private def matches(str1: String, str2: String): Boolean = {
     if (ignoreCase) str1.equalsIgnoreCase(str2) else str1 == str2

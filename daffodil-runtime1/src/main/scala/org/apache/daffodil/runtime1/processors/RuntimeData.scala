@@ -181,7 +181,7 @@ sealed abstract class TermRuntimeData(
 
   final override def hashCode(): Int = termID
 
-  final override def equals(other: Any) = other match {
+  final override def equals(other: Any): Boolean = other match {
     case ref: AnyRef => this eq ref
     case _ => false
   }
@@ -721,7 +721,7 @@ sealed class ElementRuntimeData(
 
   override def toQName: String = namedQName.toQNameString
 
-  override def isRequiredScalar = !isArray && isRequiredInUnparseInfoset
+  override def isRequiredScalar: Boolean = !isArray && isRequiredInUnparseInfoset
 
   final def childERDs = children
 
@@ -731,11 +731,11 @@ sealed class ElementRuntimeData(
 
   override def dfdlType: DFDLPrimType = primType.dfdlType
 
-  def isComplexType = !isSimpleType
+  def isComplexType: Boolean = !isSimpleType
 
-  lazy val prefix = this.minimizedScope.getPrefix(namedQName.namespace)
+  lazy val prefix: String = this.minimizedScope.getPrefix(namedQName.namespace)
 
-  lazy val prefixedName = {
+  lazy val prefixedName: String = {
     if (prefix != null) {
       prefix + ":" + name
     } else {
@@ -837,7 +837,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null // localSuppressSchemaDefinitionWarnings: Seq[WarnID]
   ) {
 
-  override def toString() =
+  override def toString(): String =
     Misc.getNameFromClass(this) + "(" + this.namedQName.toExtendedSyntax + ")"
 
 }
@@ -874,7 +874,7 @@ final class NamespaceAmbiguousElementErrorERD(
    * Pass false if the Term's ordinary nextElementResolver list of possibilities
    * is what was expected.
    */
-  def toUnparseError(nothingWasExpected: Boolean = false) = {
+  def toUnparseError(nothingWasExpected: Boolean = false): Nothing = {
     val sqn = StepQName(None, name, namedQName.namespace)
     val sqnx = sqn.toExtendedSyntax
     val allPossiblesString =

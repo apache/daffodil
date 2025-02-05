@@ -47,6 +47,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.RepresentationMixin
 import org.apache.daffodil.lib.util.MaybeULong
 
 import passera.unsigned.ULong
+import scala.collection.immutable
 
 /**
  * We don't want to make the code generator so sophisticated as to be
@@ -58,9 +59,9 @@ import passera.unsigned.ULong
 sealed trait AlignmentType extends AlignmentType.Value
 object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mixin here!
   case object Implicit extends AlignmentType
-  override lazy val values = Array(Implicit)
+  override lazy val values: Array[AnyRef] = Array(Implicit)
 
-  val allowedAlignmentValues = {
+  val allowedAlignmentValues: immutable.IndexedSeq[Int] = {
     val ints = 0 to 30 // that's every perfect power of 2 that fits in an Int.
     ints.map(1 << _)
   }
@@ -125,7 +126,7 @@ trait TextStandardBaseMixin extends PropertyMixin {
    * property based on a tunable, and if we shouldn't require it and it's not
    * defined, then we warn and default to 10.
    */
-  final lazy val textStandardBaseDefaulted = {
+  final lazy val textStandardBaseDefaulted: Int = {
     val numStr =
       if (tunable.requireTextStandardBaseProperty || optionTextStandardBase.isDefined) {
         getProperty("textStandardBase")
@@ -146,7 +147,7 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   case object TrailingEmpty extends SeparatorSuppressionPolicy
   case object TrailingEmptyStrict extends SeparatorSuppressionPolicy
   case object AnyEmpty extends SeparatorSuppressionPolicy
-  override lazy val values = Array(Never, TrailingEmpty, TrailingEmptyStrict, AnyEmpty)
+  override lazy val values: Array[SeparatorSuppressionPolicy] = Array(Never, TrailingEmpty, TrailingEmptyStrict, AnyEmpty)
 
   def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy =
     stringToEnum("separatorSuppressionPolicy", name, self)
@@ -212,19 +213,19 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
 
 trait TextNumberFormatMixin extends PropertyMixin { self: OOLAGHost =>
 
-  lazy val textStandardInfinityRep = {
+  lazy val textStandardInfinityRep: String = {
     val raw = getProperty("textStandardInfinityRep")
     val cooked = TextStandardInfinityRepCooker.convertConstant(raw, this, false)
     cooked
   }
 
-  lazy val textStandardNaNRep = {
+  lazy val textStandardNaNRep: String = {
     val raw = getProperty("textStandardNaNRep")
     val cooked = TextStandardNaNRepCooker.convertConstant(raw, this, false)
     cooked
   }
 
-  lazy val textStandardZeroRep = {
+  lazy val textStandardZeroRep: List[String] = {
     val raw = getProperty("textStandardZeroRep")
     val cooked = TextStandardZeroRepCooker.convertConstant(raw, this, false)
     cooked
@@ -233,9 +234,9 @@ trait TextNumberFormatMixin extends PropertyMixin { self: OOLAGHost =>
 
 trait StringTextMixin extends PropertyMixin with LengthUnitsMixin { self: OOLAGHost =>
 
-  lazy val textStringPadCharacterRaw = getProperty("textStringPadCharacter")
+  lazy val textStringPadCharacterRaw: String = getProperty("textStringPadCharacter")
 
-  lazy val textStringPadCharacter = {
+  lazy val textStringPadCharacter: String = {
     val raw = textStringPadCharacterRaw
     val cooked = TextStringPadCharacterCooker.convertConstant(raw, this, false)
 
@@ -256,9 +257,9 @@ trait StringTextMixin extends PropertyMixin with LengthUnitsMixin { self: OOLAGH
 
 trait NumberTextMixin extends PropertyMixin with LengthUnitsMixin {
 
-  lazy val textNumberPadCharacterRaw = getProperty("textNumberPadCharacter")
+  lazy val textNumberPadCharacterRaw: String = getProperty("textNumberPadCharacter")
 
-  lazy val textNumberPadCharacter = {
+  lazy val textNumberPadCharacter: String = {
     val raw = textNumberPadCharacterRaw
     val cooked = TextNumberPadCharacterCooker.convertConstant(raw, this, forUnparse = false)
 
@@ -281,9 +282,9 @@ trait NumberTextMixin extends PropertyMixin with LengthUnitsMixin {
 
 trait BooleanTextMixin extends PropertyMixin with LengthUnitsMixin {
 
-  lazy val textBooleanPadCharacterRaw = getProperty("textBooleanPadCharacter")
+  lazy val textBooleanPadCharacterRaw: String = getProperty("textBooleanPadCharacter")
 
-  lazy val textBooleanPadCharacter = {
+  lazy val textBooleanPadCharacter: String = {
     val raw = textBooleanPadCharacterRaw
     val cooked = TextBooleanPadCharacterCooker.convertConstant(raw, this, false)
 
@@ -305,9 +306,9 @@ trait BooleanTextMixin extends PropertyMixin with LengthUnitsMixin {
 
 trait CalendarTextMixin extends PropertyMixin with LengthUnitsMixin {
 
-  lazy val textCalendarPadCharacterRaw = getProperty("textCalendarPadCharacter")
+  lazy val textCalendarPadCharacterRaw: String = getProperty("textCalendarPadCharacter")
 
-  lazy val textCalendarPadCharacter = {
+  lazy val textCalendarPadCharacter: String = {
     val raw = textCalendarPadCharacterRaw
     val cooked = TextCalendarPadCharacterCooker.convertConstant(raw, this, false)
     this.lengthUnits match {
@@ -369,7 +370,7 @@ trait NillableMixin
     else res
   }
 
-  def rawNilValueList(forUnparse: Boolean) = {
+  def rawNilValueList(forUnparse: Boolean): List[String] = {
     NilValueRawListCooker.convertConstant(rawNilValue, this, forUnparse)
   }
 
@@ -435,17 +436,17 @@ object BinaryBooleanFalseRepType {
 trait TextStandardExponentCharacterMixin
 
 trait TextStandardExponentRepMixin extends PropertyMixin {
-  protected final lazy val optionTextStandardExponentRepRaw =
+  protected final lazy val optionTextStandardExponentRepRaw: PropertyLookupResult =
     findPropertyOption("textStandardExponentRep", expressionAllowed = true)
-  protected final lazy val textStandardExponentRepRaw = requireProperty(
+  protected final lazy val textStandardExponentRepRaw: Found = requireProperty(
     optionTextStandardExponentRepRaw
   )
 
   // Deprecated textStandardExponentCharacter
-  protected final lazy val optionTextStandardExponentCharacterRaw = findPropertyOption(
+  protected final lazy val optionTextStandardExponentCharacterRaw: PropertyLookupResult = findPropertyOption(
     "textStandardExponentCharacter"
   )
-  protected final lazy val textStandardExponentCharacterRaw = requireProperty(
+  protected final lazy val textStandardExponentCharacterRaw: Found = requireProperty(
     optionTextStandardExponentCharacterRaw
   )
 
@@ -490,7 +491,7 @@ object EmptyElementParsePolicy extends Enum[EmptyElementParsePolicy] {
   case object TreatAsEmpty extends EmptyElementParsePolicy
   case object TreatAsAbsent extends EmptyElementParsePolicy
 
-  override lazy val values =
+  override lazy val values: Array[EmptyElementParsePolicy] =
     Array(TreatAsMissing, TreatAsEmpty, TreatAsAbsent) // deprecated: TreatAsMissing
 
   def apply(name: String, context: ThrowsSDE): EmptyElementParsePolicy =
@@ -519,7 +520,7 @@ trait EmptyElementParsePolicyMixin extends PropertyMixin {
    * empty (or nullness) is matched, create an empty (or null) item, even if optional, unless
    * the element is entirely absent.
    */
-  final lazy val emptyElementParsePolicy = {
+  final lazy val emptyElementParsePolicy: EmptyElementParsePolicy = {
     if (this.tunable.requireEmptyElementParsePolicyProperty) {
       emptyElementPolicyRaw // will cause SDE if not found
     } else if (this.optionEmptyElementPolicyRaw.isDefined) {

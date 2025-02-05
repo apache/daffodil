@@ -55,7 +55,7 @@ class ElementUnspecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
 }
 
@@ -79,7 +79,7 @@ class ElementUnparserInputValueCalc(erd: ElementRuntimeData, setVarUnparsers: Ar
   extends ElementUnparserBase(erd, setVarUnparsers, Nope, Nope, Nope, Nope)
   with RegularElementUnparserStartEndStrategy {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   /**
    * Move over in the element children, but not in the group.
@@ -108,7 +108,7 @@ class ElementOVCUnspecifiedLengthUnparser(
   with OVCStartEndStrategy
   with RepMoveMixin {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
 }
 
@@ -130,7 +130,7 @@ sealed abstract class ElementUnparserBase(
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
 
-  final override lazy val childProcessors =
+  final override lazy val childProcessors: Vector[Unparser] =
     (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ eReptypeUnparser.toList ++ setVarUnparsers.toList).toVector
 
   private val name = erd.name

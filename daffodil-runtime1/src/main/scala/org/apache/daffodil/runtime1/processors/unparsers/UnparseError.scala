@@ -40,7 +40,7 @@ object UnparseError {
     loc: Maybe[DataLocation],
     formatString: String,
     args: Any*
-  ) = {
+  ): Nothing = {
     val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args: _*)
     ue.toss
   }

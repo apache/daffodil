@@ -31,8 +31,8 @@ import org.apache.daffodil.lib.util.MaybeChar
 class BitsCharsetDecoderMalformedException(val malformedBits: Int) extends ThinException
 
 class BitsCharsetDecoderUnalignedCharDecodeException(val bitPos1b: Long) extends ThinException {
-  def bitAlignment1b = bitPos1b % 8
-  def bytePos1b = ((bitPos1b - 1) / 8) + 1
+  def bitAlignment1b: Long = bitPos1b % 8
+  def bytePos1b: Long = ((bitPos1b - 1) / 8) + 1
 
   override def getMessage(): String = {
     s"Charset not byte aligned. bitAlignment1b=${bitAlignment1b}, bitPos1b=${bitPos1b}, bytePos1b=${bytePos1b}."

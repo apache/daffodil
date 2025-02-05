@@ -27,6 +27,7 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.Evaluatable
 
 class DelimiterTextUnparser(
   override val context: TermRuntimeData,
@@ -35,9 +36,9 @@ class DelimiterTextUnparser(
 
   private def erd = context
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
-  override lazy val nom = {
+  override lazy val nom: String = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"
     else if (delimiterType == DelimiterTextType.Separator) "SeparatorUnparser"
     else "TerminatorUnparser"

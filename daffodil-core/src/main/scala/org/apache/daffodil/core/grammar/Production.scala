@@ -24,6 +24,8 @@ import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.unparsers.runtime1.NadaUnparser
+import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 /**
  * Prod or Grammar Production
@@ -53,9 +55,9 @@ final class Prod(
 
   final override lazy val name = nameArg
 
-  override def toString() = "<" + name + ">" + gram.toString + "</" + name + ">"
+  override def toString(): String = "<" + name + ">" + gram.toString + "</" + name + ">"
 
-  final override lazy val path = sc.path + "@@Prod(" + diagnosticDebugName + ")"
+  final override lazy val path: String = sc.path + "@@Prod(" + diagnosticDebugName + ")"
 
   private lazy val g = gramArg // once only
 
@@ -77,9 +79,9 @@ final class Prod(
     }
   }
 
-  final override lazy val isEmpty = if (!guard) true else gram.isEmpty
+  final override lazy val isEmpty: Boolean = if (!guard) true else gram.isEmpty
 
-  final override lazy val parser = {
+  final override lazy val parser: Parser = {
     (forWhat, gram.forWhat) match {
       case (ForUnparser, _) =>
         new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
@@ -88,7 +90,7 @@ final class Prod(
     }
   }
 
-  final override lazy val unparser = {
+  final override lazy val unparser: Unparser = {
     val unp =
       if (gram.isEmpty) {
         EmptyGram.unparser

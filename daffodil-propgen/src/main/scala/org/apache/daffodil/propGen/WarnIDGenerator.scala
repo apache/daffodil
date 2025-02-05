@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.propGen
 
+import scala.xml.{ Node, NodeSeq }
 class WarnIDGenerator(schema: scala.xml.Node) {
 
-  val top = """
+  val top: String = """
     |/*
     | * Licensed to the Apache Software Foundation (ASF) under one or more
     | * contributor license agreements.  See the NOTICE file distributed with
@@ -58,14 +59,14 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     |object WarnID extends Enum[WarnID] {
     """.trim.stripMargin
 
-  val bottom = """
+  val bottom: String = """
     |  override def apply(name: String, context: ThrowsSDE) = Assert.usageError("not to be called. Use optionStringToEnum")
     |}
     """.trim.stripMargin
 
-  val ssdwNode =
+  val ssdwNode: Node =
     (schema \ "simpleType").find(_ \@ "name" == "TunableSuppressSchemaDefinitionWarnings").get
-  val enumerationNodes = (ssdwNode \\ "enumeration")
+  val enumerationNodes: NodeSeq = (ssdwNode \\ "enumeration")
 
   def writeGeneratedCode(w: java.io.FileWriter): Unit = {
     w.write(top)

@@ -39,6 +39,8 @@ import org.apache.daffodil.lib.util.MaybeULong
 
 import org.apache.commons.io.output.TeeOutputStream
 import passera.unsigned.ULong
+import java.io.OutputStream
+import java.nio.LongBuffer
 
 sealed trait DOSState
 private[io] case object Active extends DOSState
@@ -78,7 +80,7 @@ trait DataOutputStreamImplMixin
    * Works even if the streams have been collapsing together as a result of earlier streams
    * having been setFinished.
    */
-  final override def zeroLengthStatus = {
+  final override def zeroLengthStatus: ZeroLengthStatus = {
     import ZeroLengthStatus._
     zlStatus_ match {
       case Zero => // ok
@@ -159,7 +161,7 @@ trait DataOutputStreamImplMixin
       maybeAbsStartingBitPos0b_
   }
 
-  final def toAbsolute(relBitPos0b: ULong) = {
+  final def toAbsolute(relBitPos0b: ULong): ULong = {
     Assert.usage(maybeAbsStartingBitPos0b.isDefined)
     maybeAbsStartingBitPos0b.getULong + relBitPos0b
   }
@@ -221,7 +223,7 @@ trait DataOutputStreamImplMixin
     checkInvariants()
   }
 
-  def relBitPos0b = {
+  def relBitPos0b: ULong = {
     relBitPos0b_
   }
 
@@ -344,7 +346,7 @@ trait DataOutputStreamImplMixin
     fragmentLastByteLimit_ = nBitsInUse
   }
 
-  def isEndOnByteBoundary = fragmentLastByteLimit == 0
+  def isEndOnByteBoundary: Boolean = fragmentLastByteLimit == 0
 
   private var _dosState: DOSState = Active // active when new.
 
@@ -357,7 +359,7 @@ trait DataOutputStreamImplMixin
   @inline private[io] final def isDirect = !isBuffering
 
   @inline private[io] final def isDead = { _dosState =:= Uninitialized }
-  @inline override final def isFinished = { _dosState =:= Finished }
+  @inline override final def isFinished: Boolean = { _dosState =:= Finished }
   // @inline override def setFinished(finfo: FormatInfo) { _dosState = Finished }
   @inline private[io] final def isActive = { _dosState =:= Active }
   @inline private[io] final def isReadOnly = { isFinished && isBuffering }
@@ -375,7 +377,7 @@ trait DataOutputStreamImplMixin
 
   protected def getJavaOutputStream(): java.io.OutputStream
 
-  final protected def cst = this
+  final protected def cst: DataOutputStreamImplMixin = this
 
   protected def assignFrom(other: DataOutputStreamImplMixin): Unit = {
     Assert.usage(isWritable)
@@ -393,7 +395,7 @@ trait DataOutputStreamImplMixin
   /**
    * just a synonym
    */
-  protected final def realStream = getJavaOutputStream()
+  protected final def realStream: OutputStream = getJavaOutputStream()
 
   final override def setDebugging(setting: Boolean): Unit = {
     Assert.usage(isWritable)
@@ -1038,11 +1040,11 @@ trait DataOutputStreamImplMixin
    * These members are like a C language union. We write as float, we get back same storage
    * as int. Ditto double to long.
    */
-  protected val unionByteBuffer = ByteBuffer.allocate(8)
+  protected val unionByteBuffer: ByteBuffer = ByteBuffer.allocate(8)
   private val unionDoubleBuffer = unionByteBuffer.asDoubleBuffer()
   private val unionFloatBuffer = unionByteBuffer.asFloatBuffer()
   private val unionIntBuffer = unionByteBuffer.asIntBuffer()
-  protected val unionLongBuffer = unionByteBuffer.asLongBuffer()
+  protected val unionLongBuffer: LongBuffer = unionByteBuffer.asLongBuffer()
 
   final override def putBinaryFloat(v: Float, finfo: FormatInfo): Boolean = {
     unionFloatBuffer.put(0, v)

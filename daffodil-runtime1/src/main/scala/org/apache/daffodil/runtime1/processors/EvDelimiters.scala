@@ -37,7 +37,7 @@ trait DelimiterEvMixin[+T <: AnyRef] extends ExprEvalMixin[String] { self: Evalu
   def expr: CompiledExpression[String]
   def converter: Converter[String, List[String]]
 
-  override final def toBriefXML(depth: Int = -1) =
+  override final def toBriefXML(depth: Int = -1): String =
     if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 
   protected def evalAndConvert(state: ParseOrUnparseState): List[String] = {
@@ -60,7 +60,7 @@ abstract class DelimiterParseEv(
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[UState]) {
@@ -85,7 +85,7 @@ abstract class DelimiterUnparseEv(
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
 
-  override lazy val runtimeDependencies = Seq(outputNewLine)
+  override lazy val runtimeDependencies: Seq[OutputNewLineEv] = Seq(outputNewLine)
 
   override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[PState]) {
@@ -127,7 +127,7 @@ class TerminatorParseEv(
   tci: DPathCompileInfo
 ) extends DelimiterParseEv(DelimiterTextType.Terminator, expr, ignoreCase, tci) {
 
-  override val converter =
+  override val converter: Converter[String,List[String]] =
     if (isLengthKindDelimited) TerminatorDelimitedCooker else TerminatorCooker
 }
 
@@ -138,7 +138,7 @@ class TerminatorUnparseEv(
   tci: DPathCompileInfo
 ) extends DelimiterUnparseEv(DelimiterTextType.Terminator, expr, outputNewLine, tci) {
 
-  override val converter =
+  override val converter: Converter[String,List[String]] =
     if (isLengthKindDelimited) TerminatorDelimitedCooker else TerminatorCooker
 }
 

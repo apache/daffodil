@@ -29,6 +29,7 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBool
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+import scala.xml.Node
 
 trait CompareOpBase {
   def operate(v1: DataValuePrimitive, v2: DataValuePrimitive): DataValuePrimitive
@@ -124,7 +125,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentValue(computeValue(arg, dstate))
   }
 
-  override def toXML = toXML(recipe.toXML)
+  override def toXML: Node = toXML(recipe.toXML)
 
   def computeValue(str: DataValuePrimitive, dstate: DState): DataValuePrimitive
 }
@@ -155,7 +156,7 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRe
     dstate: DState
   ): DataValuePrimitive
 
-  override def toXML = toXML(recipes.map { _.toXML })
+  override def toXML: Node = toXML(recipes.map { _.toXML })
 }
 
 abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
@@ -183,7 +184,7 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
     dstate: DState
   ): DataValuePrimitive
 
-  override def toXML = toXML(recipes.map { _.toXML })
+  override def toXML: Node = toXML(recipes.map { _.toXML })
 }
 
 abstract class FNThreeArgs(recipes: List[CompiledDPath])
@@ -215,7 +216,7 @@ abstract class FNThreeArgs(recipes: List[CompiledDPath])
     dstate: DState
   ): DataValuePrimitive
 
-  override def toXML = toXML(recipes.map { _.toXML })
+  override def toXML: Node = toXML(recipes.map { _.toXML })
 }
 
 abstract class FNArgsList(recipes: List[CompiledDPath])

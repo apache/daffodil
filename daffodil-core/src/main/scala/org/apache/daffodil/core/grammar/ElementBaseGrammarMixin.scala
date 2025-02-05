@@ -41,6 +41,7 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.processors.TextJustificationType
+import org.apache.daffodil.runtime1.dsom.CompiledExpression
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -88,7 +89,7 @@ trait ElementBaseGrammarMixin
   /**
    * true if padding will be inserted for this delimited element when unparsing.
    */
-  protected lazy val isDelimitedPrefixedPatternWithPadding = {
+  protected lazy val isDelimitedPrefixedPatternWithPadding: Boolean = {
     (isDelimitedPrefixedPattern &&
     (impliedRepresentation eq Representation.Text) &&
     (justificationPad ne TextJustificationType.None) &&
@@ -250,7 +251,7 @@ trait ElementBaseGrammarMixin
    * For simple types, we need the fill region processors
    * to detect excess length
    */
-  final lazy val shouldAddPadding = {
+  final lazy val shouldAddPadding: Boolean = {
     val res =
       if (
         isComplexType &&
@@ -278,7 +279,7 @@ trait ElementBaseGrammarMixin
    * We also add it to text elements of variable specified length again, unless
    * length units are in characters.
    */
-  final lazy val shouldAddFill = {
+  final lazy val shouldAddFill: Boolean = {
     val res =
       (isComplexType &&
         isSpecifiedLengthForUnparsing &&
@@ -344,7 +345,7 @@ trait ElementBaseGrammarMixin
    * return true here so that we're not doing excess length checks on them
    * Or computing their value length unnecessarily.
    */
-  final protected lazy val mustBeFixedLengthInfoset = {
+  final protected lazy val mustBeFixedLengthInfoset: Boolean = {
     (isSimpleType &&
       (impliedRepresentation eq Representation.Binary) &&
       (primType ne PrimType.HexBinary) && {
@@ -429,7 +430,7 @@ trait ElementBaseGrammarMixin
    * Note that specified length might mean fixed length or variable (but specified)
    * length.
    */
-  final protected lazy val isTruncatable = {
+  final protected lazy val isTruncatable: Boolean = {
     isSimpleType &&
     (primType eq PrimType.String) &&
     (truncateSpecifiedLengthString eq YesNo.Yes) &&
@@ -449,7 +450,7 @@ trait ElementBaseGrammarMixin
   /**
    * Check for excess length if it's variable length and we cannot truncate it.
    */
-  final lazy val shouldCheckExcessLength = {
+  final lazy val shouldCheckExcessLength: Boolean = {
     val res =
       couldBeVariableLengthInfoset &&
         !isTruncatable &&
@@ -489,7 +490,7 @@ trait ElementBaseGrammarMixin
       CaptureContentLengthEnd(this)
   }
 
-  lazy val parsedValue = prod("parsedValue", isSimpleType) {
+  lazy val parsedValue: Gram = prod("parsedValue", isSimpleType) {
     initiatorRegion ~
       valueMTA ~
       sharedSimpleParsedValue
@@ -504,7 +505,7 @@ trait ElementBaseGrammarMixin
    * It is critical that the 2nd argument to getShared is passed by name, so not
    * evaluated a second time when sharing opportunities are discovered (same shareKey).
    */
-  lazy val sharedSimpleParsedValue = {
+  lazy val sharedSimpleParsedValue: Gram = {
     lazy val retry = retrySimpleType(value) // once only
     schemaSet.sharedSimpleValueFactory.getShared(
       shareKey,
@@ -728,7 +729,7 @@ trait ElementBaseGrammarMixin
    * Avoids requesting the textZonedSignStyle property if we know the encoding
    * is an EBCDIC flavor.
    */
-  lazy val optTextZonedSignStyle = {
+  lazy val optTextZonedSignStyle: Option[TextZonedSignStyle] = {
     if (isKnownEBCDICEncoding) None
     else Some(textZonedSignStyle)
   }
@@ -866,7 +867,7 @@ trait ElementBaseGrammarMixin
 
   def primType: PrimType
 
-  protected final lazy val value = prod("value", isSimpleType) {
+  protected final lazy val value: Gram = prod("value", isSimpleType) {
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
     // this gets used for array contents also.
     {
@@ -1178,7 +1179,7 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  protected final lazy val empty = prod("empty", NYI && isEmptyAnObservableConcept) {
+  protected final lazy val empty: Gram = prod("empty", NYI && isEmptyAnObservableConcept) {
     EmptyGram
   }
 
@@ -1433,7 +1434,7 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  lazy val repElement = optRepTypeElementDecl.getOrElse(this)
+  lazy val repElement: ElementBase = optRepTypeElementDecl.getOrElse(this)
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
@@ -1448,7 +1449,7 @@ trait ElementBaseGrammarMixin
     TrailingSkipRegion(this)
   }
 
-  lazy val enclosedElement = prod("enclosedElement") {
+  lazy val enclosedElement: Gram = prod("enclosedElement") {
     //
     // not isScalar, because this is reused inside arrays
     // that is, we're counting on reusuing this production for array elements
@@ -1491,7 +1492,7 @@ trait ElementBaseGrammarMixin
       )
     }
 
-  final lazy val ovcCompiledExpression = {
+  final lazy val ovcCompiledExpression: CompiledExpression[AnyRef] = {
     val exprProp = outputValueCalcOption.asInstanceOf[Found]
     val exprText = exprProp.value
     val exprNamespaces = exprProp.location.namespaces
@@ -1719,7 +1720,7 @@ trait ElementBaseGrammarMixin
    * in the property environment shouldn't get you an MTA region. It has
    * to be textual.
    */
-  protected final lazy val valueMTA =
+  protected final lazy val valueMTA: Gram =
     prod("mandatoryTextAlignment", impliedRepresentation eq Representation.Text) {
       mtaBase
     }

@@ -35,7 +35,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable {
   @inline final def get: T = if (isDefined) value else noneGet
   @inline final def value: T = v.asInstanceOf[T]
-  final def noneGet =
+  final def noneGet: Nothing =
     throw new NoSuchElementException("Nope.get") // good place for a breakpoint
 
   @inline final def isEmpty: Boolean = NopeValue eq v
@@ -80,7 +80,7 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable 
   //  @inline final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
   @inline final def toScalaOption: scala.Option[T] =
     if (isEmpty) scala.None else scala.Some(get)
-  override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
+  override final def toString: String = if (isEmpty) "Nope" else "One(" + get + ")"
 }
 
 /**
@@ -112,10 +112,10 @@ object Maybe {
    * Maybe(not-null) returns One(not-null)
    */
   @inline
-  final def apply[T <: AnyRef](value: T) = if (value == null) Nope else new Maybe[T](value)
+  final def apply[T <: AnyRef](value: T): Maybe[T] = if (value == null) Nope else new Maybe[T](value)
 
   @inline
-  final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]) = Maybe(
+  final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]): Maybe[T] = Maybe(
     anyref.v.asInstanceOf[T]
   )
 
@@ -146,7 +146,7 @@ object Maybe {
     /**
      * One(null) throws an exception.
      */
-    final def apply[T <: AnyRef](value: T) =
+    final def apply[T <: AnyRef](value: T): Maybe[T] =
       if (value eq null) throw new NoSuchElementException("Cannot create One(..) for null")
       else new Maybe[T](value)
 

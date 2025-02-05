@@ -33,7 +33,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
    * are all isolated to just the SchemaDocument class and the Include
    * and Import classes.
    */
-  lazy val fakeXMLSchemaDocument = {
+  lazy val fakeXMLSchemaDocument: XMLSchemaDocument = {
     val xsd = XMLUtils.XSD_NAMESPACE.toString
 
     // Any time we synthesize xml we have to grab the namespace definitions and
@@ -57,11 +57,11 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
     fakeSD
   }
 
-  lazy val allSchemaDocuments = {
+  lazy val allSchemaDocuments: List[SchemaDocument] = {
     allSchemaFiles.map { _.iiSchemaDocument }
   }
 
-  lazy val allSchemaFiles = LV('allSchemaFiles) {
+  lazy val allSchemaFiles: List[DFDLSchemaFile] = LV('allSchemaFiles) {
     val fd = fakeXMLSchemaDocument // bootstrap
     val sa = fd.seenAfter
     val first = sa.value.head._2.iiSchemaFile

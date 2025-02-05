@@ -53,7 +53,7 @@ class PackedIntegerRuntimeLengthUnparser(
 ) extends PackedIntegerBaseUnparser(e, packedSignCodes)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[JLong]] = Vector(lengthEv)
 }
 
 final class PackedIntegerDelimitedUnparser(
@@ -69,7 +69,7 @@ final class PackedIntegerMinimumLengthUnparser(
   packedSignCodes: PackedSignCodes
 ) extends PackedIntegerBaseUnparser(e, packedSignCodes) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])
@@ -106,7 +106,7 @@ class PackedDecimalRuntimeLengthUnparser(
 ) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override lazy val runtimeDependencies: Vector[Evaluatable[JLong]] = Vector(lengthEv)
 }
 
 final class PackedDecimalDelimitedUnparser(
@@ -124,7 +124,7 @@ final class PackedDecimalMinimumLengthUnparser(
   packedSignCodes: PackedSignCodes
 ) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])

@@ -30,13 +30,14 @@ import org.apache.daffodil.runtime1.processors.RangeBound
 import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.Processor
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser) extends CombinatorParser(rd) {
   override def nom = "ComplexType"
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override lazy val childProcessors: Vector[Parser] = Vector(bodyParser)
 
   def parse(start: PState): Unit = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
@@ -59,7 +60,7 @@ class DelimiterStackParser(
   bodyParser: Parser
 ) extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override lazy val childProcessors: Vector[Parser] = Vector(bodyParser)
 
   override lazy val runtimeDependencies = delimiters.toVector
 
@@ -101,9 +102,9 @@ class DynamicEscapeSchemeParser(
   bodyParser: Parser
 ) extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override lazy val childProcessors: Vector[Parser] = Vector(bodyParser)
 
-  override lazy val runtimeDependencies = Vector(escapeScheme)
+  override lazy val runtimeDependencies: Vector[EscapeSchemeParseEv] = Vector(escapeScheme)
 
   def parse(start: PState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting
@@ -129,7 +130,7 @@ class DynamicEscapeSchemeParser(
  */
 class ChoiceBranchEmptyParser(val context: RuntimeData) extends PrimParserNoData {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def parse(state: PState): Unit = {
     // do nothing
@@ -148,9 +149,9 @@ abstract class ChoiceDispatchCombinatorParserBase(
 
   override def nom = "ChoiceDispatch"
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override def childProcessors =
+  override def childProcessors: Vector[Processor] =
     dispatchBranchKeyMap.values.iterator.asScala.map(_._1).toVector ++
       dispatchKeyRangeMap.map(_._3)
 

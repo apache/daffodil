@@ -33,6 +33,7 @@ import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
 import org.apache.daffodil.runtime1.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedUnparser
 import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.dfa.DFAField
 
 sealed class StringDelimitedUnparser(
   override val context: ElementRuntimeData,
@@ -40,9 +41,9 @@ sealed class StringDelimitedUnparser(
   isDelimRequired: Boolean
 ) extends TextPrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  val fieldDFA = CreateFieldDFA()
+  val fieldDFA: DFAField = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(context)
 
   protected def theString(state: UState) =
@@ -151,6 +152,6 @@ class LiteralNilDelimitedEndOfDataUnparser(
   isDelimRequired: Boolean
 ) extends StringDelimitedUnparser(erd, Nope, isDelimRequired) {
 
-  final override def theString(ustate: UState) = slForUnparserEv.evaluate(ustate)
+  final override def theString(ustate: UState): String = slForUnparserEv.evaluate(ustate)
 
 }

@@ -25,17 +25,17 @@ import org.apache.daffodil.lib.xml.NamedQName
 object ChoiceBranchEvent
   extends UniquenessCache[NamedQName, (ChoiceBranchStartEvent, ChoiceBranchEndEvent)] {
 
-  override def apply(nqn: NamedQName) = {
+  override def apply(nqn: NamedQName): (ChoiceBranchStartEvent, ChoiceBranchEndEvent) = {
     Assert.usage(nqn != null)
     super.apply(nqn)
   }
 
-  protected def valueFromKey(nqn: NamedQName) = {
+  protected def valueFromKey(nqn: NamedQName): (ChoiceBranchStartEvent, ChoiceBranchEndEvent) = {
     Assert.usage(nqn != null)
     (new ChoiceBranchStartEvent(nqn), new ChoiceBranchEndEvent(nqn))
   }
 
-  protected def keyFromValue(pair: (ChoiceBranchStartEvent, ChoiceBranchEndEvent)) = {
+  protected def keyFromValue(pair: (ChoiceBranchStartEvent, ChoiceBranchEndEvent)): Some[NamedQName] = {
     Assert.usage(pair != null)
     Some(pair._1.qname)
   }
@@ -44,14 +44,14 @@ object ChoiceBranchEvent
 sealed trait ChoiceBranchEvent extends Serializable {
   val qname: NamedQName
 
-  override def toString = Misc.getNameFromClass(this) + "(" + qname + ")"
+  override def toString: String = Misc.getNameFromClass(this) + "(" + qname + ")"
 
   override def hashCode = qname.hashCode
 
 }
 
 class ChoiceBranchStartEvent(val qname: NamedQName) extends ChoiceBranchEvent {
-  override def equals(x: Any) = {
+  override def equals(x: Any): Boolean = {
     x match {
       case x: ChoiceBranchStartEvent => x.qname == qname
       case _ => false
@@ -59,10 +59,10 @@ class ChoiceBranchStartEvent(val qname: NamedQName) extends ChoiceBranchEvent {
   }
 }
 object ChoiceBranchStartEvent {
-  def apply(nqn: NamedQName) = ChoiceBranchEvent(nqn)._1
+  def apply(nqn: NamedQName): ChoiceBranchStartEvent = ChoiceBranchEvent(nqn)._1
 }
 class ChoiceBranchEndEvent(val qname: NamedQName) extends ChoiceBranchEvent {
-  override def equals(x: Any) = {
+  override def equals(x: Any): Boolean = {
     x match {
       case x: ChoiceBranchEndEvent => x.qname == qname
       case _ => false
@@ -70,5 +70,5 @@ class ChoiceBranchEndEvent(val qname: NamedQName) extends ChoiceBranchEvent {
   }
 }
 object ChoiceBranchEndEvent {
-  def apply(nqn: NamedQName) = ChoiceBranchEvent(nqn)._2
+  def apply(nqn: NamedQName): ChoiceBranchEndEvent = ChoiceBranchEvent(nqn)._2
 }

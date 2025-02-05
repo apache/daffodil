@@ -28,7 +28,6 @@ import org.apache.daffodil.lib.util.{ MaybeULong, Misc }
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.CombinatorProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.PrimProcessor
 import org.apache.daffodil.runtime1.processors.PrimProcessorNoData
 import org.apache.daffodil.runtime1.processors.Processor
@@ -47,9 +46,9 @@ sealed trait Parser extends Processor {
 
   def isEmpty = false // override in NadaParser
 
-  protected lazy val parserName = Misc.getNameFromClass(this)
+  protected lazy val parserName: String = Misc.getNameFromClass(this)
 
-  def PE(pstate: PState, s: String, args: Any*) = {
+  def PE(pstate: PState, s: String, args: Any*): Unit = {
     pstate.setFailed(
       new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*)
     )
@@ -61,7 +60,7 @@ sealed trait Parser extends Processor {
     dataLoc: DataLocation,
     s: String,
     args: Any*
-  ) = {
+  ): Unit = {
     pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args: _*))
   }
 
@@ -139,12 +138,12 @@ sealed trait Parser extends Processor {
     )
   }
 
-  def processingError(state: PState, str: String, args: Any*) =
+  def processingError(state: PState, str: String, args: Any*): Unit =
     PE(state, str, args) // long form synonym
 
   protected def parse(pstate: PState): Unit
 
-  final def parse1(pstate: PState) = {
+  final def parse1(pstate: PState): Unit = {
     Assert.invariant(isInitialized)
     val savedParser = pstate.maybeProcessor
     pstate.setProcessor(this)
@@ -212,7 +211,7 @@ trait TextPrimParser extends PrimParser with TextProcessor
  * optimized out.
  */
 final class NadaParser(override val context: RuntimeData) extends PrimParserNoData {
-  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override def runtimeDependencies: Vector[Nothing] = Vector()
 
   override def isEmpty = true
 
@@ -229,7 +228,7 @@ abstract class CombinatorParser(override val context: RuntimeData)
 
 final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser])
   extends CombinatorParser(context) {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
   override def childProcessors = childParsers
 
   override def nom = "seq"
@@ -251,7 +250,7 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser]
 
 class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
   extends CombinatorParser(ctxt) {
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
   override lazy val childProcessors = childParsers
 
   override def nom = "choice"
@@ -324,14 +323,14 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
 }
 
 case class DummyParser(override val context: TermRuntimeData) extends PrimParserNoData {
-  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override def runtimeDependencies: Vector[Nothing] = Vector()
 
   def parse(pstate: PState): Unit =
     pstate.SDE("Parser for " + context + " is not yet implemented.")
 
-  override def childProcessors = Vector()
+  override def childProcessors: Vector[Processor] = Vector()
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
-  override def toString = if (context == null) "Dummy[null]" else "Dummy[" + context + "]"
+  override def toString: String = if (context == null) "Dummy[null]" else "Dummy[" + context + "]"
 }
 
 case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoData {
@@ -347,6 +346,6 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     context.toss(rsde)
   }
 
-  override lazy val childProcessors = Vector()
-  override lazy val runtimeDependencies = Vector()
+  override lazy val childProcessors: Vector[Processor] = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 }

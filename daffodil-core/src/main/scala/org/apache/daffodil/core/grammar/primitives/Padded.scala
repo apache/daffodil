@@ -135,6 +135,6 @@ trait PaddingInfoMixin {
 }
 
 trait Padded extends PaddingInfoMixin { self: Gram =>
-  override final protected def eBase = self.context.asInstanceOf[ElementBase]
+  override final protected def eBase: ElementBase = self.context.asInstanceOf[ElementBase]
 
 }

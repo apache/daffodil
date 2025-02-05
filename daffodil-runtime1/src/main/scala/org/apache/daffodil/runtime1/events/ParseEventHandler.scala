@@ -129,7 +129,7 @@ trait MultipleEventHandler extends EventHandler with Serializable {
 
   @transient protected final var handlers_ : Seq[EventHandler] = Nil
 
-  final def handlers = {
+  final def handlers: Seq[EventHandler] = {
     if (handlers_ == null) handlers_ = Nil
     handlers_
   }

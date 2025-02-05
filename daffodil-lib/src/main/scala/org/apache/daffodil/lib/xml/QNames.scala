@@ -46,11 +46,11 @@ trait HasRefMixin extends GetAttributesMixin with ResolvesQNames {
    * This just resolves the namespace prefix. But even that might fail
    *  if there is no namespace definition for it.
    */
-  lazy val refQName = resolveQName(ref)
+  lazy val refQName: RefQName = resolveQName(ref)
 }
 
 object ResolvesQNames {
-  def qNameForProperty(local: String, ns: NS, namespaces: scala.xml.NamespaceBinding) = {
+  def qNameForProperty(local: String, ns: NS, namespaces: scala.xml.NamespaceBinding): GlobalQName = {
     val pre = namespaces.getPrefix(ns.uri.toString)
     val prefix = Some(if (pre eq null) "daf" else pre)
     GlobalQName(prefix, local, ns)
@@ -79,7 +79,7 @@ trait ResolvesQNames extends ThrowsSDE {
     res
   }
 
-  def qNameForProperty(local: String, ns: NS = XMLUtils.DFDL_NAMESPACE) =
+  def qNameForProperty(local: String, ns: NS = XMLUtils.DFDL_NAMESPACE): GlobalQName =
     ResolvesQNames.qNameForProperty(local, ns, namespaces)
 
   /**

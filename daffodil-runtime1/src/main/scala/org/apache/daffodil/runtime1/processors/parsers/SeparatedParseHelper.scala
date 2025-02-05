@@ -40,7 +40,7 @@ sealed abstract class SeparatorParseHelper(
   scParserArg: Separated
 ) extends Serializable {
 
-  protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
+  protected val scParser: SequenceChildParser with Separated = scParserArg.asInstanceOf[SequenceChildParser with Separated]
 
   def parseOneWithSeparator(
     state: PState,

@@ -52,7 +52,7 @@ case class ChoiceBranchMap(
 
   def defaultUnparser = unmappedDefault
 
-  def childProcessors = lookupTable.values.iterator.asScala.toVector ++ unmappedDefault
+  def childProcessors: Vector[Unparser] = lookupTable.values.iterator.asScala.toVector ++ unmappedDefault
 
   def keys = lookupTable.keySet.asScala
 }
@@ -67,7 +67,7 @@ case class ChoiceBranchMap(
  */
 class ChoiceBranchEmptyUnparser(val context: RuntimeData) extends PrimUnparserNoData {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   def unparse(state: UState): Unit = {
     // do nothing
@@ -82,7 +82,7 @@ class ChoiceCombinatorUnparser(
   with ToBriefXMLImpl {
   override def nom = "Choice"
 
-  override val runtimeDependencies = Vector()
+  override val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override val childProcessors = choiceBranchMap.childProcessors.toVector
 
@@ -159,9 +159,9 @@ class DelimiterStackUnparser(
         "</DelimiterStack>"
   }
 
-  override lazy val childProcessors = Vector(bodyUnparser)
+  override lazy val childProcessors: Vector[Unparser] = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies =
+  override lazy val runtimeDependencies: Vector[DelimiterUnparseEv] =
     (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toVector
 
   def unparse(state: UState): Unit = {
@@ -193,9 +193,9 @@ class DynamicEscapeSchemeUnparser(
 ) extends CombinatorUnparser(ctxt) {
   override def nom = "EscapeSchemeStack"
 
-  override lazy val childProcessors = Vector(bodyUnparser)
+  override lazy val childProcessors: Vector[Unparser] = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies = Vector(escapeScheme)
+  override lazy val runtimeDependencies: Vector[EscapeSchemeUnparseEv] = Vector(escapeScheme)
 
   def unparse(state: UState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting

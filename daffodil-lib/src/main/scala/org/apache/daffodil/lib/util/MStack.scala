@@ -23,7 +23,7 @@ import Maybe._
 
 object MStack {
   final case class Mark(val v: Int) extends AnyVal
-  val nullMark = Mark(0)
+  val nullMark: Mark = Mark(0)
 }
 
 /**
@@ -37,7 +37,7 @@ final class MStackOfBoolean private ()
   extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false)
 
 object MStackOfBoolean {
-  def apply() = {
+  def apply(): MStackOfBoolean = {
     val stk = new MStackOfBoolean()
     stk.init
     stk
@@ -47,7 +47,7 @@ object MStackOfBoolean {
 final class MStackOfInt extends MStack[Int]((n: Int) => new Array[Int](n), 0)
 
 object MStackOfInt {
-  def apply() = {
+  def apply(): MStackOfInt = {
     val stk = new MStackOfInt()
     stk.init
     stk
@@ -57,7 +57,7 @@ object MStackOfInt {
 final class MStackOfLong extends MStack[Long]((n: Int) => new Array[Long](n), 0L)
 
 object MStackOfLong {
-  def apply() = {
+  def apply(): MStackOfLong = {
     val stk = new MStackOfLong()
     stk.init
     stk
@@ -82,11 +82,11 @@ final class MStackOfMaybe[T <: AnyRef] {
   private val delegate = new MStackOf[T]
   private val nullT = null.asInstanceOf[T]
 
-  def copyFrom(other: MStackOfMaybe[T]) = delegate.copyFrom(other.delegate)
+  def copyFrom(other: MStackOfMaybe[T]): Unit = delegate.copyFrom(other.delegate)
 
   @inline final def length = delegate.length
 
-  @inline final def push(m: Maybe[T]) = {
+  @inline final def push(m: Maybe[T]): Unit = {
     if (m.isDefined) delegate.push(m.get)
     else delegate.push(nullT)
   }
@@ -97,7 +97,7 @@ final class MStackOfMaybe[T <: AnyRef] {
     else One(m)
   }
 
-  @inline final def setTop(m: Maybe[T]) = {
+  @inline final def setTop(m: Maybe[T]): Unit = {
     if (m.isDefined) delegate.setTop(m.get)
     else delegate.setTop(nullT)
   }
@@ -116,8 +116,8 @@ final class MStackOfMaybe[T <: AnyRef] {
 
   @inline final def isEmpty = delegate.isEmpty
 
-  def clear() = delegate.clear()
-  def toListMaybe = delegate.toList.map { x: AnyRef =>
+  def clear(): Unit = delegate.clear()
+  def toListMaybe: List[Maybe[AnyRef]] = delegate.toList.map { x: AnyRef =>
     Maybe(x) // Scala compiler bug without this cast
   }
 }
@@ -139,27 +139,27 @@ final class MStackOf[T <: AnyRef] extends Serializable {
 
   override def toString = delegate.toString
 
-  def copyFrom(other: MStackOf[T]) = delegate.copyFrom(other.delegate)
+  def copyFrom(other: MStackOf[T]): Unit = delegate.copyFrom(other.delegate)
 
   @inline final def length = delegate.length
 
   private val delegate = MStackOfAnyRef()
 
   @inline final def mark = delegate.mark
-  @inline final def reset(m: MStack.Mark) = delegate.reset(m)
+  @inline final def reset(m: MStack.Mark): Unit = delegate.reset(m)
 
-  @inline final def push(t: T) = delegate.push(t)
+  @inline final def push(t: T): Unit = delegate.push(t)
   @inline final def pop: T = delegate.pop.asInstanceOf[T]
-  @inline final def setTop(t: T) = delegate.setTop(t)
+  @inline final def setTop(t: T): Unit = delegate.setTop(t)
   @inline final def top: T = delegate.top.asInstanceOf[T]
   @inline final def bottom: T = delegate.bottom.asInstanceOf[T]
   @inline final def isEmpty = delegate.isEmpty
-  def clear() = delegate.clear()
+  def clear(): Unit = delegate.clear()
   def toList = delegate.toList
 
-  def iterator = delegate.iterator.asInstanceOf[ResettableIterator[T]]
+  def iterator: ResettableIterator[T] = delegate.iterator.asInstanceOf[ResettableIterator[T]]
 
-  lazy val iter = delegate.iter.asInstanceOf[ResettableIterator[T]]
+  lazy val iter: ResettableIterator[T] = delegate.iter.asInstanceOf[ResettableIterator[T]]
 
 }
 
@@ -167,7 +167,7 @@ private[util] final class MStackOfAnyRef private ()
   extends MStack[AnyRef]((n: Int) => new Array[AnyRef](n), null.asInstanceOf[AnyRef])
 
 object MStackOfAnyRef {
-  def apply() = {
+  def apply(): MStackOfAnyRef = {
     val stk = new MStackOfAnyRef()
     stk.init
     stk
@@ -233,7 +233,7 @@ protected abstract class MStack[@specialized T] private[util] (
    * mark, so long as you don't pop before push, and don't pop more times than push,
    * it will restore the stack to the contents it had.
    */
-  @inline final def mark = MStack.Mark(index)
+  @inline final def mark: MStack.Mark = MStack.Mark(index)
 
   /**
    *  resets stack top to where it was when mark was called.
@@ -294,7 +294,7 @@ protected abstract class MStack[@specialized T] private[util] (
 
   @inline final def isEmpty: Boolean = index == 0
 
-  def clear() = {
+  def clear(): Unit = {
     index = 0
   }
 

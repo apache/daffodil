@@ -71,34 +71,34 @@ sealed trait DataValuePrimitiveType
 final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T)
   extends AnyVal
   with Serializable {
-  @inline def isEmpty = DataValue.NoValue.v eq v
-  @inline def isDefined = !isEmpty
+  @inline def isEmpty: Boolean = DataValue.NoValue.v eq v
+  @inline def isDefined: Boolean = !isEmpty
   @inline def value = v
-  @inline override def toString = if (isEmpty) "NoValue" else "DataValue(" + v.toString + ")"
+  @inline override def toString: String = if (isEmpty) "NoValue" else "DataValue(" + v.toString + ")"
 
-  @inline def getAnyRef = v.asInstanceOf[AnyRef]
-  @inline def getBigDecimal = v.asInstanceOf[JBigDecimal]
-  @inline def getCalendar = v.asInstanceOf[DFDLCalendar]
-  @inline def getDate = v.asInstanceOf[DFDLDate]
-  @inline def getTime = v.asInstanceOf[DFDLTime]
-  @inline def getDateTime = v.asInstanceOf[DFDLDateTime]
-  @inline def getByteArray = v.asInstanceOf[Array[Byte]]
-  @inline def getBoolean = v.asInstanceOf[JBoolean]
-  @inline def getNumber = v.asInstanceOf[JNumber]
-  @inline def getByte = v.asInstanceOf[JByte]
-  @inline def getShort = v.asInstanceOf[JShort]
-  @inline def getInt = v.asInstanceOf[JInt]
-  @inline def getLong = v.asInstanceOf[JLong]
-  @inline def getDouble = v.asInstanceOf[JDouble]
-  @inline def getFloat = v.asInstanceOf[JFloat]
-  @inline def getBigInt = v.asInstanceOf[JBigInt]
-  @inline def getString = v.asInstanceOf[JString]
-  @inline def getURI = v.asInstanceOf[URI]
+  @inline def getAnyRef: AnyRef = v.asInstanceOf[AnyRef]
+  @inline def getBigDecimal: JBigDecimal = v.asInstanceOf[JBigDecimal]
+  @inline def getCalendar: DFDLCalendar = v.asInstanceOf[DFDLCalendar]
+  @inline def getDate: DFDLDate = v.asInstanceOf[DFDLDate]
+  @inline def getTime: DFDLTime = v.asInstanceOf[DFDLTime]
+  @inline def getDateTime: DFDLDateTime = v.asInstanceOf[DFDLDateTime]
+  @inline def getByteArray: Array[Byte] = v.asInstanceOf[Array[Byte]]
+  @inline def getBoolean: JBoolean = v.asInstanceOf[JBoolean]
+  @inline def getNumber: Number = v.asInstanceOf[JNumber]
+  @inline def getByte: JByte = v.asInstanceOf[JByte]
+  @inline def getShort: JShort = v.asInstanceOf[JShort]
+  @inline def getInt: Integer = v.asInstanceOf[JInt]
+  @inline def getLong: JLong = v.asInstanceOf[JLong]
+  @inline def getDouble: JDouble = v.asInstanceOf[JDouble]
+  @inline def getFloat: JFloat = v.asInstanceOf[JFloat]
+  @inline def getBigInt: JBigInt = v.asInstanceOf[JBigInt]
+  @inline def getString: String = v.asInstanceOf[JString]
+  @inline def getURI: URI = v.asInstanceOf[URI]
 
   @inline def getNonNullable: DataValue[T, X with NonNullable] = new DataValue(v)
   @inline def getNullablePrimitive: DataValue.DataValuePrimitiveNullable = new DataValue(v)
 
-  @inline def getOptionAnyRef = {
+  @inline def getOptionAnyRef: Option[AnyRef] = {
     if (isEmpty) {
       None
     } else {
@@ -186,14 +186,14 @@ object DataValue {
   @inline implicit def toDataValue(v: Short): DataValueShort = new DataValue(v: JShort)
 
   @inline def unsafeFromAnyRef(v: AnyRef) = new DataValue(v)
-  @inline def unsafeFromMaybeAnyRef(v: Maybe[AnyRef]) = {
+  @inline def unsafeFromMaybeAnyRef(v: Maybe[AnyRef]): DataValue[AnyRef,Nullable with DataValuePrimitiveType] = {
     if (v.isDefined) {
       new DataValue(v.get)
     } else {
       NoValue
     }
   }
-  @inline def unsafeFromOptionAnyRef(v: Option[AnyRef]) = {
+  @inline def unsafeFromOptionAnyRef(v: Option[AnyRef]): DataValue[AnyRef,Nullable with DataValuePrimitiveType] = {
     if (v.isDefined) {
       new DataValue(v.get)
     } else {

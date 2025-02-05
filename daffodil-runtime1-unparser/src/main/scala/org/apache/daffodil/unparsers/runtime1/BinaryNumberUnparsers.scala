@@ -111,7 +111,7 @@ class BinaryIntegerKnownLengthUnparser(
 ) extends BinaryIntegerBaseUnparser(e)
   with HasKnownLengthInBits {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
 }
 
@@ -122,7 +122,7 @@ class BinaryIntegerRuntimeLengthUnparser(
 ) extends BinaryIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
-  override val runtimeDependencies = Vector(lengthEv)
+  override val runtimeDependencies: Vector[Evaluatable[JLong]] = Vector(lengthEv)
 }
 
 class BinaryIntegerMinimumLengthUnparser(
@@ -132,7 +132,7 @@ class BinaryIntegerMinimumLengthUnparser(
 
   private val primNumeric = e.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     if (maybeNBits.isDefined) {
@@ -151,7 +151,7 @@ class BinaryIntegerMinimumLengthUnparser(
 
 class BinaryFloatUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparser(e) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState) = 32
 
@@ -168,7 +168,7 @@ class BinaryFloatUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparse
 
 class BinaryDoubleUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparser(e) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState) = 64
 
@@ -190,7 +190,7 @@ class BinaryDecimalKnownLengthUnparser(
 ) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
 }
 
@@ -203,7 +203,7 @@ class BinaryDecimalRuntimeLengthUnparser(
 ) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override val runtimeDependencies = Vector(lengthEv)
+  override val runtimeDependencies: Vector[Evaluatable[JLong]] = Vector(lengthEv)
 }
 
 class BinaryDecimalMinimumLengthUnparser(
@@ -212,7 +212,7 @@ class BinaryDecimalMinimumLengthUnparser(
   binaryDecimalVirtualPoint: Int
 ) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     // type is xs:decimal, the length is determined by the minimum number of

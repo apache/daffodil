@@ -38,7 +38,7 @@ object PointOfUncertaintyMacros {
    */
   def withPointOfUncertainty[A, B](
     c: Context
-  )(pouID: c.Expr[String], context: c.Tree)(func: c.Expr[A => B]) = {
+  )(pouID: c.Expr[String], context: c.Tree)(func: c.Expr[A => B]): c.universe.Tree = {
 
     import c.universe._
 

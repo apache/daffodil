@@ -53,13 +53,13 @@ import org.xml.sax.XMLReader
 
 object XMLUtils {
 
-  lazy val schemaForDFDLSchemas =
+  lazy val schemaForDFDLSchemas: URI =
     Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd")
 
-  lazy val dafextURI =
+  lazy val dafextURI: URI =
     Misc.getRequiredResource("org/apache/daffodil/xsd/dafext.xsd")
 
-  lazy val tdmlURI =
+  lazy val tdmlURI: URI =
     Misc.getRequiredResource("org/apache/daffodil/xsd/tdml.xsd")
 
   /**
@@ -103,7 +103,7 @@ object XMLUtils {
   /**
    * Length where a surrogate pair counts as 1 character, not two.
    */
-  def uncodeLength(s: String) = {
+  def uncodeLength(s: String): Int = {
     // performance note: this might get called a lot. So needs to be fast.
     // it needs to scan the string once, examine each character.
     // using getBytes utf-32 isn't necessarily slow. It might be fine.
@@ -172,7 +172,7 @@ object XMLUtils {
 
   private val remapPUAToXML = new RemapPUAToXMLIllegalChar()
 
-  def remapPUAToXMLIllegalCharacters(text: String) = remapPUAToXML.remap(text)
+  def remapPUAToXMLIllegalCharacters(text: String): String = remapPUAToXML.remap(text)
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {
     node match {
@@ -285,19 +285,19 @@ object XMLUtils {
     ab.result
   }
 
-  val XSD_NAMESPACE = NS(
+  val XSD_NAMESPACE: NS = NS(
     "http://www.w3.org/2001/XMLSchema"
   ) // removed trailing slash (namespaces care)
-  val XSI_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema-instance")
-  val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
-  val XPATH_MATH_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions/math")
-  val DFDL_NAMESPACE = NS(
+  val XSI_NAMESPACE: NS = NS("http://www.w3.org/2001/XMLSchema-instance")
+  val XPATH_FUNCTION_NAMESPACE: NS = NS("http://www.w3.org/2005/xpath-functions")
+  val XPATH_MATH_NAMESPACE: NS = NS("http://www.w3.org/2005/xpath-functions/math")
+  val DFDL_NAMESPACE: NS = NS(
     "http://www.ogf.org/dfdl/dfdl-1.0/"
   ) // dfdl ns does have a trailing slash
-  val DFDLX_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/extensions")
-  val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
-  val EXAMPLE_NAMESPACE = NS("http://example.com")
-  val XHTML_NAMESPACE = NS("http://www.w3.org/1999/xhtml")
+  val DFDLX_NAMESPACE: NS = NS("http://www.ogf.org/dfdl/dfdl-1.0/extensions")
+  val TDML_NAMESPACE: NS = NS("http://www.ibm.com/xmlns/dfdl/testData")
+  val EXAMPLE_NAMESPACE: NS = NS("http://example.com")
+  val XHTML_NAMESPACE: NS = NS("http://www.w3.org/1999/xhtml")
 
   /**
    * Returns an Elem with local name "element", and the scope provided
@@ -336,16 +336,16 @@ object XMLUtils {
     DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA + ":ext"
   )
   val EXT_PREFIX_NCSA = "daf"
-  val EXT_NS_NCSA = NS(DAFFODIL_EXTENSION_NAMESPACE_NCSA.uri)
+  val EXT_NS_NCSA: NS = NS(DAFFODIL_EXTENSION_NAMESPACE_NCSA.uri)
 
   private val DAFFODIL_NAMESPACE_ROOT_APACHE = "urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018"
   private val DAFFODIL_EXTENSION_NAMESPACE_APACHE = NS(DAFFODIL_NAMESPACE_ROOT_APACHE + ":ext")
   val EXT_PREFIX_APACHE = "daf"
-  val EXT_NS_APACHE = NS(DAFFODIL_EXTENSION_NAMESPACE_APACHE.uri)
+  val EXT_NS_APACHE: NS = NS(DAFFODIL_EXTENSION_NAMESPACE_APACHE.uri)
 
   private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_NAMESPACE_ROOT_APACHE + ":int")
   val INT_PREFIX = "dafint"
-  val INT_NS = NS(DAFFODIL_INTERNAL_NAMESPACE.uri)
+  val INT_NS: NS = NS(DAFFODIL_INTERNAL_NAMESPACE.uri)
 
   val DAFFODIL_SAX_URN_ROOT: String = DAFFODIL_NAMESPACE_ROOT_APACHE + ":sax"
   val DAFFODIL_SAX_URN_PARSERESULT: String = DAFFODIL_SAX_URN_ROOT + ":ParseResult"
@@ -402,14 +402,14 @@ object XMLUtils {
   val xsdURI = XSD_NAMESPACE
   val dfdlURI = DFDL_NAMESPACE
   val dfdlxURI = DFDLX_NAMESPACE
-  val dfdlAppinfoSource = NS("http://www.ogf.org/dfdl/")
+  val dfdlAppinfoSource: NS = NS("http://www.ogf.org/dfdl/")
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
   val fnURI = XPATH_FUNCTION_NAMESPACE
   val mathURI = XPATH_MATH_NAMESPACE
   val dafintURI = DAFFODIL_INTERNAL_NAMESPACE
 
-  val DFDL_SIMPLE_BUILT_IN_TYPES =
+  val DFDL_SIMPLE_BUILT_IN_TYPES: List[String] =
     List(
       "string",
       "float",
@@ -452,19 +452,19 @@ object XMLUtils {
   /**
    * We don't want to be sensitive to which prefix people bind
    */
-  def dfdlAttributes(n: Node) = {
+  def dfdlAttributes(n: Node): MetaData = {
     n.attributes.filter {
       _.getNamespace(n) == DFDL_NAMESPACE.toString
     }
   }
 
-  def dfdlxAttributes(n: Node) = {
+  def dfdlxAttributes(n: Node): MetaData = {
     n.attributes.filter {
       _.getNamespace(n) == DFDLX_NAMESPACE.toString
     }
   }
 
-  def dafAttributes(n: Node) = {
+  def dafAttributes(n: Node): MetaData = {
     n.attributes.filter { a =>
       a.getNamespace(n) == XMLUtils.EXT_NS_NCSA.toString ||
       a.getNamespace(n) == XMLUtils.EXT_NS_APACHE.toString
@@ -874,7 +874,7 @@ Differences were (path, expected, actual):
     checkNamespaces: Boolean = false,
     maybeFloatEpsilon: Option[Float] = None,
     maybeDoubleEpsilon: Option[Double] = None
-  ) = {
+  ): Seq[(String, String, String)] = {
     computeDiffOne(
       a,
       b,
@@ -891,7 +891,7 @@ Differences were (path, expected, actual):
     )
   }
 
-  def childArrayCounters(e: Elem) = {
+  def childArrayCounters(e: Elem): Map[String,Long] = {
     val Elem(_, _, _, _, children @ _*) = e
     val labels = children.map { _.label }
     val groups = labels.groupBy { x => x }
@@ -1069,7 +1069,7 @@ Differences were (path, expected, actual):
     computeTextDiff(zPath, dataA, dataB, maybeType, maybeFloatEpsilon, maybeDoubleEpsilon)
   }
 
-  def computeBlobDiff(zPath: String, dataA: String, dataB: String) = {
+  def computeBlobDiff(zPath: String, dataA: String, dataB: String): Seq[(String, String, String)] = {
     val uriA = Misc.searchResourceOption(dataA, None)
     val uriB = Misc.searchResourceOption(dataB, None)
 
@@ -1246,7 +1246,7 @@ Differences were (path, expected, actual):
    * infrastructure wants to be all file centric for diagnostic-message
    * reasons (line numbers for errors)
    */
-  def convertNodeToTempFile(xml: Node, tmpDir: File, nameHint: String = "daffodil_tmp_") = {
+  def convertNodeToTempFile(xml: Node, tmpDir: File, nameHint: String = "daffodil_tmp_"): File = {
     val prefix = prefixFromHint(nameHint)
     val tmpSchemaFile = File.createTempFile(prefix, ".dfdl.xsd", tmpDir)
     // Delete temp file when program exits
@@ -1285,7 +1285,7 @@ Differences were (path, expected, actual):
     tmpDir: File,
     nameHint: String,
     suffix: String
-  ) = {
+  ): File = {
     val prefix = prefixFromHint(nameHint)
     val tmpSchemaFile = File.createTempFile(prefix, suffix, tmpDir)
     // Delete temp file when program exits
@@ -1358,7 +1358,7 @@ Differences were (path, expected, actual):
   private val xmlRemapperPreservingCR =
     new RemapXMLIllegalCharToPUA(checkForExistingPUA = false, replaceCRWithLF = false)
 
-  def toNumericCharacterEntity(c: Char, sb: StringBuilder) = {
+  def toNumericCharacterEntity(c: Char, sb: StringBuilder): StringBuilder = {
     val i = c.toInt
     Assert.usage(i > 0) // NUL cannot be represented at all in XML.
     val s = Integer.toHexString(i).toUpperCase()
@@ -1372,7 +1372,7 @@ Differences were (path, expected, actual):
   /**
    * Remove XML escapes like &amp; and &gt; &lt; from a string.
    */
-  def unescape(raw: String) = {
+  def unescape(raw: String): String = {
     val withoutNamedXMLCharEntities: String = {
       val res = xmlEntityPattern.replaceAllIn(
         raw,
@@ -1564,7 +1564,7 @@ trait GetAttributesMixin extends ThrowsSDE {
   /**
    * Use to retrieve things that are not format properties.
    */
-  def getAttributeRequired(name: String) = {
+  def getAttributeRequired(name: String): String = {
     getAttributeOption(name) match {
       case None => schemaDefinitionError("The attribute '" + name + "' is required.")
       case Some(s) => s
@@ -1591,9 +1591,9 @@ trait GetAttributesMixin extends ThrowsSDE {
   /**
    * For picking off the short-form annotations.
    */
-  def dfdlAttributes(n: Node) = XMLUtils.dfdlAttributes(n)
-  def dfdlxAttributes(n: Node) = XMLUtils.dfdlxAttributes(n)
-  def dafAttributes(n: Node) = XMLUtils.dafAttributes(n)
+  def dfdlAttributes(n: Node): MetaData = XMLUtils.dfdlAttributes(n)
+  def dfdlxAttributes(n: Node): MetaData = XMLUtils.dfdlxAttributes(n)
+  def dafAttributes(n: Node): MetaData = XMLUtils.dafAttributes(n)
 
 }
 

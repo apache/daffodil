@@ -24,7 +24,7 @@ import org.apache.daffodil.core.runtime1.ChoiceTermRuntime1Mixin
 trait ChoiceGrammarMixin extends GrammarMixin with ChoiceTermRuntime1Mixin {
   self: ChoiceTermBase =>
 
-  override lazy val groupContentDef = prod("choiceContent") {
+  override lazy val groupContentDef: Gram = prod("choiceContent") {
     ChoiceCombinator(this, alternatives)
   }
 

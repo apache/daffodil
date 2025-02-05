@@ -28,9 +28,9 @@ case class SimpleNilOrValueUnparser(
   valueUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector(nilUnparser, valueUnparser)
+  override lazy val childProcessors: Vector[Unparser] = Vector(nilUnparser, valueUnparser)
 
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
@@ -54,9 +54,9 @@ case class ComplexNilOrContentUnparser(
   contentUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
 
-  override lazy val runtimeDependencies = Vector()
+  override lazy val runtimeDependencies: Vector[Nothing] = Vector()
 
-  override lazy val childProcessors = Vector(nilUnparser, contentUnparser)
+  override lazy val childProcessors: Vector[Unparser] = Vector(nilUnparser, contentUnparser)
 
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))

@@ -59,6 +59,7 @@ import org.xml.sax.ErrorHandler
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 import org.xml.sax.helpers.XMLFilterImpl
+import scala.xml.parsing.FactoryAdapter
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -83,18 +84,18 @@ class DFDLCatalogResolver private ()
   with org.xml.sax.ext.EntityResolver2
   with javax.xml.transform.URIResolver {
 
-  lazy val init = {
+  lazy val init: Catalog = {
     cm
     catalogFiles
     delegate
   }
 
-  lazy val catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
+  lazy val catalogFiles: List[String] = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
   //
-  lazy val cm = {
+  lazy val cm: CatalogManager = {
     val cm = new CatalogManager()
     cm.setIgnoreMissingProperties(true)
     cm.setRelativeCatalogs(true)
@@ -121,7 +122,7 @@ class DFDLCatalogResolver private ()
     cm
   }
 
-  lazy val delegate = {
+  lazy val delegate: Catalog = {
     val delegate = new Catalog(cm)
     //    delegate.getCatalogManager().debug.setDebug(100) // uncomment for even more debug output
     delegate.setupReaders()
@@ -339,14 +340,14 @@ class DFDLCatalogResolver private ()
     }
   }
 
-  override def resolveEntity(publicId: String, systemId: String) = {
+  override def resolveEntity(publicId: String, systemId: String): InputSource = {
     Assert.invariantFailed("resolveEntity3 - should not be called")
   }
 
   /**
    * We don't deal with DTDs at all. So this always returns null
    */
-  def getExternalSubset(name: String, baseURI: String) = {
+  def getExternalSubset(name: String, baseURI: String): Null = {
     Logger.log.debug(s"getExternalSubset: name = ${name}, baseURI = ${baseURI}")
     null
   }
@@ -356,7 +357,7 @@ class DFDLCatalogResolver private ()
    * (xerces, IBM DFDL, etc.) this API may be called even though Daffodil itself doesn't (or didn't
    * anyway as of when this was written) use this method..
    */
-  def resolveEntity(name: String, publicId: String, baseURI: String, systemId: String) = {
+  def resolveEntity(name: String, publicId: String, baseURI: String, systemId: String): InputSource = {
     //
     // When this method is called from IBM DFDL, for an xs:include with a schemaLocation, the
     // schemaLocation attribute's value is passed in the systemID string.
@@ -384,7 +385,7 @@ class DFDLCatalogResolver private ()
  * do I/O etc. so we really only want one per thread.
  */
 object DFDLCatalogResolver {
-  lazy val d = new ThreadLocal[DFDLCatalogResolver] {
+  lazy val d: ThreadLocal[DFDLCatalogResolver] = new ThreadLocal[DFDLCatalogResolver] {
     override def initialValue() = {
       new DFDLCatalogResolver()
     }
@@ -414,9 +415,9 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
   def getPublicId = pubId
   def getSystemId = sysId
 
-  def setBaseURI(baseURI: String) = myBaseURI = baseURI
-  def setPublicId(publicId: String) = pubId = publicId
-  def setSystemId(systemId: String) = sysId = systemId
+  def setBaseURI(baseURI: String): Unit = myBaseURI = baseURI
+  def setPublicId(publicId: String): Unit = pubId = publicId
+  def setSystemId(systemId: String): Unit = sysId = systemId
 
   def getByteStream = inputStream
   def getCertifiedText = false
@@ -424,19 +425,19 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
   def getEncoding = null
   def getStringData = null
 
-  def setByteStream(byteStream: InputStream) = {
+  def setByteStream(byteStream: InputStream): Unit = {
     // do nothing
   }
-  def setCertifiedText(certifiedText: Boolean) = {
+  def setCertifiedText(certifiedText: Boolean): Unit = {
     // do nothing
   }
-  def setCharacterStream(characterStream: Reader) = {
+  def setCharacterStream(characterStream: Reader): Unit = {
     // do nothing
   }
-  def setEncoding(encoding: String) = {
+  def setEncoding(encoding: String): Unit = {
     // do nothing
   }
-  def setStringData(stringData: String) = {
+  def setStringData(stringData: String): Unit = {
     // do nothing
   }
 }
@@ -632,13 +633,13 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   // $COVERAGE-OFF$ These three functions should only be used if someone calls one of the
   // Scala-XML load* functions. Only our custom load() functions should be used, which ensures
   // hat correct parses/readers are used
-  override def parser = {
+  override def parser: SAXParser = {
     Assert.usageError("not to be called.")
   }
-  override def reader = {
+  override def reader: XMLReader = {
     Assert.usageError("not to be called.")
   }
-  override def adapter = {
+  override def adapter: FactoryAdapter = {
     Assert.usageError("not to be called.")
   }
   // $COVERAGE-ON$
@@ -834,15 +835,15 @@ class BasicErrorHandler extends org.xml.sax.ErrorHandler {
   var diagnostics: List[SAXParseException] = Nil
   var hasError: Boolean = false
 
-  def warning(exception: SAXParseException) = {
+  def warning(exception: SAXParseException): Unit = {
     diagnostics :+= exception
   }
 
-  def error(exception: SAXParseException) = {
+  def error(exception: SAXParseException): Unit = {
     diagnostics :+= exception
     hasError = true
   }
-  def fatalError(exception: SAXParseException) = {
+  def fatalError(exception: SAXParseException): Unit = {
     error(exception)
   }
 }
@@ -854,15 +855,15 @@ case class DFDLSchemaValidationError(cause: Throwable)
   extends DFDLSchemaValidationException(cause)
 
 object RethrowSchemaErrorHandler extends org.xml.sax.ErrorHandler {
-  def warning(exception: SAXParseException) = {
+  def warning(exception: SAXParseException): Unit = {
     throw exception
   }
 
-  def error(exception: SAXParseException) = {
+  def error(exception: SAXParseException): Unit = {
     throw exception
   }
 
-  def fatalError(exception: SAXParseException) = {
+  def fatalError(exception: SAXParseException): Unit = {
     throw exception
   }
 }
