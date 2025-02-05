@@ -39,15 +39,15 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
   extends InteractiveDebuggerRunner {
   private val prompt = "(debug) "
 
-  def this(in: InputStream = System.in, out: PrintStream = System.out) {
+  def this(in: InputStream = System.in, out: PrintStream = System.out) = {
     this(Iterator.empty, in, out)
   }
 
-  def this(file: File, in: InputStream, out: PrintStream) {
+  def this(file: File, in: InputStream, out: PrintStream) = {
     this(Source.fromFile(file).getLines, in, out)
   }
 
-  def this(seq: Seq[String], in: InputStream, out: PrintStream) {
+  def this(seq: Seq[String], in: InputStream, out: PrintStream) = {
     this(seq.iterator, in, out)
   }
 
