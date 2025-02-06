@@ -36,7 +36,9 @@ import org.apache.daffodil.lib.exceptions.Assert
 package object equality {
 
   def EqualitySuppressUnusedImportWarning() = {
-    if (scala.math.random.isNaN) Assert.impossible()
+    // $COVERAGE-OFF$
+    if (scala.math.random().isNaN) Assert.impossible()
+    // $COVERAGE-ON$
   }
 
   // Convertible types - strongly typed equality

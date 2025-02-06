@@ -57,7 +57,7 @@ object XercesValidatorFactory {
       if (config.hasPath(XercesValidator.name))
         config.getStringList(XercesValidator.name).asScala
       else Seq.empty
-    XercesValidator.fromFiles(schemaFiles)
+    XercesValidator.fromFiles(schemaFiles.toSeq)
   }
 
   def makeConfig(uris: Seq[String]): Config = {

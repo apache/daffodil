@@ -73,7 +73,7 @@ class WarnIDGenerator(schema: scala.xml.Node) {
 
     val scalaNames = enumerationNodes.map { node =>
       val enumName = node \@ "value"
-      val scalaName = enumName.head.toUpper + enumName.tail
+      val scalaName = enumName.head.toUpper +: enumName.tail
       scalaName
     }
 

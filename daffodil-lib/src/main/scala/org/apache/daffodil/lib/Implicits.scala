@@ -28,7 +28,9 @@ import org.apache.daffodil.lib.xml.NS
 object Implicits {
 
   object ImplicitsSuppressUnusedImportWarning {
-    def apply() = if (scala.math.random.isNaN()) Assert.impossible()
+    // $COVERAGE-OFF$
+    def apply() = if (scala.math.random().isNaN) Assert.impossible()
+    // $COVERAGE-ON$
   }
 
   /**

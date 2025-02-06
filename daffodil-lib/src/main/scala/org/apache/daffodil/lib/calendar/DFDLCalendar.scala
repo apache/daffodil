@@ -87,8 +87,8 @@ trait OrderedCalendar { self: DFDLCalendar =>
 
     // Step 1 of the algorithm is to normalize the dates to Z time zone.
     //
-    val pPrime = p.getNormalizedCalendar
-    val qPrime = q.getNormalizedCalendar
+    val pPrime = p.getNormalizedCalendar()
+    val qPrime = q.getNormalizedCalendar()
 
     val res: DFDLCalendarOrder = {
       if ((pHasTZ && qHasTZ) || (!pHasTZ && !qHasTZ)) { orderCompareFields(pPrime, qPrime) }

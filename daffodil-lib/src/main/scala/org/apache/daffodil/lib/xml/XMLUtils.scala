@@ -150,7 +150,7 @@ object XMLUtils {
 
       pos += 1
     }
-    list
+    list.toSeq
   }
 
   private val remapXMLToPUA =
@@ -276,13 +276,13 @@ object XMLUtils {
         }
       } else {
         // not an atom
-        processText // if there is pending text output that first
+        processText() // if there is pending text output that first
         ab += current // then the current non-atom node.
       }
     }
     // we fell out of the loop. So
-    processText // in case there is text left pending when we hit the end
-    ab.result
+    processText() // in case there is text left pending when we hit the end
+    ab.result()
   }
 
   val XSD_NAMESPACE = NS(

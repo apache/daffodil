@@ -131,7 +131,7 @@ trait TheExamplePropMixin extends PropertyMixin { self: HasMixin =>
   var initWasCalled: Boolean = false
   def init() = {
     initWasCalled = true
-    registerToStringFunction(() => theExamplePropToString)
+    registerToStringFunction(() => theExamplePropToString())
   }
 
   init() // call at object creation to initialize
