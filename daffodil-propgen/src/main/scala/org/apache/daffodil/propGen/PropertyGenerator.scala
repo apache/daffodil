@@ -90,7 +90,7 @@ class PropertyGenerator(arg: Node) {
         }
       }
     })
-    thunks
+    thunks.toSeq
   }
 
   /**
@@ -430,7 +430,7 @@ trait CurrencyMixin extends PropertyMixin {
   }
 
   final def currencyInit() = {
-    registerToStringFunction(() => currencyToString)
+    registerToStringFunction(() => currencyToString())
   }
 
   currencyInit() // call at object creation to initialize
@@ -687,12 +687,12 @@ object Currency {
     stripLast
   }
 
-  def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)
+  def initialUpperCase(s: String): String = s.head.toUpper +: s.substring(1)
   def initialLowerCase(s: String): String = {
     // special case for the way we lowercase the utf16Width property.
     if (s == "UTF16Width") "utf16Width"
     else
-      s.head.toLower + s.substring(1)
+      s.head.toLower +: s.substring(1)
   }
 
 } // end trait
@@ -762,7 +762,7 @@ import org.apache.daffodil.lib.exceptions.ThrowsSDE
   def getGeneratedFilePath(rootDir: String, pkg: String, filename: String): String = {
     val outDir = new java.io.File(rootDir + "/" + pkg.split('.').reduceLeft(_ + "/" + _))
     outDir.mkdirs()
-    val outPath = outDir + "/" + filename
+    val outPath = s"$outDir/$filename"
     outPath
   }
 

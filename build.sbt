@@ -277,18 +277,23 @@ def buildScalacOptions(scalaVersion: String) = {
     "-unchecked",
     "-Xfatal-warnings",
     "-Xxml:-coalescing",
-    "-Xfuture",
-    "-Ywarn-infer-any",
-    "-Ywarn-inaccessible",
-    // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
-    // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
-    "-Ywarn-unused-import"
+    "-Ywarn-unused:imports"
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 12)) =>
       Seq(
-        "-Ywarn-unused:imports"
+        "-Xfuture",
+        "-Ywarn-infer-any",
+        "-Ywarn-inaccessible"
+        // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
+        // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
+      )
+    case Some((2, 13)) =>
+      Seq(
+        "-Xlint:inaccessible",
+        "-Xlint:infer-any",
+        "-Xlint:nullary-unit"
       )
     case _ => Seq.empty
   }

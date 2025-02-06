@@ -37,7 +37,7 @@ abstract class TransitiveClosure[T] {
    */
   private def tclose() = {
     while (!items.isEmpty) {
-      val hd = items.dequeue
+      val hd = items.dequeue()
       if (!processed.contains(hd)) {
         processed += hd
         val newOnes = func(hd).filterNot(processed.contains(_)).distinct

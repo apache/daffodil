@@ -485,7 +485,7 @@ object OOLAG {
      */
     def isError: Boolean = isErrorOnce
     private lazy val isErrorOnce: Boolean = {
-      oolagRoot.checkErrors
+      oolagRoot.checkErrors()
       val errorCount = oolagRoot.errors.size
       errorCount > 0
     }
@@ -703,7 +703,7 @@ object OOLAG {
         // this should make a substantial difference in schema compilation time.
         val res =
           try {
-            oolagBefore
+            oolagBefore()
             val v = body // good place for a breakpoint
             oolagAfterValue(v.asInstanceOf[AnyRef])
             v
@@ -714,7 +714,7 @@ object OOLAG {
             case e: Error => throw e
             case th: Throwable => oolagCatch(th)
           } finally {
-            oolagFinalize
+            oolagFinalize()
           }
         res
       }

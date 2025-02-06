@@ -34,9 +34,9 @@ object IOMacros {
 
     import c.universe._
 
-    val dStream = TermName(c.freshName)
-    val newLengthLimit = TermName(c.freshName)
-    val savedLengthLimit = TermName(c.freshName)
+    val dStream = TermName(c.freshName())
+    val newLengthLimit = TermName(c.freshName())
+    val savedLengthLimit = TermName(c.freshName())
     // c.prefix is the expression this macro was expanded on. Not quite same thing as 'this' because we have to be
     // careful not to use it more than once or it will evaluate more than once.
     val selfExp = c.prefix

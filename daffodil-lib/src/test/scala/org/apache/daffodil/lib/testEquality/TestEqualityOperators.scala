@@ -52,7 +52,7 @@ class TestEqualityOperators {
       fail("equal")
   }
 
-  private val ylong = scala.math.random.toLong
+  private val ylong = scala.math.random().toLong
 
   @Test
   def testStronglyTypedEqualityInline(): Unit = {

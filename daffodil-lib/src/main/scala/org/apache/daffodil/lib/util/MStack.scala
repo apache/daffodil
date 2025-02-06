@@ -39,7 +39,7 @@ final class MStackOfBoolean private ()
 object MStackOfBoolean {
   def apply() = {
     val stk = new MStackOfBoolean()
-    stk.init
+    stk.init()
     stk
   }
 }
@@ -49,7 +49,7 @@ final class MStackOfInt extends MStack[Int]((n: Int) => new Array[Int](n), 0)
 object MStackOfInt {
   def apply() = {
     val stk = new MStackOfInt()
-    stk.init
+    stk.init()
     stk
   }
 }
@@ -59,7 +59,7 @@ final class MStackOfLong extends MStack[Long]((n: Int) => new Array[Long](n), 0L
 object MStackOfLong {
   def apply() = {
     val stk = new MStackOfLong()
-    stk.init
+    stk.init()
     stk
   }
 }
@@ -149,7 +149,7 @@ final class MStackOf[T <: AnyRef] extends Serializable {
   @inline final def reset(m: MStack.Mark) = delegate.reset(m)
 
   @inline final def push(t: T) = delegate.push(t)
-  @inline final def pop: T = delegate.pop.asInstanceOf[T]
+  @inline final def pop: T = delegate.pop().asInstanceOf[T]
   @inline final def setTop(t: T) = delegate.setTop(t)
   @inline final def top: T = delegate.top.asInstanceOf[T]
   @inline final def bottom: T = delegate.bottom.asInstanceOf[T]
@@ -169,7 +169,7 @@ private[util] final class MStackOfAnyRef private ()
 object MStackOfAnyRef {
   def apply() = {
     val stk = new MStackOfAnyRef()
-    stk.init
+    stk.init()
     stk
   }
 }

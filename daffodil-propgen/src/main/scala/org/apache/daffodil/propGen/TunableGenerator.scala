@@ -292,7 +292,7 @@ class EnumListTunable(
       "Nil"
     } else {
       val defaultSeq =
-        trimmedDefault.split("\\s+").map(d => s"${listType}.${d.head.toUpper + d.tail}")
+        trimmedDefault.split("\\s+").map(d => s"${listType}.${d.head.toUpper}${d.tail}")
       s"""Seq(${defaultSeq.mkString(", ")})"""
     }
 
@@ -316,7 +316,7 @@ class TunableEnumDefinition(
   simpleTypeNode: scala.xml.Node
 ) {
   private val nodeName = (simpleTypeNode \@ "name").stripPrefix("Tunable")
-  private val scalaType = nodeName.head.toUpper + nodeName.tail
+  private val scalaType = nodeName.head.toUpper +: nodeName.tail
 
   /**
    * Returns a list of all string values of enumerations. If a simpletype is a
@@ -352,12 +352,12 @@ class TunableEnumDefinition(
 """.trim.stripMargin
 
   private val scalaEnums = {
-    val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper + e.tail }
+    val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper +: e.tail }
     scalaEnumValues.map { e => s"""  case object ${e} extends ${scalaType}""" }
   }
 
   private val values = {
-    val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper + e.tail }
+    val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper +: e.tail }
     scalaEnumValues.mkString("  override lazy val values = Array(", ", ", ")")
   }
 

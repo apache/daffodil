@@ -24,14 +24,14 @@ object TimeTrackerMacros {
   def trackMacro(c: Context)(name: c.Tree)(body: c.Tree) = {
     import c.universe._
 
-    val startTime = TermName(c.freshName)
-    val endTime = TermName(c.freshName)
-    val childrenTime = TermName(c.freshName)
-    val timeTaken = TermName(c.freshName)
-    val selfTime = TermName(c.freshName)
-    val sectionTime = TermName(c.freshName)
-    val result = TermName(c.freshName)
-    val key = TermName(c.freshName)
+    val startTime = TermName(c.freshName())
+    val endTime = TermName(c.freshName())
+    val childrenTime = TermName(c.freshName())
+    val timeTaken = TermName(c.freshName())
+    val selfTime = TermName(c.freshName())
+    val sectionTime = TermName(c.freshName())
+    val result = TermName(c.freshName())
+    val key = TermName(c.freshName())
 
     q"""
     {
