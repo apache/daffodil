@@ -150,9 +150,9 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       _.dpathElementCompileInfo
     }
     val eci = new DPathElementCompileInfo(
-      Delay('elementParents, this, parents),
+      Delay(Symbol("elementParents"), this, parents),
       variableMap,
-      Delay('elementChildrenCompileInfo, this, elementChildrenCompileInfo),
+      Delay(Symbol("elementChildrenCompileInfo"), this, elementChildrenCompileInfo),
       namespaces,
       noPrefixNamespace,
       slashPath,
@@ -177,18 +177,18 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
   final def erd = elementRuntimeData // just an abbreviation
 
-  private lazy val childrenERDs: Seq[ElementRuntimeData] = LV('childrenERDs) {
+  private lazy val childrenERDs: Seq[ElementRuntimeData] = LV(Symbol("childrenERDs")) {
     elementChildren.map {
       _.elementRuntimeData
     }
   }.value
 
-  final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
+  final lazy val elementRuntimeData: ElementRuntimeData = LV(Symbol("elementRuntimeData")) {
     val newERD: ElementRuntimeData = new ElementRuntimeData(
       position,
       childrenERDs,
       schemaSet.variableMap,
-      Delay('ElementPartialNextElementResolver, this, partialNextElementResolver),
+      Delay(Symbol("ElementPartialNextElementResolver"), this, partialNextElementResolver),
       encodingInfo,
       dpathElementCompileInfo,
       schemaFileLocation,

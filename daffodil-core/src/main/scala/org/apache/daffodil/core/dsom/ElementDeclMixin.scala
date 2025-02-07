@@ -79,7 +79,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
   }
 
   final lazy val optImmediateComplexType: Option[ComplexTypeBase] =
-    LV('optImmediateComplexType) {
+    LV(Symbol("optImmediateComplexType")) {
       val ct = xml \ "complexType"
       val nt = typeName
       if (ct.length == 1)
@@ -112,7 +112,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
 
   final lazy val immediateType = optImmediateSimpleType.orElse(optImmediateComplexType)
 
-  final lazy val typeDef: TypeBase = LV('TypeBase) {
+  final lazy val typeDef: TypeBase = LV(Symbol("TypeBase")) {
     (immediateType, namedType) match {
       case (Some(ty), None) => ty
       case (None, Some(ty)) => ty
@@ -129,7 +129,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
   }.value
 
   final lazy val optImmediateSimpleType: Option[LocalSimpleTypeDef] =
-    LV('optImmediateSimpleType) {
+    LV(Symbol("optImmediateSimpleType")) {
       val st = xml \ "simpleType"
       if (st.length == 1) {
         val lstd = LocalSimpleTypeDef(st(0), this)

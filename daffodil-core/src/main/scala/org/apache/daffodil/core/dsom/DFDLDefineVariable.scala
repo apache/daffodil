@@ -164,11 +164,11 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
       decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term) = LV(Symbol("gram")) {
     NewVariableInstanceStart(decl, this, term)
   }.value
 
-  final def endGram(term: Term) = LV('endGram) {
+  final def endGram(term: Term) = LV(Symbol("endGram")) {
     NewVariableInstanceEnd(decl, this, term)
   }.value
 }
@@ -188,7 +188,7 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
       decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term) = LV(Symbol("gram")) {
     SetVariable(this, term)
   }.value
 }

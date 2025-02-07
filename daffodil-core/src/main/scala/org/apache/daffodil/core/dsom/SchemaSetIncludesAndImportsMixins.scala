@@ -61,7 +61,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
     allSchemaFiles.map { _.iiSchemaDocument }
   }
 
-  lazy val allSchemaFiles = LV('allSchemaFiles) {
+  lazy val allSchemaFiles = LV(Symbol("allSchemaFiles")) {
     val fd = fakeXMLSchemaDocument // bootstrap
     val sa = fd.seenAfter
     val first = sa.value.head._2.iiSchemaFile

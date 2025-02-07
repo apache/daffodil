@@ -41,13 +41,13 @@ trait SchemaSetRuntime1Mixin {
   requiredEvaluationsAlways(allLayers)
   requiredEvaluationsAlways(root.elementRuntimeData.initialize)
 
-  override lazy val variableMap: VariableMap = LV('variableMap) {
+  override lazy val variableMap: VariableMap = LV(Symbol("variableMap")) {
     val vrds = allDefinedVariables.map { _.variableRuntimeData }
     val vmap = VariableMap(vrds)
     vmap
   }.value
 
-  lazy val parser = LV('parser) {
+  lazy val parser = LV(Symbol("parser")) {
     val par =
       if (generateParser) root.document.parser
       else new NotParsableParser(root.erd)
@@ -55,7 +55,7 @@ trait SchemaSetRuntime1Mixin {
     par
   }.value
 
-  lazy val unparser = LV('unparser) {
+  lazy val unparser = LV(Symbol("unparser")) {
     val unp =
       if (generateUnparser) root.document.unparser
       else new NotUnparsableUnparser(root.erd)
@@ -65,7 +65,7 @@ trait SchemaSetRuntime1Mixin {
 
   private lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 
-  private lazy val allLayers: Seq[LayerRuntimeData] = LV('allLayers) {
+  private lazy val allLayers: Seq[LayerRuntimeData] = LV(Symbol("allLayers")) {
     val lrds: Seq[LayerRuntimeData] = self.allSchemaComponents
       .collect {
         case stb: SequenceTermBase if (stb.isLayered) => stb

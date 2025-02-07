@@ -335,30 +335,31 @@ trait AnnotatedSchemaComponent
 
   def optReferredToComponent: Option[AnnotatedSchemaComponent] // override in ref objects
 
-  lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = LV('nonDefaultPropertySources) {
-    this match {
-      case sd: SchemaDocument => Nil
-      case _ => {
-        val refTo = refersToForPropertyCombining
-        val chainFromReferredTo = refTo
-          .map { c =>
-            val ndps = c.nonDefaultPropertySources
-            ndps
-          }
-          .toSeq
-          .flatten
-        val myNDFC = nonDefaultFormatChain
-        val completeNonDefaultFormatChain =
-          myNDFC +: chainFromReferredTo
-        val seq = completeNonDefaultFormatChain.distinct
-        checkNonOverlap(seq)
-        seq
+  lazy val nonDefaultPropertySources: Seq[ChainPropProvider] =
+    LV(Symbol("nonDefaultPropertySources")) {
+      this match {
+        case sd: SchemaDocument => Nil
+        case _ => {
+          val refTo = refersToForPropertyCombining
+          val chainFromReferredTo = refTo
+            .map { c =>
+              val ndps = c.nonDefaultPropertySources
+              ndps
+            }
+            .toSeq
+            .flatten
+          val myNDFC = nonDefaultFormatChain
+          val completeNonDefaultFormatChain =
+            myNDFC +: chainFromReferredTo
+          val seq = completeNonDefaultFormatChain.distinct
+          checkNonOverlap(seq)
+          seq
+        }
       }
-    }
-  }.value
+    }.value
 
   final protected lazy val defaultPropertySources: Seq[ChainPropProvider] =
-    LV('defaultPropertySources) {
+    LV(Symbol("defaultPropertySources")) {
       val refTo = refersToForPropertyCombining
       val chainFromReferredTo = refTo.toSeq.map { _.defaultPropertySources }.distinct.flatten
       val completeDefaultFormatChain =

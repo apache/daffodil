@@ -42,7 +42,7 @@ import org.apache.daffodil.lib.xml._
 final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(importNode, xsd, seenArg) {
 
-  final lazy val mapPair = LV('mapPair) {
+  final lazy val mapPair = LV(Symbol("mapPair")) {
     val mpOpt = importElementNS.map { ieNS => (ieNS, resolvedLocation) }
     val mp = mpOpt.getOrElse {
       //
@@ -74,7 +74,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
 
   lazy val importElementNS = getAttributeOption("namespace").map { NS(_) }
 
-  override lazy val targetNamespace: NS = LV('targetNamespace) {
+  override lazy val targetNamespace: NS = LV(Symbol("targetNamespace")) {
     val tns = importElementNS match {
       case Some(ns) => ns // don't load it just to check compatibility.
       case None =>
@@ -89,28 +89,29 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    * This will be Some(URL) for reading an imported schema,
    * if we resolved the namespace URI via the XML Catalog.
    */
-  lazy val resolvedNamespaceURI: Option[DaffodilSchemaSource] = LV('resolvedNamespaceURI) {
-    importElementNS match {
-      case None => {
-        schemaDefinitionUnless(
-          schemaLocationProperty != None,
-          "When there is no namespace specified, there must be a schemaLocation specified."
-        )
-        None
-      }
-      case Some(ns) => {
-        val uriString = resolver.resolveURI(ns.toString)
-        if (uriString == null) None
-        else {
-          val uri = URI.create(uriString)
-          val dfp = Misc.uriToDiagnosticFile(uri)
-          val res =
-            URISchemaSource(dfp, uri)
-          Some(res)
+  lazy val resolvedNamespaceURI: Option[DaffodilSchemaSource] =
+    LV(Symbol("resolvedNamespaceURI")) {
+      importElementNS match {
+        case None => {
+          schemaDefinitionUnless(
+            schemaLocationProperty != None,
+            "When there is no namespace specified, there must be a schemaLocation specified."
+          )
+          None
+        }
+        case Some(ns) => {
+          val uriString = resolver.resolveURI(ns.toString)
+          if (uriString == null) None
+          else {
+            val uri = URI.create(uriString)
+            val dfp = Misc.uriToDiagnosticFile(uri)
+            val res =
+              URISchemaSource(dfp, uri)
+            Some(res)
+          }
         }
       }
-    }
-  }.value
+    }.value
 
   private lazy val resolver = xsd.schemaSet.resolver
   private lazy val catFiles = resolver.catalogFiles.mkString(", ")
@@ -118,7 +119,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   /**
    * XML Catalog is tried first, then classpath
    */
-  lazy val resolvedLocation: DaffodilSchemaSource = LV('resolvedLocation) {
+  lazy val resolvedLocation: DaffodilSchemaSource = LV(Symbol("resolvedLocation")) {
 
     Logger.log.debug(
       s"Computing resolvedLocation\nimportElementNS='${importElementNS}'\nresolvedNamespaceURI='${resolvedNamespaceURI}'\nschemaLocationProperty='${schemaLocationProperty}'\nresolvedSchemaLocation='${resolvedSchemaLocation}'"

@@ -43,7 +43,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
       this.noPrefixNamespace,
       this.external,
       this.direction,
-      Delay('maybeDefaultValueExpr, this, maybeDefaultValueExpr),
+      Delay(Symbol("maybeDefaultValueExpr"), this, maybeDefaultValueExpr),
       this.typeQName,
       this.namedQName.asInstanceOf[GlobalQName],
       this.primType,
@@ -97,7 +97,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
       this.noPrefixNamespace,
       defv.external,
       defv.direction,
-      Delay('maybeDefaultValueExpr2, this, maybeDefaultValueExpr),
+      Delay(Symbol("maybeDefaultValueExpr2"), this, maybeDefaultValueExpr),
       defv.typeQName,
       globalVRD.globalQName, // important that this is the exact same globalQName object as is used by the globalVRD.
       defv.primType,

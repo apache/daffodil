@@ -778,12 +778,12 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // EncodingRuntimeData
     new DPathElementCompileInfo(
       Delay(
-        'ErrorERDParents,
+        Symbol("ErrorERDParents"),
         Seq[DPathElementCompileInfo]()
       ).force, // parentsArg: => Seq[DPathElementCompileInfo],
       null, // variableMap: => VariableMap,
       Delay(
-        'ErrorERD,
+        Symbol("ErrorERD"),
         Seq[DPathElementCompileInfo]()
       ).force, // elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
       null, // namespaces: scala.xml.NamespaceBinding,

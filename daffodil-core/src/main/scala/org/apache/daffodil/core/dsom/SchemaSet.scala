@@ -238,43 +238,43 @@ final class SchemaSet private (
 
   private type UC = (NS, String, Symbol, GlobalComponent)
 
-  private lazy val allTopLevels: Seq[UC] = LV('allTopLevels) {
+  private lazy val allTopLevels: Seq[UC] = LV(Symbol("allTopLevels")) {
     val res = schemas.flatMap { schema =>
       {
         val ns = schema.namespace
         val geds = schema.globalElementDecls.map { g =>
           {
-            (ns, g.name, 'Element, g)
+            (ns, g.name, Symbol("Element"), g)
           }
         }
         val stds = schema.globalSimpleTypeDefs.map { g =>
           {
-            (ns, g.name, 'SimpleType, g)
+            (ns, g.name, Symbol("SimpleType"), g)
           }
         }
         val ctds = schema.globalComplexTypeDefs.map { g =>
           {
-            (ns, g.name, 'ComplexType, g)
+            (ns, g.name, Symbol("ComplexType"), g)
           }
         }
         val gds = schema.globalGroupDefs.map { g =>
           {
-            (ns, g.name, 'Group, g)
+            (ns, g.name, Symbol("Group"), g)
           }
         }
         val dfs = schema.defineFormats.map { g =>
           {
-            (ns, g.name, 'DefineFormat, g)
+            (ns, g.name, Symbol("DefineFormat"), g)
           }
         }
         val dess = schema.defineEscapeSchemes.map { g =>
           {
-            (ns, g.name, 'DefineEscapeScheme, g)
+            (ns, g.name, Symbol("DefineEscapeScheme"), g)
           }
         }
         val dvs = schema.defineVariables.map { g =>
           {
-            (ns, g.name, 'DefineVariable, g)
+            (ns, g.name, Symbol("DefineVariable"), g)
           }
         }
         val all = geds ++ stds ++ ctds ++ gds ++ dfs ++ dess ++ dvs
@@ -284,7 +284,7 @@ final class SchemaSet private (
     res.asInstanceOf[Seq[UC]]
   }.value
 
-  private lazy val groupedTopLevels = LV('groupedTopLevels) {
+  private lazy val groupedTopLevels = LV(Symbol("groupedTopLevels")) {
     val grouped = allTopLevels.groupBy {
       case (ns, name, kind, obj) => {
         (kind, ns, name)
@@ -381,7 +381,7 @@ final class SchemaSet private (
    * Or, you can leave the root unspecified, and this method will determine it from the
    * first element declaration of the first schema file.
    */
-  lazy val root: Root = LV('root) {
+  lazy val root: Root = LV(Symbol("root")) {
     val re: GlobalElementDecl =
       optPFRootSpec match {
         case Some(rs) =>
@@ -553,7 +553,7 @@ final class SchemaSet private (
     .flatMap(_.defineVariables)
     .union(predefinedVars)
 
-  private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
+  private lazy val checkUnusedProperties = LV(Symbol("hasUnusedProperties")) {
     root.checkUnusedProperties
   }.value
 
@@ -634,7 +634,7 @@ final class SchemaSet private (
    * @return true if the components are all constructed with their interconnections.
    *         false with diagnostics accumulated otherwise.
    */
-  private lazy val areComponentsConstructed: Boolean = LV('areComponentsConstructed) {
+  private lazy val areComponentsConstructed: Boolean = LV(Symbol("areComponentsConstructed")) {
     allSchemaFiles
     allSchemaDocuments
     schemas

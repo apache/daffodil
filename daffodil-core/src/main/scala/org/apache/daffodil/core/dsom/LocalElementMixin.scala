@@ -41,7 +41,7 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
    * etc.
    */
   final lazy val isContentRegionLengthKnownToBeGreaterThanZero =
-    LV('isContentRegionLengthKnownToBeGreaterThanZero) {
+    LV(Symbol("isContentRegionLengthKnownToBeGreaterThanZero")) {
       val pt = primType
       val res = lengthKind match {
         case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
@@ -72,7 +72,7 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
 
   final override def hasKnownRequiredSyntax: Boolean = !couldBeMissing
 
-  final lazy val couldBeMissing: Boolean = LV('couldBeMissing) {
+  final lazy val couldBeMissing: Boolean = LV(Symbol("couldBeMissing")) {
     val res =
       if (minOccurs == 0) true
       else if (isNillable && !hasNilValueRequiredSyntax) true

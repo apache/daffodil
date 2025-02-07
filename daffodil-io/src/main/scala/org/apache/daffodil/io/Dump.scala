@@ -376,7 +376,7 @@ class DataDumper {
         //
         rowStart0b = 0
     }
-    ab
+    ab.toSeq
   }
 
   // indicators over these dumps are of maximum length 16 bytes.

@@ -116,7 +116,7 @@ trait TermRuntime1Mixin { self: Term =>
    * Disregards any surrounding structure,
    */
   lazy val possibleThisTermNextStreamingUnparserElements: PossibleNextElements =
-    LV('possibleThisTermNextStreamingUnparserElements) {
+    LV(Symbol("possibleThisTermNextStreamingUnparserElements")) {
       possibleThisTermNextStreamingUnparserElementsDef
     }.value
 
@@ -275,7 +275,7 @@ trait TermRuntime1Mixin { self: Term =>
 
   final protected lazy val possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
     : PossibleNextElements =
-    LV('possibleSelfPlusNextLexicalSiblingStreamingUnparserElements) {
+    LV(Symbol("possibleSelfPlusNextLexicalSiblingStreamingUnparserElements")) {
       val thisItself: PossibleNextElements = this match {
         //
         // An array may be required in the infoset, but the array
@@ -377,7 +377,7 @@ trait TermRuntime1Mixin { self: Term =>
    * the term itself may have as possibilities.
    */
   private lazy val followingLexicalSiblingStreamingUnparserElements: PossibleNextElements =
-    LV('followingLexicalSiblingStreamingUnparserElements) {
+    LV(Symbol("followingLexicalSiblingStreamingUnparserElements")) {
       Assert.invariant(optLexicalParent.isDefined)
       val lexicalParent = optLexicalParent.get
       lexicalParent match {

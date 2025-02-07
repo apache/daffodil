@@ -110,7 +110,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
     res
   }
 
-  private lazy val compiledDPath_ = LV('compiledDPath) { compiledDPath }
+  private lazy val compiledDPath_ = LV(Symbol("compiledDPath")) { compiledDPath }
   def compiledDPath: CompiledDPath
 
   final lazy val parentOpt = Option(parent)

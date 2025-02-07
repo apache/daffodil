@@ -111,7 +111,7 @@ abstract class ChoiceTermBase(
     isDD
   }
 
-  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+  final override lazy val hasKnownRequiredSyntax = LV(Symbol("hasKnownRequiredSyntax")) {
     if (hasFraming) true
     // else if (isKnownToBeAligned) true //TODO: Alignment may not occur; hence, cannot be part of determining whether there is known syntax.
     else {
@@ -128,7 +128,7 @@ abstract class ChoiceTermBase(
     }
   }.value
 
-  final lazy val noBranchesFound = LV('noBranchesFound) {
+  final lazy val noBranchesFound = LV(Symbol("noBranchesFound")) {
     if (groupMembers.size == 0) {
       SDE("choice element must contain one or more branches")
     }
@@ -155,7 +155,7 @@ abstract class ChoiceTermBase(
    * This latter need to be allowed, because while they do not have known required syntax they do
    * have to be executed for side-effect.
    */
-  final lazy val branchesAreNonOptional = LV('branchesAreNonOptional) {
+  final lazy val branchesAreNonOptional = LV(Symbol("branchesAreNonOptional")) {
     val branchesOk = groupMembers.map { branch =>
       val realBranch = branch match {
         case impliedSeq: ChoiceBranchImpliedSequence => impliedSeq.groupMembers(0)
@@ -169,7 +169,7 @@ abstract class ChoiceTermBase(
     assuming(branchesOk.forall { x => x })
   }.value
 
-  final lazy val branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
+  final lazy val branchesAreNotIVCElements = LV(Symbol("branchesAreNotIVCElements")) {
     val branchesOk = groupMembers.map { branch =>
       if (!branch.isRepresented) {
         branch.schemaDefinitionErrorButContinue(

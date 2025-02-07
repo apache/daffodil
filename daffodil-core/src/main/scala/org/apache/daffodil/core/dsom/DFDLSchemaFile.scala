@@ -205,7 +205,7 @@ final class DFDLSchemaFile(
   private lazy val errHandler = new DFDLSchemaFileLoadErrorHandler(schemaFileLocation)
   private lazy val loader = new DaffodilXMLLoader(errHandler)
 
-  lazy val isValidAsCompleteDFDLSchema: Boolean = LV('isValidAsCompleteDFDLSchema) {
+  lazy val isValidAsCompleteDFDLSchema: Boolean = LV(Symbol("isValidAsCompleteDFDLSchema")) {
     try {
       loader.validateAsCompleteDFDLSchema(schemaSource)
     } catch {
@@ -217,7 +217,7 @@ final class DFDLSchemaFile(
     true
   }.value
 
-  lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
+  lazy val iiXMLSchemaDocument = LV(Symbol("iiXMLSchemaDocument")) {
     val res = makeXMLSchemaDocument(seenBefore, Some(this))
     if (res.isDFDLSchema && sset.shouldValidateDFDLSchemas) {
       //

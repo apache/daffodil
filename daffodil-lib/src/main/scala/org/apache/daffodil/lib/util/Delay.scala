@@ -54,7 +54,7 @@ import org.apache.daffodil.lib.exceptions.Assert
  *   }
  *
  *   // in Lisp, Nil behaves like a Cons where car and cdr are both Nil also.
- *   lazy val LispNil = new Cons(Delay('car, this, LispNil), Delay('cdr, this, LispNil))
+ *   lazy val LispNil = new Cons(Delay(Symbol("car"), this, LispNil), Delay(Symbol("cdr"), this, LispNil))
  *
  *
  *   // elsewhere, these must be initialized before serialization or

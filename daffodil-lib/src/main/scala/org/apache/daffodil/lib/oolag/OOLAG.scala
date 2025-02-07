@@ -103,7 +103,7 @@ object OOLAG {
    *
    * The way these are generally used now is like this
    * {{{
-   *  lazy val foo = LV('foo) {...calculation...}.value
+   *  lazy val foo = LV(Symbol("foo")) {...calculation...}.value
    * }}}
    * Why scala needs 'real' Lisp-style macros: Well wouldn't it be
    * nicer if I could write:

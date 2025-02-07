@@ -118,7 +118,7 @@ final class XMLSchemaDocument private (
     else qualOrUnqual(afdAttr, "attribute")
   }
 
-  final lazy val checkUnsupportedAttributes = LV('checkUnsupportedAttributes) {
+  final lazy val checkUnsupportedAttributes = LV(Symbol("checkUnsupportedAttributes")) {
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""

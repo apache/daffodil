@@ -33,7 +33,7 @@ trait SchemaComponentIncludesAndImportsMixin extends CommonContextMixin {
    * problems when this can't get a value due to an error.
    */
   override def uriString: String = uriString_
-  private lazy val uriString_ = LV('fileName) {
+  private lazy val uriString_ = LV(Symbol("fileName")) {
     xmlSchemaDocument.uriString
   }.toOption.getOrElse(orElseURL)
 

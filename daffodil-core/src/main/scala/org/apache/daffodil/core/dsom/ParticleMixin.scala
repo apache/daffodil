@@ -219,7 +219,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    * This excludes elements that have no representation e.g., elements with dfdl:inputValueCalc.
    */
   final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation =
-    LV('hasStaticallyRequiredOccurrencesInDataRepresentation) {
+    LV(Symbol("hasStaticallyRequiredOccurrencesInDataRepresentation")) {
       val res =
         if (!isRepresented) false // if there's no rep, then it's not statically required.
         else if (isScalar) true
@@ -229,7 +229,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       res
     }.value
 
-  final lazy val hasStopValue = LV('hasStopValue) {
+  final lazy val hasStopValue = LV(Symbol("hasStopValue")) {
     val sv = !isScalar && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinitionUnless(
