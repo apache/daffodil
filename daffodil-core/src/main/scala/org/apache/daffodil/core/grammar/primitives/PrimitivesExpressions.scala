@@ -295,7 +295,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   protected def qn = GlobalQName(Some("daf"), baseName, XMLUtils.dafintURI)
 
-  lazy val expr = LV('expr) {
+  lazy val expr = LV(Symbol("expr")) {
     ExpressionCompilers.AnyRef.compileExpression(
       qn,
       nodeKind,

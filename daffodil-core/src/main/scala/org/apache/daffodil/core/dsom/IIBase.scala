@@ -118,7 +118,7 @@ import org.apache.daffodil.lib.xml.XMLUtils
 object IIUtils {
   type IIMap = Delay[ListMap[(NS, DaffodilSchemaSource), IIBase]]
   private val empty = new ListMap[(NS, DaffodilSchemaSource), IIBase]()
-  val emptyIIMap = Delay('IIMapEmpty, this, empty).force
+  val emptyIIMap = Delay(Symbol("IIMapEmpty"), this, empty).force
 }
 
 /**
@@ -145,7 +145,7 @@ abstract class IIBase(
    * compilation.
    */
 
-  protected final lazy val notSeenThisBefore = LV('notSeenThisBefore) {
+  protected final lazy val notSeenThisBefore = LV(Symbol("notSeenThisBefore")) {
     val mp = mapPair
     val res = seenBefore.value.get(mp) match {
       case Some(_) => false
@@ -161,9 +161,9 @@ abstract class IIBase(
    * so that if our own includes/imports cycle back to us
    * we will detect it.
    */
-  protected final lazy val seenBeforeThisFile: IIMap = LV('seenBeforeThisFile) {
+  protected final lazy val seenBeforeThisFile: IIMap = LV(Symbol("seenBeforeThisFile")) {
     val res = Delay(
-      'seenBeforeThisFile,
+      Symbol("seenBeforeThisFile"),
       this, {
         val v =
           if (notSeenThisBefore) seenBefore.value + mapTuple
@@ -174,7 +174,7 @@ abstract class IIBase(
     res
   }.value
 
-  final lazy val seenAfter: IIMap = LV('seenAfter) {
+  final lazy val seenAfter: IIMap = LV(Symbol("seenAfter")) {
     val res = iiSchemaFileMaybe.map { _.seenAfter }.getOrElse(seenBefore)
     res
   }.value
@@ -194,7 +194,7 @@ abstract class IIBase(
    */
 
   protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] =
-    LV('resolvedSchemaLocation) {
+    LV(Symbol("resolvedSchemaLocation")) {
       val res = schemaLocationProperty.flatMap { slText =>
         val enclosingSchemaSource = schemaFile.map { sf =>
           sf.schemaSource
@@ -226,7 +226,7 @@ abstract class IIBase(
 
   protected def mapPair: (NS, DaffodilSchemaSource)
 
-  protected final lazy val mapTuple = LV('mapTuple) {
+  protected final lazy val mapTuple = LV(Symbol("mapTuple")) {
     val tuple = (mapPair, this)
     tuple
   }.value
@@ -251,7 +251,7 @@ abstract class IIBase(
    * point its namespace is not acceptable given the import
    * statement.
    */
-  final lazy val iiSchemaFileMaybe: Option[DFDLSchemaFile] = LV('iiSchemaFileMaybe) {
+  final lazy val iiSchemaFileMaybe: Option[DFDLSchemaFile] = LV(Symbol("iiSchemaFileMaybe")) {
     val res = if (notSeenThisBefore) {
       Some(iiSchemaFile)
     } else None
@@ -261,7 +261,7 @@ abstract class IIBase(
   /**
    * Unconditionally, get the schema file object.
    */
-  final lazy val iiSchemaFile: DFDLSchemaFile = LV('iiSchemaFile) {
+  final lazy val iiSchemaFile: DFDLSchemaFile = LV(Symbol("iiSchemaFile")) {
     val res = new DFDLSchemaFile(schemaSet, resolvedLocation, this, seenBeforeThisFile)
     res.node // force access to the data of the file.
     res

@@ -84,7 +84,7 @@ final class DFDLEscapeScheme(
   override def verifyPropValue(key: String, value: String): Boolean =
     super.verifyPropValue(key, value)
 
-  final lazy val escapeCharacterEv = LV('escapeCharacterEv) {
+  final lazy val escapeCharacterEv = LV(Symbol("escapeCharacterEv")) {
     val qn = this.qNameForProperty("escapeCharacter")
     val expr = ExpressionCompilers.String.compileProperty(
       qn,
@@ -98,7 +98,7 @@ final class DFDLEscapeScheme(
     ev
   }.value
 
-  final lazy val optionEscapeEscapeCharacterEv = LV('optionEscapeEscapeCharacterEv) {
+  final lazy val optionEscapeEscapeCharacterEv = LV(Symbol("optionEscapeEscapeCharacterEv")) {
     val qn = this.qNameForProperty("escapeEscapeCharacter")
     escapeEscapeCharacterRaw match {
       case Found("", loc, _, _) => Nope
@@ -121,7 +121,7 @@ final class DFDLEscapeScheme(
     }
   }.value
 
-  final lazy val optionExtraEscapedCharactersEv = LV('optionExtraEscapedCharacters) {
+  final lazy val optionExtraEscapedCharactersEv = LV(Symbol("optionExtraEscapedCharacters")) {
     val qn = this.qNameForProperty("extraEscapedCharacters")
     extraEscapedCharactersRaw match {
       case Found("", _, _, _) => Nope

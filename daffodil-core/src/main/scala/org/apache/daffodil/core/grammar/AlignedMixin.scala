@@ -62,7 +62,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * will be properly aligned by where the prior thing left us positioned.
    * Hence we are guaranteed to be properly aligned.
    */
-  final lazy val isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
+  final lazy val isKnownToBeAligned: Boolean = LV(Symbol("isKnownToBeAligned")) {
     if (!isRepresented || (alignmentKindDefaulted == AlignmentKind.Manual)) true
     else {
       val pa = priorAlignmentWithLeadingSkipApprox
@@ -80,7 +80,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * This goes further TermEncodingMixin.hasTextAlignment because it
    * considers the surrounding context meeting the alignment needs.
    */
-  final lazy val isKnownToBeTextAligned: Boolean = LV('isKnownToBeTextAligned) {
+  final lazy val isKnownToBeTextAligned: Boolean = LV(Symbol("isKnownToBeTextAligned")) {
     if (alignmentKindDefaulted == AlignmentKind.Manual) true // manual alignment
     else if (isKnownEncoding) {
       if (knownEncodingAlignmentInBits == 1)
@@ -110,7 +110,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       false
   }
 
-  final lazy val hasNoSkipRegions = LV('hasNoSkipRegions) {
+  final lazy val hasNoSkipRegions = LV(Symbol("hasNoSkipRegions")) {
     leadingSkip == 0 && trailingSkip == 0
   }.value
 
@@ -139,93 +139,94 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   // The separator is text in some encoding, might not be the same as this term's encoding, and
   // the alignment will be left where that text leaves it.
   //
-  private lazy val priorAlignmentApprox: AlignmentMultipleOf = LV('priorAlignmentApprox) {
-    if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
-      AlignmentMultipleOf(
-        0
-      ) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
-    } else {
-      val priorSibs = potentialPriorTerms
-      val arraySelfAlignment =
-        if (isArray) {
-          val e = this.asInstanceOf[ElementBase]
-          if (e.isComplexType && e.lengthKind == LengthKind.Implicit) {
-            // Array of a complex type with implicit length. In this case, it
-            // is not possible to calculate the approximate prior alignment of
-            // the previous element. This is because the prior alignment could
-            // come from a previous element of this same array. Since this
-            // array element is implicit length, knowing where it ends requires
-            // knowing where it starts and the approximate length of the
-            // children. But we can't know where it starts without knowing
-            // where the previous one array element ends. And we end up in a
-            // loop.
-            //
-            // So there isn't much we can do regarding alignment. What we can
-            // do is determine if this array element is byte aligned AND all of
-            // its children are byte lengths/byte aligned, if that is the case
-            // then we at least know this array and its elements are byte
-            // aligned. If that isn't the case, there isn't much we can do.
+  private lazy val priorAlignmentApprox: AlignmentMultipleOf =
+    LV(Symbol("priorAlignmentApprox")) {
+      if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
+        AlignmentMultipleOf(
+          0
+        ) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
+      } else {
+        val priorSibs = potentialPriorTerms
+        val arraySelfAlignment =
+          if (isArray) {
+            val e = this.asInstanceOf[ElementBase]
+            if (e.isComplexType && e.lengthKind == LengthKind.Implicit) {
+              // Array of a complex type with implicit length. In this case, it
+              // is not possible to calculate the approximate prior alignment of
+              // the previous element. This is because the prior alignment could
+              // come from a previous element of this same array. Since this
+              // array element is implicit length, knowing where it ends requires
+              // knowing where it starts and the approximate length of the
+              // children. But we can't know where it starts without knowing
+              // where the previous one array element ends. And we end up in a
+              // loop.
+              //
+              // So there isn't much we can do regarding alignment. What we can
+              // do is determine if this array element is byte aligned AND all of
+              // its children are byte lengths/byte aligned, if that is the case
+              // then we at least know this array and its elements are byte
+              // aligned. If that isn't the case, there isn't much we can do.
+              if (isKnownToBeByteAlignedAndByteLength) {
+                Seq(AlignmentMultipleOf(8))
+              } else {
+                Seq(AlignmentMultipleOf(1))
+              }
+            } else {
+              // If this is an array, it's prior alignment could be it's own alignment.
+              // We really want to use this.endingAlignmentApprox since that
+              // takes into account the previous alignments, lengths, and leading
+              // skips. However, we cannot use that since that method ends up
+              // calling this method, which results in a circular loop. So,
+              // instead just use calculate this arrays ending alignment not
+              // taking into account it's previous alignment.
+              Seq(alignmentApprox + (elementSpecifiedLengthApprox + trailingSkipApprox))
+            }
+          } else {
+            Seq()
+          }
+
+        val unorderedSequenceSelfAlignment =
+          if (isEverInUnorderedSequence) {
             if (isKnownToBeByteAlignedAndByteLength) {
               Seq(AlignmentMultipleOf(8))
             } else {
               Seq(AlignmentMultipleOf(1))
             }
           } else {
-            // If this is an array, it's prior alignment could be it's own alignment.
-            // We really want to use this.endingAlignmentApprox since that
-            // takes into account the previous alignments, lengths, and leading
-            // skips. However, we cannot use that since that method ends up
-            // calling this method, which results in a circular loop. So,
-            // instead just use calculate this arrays ending alignment not
-            // taking into account it's previous alignment.
-            Seq(alignmentApprox + (elementSpecifiedLengthApprox + trailingSkipApprox))
+            Seq()
           }
-        } else {
-          Seq()
-        }
 
-      val unorderedSequenceSelfAlignment =
-        if (isEverInUnorderedSequence) {
-          if (isKnownToBeByteAlignedAndByteLength) {
-            Seq(AlignmentMultipleOf(8))
+        val priorSibsAlignmentsApprox = priorSibs.map { ps =>
+          val eaa = if (isEverInUnorderedSequence) {
+            // Return 0 here, unordered alignment will be handled by unorderedSequenceSelfAlignment
+            AlignmentMultipleOf(0)
           } else {
-            Seq(AlignmentMultipleOf(1))
+            ps.endingAlignmentApprox
           }
-        } else {
-          Seq()
+          eaa
         }
 
-      val priorSibsAlignmentsApprox = priorSibs.map { ps =>
-        val eaa = if (isEverInUnorderedSequence) {
-          // Return 0 here, unordered alignment will be handled by unorderedSequenceSelfAlignment
-          AlignmentMultipleOf(0)
-        } else {
-          ps.endingAlignmentApprox
-        }
-        eaa
+        val parentAlignmentApprox =
+          if (priorSibs.isEmpty || isEverInUnorderedSequence) {
+            // we only care about the parent alignment if we are the first child
+            // in a model group, or if we are in an unordered sequence and we
+            // could be first when parsing
+            immediatelyEnclosingModelGroup.map { p =>
+              val csa = p.contentStartAlignment
+              csa
+            }.toSeq
+          } else {
+            Seq()
+          }
+
+        val priorAlignmentsApprox =
+          priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
+        if (priorAlignmentsApprox.isEmpty)
+          alignmentApprox // it will be the containing context's responsibility to insure this IS where we start.
+        else
+          priorAlignmentsApprox.reduce(_ * _)
       }
-
-      val parentAlignmentApprox =
-        if (priorSibs.isEmpty || isEverInUnorderedSequence) {
-          // we only care about the parent alignment if we are the first child
-          // in a model group, or if we are in an unordered sequence and we
-          // could be first when parsing
-          immediatelyEnclosingModelGroup.map { p =>
-            val csa = p.contentStartAlignment
-            csa
-          }.toSeq
-        } else {
-          Seq()
-        }
-
-      val priorAlignmentsApprox =
-        priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
-      if (priorAlignmentsApprox.isEmpty)
-        alignmentApprox // it will be the containing context's responsibility to insure this IS where we start.
-      else
-        priorAlignmentsApprox.reduce(_ * _)
-    }
-  }.value
+    }.value
 
   private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
     priorAlignmentApprox + leadingSkipApprox

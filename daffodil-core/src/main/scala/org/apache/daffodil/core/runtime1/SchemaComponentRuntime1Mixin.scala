@@ -36,7 +36,7 @@ trait SchemaComponentRuntime1Mixin { self: SchemaComponent =>
   lazy val runtimeData: RuntimeData =
     nonTermRuntimeData // overrides in ModelGroup, ElementBase, SimpleTypes
 
-  final lazy val nonTermRuntimeData = LV('nonTermRuntimeData) {
+  final lazy val nonTermRuntimeData = LV(Symbol("nonTermRuntimeData")) {
     new NonTermRuntimeData(
       variableMap,
       schemaFileLocation,

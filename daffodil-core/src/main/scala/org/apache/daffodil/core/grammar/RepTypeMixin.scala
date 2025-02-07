@@ -33,7 +33,7 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
 
 trait RepTypeMixin { self: ElementBase =>
 
-  lazy val hasRepType: Boolean = LV('hasRepType) {
+  lazy val hasRepType: Boolean = LV(Symbol("hasRepType")) {
     val hasRT = isSimpleType && findPropertyOption("repType").isDefined
     schemaDefinitionWhen(
       hasRT && isOutputValueCalc,
@@ -42,7 +42,7 @@ trait RepTypeMixin { self: ElementBase =>
     hasRT
   }.value
 
-  private lazy val repTypeGSTD: GlobalSimpleTypeDef = LV('repTypeGSTD) {
+  private lazy val repTypeGSTD: GlobalSimpleTypeDef = LV(Symbol("repTypeGSTD")) {
     // throws an SDE if the simple type def is not found or if it is not a simple type (e.g. a
     // primitive type)
     val gstd = schemaSet.getGlobalSimpleTypeDef(repType).getOrElse {
@@ -61,7 +61,7 @@ trait RepTypeMixin { self: ElementBase =>
     gstd
   }.value
 
-  lazy val repTypeElementDecl: RepTypeQuasiElementDecl = LV('repTypeElementDecl) {
+  lazy val repTypeElementDecl: RepTypeQuasiElementDecl = LV(Symbol("repTypeElementDecl")) {
     // this quasi element must use the in-scope namespaces from where the repType property was
     // defined, which isn't necessarily the same as the in-scope namespaces on this element,
     // since the repType property could be defined on a simpleType in another file with
@@ -79,14 +79,15 @@ trait RepTypeMixin { self: ElementBase =>
     RepTypeQuasiElementDecl(xmlElem, repTypeGSTD)
   }.value
 
-  lazy val optRepTypeElementDecl: Option[RepTypeQuasiElementDecl] = LV('optRepTypeElementDecl) {
-    if (hasRepType) Some(repTypeElementDecl) else None
-  }.value
+  lazy val optRepTypeElementDecl: Option[RepTypeQuasiElementDecl] =
+    LV(Symbol("optRepTypeElementDecl")) {
+      if (hasRepType) Some(repTypeElementDecl) else None
+    }.value
 
   lazy val (
     repTypeCompareLT: NumberCompareOp,
     repTypeCompareLE: NumberCompareOp
-  ) = LV('repTypeComparers) {
+  ) = LV(Symbol("repTypeComparers")) {
     Assert.invariant(
       repTypeElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
       "repType should only be an integer type"
@@ -99,7 +100,7 @@ trait RepTypeMixin { self: ElementBase =>
     repTypeParseValuesMap: Map[DataValueNumber, DataValueString],
     repTypeParseRangesMap: Seq[(DataValueNumber, DataValueNumber, DataValueString)],
     repTypeUnparseMap: Map[DataValueString, DataValueNumber]
-  ) = LV('repTypeMaps) {
+  ) = LV(Symbol("repTypeMaps")) {
 
     schemaDefinitionUnless(
       primType.isInstanceOf[NodeInfo.String.Kind],

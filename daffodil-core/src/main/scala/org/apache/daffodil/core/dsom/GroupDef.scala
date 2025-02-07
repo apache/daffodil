@@ -63,12 +63,12 @@ trait GroupDefLike extends AnnotatedSchemaComponent with ProvidesDFDLStatementMi
 
   def xmlChildren: Seq[Node]
 
-  private lazy val goodXmlChildren = LV('goodXMLChildren) {
+  private lazy val goodXmlChildren = LV(Symbol("goodXMLChildren")) {
     xmlChildren.flatMap { removeNonInteresting(_) }
   }.value
 
   /** Returns the group members that are elements or model groups. */
-  protected lazy val groupMembersDef: Seq[Term] = LV('groupMembers) {
+  protected lazy val groupMembersDef: Seq[Term] = LV(Symbol("groupMembers")) {
     computeGroupMembers()
   }.value
 

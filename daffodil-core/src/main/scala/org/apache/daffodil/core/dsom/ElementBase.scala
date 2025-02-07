@@ -216,7 +216,7 @@ trait ElementBase
   }
 
   private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] =
-    LV('thisElementsRequiredNamespaceBindings) {
+    LV(Symbol("thisElementsRequiredNamespaceBindings")) {
       val childrenRequiredNSBindings =
         this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
 
@@ -280,7 +280,7 @@ trait ElementBase
 
   private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings
 
-  private lazy val myParentNSPairs: Set[(String, NS)] = LV('myParentNSPairs) {
+  private lazy val myParentNSPairs: Set[(String, NS)] = LV(Symbol("myParentNSPairs")) {
     val ee: Option[ElementBase] =
       enclosingElements.headOption // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
     ee match {
@@ -311,7 +311,7 @@ trait ElementBase
     }
   }
 
-  private lazy val parentMinimizedScope = LV('parentMinimizedScope) {
+  private lazy val parentMinimizedScope = LV(Symbol("parentMinimizedScope")) {
     val ee =
       enclosingElements.headOption // FIXME: bug DAFFODIL-2282 doesn't work unless all are same.
     val res =
@@ -326,7 +326,7 @@ trait ElementBase
    * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
    * parent element, except when it adds more of its own bindings, in which case the tail is supposed to be shared.
    */
-  protected lazy val minimizedScope: NamespaceBinding = LV('minimizedScope) {
+  protected lazy val minimizedScope: NamespaceBinding = LV(Symbol("minimizedScope")) {
     val uniquePairs =
       if (this.isInstanceOf[Root]) {
         // If this is the root element and it contains xmlns="", then remove
@@ -462,7 +462,7 @@ trait ElementBase
    *
    * Include both represented and non-represented elements.
    */
-  final lazy val elementChildren: Seq[ElementBase] = LV('elementChildren) {
+  final lazy val elementChildren: Seq[ElementBase] = LV(Symbol("elementChildren")) {
     this.typeDef match {
       case ct: ComplexTypeBase => {
         ct.group.elementChildren
@@ -1259,7 +1259,7 @@ trait ElementBase
    * at runtime it will not evaluate to empty string (so you can specify the delimiter
    * at runtime, but you cannot turn on/off the whole delimited format at runtime.)
    */
-  final lazy val isDefaultable: Boolean = LV('isDefaultable) {
+  final lazy val isDefaultable: Boolean = LV(Symbol("isDefaultable")) {
     if (isSimpleType) {
       if (!isRepresented) false
       else if (!hasDefaultValue) false

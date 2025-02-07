@@ -38,7 +38,7 @@ trait GroupRef extends GroupRefView { self: ModelGroup =>
 
   final override lazy val optReferredToComponent = Some(referredToComponent)
 
-  final override protected lazy val groupMembersDef = LV('groupMembers) {
+  final override protected lazy val groupMembersDef = LV(Symbol("groupMembers")) {
     groupDef.groupMembersNotShared
   }.value
 
@@ -154,7 +154,7 @@ final class SequenceGroupRef private (
 
   override def hiddenGroupRefOption = nf
 
-  override lazy val groupDef = LV('groupDef) { globalGroupDef }.value
+  override lazy val groupDef = LV(Symbol("groupDef")) { globalGroupDef }.value
 
 }
 
@@ -186,7 +186,7 @@ final class ChoiceGroupRef private (
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
 
-  override lazy val groupDef = LV('cgrGroupDef) { globalGroupDef }.value
+  override lazy val groupDef = LV(Symbol("cgrGroupDef")) { globalGroupDef }.value
 
   private lazy val cgd = groupDef.asInstanceOf[GlobalChoiceGroupDef]
 

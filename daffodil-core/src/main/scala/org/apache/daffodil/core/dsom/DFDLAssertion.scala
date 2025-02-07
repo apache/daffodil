@@ -163,7 +163,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term) = LV(Symbol("gram")) {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(term, this)
       case TestKind.Expression => AssertBooleanPrim(term, this)
@@ -174,7 +174,7 @@ final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin
 
-  final def gram(term: Term) = LV('gram) {
+  final def gram(term: Term) = LV(Symbol("gram")) {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(term, this)
       case TestKind.Expression => DiscriminatorBooleanPrim(term, this)

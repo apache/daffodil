@@ -68,7 +68,7 @@ abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, posi
    * invokes namedQName because it's a named thing, must be overridden
    * and use refQName instead.
    */
-  override lazy val namedQName: NamedQName = LV('namedQName) {
+  override lazy val namedQName: NamedQName = LV(Symbol("namedQName")) {
     referencedElement.namedQName
   }.value
 
@@ -77,7 +77,7 @@ abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, posi
   override lazy val prefix = refQName.prefix.getOrElse(null)
 
   // Need to go get the Element we are referencing
-  lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
+  lazy val referencedElement: GlobalElementDecl = LV(Symbol("referencedElement")) {
     val ged = this.schemaSet.getGlobalElementDecl(refQName)
     val res = ged match {
       case None => {

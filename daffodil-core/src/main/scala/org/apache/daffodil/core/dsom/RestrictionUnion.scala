@@ -210,7 +210,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     combined.toSeq
   }
 
-  final lazy val remoteBaseFacets = LV('remoteBaseFacets) {
+  final lazy val remoteBaseFacets = LV(Symbol("remoteBaseFacets")) {
     optBaseTypeDef match {
       case Some(gstd) => gstd.optRestriction.toSeq.flatMap { _.combinedBaseFacets }
       case None => Nil

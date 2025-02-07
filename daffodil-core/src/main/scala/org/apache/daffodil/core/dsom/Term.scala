@@ -471,7 +471,7 @@ trait Term
    *
    * Nil if enclosed by a choice or this is root.
    */
-  lazy val potentialPriorTerms: Seq[Term] = LV('potentialPriorTerms) {
+  lazy val potentialPriorTerms: Seq[Term] = LV(Symbol("potentialPriorTerms")) {
     potentialPriorTermsDef
   }.value
 

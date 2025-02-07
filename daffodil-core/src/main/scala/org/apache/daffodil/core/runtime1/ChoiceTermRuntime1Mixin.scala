@@ -202,7 +202,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
   final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
       position,
-      Delay('ChoicePartialNextElementResolver, this, partialNextElementResolver),
+      Delay(Symbol("ChoicePartialNextElementResolver"), this, partialNextElementResolver),
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },

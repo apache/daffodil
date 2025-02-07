@@ -60,7 +60,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
    * namespace (if found) on the xs:schema of this schema document must match
    * that of the import statement. If a namespace is specified there.
    */
-  override lazy val targetNamespace: NS = LV('targetNamespace) {
+  override lazy val targetNamespace: NS = LV(Symbol("targetNamespace")) {
     val checkedNS =
       ii.map {
         _ match {
@@ -98,7 +98,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
    * in-scope default namespace, then we use this namespace, which varies depending on things
    * like targetNamespace and whether this schema was included or imported
    */
-  override lazy val noPrefixNamespace: NS = LV('noPrefixNamespace) {
+  override lazy val noPrefixNamespace: NS = LV(Symbol("noPrefixNamespace")) {
     ii match {
       case Some(inc: Include) => {
         // if this schema document was included in another document, then either the two

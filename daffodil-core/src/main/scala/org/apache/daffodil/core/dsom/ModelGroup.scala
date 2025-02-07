@@ -342,7 +342,7 @@ abstract class ModelGroup protected (index: Int)
   }
 
   final lazy val elementChildrenInNonHiddenContext: Seq[ElementBase] =
-    LV('elementChildrenInNonHiddenContext) {
+    LV(Symbol("elementChildrenInNonHiddenContext")) {
       val ebs = groupMembers
         .filter {
           case gr: GroupRef => !gr.isHidden
@@ -357,7 +357,7 @@ abstract class ModelGroup protected (index: Int)
       ebs
     }.value
 
-  final lazy val elementChildren: Seq[ElementBase] = LV('elementChildren) {
+  final lazy val elementChildren: Seq[ElementBase] = LV(Symbol("elementChildren")) {
     val gms = groupMembers
     val echls = gms.flatMap { gm =>
       gm match {
@@ -471,7 +471,7 @@ abstract class ModelGroup protected (index: Int)
    * any unparse events. This is used to determine next children/sibling
    * elements used during unparsing.
    */
-  final lazy val mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
+  final lazy val mustHaveRequiredElement: Boolean = LV(Symbol("mustHaveRequiredElement")) {
     this match {
       case gr: GroupRef if gr.isHidden => false
       case s: SequenceTermBase if s.isOrdered =>

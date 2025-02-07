@@ -34,7 +34,7 @@ final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLDefiningAnnotation(node, sd) // Note: DefineFormat is not a format annotation
   {
 
-  lazy val formatAnnotation = LV('formatAnnotation) {
+  lazy val formatAnnotation = LV(Symbol("formatAnnotation")) {
     XMLUtils.removeComments(Utility.trim(node)) match {
       case <defineFormat>{f @ <format>{_*}</format>}</defineFormat> =>
         DFDLFormat(f, sd)

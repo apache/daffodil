@@ -91,7 +91,7 @@ trait SchemaComponent
   lazy val dpathCompileInfo: DPathCompileInfo = {
     lazy val parents = enclosingTerms.map { _.dpathCompileInfo }
     new DPathCompileInfo(
-      Delay('nonElementParents, this, parents),
+      Delay(Symbol("nonElementParents"), this, parents),
       variableMap,
       namespaces,
       noPrefixNamespace,
@@ -106,7 +106,7 @@ trait SchemaComponent
    */
   final def ci = dpathCompileInfo
 
-  lazy val variableMap: VariableMap = LV('variableMap) {
+  lazy val variableMap: VariableMap = LV(Symbol("variableMap")) {
     schemaSet.variableMap
   }.value
 
@@ -116,7 +116,7 @@ trait SchemaComponent
    * If this is already an element, this still walks outward to find the
    * next tier out.
    */
-  final lazy val enclosingElements: Seq[ElementBase] = LV('enclosingElements) {
+  final lazy val enclosingElements: Seq[ElementBase] = LV(Symbol("enclosingElements")) {
     val ets = enclosingTerms
     val res = if (ets.isEmpty) {
       // There are no enclosing terms.

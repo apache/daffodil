@@ -95,7 +95,7 @@ trait ElementBaseGrammarMixin
     minLen > 0)
   }
 
-  private lazy val prefixLengthTypeGSTD = LV('prefixLengthTypeGSTD) {
+  private lazy val prefixLengthTypeGSTD = LV(Symbol("prefixLengthTypeGSTD")) {
     // We need to resolve the global simple type of the prefix length type
     // because we need to create a detached element with the same schema
     // document/parent of the GSTD.
@@ -110,7 +110,7 @@ trait ElementBaseGrammarMixin
   }.value
 
   lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl =
-    LV('prefixedLengthElementDecl) {
+    LV(Symbol("prefixedLengthElementDecl")) {
       Assert.invariant(lengthKind == LengthKind.Prefixed)
       val detachedNode =
         <element name={name + " (prefixLength)"} type={prefixLengthType.toQNameString}/>

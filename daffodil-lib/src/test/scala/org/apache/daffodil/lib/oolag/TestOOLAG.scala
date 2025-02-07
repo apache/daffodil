@@ -36,14 +36,14 @@ class MyException(msg: String) extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) 
 abstract class MyBase(parentArg: MyBase) extends OOLAGHostImpl(parentArg) {
 
   def a1 = a1_.value
-  lazy val a1_ = LV('a1) {
+  lazy val a1_ = LV(Symbol("a1")) {
 
     // println("evaluating a1")
     "a1 value"
   }
 
   def a2 = a2_.value
-  lazy val a2_ = LV('a2) {
+  lazy val a2_ = LV(Symbol("a2")) {
 
     // println("evaluating a2")
     val msg = "a2 failed with an exception"
@@ -72,46 +72,46 @@ class MyHost extends MyBase(null) {
   }
 
   def a3 = a3_.value
-  lazy val a3_ = LV('a3) {
+  lazy val a3_ = LV(Symbol("a3")) {
     // println("My LV name is " + LV.name)
     "a3 value"
   }
 
   def a4 = a4_.value
-  lazy val a4_ = LV('a4) {
+  lazy val a4_ = LV(Symbol("a4")) {
     // println("My LV name is " + LV.name)
     a3
   }
 
   def circ1: Int = circ1_.value
-  private lazy val circ1_ = LV('circ1) {
+  private lazy val circ1_ = LV(Symbol("circ1")) {
     circ2
   }
 
   def circ2: Int = circ2_.value
-  private lazy val circ2_ = LV('circ2) {
+  private lazy val circ2_ = LV(Symbol("circ2")) {
     circ1
   }
 
   def abortInside = abortInside_.value
-  private lazy val abortInside_ = LV('abortInside) {
+  private lazy val abortInside_ = LV(Symbol("abortInside")) {
     abend
   }
 
   def abend = abend_.value
-  private lazy val abend_ = LV('err) {
+  private lazy val abend_ = LV(Symbol("err")) {
     Assert.abort("supposed to abort here")
   }
 
   var x = 0
 
   def divZero = divZero_.value
-  lazy val divZero_ = LV('divZero) {
+  lazy val divZero_ = LV(Symbol("divZero")) {
     5 / x
   }
 
   def warnTest = warnTest_.value
-  lazy val warnTest_ = LV('warnTest) {
+  lazy val warnTest_ = LV(Symbol("warnTest")) {
     if (x < 1) {
       val diag = new MyException("warnTest")
       warn(diag)

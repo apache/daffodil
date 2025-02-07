@@ -59,7 +59,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
     }
   }
 
-  private lazy val seqChildren = LV('seqChildren) {
+  private lazy val seqChildren = LV(Symbol("seqChildren")) {
     (groupMembers.zip(Stream.from(1))).map { case (gm, i) =>
       sequenceChild(gm, i)
     }

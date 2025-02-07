@@ -142,7 +142,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
       res
     }
 
-  final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
+  final override lazy val hasKnownRequiredSyntax = LV(Symbol("hasKnownRequiredSyntax")) {
     if (hasFraming) true
     else {
       lazy val memberHasRequiredSyntax = representedMembers.exists { member =>
@@ -286,7 +286,7 @@ trait SequenceDefMixin
   // attribute, not a format property in the usual sense.
   // So we retrieve it by this lower-level mechanism which only combines short and long form.
   //
-  final lazy val hiddenGroupRefOption = LV('hiddenGroupRefOption) {
+  final lazy val hiddenGroupRefOption = LV(Symbol("hiddenGroupRefOption")) {
     findPropertyOption("hiddenGroupRef")
   }.value
 
@@ -300,7 +300,7 @@ trait SequenceDefMixin
     }
   }
 
-  final lazy val hiddenGroupRefXML = LV('hiddenGroupRefXML) {
+  final lazy val hiddenGroupRefXML = LV(Symbol("hiddenGroupRefXML")) {
     val Found(qname, _, _, _) = hiddenGroupRefOption
     // synthesize a group reference here.
     val contextScope = xml.asInstanceOf[Elem].scope

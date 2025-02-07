@@ -31,7 +31,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
   lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
       position,
-      Delay('SequencePartialNextElementResolver, this, partialNextElementResolver),
+      Delay(Symbol("SequencePartialNextElementResolver"), this, partialNextElementResolver),
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
@@ -50,7 +50,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
       isHidden,
-      Delay('maybeLayerRuntimeData, this, Maybe.toMaybe(optionLayerRuntimeData))
+      Delay(Symbol("maybeLayerRuntimeData"), this, Maybe.toMaybe(optionLayerRuntimeData))
     )
   }
 
@@ -64,7 +64,7 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
     new SequenceRuntimeData(
       position,
       Delay(
-        'ChoiceBranchImpliedSequencePartialNextElementResolver,
+        Symbol("ChoiceBranchImpliedSequencePartialNextElementResolver"),
         this,
         partialNextElementResolver
       ),
@@ -85,7 +85,7 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
       Maybe.Nope,
       Maybe.Nope,
       isHidden = false,
-      Delay('maybeLayerRuntimeData, this, Maybe.Nope)
+      Delay(Symbol("maybeLayerRuntimeData"), this, Maybe.Nope)
     )
   }
 

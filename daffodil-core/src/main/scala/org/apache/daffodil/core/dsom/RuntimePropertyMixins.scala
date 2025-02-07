@@ -83,7 +83,7 @@ trait TermRuntimeValuedPropertiesMixin
   with ChoiceAGMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
 
-  private lazy val encodingExpr = LV('encoding) {
+  private lazy val encodingExpr = LV(Symbol("encoding")) {
     val qn = this.qNameForProperty("encoding")
     this match {
       case eb: ElementBase
@@ -223,7 +223,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   final def initiatorLoc = (this.diagnosticDebugName, this.path)
 
-  final protected lazy val terminatorExpr = LV('terminator) {
+  final protected lazy val terminatorExpr = LV(Symbol("terminator")) {
     val qn = this.qNameForProperty("terminator")
     val typeIfStaticallyKnown = NodeInfo.String
     val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -273,7 +273,7 @@ trait ElementRuntimeValuedPropertiesMixin
   with SimpleTypeRuntimeValuedPropertiesMixin
   with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  private lazy val byteOrderExpr = LV('byteOrder) {
+  private lazy val byteOrderExpr = LV(Symbol("byteOrder")) {
     val qn = this.qNameForProperty("byteOrder")
     ExpressionCompilers.String.compileProperty(
       qn,
@@ -577,7 +577,7 @@ trait ElementRuntimeValuedPropertiesMixin
   // implementation, the ".." does get literally evaluated.
   //
 
-  lazy val occursCountExpr = LV('occursCount) {
+  lazy val occursCountExpr = LV(Symbol("occursCount")) {
     val qn = this.qNameForProperty("occursCount")
     val isEvaluatedAbove = true
     ExpressionCompilers.JLong.compileProperty(
@@ -824,17 +824,18 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin
   with TextStandardExponentRepMixin { decl: ElementBase =>
 
-  private lazy val textStandardDecimalSeparatorExpr = LV('textStandardDecimalSeparator) {
-    val qn = this.qNameForProperty("textStandardDecimalSeparator")
-    val c = ExpressionCompilers.String.compileProperty(
-      qn,
-      NodeInfo.String,
-      textStandardDecimalSeparatorRaw,
-      decl,
-      dpathCompileInfo
-    )
-    c
-  }.value
+  private lazy val textStandardDecimalSeparatorExpr =
+    LV(Symbol("textStandardDecimalSeparator")) {
+      val qn = this.qNameForProperty("textStandardDecimalSeparator")
+      val c = ExpressionCompilers.String.compileProperty(
+        qn,
+        NodeInfo.String,
+        textStandardDecimalSeparatorRaw,
+        decl,
+        dpathCompileInfo
+      )
+      c
+    }.value
 
   final lazy val textStandardDecimalSeparatorEv = {
     val ev = new TextStandardDecimalSeparatorEv(textStandardDecimalSeparatorExpr, eci)
@@ -842,17 +843,18 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     ev
   }
 
-  private lazy val textStandardGroupingSeparatorExpr = LV('textStandardGroupingSeparator) {
-    val qn = this.qNameForProperty("textStandardGroupingSeparator")
-    val c = ExpressionCompilers.String.compileProperty(
-      qn,
-      NodeInfo.String,
-      textStandardGroupingSeparatorRaw,
-      decl,
-      dpathCompileInfo
-    )
-    c
-  }.value
+  private lazy val textStandardGroupingSeparatorExpr =
+    LV(Symbol("textStandardGroupingSeparator")) {
+      val qn = this.qNameForProperty("textStandardGroupingSeparator")
+      val c = ExpressionCompilers.String.compileProperty(
+        qn,
+        NodeInfo.String,
+        textStandardGroupingSeparatorRaw,
+        decl,
+        dpathCompileInfo
+      )
+      c
+    }.value
 
   final lazy val textStandardGroupingSeparatorEv = {
     val ev = new TextStandardGroupingSeparatorEv(textStandardGroupingSeparatorExpr, eci)
@@ -860,7 +862,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     ev
   }
 
-  private lazy val textStandardExponentRepExpr = LV('textStandardExponentRep) {
+  private lazy val textStandardExponentRepExpr = LV(Symbol("textStandardExponentRep")) {
     val qn = this.qNameForProperty("textStandardExponentRep")
     val c = ExpressionCompilers.String.compileProperty(
       qn,
@@ -878,7 +880,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     ev
   }
 
-  private lazy val binaryFloatRepExpr = LV('binaryFloatRep) {
+  private lazy val binaryFloatRepExpr = LV(Symbol("binaryFloatRep")) {
     val qn = this.qNameForProperty("binaryFloatRep")
     ExpressionCompilers.String.compileProperty(
       qn,
@@ -904,7 +906,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     }
   }
 
-  private lazy val textBooleanTrueRepExpr = LV('textBooleanTrueRep) {
+  private lazy val textBooleanTrueRepExpr = LV(Symbol("textBooleanTrueRep")) {
     val qn = this.qNameForProperty("textBooleanTrueRep")
     ExpressionCompilers.String.compileProperty(
       qn,
@@ -915,7 +917,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     )
   }.value
 
-  private lazy val textBooleanFalseRepExpr = LV('textBooleanFalseRep) {
+  private lazy val textBooleanFalseRepExpr = LV(Symbol("textBooleanFalseRep")) {
     val qn = this.qNameForProperty("textBooleanFalseRep")
     ExpressionCompilers.String.compileProperty(
       qn,
@@ -946,7 +948,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
     ev
   }
 
-  final lazy val calendarLanguage = LV('calendarLanguage) {
+  final lazy val calendarLanguage = LV(Symbol("calendarLanguage")) {
     val qn = this.qNameForProperty("calendarLanguage")
     val c = ExpressionCompilers.String.compileProperty(
       qn,

@@ -184,7 +184,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   private lazy val nonStandardDafProperties = Seq("suppressSchemaDefinitionWarnings")
 
   private lazy val shortFormProperties: Set[PropItem] =
-    LV[Set[PropItem]]('shortFormProperties) {
+    LV[Set[PropItem]](Symbol("shortFormProperties")) {
       // shortForm properties should be prefixed by dfdl
       // Remove the dfdl prefix from the attributes so that they
       // can be properly combined later.
@@ -221,39 +221,40 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       pairs.toSet
     }.value
 
-  private lazy val longFormProperties: Set[PropItem] = LV[Set[PropItem]]('longFormProperties) {
-    // longForm Properties are not prefixed by dfdl
-    schemaDefinitionUnless(
-      dfdlAttributes(xml).isEmpty,
-      "long form properties are not prefixed by dfdl:"
-    )
-    val dfdlAttrMap = xml.attributes.asAttrMap
-      .filter { kv => !kv._1.contains(":") }
-      .filterNot { kv => nonStandardDfdlProperties.contains(kv._1) }
-    // however, extension properties are prefixed, even in long form
-    val dfdlxAttrMap = dfdlxAttributes(xml).asAttrMap
-      .map { kv => (removePrefix(kv._1), kv._2) }
-      .filterNot { kv => nonStandardDfdlxProperties.contains(kv._1) }
-    val dafAttrMap = dafAttributes(xml).asAttrMap
-      .map { kv => (removePrefix(kv._1), kv._2) }
-      .filterNot { kv => nonStandardDafProperties.contains(kv._1) }
+  private lazy val longFormProperties: Set[PropItem] =
+    LV[Set[PropItem]](Symbol("longFormProperties")) {
+      // longForm Properties are not prefixed by dfdl
+      schemaDefinitionUnless(
+        dfdlAttributes(xml).isEmpty,
+        "long form properties are not prefixed by dfdl:"
+      )
+      val dfdlAttrMap = xml.attributes.asAttrMap
+        .filter { kv => !kv._1.contains(":") }
+        .filterNot { kv => nonStandardDfdlProperties.contains(kv._1) }
+      // however, extension properties are prefixed, even in long form
+      val dfdlxAttrMap = dfdlxAttributes(xml).asAttrMap
+        .map { kv => (removePrefix(kv._1), kv._2) }
+        .filterNot { kv => nonStandardDfdlxProperties.contains(kv._1) }
+      val dafAttrMap = dafAttributes(xml).asAttrMap
+        .map { kv => (removePrefix(kv._1), kv._2) }
+        .filterNot { kv => nonStandardDafProperties.contains(kv._1) }
 
-    dfdlAttrMap.keys.foreach { propName =>
-      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDL_NAMESPACE, this)
-    }
-    dfdlxAttrMap.keys.foreach { propName =>
-      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDLX_NAMESPACE, this)
-    }
-    dafAttrMap.keys.foreach { propName =>
-      DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.EXT_NS_APACHE, this)
-    }
+      dfdlAttrMap.keys.foreach { propName =>
+        DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDL_NAMESPACE, this)
+      }
+      dfdlxAttrMap.keys.foreach { propName =>
+        DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDLX_NAMESPACE, this)
+      }
+      dafAttrMap.keys.foreach { propName =>
+        DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.EXT_NS_APACHE, this)
+      }
 
-    val dfdlAndExtAttribs = dfdlAttrMap ++ dfdlxAttrMap ++ dafAttrMap
-    val res = dfdlAndExtAttribs.map { case (k, v) =>
-      (k, (v, this.asInstanceOf[LookupLocation]))
-    }.toSet
-    res
-  }.value
+      val dfdlAndExtAttribs = dfdlAttrMap ++ dfdlxAttrMap ++ dafAttrMap
+      val res = dfdlAndExtAttribs.map { case (k, v) =>
+        (k, (v, this.asInstanceOf[LookupLocation]))
+      }.toSet
+      res
+    }.value
 
   private lazy val elementFormPropertyAnnotations = {
     val props = xml \\ "property"
@@ -264,7 +265,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   }
 
   private lazy val elementFormProperties: Set[PropItem] =
-    LV[Set[PropItem]]('elementFormProperties) {
+    LV[Set[PropItem]](Symbol("elementFormProperties")) {
       elementFormPropertyAnnotations.foreach { p =>
         DeprecatedProperty.warnIfDeprecated(p.name, p.propertyNamespace, p)
       }
@@ -288,7 +289,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   private lazy val hasConflictingPropertyError = locallyConflictingProperties.size != 0
 
   private lazy val combinedJustThisOneProperties: PropMap =
-    LV('combinedJustThisOneOproperties) {
+    LV(Symbol("combinedJustThisOneOproperties")) {
       // We need this error to occur immediately! Didn't seem to be checked otherwise.
       schemaDefinitionUnless(
         !hasConflictingPropertyError,
@@ -309,7 +310,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * Needed for certain warnings, and also is the primitive from which the
    * ChainPropProvider is built up. That one DOES follow ref chains.
    */
-  final lazy val justThisOneProperties: PropMap = LV('justThisOneProperties) {
+  final lazy val justThisOneProperties: PropMap = LV(Symbol("justThisOneProperties")) {
     val res = combinedJustThisOneProperties
     res
   }.toOption.getOrElse(emptyPropMap)
