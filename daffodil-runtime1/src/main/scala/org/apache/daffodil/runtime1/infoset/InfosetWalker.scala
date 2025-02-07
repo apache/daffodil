@@ -95,7 +95,7 @@ object InfosetWalker {
         val container: DINode =
           if (root.maybeArray.isDefined) root.maybeArray.get.asInstanceOf[DINode]
           else root.parent.asInstanceOf[DINode]
-        (container, container.contents.indexOf(root))
+        (container, container.indexOf(root))
       }
     }
     new InfosetWalker(
@@ -386,12 +386,10 @@ class InfosetWalker private (
       // no blocks on the container, figure out if we can take a step for the
       // element at the child index of this container
 
-      val children = containerNode.contents
-
-      if (containerIndex < children.length) {
+      if (containerIndex < containerNode.numChildren) {
         // There is a child element at this index. Taking a step would create
         // the events for, and moved passed, this element.
-        val elem = children(containerIndex)
+        val elem = containerNode.child(containerIndex)
         if (elem.infosetWalkerBlockCount > 0) {
           // This element has a block associated with it, likely meaning we are
           // speculatively parsing this element and so it may or may not exist.
@@ -492,18 +490,16 @@ class InfosetWalker private (
    * so we are looking at the next node in the infoset.
    */
   private def infosetWalkerStepMove(containerNode: DINode, containerIndex: Int): Unit = {
-    val children = containerNode.contents
-
-    if (containerIndex < children.size) {
-      // This block means we need to create a start event for the element in
-      // the children array at containerIndex. Once we create that event we
+    if (containerIndex < containerNode.numChildren) {
+      // This block means we need to create a start event for the element
+      // at containerIndex. Once we create that event we
       // need to mutate the state of the InfosetWalker so that the next time we
       // take a step we are looking at the next element. If this is a complex
       // type, that next element is the first child. If this is a simple type,
       // that next element is the next sibling of this element. We will mutate
       // the state accordingly.
 
-      val child = children(containerIndex)
+      val child = containerNode.child(containerIndex)
 
       if (child.isSimple) {
         if (!child.isHidden || walkHidden) {

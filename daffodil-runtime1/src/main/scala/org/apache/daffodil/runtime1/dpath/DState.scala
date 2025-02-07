@@ -25,7 +25,6 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.infoset.DIArray
-import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DISimple
@@ -282,17 +281,15 @@ case class DState(
   def currentComplex = currentNode.asComplex
 
   def nextSibling = {
-    val contents = currentElement.parent.asInstanceOf[DIComplex].contents
-
     // TOOD, currentNode should really know this
-    val i = contents.indexOf(currentNode)
-    if (i == contents.length - 1) {
+    val i = currentElement.parent.indexOf(currentNode)
+    if (i == currentElement.parent.numChildren - 1) {
       throw new InfosetNoNextSiblingException(
         currentNode.asSimple,
         currentNode.erd.dpathElementCompileInfo
       )
     } else {
-      contents(i + 1)
+      currentElement.parent.child(i + 1)
     }
   }
 

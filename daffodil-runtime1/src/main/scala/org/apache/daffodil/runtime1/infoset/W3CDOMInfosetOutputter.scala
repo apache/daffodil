@@ -43,7 +43,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter {
     : Unit = { // call to reuse these. When first constructed no reset call is necessary.
     result = Maybe.Nope
     document = null
-    stack.clear
+    stack.clear()
   }
 
   def startDocument(): Unit = {

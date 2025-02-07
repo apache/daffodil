@@ -28,6 +28,7 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
+import scala.collection.compat.immutable.LazyList
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Try
@@ -1835,7 +1836,7 @@ object VerifyTestCase {
       )
     }
 
-    val pairs = expectedBytes.zip(actualBytes).zip(Stream.from(1))
+    val pairs = expectedBytes.zip(actualBytes).zip(LazyList.from(1))
     pairs.foreach { case ((expected, actual), index) =>
       if (expected != actual) {
         val msg = ("Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.\n" +
@@ -2051,7 +2052,7 @@ object VerifyTestCase {
       )
     }
 
-    val pairs = expectedText.toSeq.zip(actualText.toSeq).zip(Stream.from(1))
+    val pairs = expectedText.toSeq.zip(actualText.toSeq).zip(LazyList.from(1))
     pairs.foreach { case ((expected, actual), index) =>
       if (expected != actual) {
         val msg =
@@ -2111,7 +2112,7 @@ object VerifyTestCase {
       )
     }
 
-    val pairs = expectedBytes.zip(actualBytes).zip(Stream.from(1))
+    val pairs = expectedBytes.zip(actualBytes).zip(LazyList.from(1))
     pairs.foreach { case ((expected, actual), index) =>
       if (expected != actual) {
         val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x."

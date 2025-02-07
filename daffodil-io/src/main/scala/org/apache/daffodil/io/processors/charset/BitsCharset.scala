@@ -24,7 +24,7 @@ import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
-import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
@@ -153,9 +153,10 @@ trait BitsCharsetJava extends BitsCharset {
   }
 
   private lazy val hasNameOrAliasContainingEBCDIC = {
-    val allCharsetNames = (javaCharset.aliases().toSeq :+ name :+ javaCharset.name()).map {
-      _.toUpperCase
-    }
+    val allCharsetNames =
+      (javaCharset.aliases().asScala.toSeq :+ name :+ javaCharset.name()).map {
+        _.toUpperCase
+      }
     val res = allCharsetNames.exists(_.contains("EBCDIC"))
     res
   }
@@ -227,7 +228,7 @@ final class BitsCharsetWrappingJavaCharsetEncoder(
     isReset = true
     this
   }
-  def isMandatoryAlignmentNeeded = isReset
+  def isMandatoryAlignmentNeeded() = isReset
   def malformedInputAction() = enc.malformedInputAction()
   def onMalformedInput(action: CodingErrorAction) = {
     Assert.usage(isReset)

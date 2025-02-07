@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.layers
 import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.OutputStream
-import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
@@ -92,7 +92,7 @@ class LayerDriver private (val layer: Layer) {
       // because we want to deal with RuntimeException as if it was NOT a subclass of
       // Exception, we first divide up the classes as to whether they are RuntimeExceptions or not.
       val (runtimeExceptionSubClasses, regularExceptionSubclasses) =
-        layer.getProcessingErrorExceptions.partition { c =>
+        layer.getProcessingErrorExceptions.asScala.partition { c =>
           classOf[RuntimeException].isAssignableFrom(c)
         }
 

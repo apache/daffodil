@@ -22,6 +22,7 @@ import java.io.InputStream
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
+import scala.collection.compat.immutable.LazyList
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml._
@@ -376,13 +377,13 @@ object StreamParser {
     }
   }
 
-  def doStreamTest(schema: Node, data: String): Stream[Result] = {
+  def doStreamTest(schema: Node, data: String): LazyList[Result] = {
     val mp = new StreamParser(schema)
     val is: InputStream = new ByteArrayInputStream(data.getBytes("ascii"))
     mp.setInputStream(is)
     var r: StreamParser.Result = null
     val results = new ArrayBuffer[Result]
-    val resStream = Stream.continually(mp.parse).takeWhile(r => !r.isProcessingError)
+    val resStream = LazyList.continually(mp.parse).takeWhile(r => !r.isProcessingError)
     resStream
   }
 }

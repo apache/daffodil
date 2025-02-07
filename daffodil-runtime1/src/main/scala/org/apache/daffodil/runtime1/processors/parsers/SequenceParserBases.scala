@@ -87,7 +87,7 @@ abstract class SequenceParserBase(
 
       var resultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
-      val infosetIndexStart = pstate.infoset.asInstanceOf[DIComplex].childNodes.size
+      val infosetIndexStart = pstate.infoset.asInstanceOf[DIComplex].numChildren
 
       if (!isOrdered) {
         // If this is an unordered sequence, upon completion of parsing all the

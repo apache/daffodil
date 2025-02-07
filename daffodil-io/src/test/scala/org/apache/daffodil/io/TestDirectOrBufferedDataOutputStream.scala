@@ -34,7 +34,7 @@ class TestDirectOrBufferedDataOutputStream {
     val is = new ByteArrayInputStream(baos.getBuf)
     val ir = new InputStreamReader(is, "ascii")
     val line = IOUtils.toString(ir)
-    val res = line.replace("""\u0000""", "")
+    val res = line.replace("\u0000", "")
     res
   }
 

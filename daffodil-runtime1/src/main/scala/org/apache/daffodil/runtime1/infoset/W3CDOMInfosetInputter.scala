@@ -138,7 +138,7 @@ class W3CDOMInfosetInputter(doc: Document) extends InfosetInputter {
   }
 
   override def fini = {
-    stack.clear
+    stack.clear()
   }
 
   /**

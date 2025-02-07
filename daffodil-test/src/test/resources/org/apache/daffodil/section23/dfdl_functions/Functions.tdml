@@ -11323,7 +11323,7 @@
     model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
 
     <tdml:document>
-      <tdml:documentPart type="text">B:6,B:1,P:3,B:6,B:2,P:3,P:3</tdml:documentPart>
+      <tdml:documentPart type="text">B:6,B:1,P:3,B:5,B:4,P:8,P:9</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -11331,11 +11331,11 @@
           <scores>
             <bobcats>6</bobcats>
             <bobcats>1</bobcats>
-            <bobcats>6</bobcats>
-            <bobcats>2</bobcats>
+            <bobcats>5</bobcats>
+            <bobcats>4</bobcats>
             <pirates>3</pirates>
-            <pirates>3</pirates>
-            <pirates>3</pirates>
+            <pirates>8</pirates>
+            <pirates>9</pirates>
           </scores>
           <bobcatScoreCount>4</bobcatScoreCount>
           <pirateScoreCount>3</pirateScoreCount>

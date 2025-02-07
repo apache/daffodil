@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.infoset
 
-import scala.collection.immutable.Stream.consWrapper
+import scala.collection.compat.immutable.LazyList
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits._
@@ -60,7 +60,7 @@ class TestInfosetInputterFromReader2 {
     }
     val rootERD = u.ssrd.elementRuntimeData
 
-    def foos: Stream[String] = "<foo>Hello</foo>" #:: foos
+    def foos: LazyList[String] = "<foo>Hello</foo>" #:: foos
     val ex = XMLUtils.EXAMPLE_NAMESPACE.toString
     def strings =
       (("<bar xmlns='" + ex + "' >") #:: foos.take(size))
@@ -72,11 +72,11 @@ class TestInfosetInputterFromReader2 {
     (ic, rootERD, inputter)
   }
 
-  class StreamInputStream(private var strings: Stream[String]) extends java.io.InputStream {
+  class StreamInputStream(private var strings: LazyList[String]) extends java.io.InputStream {
 
     private var bytes = {
       val ss = strings.flatMap { _.getBytes() } ++ "</bar>".getBytes().toStream
-      strings = Nil.toStream
+      strings = Nil.to(LazyList)
       ss
     }
 
@@ -89,7 +89,7 @@ class TestInfosetInputterFromReader2 {
       }
     }
 
-    override def close(): Unit = { bytes = Nil.toStream }
+    override def close(): Unit = { bytes = Nil.to(LazyList) }
   }
 
   @Test def testStreamingBehavior1(): Unit = {

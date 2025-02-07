@@ -30,7 +30,6 @@ import java.math.{ BigInteger => JBigInt }
 import java.net.URI
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -42,6 +41,7 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.equality.ViewEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
+import org.apache.daffodil.lib.util.ArrayBuffer1
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
@@ -125,18 +125,15 @@ sealed trait DINode {
   def isDefaulted: Boolean
   def isHidden: Boolean
 
-  def children: Stream[DINode]
+  def indexOf(item: DINode): Int
+  def find(func: DINode => Boolean): Option[DINode]
   def namedQName: NamedQName
   def erd: ElementRuntimeData
 
   def infosetWalkerBlockCount: Int
 
-  /**
-   * Can treat any DINode, even simple ones, as a container of other nodes.
-   * This simplifies walking an infoset.
-   */
-  def contents: IndexedSeq[DINode]
-  final def numChildren = contents.length
+  def child(index: Int): DINode
+  def numChildren: Int
 
   /**
    * If there are any children, returns the last child as a One(lastChild).
@@ -441,7 +438,6 @@ final class FakeDINode extends DISimple(null) {
   override def valid = die
   override def setValid(validity: Boolean): Unit = die
   override def isDefaulted: Boolean = die
-  override def children = die
   override def contentLength: ContentLengthState = die
   override def valueLength: ValueLengthState = die
   override def primType: NodeInfo.PrimType = die
@@ -1161,12 +1157,12 @@ final class DIArray(
   override val erd: ElementRuntimeData,
   val parent: DIComplex,
   initialSize: Int // TODO: really this needs to be adaptive, and resize upwards reasonably.
-//A non-copying thing - list like, may be better, but we do need access to be
-//constant time.
-// FIXME: for streaming behavior, arrays are going to get elements removed from
-// them when no longer needed. However, the array itself would still be growing
-// without bound. So, replace this with a mutable map so that it can shrink
-// as well as grow. // not saved. Needed only to get initial size.
+  // A non-copying thing - list like, may be better, but we do need access to be
+  // constant time.
+  // FIXME: for streaming behavior, arrays are going to get elements removed from
+  // them when no longer needed. However, the array itself would still be growing
+  // without bound. So, replace this with a mutable map so that it can shrink
+  // as well as grow. // not saved. Needed only to get initial size.
 ) extends DINode
   with InfosetArray {
 
@@ -1220,19 +1216,22 @@ final class DIArray(
 
   def namedQName = erd.namedQName
 
-  protected final val _contents = new ArrayBuffer[DIElement](initialSize)
+  protected final val _contents = new ArrayBuffer1[DIElement](initialSize)
 
-  override def children: Stream[DINode] = _contents.toStream.asInstanceOf[Stream[DINode]]
+  override def indexOf(item: DINode): Int = _contents.indexOf(item)
 
   /**
    * Used to shorten array when backtracking out of having appended elements.
    */
   def reduceToSize(n: Int): Unit = {
-    _contents.reduceToSize(n)
+    _contents.reduceToSize1(n)
   }
 
-  override def contents: IndexedSeq[DINode] = _contents
-  def elementContents: IndexedSeq[DIElement] = _contents
+  override def numChildren: Int = _contents.length
+
+  override def child(index: Int): DINode = _contents(index)
+
+  override def find(func: DINode => Boolean): Option[DINode] = _contents.find(func)
 
   override def maybeLastChild: Maybe[DINode] = {
     val len = _contents.length
@@ -1261,23 +1260,22 @@ final class DIArray(
   }
 
   def append(ie: DIElement): Unit = {
-    _contents += ie.asInstanceOf[DIElement]
+    _contents += ie
     ie.setArray(this)
   }
 
   def concat(array: DIArray): Unit = {
-    val newContents = array.elementContents
-    newContents.foreach { ie =>
-      {
-        ie.setArray(this)
-        append(ie)
-      }
+    for (i <- 0 until array.numChildren) {
+      val in = array.child(i)
+      val ie = in.asInstanceOf[DIElement]
+      ie.setArray(this)
+      append(ie)
     }
   }
 
   final def length: Long = _contents.length
 
-  final def isDefaulted: Boolean = children.forall { _.isDefaulted }
+  final def isDefaulted: Boolean = _contents.forall { _.isDefaulted }
 
   final def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
     val node = _contents(index)
@@ -1317,12 +1315,17 @@ sealed class DISimple(override val erd: ElementRuntimeData)
 
   def primType: NodeInfo.PrimType = erd.optPrimType.orNull
 
-  def contents: IndexedSeq[DINode] = IndexedSeq.empty
-
   private var _stringRep: String = null
   private var _bdRep: JBigDecimal = null
 
-  override def children: Stream[DINode] = Stream.Empty
+  override def child(index: Int): DINode =
+    Assert.invariantFailed("DISimple cannot have child nodes")
+
+  override def indexOf(item: DINode): Int = -1
+
+  override def find(func: DINode => Boolean): Option[DINode] = None
+
+  override def numChildren: Int = 0
 
   override def maybeLastChild: Maybe[DINode] = Nope
 
@@ -1670,14 +1673,18 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (!isFinal) throw nfe
   }
 
-  val childNodes = new ArrayBuffer[DINode]
+  private val childNodes = new ArrayBuffer1[DINode]
 
   private lazy val nameToChildNodeLookup =
-    new java.util.HashMap[NamedQName, ArrayBuffer[DINode]]
+    new java.util.HashMap[NamedQName, ArrayBuffer1[DINode]]
 
-  override lazy val contents: IndexedSeq[DINode] = childNodes
+  override def numChildren: Int = childNodes.length
 
-  override def children = childNodes.toStream
+  override def child(index: Int): DINode = childNodes(index)
+
+  override def indexOf(item: DINode): Int = childNodes.indexOf(item)
+
+  override def find(func: DINode => Boolean): Option[DINode] = childNodes.find(func)
 
   override def maybeLastChild: Maybe[DINode] = {
     val len = childNodes.length
@@ -1735,7 +1742,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   }
 
   def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
-    val node = childNodes(index)
+    val node = child(index)
     if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
       if (doFree) {
         // set to null so that the garbage collector can free this node
@@ -1759,7 +1766,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     val groups = unordered.groupBy(_.erd)
     unordered.clear()
     groups.foreach {
-      case (erd, nodes) => {
+      case (erd, _nodes) => {
+        val nodes = ArrayBuffer1(_nodes)
         // Check min/maxOccurs validity while iterating over childNodes
         val min = erd.minOccurs
         val max = erd.maxOccurs
@@ -1769,15 +1777,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
         if (erd.isArray) {
           val a = nodes(0).asInstanceOf[DIArray]
           nodes.tail.foreach(b => a.concat(b.asInstanceOf[DIArray]))
-          nodes.reduceToSize(1)
+          nodes.reduceToSize1(1)
 
           // Need to also remove duplicates from fastLookup
           val fastSeq = nameToChildNodeLookup.get(a.namedQName)
           if (fastSeq != null)
-            fastSeq.reduceToSize(1)
+            fastSeq.reduceToSize1(1)
 
           // Validate min/maxOccurs for array
-          val occurrence = nodes(0).contents.length
+          val occurrence = nodes(0).numChildren
           if (isUnbounded && occurrence < min)
             pstate.validationError(
               "Element %s failed check of minOccurs='%s' and maxOccurs='unbounded', actual number of occurrences: %s",
@@ -1865,7 +1873,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       if (fastSeq != null) {
         fastSeq += node
       } else {
-        val ab = new ArrayBuffer[DINode]()
+        val ab = new ArrayBuffer1[DINode]()
         ab += node
         nameToChildNodeLookup.put(name, ab)
       }
@@ -1888,7 +1896,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (fastSeq != null) {
       // Daffodil does not support query expressions yet, so there should only
       // be one item in the list
-      noQuerySupportCheck(fastSeq, qname)
+      noQuerySupportCheck(fastSeq.toSeq, qname)
       One(fastSeq(0))
     } else if (enableLinearSearchIfNotFound) {
       // Only DINodes used in expressions defined in the schema are added to
@@ -1908,7 +1916,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
       // Daffodil does not support query expressions yet, so there should be at
       // most one item found
-      noQuerySupportCheck(found, qname)
+      noQuerySupportCheck(found.toSeq, qname)
       Maybe.toMaybe(found.headOption)
     } else {
       Nope
@@ -1942,13 +1950,13 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
           nameToChildNodeLookup.remove(childToRemove.namedQName)
         } else {
           // not the last one, just drop the end
-          fastSeq.reduceToSize(fastSeq.length - 1)
+          fastSeq.reduceToSize1(fastSeq.length - 1)
         }
       }
       i -= 1
     }
     // now just quickly remove all those children
-    childNodes.reduceToSize(cs._numChildren)
+    childNodes.reduceToSize1(cs._numChildren)
     _numChildren = cs._numChildren
 
     if (cs._arraySize.isDefined && _numChildren > 0) {
@@ -1984,13 +1992,13 @@ object Infoset {
   }
 
   /**
-  * Create a new detached infoset with a single specified element. This
-  * essentially creates another infoset with a completely differed DIDocument
-  * so care should be taken to ensure things like expressions are not evaluated
-  * or new elements are not added within the scope of this infoset, as it will
-  * have no access to the true infoset. It is up to the caller to ensure the
-  * return infoset element is used safely
-  */
+   * Create a new detached infoset with a single specified element. This
+   * essentially creates another infoset with a completely differed DIDocument
+   * so care should be taken to ensure things like expressions are not evaluated
+   * or new elements are not added within the scope of this infoset, as it will
+   * have no access to the true infoset. It is up to the caller to ensure the
+   * return infoset element is used safely
+   */
   def newDetachedElement(
     state: ParseOrUnparseState,
     erd: ElementRuntimeData

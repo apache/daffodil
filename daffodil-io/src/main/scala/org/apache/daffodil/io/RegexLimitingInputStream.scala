@@ -23,6 +23,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.Scanner
 import java.util.regex.Pattern
+import scala.collection.compat.immutable.LazyList
 
 import org.apache.daffodil.lib.exceptions.Assert
 
@@ -134,8 +135,8 @@ class RegexLimitingInputStream(
    * consider that the overhead is once per chunk, so honestly the
    * regex match is of more concern.
    */
-  private def chunks: Stream[String] = {
-    if (noMoreChunks) Stream()
+  private def chunks: LazyList[String] = {
+    if (noMoreChunks) LazyList()
     else {
       in.mark(lookAheadMax)
       //
@@ -168,7 +169,7 @@ class RegexLimitingInputStream(
       if (delimMatchLength > 0)
         noMoreChunks = true
       if (beforeMatchString.isEmpty)
-        Stream()
+        LazyList()
       else
         // lazy list construction. chunks will not be recursively evaluated unless demanded
         beforeMatchString #:: chunks

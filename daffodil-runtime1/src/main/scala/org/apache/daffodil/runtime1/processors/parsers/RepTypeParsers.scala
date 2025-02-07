@@ -71,7 +71,7 @@ trait WithDetachedParser {
       detachedParser.parse1(pstate)
 
       val res: DataValuePrimitiveNullable = pstate.processorStatus match {
-        case Success => pstate.infoset.children.last.asSimple.dataValue
+        case Success => pstate.infoset.child(pstate.infoset.numChildren - 1).asSimple.dataValue
         case _ => DataValue.NoValue
       }
 

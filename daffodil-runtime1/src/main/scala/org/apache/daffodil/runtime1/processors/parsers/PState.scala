@@ -21,7 +21,6 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
-import scala.collection.mutable
 
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -31,6 +30,7 @@ import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.util.ArrayBuffer1
 import org.apache.daffodil.lib.util.MStack
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MStackOfInt
@@ -130,14 +130,13 @@ class MPState private () {
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
   val childIndexStack = MStackOfLong()
-  def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
+  def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop() + 1)
   def childPos = {
     val res = childIndexStack.top
     Assert.invariant(res >= 1)
     res
   }
-
-  val delimiters = new mutable.ArrayBuffer[DFADelimiter]
+  val delimiters = new ArrayBuffer1[DFADelimiter]
   val delimitersLocalIndexStack = MStackOfInt()
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]

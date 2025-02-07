@@ -16,6 +16,8 @@
  */
 
 package org.apache.daffodil.core.grammar
+import scala.collection.compat.immutable.LazyList
+
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.primitives.OrderedSequence
 import org.apache.daffodil.core.grammar.primitives.UnorderedSequence
@@ -60,7 +62,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
   }
 
   private lazy val seqChildren = LV(Symbol("seqChildren")) {
-    (groupMembers.zip(Stream.from(1))).map { case (gm, i) =>
+    (groupMembers.zip(LazyList.from(1))).map { case (gm, i) =>
       sequenceChild(gm, i)
     }
   }.value

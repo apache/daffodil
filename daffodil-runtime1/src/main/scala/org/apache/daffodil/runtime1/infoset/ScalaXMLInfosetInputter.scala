@@ -152,7 +152,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
   }
 
   override def fini = {
-    stack.clear
+    stack.clear()
   }
 
   /**

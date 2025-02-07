@@ -39,7 +39,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
   def reset()
     : Unit = { // call to reuse these. When first constructed no reset call is necessary.
     resultNode = Maybe.Nope
-    stack.clear
+    stack.clear()
   }
 
   def startDocument(): Unit = {
@@ -59,7 +59,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
         val selfFreed = diElem.wouldHaveBeenFreed
         val arrayFreed =
           if (diElem.erd.isArray)
-            diElem.diParent.children
+            diElem.diParent
               .find {
                 _.erd eq diElem.erd
               }

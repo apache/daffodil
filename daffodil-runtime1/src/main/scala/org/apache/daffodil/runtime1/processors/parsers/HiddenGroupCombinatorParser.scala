@@ -34,11 +34,11 @@ class HiddenGroupCombinatorParser(ctxt: ModelGroupRuntimeData, bodyParser: Parse
 
   def parse(start: PState): Unit = {
     try {
-      start.incrementHiddenDef
+      start.incrementHiddenDef()
       // parse
       bodyParser.parse1(start)
     } finally {
-      start.decrementHiddenDef
+      start.decrementHiddenDef()
     }
   }
 }

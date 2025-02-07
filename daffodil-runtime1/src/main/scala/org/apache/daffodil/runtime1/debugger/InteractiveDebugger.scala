@@ -1807,7 +1807,7 @@ class InteractiveDebugger(
             }
 
             node match {
-              case d: DIDocument if d.contents.size == 0 => {
+              case d: DIDocument if d.numChildren == 0 => {
                 debugPrintln("No Infoset", "  ")
               }
               case _ => {

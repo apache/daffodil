@@ -36,7 +36,7 @@ class JDOMInfosetOutputter extends InfosetOutputter {
   def reset()
     : Unit = { // call to reuse these. When first constructed no reset call is necessary.
     result = Maybe.Nope
-    stack.clear
+    stack.clear()
   }
 
   def startDocument(): Unit = {

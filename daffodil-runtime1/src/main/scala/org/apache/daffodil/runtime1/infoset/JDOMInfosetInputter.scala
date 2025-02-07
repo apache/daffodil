@@ -136,7 +136,7 @@ class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
   }
 
   override def fini = {
-    stack.clear
+    stack.clear()
   }
 
   /**
