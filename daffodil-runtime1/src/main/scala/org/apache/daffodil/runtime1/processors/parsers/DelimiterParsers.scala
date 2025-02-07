@@ -81,7 +81,7 @@ class DelimiterTextParser(
     val localIndexStart = state.mpstate.delimitersLocalIndexStack.top
     val inScopeDelimiters = state.mpstate.delimiters
     val res = inScopeDelimiters.slice(localIndexStart, inScopeDelimiters.length)
-    res
+    res.toSeq
   }
 
   private def didNotFindExpectedDelimiter(foundDelimiter: ParseResult, start: PState): Unit = {

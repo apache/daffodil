@@ -88,7 +88,7 @@ final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
   override def setDebugging(setting: Boolean): Unit = doNotUse
   override def isDefinedForLength(length: Long): Boolean = doNotUse
-  override def hasData: Boolean = doNotUse
+  override def hasData(): Boolean = doNotUse
   override def skip(nBits: Long, finfo: FormatInfo): Boolean = doNotUse
   override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = doNotUse
   // $COVERAGE-ON$

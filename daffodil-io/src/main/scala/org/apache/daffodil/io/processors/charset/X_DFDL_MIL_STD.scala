@@ -36,7 +36,7 @@ object BitsCharset6BitDFI264DUI001 extends BitsCharsetNonByteSize {
   override lazy val name = "X-DFDL-6-BIT-DFI-264-DUI-001"
   override lazy val bitWidthOfACodeUnit = 6
   override lazy val decodeString =
-    """ 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0"""
+    " 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0"
   override lazy val replacementCharCode = 0x0
   override lazy val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 }
@@ -47,7 +47,7 @@ final class BitsCharset6BitDFI264DUI001Definition
 sealed abstract class BitsCharset6BitDFI311DUI002Base extends BitsCharsetNonByteSize {
   override lazy val bitWidthOfACodeUnit = 6
   override lazy val decodeString =
-    """\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0123456789\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
+    "\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0123456789\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"
   override lazy val replacementCharCode = 0x0
 }
 
@@ -126,7 +126,7 @@ object BitsCharset5BitDFI1661DUI001 extends BitsCharsetNonByteSize {
   override lazy val name = "X-DFDL-5-BIT-DFI-1661-DUI-001"
   override lazy val bitWidthOfACodeUnit = 5
   override lazy val decodeString =
-    """\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
+    "\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"
   override lazy val replacementCharCode = 0x0
   override lazy val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 }

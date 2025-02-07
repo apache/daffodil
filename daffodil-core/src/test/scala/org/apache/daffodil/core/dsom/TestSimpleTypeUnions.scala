@@ -103,7 +103,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("int1Type", umstrd.diagnosticDebugName)
@@ -118,7 +118,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("int2Type", umstrd.diagnosticDebugName)
@@ -133,7 +133,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
     assertEquals(3, dv.intValue())
@@ -226,7 +226,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val Some(dv: java.lang.Integer) = Some(i.dataValue.getInt)
     assertEquals(3, dv.intValue())
@@ -256,7 +256,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("int12Type", umstrd.diagnosticDebugName)
@@ -271,7 +271,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("int12Type", umstrd.diagnosticDebugName)
@@ -286,7 +286,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals(
@@ -351,7 +351,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("ex:foo3or4bar", umstrd.diagnosticDebugName)
@@ -366,7 +366,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("foo1or2bar", umstrd.diagnosticDebugName)
@@ -381,7 +381,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals("foo1or2bar", umstrd.diagnosticDebugName)
@@ -396,7 +396,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue.getString)
     assertEquals("foo4bar", dv)
@@ -430,7 +430,7 @@ class TestSimpleTypeUnions {
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
-      .contents(0)
+      .child(0)
       .asInstanceOf[DISimple]
     val Some(dv: String) = Some(i.dataValue.getString)
     assertEquals("notfoo1bar", dv)

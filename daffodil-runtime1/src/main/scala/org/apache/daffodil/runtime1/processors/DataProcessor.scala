@@ -475,7 +475,7 @@ class DataProcessor(
           // is the root node has not been set final because isFinal is handled
           // by the sequence parser and there is no sequence around the root
           // node. So mark it final and do one last walk to end the document.
-          state.infoset.contents(0).isFinal = true
+          state.infoset.child(0).isFinal = true
           state.walker.walk(lastWalk = true)
           Assert.invariant(state.walker.isFinished)
         }

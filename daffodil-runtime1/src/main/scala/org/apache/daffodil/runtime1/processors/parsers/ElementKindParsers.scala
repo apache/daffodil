@@ -80,7 +80,7 @@ class DelimiterStackParser(
       bodyParser.parse1(start)
     } finally {
       // pop delimiters
-      start.mpstate.delimiters.reduceToSize(start.mpstate.delimitersLocalIndexStack.pop)
+      start.mpstate.delimiters.reduceToSize1(start.mpstate.delimitersLocalIndexStack.pop())
     }
   }
 }

@@ -70,7 +70,7 @@ object TestInfoset {
     val infosetRootNode = {
       val ustate = unparseResult.resultState.asInstanceOf[UStateMain]
       val diDocument: DIDocument = ustate.documentElement
-      val rootElement = diDocument.contents(0).asInstanceOf[DIElement]
+      val rootElement = diDocument.child(0).asInstanceOf[DIElement]
       Assert.invariant(rootElement ne null)
       rootElement
     }
@@ -440,7 +440,7 @@ class TestInfoset1 {
     }><enum>EQUAL_TO_OR_&lt;_0.0001_SQUARE_DATA_MILES</enum></root>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
-    val enumElt: DISimple = infoset.children.head.asInstanceOf[DISimple]
+    val enumElt: DISimple = infoset.child(0).asInstanceOf[DISimple]
     val value = enumElt.dataValueAsString
     assertEquals("EQUAL_TO_OR_<_0.0001_SQUARE_DATA_MILES", value)
 

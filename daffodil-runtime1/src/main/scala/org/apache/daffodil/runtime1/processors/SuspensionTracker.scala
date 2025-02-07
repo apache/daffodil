@@ -85,7 +85,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
     )
 
     if (suspensionsOld.nonEmpty) {
-      throw new SuspensionDeadlockException(suspensionsOld.seq)
+      throw new SuspensionDeadlockException(suspensionsOld.toSeq)
     }
 
     Logger.log.debug(
