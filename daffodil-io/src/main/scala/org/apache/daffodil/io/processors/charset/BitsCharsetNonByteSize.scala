@@ -247,7 +247,7 @@ final class BitsCharsetNonByteSizeEncoder(
             charCode.get
           } else {
             // character must fit in the bit width of a code unit, unmappable error
-            val unmappableAction = unmappableCharacterAction
+            val unmappableAction = unmappableCharacterAction()
             if (unmappableAction == CodingErrorAction.REPLACE) {
               // CharsetEncoder, which handles character replacement, assumes
               // that the replacement character is made up of full bytes. That

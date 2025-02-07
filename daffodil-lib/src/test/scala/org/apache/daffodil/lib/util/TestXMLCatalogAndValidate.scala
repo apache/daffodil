@@ -35,6 +35,7 @@ import scala.xml.parsing.NoBindingFactoryAdapter
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Implicits.using
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
+import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NS.implicitNStoString
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -350,9 +351,9 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
     // If we're the xs:schema node, then append attribute for _file_ as well.
     val nsURI = scope.getURI(pre)
     val isXSSchemaNode = (label == "schema" && nsURI != null &&
-      (nsURI == XMLUtils.XSD_NAMESPACE))
+      (NS(nsURI) == XMLUtils.XSD_NAMESPACE))
     val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != null &&
-      nsURI == XMLUtils.TDML_NAMESPACE)
+      NS(nsURI) == XMLUtils.TDML_NAMESPACE)
     val isFileRootNode = isXSSchemaNode || isTDMLTestSuiteNode
 
     // augment the scope with the dafint namespace binding but only

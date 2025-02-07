@@ -141,7 +141,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
    * may become available in the future. This should really only be used for
    * debug or diagnostic purposes.
    */
-  def knownBytesAvailable: Long = inputSource.knownBytesAvailable
+  def knownBytesAvailable: Long = inputSource.knownBytesAvailable()
 
   def setBitPos0b(newBitPos0b: Long): Unit = {
     // threadCheck()
@@ -612,7 +612,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
 
   def validateFinalStreamState(): Unit = {
     // threadCheck()
-    markPool.finalCheck
+    markPool.finalCheck()
   }
 
   /**
@@ -804,7 +804,8 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     // need to call areBytesAvailable first to ensure at least length bytes are
     // buffered if they exist
     val available = inputSource.areBytesAvailable(nBytesRequested)
-    val bytesToRead = if (available) nBytesRequested else inputSource.knownBytesAvailable.toInt
+    val bytesToRead =
+      if (available) nBytesRequested else inputSource.knownBytesAvailable().toInt
     val array = new Array[Byte](bytesToRead)
     inputSource.get(array, 0, bytesToRead)
 

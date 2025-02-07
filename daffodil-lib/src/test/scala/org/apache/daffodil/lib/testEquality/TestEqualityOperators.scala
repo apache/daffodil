@@ -43,8 +43,8 @@ class TestEqualityOperators {
   }
 
   // prevent optimizations from using constant objects
-  val xObj = if (scala.math.random == -0.0) "foo" else "bar"
-  val yObj = if (scala.math.random == -0.0) "bar" else "foo"
+  val xObj = if (scala.math.random() == -0.0) "foo" else "bar"
+  val yObj = if (scala.math.random() == -0.0) "bar" else "foo"
 
   @Test
   def testStronglyTypedEqualityInlineAnyRef(): Unit = {
