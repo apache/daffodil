@@ -35,7 +35,7 @@ object UnsignedPerf {
       val t0 = System.nanoTime
       val r = body
       val t1 = System.nanoTime
-      println((t1 - t0) / 1e3 + " us")
+      println(((t1 - t0) / 1e3).toString + " us")
       r
     }
 

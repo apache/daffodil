@@ -254,7 +254,7 @@ class TestXMLUtils {
     // somewhat fungible.
     //
     val parser = ConstructingParser.fromSource(scala.io.Source.fromString(xmlRaw), true)
-    val xml = parser.document.docElem
+    val xml = parser.document().docElem
     assertEquals(5, xml.child.length)
     assertFalse(xml.child.forall { _.isInstanceOf[Text] })
     assertTrue(xml.child(1).isInstanceOf[PCData])
@@ -290,7 +290,7 @@ class TestXMLUtils {
     // Constructing parser.
     //
     val parser = ConstructingParser.fromSource(scala.io.Source.fromString(xmlRaw), true)
-    val xml = parser.document.docElem
+    val xml = parser.document().docElem
     assertEquals(1, xml.child.length)
     assertTrue(xml.child(0).isInstanceOf[PCData])
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)

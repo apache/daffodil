@@ -99,9 +99,9 @@ final class TestMaybeInlineForeach {
    */
   // @Test
   def testForeachVersusIfDefined(): Unit = {
-    val foreachNanos: Double = time(testForeach)
-    val ifDefinedNanos: Double = time(testIfDefined)
-    val ifNullNanos: Double = time(testIfNull)
+    val foreachNanos: Double = time(testForeach()).toDouble
+    val ifDefinedNanos: Double = time(testIfDefined()).toDouble
+    val ifNullNanos: Double = time(testIfNull()).toDouble
     //
     // if foreach is taking more than 4x the time of ifDefined, that's
     // what we expect if scala can't inline-away the function object allocation
