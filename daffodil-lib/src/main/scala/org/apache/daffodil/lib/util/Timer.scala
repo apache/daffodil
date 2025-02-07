@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Timer {
 
@@ -185,8 +185,10 @@ object TimeTracker {
    * necessary since we often want to track the time each parser takes to
    * complete, but our parsers are nested making that difficult with standard
    * profilers. This makes that much easier.
+   *
+   * TODO: not covered by tests
    */
-  val childrenTimeStack = scala.collection.mutable.Stack[Long]()
+  val childrenTimeStack = new org.apache.daffodil.lib.util.Stack[Long]()
 
   /**
    * Used to measure a section of code that might get called multiple times.

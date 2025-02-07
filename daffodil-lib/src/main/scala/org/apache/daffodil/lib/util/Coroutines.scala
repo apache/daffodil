@@ -19,6 +19,7 @@ package org.apache.daffodil.lib.util
 
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
+import scala.collection.compat.immutable.LazyList
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure
@@ -212,13 +213,14 @@ final class InvertControl[S](body: => Unit) extends MainCoroutine[Try[S]] with I
 
   private val dummy: Try[S] = Success(null.asInstanceOf[S])
 
-  private def gen: Stream[S] = {
+  private def gen: LazyList[S] = {
     val x = resume(
       producer,
       dummy
     ) // producer isn't sent anything. It's just resumed to get another value.
     x match {
-      case EndOfData => Stream.Empty
+      // TODO: no test coverage
+      case EndOfData => LazyList.empty
       case Success(v) => v #:: gen
       case Failure(e) => {
         failed = true
@@ -227,14 +229,16 @@ final class InvertControl[S](body: => Unit) extends MainCoroutine[Try[S]] with I
     }
   }
 
-  private lazy val iterator = gen.toIterator
+  private lazy val eventIterator = gen.iterator
 
   override def hasNext: Boolean = {
-    !failed && iterator.hasNext
+    // TODO: no test coverage
+    !failed && eventIterator.hasNext
   }
   override def next(): S = {
     if (failed) throw new IllegalStateException()
-    else iterator.next()
+    // TODO: no test coverage
+    else eventIterator.next()
   }
 
 }

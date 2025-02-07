@@ -282,7 +282,7 @@ object XMLUtils {
     }
     // we fell out of the loop. So
     processText() // in case there is text left pending when we hit the end
-    ab.result()
+    ab.result().toSeq
   }
 
   val XSD_NAMESPACE = NS(

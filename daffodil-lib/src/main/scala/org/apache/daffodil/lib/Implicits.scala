@@ -20,7 +20,6 @@ package org.apache.daffodil.lib
 import java.io.{ BufferedInputStream, ByteArrayInputStream }
 import scala.language.implicitConversions
 import scala.language.reflectiveCalls
-import scala.language.{ implicitConversions, reflectiveCalls } // silences scala 2.10 warnings
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.NS

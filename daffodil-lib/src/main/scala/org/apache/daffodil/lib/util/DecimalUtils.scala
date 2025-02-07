@@ -553,7 +553,7 @@ object DecimalUtils {
         }
 
         val allDigits = opl match {
-          case OverpunchLocation.Start => digit + num.substring(1)
+          case OverpunchLocation.Start => digit.toString + num.substring(1)
           case OverpunchLocation.End => num.substring(0, opindex) + digit
           case _ => Assert.impossible()
         }
@@ -603,7 +603,7 @@ object DecimalUtils {
         }
 
         val convertedNum = opl match {
-          case OverpunchLocation.Start => digit + inStr.substring(1)
+          case OverpunchLocation.Start => digit +: inStr.substring(1)
           case OverpunchLocation.End => inStr.substring(0, opindex) + digit
           case _ => Assert.impossible()
         }

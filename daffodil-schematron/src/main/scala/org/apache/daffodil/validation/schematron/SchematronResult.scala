@@ -18,7 +18,7 @@
 package org.apache.daffodil.validation.schematron
 
 import java.util
-import scala.collection.JavaConverters.asJavaCollectionConverter
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult

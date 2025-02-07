@@ -20,7 +20,6 @@ package org.apache.daffodil.lib.util
 import java.io.File
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParser
-import scala.collection.mutable
 import scala.language.reflectiveCalls
 import scala.xml.Attribute
 import scala.xml.Elem
@@ -335,7 +334,7 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
   // starting element tag.
 
   // startElement saves locator information on stack
-  val locatorStack = new mutable.ArrayStack[Locator]
+  val locatorStack = new Stack[Locator]
   // endElement pops it off into here
   var elementStartLocator: Locator = _
 
@@ -436,7 +435,7 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
 
   override def endElement(uri: String, _localName: String, qname: String): Unit = {
     // println("endElement")
-    elementStartLocator = locatorStack.pop
+    elementStartLocator = locatorStack.pop()
     super.endElement(uri, _localName, qname)
   }
 

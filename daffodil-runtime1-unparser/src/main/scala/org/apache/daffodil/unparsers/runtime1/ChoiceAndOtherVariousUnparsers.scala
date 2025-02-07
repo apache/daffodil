@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._

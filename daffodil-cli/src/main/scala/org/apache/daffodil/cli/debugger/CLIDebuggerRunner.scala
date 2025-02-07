@@ -20,8 +20,8 @@ package org.apache.daffodil.cli.debugger
 import java.io.File
 import java.io.InputStream
 import java.io.PrintStream
-import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.runtime1.debugger._
 

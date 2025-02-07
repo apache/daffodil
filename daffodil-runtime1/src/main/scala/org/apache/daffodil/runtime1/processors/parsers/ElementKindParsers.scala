@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import java.math.{ BigInteger => JBigInt }
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe

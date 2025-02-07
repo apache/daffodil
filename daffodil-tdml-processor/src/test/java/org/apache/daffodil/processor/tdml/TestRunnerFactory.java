@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.xml.sax.InputSource;
 
 import scala.Option;
-import scala.collection.JavaConverters;
+import scala.jdk.javaapi.CollectionConverters;
 import scala.xml.Elem;
 import scala.xml.XML;
 import scala.util.Right;
@@ -50,7 +50,7 @@ public class TestRunnerFactory {
       false,
       NoRoundTrip$.MODULE$,
       "off",
-      JavaConverters.asScalaBufferConverter(Arrays.asList("daffodil", "ibm")).asScala(),
+      CollectionConverters.asScala(Arrays.asList("daffodil", "ibm")),
       false,
       false);
     runner.runOneTest("testPass");

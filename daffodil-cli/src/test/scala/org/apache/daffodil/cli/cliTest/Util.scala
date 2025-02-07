@@ -31,8 +31,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
-import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.cli.Main
 import org.apache.daffodil.cli.Main.ExitCode

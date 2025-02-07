@@ -29,21 +29,22 @@ package passera
 import scala.language.implicitConversions
 
 package object unsigned {
-  implicit def ubyte2uint(x: UByte) = UInt(x.toInt)
-  implicit def ushort2uint(x: UShort) = UInt(x.toInt)
-  implicit def ubyte2ulong(x: UByte) = ULong(x.toLong)
-  implicit def ushort2ulong(x: UShort) = ULong(x.toLong)
-  implicit def uint2ulong(x: UInt) = ULong(x.toLong)
+  implicit def ubyte2uint(x: UByte): UInt = UInt(x.toInt)
+  implicit def ushort2uint(x: UShort): UInt = UInt(x.toInt)
+  implicit def ubyte2ulong(x: UByte): ULong = ULong(x.toLong)
+  implicit def ushort2ulong(x: UShort): ULong = ULong(x.toLong)
+  implicit def uint2ulong(x: UInt): ULong = ULong(x.toLong)
 
-  implicit def signedIntOps(x: Int) = new SignedIntOps(x)
-  implicit def signedLongOps(x: Long) = new SignedLongOps(x)
-  implicit def floatOps(x: Float) = new FloatOps(x)
-  implicit def doubleOps(x: Double) = new DoubleOps(x)
-  implicit def signedRichIntOps(x: scala.runtime.RichInt) = new SignedRichIntOps(
-    x.self.asInstanceOf[Int]
-  )
-  implicit def richUInt(x: UInt) = new RichUInt(x)
-  implicit def richerUInt(x: UInt) = new RicherUInt(x.toInt)
+  implicit def signedIntOps(x: Int): SignedIntOps = new SignedIntOps(x)
+  implicit def signedLongOps(x: Long): SignedLongOps = new SignedLongOps(x)
+  implicit def floatOps(x: Float): FloatOps = new FloatOps(x)
+  implicit def doubleOps(x: Double): DoubleOps = new DoubleOps(x)
+  implicit def signedRichIntOps(x: scala.runtime.RichInt): SignedRichIntOps =
+    new SignedRichIntOps(
+      x.self.asInstanceOf[Int]
+    )
+  implicit def richUInt(x: UInt): RichUInt = new RichUInt(x)
+  implicit def richerUInt(x: UInt): RicherUInt = new RicherUInt(x.toInt)
 
   class FloatOps(x: Float) {
     def toUByte = UByte(x.toByte)
@@ -169,7 +170,9 @@ package object unsigned {
     def toFloat(x: UByte): Float = x.toFloat
     def toDouble(x: UByte): Double = x.toDouble
   }
-  implicit object UByteIsIntegral extends UByteIsIntegral with UByteOrdering
+  implicit object UByteIsIntegral extends UByteIsIntegral with UByteOrdering {
+    def parseString(str: String): Option[UByte] = None
+  }
 
   trait UShortIsIntegral extends Integral[UShort] {
     def plus(x: UShort, y: UShort): UShort = (x + y).toUShort
@@ -184,7 +187,9 @@ package object unsigned {
     def toFloat(x: UShort): Float = x.toFloat
     def toDouble(x: UShort): Double = x.toDouble
   }
-  implicit object UShortIsIntegral extends UShortIsIntegral with UShortOrdering
+  implicit object UShortIsIntegral extends UShortIsIntegral with UShortOrdering {
+    def parseString(str: String): Option[UShort] = None
+  }
 
   trait UIntIsIntegral extends Integral[UInt] {
     def plus(x: UInt, y: UInt): UInt = x + y
@@ -199,7 +204,9 @@ package object unsigned {
     def toFloat(x: UInt): Float = x.toFloat
     def toDouble(x: UInt): Double = x.toDouble
   }
-  implicit object UIntIsIntegral extends UIntIsIntegral with UIntOrdering
+  implicit object UIntIsIntegral extends UIntIsIntegral with UIntOrdering {
+    def parseString(str: String): Option[UInt] = None
+  }
 
   trait ULongIsIntegral extends Integral[ULong] {
     def plus(x: ULong, y: ULong): ULong = x + y
@@ -214,7 +221,9 @@ package object unsigned {
     def toFloat(x: ULong): Float = x.toFloat
     def toDouble(x: ULong): Double = x.toDouble
   }
-  implicit object ULongIsIntegral extends ULongIsIntegral with ULongOrdering
+  implicit object ULongIsIntegral extends ULongIsIntegral with ULongOrdering {
+    def parseString(str: String): Option[ULong] = None
+  }
 
   class RicherUInt(rep: Int) {
     def bitCount = Integer.bitCount(rep)
