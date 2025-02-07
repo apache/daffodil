@@ -18,11 +18,10 @@
 package org.apache.daffodil.lib.util
 
 import java.util.regex.Matcher
-import scala.collection.mutable
 
 sealed abstract class LocalStackBase[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) {
 
-  protected def stack: mutable.ArrayStack[T]
+  protected def stack: Stack[T]
 
   /**
    * This must be inlined to achieve what we're trying to achieve with OnStack/LocalStack.
@@ -61,9 +60,9 @@ class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit))
    */
   def this(constructorFunc: => T) = this(constructorFunc, x => {})
 
-  private val tl = new ThreadLocal[mutable.ArrayStack[T]] {
-    protected final override def initialValue(): mutable.ArrayStack[T] = {
-      val stack = new mutable.ArrayStack[T]
+  private val tl = new ThreadLocal[Stack[T]] {
+    protected final override def initialValue(): Stack[T] = {
+      val stack = new Stack[T]
       stack
     }
   }
@@ -94,7 +93,7 @@ class LocalStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit))
    */
   def this(constructorFunc: => T) = this(constructorFunc, x => {})
 
-  final protected val stack = new mutable.ArrayStack[T]
+  final protected val stack = new Stack[T]
 
 }
 

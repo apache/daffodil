@@ -28,6 +28,7 @@ import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.util.Stack
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 /**
@@ -35,7 +36,7 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
  */
 class CodeGeneratorState(private val root: ElementBase) {
   private val elementsAlreadySeen = mutable.Map[String, ElementBase]()
-  private val structs = mutable.Stack[ComplexCGState]()
+  private val structs = new Stack[ComplexCGState]()
   private val prototypes = mutable.ArrayBuffer[String]()
   private val erds = mutable.ArrayBuffer[String]()
   private val finalStructs = mutable.ArrayBuffer[String]()
@@ -45,22 +46,22 @@ class CodeGeneratorState(private val root: ElementBase) {
   structs.push(new ComplexCGState(cStructName(root), root))
 
   // Returns true if the generator is currently processing an array
-  def hasArray: Boolean = structs.nonEmpty && structs.top.inArray
+  def hasArray: Boolean = structs.nonEmpty && structs.top().inArray
 
   // Returns true if the generator is currently processing a choice
-  def hasChoice: Boolean = structs.nonEmpty && structs.top.initChoiceStatements.nonEmpty
+  def hasChoice: Boolean = structs.nonEmpty && structs.top().initChoiceStatements.nonEmpty
 
   // Starts generating an element
   def pushElement(context: ElementBase): Unit = {
     // Generate a choice statement case if the element is in a choice element
     if (hasChoice) {
       val position = context.position
-      structs.top.initChoiceStatements ++= ChoiceBranchKeyCooker
+      structs.top().initChoiceStatements ++= ChoiceBranchKeyCooker
         .convertConstant(context.choiceBranchKey, context, forUnparse = false)
         .map { key => s"    case $key:" }
-      structs.top.initChoiceStatements += s"        instance->_choice = $position;"
-      structs.top.parserStatements += s"    case $position:"
-      structs.top.unparserStatements += s"    case $position:"
+      structs.top().initChoiceStatements += s"        instance->_choice = $position;"
+      structs.top().parserStatements += s"    case $position:"
+      structs.top().unparserStatements += s"    case $position:"
     }
 
     if (context.isComplexType || context == root) {
@@ -68,7 +69,7 @@ class CodeGeneratorState(private val root: ElementBase) {
       val C = cStructName(context)
       structs.push(new ComplexCGState(C, context))
       val erd = erdName(context)
-      structs.top.initERDStatements +=
+      structs.top().initERDStatements +=
         s"""    instance->_base.erd = &$erd;
            |    instance->_base.parent = parent;""".stripMargin
 
@@ -77,8 +78,12 @@ class CodeGeneratorState(private val root: ElementBase) {
         context.isComplexType && context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0
       ) {
         val lengthInBits = context.maybeFixedLengthInBits.get
-        structs.top.parserStatements += s"    const size_t end_bitPos0b = pstate->pu.bitPos0b + $lengthInBits;"
-        structs.top.unparserStatements += s"    const size_t end_bitPos0b = ustate->pu.bitPos0b + $lengthInBits;"
+        structs
+          .top()
+          .parserStatements += s"    const size_t end_bitPos0b = pstate->pu.bitPos0b + $lengthInBits;"
+        structs
+          .top()
+          .unparserStatements += s"    const size_t end_bitPos0b = ustate->pu.bitPos0b + $lengthInBits;"
       }
     }
   }
@@ -88,11 +93,11 @@ class CodeGeneratorState(private val root: ElementBase) {
     if (context.isComplexType) {
       // Calculate padding if complex element has an explicit length
       if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
-        structs.top.parserStatements +=
+        structs.top().parserStatements +=
           s"""    parse_alignment_bits(end_bitPos0b, pstate);
              |    if (pstate->pu.error) return;""".stripMargin
         val octalFillByte = context.fillByteEv.constValue.toByte.toOctalString
-        structs.top.unparserStatements +=
+        structs.top().unparserStatements +=
           s"""    unparse_alignment_bits(end_bitPos0b, '\\$octalFillByte', ustate);
              |    if (ustate->pu.error) return;""".stripMargin
       }
@@ -113,13 +118,17 @@ class CodeGeneratorState(private val root: ElementBase) {
       val e = cName(context)
       val deref = if (hasArray) "[i]" else ""
       if (hasChoice)
-        structs.top.initChoiceStatements += s"$indent2        ${C}_initERD(&instance->$e$deref, (InfosetBase *)instance);"
+        structs
+          .top()
+          .initChoiceStatements += s"$indent2        ${C}_initERD(&instance->$e$deref, (InfosetBase *)instance);"
       else
-        structs.top.initERDStatements += s"$indent2    ${C}_initERD(&instance->$e$deref, (InfosetBase *)instance);"
-      structs.top.parserStatements +=
+        structs
+          .top()
+          .initERDStatements += s"$indent2    ${C}_initERD(&instance->$e$deref, (InfosetBase *)instance);"
+      structs.top().parserStatements +=
         s"""$indent1$indent2    ${C}_parseSelf(&instance->$e$deref, pstate);
            |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
-      structs.top.unparserStatements +=
+      structs.top().unparserStatements +=
         s"""$indent1$indent2    ${C}_unparseSelf(&instance->$e$deref, ustate);
            |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     } else if (context == root) {
@@ -144,15 +153,15 @@ class CodeGeneratorState(private val root: ElementBase) {
     // Generate a choice statement break if the child is in a choice element
     if (hasChoice) {
       val break = s"        break;"
-      structs.top.initChoiceStatements += break
-      structs.top.parserStatements += break
-      structs.top.unparserStatements += break
+      structs.top().initChoiceStatements += break
+      structs.top().parserStatements += break
+      structs.top().unparserStatements += break
     }
   }
 
   // Starts generating a reoccurring element (array element)
   def pushArray(context: SchemaComponent): Unit = {
-    val C = structs.top.C
+    val C = structs.top().C
     val e = context.asInstanceOf[ElementBase]
     structs.push(new ComplexCGState(C, e, inArray = true))
   }
@@ -161,7 +170,7 @@ class CodeGeneratorState(private val root: ElementBase) {
   def popArray(context: SchemaComponent): Unit = {
     // Finish generating array element
     val e = context.asInstanceOf[ElementBase]
-    val C = structs.top.C
+    val C = structs.top().C
     val arrayName = s"array_${cStructName(e)}$C"
     // Prevent redundant definitions on reused types
     if (elementNotSeenYet(e, arrayName)) {
@@ -169,31 +178,34 @@ class CodeGeneratorState(private val root: ElementBase) {
     }
 
     // Link parent element to array element
-    val declarations = structs.top.declarations
-    val offsetComputations = structs.top.offsetComputations
-    val erdComputations = structs.top.erdComputations
+    val declarations = structs.top().declarations
+    val offsetComputations = structs.top().offsetComputations
+    val erdComputations = structs.top().erdComputations
     structs.pop()
-    structs.top.declarations ++= declarations
-    structs.top.offsetComputations ++= offsetComputations
-    structs.top.erdComputations ++= erdComputations
+    structs.top().declarations ++= declarations
+    structs.top().offsetComputations ++= offsetComputations
+    structs.top().erdComputations ++= erdComputations
 
     // Now call the array's methods instead of the array's element's methods
     val indent = if (hasChoice) INDENT else NO_INDENT
     if (hasChoice)
-      structs.top.initChoiceStatements += s"$indent    ${arrayName}_initERD(instance, parent);"
+      structs
+        .top()
+        // TODO: not covered by tests
+        .initChoiceStatements += s"$indent    ${arrayName}_initERD(instance, parent);"
     else
-      structs.top.initERDStatements += s"$indent    ${arrayName}_initERD(instance, parent);"
-    structs.top.parserStatements +=
+      structs.top().initERDStatements += s"$indent    ${arrayName}_initERD(instance, parent);"
+    structs.top().parserStatements +=
       s"""$indent    ${arrayName}_parseSelf(instance, pstate);
          |$indent    if (pstate->pu.error) return;""".stripMargin
-    structs.top.unparserStatements +=
+    structs.top().unparserStatements +=
       s"""$indent    ${arrayName}_unparseSelf(instance, ustate);
          |$indent    if (ustate->pu.error) return;""".stripMargin
   }
 
   // Generates choice member/ERD and switch statements for a choice group
   def addBeforeSwitchStatements(): Unit = {
-    val context = structs.top.context
+    val context = structs.top().context
     val erd = erdName(context)
     val dispatchField = choiceDispatchField(context)
     if (dispatchField.nonEmpty) {
@@ -243,12 +255,12 @@ class CodeGeneratorState(private val root: ElementBase) {
       if (elementNotSeenYet(context, erd)) {
         erds += erdDef
       }
-      structs.top.declarations += declaration
-      structs.top.offsetComputations += offsetComputation
-      structs.top.erdComputations += erdComputation
-      structs.top.initChoiceStatements += initChoiceStatement
-      structs.top.parserStatements += parseStatement
-      structs.top.unparserStatements += unparseStatement
+      structs.top().declarations += declaration
+      structs.top().offsetComputations += offsetComputation
+      structs.top().erdComputations += erdComputation
+      structs.top().initChoiceStatements += initChoiceStatement
+      structs.top().parserStatements += parseStatement
+      structs.top().unparserStatements += unparseStatement
     }
   }
 
@@ -278,10 +290,10 @@ class CodeGeneratorState(private val root: ElementBase) {
            |        return;
            |    }""".stripMargin
 
-      structs.top.declarations += declaration
-      structs.top.initChoiceStatements += initChoiceStatement
-      structs.top.parserStatements += parseStatement
-      structs.top.unparserStatements += unparseStatement
+      structs.top().declarations += declaration
+      structs.top().initChoiceStatements += initChoiceStatement
+      structs.top().parserStatements += parseStatement
+      structs.top().unparserStatements += unparseStatement
     }
   }
 
@@ -293,12 +305,13 @@ class CodeGeneratorState(private val root: ElementBase) {
   ): Unit = {
     if (initERDStatement.nonEmpty) {
       if (hasChoice)
-        structs.top.initChoiceStatements += initERDStatement
+        // TODO: not covered by tests
+        structs.top().initChoiceStatements += initERDStatement
       else
-        structs.top.initERDStatements += initERDStatement
+        structs.top().initERDStatements += initERDStatement
     }
-    if (parseStatement.nonEmpty) structs.top.parserStatements += parseStatement
-    if (unparseStatement.nonEmpty) structs.top.unparserStatements += unparseStatement
+    if (parseStatement.nonEmpty) structs.top().parserStatements += parseStatement
+    if (unparseStatement.nonEmpty) structs.top().unparserStatements += unparseStatement
   }
 
   // Generates a C header to define the Daffodil version
@@ -474,9 +487,9 @@ class CodeGeneratorState(private val root: ElementBase) {
   private def addComplexTypeERD(context: ElementBase): Unit = {
     val C = cStructName(context)
     val erd = erdName(context)
-    val count = structs.top.offsetComputations.length
-    val offsetComputations = structs.top.offsetComputations.mkString(",\n")
-    val erdComputations = structs.top.erdComputations.mkString(",\n")
+    val count = structs.top().offsetComputations.length
+    val offsetComputations = structs.top().offsetComputations.mkString(",\n")
+    val erdComputations = structs.top().erdComputations.mkString(",\n")
     val qNameInit = defineQNameInit(context)
     val numChildren = if (hasChoice) 2 else count
     val initChoice = if (hasChoice) s"(InitChoiceRD)&${C}_initChoice" else "NULL"
@@ -522,7 +535,7 @@ class CodeGeneratorState(private val root: ElementBase) {
   // Adds a C struct definition for the given complex element
   private def addStruct(context: ElementBase): Unit = {
     val C = cStructName(context)
-    val declarations = structs.top.declarations.mkString("\n")
+    val declarations = structs.top().declarations.mkString("\n")
     val struct =
       s"""typedef struct $C
          |{
@@ -537,18 +550,18 @@ class CodeGeneratorState(private val root: ElementBase) {
   // Generates a complex element's initERD, parseSelf, unparseSelf functions
   private def addImplementation(context: ElementBase): Unit = {
     val C = cStructName(context)
-    val initERDStatements = structs.top.initERDStatements.mkString("\n")
-    val initChoiceStatements = structs.top.initChoiceStatements.mkString("\n")
+    val initERDStatements = structs.top().initERDStatements.mkString("\n")
+    val initChoiceStatements = structs.top().initChoiceStatements.mkString("\n")
     val parserStatements =
-      if (structs.top.parserStatements.nonEmpty)
-        structs.top.parserStatements.mkString("\n")
+      if (structs.top().parserStatements.nonEmpty)
+        structs.top().parserStatements.mkString("\n")
       else
         s"""    // Empty struct, but need to prevent compiler warnings
          |    UNUSED(instance);
          |    UNUSED(pstate);""".stripMargin
     val unparserStatements =
-      if (structs.top.unparserStatements.nonEmpty)
-        structs.top.unparserStatements.mkString("\n")
+      if (structs.top().unparserStatements.nonEmpty)
+        structs.top().unparserStatements.mkString("\n")
       else
         s"""    // Empty struct, but need to prevent compiler warnings
          |    UNUSED(instance);
@@ -609,8 +622,8 @@ class CodeGeneratorState(private val root: ElementBase) {
   private def addSimpleTypeERD(context: ElementBase): Unit = {
     val C = cStructName(context)
     val erd = erdName(context)
-    val count = structs.top.offsetComputations.length
-    val offsetComputations = structs.top.offsetComputations.mkString(",\n")
+    val count = structs.top().offsetComputations.length
+    val offsetComputations = structs.top().offsetComputations.mkString(",\n")
     val qNameInit = defineQNameInit(context)
     val typeCode = getPrimType(context) match {
       case PrimType.Boolean => "PRIMITIVE_BOOLEAN"
@@ -685,7 +698,7 @@ class CodeGeneratorState(private val root: ElementBase) {
     val indent = if (hasChoice) INDENT else NO_INDENT
     val declaration = s"$indent    $definition $e$arrayDef;"
 
-    structs.top.declarations += declaration
+    structs.top().declarations += declaration
 
     // Add an array member to store a fixed length hexBinary element if needed
     if (
@@ -694,13 +707,13 @@ class CodeGeneratorState(private val root: ElementBase) {
     ) {
       val fixedLength = child.maybeFixedLengthInBits.get / 8
       val declaration2 = s"$indent    uint8_t     _a_$e$arrayDef[$fixedLength];"
-      structs.top.declarations += declaration2
+      structs.top().declarations += declaration2
     }
   }
 
   // Adds an element's ERD & offset to its parent element's children ERD & offset computations.
   private def addComputations(child: ElementBase): Unit = {
-    val C = structs.top.C
+    val C = structs.top().C
     val e = cName(child)
     val hasArray = arrayMaxOccurs(child) > 0
     val arrayName = s"array_${cStructName(child)}$C"
@@ -709,13 +722,13 @@ class CodeGeneratorState(private val root: ElementBase) {
     val offsetComputation =
       s"    (const char *)&${C}_compute_offsets.$e$deref - (const char *)&${C}_compute_offsets"
     val erdComputation = s"    &$erd"
-    structs.top.offsetComputations += offsetComputation
-    structs.top.erdComputations += erdComputation
+    structs.top().offsetComputations += offsetComputation
+    structs.top().erdComputations += erdComputation
   }
 
   // Generates an array's ERD, childrenOffsets, childrenERDs, initERD, parseSelf, unparseSelf, getArraySize
   private def addArrayImplementation(elem: ElementBase): Unit = {
-    val C = structs.top.C
+    val C = structs.top().C
     val e = cName(elem)
     val arrayName = s"array_${cStructName(elem)}$C"
     val erd = erdName(elem)
@@ -750,11 +763,11 @@ class CodeGeneratorState(private val root: ElementBase) {
 
     // Add the array's initERD, parseSelf, unparseSelf, getArraySize functions
     val initERDStatements =
-      if (structs.top.initERDStatements.nonEmpty)
+      if (structs.top().initERDStatements.nonEmpty)
         s"""    UNUSED(parent);
          |    for (size_t i = 0; i < $maxOccurs; i++)
          |    {
-         |${structs.top.initERDStatements.mkString("\n")}
+         |${structs.top().initERDStatements.mkString("\n")}
          |    }""".stripMargin
       else
         s"""    UNUSED(instance);
@@ -766,7 +779,7 @@ class CodeGeneratorState(private val root: ElementBase) {
          |
          |    for (size_t i = 0; i < arraySize; i++)
          |    {
-         |${structs.top.parserStatements.mkString("\n")}
+         |${structs.top().parserStatements.mkString("\n")}
          |    }""".stripMargin
     val unparserStatements =
       s"""    const size_t arraySize = ${arrayName}_getArraySize(instance);
@@ -775,7 +788,7 @@ class CodeGeneratorState(private val root: ElementBase) {
          |
          |    for (size_t i = 0; i < arraySize; i++)
          |    {
-         |${structs.top.unparserStatements.mkString("\n")}
+         |${structs.top().unparserStatements.mkString("\n")}
          |    }""".stripMargin
     val arraySizeStatements = getOccursCount(elem)
 

@@ -69,7 +69,7 @@ object ValidationResult {
   val empty: ValidationResult = ValidationResult(Seq.empty, Seq.empty)
 
   def apply(w: Seq[ValidationWarning], e: Seq[ValidationFailure]): ValidationResult = {
-    import scala.collection.JavaConverters.asJavaCollectionConverter
+    import scala.jdk.CollectionConverters._
     new ValidationResult {
       val warnings: java.util.Collection[ValidationWarning] = w.asJavaCollection
       val errors: java.util.Collection[ValidationFailure] = e.asJavaCollection

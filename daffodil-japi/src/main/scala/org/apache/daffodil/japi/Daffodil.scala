@@ -21,7 +21,7 @@ import java.io.File
 import java.net.URI
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.core.compiler.{ Compiler => SCompiler }
 import org.apache.daffodil.core.compiler.{ InvalidParserException => SInvalidParserException }

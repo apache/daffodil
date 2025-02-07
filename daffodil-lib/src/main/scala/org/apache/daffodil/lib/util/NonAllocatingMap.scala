@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.exceptions.Assert
 

@@ -30,16 +30,16 @@ import scala.language.implicitConversions
 
 package object numerics {
   implicit def toRicherInt(x: Int): RicherInt = new RicherInt(x)
-  implicit def toRicherInt(x: scala.runtime.RichInt) = new YetRicherInt(
+  implicit def toRicherInt(x: scala.runtime.RichInt): YetRicherInt = new YetRicherInt(
     x.self.asInstanceOf[Int]
   )
 
   implicit def toRicherLong(x: Long): RicherLong = new RicherLong(x)
-  implicit def toRicherLong(x: scala.runtime.RichLong) = new YetRicherLong(
+  implicit def toRicherLong(x: scala.runtime.RichLong): YetRicherLong = new YetRicherLong(
     x.self.asInstanceOf[Long]
   )
 
-  class RicherInt(x: Int) extends Proxy {
+  class RicherInt(x: Int) {
     def self: Any = x
 
     import java.lang.Integer
@@ -58,17 +58,24 @@ package object numerics {
 
     def <<@(dist: Int) = rotateLeft(dist)
     def >>@(dist: Int) = rotateRight(dist)
+
+    override def equals(obj: Any): Boolean = super.equals(obj)
+    override def toString: String = super.toString
+    override def hashCode(): Int = super.hashCode()
   }
 
-  class YetRicherInt(x: Int) extends Proxy {
+  class YetRicherInt(x: Int) {
     def self: Any = x
     def to(y: Long, step: Long = 1L) = x.toLong to y by step
     def until(y: Long, step: Long = 1L) = x.toLong until y by step
     def max(y: Long) = x.toLong.max(y)
     def min(y: Long) = x.toLong.min(y)
+    override def equals(obj: Any): Boolean = super.equals(obj)
+    override def toString: String = super.toString
+    override def hashCode(): Int = super.hashCode()
   }
 
-  class RicherLong(x: Long) extends Proxy {
+  class RicherLong(x: Long) {
     def self: Any = x
 
     import java.lang.Long
@@ -87,9 +94,16 @@ package object numerics {
 
     def <<@(dist: Int) = rotateLeft(dist)
     def >>@(dist: Int) = rotateRight(dist)
+
+    override def equals(obj: Any): Boolean = super.equals(obj)
+    override def toString: String = super.toString
+    override def hashCode(): Int = super.hashCode()
   }
 
-  class YetRicherLong(x: Long) extends Proxy {
+  class YetRicherLong(x: Long) {
     def self: Any = x
+    override def equals(obj: Any): Boolean = super.equals(obj)
+    override def toString: String = super.toString
+    override def hashCode(): Int = super.hashCode()
   }
 }

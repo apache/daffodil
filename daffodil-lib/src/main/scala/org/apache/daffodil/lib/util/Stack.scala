@@ -17,11 +17,42 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.annotation.meta._
+import scala.collection.mutable.ListBuffer
 
-// The @transient annotation on a constructor parameter doesn't work properly
-// in scala >= 2.11, this is because it does not include the @param annotation.
-// This custom annotation extends transient, but adds the @param annotation so
-// construcutor parameters are properly made transient
-@param
-class TransientParam extends scala.transient
+/**
+ * Compatibility class for 2.12 and 2.13 since ArrayStack and Stack
+ * have been deprecated in 2.13. This allows us to maintain the same
+ * functionality as stack while using ListBuffer instead
+ */
+class Stack[T] {
+  def apply(index: Int): T = {
+    _stackLike(index)
+  }
+
+  private val _stackLike: ListBuffer[T] = new ListBuffer[T]
+
+  def pop(): T = {
+    _stackLike.remove(_stackLike.length - 1)
+  }
+
+  def push(item: T): Unit = {
+    _stackLike += item
+  }
+
+  def isEmpty: Boolean = {
+    _stackLike.isEmpty
+  }
+
+  def clear(): Unit = {
+    // TODO: not covered by tests
+    _stackLike.clear()
+  }
+
+  def top(): T = {
+    _stackLike.last
+  }
+
+  def nonEmpty: Boolean = {
+    _stackLike.nonEmpty
+  }
+}

@@ -27,7 +27,6 @@ import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.PreSerialization
-import org.apache.daffodil.lib.util.TransientParam
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.NoNamespace
@@ -204,7 +203,7 @@ class DPathCompileInfo(
   // parentsDelay is a transient due to serialization order issues causing
   // stack overflows. There is no delay/lazy/by-name involvement here. See the
   // lazy val parents scaladoc for a detailed explanation.
-  @TransientParam parentsDelay: Delay[Seq[DPathCompileInfo]],
+  @transient parentsDelay: Delay[Seq[DPathCompileInfo]],
   val variableMap: VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val noPrefixNamespace: NS,
@@ -331,7 +330,7 @@ class DPathElementCompileInfo(
   // parentsDelay is a transient due to serialization order issues causing
   // stack overflows. There is no delay/lazy/by-name involvement here. See the
   // lazy val parents scaladoc for a detailed explanation.
-  @TransientParam parentsDelay: Delay[Seq[DPathElementCompileInfo]],
+  @transient parentsDelay: Delay[Seq[DPathElementCompileInfo]],
   variableMap: VariableMap,
   // This next arg must be a Delay as we're creating a circular
   // structure here. Element's compile info points down to their children. Children

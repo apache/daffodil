@@ -39,7 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import scala.collection.JavaConverters;
+import scala.jdk.javaapi.CollectionConverters;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -1357,7 +1357,7 @@ public class TestJavaAPI {
             output.setBlobAttributes(blobDir, "pre-", ".suf");
 
             ParseResult res = dp.parse(input, output);
-            List<Path> blobPaths = JavaConverters.seqAsJavaList(output.getBlobPaths());
+            List<Path> blobPaths = CollectionConverters.asJava(output.getBlobPaths());
 
             try {
                 assertFalse(res.isError());

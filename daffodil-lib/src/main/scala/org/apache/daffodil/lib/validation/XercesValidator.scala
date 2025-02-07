@@ -20,7 +20,7 @@ package org.apache.daffodil.lib.validation
 import java.net.URI
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.xml.SAXException
 
 import org.apache.daffodil.lib.api.ValidationException

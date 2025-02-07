@@ -21,7 +21,7 @@ import java.io.File
 import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
 import org.apache.daffodil.codegen.c.generators.AlignmentFillCodeGenerator

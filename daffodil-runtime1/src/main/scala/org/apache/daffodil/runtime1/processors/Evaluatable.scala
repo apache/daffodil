@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.Diagnostic

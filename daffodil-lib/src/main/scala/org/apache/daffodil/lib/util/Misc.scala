@@ -32,8 +32,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.file.Files
 import java.nio.file.Paths
-import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
@@ -272,8 +272,9 @@ object Misc {
     }
   }
 
-  def initialUpperCase(s: String): String = s.head.toUpper + s.substring(1)
-  def initialLowerCase(s: String): String = s.head.toLower + s.substring(1)
+  // TODO: no test coverage
+  def initialUpperCase(s: String): String = s.head.toUpper +: s.substring(1)
+  def initialLowerCase(s: String): String = s.head.toLower +: s.substring(1)
 
   /**
    * Convert FooBar to fooBar, but leave FOOBAR as FOOBAR.
@@ -284,7 +285,7 @@ object Misc {
     // At this point we know the first letter is uppercase
     //
     if (isAllUpper(s, 1)) s
-    else s(0).toLower + s.substring(1)
+    else s(0).toLower +: s.substring(1)
   }
 
   def isAllUpper(s: String, start: Int): Boolean = {
