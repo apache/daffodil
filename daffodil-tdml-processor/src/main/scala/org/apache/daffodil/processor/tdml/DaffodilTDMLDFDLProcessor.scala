@@ -268,9 +268,9 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     lengthLimitInBits: Long
   ): TDMLParseResult = {
     val outputter = if (tdmlApiInfosetsEnv == "all") {
-      new TDMLInfosetOutputterAll
+      TDMLInfosetOutputterAll()
     } else {
-      new TDMLInfosetOutputterScala
+      TDMLInfosetOutputterScala()
     }
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 

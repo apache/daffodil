@@ -20,11 +20,9 @@ package org.apache.daffodil.io.processors.charset
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetIBM037
-  extends {
-    override val name = "IBM037"
-  }
-  with BitsCharsetJava {
+object BitsCharsetIBM037 extends BitsCharsetJava {
+
+  lazy val name = "IBM037"
 
   val decodeStringTable =
     "\u0000\u0001\u0002\u0003\u009C\u0009\u0086\u007F\u0097\u008D\u008E\u000B\u000C\u000D\u000E\u000F" +
