@@ -20,11 +20,8 @@ package org.apache.daffodil.io.processors.charset
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetUSASCII
-  extends {
-    override val name = "US-ASCII"
-  }
-  with BitsCharsetJava {
+object BitsCharsetUSASCII extends BitsCharsetJava {
+  override lazy val name = "US-ASCII"
 
   override def newDecoder() = new BitsCharsetDecoderUSASCII()
 }

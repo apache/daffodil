@@ -163,16 +163,14 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
  * dfdl:encodingErrorPolicy='error' would check this (once implemented), otherwise
  * where this is used the checking needs to be done separately somehow.
  */
-object BitsCharsetAISPayloadArmoring
-  extends {
-    override val name = "X-DAFFODIL-AIS-PAYLOAD-ARMORING"
-    override val bitWidthOfACodeUnit = 6
-    override val decodeString =
-      """0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVW'abcdefghijklmnopqrstuvw"""
-    override val replacementCharCode = 0x30
-    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetAISPayloadArmoring extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DAFFODIL-AIS-PAYLOAD-ARMORING"
+  override lazy val bitWidthOfACodeUnit = 6
+  override lazy val decodeString =
+    """0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVW'abcdefghijklmnopqrstuvw"""
+  override lazy val replacementCharCode = 0x30
+  override lazy val requiredBitOrder = BitOrder.MostSignificantBitFirst
+}
 
 final class BitsCharsetAISPayloadArmoringDefinition
   extends BitsCharsetDefinition(BitsCharsetAISPayloadArmoring)

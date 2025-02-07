@@ -26,11 +26,8 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderByteSize
 import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
 import org.apache.daffodil.io.processors.charset.BitsCharsetJava
 
-object BitsCharsetTest_ISO_8859_13
-  extends {
-    override val name = "ISO-8859-13"
-  }
-  with BitsCharsetJava {
+object BitsCharsetTest_ISO_8859_13 extends BitsCharsetJava {
+  override lazy val name = "ISO-8859-13"
 
   override def newDecoder() = new BitsCharsetTest_Decoder_ISO_8859_13()
 

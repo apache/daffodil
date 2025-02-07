@@ -23,16 +23,14 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-US-ASCII-6-BIT-PACKED occupies only 6 bits with each
  * code unit.
  */
-object BitsCharsetUSASCII6BitPackedLSBF
-  extends {
-    override val name = "X-DFDL-US-ASCII-6-BIT-PACKED-LSB-FIRST"
-    override val bitWidthOfACodeUnit = 6
-    override val decodeString =
-      """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
-    override val replacementCharCode = 0x1f
-    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetUSASCII6BitPackedLSBF extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DFDL-US-ASCII-6-BIT-PACKED-LSB-FIRST"
+  override lazy val bitWidthOfACodeUnit = 6
+  override lazy val decodeString =
+    """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
+  override lazy val replacementCharCode = 0x1f
+  override lazy val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+}
 
 final class BitsCharsetUSASCII6BitPackedLSBFDefinition
   extends BitsCharsetDefinition(BitsCharsetUSASCII6BitPackedLSBF)
@@ -43,16 +41,14 @@ final class BitsCharsetUSASCII6BitPackedDefinition
     Some("X-DFDL-US-ASCII-6-BIT-PACKED")
   )
 
-object BitsCharsetUSASCII6BitPackedMSBF
-  extends {
-    override val name = "X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST"
-    override val bitWidthOfACodeUnit = 6
-    override val decodeString =
-      """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
-    override val replacementCharCode = 0x1f
-    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetUSASCII6BitPackedMSBF extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST"
+  override lazy val bitWidthOfACodeUnit = 6
+  override lazy val decodeString =
+    """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
+  override lazy val replacementCharCode = 0x1f
+  override lazy val requiredBitOrder = BitOrder.MostSignificantBitFirst
+}
 
 final class BitsCharsetUSASCII6BitPackedMSBFDefinition
   extends BitsCharsetDefinition(BitsCharsetUSASCII6BitPackedMSBF)

@@ -23,15 +23,13 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-OCTAL-LSBF occupies only 3 bits with each
  * code unit.
  */
-object BitsCharsetOctalLSBF
-  extends {
-    override val name = "X-DFDL-OCTAL-LSBF"
-    override val bitWidthOfACodeUnit = 3
-    override val decodeString = "01234567"
-    override val replacementCharCode = 0x0
-    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetOctalLSBF extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DFDL-OCTAL-LSBF"
+  override lazy val bitWidthOfACodeUnit = 3
+  override lazy val decodeString = "01234567"
+  override lazy val replacementCharCode = 0x0
+  override lazy val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+}
 
 final class BitsCharsetOctalLSBFDefinition extends BitsCharsetDefinition(BitsCharsetOctalLSBF)
 
@@ -39,14 +37,12 @@ final class BitsCharsetOctalLSBFDefinition extends BitsCharsetDefinition(BitsCha
  * X-DFDL-OCTAL-MSBF occupies only 3 bits with each
  * code unit.
  */
-object BitsCharsetOctalMSBF
-  extends {
-    override val name = "X-DFDL-OCTAL-MSBF"
-    override val bitWidthOfACodeUnit = 3
-    override val decodeString = "01234567"
-    override val replacementCharCode = 0x0
-    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetOctalMSBF extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DFDL-OCTAL-MSBF"
+  override lazy val bitWidthOfACodeUnit = 3
+  override lazy val decodeString = "01234567"
+  override lazy val replacementCharCode = 0x0
+  override lazy val requiredBitOrder = BitOrder.MostSignificantBitFirst
+}
 
 final class BitsCharsetOctalMSBFDefinition extends BitsCharsetDefinition(BitsCharsetOctalMSBF)

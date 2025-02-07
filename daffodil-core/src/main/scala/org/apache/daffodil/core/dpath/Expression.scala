@@ -2686,25 +2686,47 @@ case class FNTwoArgsExprInferedArgType(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp
-) extends {
-    private val constructor_ : List[CompiledDPath] => RecipeOp =
-      (subExprs: List[CompiledDPath]) => {
-        Assert.invariant(subExprs.length == args.length)
-        val types = args.map(_.targetType)
-        val typedSubExprs = subExprs.zip(types)
-        constructor(typedSubExprs)
-      }
-  }
-  with FNTwoArgsExprBase(
+  constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp,
+  constructorForTypedSubExprs: List[CompiledDPath] => RecipeOp
+) extends FNTwoArgsExprBase(
     nameAsParsed,
     fnQName,
     args,
     resultType,
     arg1Type,
     arg2Type,
-    constructor_
+    constructorForTypedSubExprs
   )
+
+object FNTwoArgsExprInferedArgType {
+  def apply(
+    nameAsParsed: String,
+    fnQName: RefQName,
+    args: List[Expression],
+    resultType: NodeInfo.Kind,
+    arg1Type: NodeInfo.Kind,
+    arg2Type: NodeInfo.Kind,
+    constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp
+  ): FNTwoArgsExprInferedArgType = {
+    val constructorForTypedSubExprs: List[CompiledDPath] => RecipeOp =
+      (subExprs: List[CompiledDPath]) => {
+        Assert.invariant(subExprs.length == args.length)
+        val types = args.map(_.targetType)
+        val typedSubExprs = subExprs.zip(types)
+        constructor(typedSubExprs)
+      }
+    FNTwoArgsExprInferedArgType(
+      nameAsParsed,
+      fnQName,
+      args,
+      resultType,
+      arg1Type,
+      arg2Type,
+      constructor,
+      constructorForTypedSubExprs
+    )
+  }
+}
 
 sealed abstract class LengthExprBase(
   nameAsParsed: String,

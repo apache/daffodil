@@ -20,11 +20,9 @@ package org.apache.daffodil.io.processors.charset
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetISO88591
-  extends {
-    override val name = "ISO-8859-1"
-  }
-  with BitsCharsetJava {
+object BitsCharsetISO88591 extends BitsCharsetJava {
+
+  override lazy val name = "ISO-8859-1"
 
   override def newDecoder() = new BitsCharsetDecoderISO88591()
 }

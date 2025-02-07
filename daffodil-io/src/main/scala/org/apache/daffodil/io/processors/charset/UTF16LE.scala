@@ -20,11 +20,8 @@ package org.apache.daffodil.io.processors.charset
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetUTF16LE
-  extends {
-    override val name = "UTF-16LE"
-  }
-  with BitsCharsetJava {
+object BitsCharsetUTF16LE extends BitsCharsetJava {
+  override lazy val name = "UTF-16LE"
 
   override def newDecoder() = new BitsCharsetDecoderUTF16LE()
 }

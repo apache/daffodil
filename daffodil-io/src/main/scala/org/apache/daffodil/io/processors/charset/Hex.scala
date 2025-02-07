@@ -23,15 +23,13 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-HEX-LSBF occupies only 4 bits with each
  * code unit.
  */
-object BitsCharsetHexLSBF
-  extends {
-    override val name = "X-DFDL-HEX-LSBF"
-    override val bitWidthOfACodeUnit = 4
-    override val decodeString = """0123456789ABCDEF"""
-    override val replacementCharCode = 0x00
-    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetHexLSBF extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DFDL-HEX-LSBF"
+  override lazy val bitWidthOfACodeUnit = 4
+  override lazy val decodeString = """0123456789ABCDEF"""
+  override lazy val replacementCharCode = 0x00
+  override lazy val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+}
 
 final class BitsCharsetHexLSBFDefinition extends BitsCharsetDefinition(BitsCharsetHexLSBF)
 
@@ -39,14 +37,12 @@ final class BitsCharsetHexLSBFDefinition extends BitsCharsetDefinition(BitsChars
  * X-DFDL-HEX-MSBF occupies only 4 bits with each
  * code unit.
  */
-object BitsCharsetHexMSBF
-  extends {
-    override val name = "X-DFDL-HEX-MSBF"
-    override val bitWidthOfACodeUnit = 4
-    override val decodeString = """0123456789ABCDEF"""
-    override val replacementCharCode = 0x00
-    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-  }
-  with BitsCharsetNonByteSize
+object BitsCharsetHexMSBF extends BitsCharsetNonByteSize {
+  override lazy val name = "X-DFDL-HEX-MSBF"
+  override lazy val bitWidthOfACodeUnit = 4
+  override lazy val decodeString = """0123456789ABCDEF"""
+  override lazy val replacementCharCode = 0x00
+  override lazy val requiredBitOrder = BitOrder.MostSignificantBitFirst
+}
 
 final class BitsCharsetHexMSBFDefinition extends BitsCharsetDefinition(BitsCharsetHexMSBF)

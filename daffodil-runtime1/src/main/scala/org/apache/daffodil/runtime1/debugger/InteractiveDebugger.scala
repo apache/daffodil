@@ -1889,11 +1889,9 @@ class InteractiveDebugger(
         }
       }
 
-      object InfoParser
-        extends {
-          override val name = "parser" // scala -xcheckinit reported this was uninitialized
-        }
-        with InfoProcessorBase
+      object InfoParser extends InfoProcessorBase {
+        override lazy val name = "parser" // scala -xcheckinit reported this was uninitialized
+      }
 
       object InfoPointsOfUncertainty extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "pointsOfUncertainty"
@@ -1935,11 +1933,9 @@ class InteractiveDebugger(
         def getSeqValue(state: StateForDebugger): Seq[Suspension] = state.suspensions
       }
 
-      object InfoUnparser
-        extends {
-          override val name = "unparser"
-        }
-        with InfoProcessorBase
+      object InfoUnparser extends InfoProcessorBase {
+        override lazy val name = "unparser"
+      }
 
       object InfoVariables extends DebugCommand with InfoDiffable {
         val name = "variables"
