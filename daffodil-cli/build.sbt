@@ -30,6 +30,27 @@ Linux / packageName := executableScriptName.value
 Rpm / packageName := "apache-" + executableScriptName.value
 Windows / packageName := executableScriptName.value
 
+val optSourceDateEpoch = scala.util.Properties.envOrNone("SOURCE_DATE_EPOCH")
+
+// prepend additional options to the tar command for reproducibility. We prepend because the
+// default value of this setting includes the -f option at the end, which needs to stay at the
+// end since sbt-native-packager provides the archive file immediately after
+Universal / packageZipTarball / universalArchiveOptions := {
+  val optMtime = optSourceDateEpoch.map { epoch =>
+    val fmt = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ")
+    fmt.setTimeZone(java.util.TimeZone.getTimeZone("UTC"))
+    val mtime = fmt.format(new java.util.Date(epoch.toLong * 1000))
+    s"--mtime=$mtime"
+  }
+  val newOptions = Seq(
+    "--sort=name",
+    "--owner=0",
+    "--group=0",
+    "--numeric-owner"
+  ) ++ optMtime
+  newOptions ++ (Universal / packageZipTarball / universalArchiveOptions).value
+}
+
 Universal / mappings ++= Seq(
   baseDirectory.value / "bin.LICENSE" -> "LICENSE",
   baseDirectory.value / "bin.NOTICE" -> "NOTICE",
@@ -83,12 +104,38 @@ carried by data processing frameworks so as to bypass any XML/JSON overheads.
 // rpmbuild behavior, we can simply append them to the RPM description and
 // things still work as expected.
 //
-// In this case, we want to disable zstd compression which isn't supported by
-// older versions of RPM. So we add the following special rpm %define's to use
-// gzip compression instead, which is supported by all versions of RPM.
+// Older versions of RPM do not support zstd compression. To disable this we can
+// define _source_payload and _binary_payload to use gzip compression.
+// Additionally, the bulk of the RPM is jars which are already compressed and
+// won't really compress any further, so we set the compression level to zero
+// for faster builds.
+//
+// _buildhost is set to ensure reproducible builds regardless of the hostname of
+// the system where where we are building the RPM.
+//
+// optflags is set to empty for reproducible builds--different systems use
+// different values of optflags and store the value in the RPM metadata. It
+// doesn't matter that we set it to nil because the macro is only used for
+// things like CFLAGS, CXXFLAGS, etc. and the way use rpmbuild it does not use
+// this flags, since it just packages files already built by SBT.
+//
+// Even with these above settings, different systems still might create RPMs
+// with different internal tags. For example, the CLASSDICT and FILECLASS tags
+// cannot be controlled by the spec file, and include human readable
+// descriptions of each installed file. These descriptions are created by
+// libmagic and can differ depending on the version of libmagic on a system. RPM
+// also includes a PLATFORM tag that usually includes the distribution (e.g.
+// redhat vs debian), again something the spec file cannot change. And RPM also
+// includes the version of RPM used to build the RPM file. All that to say that
+// although we can minimze differences by changing some macros, the same or very
+// similar environment is still needed for byte exact reproducible RPM builds.
+// However, this is usually enough for the rpmdiff tool to report no differences
+// since it doesn't look at tags that don't really matter.
 Rpm / packageDescription := (Rpm / packageDescription).value + """
-%define _source_payload w9.gzdio
-%define _binary_payload w9.gzdio
+%define _source_payload w0.gzdio
+%define _binary_payload w0.gzdio
+%define _buildhost daffodil.build
+%define optflags %{nil}
 """
 
 Rpm / version := {
