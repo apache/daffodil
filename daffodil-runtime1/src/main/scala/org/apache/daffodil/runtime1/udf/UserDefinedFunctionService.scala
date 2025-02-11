@@ -52,7 +52,7 @@ object UserDefinedFunctionService {
   ) extends Serializable {
 
     @transient lazy val method: Method = {
-      lookupMethod
+      lookupMethod()
     }
 
     def lookupMethod() = {

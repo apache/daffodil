@@ -386,7 +386,7 @@ abstract class UState(
           )
       }
 
-      val newDOS = dos.addBuffered
+      val newDOS = dos.addBuffered()
       dataOutputStream = newDOS
       dos.setFinished(finfo)
     }
@@ -563,7 +563,7 @@ final class UStateMain private (
     val clone = new UStateForSuspension(
       this,
       suspendedDOS,
-      variableBox.cloneForSuspension,
+      variableBox.cloneForSuspension(),
       currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
       arrayIterationIndexStack.top, // only need the top of the stack, not the whole thing
       occursIndexStack.top,
@@ -657,24 +657,24 @@ final class UStateMain private (
   override val arrayIterationIndexStack = MStackOfLong()
   arrayIterationIndexStack.push(1L)
   override def moveOverOneArrayIterationIndexOnly() =
-    arrayIterationIndexStack.push(arrayIterationIndexStack.pop + 1)
+    arrayIterationIndexStack.push(arrayIterationIndexStack.pop() + 1)
   override def arrayIterationPos = arrayIterationIndexStack.top
 
   override val occursIndexStack = MStackOfLong()
   occursIndexStack.push(1L)
-  override def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop + 1)
+  override def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop() + 1)
   override def occursPos = occursIndexStack.top
 
   override val groupIndexStack = MStackOfLong()
   groupIndexStack.push(1L)
-  override def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
+  override def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop() + 1)
   override def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
   override val childIndexStack = MStackOfLong()
   childIndexStack.push(1L)
-  override def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
+  override def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop() + 1)
   override def childPos = childIndexStack.top
 
   override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]

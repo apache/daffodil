@@ -80,7 +80,7 @@ class TestDirectOrBufferedDataOutputStream {
 
     assertEquals(hw, getString(baos))
 
-    val buf1 = layered.addBuffered
+    val buf1 = layered.addBuffered()
 
     buf1.putBytes("buf1".getBytes("ascii"), finfo)
 
@@ -107,7 +107,7 @@ class TestDirectOrBufferedDataOutputStream {
 
     assertEquals(hw, getString(baos))
 
-    val buf1 = layered.addBuffered
+    val buf1 = layered.addBuffered()
 
     buf1.putBytes("buf1".getBytes("ascii"), finfo)
 
@@ -136,8 +136,8 @@ class TestDirectOrBufferedDataOutputStream {
 
     assertEquals(hw, getString(baos))
 
-    val buf1 = layered.addBuffered
-    val buf2 = buf1.addBuffered
+    val buf1 = layered.addBuffered()
+    val buf2 = buf1.addBuffered()
 
     buf1.putBytes("buf1".getBytes("ascii"), finfo)
     buf2.putBytes("buf2".getBytes("ascii"), finfo)

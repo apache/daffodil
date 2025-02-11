@@ -81,7 +81,7 @@ class StringDelimitedParser(
     )
     val fieldDFA = fieldDFAEv.evaluate(start)
 
-    start.clearDelimitedParseResult
+    start.clearDelimitedParseResult()
 
     val result = {
       if (textParser.isInstanceOf[TextDelimitedParserWithEscapeBlock]) {

@@ -706,7 +706,7 @@ sealed abstract class LengthState(ie: DIElement) {
   }
 
   def lengthInBits: ULong = {
-    val mlib = maybeLengthInBits
+    val mlib = maybeLengthInBits()
     if (mlib.isDefined) mlib.getULong
     else throwUnknown
   }

@@ -90,7 +90,7 @@ class W3CDOMInfosetInputter(doc: Document) extends InfosetInputter {
   ): String = {
     val text =
       if (stack.top._2.hasNext) {
-        val child = stack.top._2.next
+        val child = stack.top._2.next()
         if (stack.top._2.hasNext) {
           throw new NonTextFoundInSimpleContentException(stack.top._1.getNodeName)
         }
@@ -151,7 +151,7 @@ class W3CDOMInfosetInputter(doc: Document) extends InfosetInputter {
     var descended = false
 
     while (stack.top._2.hasNext && !descended) {
-      stack.top._2.next match {
+      stack.top._2.next() match {
         case e: Element => {
           // found a child element, push it and its children to the stack
           stack.push((e, new IterableNodeList(e.getChildNodes)))

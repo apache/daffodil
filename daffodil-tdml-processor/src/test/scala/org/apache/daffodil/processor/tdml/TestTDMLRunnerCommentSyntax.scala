@@ -93,7 +93,7 @@ class TestTDMLRunnerCommentSyntax {
 
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
     // if we don't throw/fail when running then pass this test.
   }
 

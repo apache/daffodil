@@ -122,7 +122,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
   ): String = {
     if (!jsp.getCurrentToken().isScalarValue()) {
       throw new NonTextFoundInSimpleContentException(
-        "Unexpected array or object '" + getLocalName + "' on line " + jsp
+        "Unexpected array or object '" + getLocalName() + "' on line " + jsp
           .getTokenLocation()
           .getLineNr()
       )

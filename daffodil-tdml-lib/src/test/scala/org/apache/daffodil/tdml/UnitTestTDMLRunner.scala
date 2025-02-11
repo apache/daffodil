@@ -139,7 +139,7 @@ class UnitTestTDMLRunner {
     val numBytes = doc.data.read(bytes)
     val actual = new String(bytes, 0, numBytes, "UTF8").replace("\r\n", "\n")
     assertEquals("test\n1\n2\n3\n", actual)
-    runner.reset
+    runner.reset()
   }
 
   @Test def testDocWithBinaryFile(): Unit = {
@@ -167,7 +167,7 @@ class UnitTestTDMLRunner {
     val actual = bytes.toList
     val expected = Vector(0xde, 0xad, 0xbe, 0xef).map { _.toByte }.toList
     assertEquals(expected, actual)
-    runner.reset
+    runner.reset()
   }
 
   @Test def test1(): Unit = {
@@ -200,7 +200,7 @@ class UnitTestTDMLRunner {
     val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
-    runner.reset
+    runner.reset()
   }
 
   @Test def test2(): Unit = {
@@ -234,7 +234,7 @@ class UnitTestTDMLRunner {
     val trimmed = XMLUtils.removeAttributes(actualContent)
     val expected = <byte1>123</byte1>
     assertEquals(expected, trimmed)
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLResource(): Unit = {
@@ -244,7 +244,7 @@ class UnitTestTDMLRunner {
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
     val file = new File(mf.get)
     assertTrue(file.exists())
-    runner.reset
+    runner.reset()
   }
 
   val tdmlWithEmbeddedSchemaInvalid =
@@ -276,7 +276,7 @@ class UnitTestTDMLRunner {
     val hasMsg = msgs.contains("notAllowed")
     assertTrue(hasMsg)
     assertFalse(ts.isTDMLFileValid)
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLSelfContainedFileValidates(): Unit = {
@@ -292,7 +292,7 @@ class UnitTestTDMLRunner {
       assertFalse(ts.isTDMLFileValid)
       val msgs = ts.loadingDiagnosticMessages
       assertTrue(msgs.contains("notAllowed"))
-      runner.reset
+      runner.reset()
 
     } finally {
       tmpTDMLFile.delete()
@@ -517,7 +517,7 @@ class UnitTestTDMLRunner {
     val ds = ts.embeddedSchemas.find(ds => ds.name == "mySchema").get
     val dataElem = ds.globalElementDecls.find(edecl => (edecl \ "@name").text == "data").get
     assertTrue(dataElem ne null)
-    runner.reset
+    runner.reset()
   }
 
   @Test def testCommentBit(): Unit = {

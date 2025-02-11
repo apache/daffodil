@@ -44,7 +44,7 @@ class TestBasicValidation {
       )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
-    assert(result.errors.isEmpty)
+    assert(result.errors().isEmpty)
   }
 
   @Test def testInvalidXML(): Unit = {
@@ -59,8 +59,8 @@ class TestBasicValidation {
       )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.errors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.errors.size() == 2)
+    result.errors().forEach(e => println(s"Fail: ${e.getMessage}"))
+    assert(result.errors().size() == 2)
   }
 
   @Test def testInvalidXML2(): Unit = {
@@ -75,8 +75,8 @@ class TestBasicValidation {
       )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.errors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.errors.size() == 1)
+    result.errors().forEach(e => println(s"Fail: ${e.getMessage}"))
+    assert(result.errors().size() == 1)
   }
 
   @Test def testInstantiateAnInstanceOfTemplates(): Unit = {

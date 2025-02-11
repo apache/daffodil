@@ -54,7 +54,7 @@ trait NextElementResolver { self: InfosetInputter =>
     var breakOut: Boolean = false
 
     while (iter.hasNext && maybeERD.isEmpty && !breakOut) {
-      val trd = iter.next
+      val trd = iter.next()
       trd match {
         case complexElementERD: ElementRuntimeData
             if (complexElementERD.isComplexType) && !firstOne => {

@@ -133,7 +133,7 @@ trait Suspension extends Serializable {
   ): Unit = {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
-    val buffered = original.addBuffered
+    val buffered = original.addBuffered()
 
     if (maybeKnownLengthInBits.isDefined) {
       // We know the length of the unparsed representation of this suspension that we

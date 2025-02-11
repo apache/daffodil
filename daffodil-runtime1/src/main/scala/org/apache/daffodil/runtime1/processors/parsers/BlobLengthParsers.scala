@@ -71,9 +71,13 @@ sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
   override final def parse(start: PState): Unit = {
     val blobPath =
       try {
-        val blobDir = start.output.getBlobDirectory
+        val blobDir = start.output.getBlobDirectory()
         Files.createDirectories(blobDir)
-        Files.createTempFile(blobDir, start.output.getBlobPrefix, start.output.getBlobSuffix)
+        Files.createTempFile(
+          blobDir,
+          start.output.getBlobPrefix(),
+          start.output.getBlobSuffix()
+        )
       } catch {
         case e: Exception => start.SDE("Unable to create blob file: ", e.getMessage)
       }

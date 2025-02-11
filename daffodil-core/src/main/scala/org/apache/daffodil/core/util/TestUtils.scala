@@ -203,7 +203,7 @@ object TestUtils {
     val input = InputSourceDataInputStream(is)
     val actual = p.parse(input, outputter)
     if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
-    (actual, outputter.getResult)
+    (actual, outputter.getResult())
   }
 
   private val defaultIncludeImports =
@@ -425,7 +425,7 @@ class StreamParser private (val schema: Node) {
     val procErr = res.isProcessingError
     val validationErr = res.isValidationError
     val diags = res.getDiagnostics
-    val doc = if (!procErr) outputter.getResult else null
+    val doc = if (!procErr) outputter.getResult() else null
     val bitPos1b = res.resultState.currentLocation.bitPos1b
     val r = new StreamParser.Result(doc, diags, procErr, validationErr, bitPos1b)
     outputter.reset()

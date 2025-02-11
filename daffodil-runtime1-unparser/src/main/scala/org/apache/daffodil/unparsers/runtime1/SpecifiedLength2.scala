@@ -931,11 +931,11 @@ class PrefixLengthSuspendableOperation(
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
 
   override def test(ustate: UState): Boolean = {
-    elem.contentLength.maybeLengthInBits.isDefined
+    elem.contentLength.maybeLengthInBits().isDefined
   }
 
   override def continuation(state: UState): Unit = {
-    val len = elem.contentLength.maybeLengthInBits.isDefined
+    val len = elem.contentLength.maybeLengthInBits().isDefined
     assignPrefixLength(state, elem, plElem)
   }
 }

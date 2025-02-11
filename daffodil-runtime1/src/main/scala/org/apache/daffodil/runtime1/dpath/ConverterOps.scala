@@ -61,7 +61,7 @@ case object BooleanToString extends Converter {
 case object DateTimeToDate extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDate = {
     a.getAnyRef match {
-      case dt: DFDLDateTime => dt.toDate
+      case dt: DFDLDateTime => dt.toDate()
       case _ =>
         throw new NumberFormatException(
           "xs:dateTime expected but an invalid type was received."
@@ -72,7 +72,7 @@ case object DateTimeToDate extends Converter {
 case object DateTimeToTime extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueTime = {
     a.getAnyRef match {
-      case dt: DFDLDateTime => dt.toTime
+      case dt: DFDLDateTime => dt.toTime()
       case _ =>
         throw new NumberFormatException(
           "xs:dateTime expected but an invalid type was received."
@@ -83,7 +83,7 @@ case object DateTimeToTime extends Converter {
 case object DateToDateTime extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDateTime = {
     a.getAnyRef match {
-      case d: DFDLDate => d.toDateTime
+      case d: DFDLDate => d.toDateTime()
       case _ =>
         throw new NumberFormatException("xs:date expected but an invalid type was received.")
     }

@@ -54,7 +54,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
     if (count % suspensionWaitYoung == 0) {
       evalSuspensionQueue(suspensionsYoung)
       while (suspensionsYoung.nonEmpty) {
-        suspensionsOld.enqueue(suspensionsYoung.dequeue)
+        suspensionsOld.enqueue(suspensionsYoung.dequeue())
       }
     }
 
@@ -74,7 +74,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
    */
   def requireFinal(): Unit = {
     while (suspensionsYoung.nonEmpty) {
-      suspensionsOld.enqueue(suspensionsYoung.dequeue)
+      suspensionsOld.enqueue(suspensionsYoung.dequeue())
     }
 
     evalSuspensionQueue(suspensionsOld)
@@ -103,7 +103,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
   private def evalSuspensionQueue(queue: Queue[Suspension]): Unit = {
     var countOfNotMakingProgress = 0
     while (!queue.isEmpty && countOfNotMakingProgress < queue.length) {
-      val s = queue.dequeue
+      val s = queue.dequeue()
       suspensionStatRuns += 1
       s.runSuspension()
       if (!s.isDone) queue.enqueue(s)

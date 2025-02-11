@@ -220,7 +220,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
                   delim
                 ) // the delim just becomes field content, because we already had an escape block start.
                 successes.foreach { case (d, r) => state.dfaRegistersPool.returnToPool(r) }
-                successes.clear
+                successes.clear()
                 shouldGenerateEscapeBlock = true
                 fieldReg.actionNum = 0
                 fieldReg.state = 0
@@ -243,7 +243,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     val resString = fieldReg.resultString.toString
 
     state.dfaRegistersPool.returnToPool(fieldReg)
-    state.dfaRegistersPool.finalCheck
+    state.dfaRegistersPool.finalCheck()
 
     (resString, shouldGenerateEscapeBlock)
   }
@@ -366,7 +366,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
             Assert.invariant(input.skipChars(delim.length, state))
             fieldReg.resetChars(state)
             successes.foreach { case (d, r) => state.dfaRegistersPool.returnToPool(r) }
-            successes.clear
+            successes.clear()
             stillSearching = true
 
             escapeOccurred = true
@@ -388,7 +388,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     val resString = fieldReg.resultString.toString
 
     state.dfaRegistersPool.returnToPool(fieldReg)
-    state.dfaRegistersPool.finalCheck
+    state.dfaRegistersPool.finalCheck()
 
     (resString, escapeOccurred)
   }

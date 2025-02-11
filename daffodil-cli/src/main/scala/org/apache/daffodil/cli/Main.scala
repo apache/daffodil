@@ -1288,7 +1288,7 @@ class Main(
                           if (loc.bitLimit0b.isDefined) {
                             (loc.bitLimit0b.get - loc.bitPos0b).toString
                           } else {
-                            "at least " + (inStream.inputSource.knownBytesAvailable * 8)
+                            "at least " + (inStream.inputSource.knownBytesAvailable() * 8)
                           }
                         Logger.log.error(
                           s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining."
@@ -1309,7 +1309,7 @@ class Main(
                       val bitsAlreadyConsumed = (loc.bitPos0b % 8).toInt
                       val firstByteString = if (bitsAlreadyConsumed != 0) {
                         val bitsToDisplay = 8 - bitsAlreadyConsumed
-                        val pbp = inStream.inputSource.position + 1
+                        val pbp = inStream.inputSource.position() + 1
                         val firstByteBitArray = inStream.getByteArray(bitsToDisplay, finfo)
                         val fbs = firstByteBitArray(0).toBinaryString
                           .takeRight(8)
@@ -1325,8 +1325,8 @@ class Main(
                           f"\nLeft over data starts with partial byte. Left over data (Binary) at byte $pbp is: (0b$bits)"
                         dumpString
                       } else ""
-                      val curBytePosition1b = inStream.inputSource.position + 1
-                      val bytesAvailable = inStream.inputSource.knownBytesAvailable
+                      val curBytePosition1b = inStream.inputSource.position() + 1
+                      val bytesAvailable = inStream.inputSource.knownBytesAvailable()
                       val bytesLimit = math.min(8, bytesAvailable).toInt
                       val destArray = new Array[Byte](bytesLimit)
                       val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)
@@ -1684,23 +1684,23 @@ class Main(
               .flatMap(testName => {
                 if (testOpts.regex()) {
                   val regex = testName.r
-                  val matches = tdmlRunner.testCases.filter(testCase =>
-                    regex.pattern.matcher(testCase.tcName).matches
-                  )
+                  val matches = tdmlRunner
+                    .testCases()
+                    .filter(testCase => regex.pattern.matcher(testCase.tcName).matches)
                   matches match {
                     case m if !m.isEmpty => m.map(testCase => (testCase.tcName, Some(testCase)))
                     case _ => Seq((testName, None))
                   }
                 } else {
-                  List((testName, tdmlRunner.testCases.find(_.tcName == testName)))
+                  List((testName, tdmlRunner.testCases().find(_.tcName == testName)))
                 }
               })
           } else {
-            tdmlRunner.testCases.map(test => (test.tcName, Some(test)))
+            tdmlRunner.testCases().map(test => (test.tcName, Some(test)))
           }
         }.distinct.sortBy(_._1)
 
-        tdmlRunner.reset
+        tdmlRunner.reset()
 
         if (testOpts.list()) {
           if (testOpts.info() > 0) {

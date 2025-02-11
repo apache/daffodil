@@ -439,7 +439,7 @@ class InfosetWalker private (
   @inline
   private def moveToContainer(): Unit = {
     containerNodeStack.pop
-    containerIndexStack.pop
+    containerIndexStack.pop()
   }
 
   @inline

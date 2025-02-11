@@ -102,13 +102,13 @@ class TestTDMLRunnerTutorial {
     val testSuite = tdmlWithTutorial
     val runner = new Runner(testSuite)
     runner.runOneTest("testTutorialElementsParse")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTutorialElementsUnparse(): Unit = {
     val testSuite = tdmlWithTutorial
     val runner = new Runner(testSuite)
     runner.runOneTest("testTutorialElementsUnparse")
-    runner.reset
+    runner.reset()
   }
 }

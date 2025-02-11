@@ -61,7 +61,7 @@ object Bitte {
   }
 
   def encode7(s: String): Seq[String] = {
-    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder
+    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder()
     val bb = ByteBuffer.allocate(4 * s.length)
     val cb = CharBuffer.wrap(s)
     val coderResult = encoder.encode(cb, bb, true)
@@ -255,12 +255,12 @@ class TestInputSourceDataInputStream7 {
     dis.skip(7, finfo)
     assertTrue(iter.hasNext)
     assertEquals(7, dis.bitPos0b)
-    assertEquals('a', iter.next)
+    assertEquals('a', iter.next())
     assertEquals(14, dis.bitPos0b)
     dis.skip(7, finfo)
     assertTrue(iter.hasNext)
     assertEquals(21, dis.bitPos0b)
-    assertEquals('b', iter.next)
+    assertEquals('b', iter.next())
     assertEquals(28, dis.bitPos0b)
     dis.skip(7, finfo)
     assertTrue(iter.hasNext)
@@ -271,7 +271,7 @@ class TestInputSourceDataInputStream7 {
     // This is a bug in the 7-bit decoder decodeLoop - if it cannot get another byte it needs to check if the
     // data needed can be satisfied from the current fragment.
     //
-    assertEquals('c', iter.next)
+    assertEquals('c', iter.next())
     assertEquals(42, dis.bitPos0b)
     assertFalse(dis.skip(1, finfo))
     assertFalse(iter.hasNext)
@@ -295,23 +295,23 @@ class TestInputSourceDataInputStream7 {
     assertTrue(iter.hasNext)
     dis.skip(7, finfo)
     assertEquals(7, dis.bitPos0b)
-    assertEquals('a', iter.next)
+    assertEquals('a', iter.next())
     assertEquals(14, dis.bitPos0b)
     dis.skip(7, finfo)
     assertEquals(21, dis.bitPos0b)
-    assertEquals('b', iter.next)
+    assertEquals('b', iter.next())
     assertEquals(28, dis.bitPos0b)
     dis.skip(7, finfo)
     assertEquals(35, dis.bitPos0b)
     assertTrue(iter.hasNext)
     assertEquals(35, dis.bitPos0b)
-    assertEquals('c', iter.next)
+    assertEquals('c', iter.next())
     assertEquals(42, dis.bitPos0b)
 
   }
 
   @Test def testUSASCII7BitEncoderOverflowError(): Unit = {
-    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder
+    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder()
     val bb = ByteBuffer.allocate(1) // only big enough for a single byte
     val cb = CharBuffer.wrap("ab") // two characters will cause overflow
     val coderResult = encoder.encode(cb, bb, true)
@@ -319,7 +319,7 @@ class TestInputSourceDataInputStream7 {
   }
 
   @Test def testUSASCII7BitEncoderMalformedError(): Unit = {
-    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder
+    val encoder = BitsCharsetUSASCII7BitPacked.newEncoder()
     val bb = ByteBuffer.allocate(3)
     val cb = CharBuffer.wrap("ab" + 128.toChar) // 128 is not encodable in 7 bits
     val coderResult = encoder.encode(cb, bb, true)

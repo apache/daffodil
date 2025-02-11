@@ -74,7 +74,7 @@ object TestInfosetFree {
       fail("parse errors: " + msgs)
     }
 
-    val unparseInputter = new ScalaXMLInfosetInputter(parseOutputter.getResult)
+    val unparseInputter = new ScalaXMLInfosetInputter(parseOutputter.getResult())
     val unparseOutput = Channels.newChannel(NullOutputStream.INSTANCE)
     val unparseResult = dp.unparse(unparseInputter, unparseOutput)
     if (unparseResult.isError) {

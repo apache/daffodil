@@ -161,7 +161,7 @@ class DelimiterTextParser(
       scannedDelims.reset()
 
       // skip remote delims
-      while (scannedDelims.hasNext() && scannedDelims.isRemote) {
+      while (scannedDelims.hasNext() && scannedDelims.isRemote()) {
         // do nothing, hasNext will increment the iterator
       }
 

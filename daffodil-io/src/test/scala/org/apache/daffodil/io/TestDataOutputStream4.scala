@@ -49,10 +49,10 @@ class TestDataOutputStream4 {
     // X101 1010 0101 1010 0101
     // 1011 0100 1011 0100 101X  big endian, MSBF
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
     if (setAbs)
       out.setAbsStartingBitPos0b(ULong(19))
-    val out2 = out.addBuffered
+    val out2 = out.addBuffered()
     if (setAbs)
       out2.setAbsStartingBitPos0b(ULong(38))
 

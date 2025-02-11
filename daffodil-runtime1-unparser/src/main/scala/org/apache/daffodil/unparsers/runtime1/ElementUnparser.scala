@@ -590,7 +590,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
           val e = new DISimple(erd)
           // Remove any state that was set by what created this event. Later
           // code asserts that OVC elements do not have a value
-          e.resetValue
+          e.resetValue()
           e
         } else {
           // Event was optional and didn't exist, create a new InfosetElement and add it

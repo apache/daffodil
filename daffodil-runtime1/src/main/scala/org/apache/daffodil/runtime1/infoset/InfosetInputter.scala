@@ -180,7 +180,7 @@ abstract class InfosetInputter
     try {
       if (!hasNext() || getEventType() != InfosetInputterEventType.StartDocument) {
         UnparseError(
-          One(infoStack.top.erd.schemaFileLocation),
+          One(infoStack.top().erd.schemaFileLocation),
           Nope,
           "Infoset does not start with StartDocument event"
         )
@@ -188,7 +188,7 @@ abstract class InfosetInputter
     } catch {
       case e: InvalidInfosetException =>
         UnparseError(
-          One(infoStack.top.erd.schemaFileLocation),
+          One(infoStack.top().erd.schemaFileLocation),
           Nope,
           "Infoset does not start with StartDocument event: " + e.getMessage
         )
@@ -291,7 +291,7 @@ abstract class InfosetInputter
         reallyFill(advanceInput)
       } catch {
         case ex: InvalidInfosetException => {
-          UnparseError(One(infoStack.top.erd.schemaFileLocation), Nope, ex.getMessage())
+          UnparseError(One(infoStack.top().erd.schemaFileLocation), Nope, ex.getMessage())
         }
       }
     }
@@ -312,7 +312,7 @@ abstract class InfosetInputter
 
     if (!hasNext()) {
       Assert.invariant(getEventType() == EndDocument)
-      fini
+      fini()
       false
     } else
       true
@@ -335,7 +335,7 @@ abstract class InfosetInputter
     // required elements that have no corresponding events in the
     // event stream.
 
-    val top = infoStack.top
+    val top = infoStack.top()
     if (top.isComplexElement) {
       // An open complex element is on top of stack.
       // This start event must be for a child element
@@ -386,7 +386,7 @@ abstract class InfosetInputter
         } else {
           // end of current array, start of next array
           endArray(top.erd)
-          val inv = infoStack.pop.isArrayERD
+          val inv = infoStack.pop().isArrayERD
           Assert.invariant(inv)
           queueArrayStart(erd)
           infoStack.push(erd)
@@ -463,7 +463,7 @@ abstract class InfosetInputter
   }
 
   private def handleEndElement(): Unit = {
-    val top = infoStack.top
+    val top = infoStack.top()
 
     if (top.isSimpleElement) {
       endElement(top.element)
@@ -487,8 +487,8 @@ abstract class InfosetInputter
       endArray(a)
       val inv1 = infoStack.pop().isArrayERD
       Assert.invariant(inv1)
-      Assert.invariant(infoStack.top.erd.isComplexType)
-      val c = infoStack.top.asComplex
+      Assert.invariant(infoStack.top().erd.isComplexType)
+      val c = infoStack.top().asComplex
       queueElementEnd(c)
       infoStack.pop()
     }
@@ -702,7 +702,7 @@ object Info {
       delegate.push(arrayERD)
     }
 
-    def pop() = Info.fromAnyRef(delegate.pop)
+    def pop() = Info.fromAnyRef(delegate.pop())
 
     def top() = Info.fromAnyRef(delegate.top)
 

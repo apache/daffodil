@@ -174,7 +174,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -227,7 +227,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -298,7 +298,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -339,7 +339,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -367,7 +367,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -397,7 +397,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -454,7 +454,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -489,7 +489,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);
@@ -518,7 +518,7 @@ class TestScalaAPI {
       val err = res.isError()
       assertFalse(err)
 
-      val node1 = outputter.getResult
+      val node1 = outputter.getResult()
 
       val bos1 = new java.io.ByteArrayOutputStream()
       val wbc1 = java.nio.channels.Channels.newChannel(bos1)
@@ -528,7 +528,7 @@ class TestScalaAPI {
       assertFalse(err2);
       assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"))
 
-      val node2 = outputter.getResult
+      val node2 = outputter.getResult()
 
       val bos2 = new java.io.ByteArrayOutputStream()
       val wbc2 = java.nio.channels.Channels.newChannel(bos2)
@@ -560,7 +560,7 @@ class TestScalaAPI {
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
-      val node = outputter.getResult
+      val node = outputter.getResult()
       val hidden = node \\ "hiddenElement"
       assertTrue(hidden.isEmpty)
     }
@@ -586,7 +586,7 @@ class TestScalaAPI {
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
-      val rootNode = outputter.getResult
+      val rootNode = outputter.getResult()
       val elementGroup = rootNode \ "elementGroup"
       assertTrue(!elementGroup.isEmpty)
       val groupE2 = elementGroup \ "e2"
@@ -653,7 +653,7 @@ class TestScalaAPI {
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
-      val node = outputter.getResult
+      val node = outputter.getResult()
       val var1Node = node \ "var1Value"
       assertTrue(var1Node.size == 1)
       val var1NodeValue = var1Node.text
@@ -685,7 +685,7 @@ class TestScalaAPI {
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
-      val rootNode = outputter.getResult
+      val rootNode = outputter.getResult()
       val var1ValueNode = rootNode \ "var1Value"
       assertTrue(var1ValueNode.size == 1)
       val var1ValueText = var1ValueNode.text
@@ -809,7 +809,7 @@ class TestScalaAPI {
       assertTrue(res.isError())
       assertFalse(res.isProcessingError())
       assertTrue(res.isValidationError())
-      val actualLength = res.location.bytePos1b - 1
+      val actualLength = res.location().bytePos1b() - 1
       assertEquals(file.length, actualLength)
 
       val diags = res.getDiagnostics
@@ -847,14 +847,14 @@ class TestScalaAPI {
       err = res.isError()
       assertFalse(err)
       assertEquals(5, res.location().bytePos1b())
-      assertEquals("data", outputter.getResult.text)
+      assertEquals("data", outputter.getResult().text)
 
       outputter.reset()
       res = dp.parse(input, outputter)
       err = res.isError()
       assertFalse(err)
       assertEquals(9, res.location().bytePos1b())
-      assertEquals("left", outputter.getResult.text)
+      assertEquals("left", outputter.getResult().text)
 
       outputter.reset()
       res = dp.parse(input, outputter)
@@ -862,7 +862,7 @@ class TestScalaAPI {
       assertFalse(err)
       assertFalse(input.hasData())
       assertEquals(13, res.location().bytePos1b())
-      assertEquals("over", outputter.getResult.text)
+      assertEquals("over", outputter.getResult().text)
     }
   }
   @Test
@@ -1216,7 +1216,7 @@ class TestScalaAPI {
       val inputter = new TestInfosetInputter(expectedEvents: _*)
 
       val ur = dp.unparse(inputter, wbc)
-      assertFalse(ur.isError)
+      assertFalse(ur.isError())
       assertEquals(expectedData, bos.toString())
     }
   }
@@ -1326,7 +1326,7 @@ class TestScalaAPI {
       val blobPaths = output.getBlobPaths()
 
       try {
-        assertFalse(res.isError)
+        assertFalse(res.isError())
         assertTrue(blobPaths.length == 1)
         assertTrue(blobPaths(0).toString().contains("blob-"))
         assertTrue(blobPaths(0).toString().contains("pre-"))
@@ -1366,7 +1366,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+      val inputter = new ScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError();
       assertFalse(err2);

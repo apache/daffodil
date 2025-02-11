@@ -221,7 +221,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
       // can be in evaluation simultaneously.
       val dstate = evaluateExpression(state, state.dState)
       value = One(processForwardExpressionResults(dstate))
-      whereBlockedInfo.setDone
+      whereBlockedInfo.setDone()
     } catch {
       case unfin: InfosetNodeNotFinalException =>
         whereBlockedInfo.block(unfin.node, unfin.node.erd.dpathElementCompileInfo, 0, unfin)

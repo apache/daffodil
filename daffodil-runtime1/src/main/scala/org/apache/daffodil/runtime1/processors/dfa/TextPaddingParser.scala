@@ -49,7 +49,7 @@ class TextPaddingParser(val padChar: Char, override val context: TermRuntimeData
     val paddingValue = One(paddingReg.resultString.toString)
 
     state.dfaRegistersPool.returnToPool(paddingReg)
-    state.dfaRegistersPool.finalCheck
+    state.dfaRegistersPool.finalCheck()
 
     One(new ParseResult(paddingValue, Nope, ArrayBuffer()))
   }

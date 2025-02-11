@@ -37,7 +37,7 @@ object Tak {
 
   def calibrate() = {
     if (takeons == 0.0) {
-      testTak
+      testTak()
     }
   }
 
