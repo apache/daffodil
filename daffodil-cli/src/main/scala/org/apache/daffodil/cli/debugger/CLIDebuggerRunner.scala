@@ -44,7 +44,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
   }
 
   def this(file: File, in: InputStream, out: PrintStream) = {
-    this(Source.fromFile(file).getLines, in, out)
+    this(Source.fromFile(file).getLines(), in, out)
   }
 
   def this(seq: Seq[String], in: InputStream, out: PrintStream) = {
@@ -80,7 +80,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
 
   def getCommand: String = {
     val cmd = if (cmdsIter.hasNext) {
-      val line = cmdsIter.next
+      val line = cmdsIter.next()
       if (line.length > 0) {
         reader.get.getHistory.add(line)
       }

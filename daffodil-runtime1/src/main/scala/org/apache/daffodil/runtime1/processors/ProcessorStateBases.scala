@@ -595,7 +595,7 @@ abstract class ParseOrUnparseState protected (
 
     def returnToPool(r: Registers) = pool.returnToPool(r)
 
-    def finalCheck() = pool.finalCheck
+    def finalCheck() = pool.finalCheck()
   }
 
   def toProcessingError(msg: String): ProcessingError = {

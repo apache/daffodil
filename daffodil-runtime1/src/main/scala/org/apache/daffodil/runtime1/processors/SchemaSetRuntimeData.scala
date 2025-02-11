@@ -66,7 +66,7 @@ final class SchemaSetRuntimeData(
    * Always return a copy when original variables is requested, thus preserving
    * the state of the actual original variables
    */
-  def originalVariables = variables.copy
+  def originalVariables = variables.copy()
 
   /**
    * This deals with the situation where schema compilation

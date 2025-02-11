@@ -28,7 +28,7 @@ object TestTDMLRunnerWarnings {
   val runner = Runner("/test/tdml/", "testWarnings.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 
@@ -101,7 +101,7 @@ class TestTDMLRunnerWarnings {
     val e = intercept[Exception] {
       runner.runOneTest("warningWhenExpectingSuccess")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")
@@ -149,7 +149,7 @@ class TestTDMLRunnerWarnings {
     val e = intercept[Exception] {
       runner.runOneTest("warningWhenExpectingError")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")
@@ -195,7 +195,7 @@ class TestTDMLRunnerWarnings {
     val e = intercept[Exception] {
       runner.runOneTest("unparserWarningWhenExpectingSuccess")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")
@@ -247,7 +247,7 @@ class TestTDMLRunnerWarnings {
     val e = intercept[Exception] {
       runner.runOneTest("unparserWarningWhenExpectingError")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     if (!msg.contains("This will not be found")) {
       fail("TDML Warnings were not checked")

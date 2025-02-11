@@ -102,8 +102,8 @@ class Registers() extends Poolable with Serializable {
     Registers.this.data0 = that.data0
     Registers.this.data1 = that.data1
     Registers.this.matchStartPos = that.numCharsReadUntilDelim
-    resultString.clear
-    delimString.clear
+    resultString.clear()
+    delimString.clear()
     numCharsRead = 0
     numCharsReadUntilDelim = 0
     numCharsDropped = 0
@@ -142,7 +142,7 @@ class Registers() extends Poolable with Serializable {
   }
 
   def appendToField(c: Char): Unit = {
-    commitOneChar
+    commitOneChar()
     resultString.append(c)
     incCharsRead()
     incCharsReadUntilDelim()
@@ -153,7 +153,7 @@ class Registers() extends Poolable with Serializable {
     val nChars = cs.length()
     while (i < nChars) {
       i += 1
-      commitOneChar
+      commitOneChar()
     }
     resultString.append(cs)
     incCharsRead(nChars)
@@ -161,13 +161,13 @@ class Registers() extends Poolable with Serializable {
   }
 
   def appendToDelim(c: Char): Unit = {
-    commitOneChar
+    commitOneChar()
     delimString.append(c)
     incCharsRead()
   }
 
   def dropChar(c: Char): Unit = {
-    commitOneChar
+    commitOneChar()
     incCharsRead()
     incCharsReadUntilDelim()
     incCharsDropped()

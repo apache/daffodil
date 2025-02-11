@@ -163,7 +163,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
   private def tryDescend(): Boolean = {
     var descended = false
     while (stack.top._2.hasNext && !descended) {
-      stack.top._2.next match {
+      stack.top._2.next() match {
         case e: Elem => {
           // found a child element, push it and its children to the stack
           stack.push((e, e.child.iterator))

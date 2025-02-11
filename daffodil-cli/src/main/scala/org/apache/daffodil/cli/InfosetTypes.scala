@@ -369,7 +369,7 @@ class JDOMInfosetParseResult(parseResult: ParseResult, output: JDOMInfosetOutput
   extends InfosetParseResult(parseResult) {
 
   override def write(os: OutputStream): Unit = {
-    new org.jdom2.output.XMLOutputter().output(output.getResult, os)
+    new org.jdom2.output.XMLOutputter().output(output.getResult(), os)
   }
 }
 
@@ -410,7 +410,7 @@ class ScalaXMLInfosetParseResult(parseResult: ParseResult, output: ScalaXMLInfos
 
   override def write(os: OutputStream): Unit = {
     val writer = new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8)
-    scala.xml.XML.write(writer, output.getResult, "UTF-8", true, null)
+    scala.xml.XML.write(writer, output.getResult(), "UTF-8", true, null)
     writer.flush()
   }
 }
@@ -461,7 +461,7 @@ class W3CDOMInfosetParseResult(parseResult: ParseResult, output: W3CDOMInfosetOu
     val tf = TransformerFactory.newInstance()
     val transformer = tf.newTransformer()
     val result = new StreamResult(os)
-    val source = new DOMSource(output.getResult)
+    val source = new DOMSource(output.getResult())
     transformer.transform(source, result)
   }
 }

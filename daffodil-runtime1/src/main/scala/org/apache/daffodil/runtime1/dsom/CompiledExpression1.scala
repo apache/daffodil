@@ -152,7 +152,7 @@ final case class ConstantExpression[+T <: AnyRef](qn: NamedQName, kind: NodeInfo
     whereBlockedLocation: Suspension
   ): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.
-    whereBlockedLocation.setDone
+    whereBlockedLocation.setDone()
     Maybe(evaluate(state))
   }
 

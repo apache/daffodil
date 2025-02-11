@@ -182,7 +182,7 @@ class DelimiterStackUnparser(
 
     bodyUnparser.unparse1(state)
 
-    state.popDelimiters
+    state.popDelimiters()
   }
 }
 

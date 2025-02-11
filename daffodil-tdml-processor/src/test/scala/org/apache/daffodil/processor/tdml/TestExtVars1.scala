@@ -27,7 +27,7 @@ object TestExtVars1 {
   val runner = Runner(testDir, "testExtVars1.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 

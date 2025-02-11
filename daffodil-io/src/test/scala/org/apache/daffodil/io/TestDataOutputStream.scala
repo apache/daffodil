@@ -202,7 +202,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(-1L, 32, beFinfo)
 
@@ -225,7 +225,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(1, 1, beFinfo)
 
@@ -244,7 +244,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(3, 2, beFinfo)
 
@@ -263,7 +263,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5, 7, beFinfo)
 
@@ -283,7 +283,7 @@ class TestDataOutputStream {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     direct.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5, 8, beFinfo)
 
@@ -302,7 +302,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5a5, 9, beFinfo)
 
@@ -322,7 +322,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5a5a5a5a5a5a5a5L, 63, beFinfo)
 
@@ -348,7 +348,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5a5a5a5a5a5a5a5L, 64, beFinfo)
 
@@ -379,7 +379,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(-1L, 32, beFinfo)
     direct.putLong(-1L, 32, beFinfo)
@@ -407,7 +407,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(1, 1, beFinfo)
     direct.putLong(1, 1, beFinfo)
@@ -427,7 +427,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(3, 2, beFinfo)
     direct.putLong(2, 2, beFinfo)
@@ -447,7 +447,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5, 7, beFinfo)
     direct.putLong(0xa5, 7, beFinfo)
@@ -468,7 +468,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5, 8, beFinfo)
     direct.putLong(0xa5, 8, beFinfo)
@@ -489,7 +489,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xdead, 9, beFinfo)
     direct.putLong(0xbeef, 9, beFinfo)
@@ -511,7 +511,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5a5a5a5a5a5a5a5L, 63, beFinfo)
     direct.putLong(1, 1, beFinfo)
@@ -538,7 +538,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5a5a5a5a5a5a5a5L, 63, beFinfo)
     direct.putLong(0xa5a5a5a5a5a5a5a5L, 63, beFinfo)
@@ -574,7 +574,7 @@ class TestDataOutputStream {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
 
-    val out = direct.addBuffered
+    val out = direct.addBuffered()
 
     out.putLong(0xa5a5a5a5a5a5a5a5L, 64, beFinfo)
     direct.putLong(0xa5a5a5a5a5a5a5a5L, 64, beFinfo)

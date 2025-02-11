@@ -200,16 +200,16 @@ class TestInputSourceDataInputStream6 {
       iter.hasNext
     ) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
     assertEquals(1, dis.bitPos0b)
-    assertEquals('年', iter.next)
+    assertEquals('年', iter.next())
     assertEquals(32, dis.bitPos0b)
     dis.skip(1, beFinfo)
     assertTrue(iter.hasNext)
     assertEquals(33, dis.bitPos0b)
-    assertEquals('月', iter.next)
+    assertEquals('月', iter.next())
     assertEquals(64, dis.bitPos0b)
     dis.skip(1, beFinfo)
     assertTrue(iter.hasNext)
-    assertEquals('日', iter.next)
+    assertEquals('日', iter.next())
     assertEquals(96, dis.bitPos0b)
     assertFalse(dis.skip(1, beFinfo))
     assertFalse(iter.hasNext)
@@ -236,7 +236,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(2, dis.bitPos0b)
     assertTrue(iter.hasNext)
     assertEquals(2, dis.bitPos0b)
-    val c = iter.next
+    val c = iter.next()
     assertEquals(
       32,
       dis.bitPos0b
@@ -245,7 +245,7 @@ class TestInputSourceDataInputStream6 {
     assertTrue(iter.hasNext)
     dis.skip(4, beFinfo)
     assertEquals(36, dis.bitPos0b)
-    val d = iter.next
+    val d = iter.next()
     assertEquals(64, dis.bitPos0b)
     assertEquals('月', d)
   }

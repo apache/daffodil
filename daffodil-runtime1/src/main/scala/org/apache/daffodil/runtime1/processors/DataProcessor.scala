@@ -510,11 +510,11 @@ class DataProcessor(
         // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
         // These are fatal, and there's no notion of backtracking them, so they propagate to top level
         // here.
-        state.dataInputStream.inputSource.setInvalid
+        state.dataInputStream.inputSource.setInvalid()
         state.setFailed(sde)
       }
       case sdefw: SchemaDefinitionErrorFromWarning => {
-        state.dataInputStream.inputSource.setInvalid
+        state.dataInputStream.inputSource.setInvalid()
         state.setFailed(sdefw)
       }
       case e: ErrorAlreadyHandled => {
@@ -600,7 +600,7 @@ class DataProcessor(
         }
         case th: Throwable => throw th
       } finally {
-        unparserState.dataOutputStream.cleanUp
+        unparserState.dataOutputStream.cleanUp()
       }
     res
   }

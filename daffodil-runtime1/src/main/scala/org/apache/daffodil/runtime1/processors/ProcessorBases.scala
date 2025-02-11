@@ -39,7 +39,7 @@ object Processor {
   }
 
   private def ensureCompiled(ev: Evaluatable[AnyRef]): Unit = {
-    ev.ensureCompiled
+    ev.ensureCompiled()
     ev.runtimeDependencies.foreach { ensureCompiled }
   }
 }

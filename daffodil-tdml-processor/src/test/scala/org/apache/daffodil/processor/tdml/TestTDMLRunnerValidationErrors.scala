@@ -182,7 +182,7 @@ class TestTDMLRunnerValidationErrors {
     val e = intercept[TDMLException] {
       runner.runOneTest("expectsNoValidationErrorGetsValidationError")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(
       msg.contains(
@@ -200,7 +200,7 @@ class TestTDMLRunnerValidationErrors {
     val e = intercept[TDMLException] {
       runner.runOneTest("expectsNoValidationErrorGetsValidationError3")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(
       msg.contains(
@@ -214,7 +214,7 @@ class TestTDMLRunnerValidationErrors {
     val e = intercept[TDMLException] {
       runner.runOneTest("expectsValidationErrorGetsNoValidationError")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("Diagnostic message(s) were expected but not found"))
   }
@@ -234,7 +234,7 @@ class TestTDMLRunnerValidationErrors {
     val e = intercept[TDMLException] {
       runner.runOneTest("enforceNoValidationErrorsUnsupportedVersion")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("content of element 'ts:validationErrors' is not complete"))
     assertTrue(msg.contains("error"))

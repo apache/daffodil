@@ -66,7 +66,7 @@ trait TdmlSuite {
    * XML) to be freed once the test suite has completed
    */
   @AfterClass
-  final def shutDown(): Unit = runner.reset
+  final def shutDown(): Unit = runner.reset()
 }
 
 /**

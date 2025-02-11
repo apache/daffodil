@@ -102,21 +102,21 @@ class TestInfosetInputterFromReader2 {
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
     inp.pushTRD(rootERD)
-    val Start(bar_s: DIComplex) = is.next
+    val Start(bar_s: DIComplex) = is.next()
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = is.next
+    val StartArray(foo_arr_s) = is.next()
     (1 to count).foreach { i =>
-      val Start(foo_1_s: DISimple) = is.next
-      val End(foo_1_e: DISimple) = is.next
+      val Start(foo_1_s: DISimple) = is.next()
+      val End(foo_1_e: DISimple) = is.next()
       assertTrue(foo_1_s eq foo_1_e)
       assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
       assertEquals("Hello", foo_1_s.dataValueAsString)
     }
-    val EndArray(foo_arr_e) = is.next
+    val EndArray(foo_arr_e) = is.next()
     inp.popTRD()
     inp.popTRD()
-    val End(bar_e: DIComplex) = is.next
+    val End(bar_e: DIComplex) = is.next()
     inp.popTRD()
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object

@@ -63,7 +63,7 @@ class TextParser(override val context: TermRuntimeData) extends DFAParser {
       }
     }
 
-    state.dfaRegistersPool.finalCheck
+    state.dfaRegistersPool.finalCheck()
 
     result
   }

@@ -101,7 +101,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
       this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString)
     )
 
-  final def createVariableInstance = variableRuntimeData.createVariableInstance
+  final def createVariableInstance = variableRuntimeData.createVariableInstance()
 }
 
 sealed abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)

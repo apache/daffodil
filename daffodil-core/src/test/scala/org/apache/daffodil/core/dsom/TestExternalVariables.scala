@@ -365,13 +365,13 @@ class TestExternalVariables {
     )
 
     val res1 = dp1.parse(input, outputter)
-    assertTrue(outputter.getResult.toString.contains("default1"))
+    assertTrue(outputter.getResult().toString.contains("default1"))
 
     val res2 = dp2.parse(input, outputter)
-    assertTrue(outputter.getResult.toString.contains("value1"))
+    assertTrue(outputter.getResult().toString.contains("value1"))
 
     val res3 = dp1.parse(input, outputter)
-    assertTrue(outputter.getResult.toString.contains("default1"))
+    assertTrue(outputter.getResult().toString.contains("default1"))
 
     checkResult(dp1.variableMap, "{http://example.com}var1", "default1")
     checkResult(dp2.variableMap, "{http://example.com}var1", "value1")

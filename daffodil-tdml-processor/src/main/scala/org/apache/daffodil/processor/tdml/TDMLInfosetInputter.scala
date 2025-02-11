@@ -140,13 +140,13 @@ class TDMLInfosetInputter(
   }
 
   override def next(): Unit = {
-    scalaInputter.next
-    others.foreach(_.next)
+    scalaInputter.next()
+    others.foreach(_.next())
   }
 
   override def fini(): Unit = {
-    scalaInputter.fini
-    others.foreach(_.fini)
+    scalaInputter.fini()
+    others.foreach(_.fini())
   }
 
   override val supportsNamespaces = true

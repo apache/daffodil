@@ -67,7 +67,7 @@ class TestTDMLRoundTrips {
                     </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -110,7 +110,7 @@ class TestTDMLRoundTrips {
     val e = intercept[TDMLException] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("unparsed data differs"))
   }
@@ -153,7 +153,7 @@ class TestTDMLRoundTrips {
     val testSuite = needsTwoPassesOnlyTDML("twoPass")
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -207,7 +207,7 @@ New Line]]></bar>
       </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -260,7 +260,7 @@ New Line]]></bar>
                     </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   def nPassNotNeededTDML(passesEnum: String) =
@@ -306,7 +306,7 @@ New Line]]></bar>
     val e = intercept[TDMLException] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("should this really be a twopass test"))
   }
@@ -354,7 +354,7 @@ New Line]]></bar>
                     </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -368,7 +368,7 @@ New Line]]></bar>
     val e = intercept[TDMLException] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("should this really be a threepass test"))
   }

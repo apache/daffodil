@@ -503,11 +503,11 @@ class TestInputSourceDataInputStream {
     dis.setBitLimit0b(MaybeULong(8 * 6))
     assertTrue(iter.hasNext)
     assertEqualsTyped[Long](0, dis.bitPos0b)
-    assertEqualsTyped('年', iter.next)
+    assertEqualsTyped('年', iter.next())
     assertEqualsTyped[Long](24, dis.bitPos0b)
     assertTrue(iter.hasNext)
     assertEqualsTyped[Long](24, dis.bitPos0b)
-    assertEqualsTyped('月', iter.next)
+    assertEqualsTyped('月', iter.next())
     assertEqualsTyped[Long](48, dis.bitPos0b)
     assertFalse(iter.hasNext)
   }

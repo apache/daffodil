@@ -72,7 +72,7 @@ object MPState {
 
   def apply() = {
     val obj = new MPState()
-    obj.init
+    obj.init()
     obj
   }
 
@@ -116,15 +116,15 @@ class MPState private () {
   val occursIndexStack = MStackOfLong()
 
   def moveOverOneArrayIterationIndexOnly() =
-    arrayIterationIndexStack.push(arrayIterationIndexStack.pop + 1)
+    arrayIterationIndexStack.push(arrayIterationIndexStack.pop() + 1)
 
   def arrayIterationPos = arrayIterationIndexStack.top
 
-  def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop + 1)
+  def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop() + 1)
   def occursPos = occursIndexStack.top
 
   val groupIndexStack = MStackOfLong()
-  def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
+  def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop() + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
@@ -575,9 +575,9 @@ final class PState private (
         mpstate.verifyFinalState()
       }
       // These we check regardless of throw or not.
-      markPool.finalCheck
-      dataInputStream.inputSource.compact // discard any storage that can be freed.
-      dataInputStream.validateFinalStreamState
+      markPool.finalCheck()
+      dataInputStream.inputSource.compact() // discard any storage that can be freed.
+      dataInputStream.validateFinalStreamState()
     } catch {
       case e: Throwable => {
         if (optThrown.isDefined) e.addSuppressed(optThrown.get)

@@ -35,11 +35,11 @@ class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: U
 
   def unparse(start: UState): Unit = {
     try {
-      start.incrementHiddenDef
+      start.incrementHiddenDef()
       // unparse
       bodyUnparser.unparse1(start)
     } finally {
-      start.decrementHiddenDef
+      start.decrementHiddenDef()
     }
   }
 }

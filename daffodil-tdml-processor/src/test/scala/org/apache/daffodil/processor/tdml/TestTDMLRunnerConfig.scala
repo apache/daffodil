@@ -60,7 +60,7 @@ class TestTDMLRunnerConfig {
     val e = intercept[Exception] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("defaultConfig"))
     assertTrue(msg.contains("nonsense"))
@@ -93,7 +93,7 @@ class TestTDMLRunnerConfig {
     val e = intercept[Exception] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("config"))
     assertTrue(msg.contains("nonsense"))
@@ -167,7 +167,7 @@ class TestTDMLRunnerConfig {
 
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testGoodDefaultConfigNoBitOrderProp() = {
@@ -198,7 +198,7 @@ class TestTDMLRunnerConfig {
 
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testAmbiguousFileAndDefaultConfig() = {
@@ -232,7 +232,7 @@ class TestTDMLRunnerConfig {
     val e = intercept[Exception] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("ambiguous"))
     assertTrue(msg.contains("testConfigFile.xml"))

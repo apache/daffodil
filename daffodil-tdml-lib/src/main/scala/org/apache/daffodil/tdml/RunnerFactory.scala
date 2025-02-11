@@ -275,7 +275,7 @@ final class Runner private (
 
   def setDebugger(db: AnyRef) = {
     getTS.setDebugger(db)
-    debug
+    debug()
   }
 
   def debug() = {

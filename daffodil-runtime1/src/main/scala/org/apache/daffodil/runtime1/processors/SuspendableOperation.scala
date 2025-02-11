@@ -64,7 +64,7 @@ trait SuspendableOperation extends Suspension {
         val tst = test(ustate)
         if (tst) {
           Logger.log.debug(s"test() of ${this} ${tst} passed")
-          setDone
+          setDone()
         } else {
           Logger.log.debug(s"test() of ${this} ${tst} failed")
           val nodeOpt =

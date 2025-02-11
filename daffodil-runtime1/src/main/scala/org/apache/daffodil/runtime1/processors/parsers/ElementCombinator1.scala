@@ -241,7 +241,7 @@ class ElementParser(
   ) {
 
   def move(start: PState): Unit = {
-    start.mpstate.moveOverOneElementChildOnly
+    start.mpstate.moveOverOneElementChildOnly()
     ()
   }
 
@@ -319,6 +319,6 @@ class ElementParserInputValueCalc(
   // the group 'thinking' that there's a prior sibling inside the group and placing a
   // separator after it. So in the case of InputValueCalc, we don't advance group child, just element child.
   override def move(state: PState): Unit = {
-    state.mpstate.moveOverOneElementChildOnly
+    state.mpstate.moveOverOneElementChildOnly()
   }
 }

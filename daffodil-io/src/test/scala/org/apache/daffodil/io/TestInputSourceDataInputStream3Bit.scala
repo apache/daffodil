@@ -68,7 +68,7 @@ class TestInputSourceDataInputStream3Bit {
     }
 
     def encode3(s: String): Seq[String] = {
-      val encoder = BitsCharsetOctalLSBF.newEncoder
+      val encoder = BitsCharsetOctalLSBF.newEncoder()
       val bb = ByteBuffer.allocate(4 * s.length)
       val cb = CharBuffer.wrap(s)
       val coderResult = encoder.encode(cb, bb, true)
@@ -291,25 +291,25 @@ class TestInputSourceDataInputStream3Bit {
     dis.skip(3, finfo)
     assertTrue(iter.hasNext)
     assertEquals(3, dis.bitPos0b)
-    assertEquals('1', iter.next)
+    assertEquals('1', iter.next())
     assertEquals(6, dis.bitPos0b)
     dis.skip(3, finfo)
     assertTrue(iter.hasNext)
     assertEquals(9, dis.bitPos0b)
-    assertEquals('3', iter.next)
+    assertEquals('3', iter.next())
     assertEquals(12, dis.bitPos0b)
     dis.skip(1, finfo)
     dis.skip(2, finfo)
     assertTrue(iter.hasNext)
-    assertEquals('5', iter.next)
+    assertEquals('5', iter.next())
     assertEquals(18, dis.bitPos0b)
     assertTrue(dis.skip(3, finfo))
-    assertEquals('7', iter.next)
+    assertEquals('7', iter.next())
     assertFalse(iter.hasNext)
   }
 
   @Test def test3BitEncoderOverflowError(): Unit = {
-    val encoder = BitsCharsetOctalLSBF.newEncoder
+    val encoder = BitsCharsetOctalLSBF.newEncoder()
     val bb = ByteBuffer.allocate(1) // only big enough for a single byte
     val cb = CharBuffer.wrap("123") // 3 octal digits will cause overflow
     val coderResult = encoder.encode(cb, bb, true)
@@ -317,7 +317,7 @@ class TestInputSourceDataInputStream3Bit {
   }
 
   @Test def test3BitEncoderMalformedError(): Unit = {
-    val encoder = BitsCharsetOctalLSBF.newEncoder
+    val encoder = BitsCharsetOctalLSBF.newEncoder()
     val bb = ByteBuffer.allocate(3)
     val cb = CharBuffer.wrap("12?") // ? is not encodable in octal
     val coderResult = encoder.encode(cb, bb, true)

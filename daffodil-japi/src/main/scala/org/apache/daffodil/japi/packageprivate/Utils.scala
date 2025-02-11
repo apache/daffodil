@@ -67,8 +67,8 @@ private[japi] object XMLTextEscapeStyleConversions {
  */
 private[japi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
   extends SInteractiveDebuggerRunner {
-  def init(id: SInteractiveDebugger): Unit = dr.init
-  def getCommand: String = dr.getCommand
+  def init(id: SInteractiveDebugger): Unit = dr.init()
+  def getCommand: String = dr.getCommand()
   def lineOutput(line: String): Unit = dr.lineOutput(line)
-  def fini(): Unit = dr.fini
+  def fini(): Unit = dr.fini()
 }

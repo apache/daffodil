@@ -39,7 +39,7 @@ case object StringToDate extends Converter {
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDate = {
     val result = a.getAnyRef match {
-      case cal: DFDLDateTime => cal.toDate
+      case cal: DFDLDateTime => cal.toDate()
       case cal: DFDLDate => cal
       case str: String => DFDLDateConversion.fromXMLString(str)
       case _ =>
@@ -57,7 +57,7 @@ case object StringToDateTime extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDateTime = {
     val result = a.getAnyRef match {
       case cal: DFDLDateTime => cal
-      case cal: DFDLDate => cal.toDateTime
+      case cal: DFDLDate => cal.toDateTime()
       case str: String => DFDLDateTimeConversion.fromXMLString(str)
       case _ =>
         throw new NumberFormatException(
@@ -73,7 +73,7 @@ case object StringToTime extends Converter {
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueTime = {
     val result = a.getAnyRef match {
-      case cal: DFDLDateTime => cal.toTime
+      case cal: DFDLDateTime => cal.toTime()
       case cal: DFDLTime => cal
       case str: String => DFDLTimeConversion.fromXMLString(str)
       case _ =>

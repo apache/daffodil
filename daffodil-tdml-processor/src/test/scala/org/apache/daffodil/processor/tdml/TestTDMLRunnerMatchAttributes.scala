@@ -30,7 +30,7 @@ object TestTDMLRunnerMatchAttributes {
   val runner = Runner("/test/tdml/", "testTDMLErrorsWarningsMatchAttribute.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 
@@ -154,7 +154,7 @@ class TestTDMLRunnerMatchAttributes {
     val e = intercept[TDMLException] {
       runner.runOneTest("expectsNoWarningGetsWarnings")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(
       msg.contains(
@@ -168,7 +168,7 @@ class TestTDMLRunnerMatchAttributes {
     val e = intercept[TDMLException] {
       runner.runOneTest("expectsWarningGetsNoWarnings")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("Diagnostic message(s) were expected but not found"))
   }

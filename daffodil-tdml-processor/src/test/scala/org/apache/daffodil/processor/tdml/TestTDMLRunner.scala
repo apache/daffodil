@@ -89,7 +89,7 @@ class TestTDMLRunner {
     // was serialized and that does not work with validation="on"
     runner.runOneTest("test3b")
 
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLParseSuccess(): Unit = {
@@ -113,7 +113,7 @@ class TestTDMLRunner {
                     </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("testTDMLParseSuccess")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLParseDetectsErrorWithSpecificMessage(): Unit = {
@@ -136,7 +136,7 @@ class TestTDMLRunner {
                     </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("testTDMLParseDetectsErrorWithSpecificMessage")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLParseDetectsErrorWithPartMessage(): Unit = {
@@ -161,7 +161,7 @@ class TestTDMLRunner {
     val exc = intercept[Exception] {
       runner.runOneTest("testTDMLParseDetectsErrorWithPartMessage")
     }
-    runner.reset
+    runner.reset()
     assertTrue(exc.getMessage().contains("message \"xs:float\""))
   }
 
@@ -184,7 +184,7 @@ class TestTDMLRunner {
                     </ts:testSuite>
     val runner = new Runner(testSuite)
     runner.runOneTest("testTDMLParseDetectsErrorAnyMessage")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLParseDetectsNoError(): Unit = {
@@ -208,7 +208,7 @@ class TestTDMLRunner {
     val exc = intercept[Exception] {
       runner.runOneTest("testTDMLParseDetectsNoError")
     }
-    runner.reset
+    runner.reset()
     assertTrue(exc.getMessage().contains("Expected error"))
   }
 
@@ -239,7 +239,7 @@ class TestTDMLRunner {
       runner.runOneTest("testTDMLParseDetectsNoWarning")
     }
     assertTrue(exc.getMessage().contains("expected but not found"))
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLParseRunAll(): Unit = {
@@ -272,7 +272,7 @@ class TestTDMLRunner {
                     </testSuite>
     val runner = new Runner(testSuite)
     runner.runAllTests()
-    runner.reset
+    runner.reset()
   }
 
   @Test def testInfosetFromFile(): Unit = {
@@ -294,7 +294,7 @@ class TestTDMLRunner {
     val actual = infoset.contents
     val expected = <byte1>123</byte1>
     assertEquals(expected, XMLUtils.removeAttributes(actual))
-    runner.reset
+    runner.reset()
   }
 
   @Test def testRunModelFile(): Unit = {
@@ -325,7 +325,7 @@ class TestTDMLRunner {
     try {
       val runner = new Runner(testSuite)
       runner.runOneTest("testRunModelFile")
-      runner.reset
+      runner.reset()
     } finally {
       tmpSchemaFile.delete()
     }
@@ -366,7 +366,7 @@ class TestTDMLRunner {
       }
       val runner = new Runner(tmpTDMLFile)
       runner.runAllTests()
-      runner.reset
+      runner.reset()
     } finally {
       try {
         tmpTDMLFile.delete()
@@ -399,7 +399,7 @@ class TestTDMLRunner {
     val testSuite = tdmlWithEmbeddedSchema
     val runner = new Runner(testSuite)
     runner.runOneTest("testEmbeddedSchemaWorks")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testRunTDMLSelfContainedFile(): Unit = {
@@ -411,7 +411,7 @@ class TestTDMLRunner {
       }
       val runner = new Runner(new java.io.File(tmpTDMLFileName))
       runner.runAllTests()
-      runner.reset
+      runner.reset()
     } finally {
       val t = new java.io.File(tmpTDMLFileName)
       t.delete()
@@ -443,7 +443,7 @@ class TestTDMLRunner {
     val testSuite = tdmlWithUnicode2028
     val runner = new Runner(testSuite)
     runner.runOneTest("testMultiByteUnicodeWorks")
-    runner.reset
+    runner.reset()
   }
 
   val tdmlWithUnicode5E74AndCDATA =
@@ -471,7 +471,7 @@ class TestTDMLRunner {
     val testSuite = tdmlWithUnicode5E74AndCDATA
     val runner = new Runner(testSuite)
     runner.runOneTest("testMultiByteUnicodeWithCDATAWorks")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testNilCompare() = {
@@ -496,7 +496,7 @@ class TestTDMLRunner {
 
     val runner = new Runner(testSuite)
     runner.runOneTest("testNilCompare")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testNilCompare2() = {
@@ -523,7 +523,7 @@ class TestTDMLRunner {
     val e = intercept[Exception] {
       runner.runOneTest("testNilCompare")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("Comparison failed"))
     assertTrue(msg.contains("xsi:nil=\"true\""))
@@ -910,7 +910,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     val exc = intercept[Exception] {
       runner.runOneTest("testCase")
     }
-    runner.reset
+    runner.reset()
     assertTrue(
       exc.getMessage().contains("Duplicate definitions found for defineSchema: dupSchema")
     )
@@ -947,7 +947,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     val exc = intercept[Exception] {
       runner.runOneTest("testCase")
     }
-    runner.reset
+    runner.reset()
     assertTrue(
       exc
         .getMessage()
@@ -1007,7 +1007,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     val exc = intercept[Exception] {
       runner.runOneTest("testCase")
     }
-    runner.reset
+    runner.reset()
     assertTrue(
       exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig")
     )
@@ -1059,8 +1059,8 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
       runner.runOneTest("testCase")
     }
     runner.reset()
-    assertTrue(exc.getMessage.contains("Either tdml:infoset or tdml:error"))
-    assertTrue(exc.getMessage.contains("must be present in the test"))
+    assertTrue(exc.getMessage().contains("Either tdml:infoset or tdml:error"))
+    assertTrue(exc.getMessage().contains("must be present in the test"))
   }
 
   @Test def testInfosetFileNotFound() = {
@@ -1084,7 +1084,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     val e = intercept[FileNotFoundException] {
       runner.runOneTest("infosetFileNotFound")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("not found"))
     assertTrue(msg.contains("/this/does/not/exist.xml"))

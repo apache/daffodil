@@ -164,7 +164,7 @@ class SpecifiedLengthPrefixedUnparser(
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     eUnparser.unparse1(state)
 
-    if (elem.contentLength.maybeLengthInBits.isDefined) {
+    if (elem.contentLength.maybeLengthInBits().isDefined) {
       // If we were able to immediately calculate the length of the element,
       // then just set it as the value of the detached element created above so
       // that when the prefixedLengthUnparser suspension resumes it can unparse

@@ -65,7 +65,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
     dstate.setOccursIndex(state.occursPos)
     dstate.setErrorOrWarn(state)
-    dstate.resetValue
+    dstate.resetValue()
     dstate.isCompile = state match {
       case cs: CompileState => true
       case _ => false

@@ -156,11 +156,11 @@ class InteractiveDebugger(
   }
 
   override def fini(parser: Parser): Unit = {
-    runner.fini
+    runner.fini()
   }
 
   override def fini(unparser: Unparser): Unit = {
-    runner.fini
+    runner.fini()
   }
 
   def debugStep(
@@ -214,7 +214,7 @@ class InteractiveDebugger(
     DebuggerConfig.parseStep += 1
 
     while (debugState == DebugState.Pause) {
-      val args = readCmd
+      val args = readCmd()
       debugState = runCommand(args, state, processor)
     }
 
@@ -762,8 +762,8 @@ class InteractiveDebugger(
         state: ParseOrUnparseState,
         processor: Processor
       ): DebugState.Type = {
-        DebuggerConfig.breakpoints.foreach(_.disable)
-        DebuggerConfig.displays.foreach(_.disable)
+        DebuggerConfig.breakpoints.foreach(_.disable())
+        DebuggerConfig.displays.foreach(_.disable())
         DebugState.Continue
       }
     }
@@ -946,7 +946,7 @@ class InteractiveDebugger(
         ): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.breakpoints.find(_.id == id) match {
-            case Some(b) => b.disable
+            case Some(b) => b.disable()
             case None => throw new DebugException("%d is not a valid breakpoint id".format(id))
           }
           DebugState.Pause
@@ -971,7 +971,7 @@ class InteractiveDebugger(
         ): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.displays.find(_.id == id) match {
-            case Some(d) => d.disable
+            case Some(d) => d.disable()
             case None => throw new DebugException("%d is not a valid display id".format(id))
           }
           DebugState.Pause
@@ -1041,7 +1041,7 @@ class InteractiveDebugger(
         ): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.breakpoints.find(_.id == id) match {
-            case Some(b) => b.enable
+            case Some(b) => b.enable()
             case None => throw new DebugException("%d is not a valid breakpoint id".format(id))
           }
           DebugState.Pause
@@ -1065,7 +1065,7 @@ class InteractiveDebugger(
         ): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.displays.find(_.id == id) match {
-            case Some(d) => d.enable
+            case Some(d) => d.enable()
             case None => throw new DebugException("%d is not a valid display id".format(id))
           }
           DebugState.Pause

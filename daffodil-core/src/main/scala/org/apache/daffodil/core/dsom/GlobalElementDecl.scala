@@ -38,7 +38,7 @@ final class GlobalElementDecl private (xmlArg: Node, schemaDocument: SchemaDocum
 
   lazy val asRoot = Root(xml, schemaDocument, namedQName, this)
 
-  requiredEvaluationsIfActivated(validateChoiceBranchKey)
+  requiredEvaluationsIfActivated(validateChoiceBranchKey())
 
   private def validateChoiceBranchKey(): Unit = {
     // Ensure that the global element decl does not have choiceBranchKey set.

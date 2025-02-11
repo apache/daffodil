@@ -36,7 +36,7 @@ class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebu
 
   def getCommand: String = {
     if (traceIter.hasNext) {
-      traceIter.next
+      traceIter.next()
     } else {
       // If the traceItr commands are good this should never happen. The only
       // time this would ever get hit is if something caused the debugger to

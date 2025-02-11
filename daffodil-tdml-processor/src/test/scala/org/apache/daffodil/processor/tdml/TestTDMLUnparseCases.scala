@@ -55,7 +55,7 @@ class TestTDMLUnparseCases {
     val runner = new Runner(testSuite)
     runner.runOneTest("test1")
     assertTrue(runner.getTS.loadingDiagnosticMessages.isEmpty)
-    runner.reset
+    runner.reset()
   }
 
 }

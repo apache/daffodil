@@ -33,7 +33,7 @@ object TestTDMLRunner2 {
   val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 
@@ -106,7 +106,7 @@ class TestTDMLRunner2 {
     val e = intercept[Exception] {
       runner.runOneTest("testValidation")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("expected but not found"))
   }
@@ -159,7 +159,7 @@ class TestTDMLRunner2 {
 
     val runner = Runner(testSuite)
     runner.runOneTest("testValidation")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -210,7 +210,7 @@ class TestTDMLRunner2 {
 
     val runner = Runner(testSuite)
     runner.runOneTest("testValidation")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -267,7 +267,7 @@ class TestTDMLRunner2 {
     val e = intercept[Exception] {
       runner.runOneTest("testValidation")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(
       msg.contains(
@@ -379,7 +379,7 @@ abc # a comment
 
     val runner = Runner(testSuite)
     runner.runOneTest("testRegex")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testRegexWithFreeFormAndComments2() = {
@@ -413,7 +413,7 @@ abc # a comment
 
     val runner = Runner(testSuite)
     runner.runOneTest("testRegex")
-    runner.reset
+    runner.reset()
   }
 
   /**
@@ -453,7 +453,7 @@ abc # a comment
 
     val runner = Runner(testSuite)
     runner.runOneTest("testRegex")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testRegexWithFreeFormAndComments4() = {
@@ -491,7 +491,7 @@ abc # a comment
 
     val runner = Runner(testSuite)
     runner.runOneTest("testRegex")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testComplexDocument() = {
@@ -532,7 +532,7 @@ abc # a comment
 
     val runner = Runner(testSuite, validateTDMLFile = false)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLUnparse1(): Unit = {
@@ -556,7 +556,7 @@ abc # a comment
 
     val runner = Runner(testSuite)
     runner.runOneTest("testTDMLUnparse")
-    runner.reset
+    runner.reset()
   }
 
   @Test def testTDMLUnparse2(): Unit = {
@@ -596,13 +596,13 @@ abc # a comment
     }
     val actualMessage = err.getMessage()
     assertTrue(actualMessage.contains("Either tdml:document or tdml:errors must be present"))
-    runner.reset
+    runner.reset()
   }
 
   @Test def test_quote_test1() = {
     val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
     runner.runOneTest("quote_test1")
-    runner.reset
+    runner.reset()
   }
 
   val tdmlWithEmbeddedSchema =
@@ -635,7 +635,7 @@ abc # a comment
       val runner = new Runner(new java.io.File(tmpTDMLFileName))
       runner.trace
       runner.runAllTests()
-      runner.reset
+      runner.reset()
     } finally {
       val t = new java.io.File(tmpTDMLFileName)
       t.delete()
@@ -674,7 +674,7 @@ abc # a comment
 
     val runner = Runner(testSuite, validateTDMLFile = false)
     runner.runOneTest("test1")
-    runner.reset
+    runner.reset()
   }
 
   // DFDL-2947

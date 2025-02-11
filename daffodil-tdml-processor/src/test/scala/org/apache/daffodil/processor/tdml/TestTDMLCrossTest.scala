@@ -59,7 +59,7 @@ class TestTDMLCrossTest {
     val e = intercept[TDMLException] {
       runner.runOneTest("test1")
     }
-    runner.reset
+    runner.reset()
     val msg = e.getMessage()
     assertTrue(msg.contains("notAnImplName"))
   }

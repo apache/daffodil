@@ -158,7 +158,7 @@ abstract class TextDelimitedParserBase(
       result
     } finally {
       state.dfaRegistersPool.returnToPool(fieldReg)
-      state.dfaRegistersPool.finalCheck
+      state.dfaRegistersPool.finalCheck()
     }
   }
 
@@ -419,7 +419,7 @@ class TextDelimitedParserWithEscapeBlock(
     } else {
       parseRemainder(state, input, fieldEsc, startBlock, endBlock, delimIter, isDelimRequired)
     }
-    state.dfaRegistersPool.finalCheck
+    state.dfaRegistersPool.finalCheck()
 
     res
   }
