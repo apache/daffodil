@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.collection.compat.immutable.LazyList
 import scala.collection.mutable
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -130,7 +131,7 @@ trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
     // Important - use of stream here insures we don't lookup
     // properties down the chain once we have them here.
     //
-    val str = sources.toStream.map { _.chainFindProperty(pname) }
+    val str = sources.to(LazyList).map { _.chainFindProperty(pname) }
     val optFound = str.collectFirst { case found: Found => found }
     val result = optFound match {
       case Some(f: Found) => f

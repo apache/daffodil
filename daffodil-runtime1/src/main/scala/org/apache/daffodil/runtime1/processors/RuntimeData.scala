@@ -171,7 +171,7 @@ sealed abstract class TermRuntimeData(
 
   protected def initializeFunction(): Unit = {
     partialNextElementResolver
-    dpathCompileInfo.initialize
+    dpathCompileInfo.initialize()
   }
 
   final def namespaces = dpathCompileInfo.namespaces

@@ -20,7 +20,6 @@ package org.apache.daffodil.core.dsom
 import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.core.grammar.LocalElementGrammarMixin
-import org.apache.daffodil.core.grammar._
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen._

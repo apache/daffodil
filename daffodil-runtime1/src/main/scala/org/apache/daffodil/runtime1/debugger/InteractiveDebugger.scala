@@ -1404,7 +1404,7 @@ class InteractiveDebugger(
         DebugState.Pause
       }
 
-      trait InfoDiffable {
+      trait InfoDiffable extends DebugCommand {
 
         /**
         * Outputs any differences between previousProcessorState and state for the mixed in debugger command
@@ -1664,9 +1664,9 @@ class InteractiveDebugger(
         val desc = "display differences since the previous pause in the debugger"
         val longDesc = desc
 
-        lazy val infoDiffables = Info.subcommands.collect { case diffable: InfoDiffable =>
-          diffable
-        }
+        lazy val infoDiffables = Info.subcommands
+          .filter(_.isInstanceOf[InfoDiffable])
+          .map(_.asInstanceOf[InfoDiffable])
 
         def act(
           args: Seq[String],

@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.grammar
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.core.grammar.primitives.MandatoryTextAlignment
-import org.apache.daffodil.core.grammar.primitives._
 import org.apache.daffodil.core.runtime1.TermRuntime1Mixin
 
 /////////////////////////////////////////////////////////////////

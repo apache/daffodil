@@ -75,7 +75,7 @@ class TestInfosetInputterFromReader2 {
   class StreamInputStream(private var strings: LazyList[String]) extends java.io.InputStream {
 
     private var bytes = {
-      val ss = strings.flatMap { _.getBytes() } ++ "</bar>".getBytes().toStream
+      val ss = strings.flatMap { _.getBytes() } ++ "</bar>".getBytes().to(LazyList)
       strings = Nil.to(LazyList)
       ss
     }

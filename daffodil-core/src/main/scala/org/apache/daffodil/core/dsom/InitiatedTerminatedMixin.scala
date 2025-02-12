@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.grammar.GrammarMixin
-import org.apache.daffodil.core.grammar._
 import org.apache.daffodil.core.grammar.primitives.InitiatedContent
 import org.apache.daffodil.core.grammar.primitives.Initiator
 import org.apache.daffodil.core.grammar.primitives.Terminator
