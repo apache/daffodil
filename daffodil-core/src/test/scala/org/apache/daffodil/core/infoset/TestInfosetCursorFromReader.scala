@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.core.infoset
 
+import scala.collection.compat.immutable.LazyList
+
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
@@ -83,7 +85,7 @@ class TestInfosetInputterFromReader {
     )
     val infosetXML = <foo xmlns={XMLUtils.EXAMPLE_NAMESPACE}>Hello</foo>
     val (ii, _, _, _) = infosetInputter(sch, infosetXML)
-    val is = ii.toStream.toList
+    val is = ii.to(LazyList).toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
     assertTrue(s.dataValue.getAnyRef.isInstanceOf[String])
@@ -100,7 +102,7 @@ class TestInfosetInputterFromReader {
       XMLUtils.XSI_NAMESPACE
     }/>
     val (ii, _, _, _) = infosetInputter(sch, infosetXML)
-    val is = ii.toStream.toList
+    val is = ii.to(LazyList).toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
     assertTrue(s eq e) // exact same object
     assertTrue(s.isNilled)

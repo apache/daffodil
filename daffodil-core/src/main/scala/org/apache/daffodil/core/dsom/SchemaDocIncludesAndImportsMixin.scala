@@ -221,14 +221,14 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   def importStatementsMap = ismli_._1
   def localImports = ismli_._2
-  private lazy val ismli_ = LV('importStatementsMap_localImports) {
+  private lazy val ismli_ = LV(Symbol("importStatementsMap_localImports")) {
     val res = getImportsOrIncludes(seenBefore, impNodes, new Import(_, _, _))
     res
   }.value
 
   def seenAfter = sali_._1
   def localIncludes = sali_._2
-  private lazy val sali_ = LV('seenAfter_localIncludes) {
+  private lazy val sali_ = LV(Symbol("seenAfter_localIncludes")) {
     val res = getImportsOrIncludes(importStatementsMap, incNodes, new Include(_, _, _))
     res
   }.value

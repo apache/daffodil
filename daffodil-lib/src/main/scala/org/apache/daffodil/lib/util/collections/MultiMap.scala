@@ -56,11 +56,11 @@ class MultiMap[K, V] {
     filtered
   }
 
-  def map[T](func: (K, mutable.Set[V]) => T): collection.Seq[T] = {
+  def map[T](func: (K, mutable.Set[V]) => T): Seq[T] = {
     val ret = mutable.ListBuffer.empty[T]
     for ((key, values) <- underlying) {
       ret.append(func(key, values))
     }
-    ret
+    ret.toSeq
   }
 }

@@ -190,7 +190,7 @@ abstract class Evaluatable[+T <: AnyRef](
   @inline final def isCompiled = isCompiled_
 
   @inline final def ensureCompiled(): Unit = {
-    ci.initialize
+    ci.initialize()
     if (!isCompiled)
       Assert.invariantFailed("not compiled Ev: " + this.qName)
   }

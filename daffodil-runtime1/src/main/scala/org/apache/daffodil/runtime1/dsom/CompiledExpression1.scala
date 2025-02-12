@@ -214,7 +214,7 @@ class DPathCompileInfo(
   with PreSerialization
   with HasSchemaFileLocation {
 
-  def initialize: Unit = {
+  def initialize(): Unit = {
     parents
   }
 

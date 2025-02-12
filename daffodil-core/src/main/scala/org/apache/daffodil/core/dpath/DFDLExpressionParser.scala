@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dpath
 
+import java.lang.{ Double => JDouble }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 import scala.util.parsing.combinator.RegexParsers
@@ -336,7 +337,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
 
   def Literal = log((StringLiteral | NumericLiteral) ^^ { LiteralExpression(_) })("literal")
 
-  def NumericLiteral = DoubleLiteral | DecimalLiteral | IntegerLiteral
+  def NumericLiteral: Parser[Number] = DoubleLiteral | DecimalLiteral | IntegerLiteral
 
   def VarRef = "$" ~> RefName ^^ { VariableRef(_) }
 
@@ -404,7 +405,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
         new JBigDecimal(digit + "." + optDig)
       }
 
-  val DoubleLiteral: Parser[Double] = ("." ~> Digits ~ Expon ^^ {
+  val DoubleLiteral: Parser[JDouble] = ("." ~> Digits ~ Expon ^^ {
     case fraction ~ exp => {
       "0." + fraction + exp
     }

@@ -151,7 +151,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
     !atDocumentEnd
   }
 
-  override def fini = {
+  override def fini() = {
     stack.clear()
   }
 

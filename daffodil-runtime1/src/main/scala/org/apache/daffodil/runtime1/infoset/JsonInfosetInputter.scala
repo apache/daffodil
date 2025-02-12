@@ -99,7 +99,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
     }
   }
 
-  override def getLocalName: String = {
+  override def getLocalName(): String = {
     val curName = jsp.getCurrentName()
     if (curName == null) {
       // this only happens if we are directly inside an array, so get the value

@@ -231,7 +231,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
     }
   }
 
-  override def getLocalName: String = {
+  override def getLocalName(): String = {
     xsr.getLocalName()
   }
 

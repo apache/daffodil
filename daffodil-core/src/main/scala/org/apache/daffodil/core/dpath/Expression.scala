@@ -36,7 +36,6 @@ import org.apache.daffodil.runtime1.dpath._
 import org.apache.daffodil.runtime1.dsom.RelativePathPastRootError
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService
 
 /**

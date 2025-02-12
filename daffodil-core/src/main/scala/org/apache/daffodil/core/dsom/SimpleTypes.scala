@@ -278,7 +278,7 @@ final class EnumerationDef(xml: Node, parentType: SimpleTypeDefBase)
 
   lazy val repValuesRaw: Seq[String] = {
     val optNodes = xml.attribute(XMLUtils.DFDLX_NAMESPACE, "repValues")
-    val res = optNodes.getOrElse(Seq.empty).flatMap { node =>
+    val res = optNodes.map(_.toSeq).getOrElse(Seq.empty).flatMap { node =>
       RepValueCooker.convertConstant(node.text, this, false)
     }
     res
@@ -286,7 +286,7 @@ final class EnumerationDef(xml: Node, parentType: SimpleTypeDefBase)
 
   lazy val repValueRangesRaw: Seq[String] = {
     val optNodes = xml.attribute(XMLUtils.DFDLX_NAMESPACE, "repValueRanges")
-    val res = optNodes.getOrElse(Seq.empty).flatMap { node =>
+    val res = optNodes.map(_.toSeq).getOrElse(Seq.empty).flatMap { node =>
       val ranges = RepValueCooker.convertConstant(node.text, this, false)
       if (ranges.length % 2 != 0) {
         SDE("dfdlx:repValueRanges must specify an even number of values")

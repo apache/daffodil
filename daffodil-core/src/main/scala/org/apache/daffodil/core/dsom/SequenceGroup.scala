@@ -278,7 +278,7 @@ trait SequenceDefMixin
 
   protected def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
 
-  final lazy val apparentXMLChildren = (xml \\ "sequence").head.child
+  final lazy val apparentXMLChildren = (xml \\ "sequence").head.child.toSeq
 
   def xmlChildren: Seq[Node] = apparentXMLChildren
 

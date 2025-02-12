@@ -445,7 +445,7 @@ final class UStateForSuspension(
   override def advanceAccessor: InfosetAccessor = die
   override def inspect: Boolean = die
   override def inspectAccessor: InfosetAccessor = die
-  override def fini: Unit = die
+  override def fini(): Unit = die
   override def inspectOrError = die
   override def advanceOrError = die
   override def isInspectArrayEnd = die
@@ -484,9 +484,9 @@ final class UStateForSuspension(
 
   override def documentElement = mainUState.documentElement
 
-  override def incrementHiddenDef =
+  override def incrementHiddenDef() =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def decrementHiddenDef =
+  override def decrementHiddenDef() =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
   override def withinHiddenNest =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
@@ -608,7 +608,7 @@ final class UStateMain private (
   override def inspect: Boolean = inputter.inspect
   override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
   // $COVERAGE-OFF$ // unused, but necessary to meet requirements of Cursor[T]
-  override def fini = Assert.usageError("Not to be used on UState")
+  override def fini() = Assert.usageError("Not to be used on UState")
   // $COVERAGE-ON$
   /**
    * Use this so if there isn't an event we get a clean diagnostic message saying

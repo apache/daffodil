@@ -435,7 +435,7 @@ abstract class InfosetInputterProxy extends InfosetInputter {
   override def next() = infosetInputter.next()
   override lazy val supportsNamespaces = infosetInputter.supportsNamespaces
 
-  override def fini = infosetInputter.fini()
+  override def fini() = infosetInputter.fini()
 }
 
 /**
