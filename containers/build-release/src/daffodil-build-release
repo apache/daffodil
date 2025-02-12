@@ -1,0 +1,122 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -e
+
+export WIX=/opt/wix/
+export LANG=en_US.UTF-8
+export CC=clang
+export AR=llvm-ar
+export SOURCE_DATE_EPOCH=$(git show --no-patch --format=%ct HEAD)
+
+date
+
+echo "Select a project: "
+select PROJECT in daffodil daffodil-sbt daffodil-vscode; do
+  case $PROJECT in
+    "daffodil" | "daffodil-sbt")
+      PROJECT_VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
+      break
+      ;;
+    "daffodil-vscode")
+      PROJECT_VERSION=$(grep '"version"' package.json | cut -d\" -f4)
+      break
+      ;;
+    *)
+      echo "unknown project: $PROJECT" >&2
+      exit 1
+      ;;
+  esac
+done
+echo
+
+read -p "Pre-release label (e.g. rc1 to rc99) or empty for final release: " PRE_RELEASE_LABEL
+echo
+
+# apppend the pre-release label if it is not empty/all whitepsace
+if [[ ! $PRE_RELEASE_LABEL =~ ^[\s]*$ ]]
+then
+  RELEASE_VERSION=$PROJECT_VERSION-$PRE_RELEASE_LABEL
+else
+  RELEASE_VERSION=$PROJECT_VERSION
+fi
+
+echo "==== Building artifacts for $PROJECT $RELEASE_VERSION ===="
+RELEASE_DIR=target/release
+rm -rf $RELEASE_DIR
+
+ARTIFACT_DIR=$RELEASE_DIR/asf-dist/$RELEASE_VERSION
+
+MAVEN_DIR=$RELEASE_DIR/maven-local
+
+mkdir -p ~/.sbt/1.0
+echo "ThisBuild / publishTo := Some(MavenCache(\"maven-local\", file(\"$MAVEN_DIR\")))" >> ~/.sbt/1.0/build.sbt
+
+echo "==== Building source artifact ===="
+mkdir -p $ARTIFACT_DIR/src/
+git archive --format=zip --prefix=apache-$PROJECT-$PROJECT_VERSION-src/ HEAD > $ARTIFACT_DIR/src/apache-$PROJECT-$PROJECT_VERSION-src.zip
+
+echo "==== Building binary artifacts ===="
+
+case $PROJECT in
+  "daffodil")
+    mkdir -p $ARTIFACT_DIR/bin
+    sbt \
+      +compile \
+      +publish \
+      daffodil-cli/Rpm/packageBin \
+      daffodil-cli/Windows/packageBin \
+      daffodil-cli/Universal/packageBin \
+      daffodil-cli/Universal/packageZipTarball
+
+    cp daffodil-cli/target/universal/apache-daffodil-*.tgz $ARTIFACT_DIR/bin/
+    cp daffodil-cli/target/universal/apache-daffodil-*.zip $ARTIFACT_DIR/bin/
+    cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $ARTIFACT_DIR/bin/
+    MSI_NAME=$(basename $ARTIFACT_DIR/bin/*.zip .zip).msi
+    cp daffodil-cli/target/windows/Daffodil.msi $ARTIFACT_DIR/bin/$MSI_NAME
+    chmod -x $ARTIFACT_DIR/bin/$MSI_NAME
+    ;;
+
+  "daffodil-sbt")
+    sbt \
+      "^compile" \
+      "^publish"
+    ;;
+
+  "daffodil-vscode")
+    mkdir -p $ARTIFACT_DIR/bin/
+    yarn package
+    cp *.vsix $ARTIFACT_DIR/bin/
+    ;;
+
+esac
+
+echo "==== Calculating Checksums ===="
+
+for i in $ARTIFACT_DIR/*/
+do
+    pushd $i > /dev/null
+    for file in *
+    do
+       sha512sum --binary $file > $file.sha512
+    done
+    popd &> /dev/null
+done
+
+
+echo
+echo "==== Artifacts created in $RELEASE_DIR ===="

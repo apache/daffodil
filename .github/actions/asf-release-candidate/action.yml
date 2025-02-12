@@ -1,0 +1,99 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 'ASF Release Candidate'
+description: >
+  Action to setup environment and publish ASF release candidates
+
+  Project source must be checked out prior this action. Following steps should
+  install dependencies, optionally build helper binaries, and optionally
+  publish artifacts to a maven repository. Helper binaries or additional
+  artifacts should be written to the directory specified by the `artifact_dir`
+  output. Maven artifacts should be published with `sbt publishSigned`--this
+  action configures SBT to publish to eitehr a local repository or the ASF
+  staging repo depending on if publishing is enabled.
+
+  Workflows using this action should only be triggered when pushing a release
+  candidate tag of the form 'v*-rcX', or manually dispatched. Manually
+  dispatched triggers disabling publishing.
+
+  When triggered from a tag, the tag name  must match the version found in the
+  build source configuration with the 'v' and -rc suffix removed.
+
+  The 'publish' input parameter must be explicitly set to true to enable
+  publishing. Even if true, the action must be trigger from a tag, the version
+  must not be a SNAPSHOT, and the repository must be an ASF--otherwise
+  publishing is disabled.
+
+  When the workflow is complete, this action automatically performs a post step
+  to to signing, checksum, and commit dist artifacts if publishing is enabled.
+
+inputs:
+  tlp_dir:
+    description: >
+      Directory of the top level project in dist/dev/
+    required: true
+  project_name:
+    description: >
+      Human readable name of the project
+    required: true
+  project_id:
+    description: >
+      ID of the project, used in source artifact file name
+    required: true
+  project_dir:
+    description: >
+      Directory for the project in dev/dist/<tlp_dir>/. Omit if at the root
+    required: false
+    default: ""
+  gpg_signing_key:
+    description: >
+      Key used to sign artifacts
+    required: true
+  svn_username:
+    description: >
+      Username for publishing release artifacts to SVN dev/dist
+    required: true
+  svn_password:
+    description: >
+      Password for publishing release artifacts to SVN dev/dist
+    required: true
+  nexus_username:
+    description: >
+      Username for publishing release artifacts to Nexus
+    required: true
+  nexus_password:
+    description: >
+      Password for publishing release artifacts to Nexus
+    required: true
+  publish:
+    description: >
+      Enable/disabling publish artifacts. Must be explcitly set to true to
+      enable publishing. Maybe ignored depending on other factors.
+    required: false
+    default: false
+
+outputs:
+  artifact_dir:
+    description: >
+      Directory where additional release artifacts can be added by the
+      workflow. They are automatically signed, checksumed, and published at the
+      end of the workflow
+
+runs:
+  using: 'node20'
+  main: 'main.js'
+  post: 'post.js'
+  post-if: success()
