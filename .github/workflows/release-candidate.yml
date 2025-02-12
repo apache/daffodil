@@ -1,0 +1,135 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Release Candidate
+
+# We build release candidates using GitHub actions when a rc* tag is pushed.
+# Once the vote passes for a release candidate we promote that candidate to the
+# final release--we do not do a new build for final release tags. When
+# triggered via workflow_dispatch the release candidate action disables
+# publishing regardless of the publish setting--it should be used for testing only
+on:
+  push:
+    tags:
+      - 'v*-rc*'
+  workflow_dispatch:
+
+jobs:
+
+  release-candidate:
+    name: Release Candidate ${{ github.ref_name }}
+    runs-on: ubuntu-22.04
+
+    env:
+      AR: llvm-ar-14
+      CC: clang
+      LANG: en_US.UTF-8
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: ASF Release Candidate
+        id: rc
+        uses: apache/daffodil/.github/actions/asf-release-candidate@main
+        with:
+          tlp_dir: 'daffodil'
+          project_name: 'Apache Daffodil'
+          project_id: 'daffodil'
+          gpg_signing_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          svn_username: ${{ secrets.SVN_USERNAME }}
+          svn_password: ${{ secrets.SVN_PASSWORD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          publish: false
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get install -y libmxml-dev rpm
+          sudo locale-gen $LANG
+
+      - name: Setup Java
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: sbt
+
+      # WIX is a Microsoft Windows Installer creation tool kit.
+      #
+      # Install wix, including changes to allow WiX to run in wine on Linux.
+      # See src/wix_wine.sh for more details on why we need to do this and how
+      # it works
+      #
+      # Updating WIX should be done only if there is a specific need (for
+      # security, or other compelling reason) because it is likely things will
+      # break and the release scripts/process will have to adapt. The WIX
+      # version 3.11.2 is hard coded into these script lines as tokens
+      # wix3112rtm and wix311.
+      #
+      # In order to ensure we are downloading and using the exact WIX binary we
+      # have tested and trust we verify the sha512 is the same as the one
+      # expected. This protects us from if someone was to get github
+      # credentials allowing them to change the wix binaries on github. If WIX
+      # is updated to a newer version, this sha512 will need to be recomputed.
+      - name: Setup WIX
+        run: |
+          # install wine32 and dotnet to run wine
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y wine32 winetricks
+          winetricks -q dotnet40
+
+          WIXSHA=6fd961c85e1e6adafb99ef50c9659e3eb83c84ecaf49f523e556788845b206e1857aba2c39409405d4cda1df9b30a552ce5aab808be5f8368a37a447d78d1a05
+          curl -sS -L https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -o wix311-binaries.zip
+          echo "$WIXSHA wix311-binaries.zip" | sha512sum --quiet -c
+
+          WIX=/opt/wix
+          sudo mkdir $WIX
+          sudo unzip -q wix311-binaries.zip -d $WIX
+          rm wix311-binaries.zip
+          sudo mv $WIX/{candle.exe,real-candle.exe}
+          sudo mv $WIX/{light.exe,real-light.exe}
+          sudo cp containers/build-release/src/wix_wine.sh $WIX/candle.exe
+          sudo cp containers/build-release/src/wix_wine.sh $WIX/light.exe
+          echo "WIX=$WIX" >> $GITHUB_ENV
+
+      # Publish jars to a staging maven repository and write helper binary
+      # artifacts to the artifact directory
+      #
+      # Note that if we are not actually publishing (the publish setting is
+      # false, this is a snapshot, etc.) then the release candidate action will
+      # have configured the system so publishSigned just goes to a local maven
+      # repository so nothing is published externally
+      - name: Create Binary Artifacts
+        run: |
+          sbt \
+            +compile \
+            +publishSigned \
+            daffodil-cli/Rpm/packageBin \
+            daffodil-cli/Universal/packageBin \
+            daffodil-cli/Universal/packageZipTarball \
+            daffodil-cli/Windows/packageBin
+
+          ARTIFACT_BIN_DIR=${{ steps.rc.outputs.artifact_dir }}/bin
+          mkdir -p $ARTIFACT_BIN_DIR
+          cp daffodil-cli/target/universal/apache-daffodil-*.tgz $ARTIFACT_BIN_DIR/
+          cp daffodil-cli/target/universal/apache-daffodil-*.zip $ARTIFACT_BIN_DIR/
+          cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $ARTIFACT_BIN_DIR/
+
+          MSI_NAME=$(basename $ARTIFACT_BIN_DIR/*.zip .zip).msi
+          cp daffodil-cli/target/windows/Daffodil.msi $ARTIFACT_BIN_DIR/$MSI_NAME
+          chmod -x $ARTIFACT_BIN_DIR/$MSI_NAME
