@@ -32,7 +32,7 @@ import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.MultiMapWrapper
+import org.apache.daffodil.lib.util.MultiMap
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom._
 
@@ -96,7 +96,7 @@ class TextNumberFormatEv(
     exponentRep: Maybe[String]
   ): Unit = {
 
-    val mm = new MultiMapWrapper[String, String]
+    val mm = new MultiMap[String, String]
     if (decimalSep.isDefined)
       mm.addBinding(decimalSep.get.toString, "textStandardDecimalSeparator")
     if (groupingSep.isDefined)

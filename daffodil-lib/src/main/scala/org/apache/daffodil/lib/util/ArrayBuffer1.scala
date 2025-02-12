@@ -21,6 +21,7 @@ import java.util
 import scala.collection.mutable.ArrayBuffer
 
 /**
+ * TODO: scala 2.12 phase out
  * Compatibility ArrayBuffer class for 2.12 and 2.13 since reduceToSize
  * has been removed in 2.13. This allows us to maintain the same
  * functionality as 2.12 while upgraded to 2.13

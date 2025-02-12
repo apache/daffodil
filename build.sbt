@@ -294,6 +294,7 @@ def buildScalacOptions(scalaVersion: String) = {
         "-Xlint:inaccessible",
         "-Xlint:infer-any",
         "-Xlint:nullary-unit",
+        // TODO: scala 2.12 phase out
         // the import is needed for Scala 2.12 but issues an unused import warning under 2.13, so we add this to
         // suppresss the warning
         "-Wconf:origin=scala.collection.compat.*:s"

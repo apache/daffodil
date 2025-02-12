@@ -23,7 +23,7 @@ import scala.collection.mutable
  * Compatibility class for 2.12 and 2.13 since MultiMap and inheritance
  * from class mutable.HashMap have been deprecated in 2.13.
  */
-class MultiMapWrapper[K, V] {
+class MultiMap[K, V] {
   private val underlying = mutable.Map.empty[K, mutable.Set[V]]
 
   def addBinding(key: K, value: V): Unit =
@@ -45,8 +45,8 @@ class MultiMapWrapper[K, V] {
 
   def iterator: Iterator[(K, mutable.Set[V])] = underlying.iterator
 
-  def filter(func: (K, mutable.Set[V]) => Boolean): MultiMapWrapper[K, V] = {
-    val filtered = new MultiMapWrapper[K, V]
+  def filter(func: (K, mutable.Set[V]) => Boolean): MultiMap[K, V] = {
+    val filtered = new MultiMap[K, V]
     for ((key, values) <- underlying) {
       if (func(key, values)) {
         filtered.addBinding(key, values)
