@@ -184,12 +184,12 @@ jobs:
       - name: Build Documentation
         run: $SBT unidoc genTunablesDoc
 
-      - name: Package Zip & Tar
-        run: $SBT daffodil-cli/Universal/packageBin daffodil-cli/Universal/packageZipTarball
+      - name: Package Zip
+        run: $SBT daffodil-cli/Universal/packageBin
 
-      - name: Package RPM (Linux)
+      - name: Package RPM & Tar (Linux)
         if: runner.os == 'Linux'
-        run: $SBT daffodil-cli/Rpm/packageBin
+        run: $SBT daffodil-cli/Rpm/packageBin daffodil-cli/Universal/packageZipTarball
 
       ############################################################
       # Check
