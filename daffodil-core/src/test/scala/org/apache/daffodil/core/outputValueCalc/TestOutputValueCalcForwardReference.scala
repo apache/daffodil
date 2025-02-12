@@ -21,7 +21,6 @@ import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.xml._
 
 import org.junit.Assert._
 import org.junit.Test

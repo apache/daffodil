@@ -550,8 +550,7 @@ final class SchemaSet private (
   }
 
   lazy val allDefinedVariables = schemas
-    .flatMap(_.defineVariables)
-    .union(predefinedVars)
+    .flatMap(_.defineVariables) ++: predefinedVars
 
   private lazy val checkUnusedProperties = LV(Symbol("hasUnusedProperties")) {
     root.checkUnusedProperties

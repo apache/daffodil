@@ -68,8 +68,8 @@ class TestListSerialization {
         fail("Expected ClassCastException to be thrown")
       } catch {
         case e: ClassCastException => {
-          assertTrue(e.getMessage.contains("List$SerializationProxy"))
-          assertTrue(e.getMessage.contains("scala.collection.Seq"))
+          assertTrue(e.getMessage.contains("SerializationProxy"))
+          assertTrue(e.getMessage.contains("Seq"))
           assertTrue(e.getMessage.contains("Thing"))
         }
         case _: Throwable => fail("Expected ClassCastException to be thrown")

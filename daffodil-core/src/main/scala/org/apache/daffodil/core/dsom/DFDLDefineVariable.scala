@@ -158,9 +158,9 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   final lazy val value = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v
     case (Some(v), "") => v
-    case (Some(v), ev) if (ev != "") =>
+    case (Some(v), _) =>
       decl.SDE("Cannot have both a value attribute and an element value: %s", node)
-    case (None, "") =>
+    case (None, _) =>
       decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
@@ -182,9 +182,9 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   final lazy val value = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v
     case (Some(v), "") => v
-    case (Some(v), ev) if (ev != "") =>
+    case (Some(v), _) =>
       decl.SDE("Cannot have both a value attribute and an element value: %s", node)
-    case (None, "") =>
+    case (None, _) =>
       decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 

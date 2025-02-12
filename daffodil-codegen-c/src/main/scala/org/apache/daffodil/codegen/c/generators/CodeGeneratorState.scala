@@ -1045,7 +1045,7 @@ class CodeGeneratorState(private val root: ElementBase) {
       // Go up the stack that many times to get that struct's C type
       val C = structs(nUpDirs).C
       // Convert the up dirs to parents
-      val parents = upDirs.replaceAllLiterally("../", "parent->").stripSuffix("->")
+      val parents = upDirs.replace("../", "parent->").stripSuffix("->")
       // Convert exprPath to a parents-> indirection
       s"""(($C *)instance->_base.$parents)->$afterUpDirs"""
     } else {

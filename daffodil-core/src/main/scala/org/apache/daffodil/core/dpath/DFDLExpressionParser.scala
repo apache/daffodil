@@ -181,23 +181,28 @@ class DFDLPathExpressionParser[T <: AnyRef](
         expressionAST.init()
         expressionAST
       }
-      case NoSuccess(msg, next) => {
-        // blech - no easy way to just grab up to 30 chars from a Reader[Char]
-        var nextRdr = next
-        val nextString = new StringBuilder()
-        var i = 0
-        while (!nextRdr.atEnd && i < 30) {
-          nextString.append(nextRdr.first)
-          nextRdr = nextRdr.rest
-          i += 1
-        }
+      case NoSuccess.I(msg, next) => {
+        val nextString = convertNextToString(next)
         context.SDE(
           "Unable to parse expression. Message: %s\nNext: %s.",
           msg,
-          nextString.toString()
+          nextString
         )
       }
     }
+  }
+
+  // blech - no easy way to just grab up to 30 chars from a Reader[Char]
+  def convertNextToString(next: Input): String = {
+    var nextRdr = next
+    var i = 0
+    val nextString = new StringBuilder()
+    while (!nextRdr.atEnd && i < 30) {
+      nextString.append(nextRdr.first)
+      nextRdr = nextRdr.rest
+      i += 1
+    }
+    nextString.toString()
   }
 
   def wrapAsSuccess[T](p: => Parser[T]): Parser[ParseResult[T]] = Parser { in =>

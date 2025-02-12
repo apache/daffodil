@@ -454,7 +454,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
           checkPosNegNumPartSyntax(beforeV + "V" + afterV, negNum)
           afterV.length
         }
-        case None =>
+        case Some(_) | None =>
           e.SDE(
             s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
                | Other than the sign indicators, it can contain only
