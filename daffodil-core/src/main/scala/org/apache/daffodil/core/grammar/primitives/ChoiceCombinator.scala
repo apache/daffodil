@@ -32,6 +32,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.ProperlySerializableMap._
+import org.apache.daffodil.lib.util.collections.RichMap
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
 import org.apache.daffodil.runtime1.processors.RangeBound
 import org.apache.daffodil.runtime1.processors.parsers._
@@ -236,17 +237,18 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         }
       })
 
-      val dispatchBranchKeyMap = dispatchBranchKeyValueTuples.toMap.mapValues { gram =>
-        val isRepresented =
-          true // choice branches are, currently, always represented (cannot have inputValueCalc).
-        val gramParser = gram.parser
-        val parser =
-          if (gramParser.isEmpty) {
-            new ChoiceBranchEmptyParser(gram.context.runtimeData)
-          } else {
-            gramParser
-          }
-        (parser, isRepresented)
+      val dispatchBranchKeyMap = new RichMap(dispatchBranchKeyValueTuples.toMap).mapValues {
+        gram =>
+          val isRepresented =
+            true // choice branches are, currently, always represented (cannot have inputValueCalc).
+          val gramParser = gram.parser
+          val parser =
+            if (gramParser.isEmpty) {
+              new ChoiceBranchEmptyParser(gram.context.runtimeData)
+            } else {
+              gramParser
+            }
+          (parser, isRepresented)
       }
 
       val serializableMap: ProperlySerializableMap[String, (Parser, Boolean)] =

@@ -28,7 +28,7 @@ import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.lib.util.Stack
+import org.apache.daffodil.lib.util.collections.Stack
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 /**

@@ -81,7 +81,7 @@ object OsgiCheckPlugin extends AutoPlugin {
         // create a map, grouping with a key of package name and value of all of the
         // owners that claim to own it. If only one project owns a package, the value
         // should be a list of one.
-        val packageOwnersMap = packageOwnerTuples
+        val packageOwnersMap: Map[String, Seq[String]] = packageOwnerTuples
           .groupBy { case (packageName, _) => packageName }
           .mapValues { list => list.map { case (_, packageOwner) => packageOwner } }
 

@@ -26,6 +26,7 @@ import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.lib.util.collections.RichMap
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEndEvent
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
@@ -121,10 +122,12 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     }
 
     // converts a sequence of tuples into a multi-map
-    val eventMap = eventTuples
-      .groupBy {
-        _._1
-      }
+    val eventMap = new RichMap(
+      eventTuples
+        .groupBy {
+          _._1
+        }
+    )
       .mapValues {
         _.map(_._2)
       }

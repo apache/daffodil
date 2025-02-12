@@ -19,6 +19,8 @@ package org.apache.daffodil.lib.util
 
 import java.util.regex.Matcher
 
+import org.apache.daffodil.lib.util.collections.Stack
+
 sealed abstract class LocalStackBase[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) {
 
   protected def stack: Stack[T]

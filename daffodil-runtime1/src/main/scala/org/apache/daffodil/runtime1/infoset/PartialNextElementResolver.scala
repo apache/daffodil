@@ -17,12 +17,15 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import scala.collection.compat.immutable.LazyList
+
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.ResettableIterator
+import org.apache.daffodil.lib.util.collections.RichMap
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.QNameBase
@@ -126,7 +129,7 @@ trait NextElementResolver { self: InfosetInputter =>
   ): Maybe[ElementRuntimeData] = {
     val allTRDs = {
       iter.reset()
-      iter.toStream.takeWhile { stackTRD =>
+      iter.to(LazyList).takeWhile { stackTRD =>
         optTRD.map { _ ne stackTRD }.getOrElse(true)
       }
     }
@@ -334,7 +337,7 @@ class SeveralPossibilitiesForNextElement(
           // with a matching local name, and error if we found more than one.
           // If we only found one we found it. If we didn't find any, there was
           // no match.
-          val localMatches = nextERDMap.filterKeys(_.local == local)
+          val localMatches = new RichMap(nextERDMap).filterKeys(_.local == local)
           if (localMatches.size > 1) {
             val sqn = StepQName(None, local, NS(namespace))
             val keys = localMatches.keys.toSeq

@@ -840,6 +840,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           "The " + attrName + " '" + cfgName + "' is ambiguous. There is an embedded config with that name, AND a file with that name.",
           None
         )
+      case _ => None
     }
     optDefinedConfig
   }
@@ -953,7 +954,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         tunables
       )
 
-      val newCompileResult: TDML.CompileResult = compileResult.right.map {
+      val newCompileResult: TDML.CompileResult = compileResult.map {
         case (diags, proc: TDMLDFDLProcessor) =>
           // warnings are checked elsewhere for expected ones.
           val newProc: TDMLDFDLProcessor =
@@ -2839,7 +2840,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
     val nAfter = testSuite.loadingExceptions.size
     val hasMoreExceptions = before.size < nAfter
     if (hasMoreExceptions) {
-      val newExceptions = (testSuite.loadingExceptions -- before).toSeq
+      val newExceptions = (testSuite.loadingExceptions.diff(before)).toSeq
       testCase.toss(TDMLException(newExceptions, None), None)
     }
     elem.asInstanceOf[Elem]
@@ -3059,10 +3060,10 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
   private def removeExpiredEntries(): Unit = {
     val now = System.currentTimeMillis()
-    cache.retain { case (_, v) =>
-      val retainEntry = v.optExpireTimeMillis.map { now < _ }.getOrElse(true)
-      retainEntry
-    }
+    val keysToRemove = cache.filterNot { case (k, v) =>
+      v.optExpireTimeMillis.forall(now < _)
+    }.keys
+    keysToRemove.foreach(cache.remove)
   }
 
   def setEntriesFinished(keys: mutable.Set[TDMLCompileResultCacheKey]): Unit =

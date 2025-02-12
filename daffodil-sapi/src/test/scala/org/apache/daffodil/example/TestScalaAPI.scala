@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.xml.XMLConstants
+import scala.collection.compat.immutable.ArraySeq
 
 import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.UsageException
@@ -1213,7 +1214,7 @@ class TestScalaAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new TestInfosetInputter(expectedEvents: _*)
+      val inputter = new TestInfosetInputter(ArraySeq.unsafeWrapArray(expectedEvents): _*)
 
       val ur = dp.unparse(inputter, wbc)
       assertFalse(ur.isError())

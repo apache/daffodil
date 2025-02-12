@@ -29,6 +29,7 @@ import org.apache.daffodil.lib.schema.annotation.props._
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.collections.RichMap
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -256,7 +257,9 @@ trait ElementBase
 
       // Creates a Map[prefix, Set[NS]]. Duplicate NS's will be removed from the
       // Set, since it's a Set
-      val bindingsGroupedByPrefix = allBindings.groupBy { _._1 }.mapValues { _.map { _._2 } }
+      val bindingsGroupedByPrefix = new RichMap(allBindings.groupBy { _._1 }).mapValues {
+        _.map { _._2 }
+      }
 
       // Any Set with size > 1 has different namespaces for the same prefix, filter them out
       val bindingsNoConflictsMap = bindingsGroupedByPrefix.filter { case (prefix, bindings) =>
@@ -264,7 +267,7 @@ trait ElementBase
       }
 
       // Create a Map[prefix, NS] now that conflicts are removed
-      val bindingsSingleNSMap = bindingsNoConflictsMap.mapValues { _.head }
+      val bindingsSingleNSMap = new RichMap(bindingsNoConflictsMap).mapValues { _.head }
 
       // Convert back to a set
       val bindings = bindingsSingleNSMap.toSet
