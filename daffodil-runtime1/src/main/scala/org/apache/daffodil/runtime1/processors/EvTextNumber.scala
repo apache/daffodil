@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.processors
 
 import java.math.RoundingMode
-import scala.collection.mutable
 
 import org.apache.daffodil.lib.cookers.TextBooleanFalseRepCooker
 import org.apache.daffodil.lib.cookers.TextBooleanTrueRepCooker
@@ -33,6 +32,7 @@ import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.MultiMapWrapper
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom._
 
@@ -96,8 +96,7 @@ class TextNumberFormatEv(
     exponentRep: Maybe[String]
   ): Unit = {
 
-    val mm = new mutable.HashMap[String, mutable.Set[String]]
-      with mutable.MultiMap[String, String]
+    val mm = new MultiMapWrapper[String, String]
     if (decimalSep.isDefined)
       mm.addBinding(decimalSep.get.toString, "textStandardDecimalSeparator")
     if (groupingSep.isDefined)

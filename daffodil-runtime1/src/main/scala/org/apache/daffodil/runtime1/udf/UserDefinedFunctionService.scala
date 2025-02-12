@@ -26,6 +26,7 @@ import java.lang.reflect.Method
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import scala.collection.mutable._
+import scala.collection.compat.immutable.ArraySeq
 
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
@@ -56,7 +57,7 @@ object UserDefinedFunctionService {
     }
 
     def lookupMethod() = {
-      val m = decClass.getMethod(methodName, paramTypes: _*)
+      val m = decClass.getMethod(methodName, ArraySeq.unsafeWrapArray(paramTypes): _*)
       m
     }
 
