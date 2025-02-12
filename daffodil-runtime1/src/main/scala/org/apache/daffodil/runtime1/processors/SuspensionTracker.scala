@@ -125,9 +125,9 @@ class SuspensionDeadlockException(suspExprs: Seq[Suspension])
       .groupBy {
         _.rd
       }
-      .mapValues {
+      .values
+      .map {
         _(0)
       }
-      .values
       .mkString(" - ", "\n - ", "")
   )

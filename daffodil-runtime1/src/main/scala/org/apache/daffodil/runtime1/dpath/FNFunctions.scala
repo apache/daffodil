@@ -714,7 +714,7 @@ case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentValue(res)
   }
 
-  override def toXML = toXML(recipe.toXML)
+  override def toXML = toXMLVarargs(recipe.toXML)
 
 }
 
@@ -726,7 +726,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentValue(!res)
   }
 
-  override def toXML = toXML(recipe.toXML)
+  override def toXML = toXMLVarargs(recipe.toXML)
 
 }
 
@@ -919,13 +919,13 @@ case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind)
         val f = asFloat(value.getAnyRef).floatValue()
         if (f.isPosInfinity || f.isNegInfinity) f
         else if (f.isNaN()) throw new NumberFormatException("fn:round received NaN")
-        else f.round: Float
+        else f.round.toFloat
       }
       case NodeInfo.Double => {
         val d = asDouble(value.getAnyRef).doubleValue()
         if (d.isPosInfinity || d.isNegInfinity) d
         else if (d.isNaN()) throw new NumberFormatException("fn:round received NaN")
-        else d.round: Double
+        else d.round.toDouble
       }
       case _: NodeInfo.Numeric.Kind => value
       case _ =>

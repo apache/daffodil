@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
+import scala.collection.compat.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
@@ -95,7 +96,7 @@ object CreateDelimiterDFA {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, ignoreCase)
     val db = d.delimBuf
-    apply(delimType, ci, db, delimiterStr, ignoreCase)
+    apply(delimType, ci, ArraySeq.unsafeWrapArray(db), delimiterStr, ignoreCase)
   }
 
   /**
@@ -111,7 +112,7 @@ object CreateDelimiterDFA {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, false)
     val db = d.delimBuf
-    apply(delimType, ci, db, delimiterStr, outputNewLine)
+    apply(delimType, ci, ArraySeq.unsafeWrapArray(db), delimiterStr, outputNewLine)
   }
 
   /**

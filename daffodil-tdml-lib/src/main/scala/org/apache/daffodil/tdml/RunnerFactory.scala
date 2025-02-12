@@ -18,6 +18,7 @@
 package org.apache.daffodil.tdml
 
 import java.nio.file.Paths
+import scala.collection.compat.immutable.ArraySeq
 
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.lib.api.URISchemaSource
@@ -49,7 +50,8 @@ object Runner {
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault
+    defaultImplementationsDefault: Seq[String] =
+      ArraySeq.unsafeWrapArray(defaultImplementationsDefaultDefault)
   ): Runner = {
 
     // Prepend forward slash to turn dir/file into classpath resource
@@ -149,7 +151,8 @@ final class Runner private (
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
+  defaultImplementationsDefault: Seq[String] =
+    ArraySeq.unsafeWrapArray(Runner.defaultImplementationsDefaultDefault),
   defaultIgnoreUnexpectedWarningsDefault: Boolean = true,
   defaultIgnoreUnexpectedValidationErrorsDefault: Boolean = true
 ) {

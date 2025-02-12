@@ -293,7 +293,11 @@ def buildScalacOptions(scalaVersion: String) = {
       Seq(
         "-Xlint:inaccessible",
         "-Xlint:infer-any",
-        "-Xlint:nullary-unit"
+        "-Xlint:nullary-unit",
+        // TODO: scala 2.12 phase out
+        // the import is needed for Scala 2.12 but issues an unused import warning under 2.13, so we add this to
+        // suppresss the warning
+        "-Wconf:origin=scala.collection.compat.*:s"
       )
     case _ => Seq.empty
   }

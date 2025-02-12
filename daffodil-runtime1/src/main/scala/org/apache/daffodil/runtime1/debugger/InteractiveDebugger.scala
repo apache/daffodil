@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.debugger
 
 import java.io.File
+import scala.collection.compat.immutable.ArraySeq
 
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.WarnID
@@ -279,7 +280,7 @@ class InteractiveDebugger(
         input
       }
     }
-    cmd.split(" ").filter(_ != "")
+    ArraySeq.unsafeWrapArray(cmd.split(" ").filter(_ != ""))
   }
 
   private val debuggerQName = GlobalQName(Some("daf"), "debugger", XMLUtils.dafintURI)
@@ -1862,7 +1863,7 @@ class InteractiveDebugger(
       }
 
       abstract class InfoProcessorBase extends DebugCommand with DebugCommandValidateZeroArgs {
-        val desc = "display the current Daffodil " + name
+        val desc = "display the current Daffodil " + this.name
         val longDesc = desc
         def act(
           args: Seq[String],
@@ -1871,15 +1872,15 @@ class InteractiveDebugger(
         ): DebugState.Type = {
           state match {
             case pstate: PState => {
-              if (name == "parser") {
-                debugPrintln("%s: %s".format(name, processor.toBriefXML(2)))
+              if (this.name == "parser") {
+                debugPrintln("%s: %s".format(this.name, processor.toBriefXML(2)))
               } else {
                 debugPrintln("unparser: not available")
               }
             }
             case ustate: UState => {
-              if (name == "unparser") {
-                debugPrintln("%s: %s".format(name, processor.toBriefXML(2)))
+              if (this.name == "unparser") {
+                debugPrintln("%s: %s".format(this.name, processor.toBriefXML(2)))
               } else {
                 debugPrintln("parser: not available")
               }

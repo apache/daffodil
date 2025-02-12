@@ -20,6 +20,7 @@ package org.apache.daffodil.lib.util
 import scala.collection.mutable.ListBuffer
 
 /**
+ * TODO: scala 2.12 phase out
  * Compatibility class for 2.12 and 2.13 since ArrayStack and Stack
  * have been deprecated in 2.13. This allows us to maintain the same
  * functionality as stack while using ListBuffer instead
