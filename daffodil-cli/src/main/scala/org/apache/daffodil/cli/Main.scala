@@ -160,51 +160,54 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  implicit def validateConverter = singleArgConverter[ValidationMode.Type]((s: String) => {
-    import ValidatorPatterns._
-    s match {
-      case "on" => ValidationMode.Full
-      case "limited" => ValidationMode.Limited
-      case "off" => ValidationMode.Off
-      case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
-        val config =
-          if (arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg))
-          else ConfigFactory.parseString(s"$name=$arg")
-        ValidationMode.Custom(Validators.get(name).make(config))
-      case NoArgsPattern(name) if Validators.isRegistered(name) =>
-        ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
-      case _ =>
-        throw new Exception(
-          "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
-            .format(s)
-        )
-    }
-  })
-
-  implicit def infosetTypeConverter = singleArgConverter[InfosetType.Type]((s: String) => {
-    try {
-      InfosetType.withName(s.toLowerCase)
-    } catch {
-      case _: NoSuchElementException =>
-        throw new Exception(
-          "Unrecognized infoset type: %s.  Must be one of %s".format(
-            s,
-            InfosetType.values.mkString(", ")
+  implicit def validateConverter: ValueConverter[ValidationMode.Type] =
+    singleArgConverter[ValidationMode.Type]((s: String) => {
+      import ValidatorPatterns._
+      s match {
+        case "on" => ValidationMode.Full
+        case "limited" => ValidationMode.Limited
+        case "off" => ValidationMode.Off
+        case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
+          val config =
+            if (arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg))
+            else ConfigFactory.parseString(s"$name=$arg")
+          ValidationMode.Custom(Validators.get(name).make(config))
+        case NoArgsPattern(name) if Validators.isRegistered(name) =>
+          ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
+        case _ =>
+          throw new Exception(
+            "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
+              .format(s)
           )
-        )
-    }
-  })
+      }
+    })
 
-  implicit def implementationConverter = singleArgConverter[TDMLImplementation]((s: String) => {
-    val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
-    if (!optImplementation.isDefined) {
-      throw new Exception(
-        "Unrecognized TDML implementation '%s'.  Must be one of %s"
-          .format(s, TDMLImplementation.values.mkString(", "))
-      )
-    }
-    optImplementation.get
-  })
+  implicit def infosetTypeConverter: ValueConverter[InfosetType.Type] =
+    singleArgConverter[InfosetType.Type]((s: String) => {
+      try {
+        InfosetType.withName(s.toLowerCase)
+      } catch {
+        case _: NoSuchElementException =>
+          throw new Exception(
+            "Unrecognized infoset type: %s.  Must be one of %s".format(
+              s,
+              InfosetType.values.mkString(", ")
+            )
+          )
+      }
+    })
+
+  implicit def implementationConverter: ValueConverter[TDMLImplementation] =
+    singleArgConverter[TDMLImplementation]((s: String) => {
+      val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
+      if (!optImplementation.isDefined) {
+        throw new Exception(
+          "Unrecognized TDML implementation '%s'.  Must be one of %s"
+            .format(s, TDMLImplementation.values.mkString(", "))
+        )
+      }
+      optImplementation.get
+    })
 
   def qnameConvert(s: String): RefQName = {
     val eQN = QName.refQNameFromExtendedSyntax(s)
@@ -229,59 +232,61 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val argType = ArgType.SINGLE
   }
 
-  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
+  implicit def rootNSConverter: ValueConverter[RefQName] =
+    org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
 
-  implicit def fileResourceURIConverter = singleArgConverter[URISchemaSource]((s: String) => {
-    val optResolved =
-      try {
-        val uri =
-          if (File.separatorChar == '/' || s.startsWith("/")) {
-            // This is either a non-Windows system or a resource on the classpath. Either way we
-            // assume it is a valid URI except for things like spaces, which this URI
-            // constructor converts. We do not specify a schema since this might be a relative
-            // path
-            new URI(null, s, null)
-          } else {
-            // This is a Windows system, which has complex path resolution and paths that are
-            // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
-            // settle for an absolute URI
-            val p = Paths.get(s)
-            if (p.isAbsolute() || s.startsWith("\\")) {
-              // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
-              // starts with a backslash (which resolves relative to the current drive instead
-              // of the current working directory), then there is no valid relative URI
-              // representation, so we just convert it to an absolute URI
-              p.toUri
+  implicit def fileResourceURIConverter: ValueConverter[URISchemaSource] =
+    singleArgConverter[URISchemaSource]((s: String) => {
+      val optResolved =
+        try {
+          val uri =
+            if (File.separatorChar == '/' || s.startsWith("/")) {
+              // This is either a non-Windows system or a resource on the classpath. Either way we
+              // assume it is a valid URI except for things like spaces, which this URI
+              // constructor converts. We do not specify a schema since this might be a relative
+              // path
+              new URI(null, s, null)
             } else {
-              // this Windows path is relative to the current working directory. We can convert
-              // it to a relative URI by just switching all the path separators. We do not
-              // specify a schema since this is a relative path
-              new URI(null, s.replace('\\', '/'), null)
+              // This is a Windows system, which has complex path resolution and paths that are
+              // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
+              // settle for an absolute URI
+              val p = Paths.get(s)
+              if (p.isAbsolute() || s.startsWith("\\")) {
+                // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
+                // starts with a backslash (which resolves relative to the current drive instead
+                // of the current working directory), then there is no valid relative URI
+                // representation, so we just convert it to an absolute URI
+                p.toUri
+              } else {
+                // this Windows path is relative to the current working directory. We can convert
+                // it to a relative URI by just switching all the path separators. We do not
+                // specify a schema since this is a relative path
+                new URI(null, s.replace('\\', '/'), null)
+              }
             }
-          }
-        // At this point we have a valid URI, which could be absolute or relative, with relative
-        // URIs resolved from the current working directory. We create a fake contextPath that represents
-        // a fake file in the current working directory and pass that as the contextSource to the
-        // resolveSchemaLocation function to find the actual file or resource. This is necessary because
-        // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
-        val contextPath = Paths.get("fakeContext.dfdl.xsd")
-        val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
-        XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
-      } catch {
-        case _: Exception => throw new Exception(s"Could not find file or resource $s")
-      }
-    optResolved match {
-      case Some((uriSchemaSource, relToAbs)) => {
-        if (relToAbs) {
-          Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$s")
+          // At this point we have a valid URI, which could be absolute or relative, with relative
+          // URIs resolved from the current working directory. We create a fake contextPath that represents
+          // a fake file in the current working directory and pass that as the contextSource to the
+          // resolveSchemaLocation function to find the actual file or resource. This is necessary because
+          // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
+          val contextPath = Paths.get("fakeContext.dfdl.xsd")
+          val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
+          XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
+        } catch {
+          case _: Exception => throw new Exception(s"Could not find file or resource $s")
         }
-        uriSchemaSource
+      optResolved match {
+        case Some((uriSchemaSource, relToAbs)) => {
+          if (relToAbs) {
+            Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$s")
+          }
+          uriSchemaSource
+        }
+        case None => {
+          throw new Exception(s"Could not find file or resource $s")
+        }
       }
-      case None => {
-        throw new Exception(s"Could not find file or resource $s")
-      }
-    }
-  })
+    })
 
   printedName = "Apache Daffodil"
 

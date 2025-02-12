@@ -166,9 +166,11 @@ trait RepTypeMixin { self: ElementBase =>
           lt.operate(h1, l2).getBoolean,
           "Overlapping dfdlx:%s (%s) and dfdlx:%s (%s) found",
           if (lt.operate(l1, h1).getBoolean) "repValueRanges" else "repValues",
-          if (lt.operate(l1, h1).getBoolean) l1.value + " " + h1.value else l1.value,
+          if (lt.operate(l1, h1).getBoolean) l1.value.toString + " " + h1.value.toString
+          else l1.value.toString,
           if (lt.operate(l2, h2).getBoolean) "repValueRanges" else "repValues",
-          if (lt.operate(l2, h2).getBoolean) l2.value + " " + h2.value else l2.value
+          if (lt.operate(l2, h2).getBoolean) l2.value.toString + " " + h2.value.toString
+          else l2.value.toString
         )
         (l2, h2)
       }

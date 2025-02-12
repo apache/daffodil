@@ -263,7 +263,7 @@ class TestICU {
     assertEquals(JDouble.POSITIVE_INFINITY, numInf.doubleValue, 0.0)
 
     val ppNInf = new ParsePosition(0)
-    val numNInf = df.parse(dfs.getMinusSign + dfs.getInfinity, ppNInf)
+    val numNInf = df.parse(dfs.getMinusSign +: dfs.getInfinity, ppNInf)
     assertTrue(numNInf.isInstanceOf[Double])
     assertEquals(JDouble.NEGATIVE_INFINITY, numNInf.doubleValue, 0.0)
   }
