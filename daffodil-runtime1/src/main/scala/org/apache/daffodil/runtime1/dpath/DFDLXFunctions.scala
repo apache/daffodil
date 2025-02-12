@@ -235,7 +235,7 @@ case class DFDLXTrace(recipe: CompiledDPath, msg: String)
 
   // This is toXML for the case class object, not the infoset node it is
   // dealing with.
-  override def toXML = toXML(recipe.toXML)
+  override def toXML = toXMLVarargs(recipe.toXML)
 
 }
 

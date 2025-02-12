@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.dpath
 
 import java.lang.{ Number => JNumber }
+import scala.collection.compat.immutable.ArraySeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
 import org.apache.daffodil.lib.api.DaffodilTunables
@@ -43,7 +44,7 @@ import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
-  def this(ops: List[RecipeOp]) = this(ops.toArray: _*)
+  def this(ops: List[RecipeOp]) = this(ArraySeq.unsafeWrapArray(ops.toArray): _*)
 
   override def toString =
     toXML.toString
@@ -157,9 +158,9 @@ abstract class RecipeOp extends Serializable {
 
   protected def subRecipes: Seq[CompiledDPath] = Nil
 
-  protected def toXML(s: String): scala.xml.Node = toXML(new scala.xml.Text(s))
+  protected def toXML(s: String): scala.xml.Node = toXMLVarargs(new scala.xml.Text(s))
 
-  protected def toXML(children: scala.xml.Node*): scala.xml.Node = toXML(children.toSeq)
+  protected def toXMLVarargs(children: scala.xml.Node*): scala.xml.Node = toXML(children.toSeq)
 
   protected def toXML(children: scala.xml.NodeSeq): scala.xml.Node = {
     val name = Misc.getNameFromClass(this)
@@ -246,7 +247,8 @@ trait BinaryOpMixin { self: RecipeOp =>
   def right: CompiledDPath
   override def subRecipes: Seq[CompiledDPath] = Seq(left, right)
 
-  override def toXML: scala.xml.Node = toXML(new scala.xml.Text(op), left.toXML, right.toXML)
+  override def toXML: scala.xml.Node =
+    toXMLVarargs(new scala.xml.Text(op), left.toXML, right.toXML)
 }
 
 case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: CompiledDPath)

@@ -19,6 +19,8 @@ package org.apache.daffodil.lib.util
 
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.lib.util.collections.Stack
+
 object Timer {
 
   def printTime(message: String, nanos: Long, units: String): Unit = {
@@ -188,7 +190,7 @@ object TimeTracker {
    *
    * TODO: not covered by tests
    */
-  val childrenTimeStack = new org.apache.daffodil.lib.util.Stack[Long]()
+  val childrenTimeStack = new Stack[Long]()
 
   /**
    * Used to measure a section of code that might get called multiple times.

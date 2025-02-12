@@ -30,7 +30,6 @@ import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.util.ArrayBuffer1
 import org.apache.daffodil.lib.util.MStack
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MStackOfInt
@@ -42,6 +41,7 @@ import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Pool
 import org.apache.daffodil.lib.util.Poolable
+import org.apache.daffodil.lib.util.collections.ArrayBuffer1
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.api.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.DIComplex

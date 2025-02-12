@@ -33,6 +33,7 @@ import scala.xml.parsing.NoBindingFactoryAdapter
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Implicits.using
+import org.apache.daffodil.lib.util.collections.Stack
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NS.implicitNStoString

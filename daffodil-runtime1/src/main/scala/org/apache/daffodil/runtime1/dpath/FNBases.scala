@@ -124,7 +124,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentValue(computeValue(arg, dstate))
   }
 
-  override def toXML = toXML(recipe.toXML)
+  override def toXML = toXMLVarargs(recipe.toXML)
 
   def computeValue(str: DataValuePrimitive, dstate: DState): DataValuePrimitive
 }

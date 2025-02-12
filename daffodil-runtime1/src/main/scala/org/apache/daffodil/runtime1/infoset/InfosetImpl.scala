@@ -41,7 +41,6 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.equality.ViewEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
-import org.apache.daffodil.lib.util.ArrayBuffer1
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
@@ -51,6 +50,7 @@ import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Numbers
+import org.apache.daffodil.lib.util.collections.ArrayBuffer1
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.ComplexElementMetadata
