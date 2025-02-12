@@ -223,7 +223,8 @@ class TestDSOMWalker {
       )
       val className: String = simpleTypes(index - 1).getSimpleName
       val withoutView: String = className.substring(0, className.length - 4)
-      val fieldName: String = withoutView.charAt(0).toLower + withoutView.substring(1) + "Field"
+      val fieldName: String =
+        withoutView.charAt(0).toLower +: (withoutView.substring(1) + "Field")
       assertEquals(
         s"The $elementIndex${getSuffix(elementIndex)} element in the stack should be named '$fieldName'",
         fieldName,

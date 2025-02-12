@@ -198,7 +198,7 @@ object NodeInfo extends Enum {
       val cname = super.name
       val first = cname(0).toLower
       val rest = cname.substring(1)
-      first + rest
+      first +: rest
     }
 
     def isError: Boolean = false

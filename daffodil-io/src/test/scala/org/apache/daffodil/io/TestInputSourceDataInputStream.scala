@@ -589,7 +589,6 @@ class TestInputSourceDataInputStream {
     val m = pat.matcher("")
     val cb = CharBuffer.wrap("aaab")
     m.reset(cb)
-    val sb = new StringBuilder
     val isMatch = m.lookingAt()
     assertTrue(isMatch)
     val hitEnd = m.hitEnd
@@ -604,7 +603,6 @@ class TestInputSourceDataInputStream {
     assertEqualsTyped[Long](4, end)
     val group = m.group
     assertEqualsTyped("aaab", group)
-    sb + group
   }
 
   /**
