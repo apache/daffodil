@@ -64,7 +64,7 @@ abstract class FuzzData(
    */
   def runLength: Int
 
-  override def hasNext() = true // we can keep fuzzing forever
+  override def hasNext = true // we can keep fuzzing forever
 
   override def next(): Array[Byte] = {
     val data = originalData.clone()

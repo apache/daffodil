@@ -392,12 +392,10 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
   import SeparatedSequenceChildBehavior._
 
   lazy val sequenceChildParser: SequenceChildParser = {
-    val HasSep = true
-    val UnSep = false
-    val res = (term, sq.hasSeparator) match {
-      case (_, _) if !term.isRepresented =>
+    val res = term match {
+      case _ if !term.isRepresented =>
         new NonRepresentedSequenceChildParser(childParser, srd, trd)
-      case (_: ElementBase, HasSep) =>
+      case (_: ElementBase) if sq.hasSeparator =>
         new ScalarOrderedElementSeparatedSequenceChildParser(
           childParser,
           srd,
@@ -406,7 +404,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           sq.separatorPosition,
           separatedHelper
         )
-      case (_: ModelGroup, HasSep) => {
+      case (_: ModelGroup) if sq.hasSeparator => {
         Assert.invariant(term.isInstanceOf[ModelGroup])
         new GroupSeparatedSequenceChildParser(
           childParser,
@@ -417,7 +415,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           separatedHelper
         )
       }
-      case (_, UnSep) =>
+      case _ if !sq.hasSeparator =>
         new ScalarOrderedUnseparatedSequenceChildParser(
           childParser,
           srd,

@@ -17,14 +17,11 @@
 
 package org.apache.daffodil.core.externalvars
 
-import org.apache.daffodil.lib.Implicits._
-
-import org.junit.Assert._
-import org.junit.Test; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 import scala.util.Success
 
 import org.apache.daffodil.lib.xml._
 
+import org.junit.Assert._
 import org.junit.Test
 
 class TestExternalVariables {

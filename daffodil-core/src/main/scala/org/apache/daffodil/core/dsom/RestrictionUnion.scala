@@ -168,7 +168,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     if (hasPattern) {
       val lPattern = localBaseFacets.filter { case (f, v) => f == Facet.pattern }
       val rPattern = remoteBaseFacets.filter { case (f, v) => f == Facet.pattern }
-      val cPattern = lPattern.union(rPattern)
+      val cPattern = lPattern ++: rPattern
       cPattern.foreach(x => combined.enqueue(x))
     }
     if (hasLength) {

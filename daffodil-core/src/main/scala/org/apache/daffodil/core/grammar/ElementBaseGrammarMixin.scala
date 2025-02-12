@@ -1269,7 +1269,7 @@ trait ElementBaseGrammarMixin
             )
             LiteralValueNilOfSpecifiedLength(this)
           }
-          case LengthKind.Implicit if isComplexType =>
+          case LengthKind.Implicit =>
             LiteralValueNilOfSpecifiedLength(this)
           case LengthKind.Prefixed => LiteralValueNilOfSpecifiedLength(this)
           case LengthKind.EndOfParent if isComplexType =>
@@ -1286,7 +1286,7 @@ trait ElementBaseGrammarMixin
         lengthKind match {
           case LengthKind.Explicit => LiteralCharacterNilOfSpecifiedLength(this)
           case LengthKind.Implicit if isSimpleType => LiteralCharacterNilOfSpecifiedLength(this)
-          case LengthKind.Implicit if isComplexType =>
+          case LengthKind.Implicit =>
             Assert.invariantFailed("literal nil complex types aren't handled here.")
           case LengthKind.Prefixed =>
             SDE("nilKind='literalCharacter' is not valid for lengthKind='prefixed'")
@@ -1392,6 +1392,10 @@ trait ElementBaseGrammarMixin
           notYetImplemented("lengthKind='endOfParent' for complex type")
         case LengthKind.EndOfParent =>
           notYetImplemented("lengthKind='endOfParent' for simple type")
+        case LengthKind.Delimited | LengthKind.Implicit =>
+          Assert.impossibleCase(
+            "Delimited and ComplexType Implicit cases should not be reached"
+          )
       }
     }
   }

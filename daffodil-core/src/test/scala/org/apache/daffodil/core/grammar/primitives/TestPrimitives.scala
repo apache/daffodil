@@ -34,26 +34,28 @@ class TestPrimitives {
 
   @Test def testVRegexPositiveAndNegativeWithPrefixesAndSuffixes(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("A###012V34B;C####56V78D")
-    myMatch match {
-      case re("A", "###012", "34", "B", "C", "####56V78", "D") => // ok
+    val optMatch = re.findFirstMatchIn("A###012V34B;C####56V78D")
+    optMatch match {
+      case Some(re("A", "###012", "34", "B", "C", "####56V78", "D")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testVRegexPositiveAndNegativeWithPrefixesAndSuffixes2(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("'P'###012V34B;C####56V78D")
-    myMatch match {
-      case re("'P'", "###012", "34", "B", "C", "####56V78", "D") => // ok
+    val optMatch = re.findFirstMatchIn("'P'###012V34B;C####56V78D")
+    optMatch match {
+      case Some(re("'P'", "###012", "34", "B", "C", "####56V78", "D")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testVRegexPositiveAndNegativeWithPrefixesAndSuffixes3(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
     val optMatch = re.findFirstMatchIn("'P'###012V34'P';N0V0N")
-    println(optMatch)
     optMatch match {
       case Some(re("'P'", "###012", "34", "'P'", "N", "0V0", "N")) => // ok
+      case _ => fail()
     }
   }
 
@@ -63,43 +65,54 @@ class TestPrimitives {
     println(optMatch)
     optMatch match {
       case Some(re("'P'", "###012", "34", "'P'", "N", "#", "N")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testVRegexOnlyPositivePattern(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("A###012V34B")
-    myMatch match {
-      case re("A", "###012", "34", "B", null, null, null) =>
+    val optMatch = re.findFirstMatchIn("A###012V34B")
+    optMatch match {
+      case Some(re("A", "###012", "34", "B", null, null, null)) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testVRegexOnlyPositivePatternNoPrefixNorSuffix(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("###012V34")
-    myMatch match {
-      case re("", "###012", "34", "", null, null, null) =>
+    val optMyMatch = re.findFirstMatchIn("###012V34")
+
+    optMyMatch match {
+      case Some(re("", "###012", "34", "", null, null, null)) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testVRegexTrailingSign(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("012V34+") // for zoned, overpunched trailing sign.
-    myMatch match {
-      case re("", "012", "34", "+", null, null, null) =>
+    val optMatch = re.findFirstMatchIn("012V34+") // for zoned, overpunched trailing sign.
+    optMatch match {
+      case Some(re("", "012", "34", "+", null, null, null)) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testVRegexZonedLeadingSign(): Unit = {
     val re = TextNumberPatternUtils.vRegexZoned
     val optMyMatch = re.findFirstMatchIn("+012V34") // for zoned, overpunched leading sign.
-    val Some(re("+", "012", "34", "")) = optMyMatch
+    optMyMatch match {
+      case Some(re("+", "012", "34", "")) => // ok
+      case _ => fail()
+    }
   }
 
   @Test def testVRegexZonedTrailingSign(): Unit = {
     val re = TextNumberPatternUtils.vRegexZoned
     val optMyMatch = re.findFirstMatchIn("012V34+") // for zoned, overpunched trailing sign.
-    val Some(re("", "012", "34", "+")) = optMyMatch
+    optMyMatch match {
+      case Some(re("", "012", "34", "+")) => // ok
+      case _ => fail()
+    }
   }
 
   @Test def testVRegexZonedNothingAfterSuffix(): Unit = {
@@ -107,8 +120,9 @@ class TestPrimitives {
     val optMyMatch =
       re.findFirstMatchIn("012V34+garbage") // for zoned, overpunched trailing sign.
     optMyMatch match {
-      case Some(re("", "012", "34", "+")) => fail("accepted trash at end of pattern")
-      case None => // ok
+      case Some(re("", "012", "34", "+")) =>
+        fail("accepted trash at end of pattern")
+      case _ => // ok
     }
   }
 
@@ -116,7 +130,7 @@ class TestPrimitives {
     val re = TextNumberPatternUtils.vRegexZoned
     val optMyMatch = re.findFirstMatchIn("A012V34")
     optMyMatch match {
-      case Some(x @ re(_*)) => fail(s"accepted A as leading sign: $x")
+      case Some(x) => fail(s"accepted A as leading sign: ${x.matched}")
       case None => // ok
     }
   }
@@ -204,76 +218,85 @@ class TestPrimitives {
 
   @Test def testZonedVRegexWithPrefix(): Unit = {
     val re = TextNumberPatternUtils.vRegexZoned
-    val Some(myMatch) = re.findFirstMatchIn("+012V34")
-    myMatch match {
-      case re("+", "012", "34", "") => // ok
+    val optMatch = re.findFirstMatchIn("+012V34")
+    optMatch match {
+      case Some(re("+", "012", "34", "")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testZonedVRegexWithSuffix(): Unit = {
     val re = TextNumberPatternUtils.vRegexZoned
-    val Some(myMatch) = re.findFirstMatchIn("012V34+")
-    myMatch match {
-      case re("", "012", "34", "+") => // ok
+    val optMatch = re.findFirstMatchIn("012V34+")
+    optMatch match {
+      case Some(re("", "012", "34", "+")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testStandardPOnLeft(): Unit = {
     val re = TextNumberPatternUtils.pOnLeftRegexStandard
     println(re)
-    val Some(myMatch) = re.findFirstMatchIn("+PPP000")
-    myMatch match {
-      case re("+", "PPP", "000", "", null, null, null) => // ok
+    val optMatch = re.findFirstMatchIn("+PPP000")
+    optMatch match {
+      case Some(re("+", "PPP", "000", "", null, null, null)) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testStandardPOnLeft2(): Unit = {
     val re = TextNumberPatternUtils.pOnLeftRegexStandard
     println(re)
-    val Some(myMatch) = re.findFirstMatchIn("+PPP000;-#")
-    myMatch match {
-      case re("+", "PPP", "000", "", "-", "#", "") => // ok
+    val optMatch = re.findFirstMatchIn("+PPP000;-#")
+    optMatch match {
+      case Some(re("+", "PPP", "000", "", "-", "#", "")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testStandardPOnLeft3(): Unit = {
     val re = TextNumberPatternUtils.pOnLeftRegexStandard
     println(re)
-    val Some(myMatch) = re.findFirstMatchIn("+PPP000;-P0")
-    myMatch match {
-      case re("+", "PPP", "000", "", "-", "P0", "") => // ok
+    val optMatch = re.findFirstMatchIn("+PPP000;-P0")
+    optMatch match {
+      case Some(re("+", "PPP", "000", "", "-", "P0", "")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testStandardPOnRight(): Unit = {
     val re = TextNumberPatternUtils.pOnRightRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("000PPP+")
-    myMatch match {
-      case re("", "000", "PPP", "+", null, null, null) => // ok
+    val optMatch = re.findFirstMatchIn("000PPP+")
+    optMatch match {
+      case Some(re("", "000", "PPP", "+", null, null, null)) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testStandardPOnRight2(): Unit = {
     val re = TextNumberPatternUtils.pOnRightRegexStandard
-    val Some(myMatch) = re.findFirstMatchIn("000PPP+;0P-")
-    myMatch match {
-      case re("", "000", "PPP", "+", "", "0P", "-") => // ok
+    val optMatch = re.findFirstMatchIn("000PPP+;0P-")
+    optMatch match {
+      case Some(re("", "000", "PPP", "+", "", "0P", "-")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testZonedPOnLeft(): Unit = {
     val re = TextNumberPatternUtils.pOnLeftRegexZoned
-    val Some(myMatch) = re.findFirstMatchIn("+PPP000")
-    myMatch match {
-      case re("+", "PPP", "000", "") => // ok
+    val optMatch = re.findFirstMatchIn("+PPP000")
+    optMatch match {
+      case Some(re("+", "PPP", "000", "")) => // ok
+      case _ => fail()
     }
   }
 
   @Test def testZonedPOnRight(): Unit = {
     val re = TextNumberPatternUtils.pOnRightRegexZoned
-    val Some(myMatch) = re.findFirstMatchIn("000PPP+")
-    myMatch match {
-      case re("", "000", "PPP", "+") => // ok
+    val optMatch = re.findFirstMatchIn("000PPP+")
+    optMatch match {
+      case Some(re("", "000", "PPP", "+")) => // ok
+      case _ => fail()
     }
   }
 
