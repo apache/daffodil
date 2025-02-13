@@ -33,7 +33,7 @@ class TestCLIUdfs {
    * the directory containing the META-INF dir needed for the test.
    */
   private def udfClasspath(extra: String*): Seq[Path] = {
-    val classes = path("daffodil-udf/target/scala-2.12/test-classes/")
+    val classes = path(s"daffodil-udf/target/$scalaVersionForTargetPath/test-classes/")
     val paths = extra.map(path(_))
     classes +: paths
   }

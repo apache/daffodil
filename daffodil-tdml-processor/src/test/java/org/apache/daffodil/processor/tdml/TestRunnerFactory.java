@@ -50,7 +50,7 @@ public class TestRunnerFactory {
       false,
       NoRoundTrip$.MODULE$,
       "off",
-      CollectionConverters.asScala(Arrays.asList("daffodil", "ibm")),
+      CollectionConverters.asScala(Arrays.asList("daffodil", "ibm")).toSeq(),
       false,
       false);
     runner.runOneTest("testPass");

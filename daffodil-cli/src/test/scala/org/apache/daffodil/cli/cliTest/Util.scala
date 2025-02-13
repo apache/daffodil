@@ -57,6 +57,12 @@ object Util {
     Paths.get(s"daffodil-cli/target/universal/stage/bin/daffodil$ext")
   }
 
+  val scalaVersionForTargetPath: String = scala.util.Properties.versionNumberString match {
+    case v if v.startsWith("2.12") => "scala-2.12"
+    case v if v.startsWith("2.13") => "scala-2.13"
+    case _ => throw new IllegalStateException("Unsupported version provided for tests")
+  }
+
   /**
    * Convert the parameter to a java Path. The string
    * parameter should contain unix path separators and it will be interpreted
@@ -68,7 +74,7 @@ object Util {
     Paths.get(string)
   }
 
-  def devNull(): String = if (isWindows) "NUL" else "/dev/null"
+  def devNull: String = if (isWindows) "NUL" else "/dev/null"
 
   def md5sum(path: Path): String = {
     val md = MessageDigest.getInstance("MD5")
