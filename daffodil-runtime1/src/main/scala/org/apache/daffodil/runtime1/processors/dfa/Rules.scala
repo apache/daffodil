@@ -33,7 +33,7 @@ import org.apache.daffodil.runtime1.processors.WSP
  * This object itself will exist and be a member of the states ArrayBuffer as well as the other
  * states before any access to the lazy val members.
  */
-abstract class State(states: => ArrayBuffer[State]) extends Serializable {
+abstract class State(states: Array[State]) extends Serializable {
 
   def stateNum: Int
   def stateName: String
@@ -180,7 +180,7 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
  * 1		1		1		Y
  */
 class StartStateUnambiguousEscapeChar(
-  states: => ArrayBuffer[State],
+  states: Array[State],
   EEC: MaybeChar,
   EC: MaybeChar,
   val stateNum: Int
@@ -205,14 +205,13 @@ class StartStateUnambiguousEscapeChar(
   )
 }
 
-class StartState(states: => ArrayBuffer[State], val stateNum: Int) extends State(states) {
+class StartState(states: Array[State], val stateNum: Int) extends State(states) {
 
   val stateName: String = "StartState"
   val rules = ArrayBuffer(PauseRule, EndOfDataCharRule, StartStateRule)
 }
 
-class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
-  extends State(states) {
+class StartStatePadding(states: Array[State], val padChar: Char) extends State(states) {
 
   val stateName = "StartState"
   val stateNum: Int = 0
@@ -239,7 +238,7 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
  * Here compiledDelims should only contain the endBlock DFADelimiter.
  */
 class StartStateEscapeBlock(
-  states: => ArrayBuffer[State],
+  states: Array[State],
   val blockEnd: DFADelimiter,
   val EEC: MaybeChar,
   val stateNum: Int
@@ -269,12 +268,11 @@ class StartStateEscapeBlock(
 }
 
 class StartStateEscapeChar(
-  states: => ArrayBuffer[State],
+  states: Array[State],
   val EEC: MaybeChar,
   val EC: Char,
   val stateNum: Int
 ) extends State(states) {
-
   val stateName: String = "StartState"
 
   object NextStateECRule extends Rule {
@@ -443,9 +441,7 @@ class StartStateEscapeChar(
 
 }
 
-class ECState(states: => ArrayBuffer[State], val EC: Char, val stateNum: Int)
-  extends State(states) {
-
+class ECState(states: Array[State], val EC: Char, val stateNum: Int) extends State(states) {
   val stateName = "ECState"
   val rules = ArrayBuffer(
     // ECState, means that data0 is EC
@@ -497,12 +493,11 @@ class ECState(states: => ArrayBuffer[State], val EC: Char, val stateNum: Int)
 }
 
 class EECState(
-  states: => ArrayBuffer[State],
+  states: Array[State],
   val EEC: MaybeChar,
   val EC: Char,
   val stateNum: Int
 ) extends State(states) {
-
   val stateName = "EECState"
   val rules = ArrayBuffer(
     // Because this is about EC and EEC we can
@@ -531,12 +526,11 @@ class EECState(
 }
 
 class EECStateBlock(
-  states: => ArrayBuffer[State],
+  states: Array[State],
   blockEnd: DFADelimiter,
   val EEC: MaybeChar,
   val stateNum: Int
 ) extends State(states) {
-
   val stateName = "EECState"
   val rules = ArrayBuffer(
     // Because this is about EC and EEC we can
@@ -579,7 +573,7 @@ class EECStateBlock(
   )
 }
 
-abstract class DelimStateBase(states: => ArrayBuffer[State]) extends State(states) {
+abstract class DelimStateBase(states: Array[State]) extends State(states) {
   var stateName: String = null
 
   def setStateName(name: String) = stateName = name
@@ -596,13 +590,12 @@ abstract class DelimStateBase(states: => ArrayBuffer[State]) extends State(state
 }
 
 class CharState(
-  states: => ArrayBuffer[State],
+  states: Array[State],
   char: Char,
   val nextState: Int,
   val stateNum: Int,
   ignoreCase: Boolean
 ) extends DelimStateBase(states) {
-
   stateName = "CharState(" + char + ")"
   val rulesToThisState = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
@@ -640,8 +633,7 @@ class CharState(
   }
 }
 
-abstract class WSPBase(states: => ArrayBuffer[State]) extends DelimStateBase(states) with WSP {
-
+abstract class WSPBase(states: Array[State]) extends DelimStateBase(states) with WSP {
   def checkMatch(charIn: Char): Boolean = {
     val result = charIn match {
       case CTRL0 | CTRL1 | CTRL2 | CTRL3 | CTRL4 => true
@@ -654,9 +646,8 @@ abstract class WSPBase(states: => ArrayBuffer[State]) extends DelimStateBase(sta
   }
 }
 
-class WSPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+class WSPState(states: Array[State], val nextState: Int, val stateNum: Int)
   extends WSPBase(states) {
-
   stateName = "WSPState"
   val rulesToThisState = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
@@ -679,11 +670,13 @@ class WSPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: 
   })
 }
 
-abstract class WSPRepeats(states: => ArrayBuffer[State]) extends WSPBase(states) {}
+abstract class WSPRepeats(states: Array[State]) extends WSPBase(states) {}
 
-class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
-  extends WSPRepeats(states) {
-
+class WSPPlusState(
+  states: Array[State],
+  val nextState: Int,
+  val stateNum: Int
+) extends WSPRepeats(states) {
   stateName = "WSPPlusState"
   val rulesToThisState = ArrayBuffer(new Rule {
     override def test(r: Registers): Boolean = checkMatch(r.data0)
@@ -716,9 +709,11 @@ class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateN
   )
 }
 
-class WSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
-  extends WSPRepeats(states) {
-
+class WSPStarState(
+  states: Array[State],
+  val nextState: Int,
+  val stateNum: Int
+) extends WSPRepeats(states) {
   stateName = "WSPStarState"
 
   val rules = ArrayBuffer(
@@ -739,8 +734,7 @@ class WSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateN
   )
 }
 
-abstract class NLBase(states: => ArrayBuffer[State]) extends DelimStateBase(states) with NL {
-
+abstract class NLBase(states: Array[State]) extends DelimStateBase(states) with NL {
   def isNLNotCR(charIn: Char): Boolean = {
     charIn match {
       case LF | NEL | LS => true
@@ -763,9 +757,8 @@ abstract class NLBase(states: => ArrayBuffer[State]) extends DelimStateBase(stat
   }
 }
 
-class NLState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+class NLState(states: Array[State], val nextState: Int, val stateNum: Int)
   extends NLBase(states) {
-
   stateName = "NLState"
 
   val rules = ArrayBuffer(
@@ -807,9 +800,8 @@ class NLState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: I
   def checkMatch(charIn: Char): Boolean = isNLNotCR(charIn) || isCR(charIn)
 }
 
-class ESState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+class ESState(states: Array[State], val nextState: Int, val stateNum: Int)
   extends NLBase(states) {
-
   stateName = "ESState"
 
   /**

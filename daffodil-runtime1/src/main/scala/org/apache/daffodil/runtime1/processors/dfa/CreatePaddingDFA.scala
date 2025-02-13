@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
-import scala.collection.mutable.ArrayBuffer
-
 import org.apache.daffodil.runtime1.processors.Delimiter
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
@@ -33,15 +31,15 @@ object CreatePaddingDFA {
     // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
-    val allStates: ArrayBuffer[State] = ArrayBuffer.empty
+    val allStates: Array[State] = new Array[State](1)
 
     val startState = new StartStatePadding(allStates, padChar)
 
-    allStates.insert(0, startState)
+    allStates(0) = startState
 
     new DFADelimiterImpl(
       DelimiterTextType.Other,
-      allStates.toArray,
+      allStates,
       padChar.toString(),
       rd.schemaFileLocation
     )
@@ -55,11 +53,11 @@ object CreatePaddingDFA {
     // TODO: In the future we will need to change this because the padChar isn't necessarily a char.
     // One can use it to specify a numeric byte to be used to pad as well.
 
-    val allStates: ArrayBuffer[State] = ArrayBuffer.empty
+    val allStates: Array[State] = new Array[State](1)
 
     val startState = new StartStatePadding(allStates, padChar)
 
-    allStates.insert(0, startState)
+    allStates(0) = startState
 
     val d = new Delimiter()
     d.compileDelimiter(padChar.toString, false)
@@ -68,7 +66,7 @@ object CreatePaddingDFA {
 
     new DFADelimiterImplUnparse(
       DelimiterTextType.Other,
-      allStates.toArray,
+      allStates,
       padChar.toString(),
       unparseValue,
       rd.schemaFileLocation
