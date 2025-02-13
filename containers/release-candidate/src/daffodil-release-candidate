@@ -234,6 +234,7 @@ pushd $REPO_ROOT/$DAFFODIL_CODE_REPO &> /dev/null
 case $PROJECT_REPO in
   "daffodil" | "daffodil-sbt")
     VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
+    SCALA_BINARY_VERSION=$(grep 'scalaVersion :=' build.sbt | cut -d\" -f2 | cut -d. -f1,2)
     ;;
   "daffodil-vscode")
     VERSION=$(grep '"version"' package.json | cut -d\" -f4)
@@ -316,7 +317,7 @@ case $PROJECT_REPO in
     rm -rf $DAFFODIL_DOCS_DIR
     mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
     cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
-    cp -R target/scala-2.12/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
+    cp -R target/scala-$SCALA_BINARY_VERSION/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
     cp target/tunables.md $DAFFODIL_SITE_DIR/site/
 
     echo "Installing Site Tutorials..."

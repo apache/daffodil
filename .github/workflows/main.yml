@@ -40,7 +40,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 8, 11, 17, 21 ]
-        scala_version: [ 2.12.20 ]
+        scala_version: [ 2.13.16, 2.12.20 ]
         os: [ ubuntu-22.04, windows-2022, macos-14 ]
         exclude:
           # only run macos on java 17
@@ -90,7 +90,7 @@ jobs:
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-22.04' &&
                      matrix.java_version == '17' &&
-                     matrix.scala_version == '2.12.20' &&
+                     matrix.scala_version == '2.13.16' &&
                      github.event_name == 'push' &&
                      github.repository == 'apache/daffodil' &&
                      github.ref == 'refs/heads/main'
@@ -215,6 +215,11 @@ jobs:
       - name: Prepare for SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
         run: |
+          SCALA_VERSION=${{ matrix.scala_version }}
+          SCALA_BINARY_VERSION=$(echo "$SCALA_VERSION" | cut -d. -f1,2)
+          # NOTE: This is needed by .sonar-project.properties so it can 
+          # have the right reportPath per version
+          echo "SCALA_BINARY_VERSION=$SCALA_BINARY_VERSION" >> $GITHUB_ENV
           $SBT coverageReport
           find . -name scoverage.xml -exec sed -i 's#/home/runner/work/daffodil/daffodil#/github/workspace#g' {} +
 
@@ -236,7 +241,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 17 ]
-        scala_version: [ 2.12.20 ]
+        scala_version: [ 2.13.16 ]
         os: [ ubuntu-22.04 ]
     runs-on: ${{ matrix.os }}
     env:
