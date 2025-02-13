@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
-import scala.collection.mutable.ArrayBuffer
-
 import org.apache.daffodil.lib.util.MaybeChar
 
 /**
@@ -43,13 +41,13 @@ object CreateFieldDFA {
    */
   def apply(): DFAField = {
 
-    val allStates: ArrayBuffer[State] = ArrayBuffer.empty
+    val allStates: Array[State] = new Array[State](1)
 
     val startState = new StartState(allStates, 0)
 
-    allStates.insert(0, startState)
+    allStates(0) = startState
 
-    new DFAFieldImpl(allStates.toArray)
+    new DFAFieldImpl(allStates)
   }
 
   /**
@@ -57,17 +55,17 @@ object CreateFieldDFA {
    */
   def apply(EC: Char, EEC: MaybeChar): DFAField = {
 
-    val allStates: ArrayBuffer[State] = ArrayBuffer.empty
+    val allStates: Array[State] = new Array(3)
 
     val ecState = new ECState(allStates, EC, 1)
     val eecState = new EECState(allStates, EEC, EC, 2)
     val startState = new StartStateEscapeChar(allStates, EEC, EC, 0)
 
-    allStates.insert(0, eecState)
-    allStates.insert(0, ecState)
-    allStates.insert(0, startState)
+    allStates(2) = eecState
+    allStates(1) = ecState
+    allStates(0) = startState
 
-    new DFAFieldImpl(allStates.toArray)
+    new DFAFieldImpl(allStates)
   }
 
   /**
@@ -75,15 +73,15 @@ object CreateFieldDFA {
    */
   def apply(blockEnd: DFADelimiter, EEC: MaybeChar): DFAField = {
 
-    val allStates: ArrayBuffer[State] = ArrayBuffer.empty
+    val allStates: Array[State] = new Array[State](2)
 
     val eecState = new EECStateBlock(allStates, blockEnd, EEC, 1)
     val startState = new StartStateEscapeBlock(allStates, blockEnd, EEC, 0)
 
-    allStates.insert(0, eecState)
-    allStates.insert(0, startState)
+    allStates(1) = eecState
+    allStates(0) = startState
 
-    new DFAFieldImpl(allStates.toArray)
+    new DFAFieldImpl(allStates)
   }
 
 }
