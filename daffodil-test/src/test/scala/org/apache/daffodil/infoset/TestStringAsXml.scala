@@ -33,6 +33,7 @@ import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL.DataProcessor
 
 import org.apache.commons.io.IOUtils
@@ -298,11 +299,12 @@ class TestStringAsXml {
       IOUtils.toString(is, StandardCharsets.UTF_8)
     }
     // diagnostic from full validation
-    assertTrue(parseDiags.exists(_.contains("Element 'xmlStr' is a simple type")))
-    // we still get the expected infoset, replace CRLF with LF because of git windows autocrlf
-    assertEquals(
-      parseInfosetExpected.replace("\r\n", "\n"),
-      parseInfosetActual.replace("\r\n", "\n")
+    assertTrue(parseDiags.exists(_.contains("xmlStr' is a simple type")))
+    // we still get the expected infoset, use compareAndReport so prefix differences
+    // don't matter
+    XMLUtils.compareAndReport(
+      scala.xml.XML.loadString(parseInfosetExpected),
+      scala.xml.XML.loadString(parseInfosetActual)
     )
 
     // validate the infoset using the handwritten WithPayload schema

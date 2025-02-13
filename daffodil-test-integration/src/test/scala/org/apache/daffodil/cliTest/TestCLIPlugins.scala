@@ -32,7 +32,7 @@ class TestCLIPlugins {
    * specific test
    */
   private def testClasspath(extra: String*): Seq[Path] = {
-    val classes = path("daffodil-test/target/scala-2.12/test-classes/")
+    val classes = path(s"daffodil-test/target/$scalaVersionForTargetPath/test-classes/")
     val paths = extra.map(path(_))
     classes +: paths
   }
@@ -108,7 +108,7 @@ class TestCLIPlugins {
       "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = testClasspath(
-      "daffodil-udf/target/scala-2.12/test-classes/"
+      s"daffodil-udf/target/$scalaVersionForTargetPath/test-classes/"
     )
 
     withTempFile { parser =>
