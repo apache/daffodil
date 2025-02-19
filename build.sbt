@@ -241,6 +241,7 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.20",
   crossScalaVersions := Seq("2.12.20"),
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
+  Test / scalacOptions ++= buildTestScalacOptions(scalaVersion.value),
   Compile / compile / javacOptions ++= buildJavacOptions(),
   logBuffered := true,
   transitiveClassifiers := Seq("sources", "javadoc"),
@@ -297,7 +298,25 @@ def buildScalacOptions(scalaVersion: String) = {
         // TODO: scala 2.12 phase out
         // the import is needed for Scala 2.12 but issues an unused import warning under 2.13, so we add this to
         // suppresss the warning
-        "-Wconf:origin=scala.collection.compat.*:s"
+        "-Wconf:origin=scala.collection.compat.*:s",
+        // suppress nullary-unit warning in the specific trait
+        "-Wconf:cat=lint-nullary-unit:silent,site=org.apache.daffodil.junit.tdml.TdmlTests:silent"
+      )
+    case _ => Seq.empty
+  }
+
+  commonOptions ++ scalaVersionSpecificOptions
+}
+
+def buildTestScalacOptions(scalaVersion: String) = {
+  val commonOptions = Seq.empty
+
+  val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 12)) => Seq.empty
+    case Some((2, 13)) =>
+      Seq(
+        // suppress nullary-unit warning in tests
+        "-Wconf:cat=lint-nullary-unit:silent"
       )
     case _ => Seq.empty
   }
