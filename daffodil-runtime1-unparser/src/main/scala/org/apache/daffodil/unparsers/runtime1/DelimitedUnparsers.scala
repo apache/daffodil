@@ -40,7 +40,7 @@ sealed class StringDelimitedUnparser(
   isDelimRequired: Boolean
 ) extends TextPrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   val fieldDFA = CreateFieldDFA()
   val textUnparser = new TextDelimitedUnparser(context)

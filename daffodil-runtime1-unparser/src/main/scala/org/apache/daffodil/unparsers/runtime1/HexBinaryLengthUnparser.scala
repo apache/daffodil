@@ -27,7 +27,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   protected def getLengthInBits(state: UState): Long
 

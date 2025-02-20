@@ -27,6 +27,7 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.runtime1.processors.unparsers._
 import org.apache.daffodil.unparsers.runtime1._
+import org.apache.daffodil.unparsers.runtime1.{ Separated => SeparatedUnparser }
 
 /**
  * Base class for all kinds of sequences.
@@ -71,7 +72,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
   // the mta parser differently to avoid this
   private lazy val sepUnparser = sepGram.unparser
 
-  lazy val sequenceChildren = sequenceChildrenArg.toVector
+  lazy val sequenceChildren = sequenceChildrenArg.toArray
 
   override lazy val parser: Parser = sq.hasSeparator match {
     case true =>
@@ -117,7 +118,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
             sepMtaAlignmentMaybe,
             sepMtaUnparserMaybe,
             sepUnparser,
-            childUnparsers
+            childUnparsers.map(_.asInstanceOf[SequenceChildUnparser with SeparatedUnparser])
           )
         case false =>
           new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)
@@ -155,7 +156,7 @@ class UnorderedSequence(
   // the mta parser differently to avoid this
   private lazy val sepUnparser = sepGram.unparser
 
-  private lazy val sequenceChildren = sequenceChildrenArg.toVector
+  private lazy val sequenceChildren = sequenceChildrenArg.toArray
 
   private lazy val parsers = alternatives.map(_.parser)
 
@@ -209,7 +210,11 @@ class UnorderedSequence(
             sepMtaAlignmentMaybe,
             sepMtaUnparserMaybe,
             sepUnparser,
-            childUnparsers
+            childUnparsers.map(
+              _.asInstanceOf[
+                SequenceChildUnparser with SeparatedUnparser
+              ]
+            )
           )
         case false =>
           new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)

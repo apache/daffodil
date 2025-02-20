@@ -57,7 +57,7 @@ class CalendarLanguageEv(
     eci
   )
   with InfosetCachedEvaluatable[ULocale] {
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 }
 
 class CalendarEv(
@@ -70,7 +70,7 @@ class CalendarEv(
 ) extends Evaluatable[Calendar](eci)
   with InfosetCachedEvaluatable[Calendar] {
 
-  override lazy val runtimeDependencies = Seq(localeEv)
+  override def runtimeDependencies = Seq(localeEv)
 
   override def compute(state: ParseOrUnparseState) = {
     // Used to configure the dataFormatter
@@ -106,7 +106,7 @@ class DateTimeFormatterEv(
 ) extends Evaluatable[ThreadLocal[SimpleDateFormat]](eci)
   with InfosetCachedEvaluatable[ThreadLocal[SimpleDateFormat]] {
 
-  override lazy val runtimeDependencies = Seq(localeEv)
+  override def runtimeDependencies = Seq(localeEv)
 
   override def compute(state: ParseOrUnparseState) = {
     val calendar = calendarEv.evaluate(state)

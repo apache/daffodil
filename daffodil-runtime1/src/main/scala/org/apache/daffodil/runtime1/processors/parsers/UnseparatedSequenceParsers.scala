@@ -18,6 +18,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.OccursCountEv
+import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.{ SequenceRuntimeData, TermRuntimeData }
 
 trait Unseparated { self: SequenceChildParser =>
@@ -79,10 +80,19 @@ class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
 
 class OrderedUnseparatedSequenceParser(
   rd: SequenceRuntimeData,
-  childParsersArg: Vector[SequenceChildParser]
-) extends SequenceParserBase(rd, childParsersArg, isOrdered = true)
+  override val childParsers: Array[SequenceChildParser]
+) extends SequenceParserBase(rd, isOrdered = true) {
+
+  override def runtimeDependencies = Vector()
+
+  override def childProcessors: Vector[Processor] = childParsers.toVector
+}
 
 class UnorderedUnseparatedSequenceParser(
   rd: SequenceRuntimeData,
-  choiceParser: Vector[SequenceChildParser]
-) extends SequenceParserBase(rd, choiceParser, isOrdered = false)
+  override val childParsers: Array[SequenceChildParser]
+) extends SequenceParserBase(rd, isOrdered = false) {
+  override def runtimeDependencies = Vector()
+
+  override def childProcessors: Vector[Processor] = childParsers.toVector
+}

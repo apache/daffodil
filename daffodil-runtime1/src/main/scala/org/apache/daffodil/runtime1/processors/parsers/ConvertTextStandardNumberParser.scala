@@ -43,9 +43,9 @@ case class ConvertTextCombinatorParser(
   converterParser: Parser
 ) extends CombinatorParser(rd) {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Vector(valueParser, converterParser)
+  override def childProcessors = Vector(valueParser, converterParser)
 
   def parse(start: PState): Unit = {
     valueParser.parse1(start)
@@ -166,7 +166,7 @@ case class ConvertTextStandardNumberParser(
 ) extends TextPrimParser
   with TextDecimalVirtualPointMixin {
 
-  override lazy val runtimeDependencies = Vector(textNumberFormatEv)
+  override def runtimeDependencies = Vector(textNumberFormatEv)
 
   private val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 

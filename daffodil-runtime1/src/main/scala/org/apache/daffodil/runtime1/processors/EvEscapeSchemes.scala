@@ -33,13 +33,13 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 class EscapeCharEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](expr, EscapeCharacterCooker, ci)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 }
 
 class EscapeEscapeCharEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](expr, EscapeEscapeCharacterCooker, ci)
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 }
 class ExtraEscapedCharsEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, Seq[String]](
@@ -48,7 +48,7 @@ class ExtraEscapedCharsEv(expr: CompiledExpression[String], ci: DPathCompileInfo
     ci
   )
   with InfosetCachedEvaluatable[Seq[String]] {
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 }
 
 trait EscapeSchemeCommonEv {
@@ -103,7 +103,7 @@ class EscapeSchemeCharParseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeParseEv(ci) {
 
-  override val runtimeDependencies = Vector(escapeChar) ++ optEscapeEscapeChar.toList
+  override def runtimeDependencies = Vector(escapeChar) ++ optEscapeEscapeChar.toList
 
   def compute(state: ParseOrUnparseState) = {
     val escChar = escapeChar.evaluate(state).charAt(0)
@@ -119,7 +119,7 @@ class EscapeSchemeCharUnparseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeUnparseEv(ci) {
 
-  override val runtimeDependencies =
+  override def runtimeDependencies =
     Vector(escapeChar) ++ optEscapeEscapeChar.toList ++ extraEscapedChars.toList
 
   def compute(state: ParseOrUnparseState) = {
@@ -142,7 +142,7 @@ class EscapeSchemeBlockParseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeParseEv(ci) {
 
-  override val runtimeDependencies = optEscapeEscapeChar.toList
+  override def runtimeDependencies = optEscapeEscapeChar.toList
 
   val bs = EscapeBlockStartCooker.convertConstant(blockStart, ci, forUnparse = false)
   val be = EscapeBlockEndCooker.convertConstant(blockEnd, ci, forUnparse = false)
@@ -162,7 +162,7 @@ class EscapeSchemeBlockUnparseEv(
   ci: DPathCompileInfo
 ) extends EscapeSchemeUnparseEv(ci) {
 
-  override val runtimeDependencies = optEscapeEscapeChar.toList ++ extraEscapedChars.toList
+  override def runtimeDependencies = optEscapeEscapeChar.toList ++ extraEscapedChars.toList
 
   val bs = EscapeBlockStartCooker.convertConstant(blockStart, ci, forUnparse = true)
   val be = EscapeBlockEndCooker.convertConstant(blockEnd, ci, forUnparse = true)

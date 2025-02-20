@@ -31,7 +31,7 @@ case class ConvertTextBooleanParser(
   ignoreCase: Boolean
 ) extends TextPrimParser {
 
-  override lazy val runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
+  override def runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
 
   private def matches(str1: String, str2: String): Boolean = {
     if (ignoreCase) str1.equalsIgnoreCase(str2) else str1 == str2

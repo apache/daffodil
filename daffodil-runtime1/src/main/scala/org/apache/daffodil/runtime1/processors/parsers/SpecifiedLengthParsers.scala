@@ -38,9 +38,9 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
   extends CombinatorParser(erd)
   with CaptureParsingValueLength {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Vector(eParser)
+  override def childProcessors = Vector(eParser)
 
   override def charsetEv = Assert.invariantFailed(
     "Specified Length parsers should not capture value length using the charset"
@@ -170,7 +170,7 @@ class SpecifiedLengthPrefixedParser(
 ) extends SpecifiedLengthParserBase(eParser, erd)
   with PrefixedLengthParserMixin {
 
-  override lazy val childProcessors = Vector(eParser, prefixedLengthParser)
+  override def childProcessors = Vector(eParser, prefixedLengthParser)
 
   final override def getBitLength(s: PState): MaybeULong = {
     MaybeULong(getPrefixedLengthInBits(s))
@@ -270,7 +270,7 @@ final class SpecifiedLengthPrefixedCharactersParser(
 ) extends SpecifiedLengthCharactersParserBase(eParser, erd)
   with PrefixedLengthParserMixin {
 
-  override lazy val childProcessors = Vector(eParser, prefixedLengthParser)
+  override def childProcessors = Vector(eParser, prefixedLengthParser)
 
   override lazy val lengthUnits = LengthUnits.Characters
 
@@ -283,7 +283,7 @@ final class SpecifiedLengthPrefixedCharactersParser(
 class CaptureStartOfContentLengthParser(override val context: ElementRuntimeData)
   extends PrimParser {
 
-  override val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
@@ -295,7 +295,7 @@ class CaptureStartOfContentLengthParser(override val context: ElementRuntimeData
 class CaptureEndOfContentLengthParser(override val context: ElementRuntimeData)
   extends PrimParser {
 
-  override val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
@@ -307,7 +307,7 @@ class CaptureEndOfContentLengthParser(override val context: ElementRuntimeData)
 class CaptureStartOfValueLengthParser(override val context: ElementRuntimeData)
   extends PrimParser {
 
-  override val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def parse(state: PState): Unit = {
     val dis = state.dataInputStream
@@ -319,7 +319,7 @@ class CaptureStartOfValueLengthParser(override val context: ElementRuntimeData)
 class CaptureEndOfValueLengthParser(override val context: ElementRuntimeData)
   extends PrimParser {
 
-  override val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def parse(state: PState): Unit = {
     val dis = state.dataInputStream

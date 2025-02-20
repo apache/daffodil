@@ -99,8 +99,8 @@ class RepTypeParser(
 ) extends CombinatorParser(e)
   with WithDetachedParser {
 
-  override lazy val childProcessors = Vector(repTypeParser)
-  override lazy val runtimeDependencies = Vector()
+  override def childProcessors = Vector(repTypeParser)
+  override def runtimeDependencies = Vector()
 
   override def parse(pstate: PState): Unit = {
     val repValue =

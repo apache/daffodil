@@ -23,8 +23,8 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueParser: Parser)
   extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Vector(nilParser, valueParser)
-  override lazy val runtimeDependencies = Vector()
+  override def childProcessors = Vector(nilParser, valueParser)
+  override def runtimeDependencies = Vector()
 
   def parse(pstate: PState): Unit = {
 

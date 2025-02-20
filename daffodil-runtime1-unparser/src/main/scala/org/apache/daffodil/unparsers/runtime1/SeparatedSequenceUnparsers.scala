@@ -48,7 +48,7 @@ trait Separated { self: SequenceChildUnparser =>
 
   def isPositional: Boolean
 
-  val childProcessors = Vector(childUnparser, sep)
+  def childProcessors = Vector(childUnparser, sep)
 }
 
 sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
@@ -121,14 +121,15 @@ class OrderedSeparatedSequenceUnparser(
   sepMtaAlignmentMaybe: MaybeInt,
   sepMtaUnparserMaybe: Maybe[Unparser],
   sep: Unparser,
-  childUnparsersArg: Vector[SequenceChildUnparser]
-) extends OrderedSequenceUnparserBase(
-    rd,
-    (childUnparsersArg :+ sep) ++ sepMtaUnparserMaybe.toSeq
-  ) {
+  childUnparsers: Array[SequenceChildUnparser with Separated]
+) extends OrderedSequenceUnparserBase(rd) {
+  // Sequences of nothing (no initiator, no terminator, nothing at all) should
+  // have been optimized away
+  Assert.invariant(childUnparsers.length > 0)
 
-  private val childUnparsers =
-    childUnparsersArg.asInstanceOf[Seq[SequenceChildUnparser with Separated]]
+  override def runtimeDependencies = Vector()
+
+  override def childProcessors = childUnparsers.toVector
 
   /**
    * Unparses one occurrence with associated separator (non-suppressable).

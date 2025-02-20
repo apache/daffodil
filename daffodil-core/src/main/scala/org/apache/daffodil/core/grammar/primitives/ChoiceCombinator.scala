@@ -79,7 +79,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
 
   lazy val parser: Parser = {
     if (!ch.isDirectDispatch) {
-      val cp = new ChoiceParser(ch.termRuntimeData, parsers.toVector)
+      val cp = new ChoiceParser(ch.termRuntimeData, parsers.toArray)
       ch.choiceLengthKind match {
         case ChoiceLengthKind.Implicit => cp
         case ChoiceLengthKind.Explicit =>

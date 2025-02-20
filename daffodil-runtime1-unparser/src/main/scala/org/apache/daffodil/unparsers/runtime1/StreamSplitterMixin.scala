@@ -86,7 +86,7 @@ class RegionSplitUnparser(override val context: TermRuntimeData)
   extends PrimUnparser
   with SuspendableUnparser {
 
-  override val childProcessors: Vector[Processor] = Vector()
+  override def childProcessors: Vector[Processor] = Vector()
 
   override def runtimeDependencies = Vector()
 

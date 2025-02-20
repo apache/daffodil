@@ -34,9 +34,9 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser) extends CombinatorParser(rd) {
   override def nom = "ComplexType"
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override def childProcessors = Vector(bodyParser)
 
   def parse(start: PState): Unit = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
@@ -59,9 +59,9 @@ class DelimiterStackParser(
   bodyParser: Parser
 ) extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override def childProcessors = Vector(bodyParser)
 
-  override lazy val runtimeDependencies = delimiters.toVector
+  override def runtimeDependencies = delimiters.toVector
 
   def parse(start: PState): Unit = {
 
@@ -101,9 +101,9 @@ class DynamicEscapeSchemeParser(
   bodyParser: Parser
 ) extends CombinatorParser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyParser)
+  override def childProcessors = Vector(bodyParser)
 
-  override lazy val runtimeDependencies = Vector(escapeScheme)
+  override def runtimeDependencies = Vector(escapeScheme)
 
   def parse(start: PState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting
@@ -129,7 +129,7 @@ class DynamicEscapeSchemeParser(
  */
 class ChoiceBranchEmptyParser(val context: RuntimeData) extends PrimParserNoData {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   def parse(state: PState): Unit = {
     // do nothing
@@ -148,7 +148,7 @@ abstract class ChoiceDispatchCombinatorParserBase(
 
   override def nom = "ChoiceDispatch"
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def childProcessors =
     dispatchBranchKeyMap.values.iterator.asScala.map(_._1).toVector ++

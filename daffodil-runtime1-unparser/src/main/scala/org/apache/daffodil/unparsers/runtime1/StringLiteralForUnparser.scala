@@ -33,7 +33,7 @@ class NilStringLiteralForUnparserEv(
 ) extends Evaluatable[String](tci)
   with InfosetCachedEvaluatable[String] {
 
-  override lazy val runtimeDependencies = maybeOutputNewLineEv.toList
+  override def runtimeDependencies = maybeOutputNewLineEv.toList
 
   override protected def compute(state: ParseOrUnparseState): String = {
     val endMarker = "__daffodil_stringLiteralForUnparser_endMarker__"

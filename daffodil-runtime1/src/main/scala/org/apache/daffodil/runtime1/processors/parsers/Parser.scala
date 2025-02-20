@@ -227,10 +227,10 @@ abstract class CombinatorParser(override val context: RuntimeData)
   extends Parser
   with CombinatorProcessor
 
-final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser])
+final class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
   extends CombinatorParser(context) {
-  override lazy val runtimeDependencies = Vector()
-  override def childProcessors = childParsers
+  override def runtimeDependencies = Vector()
+  override def childProcessors = childParsers.toVector
 
   override def nom = "seq"
 
@@ -249,10 +249,10 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser]
 
 }
 
-class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
+class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
   extends CombinatorParser(ctxt) {
-  override lazy val runtimeDependencies = Vector()
-  override lazy val childProcessors = childParsers
+  override def runtimeDependencies = Vector()
+  override def childProcessors = childParsers.toVector
 
   override def nom = "choice"
 
@@ -347,6 +347,6 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     context.toss(rsde)
   }
 
-  override lazy val childProcessors = Vector()
-  override lazy val runtimeDependencies = Vector()
+  override def childProcessors = Vector()
+  override def runtimeDependencies = Vector()
 }

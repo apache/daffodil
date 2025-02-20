@@ -458,7 +458,7 @@ abstract class OccursCountExpressionParser(
 
   final override def pouStatus = PoUStatus.NoPoU
 
-  final override lazy val runtimeDependencies = Vector(occursCountEv)
+  final override def runtimeDependencies = Vector(occursCountEv)
 
   final override def isBoundedMax = true
 

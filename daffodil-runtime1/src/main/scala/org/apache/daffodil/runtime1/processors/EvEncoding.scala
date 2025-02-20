@@ -58,7 +58,7 @@ abstract class EncodingEvBase(
     tci
   )
   with InfosetCachedEvaluatable[String] {
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override protected def compute(state: ParseOrUnparseState): String = {
     // compute via the cooker first
@@ -85,7 +85,7 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
   extends Evaluatable[BitsCharset](tci)
   with InfosetCachedEvaluatable[BitsCharset] {
 
-  override lazy val runtimeDependencies = Seq(encodingEv)
+  override def runtimeDependencies = Seq(encodingEv)
 
   private def checkCharset(state: ParseOrUnparseState, bitsCharset: BitsCharset): Unit = {
     if (bitsCharset.bitWidthOfACodeUnit != 8) {
@@ -120,7 +120,7 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, tci: DPathCompileInf
   extends Evaluatable[Integer](tci)
   with InfosetCachedEvaluatable[Integer] {
 
-  override lazy val runtimeDependencies = Seq(charsetEv)
+  override def runtimeDependencies = Seq(charsetEv)
 
   private val maybeSingleRawByteValue: MaybeInt = {
     val RawByte = """\%\#r([0-9a-fA-F]{2})\;""".r

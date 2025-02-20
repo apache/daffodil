@@ -24,7 +24,7 @@ import org.apache.daffodil.runtime1.processors.{ SequenceRuntimeData, TermRuntim
 
 trait Unseparated { self: SequenceChildUnparser =>
 
-  val childProcessors = Vector(childUnparser)
+  def childProcessors = Vector(childUnparser)
 }
 
 class ScalarOrderedUnseparatedSequenceChildUnparser(
@@ -54,8 +54,16 @@ class RepOrderedUnseparatedSequenceChildUnparser(
 
 class OrderedUnseparatedSequenceUnparser(
   rd: SequenceRuntimeData,
-  childUnparsers: Seq[SequenceChildUnparser]
-) extends OrderedSequenceUnparserBase(rd, childUnparsers.toVector) {
+  childUnparsers: Array[SequenceChildUnparser]
+) extends OrderedSequenceUnparserBase(rd) {
+
+  // Sequences of nothing (no initiator, no terminator, nothing at all) should
+  // have been optimized away
+  Assert.invariant(childUnparsers.length > 0)
+
+  override def runtimeDependencies = Vector()
+
+  override def childProcessors = childUnparsers.toVector
 
   /**
    * Unparses one iteration of an array/optional element

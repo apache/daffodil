@@ -23,7 +23,7 @@ import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
   bodyParser: SequenceChildParser
-) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
+) extends OrderedUnseparatedSequenceParser(rd, Array(bodyParser)) {
   override def nom = "LayeredSequence"
 
   override def parse(state: PState): Unit = {
