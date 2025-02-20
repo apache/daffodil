@@ -37,9 +37,9 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv
 ) extends CombinatorUnparser(erd) {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Vector(eUnparser)
+  override def childProcessors = Vector(eUnparser)
 
   private val libEv = targetLengthInBitsEv.lengthInBitsEv
   private val mcsEv = libEv.maybeCharsetEv
@@ -141,9 +141,9 @@ class SpecifiedLengthPrefixedUnparser(
 ) extends CombinatorUnparser(erd)
   with CalculatedPrefixedLengthUnparserMixin {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Vector(prefixedLengthUnparser, eUnparser)
+  override def childProcessors = Vector(prefixedLengthUnparser, eUnparser)
 
   override def unparse(state: UState): Unit = {
     // Create a "detached" DIDocument with a single child element that the

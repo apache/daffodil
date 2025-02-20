@@ -35,9 +35,9 @@ case class ConvertTextCombinatorUnparser(
   converterUnparser: Unparser
 ) extends CombinatorUnparser(rd) {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
-  override lazy val childProcessors = Vector(converterUnparser, valueUnparser)
+  override def childProcessors = Vector(converterUnparser, valueUnparser)
 
   override def unparse(state: UState): Unit = {
     converterUnparser.unparse1(state)
@@ -57,7 +57,7 @@ case class ConvertTextNumberUnparser(
   with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {
 
-  override lazy val runtimeDependencies = Vector(textNumberFormatEv)
+  override def runtimeDependencies = Vector(textNumberFormatEv)
 
   override def unparse(state: UState): Unit = {
 

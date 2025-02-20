@@ -37,7 +37,7 @@ case class ConvertTextCalendarUnparser(
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
+  override def runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
 
   def unparse(state: UState): Unit = {
 

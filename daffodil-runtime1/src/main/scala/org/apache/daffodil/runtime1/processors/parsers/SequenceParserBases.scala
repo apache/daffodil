@@ -23,7 +23,6 @@ import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
@@ -34,13 +33,11 @@ import org.apache.daffodil.runtime1.processors.Success
  */
 abstract class SequenceParserBase(
   srd: SequenceRuntimeData,
-  childParsers: Vector[Parser],
   isOrdered: Boolean
 ) extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
-  override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
-  override lazy val childProcessors = childParsers
+  val childParsers: Array[SequenceChildParser]
 
   import ArrayIndexStatus._
   import ParseAttemptStatus._

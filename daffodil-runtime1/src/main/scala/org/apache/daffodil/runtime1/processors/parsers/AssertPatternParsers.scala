@@ -73,7 +73,7 @@ class AssertPatternParser(
   override val failureType: FailureType
 ) extends PrimParser
   with AssertParserMixin {
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def toBriefXML(depthLimit: Int = -1) = {
     val kindString = if (discrim) "Discriminator" else "Assertion"

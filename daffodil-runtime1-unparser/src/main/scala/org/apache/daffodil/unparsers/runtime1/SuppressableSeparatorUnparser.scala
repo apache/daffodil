@@ -203,7 +203,7 @@ final class SuppressableSeparatorUnparser private (
 ) extends PrimUnparser
   with SuspendableUnparser {
 
-  override val childProcessors: Vector[Processor] = Vector(sepUnparser)
+  override def childProcessors: Vector[Processor] = Vector(sepUnparser)
 
   override def runtimeDependencies = Vector()
 }

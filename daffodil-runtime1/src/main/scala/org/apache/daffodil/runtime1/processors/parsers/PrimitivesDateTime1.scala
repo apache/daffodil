@@ -41,7 +41,7 @@ case class ConvertTextCalendarParser(
   dateTimeFormatterEv: DateTimeFormatterEv
 ) extends TextPrimParser {
 
-  override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
+  override def runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
 
   def parse(start: PState): Unit = {
     val node = start.simpleElement
@@ -134,7 +134,7 @@ case class ConvertBinaryCalendarSecMilliParser(
   lengthInBits: Int
 ) extends PrimParser {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   def parse(start: PState): Unit = {
 

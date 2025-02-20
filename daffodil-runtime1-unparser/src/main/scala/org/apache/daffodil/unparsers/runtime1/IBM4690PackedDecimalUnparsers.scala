@@ -49,7 +49,7 @@ class IBM4690PackedIntegerRuntimeLengthUnparser(
 ) extends IBM4690PackedIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override def runtimeDependencies = Vector(lengthEv)
 }
 
 final class IBM4690PackedIntegerDelimitedUnparser(e: ElementRuntimeData)
@@ -61,7 +61,7 @@ final class IBM4690PackedIntegerDelimitedUnparser(e: ElementRuntimeData)
 final class IBM4690PackedIntegerMinimumLengthUnparser(e: ElementRuntimeData)
   extends IBM4690PackedIntegerBaseUnparser(e) {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])
@@ -97,7 +97,7 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
 ) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override lazy val runtimeDependencies = Vector(lengthEv)
+  override def runtimeDependencies = Vector(lengthEv)
 }
 
 final class IBM4690PackedDecimalDelimitedUnparser(
@@ -113,7 +113,7 @@ final class IBM4690PackedDecimalMinimumLengthUnparser(
   binaryDecimalVirtualPoint: Int
 ) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])

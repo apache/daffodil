@@ -29,9 +29,9 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: Unparser)
   extends CombinatorUnparser(ctxt) {
 
-  override lazy val childProcessors = Vector(bodyUnparser)
+  override def childProcessors = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   def unparse(start: UState): Unit = {
     try {

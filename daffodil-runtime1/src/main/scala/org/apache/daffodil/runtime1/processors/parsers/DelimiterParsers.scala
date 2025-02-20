@@ -51,7 +51,7 @@ class DelimiterTextParser(
   mustMatchNonZeroData: Boolean
 ) extends TextPrimParser {
 
-  override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
+  override def runtimeDependencies = rd.encodingInfo.runtimeDependencies
   override def context = rd
 
   override val nom = delimiterType.toString

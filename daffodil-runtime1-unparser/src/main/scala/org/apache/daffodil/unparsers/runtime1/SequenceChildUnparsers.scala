@@ -67,7 +67,7 @@ abstract class RepeatingChildUnparser(
     childUnparser.unparse1(state)
   }
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   override def toString = "RepUnparser(" + childUnparser.toString + ")"
 

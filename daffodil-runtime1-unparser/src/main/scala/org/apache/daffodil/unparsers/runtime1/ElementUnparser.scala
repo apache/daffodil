@@ -55,7 +55,7 @@ class ElementUnspecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
 }
 
@@ -79,7 +79,7 @@ class ElementUnparserInputValueCalc(erd: ElementRuntimeData, setVarUnparsers: Ar
   extends ElementUnparserBase(erd, setVarUnparsers, Nope, Nope, Nope, Nope)
   with RegularElementUnparserStartEndStrategy {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
   /**
    * Move over in the element children, but not in the group.
@@ -108,7 +108,7 @@ class ElementOVCUnspecifiedLengthUnparser(
   with OVCStartEndStrategy
   with RepMoveMixin {
 
-  override lazy val runtimeDependencies = Vector()
+  override def runtimeDependencies = Vector()
 
 }
 
@@ -130,7 +130,7 @@ sealed abstract class ElementUnparserBase(
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
 
-  final override lazy val childProcessors =
+  final override def childProcessors =
     (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ eReptypeUnparser.toList ++ setVarUnparsers.toList).toVector
 
   private val name = erd.name
@@ -298,7 +298,7 @@ class ElementSpecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
-  override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
+  override def runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(
@@ -357,7 +357,7 @@ class ElementOVCSpecifiedLengthUnparser(
   with OVCStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
-  override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
+  override def runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   private def suspendableExpression =
     new ElementOVCSpecifiedLengthUnparserSuspendableExpression(this, expr)

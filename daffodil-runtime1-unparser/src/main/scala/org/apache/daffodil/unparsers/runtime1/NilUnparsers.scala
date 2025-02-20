@@ -26,7 +26,7 @@ class LiteralValueNilOfSpecifiedLengthUnparser(
   isForPattern: Boolean
 ) extends StringNoTruncateUnparser(erd) {
 
-  override lazy val runtimeDependencies = Vector(slEv)
+  override def runtimeDependencies = Vector(slEv)
 
   override protected def contentString(state: UState) = {
     slEv.evaluate(state)
