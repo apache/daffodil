@@ -1806,6 +1806,15 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         DFDLXBitBinaryExpr(functionQNameString, functionQName, args, DFDLXBitOr(_, _))
       case (RefQName(_, "bitNot", DFDLX), args) =>
         DFDLXBitUnaryExpr(functionQNameString, functionQName, args, DFDLXBitNot(_, _))
+      case (RefQName(_, "currentPosition", DFDLX), args) =>
+        FNOneArgExpr(
+          functionQNameString,
+          functionQName,
+          args,
+          NodeInfo.Long,
+          NodeInfo.String,
+          DFDLXCurrentPosition(_, _)
+        )
 
       case (RefQName(_, "year-from-dateTime", FUNC), args) =>
         FNOneArgExpr(
