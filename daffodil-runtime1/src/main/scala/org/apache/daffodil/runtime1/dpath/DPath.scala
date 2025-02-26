@@ -142,6 +142,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
         state.setFailed(e)
         null
       }
+
       /**
        * Almost anything that can go wrong in an expression maps to a SDE.
        * Except when we're evaluating a discriminator.
