@@ -1747,6 +1747,21 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         DFDLXBitBinaryExpr(functionQNameString, functionQName, args, DFDLXBitOr(_, _))
       case (RefQName(_, "bitNot", DFDLX), args) =>
         DFDLXBitUnaryExpr(functionQNameString, functionQName, args, DFDLXBitNot(_, _))
+      //
+      // Returns the current position in bits or bytes. This is 1-based.
+      // Experimental Feature: Why? because well... is this even well defined
+      // when unparsing given that expressions can get
+      // retried, and the position may not be well known yet at that time.
+      //
+      case (RefQName(_, "currentPosition", DFDLX), args) =>
+        FNOneArgExpr(
+          functionQNameString,
+          functionQName,
+          args,
+          NodeInfo.Long,
+          NodeInfo.String,
+          DFDLXCurrentPosition(_, _)
+        )
 
       case (RefQName(_, "year-from-dateTime", FUNC), args) =>
         FNOneArgExpr(

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="CurrentPosition" description="Current Position DFDL Extension Function"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:math="http://www.w3.org/2005/xpath-functions/math"
+  xmlns:ex="http://example.com"
+  xmlns:home="http://home.com"
+  xmlns:first="http://first.com"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false"
+                     name="cp">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="binary"
+      binaryNumberRep="binary"
+      lengthUnits="bits"
+      alignmentUnits="bits"
+      alignment="1"/>
+
+  <xs:simpleType name="uLongN" dfdl:lengthKind="explicit">
+    <xs:restriction base="xs:unsignedLong"/>
+  </xs:simpleType>
+
+  <xs:element name="bits1">
+    <xs:complexType>
+    <xs:sequence>
+      <xs:element name="bitPos1bAtStart" type="xs:long" dfdl:inputValueCalc='{ dfdlx:currentPosition("bits") }'/>
+      <xs:element name="oneBit" type="ex:uLongN" dfdl:length="1"/>
+      <xs:element name="bitPos1bAfterOneBit" type="xs:long" dfdl:inputValueCalc='{ dfdlx:currentPosition("bits") }'/>
+      <xs:element name="bytePos1bAfterOneBit" type="xs:long" dfdl:inputValueCalc='{ dfdlx:currentPosition("bytes") }'/>
+      <xs:element name="eightBits" type="ex:uLongN" dfdl:length="8"/>
+      <xs:element name="bitPos1bAfter9Bits" type="xs:long" dfdl:inputValueCalc='{ dfdlx:currentPosition("bits") }'/>
+      <xs:element name="bytePos1bAfter9Bits" type="xs:long" dfdl:inputValueCalc='{ dfdlx:currentPosition("bytes") }'/>
+      <xs:element name="sevenBits" type="ex:uLongN" dfdl:length="7"/>
+    </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="testCurrentPosition1" root="bits1" model="cp">
+    <tdml:document>
+      <tdml:documentPart type="bits">1000 0010 1001 1111</tdml:documentPart>
+    </tdml:document>
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <ex:bits1>
+            <bitPos1bAtStart>1</bitPos1bAtStart>
+            <oneBit>1</oneBit>
+            <bitPos1bAfterOneBit>2</bitPos1bAfterOneBit>
+            <bytePos1bAfterOneBit>1</bytePos1bAfterOneBit>
+            <eightBits>5</eightBits>
+            <bitPos1bAfter9Bits>10</bitPos1bAfter9Bits>
+            <bytePos1bAfter9Bits>2</bytePos1bAfter9Bits>
+            <sevenBits>31</sevenBits>
+          </ex:bits1>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
