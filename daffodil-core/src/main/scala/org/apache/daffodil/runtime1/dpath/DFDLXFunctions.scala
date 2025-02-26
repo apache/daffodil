@@ -347,3 +347,29 @@ case class DFDLXDoubleToRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind)
     JDouble.doubleToRawLongBits(value.getDouble)
   }
 }
+
+/**
+ * Computes the current position in the data stream in unis of bits or bytes.
+ * 
+ * Not well defined for unparsing since an absolute position may not be available
+ * at the time this is called. 
+ */
+case class DFDLXCurrentPosition(recipes: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipes, NodeInfo.String) {
+  Assert.invariant(argType == NodeInfo.String)
+
+  override def computeValue(arg1: DataValuePrimitive, dstate: DState): DataValueLong = {
+    val units = arg1.getString
+    val maybeState = dstate.parseOrUnparseState
+    val bitpos1b =
+      if (maybeState.isDefined) maybeState.get.bitPos1b
+      else throw new IllegalStateException() // when constant folding, this can't be folded.
+    val res: Long = units match {
+      case "bits" => bitpos1b
+      case "bytes" =>
+        maybeState.get.bytePos1b // note: if bitpos is not on a byte boundary, this will be first prior byte pos.
+      case _ => dstate.SDE("Units argument was not 'bits' or 'bytes'. Value was: '%s'.", units)
+    }
+    res
+  }
+}
