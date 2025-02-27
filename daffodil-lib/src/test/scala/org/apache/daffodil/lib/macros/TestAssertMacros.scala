@@ -42,7 +42,7 @@ class TestAssertMacros {
 
   @Test def testUsage1Arg(): Unit = {
     val e = intercept[UsageException] {
-      Assert.usage(1 == x)
+      Assert.usage(if (1 == x) true else false)
     }
     val msg = e.getMessage()
     assertTrue(msg.contains("Usage error"))

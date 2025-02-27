@@ -32,20 +32,31 @@ import scala.quoted.*
  * the public constructors with the signatures we want.
  */
 abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: String, args: Any*)
-  extends Exception(null, cause, false, false) {
+  extends Exception(null: String, cause, false, false) {
 
-  private lazy val msg_ : String =
-    if (fmt ne null) fmt.format(args: _*)
-    else if (cause ne null) cause.getMessage()
+  /*
+   * Scala 3 was getting internal compiler errors on this class
+   * due to msg_ being a private lazy val.
+   *
+   * Switched to this var + init method scheme, and now the
+   * compiler is happy.
+   */
+  private var msg_ : String = "Uninitialized."
+
+  private lazy val init: Unit = {
+    msg_ = if (fmt ne null) fmt.format(args: _*)
+    else if (cause ne null) cause.getMessage
     else Misc.getNameFromClass(this)
+  }
 
-  override def getMessage(): String = msg_
+  override def getMessage: String = { init ; msg_ }
 
   def this() = this(1, null, null)
   def this(msg: String) = this(1, null, msg)
-  def this(fmt: String, args: Any*) = this(1, null, fmt, args: _*)
+  def this(fmt: String, args: Any*) = this(1, null, fmt, args.toSeq: _*)  // Fix varargs expansion
   def this(cause: Throwable) = this(1, cause, null)
 }
+
 
 /**
  * Used for when multiple diagnostic or exception/throwable objects have been
@@ -177,16 +188,16 @@ object Assert extends Assert {
   //
 
   def usageError(message: String = "Usage error."): Nothing =
-    toss(new UsageException(message))
+    toss(new UsageException("Usage error: " + message))
 
   def usageError(cause: Throwable): Nothing =
-    toss(new UsageException(cause))
+    toss(new UsageException("Usage error:", cause))
 
   def usageError(message: String, cause: Throwable): Nothing =
-    toss(new UsageException(message, cause))
+    toss(new UsageException("Usage error: " + message, cause))
 
   def usageError2(message: String = "Usage error.", testAsString: String): Nothing = {
-    usageError(message + " (" + testAsString + ")")
+    usageError("Usage error: " + message + " (" + testAsString + ")")
   }
 
   def nyi(info: String): Nothing = {
