@@ -166,7 +166,7 @@ object TakTimer {
 
 }
 
-object TimeTracker {
+object TimeTracker extends TimeTrackerUsingMacrosMixin {
 
   case class SectionTime(var time: Long, var count: Int)
 
@@ -191,27 +191,6 @@ object TimeTracker {
    * TODO: not covered by tests
    */
   val childrenTimeStack = new Stack[Long]()
-
-  /**
-   * Used to measure a section of code that might get called multiple times.
-   * This keeps track of the total amount of time spent in that section and how
-   * many times that section was run. A name is provided by the caller to
-   * identify the section. Additionally, if a section that is being tracked
-   * calls another section that is being tracked (i.e. nested TimeTracker.track
-   * calls) the time spent in the inner section is not included in the outer
-   * section. Note that because of this feature, the use of the track function
-   * is not thread safe.
-   *
-   * For example,
-   *
-   *   TimeTracker.track("code section") {
-   *     // code to track goes here
-   *   }
-   *
-   * Once processing is complete, a call to logTimes will dispaly the stats
-   * about the tracked sections.
-   */
-  def track[A](name: String)(body: => A): A = macro TimeTrackerMacros.trackMacro
 
   /**
    * Output the results of the tracked sections in sorted columnar format.

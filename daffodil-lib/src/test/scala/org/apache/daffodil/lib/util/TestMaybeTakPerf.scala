@@ -159,7 +159,8 @@ class TestMaybeTakPerf {
 
     println("A takeon is " + TakTimer.takeon + " nanoseconds on this platform.")
 
-    slowdown = takSlowdown(taki(MaybeInt(x), MaybeInt(y), MaybeInt(z)), "MaybeInt")
+    slowdown =
+      takSlowdown(taki(MaybeInt(x.toInt), MaybeInt(y.toInt), MaybeInt(z.toInt)), "MaybeInt")
     println("MaybeInt objects are %s times slower".format(slowdown))
 
     slowdown = takSlowdown(takml(MaybeULong(x), MaybeULong(y), MaybeULong(z)), "MaybeULong")

@@ -30,5 +30,5 @@ abstract class BitsCharsetDefinition(
 ) extends SimpleNamedLoadableService {
   final def name(): String = alias.getOrElse(charsetArg.name).toUpperCase()
 
-  final def charset(): BitsCharset = charsetArg
+  final def charset: BitsCharset = charsetArg
 }

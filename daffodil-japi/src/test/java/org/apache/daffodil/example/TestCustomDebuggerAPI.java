@@ -32,7 +32,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.URI;
 
-import static java.util.Objects.nonNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
