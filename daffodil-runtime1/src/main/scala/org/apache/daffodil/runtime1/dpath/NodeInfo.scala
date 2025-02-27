@@ -187,7 +187,6 @@ object NodeInfo extends Enum {
 
   sealed trait PrimType extends PrimTypeKind {
 
-    def globalQName: GlobalQName
     def dfdlType: DFDLPrimType
 
     /**

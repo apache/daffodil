@@ -57,10 +57,35 @@ object Util {
     Paths.get(s"daffodil-cli/target/universal/stage/bin/daffodil$ext")
   }
 
-  val scalaVersionForTargetPath: String = scala.util.Properties.versionNumberString match {
-    case v if v.startsWith("2.12") => "scala-2.12"
-    case v if v.startsWith("2.13") => "scala-2.13"
-    case _ => throw new IllegalStateException("Unsupported version provided for tests")
+  lazy val scalaVersionForTargetPath: String = {
+    // scala.util.Properties.versionNumberString doesn't actually return scala 3.3.5 as expected
+    // when called in scala 3, as it returns the library version which is 2.13.16 for scala 2 and scala 3
+    // so we try to get the scala 3 version from the jar files and if it fails, we try for the scala 2 library
+    val scala3Regex = "org\\.scala-lang\\.scala3-library_3-([0-9.]+)\\.jar".r
+    val scala2Regex = "org\\.scala-lang\\.scala-library-([0-9.]+)\\.jar".r
+    val versionRegex = ".*-([0-9.]+)\\.jar".r
+
+    val jarFiles = Paths.get("daffodil-cli/target/universal/stage/lib").toFile.listFiles().toSeq
+
+    // Prioritize finding Scala 3 first, then fallback to Scala 2
+    val scalaLibraryFile = jarFiles
+      .find(f => scala3Regex.pattern.matcher(f.getName).matches())
+      .orElse(jarFiles.find(f => scala2Regex.pattern.matcher(f.getName).matches()))
+      .getOrElse(throw new IllegalStateException("No Scala library JAR found"))
+
+    // Extract Scala version using regex
+    val scalaVersion = versionRegex
+      .findFirstMatchIn(scalaLibraryFile.getName)
+      .map(_.group(1))
+      .getOrElse(throw new IllegalStateException("No Scala Version found"))
+
+    scalaVersion match {
+      case v if v.startsWith("2.12") => "scala-2.12"
+      case v if v.startsWith("2.13") => "scala-2.13"
+      case v if v.startsWith("3.") => "scala-" + v
+      case _ =>
+        throw new IllegalStateException(s"Unsupported version $scalaVersion provided for tests")
+    }
   }
 
   /**

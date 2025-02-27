@@ -113,7 +113,7 @@ class TestAssertMacros {
 
   @Test def testUsage2ArgCause(): Unit = {
     val e = intercept[UsageException] {
-      Assert.usage(if (1 == x) true else false, new Exception("test"))
+      Assert.usageWithCause(x == 1, new Exception("test"))
     }
     val cause = e.getCause.toString
     assertTrue(cause.contains("Exception"))

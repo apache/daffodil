@@ -19,7 +19,7 @@ package org.apache.daffodil.lib.util
 
 import scala.reflect.macros.blackbox.Context
 
-object TimeTrackerMacros {
+object TimerMacros {
 
   def trackMacro(c: Context)(name: c.Tree)(body: c.Tree) = {
     import c.universe._
@@ -37,7 +37,7 @@ object TimeTrackerMacros {
     {
       val $startTime = System.nanoTime
       TimeTracker.childrenTimeStack.push(0)
-      
+
       val $result = try {
         $body
       } finally {
@@ -56,7 +56,7 @@ object TimeTrackerMacros {
         }
 
         if (!TimeTracker.childrenTimeStack.isEmpty) {
-          TimeTracker.childrenTimeStack.push(TimeTracker.childrenTimeStack.pop + $timeTaken) 
+          TimeTracker.childrenTimeStack.push(TimeTracker.childrenTimeStack.pop + $timeTaken)
         }
       }
 

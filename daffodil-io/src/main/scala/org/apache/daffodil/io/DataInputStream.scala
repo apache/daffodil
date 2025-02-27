@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.daffodil.io
 
 import java.math.{ BigInteger => JBigInt }
@@ -169,7 +168,7 @@ object DataInputStream {
 
 }
 
-trait DataInputStream extends DataStreamCommon {
+trait DataInputStream extends DataStreamCommon with IOUsingMacrosMixin {
   import DataInputStream._
 
   /**
@@ -528,28 +527,6 @@ trait DataInputStream extends DataStreamCommon {
    */
   def markPos: MarkPos
   def resetPos(m: MarkPos): Unit
-
-  /**
-   * Convenience methods that temporarily set and (reliably) restore the bitLimit.
-   * The argument gives the limit length. Note this is a length, not a bit position.
-   *
-   * This is added to the current bit position to get the limiting bit position
-   * which is then set as the bitLimit when
-   * the body is evaluated. On return the bit limit is restored to its
-   * prior value.
-   * <p>
-   * The return value is false if the new bit limit is beyond the existing bit limit range.
-   * Otherwise the return value is true.
-   * <p>
-   * The prior value is restored even if an Error/Exception is thrown. (ie., via a try-finally)
-   * <p>
-   * These are intended for use implementing specified-length types (simple or complex).
-   * <p>
-   * Note that length limits in lengthUnits Characters are not implemented
-   * this way. See fillCharBuffer(cb) method.
-   */
-  final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean =
-    macro IOMacros.withBitLengthLimitMacroForInput
 
   /**
    * Closes any underlying I/O streams/channels that are part of the implementation
