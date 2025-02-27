@@ -237,7 +237,7 @@ val minSupportedJavaVersion: String =
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
-  version := "4.0.0-SNAPSHOT",
+  version := IO.read((ThisBuild / baseDirectory).value / "VERSION").trim,
   scalaVersion := "2.13.16",
   crossScalaVersions := Seq("2.13.16"),
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
