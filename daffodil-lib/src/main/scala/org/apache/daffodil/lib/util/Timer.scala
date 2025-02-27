@@ -214,7 +214,7 @@ object TimeTracker {
    * inline so as to avoid the overhead of allocating a closure for the body
    * lazy arg. 
    */
-  inline def track[A](name: String)(inline body: => A): A =  {
+  final inline def track[A](name: String)(inline body: => A): A =  {
     val startTime = System.nanoTime
     TimeTracker.childrenTimeStack.push(0)
 

@@ -404,7 +404,7 @@ final class PState private (
   }
 
 
-  inline def withPointOfUncertainty[B](id: String, ctx: RuntimeData)(inline func: PState.Mark => B): B = {
+  final inline def withPointOfUncertainty[B](id: String, ctx: RuntimeData)(inline func: PState.Mark => B): B = {
     // create our new point of uncertainty
     val pou = createPointOfUncertainty(id, ctx)
     try {
