@@ -375,8 +375,8 @@ abstract class ParseOrUnparseState protected (
    *
    * The exception to this is the interactive debugger.
    */
-  final protected def variableMap = variableBox.vmap
-  final protected def setVariableMap(newMap: VariableMap): Unit = {
+  final def variableMap = variableBox.vmap
+  final def setVariableMap(newMap: VariableMap): Unit = {
     variableBox.setVMap(newMap)
   }
 
@@ -404,8 +404,8 @@ abstract class ParseOrUnparseState protected (
    */
   final def variableMapForDebugger = variableMap
 
-  final protected var _processorStatus: ProcessorResult = Success
-  final protected var _validationStatus: Boolean = true
+  final var _processorStatus: ProcessorResult = Success
+  final var _validationStatus: Boolean = true
 
   final def processorStatus = _processorStatus
   final def validationStatus = _validationStatus

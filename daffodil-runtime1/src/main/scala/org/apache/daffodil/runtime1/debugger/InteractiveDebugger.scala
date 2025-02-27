@@ -568,7 +568,7 @@ class InteractiveDebugger(
         case _ => {
           val subcmd = args.head
           val subcmdArgs = args.tail
-          subcommands.find(_ == subcmd) match {
+          subcommands.find(_.name == subcmd) match {
             case Some(cmd) => cmd.help(subcmdArgs)
             case None => throw new DebugException("unknown command: %s".format(subcmd))
           }
@@ -604,7 +604,7 @@ class InteractiveDebugger(
       }
       val subcmd = args.head
       val subcmdArgs = args.tail
-      subcommands.find(_ == subcmd) match {
+      subcommands.find(_.name == subcmd) match {
         case Some(c) => c.validate(subcmdArgs)
         case None => {
           throw new DebugException("undefined command: %s".format(subcmd))
@@ -697,7 +697,7 @@ class InteractiveDebugger(
     ): DebugState.Type = {
       val subcmd = args.head
       val subcmdArgs = args.tail
-      val subcmdActor = subcommands.find(_ == subcmd).get
+      val subcmdActor = subcommands.find(_.name == subcmd).get
       val newState = subcmdActor.act(subcmdArgs, state, processor)
       newState
     }
@@ -855,7 +855,7 @@ class InteractiveDebugger(
       ): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, state, processor)
+        subcommands.find(_.name == subcmd).get.act(subcmdArgs, state, processor)
         DebugState.Pause
       }
 
@@ -926,7 +926,7 @@ class InteractiveDebugger(
       ): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, state, processor)
+        subcommands.find(_.name == subcmd).get.act(subcmdArgs, state, processor)
         DebugState.Pause
       }
 
@@ -1021,7 +1021,7 @@ class InteractiveDebugger(
       ): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, state, processor)
+        subcommands.find(_.name == subcmd).get.act(subcmdArgs, state, processor)
         DebugState.Pause
       }
 
@@ -1353,7 +1353,7 @@ class InteractiveDebugger(
       private def buildInfoCommands(args: Seq[String]): Seq[Seq[String]] = {
         val backwardsInfoCommands = args.foldLeft(Seq.empty[Seq[String]]) {
           case (infoCmds, arg) =>
-            val cmd = subcommands.find(_ == arg)
+            val cmd = subcommands.find(_.name == arg)
             if (cmd.isDefined || infoCmds.isEmpty) {
               // Found a new info subcommand, or we don't have an info commands
               // yet. Create a new Seq to hold the subcommand + args and
@@ -1383,7 +1383,7 @@ class InteractiveDebugger(
         val infocmds = buildInfoCommands(args)
         infocmds.foreach { cmds =>
           val cmd :: args = cmds
-          subcommands.find(_ == cmd) match {
+          subcommands.find(_.name == cmd) match {
             case Some(c) => c.validate(args)
             case None => throw new DebugException("undefined info command: %s".format(cmd))
           }
@@ -1398,7 +1398,7 @@ class InteractiveDebugger(
         val infocmds = buildInfoCommands(args)
         infocmds.foreach { cmds =>
           val cmd :: args = cmds
-          val action = subcommands.find(_ == cmd).get
+          val action = subcommands.find(_.name == cmd).get
           action.act(args, state, processor)
         }
         DebugState.Pause
@@ -2044,7 +2044,7 @@ class InteractiveDebugger(
                         |
                         |Example: set breakOnlyOnCreation false
                         |         set dataLength 100""".stripMargin
-      override val subcommands = Seq(
+      override val subcommands: Seq[DebugCommand] = Seq(
         SetBreakOnFailure,
         SetBreakOnlyOnCreation,
         SetDataLength,
@@ -2064,7 +2064,7 @@ class InteractiveDebugger(
       ): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, state, processor)
+        subcommands.find(_.name == subcmd).get.act(subcmdArgs, state, processor)
         DebugState.Pause
       }
 

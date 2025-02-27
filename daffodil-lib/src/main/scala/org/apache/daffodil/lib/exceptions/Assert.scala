@@ -19,6 +19,8 @@ package org.apache.daffodil.lib.exceptions
 
 import org.apache.daffodil.lib.util.Misc
 
+import scala.quoted.*
+
 /**
  * Lightweight exception that doesn't construct stack traces, and
  * doesn't construct a format string unless the message is needed.
@@ -32,12 +34,12 @@ import org.apache.daffodil.lib.util.Misc
 abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: String, args: Any*)
   extends Exception(null, cause, false, false) {
 
-  private lazy val msg_ =
+  private lazy val msg_ : String =
     if (fmt ne null) fmt.format(args: _*)
     else if (cause ne null) cause.getMessage()
     else Misc.getNameFromClass(this)
 
-  override def getMessage() = msg_
+  override def getMessage(): String = msg_
 
   def this() = this(1, null, null)
   def this(msg: String) = this(1, null, msg)
@@ -80,6 +82,7 @@ class UsageException(m: String, th: Throwable) extends UnsuppressableException(m
   def this(th: Throwable) = this(null, th)
   def this(m: String) = this(m, null)
 }
+
 class NotYetImplementedException(m: String)
   extends UnsuppressableException("Not yet implemented: " + m)
 class Abort(m: String, th: Throwable) extends UnsuppressableException(m, th) {
@@ -101,35 +104,40 @@ class Assert {
 
 object Assert extends Assert {
 
-  /*
-   * Note that in macro definitions, the argument names here must match the argument names
-   * in the macro implementations.
-   */
+  import AssertMacros.*
+
+  inline def usage(inline testAbortsIfFalse: Boolean, inline message: String): Unit =
+    ${ usageMacro('testAbortsIfFalse, 'message) }
+
+  inline def usageWithCause(testAbortsIfFalse: Boolean, inline cause: Throwable): Unit =
+    if (!testAbortsIfFalse) usageError(cause)
+
+  inline def usage(inline testAbortsIfFalse: Boolean): Unit =
+    ${ usageMacro('testAbortsIfFalse) }
 
   /**
-   * Verbose name helps you get the sense of the predicate right.
+   * Macro captures the test expression as a string for use in the diagnostic message.
    */
-  def usageErrorUnless(testAbortsIfFalse: Boolean, message: String): Unit =
-    macro AssertMacros.usageMacro2
-  def usageErrorUnless(testAbortsIfFalse: Boolean, cause: Throwable): Unit =
-    macro AssertMacros.usageMacro2Cause
-  def usageErrorUnless(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
+  def usageMacro(testAbortsIfFalse: Expr[Boolean], message: Expr[String])(using Quotes): Expr[Unit] = {
+    val testAsString: Expr[String] = Expr(testAbortsIfFalse.show)
+    '{ if (!($testAbortsIfFalse)) Assert.usageError2($message, $testAsString) }
+  }
 
   /**
-   * Brief form
+   * Macro captures the test expression as a string for use in the diagnostic message.
    */
-  def usage(testAbortsIfFalse: Boolean, message: String): Unit = macro AssertMacros.usageMacro2
-  def usage(testAbortsIfFalse: Boolean, cause: Throwable): Unit =
-    macro AssertMacros.usageMacro2Cause
-  def usage(testAbortsIfFalse: Boolean): Unit =
-    macro AssertMacros.usageMacro1
+  def usageMacro(testAbortsIfFalse: Expr[Boolean])(using Quotes): Expr[Unit] = {
+    val testAsStringExpr: Expr[String] = Expr(testAbortsIfFalse.show)
+    '{ if (!($testAbortsIfFalse)) Assert.usageError($testAsStringExpr) }
+  }
 
   /**
    * test for something that the program is supposed to be ensuring.
    *
    * This is for more complex invariants than the simple 'impossible' case.
    */
-  def invariant(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.invariantMacro1
+  inline def invariant(inline testAbortsIfFalse: Boolean): Unit =
+    ${ invariantMacro('testAbortsIfFalse) }
 
   /**
    * test for something that the program is supposed to be ensuring, with a custom error message.
@@ -138,20 +146,28 @@ object Assert extends Assert {
    *
    * The msg parameter is only evaluated if the test fails
    */
-  def invariant(testAbortsIfFalse: Boolean, msg: String): Unit =
-    macro AssertMacros.invariantMacro2
+  inline def invariant(testAbortsIfFalse: Boolean, inline msg: String): Unit =
+    ${ invariantMacro('testAbortsIfFalse, 'msg) }
 
   /**
-   * Conditional behavior for NYIs
+   * Macro captures the test expression as a string for use in the diagnostic message.
    */
-  def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit =
-    macro AssertMacros.notYetImplementedMacro1
-  def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit =
-    macro AssertMacros.notYetImplementedMacro2
+  def invariantMacro(testAbortsIfFalse: Expr[Boolean])(using Quotes): Expr[Unit] = {
+    val testAsStringExpr: Expr[String] = Expr(testAbortsIfFalse.show)
+    '{ if (!($testAbortsIfFalse)) Assert.abort("Invariant broken: " + $testAsStringExpr) }
+  }
+
+  /**
+   * Macro captures the test expression as a string for use in the diagnostic message.
+   */
+  def invariantMacro(testAbortsIfFalse: Expr[Boolean], msg: Expr[String])(using Quotes): Expr[Unit] = {
+    val testAsStringExpr: Expr[String] = Expr(testAbortsIfFalse.show)
+    '{ if (!($testAbortsIfFalse)) Assert.abort("Invariant broken: " + $msg + "(" + $testAsStringExpr + ")") }
+  }
 
   // $COVERAGE-OFF$ These unconditional assertions should never get executed by tests.
 
-  def notYetImplemented(): Nothing = macro AssertMacros.notYetImplementedMacro0
+  def notYetImplemented(): Nothing = Assert.nyi()
   //
   // Throughout this file, specifying return type Nothing
   // gets rid of many spurious (scala compiler bug) dead code
@@ -160,13 +176,14 @@ object Assert extends Assert {
   // to be enabled.
   //
 
-  def usageError(message: String = "Usage error."): Nothing = {
+  def usageError(message: String = "Usage error."): Nothing =
     toss(new UsageException(message))
-  }
 
-  def usageError(cause: Throwable): Nothing = {
+  def usageError(cause: Throwable): Nothing =
     toss(new UsageException(cause))
-  }
+
+  def usageError(message: String, cause: Throwable): Nothing =
+    toss(new UsageException(message, cause))
 
   def usageError2(message: String = "Usage error.", testAsString: String): Nothing = {
     usageError(message + " (" + testAsString + ")")
@@ -197,8 +214,8 @@ object Assert extends Assert {
   }
 
   def impossible(
-    message: String = "impossible! this code path is supposed to be unreachable."
-  ): Nothing = {
+                  message: String = "impossible! this code path is supposed to be unreachable."
+                ): Nothing = {
     abort(message)
   }
 

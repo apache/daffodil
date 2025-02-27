@@ -38,7 +38,7 @@ object CharsetUtils {
     if (cs == null)
       null
     else
-      cs.charset()
+      cs.charset
   }
 
   def supportedEncodingsString = BitsCharsetDefinitionRegistry.supportedEncodingsString

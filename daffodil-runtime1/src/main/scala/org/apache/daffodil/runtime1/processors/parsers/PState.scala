@@ -237,7 +237,7 @@ final class PState private (
   }
 
   override def hasInfoset = true
-  def thisElement = infoset
+  def thisElement: DIElement = infoset
 
   override def groupPos = mpstate.groupPos
   override def arrayIterationPos = mpstate.arrayIterationPos
@@ -403,28 +403,24 @@ final class PState private (
     variableMap.removeVariableInstance(vrd)
   }
 
-  /**
-   * Creates a new point of uncertainty and binds it to a variable where it can
-   * be used. The PoU can be reset, discarded, or resolved, via helper
-   * functions. If at the end of the func block, the PoU was not reset,
-   * discarded or resolved, it will automatically be discarded. Example usage
-   * of this is:
-   *
-   * pstate.withPointOfUncertainty { pou =>
-   *   // perform parsing logic that uses the "pou" variable
-   * }
-   *
-   * Note that this is implemented via a macro, and part of this macro magic
-   * will munges with variable names in the "func" variable. Thus, this is
-   * potentially fragile, e.g. reflection on the pou variable name will fail.
-   * It is recommend to keep the func body as small as possible and avoid
-   * things like reflection that could cause breakage.
-   */
-  def withPointOfUncertainty[B](pouID: String, context: RuntimeData)(
-    func: PState.Mark => B
-  ): B =
-    macro PointOfUncertaintyMacros.withPointOfUncertainty[PState.Mark, B]
 
+  inline def withPointOfUncertainty[B](id: String, ctx: RuntimeData)(inline func: PState.Mark => B): B = {
+    // create our new point of uncertainty
+    val pou = createPointOfUncertainty(id, ctx)
+    try {
+      // evaluate the using this new point of uncertainty
+      func(pou)
+    } finally {
+      // if the pou still exists at this point, then simply discard it.
+      // This is likely because an exception occurred, or just because we
+      // do not require that parsers discard PoUs, with the understanding
+      // that it will always happen here
+      if (!isPointOfUncertaintyResolved(pou)) {
+        discardPointOfUncertainty(pou)
+      }
+    }
+  }
+  
   /**
    * This function creates a mark, which represents a point of uncertainty. This
    * function should never be used, and is only public so that the

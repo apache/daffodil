@@ -106,7 +106,7 @@ class TestXMLLoader {
 
     val data = "<x><![CDATA[a\nb&\"<>]]></x>"
     val node = scala.xml.XML.loadString(data)
-    val <x>{xbody @ _*}</x> = node
+    val xbody = node.child
     assertEquals(1, xbody.length)
     val body = xbody(0)
     val txt = body.text

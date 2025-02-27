@@ -548,8 +548,23 @@ trait DataInputStream extends DataStreamCommon {
    * Note that length limits in lengthUnits Characters are not implemented
    * this way. See fillCharBuffer(cb) method.
    */
-  final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean =
-    macro IOMacros.withBitLengthLimitMacroForInput
+  final inline def withBitLengthLimit(lengthLimitInBits: Long)(inline body: => Unit): Boolean = {
+    import org.apache.daffodil.lib.util.MaybeULong
+
+    val dStream = this
+    val newLengthLimit = lengthLimitInBits
+    val savedLengthLimit = dStream.bitLimit0b
+
+    if (!dStream.setBitLimit0b(MaybeULong(dStream.bitPos0b + newLengthLimit))) false
+    else {
+      try {
+        body
+      } finally {
+        dStream.resetBitLimit0b(savedLengthLimit)
+      }
+      true
+    }
+  }
 
   /**
    * Closes any underlying I/O streams/channels that are part of the implementation

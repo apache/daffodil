@@ -17,97 +17,17 @@
 
 package org.apache.daffodil.lib.exceptions
 
-import scala.reflect.macros.blackbox.Context
+// import scala.quoted.*
 
+/**
+ * These are macros which capture the expresion which is the first argument
+ * as a string for use in the diagnostic message.
+ *
+ * This capture as a string is the only reason these need to be macros
+ * in Scala 3, otherwise inline methods with inline args would be
+ * sufficient.
+ */
 object AssertMacros {
 
-  def usageMacro2(c: Context)(testAbortsIfFalse: c.Tree, message: c.Tree): c.Tree = {
-    import c.universe._
-
-    val testAsString = testAbortsIfFalse.toString
-
-    q"""
-    if (!($testAbortsIfFalse)) {
-         Assert.usageError2("Usage error: " + $message, $testAsString)
-    }
-    """
-  }
-
-  def usageMacro2Cause(c: Context)(testAbortsIfFalse: c.Tree, cause: c.Tree): c.Tree = {
-    import c.universe._
-
-    q"""
-    if (!($testAbortsIfFalse)) {
-         Assert.usageError($cause)
-    }
-    """
-  }
-
-  def usageMacro1(c: Context)(testAbortsIfFalse: c.Tree): c.Tree = {
-    import c.universe._
-
-    val testAsString = testAbortsIfFalse.toString
-
-    q"""
-    if (!($testAbortsIfFalse)) {
-         Assert.usageError("Usage error: " + $testAsString)
-    }
-    """
-  }
-
-  def invariantMacro1(c: Context)(testAbortsIfFalse: c.Tree): c.Tree = {
-    import c.universe._
-
-    val testAsString = testAbortsIfFalse.toString
-
-    q"""
-    if (!($testAbortsIfFalse)) {
-         Assert.abort("Invariant broken: " + $testAsString)
-    }
-    """
-  }
-
-  def invariantMacro2(c: Context)(testAbortsIfFalse: c.Tree, msg: c.Tree): c.Tree = {
-    import c.universe._
-
-    q"""
-    if (!($testAbortsIfFalse)) {
-         Assert.abort("Invariant broken. " + { $msg })
-    }
-    """
-  }
-
-  def notYetImplementedMacro0(c: Context)(): c.Tree = {
-    import c.universe._
-
-    q"""
-         Assert.nyi()
-    """
-  }
-
-  def notYetImplementedMacro1(c: Context)(testThatWillThrowIfTrue: c.Tree): c.Tree = {
-    import c.universe._
-
-    val testAsString = testThatWillThrowIfTrue.toString
-
-    q"""
-    if ($testThatWillThrowIfTrue){
-         Assert.nyi($testAsString)
-    }
-    """
-  }
-
-  def notYetImplementedMacro2(
-    c: Context
-  )(testThatWillThrowIfTrue: c.Tree, msg: c.Tree): c.Tree = {
-    import c.universe._
-
-    val testAsString = testThatWillThrowIfTrue.toString
-
-    q"""
-    if ($testThatWillThrowIfTrue){
-         Assert.nyi($msg + " (" + $testAsString + ")")
-    }
-    """
-  }
+  // Not needed. They are defined on Assert object now.
 }

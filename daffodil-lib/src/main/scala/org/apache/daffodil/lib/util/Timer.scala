@@ -208,10 +208,39 @@ object TimeTracker {
    *     // code to track goes here
    *   }
    *
-   * Once processing is complete, a call to logTimes will dispaly the stats
+   * Once processing is complete, a call to logTimes will display the stats
    * about the tracked sections.
+   * 
+   * inline so as to avoid the overhead of allocating a closure for the body
+   * lazy arg. 
    */
-  def track[A](name: String)(body: => A): A = macro TimeTrackerMacros.trackMacro
+  inline def track[A](name: String)(inline body: => A): A =  {
+    val startTime = System.nanoTime
+    TimeTracker.childrenTimeStack.push(0)
+
+    val result = try {
+      body
+    } finally {
+      val endTime = System.nanoTime
+      val timeTaken = endTime - startTime
+      val childrenTime = TimeTracker.childrenTimeStack.pop()
+      val selfTime = timeTaken - childrenTime
+
+      val key = name
+      val sectionTime = TimeTracker.sectionTimes.get(key)
+      if (sectionTime == null) {
+        TimeTracker.sectionTimes.put(key, new TimeTracker.SectionTime(selfTime, 1))
+      } else {
+        sectionTime.time += selfTime
+        sectionTime.count += 1
+      }
+
+      if (!TimeTracker.childrenTimeStack.isEmpty) {
+        TimeTracker.childrenTimeStack.push(TimeTracker.childrenTimeStack.pop + timeTaken)
+      }
+    }
+    result
+  }
 
   /**
    * Output the results of the tracked sections in sorted columnar format.

@@ -42,7 +42,7 @@ class TestAssertMacros {
 
   @Test def testUsage1Arg(): Unit = {
     val e = intercept[UsageException] {
-      Assert.usage(if (1 == x) true else false)
+      Assert.usage(1 == x)
     }
     val msg = e.getMessage()
     assertTrue(msg.contains("Usage error"))
@@ -84,36 +84,9 @@ class TestAssertMacros {
     assertTrue(msg.contains("Not yet implemented"))
   }
 
-  @Test def testNotYetImplemented1Arg(): Unit = {
-    val e = intercept[NotYetImplementedException] {
-      Assert.notYetImplemented(if (0 == x) true else false)
-    }
-    val msg = e.getMessage()
-    assertTrue(msg.contains("Not yet implemented"))
-    assertTrue(msg.contains("if (0"))
-    assertTrue(msg.contains("x))"))
-    assertTrue(msg.contains("true"))
-    assertTrue(msg.contains("else"))
-    assertTrue(msg.contains("false"))
-  }
-
-  @Test def testNotYetImplemented2Arg(): Unit = {
-    val e = intercept[NotYetImplementedException] {
-      Assert.notYetImplemented(if (0 == x) true else false, "foobar")
-    }
-    val msg = e.getMessage()
-    assertTrue(msg.contains("Not yet implemented"))
-    assertTrue(msg.contains("if (0"))
-    assertTrue(msg.contains("x))"))
-    assertTrue(msg.contains("true"))
-    assertTrue(msg.contains("else"))
-    assertTrue(msg.contains("false"))
-    assertTrue(msg.contains("foobar"))
-  }
-
   @Test def testUsage2ArgCause(): Unit = {
     val e = intercept[UsageException] {
-      Assert.usage(if (1 == x) true else false, new Exception("test"))
+      Assert.usageWithCause(x == 1, new Exception("test"))
     }
     val cause = e.getCause.toString
     assertTrue(cause.contains("Exception"))
