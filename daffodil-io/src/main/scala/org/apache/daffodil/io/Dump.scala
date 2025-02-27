@@ -617,14 +617,14 @@ class DataDumper {
           Assert.invariant(cb.hasArray)
           val allChars = cb.array
 
-          val uCodePoint =
+          val uCodePoint: Int =
             if (allChars.length > 1) {
               if (UCharacter.isSurrogatePair(allChars(0), allChars(1))) {
                 UCharacter.getCodePoint(allChars(0), allChars(1))
               } else {
                 INVALID_CODEPOINT
               }
-            } else allChars(0)
+            } else allChars(0).toInt
 
           val (r: String, n: Int) =
             if (allChars.length > 1) {

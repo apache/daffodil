@@ -26,6 +26,7 @@ import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.PreSerialization
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
@@ -249,10 +250,10 @@ class DPathCompileInfo(
     val clazz = this.getClass
     val parentsField =
       try {
-        clazz.getDeclaredField("parents")
+        Misc.lookupDeclaredField(clazz, "parents")
       } catch {
         case e: java.lang.NoSuchFieldException =>
-          clazz.getSuperclass.getDeclaredField("parents")
+          Misc.lookupDeclaredField(clazz.getSuperclass, "parents")
       }
     parentsField.setAccessible(true)
     parentsField.set(this, deserializedParents) // set the value to the deserialized value

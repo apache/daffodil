@@ -277,7 +277,7 @@ trait DataOutputStreamImplMixin
    * Returns false if the set was unsuccessful, meaning one is setting a limit that
    * extends past a pre-existing limit.
    */
-  protected def setMaybeRelBitLimit0b(
+  def setMaybeRelBitLimit0b(
     newMaybeRelBitLimit0b: MaybeULong,
     reset: Boolean = false
   ): Boolean = {
@@ -330,7 +330,7 @@ trait DataOutputStreamImplMixin
    * Always between 0 and 7 inclusive.
    */
   private var fragmentLastByteLimit_ : Int = 0
-  def fragmentLastByteLimit = fragmentLastByteLimit_
+  def fragmentLastByteLimit: Int = fragmentLastByteLimit_
 
   def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int): Unit = {
     Assert.usage(nBitsInUse >= 0 && nBitsInUse <= 7)
@@ -375,7 +375,7 @@ trait DataOutputStreamImplMixin
 
   protected def getJavaOutputStream(): java.io.OutputStream
 
-  final protected def cst = this
+  final def cst: DataOutputStreamImplMixin = this
 
   protected def assignFrom(other: DataOutputStreamImplMixin): Unit = {
     Assert.usage(isWritable)
@@ -711,7 +711,7 @@ trait DataOutputStreamImplMixin
   ): Long = {
     Assert.usage(isWritable)
     if (isEndOnByteBoundary) {
-      val nBytes =
+      val nBytes: Long =
         if (exceedsBitLimit(lengthInBytes)) {
           val n = (maybeRelBitLimit0b.getULong - relBitPos0b) / 8
           Assert.invariant(n >= 0)
@@ -849,7 +849,7 @@ trait DataOutputStreamImplMixin
 
   private def putByteBuffer(bb: java.nio.ByteBuffer, finfo: FormatInfo): Long = {
     Assert.usage(isWritable)
-    val nTransferred =
+    val nTransferred: Long =
       if (bb.hasArray) {
         putBytes(bb.array, bb.arrayOffset + bb.position(), bb.remaining(), finfo)
       } else {

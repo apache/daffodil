@@ -30,18 +30,30 @@ import org.apache.daffodil.lib.util.Misc
  * the public constructors with the signatures we want.
  */
 abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: String, args: Any*)
-  extends Exception(null, cause, false, false) {
+  extends Exception(null: String, cause, false, false) {
 
-  private lazy val msg_ =
-    if (fmt ne null) fmt.format(args: _*)
-    else if (cause ne null) cause.getMessage()
-    else Misc.getNameFromClass(this)
+  /*
+   * Scala 3 was getting internal compiler errors on this class
+   * due to msg_ being a private lazy val.
+   *
+   * Switched to this var + init method scheme, and now the
+   * compiler is happy.
+   */
+  private var msg_ : String = "Uninitialized."
 
-  override def getMessage() = msg_
+  private def init: Unit = {
+    msg_ =
+      if (fmt ne null) fmt.format(args: _*)
+      else if (cause ne null) cause.getMessage
+      else Misc.getNameFromClass(this)
+  }
+
+  override def getMessage: String = { init; msg_ }
 
   def this() = this(1, null, null)
   def this(msg: String) = this(1, null, msg)
-  def this(fmt: String, args: Any*) = this(1, null, fmt, args: _*)
+  def this(fmt: String, args: Any*) =
+    this(1, null, fmt, args.toSeq: _*) // Fix varargs expansion
   def this(cause: Throwable) = this(1, cause, null)
 }
 
@@ -80,6 +92,7 @@ class UsageException(m: String, th: Throwable) extends UnsuppressableException(m
   def this(th: Throwable) = this(null, th)
   def this(m: String) = this(m, null)
 }
+
 class NotYetImplementedException(m: String)
   extends UnsuppressableException("Not yet implemented: " + m)
 class Abort(m: String, th: Throwable) extends UnsuppressableException(m, th) {
@@ -99,59 +112,11 @@ class Assert {
 }
 // $COVERAGE-ON$
 
-object Assert extends Assert {
-
-  /*
-   * Note that in macro definitions, the argument names here must match the argument names
-   * in the macro implementations.
-   */
-
-  /**
-   * Verbose name helps you get the sense of the predicate right.
-   */
-  def usageErrorUnless(testAbortsIfFalse: Boolean, message: String): Unit =
-    macro AssertMacros.usageMacro2
-  def usageErrorUnless(testAbortsIfFalse: Boolean, cause: Throwable): Unit =
-    macro AssertMacros.usageMacro2Cause
-  def usageErrorUnless(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
-
-  /**
-   * Brief form
-   */
-  def usage(testAbortsIfFalse: Boolean, message: String): Unit = macro AssertMacros.usageMacro2
-  def usage(testAbortsIfFalse: Boolean, cause: Throwable): Unit =
-    macro AssertMacros.usageMacro2Cause
-  def usage(testAbortsIfFalse: Boolean): Unit =
-    macro AssertMacros.usageMacro1
-
-  /**
-   * test for something that the program is supposed to be ensuring.
-   *
-   * This is for more complex invariants than the simple 'impossible' case.
-   */
-  def invariant(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.invariantMacro1
-
-  /**
-   * test for something that the program is supposed to be ensuring, with a custom error message.
-   *
-   * This is for more complex invariants than the simple 'impossible' case.
-   *
-   * The msg parameter is only evaluated if the test fails
-   */
-  def invariant(testAbortsIfFalse: Boolean, msg: String): Unit =
-    macro AssertMacros.invariantMacro2
-
-  /**
-   * Conditional behavior for NYIs
-   */
-  def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit =
-    macro AssertMacros.notYetImplementedMacro1
-  def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit =
-    macro AssertMacros.notYetImplementedMacro2
+object Assert extends Assert with AssertsUsingMacrosMixin {
 
   // $COVERAGE-OFF$ These unconditional assertions should never get executed by tests.
 
-  def notYetImplemented(): Nothing = macro AssertMacros.notYetImplementedMacro0
+  def notYetImplemented(): Nothing = Assert.nyi()
   //
   // Throughout this file, specifying return type Nothing
   // gets rid of many spurious (scala compiler bug) dead code
@@ -160,16 +125,17 @@ object Assert extends Assert {
   // to be enabled.
   //
 
-  def usageError(message: String = "Usage error."): Nothing = {
-    toss(new UsageException(message))
-  }
+  def usageError(message: String = "Usage error."): Nothing =
+    toss(new UsageException("Usage error: " + message))
 
-  def usageError(cause: Throwable): Nothing = {
-    toss(new UsageException(cause))
-  }
+  def usageError(cause: Throwable): Nothing =
+    toss(new UsageException("Usage error:", cause))
+
+  def usageError(message: String, cause: Throwable): Nothing =
+    toss(new UsageException("Usage error: " + message, cause))
 
   def usageError2(message: String = "Usage error.", testAsString: String): Nothing = {
-    usageError(message + " (" + testAsString + ")")
+    usageError("Usage error: " + message + " (" + testAsString + ")")
   }
 
   def nyi(info: String): Nothing = {
