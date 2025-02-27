@@ -446,7 +446,7 @@ class DataProcessor(
     var optThrown: Maybe[Throwable] = None
     try {
       try {
-        Assert.usageErrorUnless(
+        Assert.usage(
           state.dataInputStreamIsValid,
           "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position"
         )

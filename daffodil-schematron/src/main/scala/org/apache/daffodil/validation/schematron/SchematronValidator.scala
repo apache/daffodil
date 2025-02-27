@@ -35,7 +35,7 @@ final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) exte
   def validateXML(document: InputStream): ValidationResult = {
     val svrl = XML.loadString(engine.validate(document))
     val valErr: Seq[ValidationFailure] =
-      for (f @ <svrl:failed-assert>{msg @ _*}</svrl:failed-assert> <- svrl.child) yield {
+      for (f @ <svrl:failed-assert>{ msg* }</svrl:failed-assert> <- svrl.child) yield {
         SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
       }
 

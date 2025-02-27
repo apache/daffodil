@@ -84,8 +84,8 @@ lazy val io = Project("daffodil-io", file("daffodil-io"))
   .settings(commonSettings, usesMacros)
 
 lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
-  .enablePlugins(GenJavadocPlugin)
-  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
+//  .enablePlugins(GenJavadocPlugin)
+//  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(
     io,
     lib % "test->test",
@@ -145,8 +145,8 @@ lazy val core = Project("daffodil-core", file("daffodil-core"))
   .settings(commonSettings)
 
 lazy val japi = Project("daffodil-japi", file("daffodil-japi"))
-  .enablePlugins(GenJavadocPlugin)
-  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
+//  .enablePlugins(GenJavadocPlugin)
+//  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(core, slf4jLogger % "test")
   .settings(commonSettings)
 
@@ -238,8 +238,10 @@ val minSupportedJavaVersion: String =
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
   version := "4.0.0-SNAPSHOT",
-  scalaVersion := "2.13.16",
-  crossScalaVersions := Seq("2.13.16", "2.12.20"),
+  scalaVersion := "3.6.3",
+  crossScalaVersions := Seq("3.6.3"),
+  // Ensure any transitive dependency that asks for scala-reflect resolves correctly
+  dependencyOverrides += "org.scala-lang" % "scala-reflect" % "2.13.16",
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
   Test / scalacOptions ++= buildTestScalacOptions(scalaVersion.value),
   Compile / compile / javacOptions ++= buildJavacOptions(),
@@ -274,8 +276,10 @@ def buildScalacOptions(scalaVersion: String) = {
     s"-release:$minSupportedJavaVersion", // scala 2.12 can only do Java 8, regardless of this setting.
     "-feature",
     "-deprecation",
-    "-language:experimental.macros",
-    "-unchecked",
+    "-unchecked"
+  )
+
+  val scala212And213Options = Seq(
     "-Xfatal-warnings",
     "-Xxml:-coalescing",
     "-Ywarn-unused:imports"
@@ -289,7 +293,7 @@ def buildScalacOptions(scalaVersion: String) = {
         "-Ywarn-inaccessible"
         // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
         // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
-      )
+      ) ++ scala212And213Options
     case Some((2, 13)) =>
       Seq(
         "-Xlint:inaccessible",
@@ -301,6 +305,18 @@ def buildScalacOptions(scalaVersion: String) = {
         "-Wconf:origin=scala.collection.compat.*:s",
         // suppress nullary-unit warning in the specific trait
         "-Wconf:cat=lint-nullary-unit:silent,site=org.apache.daffodil.junit.tdml.TdmlTests:silent"
+      ) ++ scala212And213Options
+    case Some((3, 6)) =>
+      Seq(
+        "-source:3.0-migration",
+        "-no-indent",
+        // "-Xlint",
+        "-Wunused:explicits",
+        "-Wnonunit-statement",
+        // "-Wconf:cat=nullary-unit&site=org.apache.daffodil.junit.tdml.TdmlTests:silent",
+        // "-Werror",
+        "-Wunused:imports",
+        "-Wunused:locals"
       )
     case _ => Seq.empty
   }

@@ -23,6 +23,7 @@ object Dependencies {
   lazy val common = core ++ infoset ++ test ++ compat
 
   lazy val core = Seq(
+    "org.scala-lang" % "scala-reflect" % "2.13.16" % Provided,
     "com.lihaoyi" %% "os-lib" % "0.11.3", // for writing/compiling C source files
     "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",

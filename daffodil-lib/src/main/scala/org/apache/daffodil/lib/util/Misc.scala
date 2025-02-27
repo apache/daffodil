@@ -487,7 +487,7 @@ object Misc {
   ): Char = {
     val URC =
       0x2426 // Unicode control picture character for substitution (also looks like arabic q-mark)
-    val code = c.toInt match {
+    val code: Int = c.toInt match {
       //
       // C0 Control pictures
       case n if (n <= 0x1f) => n + 0x2400
@@ -535,7 +535,7 @@ object Misc {
       // on these being preserved. So we have a flag to control this.
       //
       case n if (n > 0x2400 && n < 0x2423 && replaceControlPictures) => URC
-      case _ => c
+      case x => x
     }
     code.toChar
   }

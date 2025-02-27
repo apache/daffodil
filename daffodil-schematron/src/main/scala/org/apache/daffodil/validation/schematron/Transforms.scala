@@ -84,10 +84,10 @@ object SchSource {
   }
 
   case object Sch extends SchSource {
-    lazy val stages =
+    lazy val stages: Seq[String] =
       List("iso_dsdl_include.xsl", "iso_abstract_expand.xsl", "iso_svrl_for_xslt2.xsl")
   }
   case object Xsd extends SchSource {
-    lazy val stages: Seq[String] = "ExtractSchFromXSD-2.xsl" :: Sch.stages
+    lazy val stages: Seq[String] = "ExtractSchFromXSD-2.xsl" +: Sch.stages
   }
 }

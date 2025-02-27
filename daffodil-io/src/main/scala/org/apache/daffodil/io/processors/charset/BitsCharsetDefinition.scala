@@ -22,8 +22,6 @@ package org.apache.daffodil.io.processors.charset
  * org.apache.daffodil.runtime1.processors.charset.BitsCharsetDefinition file in 
  * daffodil-io/src/main/resources/META-INF/services. name() must return a fully capitalized string
  */
-abstract class BitsCharsetDefinition(charset: BitsCharset, alias: Option[String] = None) {
+abstract class BitsCharsetDefinition(final val charset: BitsCharset, alias: Option[String] = None) {
   final def name(): String = alias.getOrElse(charset.name).toUpperCase()
-
-  final def charset(): BitsCharset = charset
 }
