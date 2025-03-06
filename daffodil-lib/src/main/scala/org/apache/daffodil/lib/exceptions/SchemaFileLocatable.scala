@@ -125,7 +125,12 @@ class XercesSchemaFileLocation(
 ) extends SchemaFileLocation(
     (if (xercesError.getLineNumber > 0) Some(xercesError.getLineNumber.toString) else None),
     (if (xercesError.getColumnNumber > 0) Some(xercesError.getColumnNumber.toString) else None),
-    schemaFileLocation.diagnosticFile,
+    (if (
+       xercesError.getSystemId != null &&
+         // only set to systemId if it's different from the diagnosticFile path
+       !xercesError.getSystemId.endsWith(schemaFileLocation.diagnosticFile.getPath)
+     ) new File(xercesError.getSystemId)
+     else schemaFileLocation.diagnosticFile),
     schemaFileLocation.toString,
     schemaFileLocation.diagnosticDebugName
   ) {

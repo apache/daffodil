@@ -152,6 +152,8 @@ object Misc {
         if (Paths.get(relURI).toFile.exists())
           Some(relURI)
         else None
+      } else if (contextURI.getScheme == "resource") {
+        optResourceURI(contextURI, relPath)
       } else {
         // not a file nor an opaque resource URI. What is it?
         throw new IllegalArgumentException(s"Unrecognized URI type: $contextURI")
@@ -212,6 +214,18 @@ object Misc {
     } catch {
       case io: IOException =>
         // failed. So that jar file doesn't exist
+        None
+    }
+  }
+
+  def optResourceURI(contextURI: URI, relPath: String): Option[URI] = {
+    val relURI = contextURI.resolve(relPath)
+    try {
+      relURI.toURL.openStream().close()
+      this.getClass.getResource(relURI.getPath)
+      Some(relURI)
+    } catch {
+      case io: IOException =>
         None
     }
   }
@@ -737,6 +751,10 @@ object Misc {
         Paths.get(pathPart).toFile
       }
       case "file" => Paths.get(uri).toFile
+      case "resource" => {
+        val resourceFilePart = uri.getPath
+        new File(resourceFilePart)
+      }
       case _ => Paths.get(uri.getPath).toFile
     }
   }
