@@ -125,12 +125,21 @@ class XercesSchemaFileLocation(
 ) extends SchemaFileLocation(
     (if (xercesError.getLineNumber > 0) Some(xercesError.getLineNumber.toString) else None),
     (if (xercesError.getColumnNumber > 0) Some(xercesError.getColumnNumber.toString) else None),
-    (if (
-       xercesError.getSystemId != null &&
-         // only set to systemId if it's different from the diagnosticFile path
-       !xercesError.getSystemId.endsWith(schemaFileLocation.diagnosticFile.getPath)
-     ) new File(xercesError.getSystemId)
-     else schemaFileLocation.diagnosticFile),
+    ({
+      val sysId = xercesError.getSystemId
+      val diagnosticFile = schemaFileLocation.diagnosticFile
+      if (sysId == null) {
+        schemaFileLocation.diagnosticFile
+      } else {
+        val sysIdFile = new File(sysId)
+        val sysIdNormalizedPath = sysIdFile.getPath
+        // Return the diagnostic file if the ends of the paths match, otherwise return the new File
+        if (sysIdNormalizedPath.endsWith(diagnosticFile.getPath))
+          diagnosticFile
+        else
+          new File(sysIdNormalizedPath)
+      }
+    }),
     schemaFileLocation.toString,
     schemaFileLocation.diagnosticDebugName
   ) {

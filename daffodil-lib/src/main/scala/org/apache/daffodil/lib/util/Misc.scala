@@ -139,25 +139,16 @@ object Misc {
   def getResourceRelativeOnlyOption(relPath: String, contextURI: URI): Option[URI] = {
     Assert.usage(relPath ne null)
     Assert.usage(contextURI ne null)
-    if (contextURI.isOpaque) {
-      //
-      // We used to call new URL(jarURI, relativePathString)
-      // but that is deprecated now (as of Java 20)
-      //
-      optRelativeJarFileURI(contextURI, relPath)
-    } else {
-      // context URI is not opaque. It's probably a file URI
-      if (contextURI.getScheme == "file") {
-        val relURI = contextURI.resolve(relPath)
-        if (Paths.get(relURI).toFile.exists())
-          Some(relURI)
-        else None
-      } else if (contextURI.getScheme == "resource") {
-        optResourceURI(contextURI, relPath)
-      } else {
+    contextURI.getScheme match {
+      case "jar" =>
+        // We used to call new URL(jarURI, relativePathString)
+        // but that is deprecated now (as of Java 20)
+        optRelativeJarFileURI(contextURI, relPath)
+      case "file" => optRelativeFileURI(contextURI, relPath)
+      case "resource" => optRelativeResourceURI(contextURI, relPath)
+      case _ =>
         // not a file nor an opaque resource URI. What is it?
-        throw new IllegalArgumentException(s"Unrecognized URI type: $contextURI")
-      }
+        throw new IllegalArgumentException(s"Unrecognized URI scheme: $contextURI")
     }
   }
 
@@ -218,16 +209,18 @@ object Misc {
     }
   }
 
-  def optResourceURI(contextURI: URI, relPath: String): Option[URI] = {
+  def optRelativeFileURI(contextURI: URI, relPath: String): Option[URI] = {
     val relURI = contextURI.resolve(relPath)
-    try {
-      relURI.toURL.openStream().close()
-      this.getClass.getResource(relURI.getPath)
+    if (Paths.get(relURI).toFile.exists())
       Some(relURI)
-    } catch {
-      case io: IOException =>
-        None
-    }
+    else None
+  }
+
+  def optRelativeResourceURI(contextURI: URI, relPath: String): Option[URI] = {
+    val resolvedURI = contextURI.resolve(relPath)
+    if (this.getClass.getResource(resolvedURI.getPath) != null)
+      Some(resolvedURI)
+    else None
   }
 
   /**
@@ -753,7 +746,7 @@ object Misc {
       case "file" => Paths.get(uri).toFile
       case "resource" => {
         val resourceFilePart = uri.getPath
-        new File(resourceFilePart)
+        Paths.get(resourceFilePart).toFile
       }
       case _ => Paths.get(uri.getPath).toFile
     }
