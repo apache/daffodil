@@ -228,11 +228,11 @@ class DFDLCatalogResolver private ()
      *    <xs:schema...
      *    ... xsi:schemaLocation="urn:some:namespace /some/path.xsd"
      *  }}}
-     * Xerces takes that schemaLocation URI and absolutizes it to {{{ file:/some/path.xsd }}}
+     * Xerces takes that schemaLocation URI and absolutizes it to {{{ URISCHEME:/some/path.xsd }}}
      * and passes that to our resolveEntity and in turn resolveCommon, which while it's able
-     * to find the namespace, fails to set the resolvedUri since the file:/some/path.xsd will
+     * to find the namespace, fails to set the resolvedUri since the URISCHEME:/some/path.xsd will
      * never match anything resolved from our catalog since that'd return something like
-     * {{{ file:/some/absolute/path/to/some/path.xsd }}}
+     * {{{ URISCHEME:/some/absolute/path/to/some/path.xsd }}}
      *
      * This is a workaround to that bug where we convert systemId to a URI and check if the
      * path (from URI.getPath) matches the end of resolvedUri. Note: This can ignore absolute
@@ -240,7 +240,7 @@ class DFDLCatalogResolver private ()
      * the namespace to match a different file (i.e what they provide in the schemalocation)
      * than what we find in the catalog.
      */
-    lazy val systemIdPath = if (systemIdUri != null && systemIdUri.getScheme == "file") {
+    lazy val systemIdPath = if (systemIdUri != null && systemIdUri.getScheme != null) {
       systemIdUri.getPath
     } else {
       systemId
@@ -734,7 +734,15 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     // javax.xml.validation.Validator's validate method.
     //
     optSchemaURI.foreach { schemaURI =>
-      val validator = XercesValidator.fromURIs(Seq(schemaURI))
+      val validator =
+        try {
+          XercesValidator.fromURIs(Seq(schemaURI))
+        } catch {
+          case e: org.xml.sax.SAXParseException =>
+            Assert.invariantFailed(
+              s"Failed to load validation schema ($schemaURI), this indicates a bug or incorrect build configuration: $e"
+            )
+        }
       val inputStream = source.uriForLoading.toURL.openStream()
       validator.validateXML(inputStream, errorHandler)
       inputStream.close()
