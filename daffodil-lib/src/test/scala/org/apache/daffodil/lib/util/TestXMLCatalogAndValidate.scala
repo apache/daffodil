@@ -20,7 +20,6 @@ package org.apache.daffodil.lib.util
 import java.io.File
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParser
-import scala.language.reflectiveCalls
 import scala.xml.Attribute
 import scala.xml.Elem
 import scala.xml.MetaData
@@ -31,8 +30,8 @@ import scala.xml.SAXParseException
 import scala.xml.Text
 import scala.xml.parsing.NoBindingFactoryAdapter
 
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Implicits.using
 import org.apache.daffodil.lib.util.collections.Stack
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.NS
@@ -52,19 +51,6 @@ import org.xml.sax.ErrorHandler
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 import org.xml.sax.helpers.XMLFilterImpl
-
-object Implicits {
-
-  /**
-   * Used for reading/writing to database, files, etc.
-   * Code From the book "Beginning Scala"
-   * http://www.amazon.com/Beginning-Scala-David-Pollak/dp/1430219890
-   */
-  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
-    try { f(param) }
-    finally { param.close() }
-
-}
 
 /**
  * The goal here is to integrate XML Catalog with XSD Validation, so that both

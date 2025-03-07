@@ -16,13 +16,18 @@
  */
 package org.apache.daffodil.io.processors.charset
 
+import org.apache.daffodil.lib.util.SimpleNamedLoadableService
+
 /**
  * These are the classes which must be dynamically loaded in order to add a charset implementation
  * to Daffodil. All charsets must implement this class and be added to the 
  * org.apache.daffodil.runtime1.processors.charset.BitsCharsetDefinition file in 
  * daffodil-io/src/main/resources/META-INF/services. name() must return a fully capitalized string
  */
-abstract class BitsCharsetDefinition(charset: BitsCharset, alias: Option[String] = None) {
+abstract class BitsCharsetDefinition(
+  charset: BitsCharset,
+  alias: Option[String] = None
+) extends SimpleNamedLoadableService {
   final def name(): String = alias.getOrElse(charset.name).toUpperCase()
 
   final def charset(): BitsCharset = charset

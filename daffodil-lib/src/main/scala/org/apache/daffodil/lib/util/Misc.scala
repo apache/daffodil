@@ -638,11 +638,11 @@ object Misc {
     }
   }
 
-  import scala.language.reflectiveCalls // scala 2.10 creates warning unless we have this.
   /**
    * Convenient I/O tools
+   * TODO: scala 2.12 Phaseout. Replace with scala.util.Using
    */
-  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
+  def using[A <: AutoCloseable, B](param: A)(f: A => B): B =
     try { f(param) }
     finally { param.close() }
 

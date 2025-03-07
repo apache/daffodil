@@ -459,12 +459,31 @@ class DPathElementCompileInfo(
     matches(0)
   }
 
+  /**
+   * Finds the matches in a list of DPathElementCompileInfo.
+   * Used for finding if a named path step has corresponding element declaration.
+   *
+   * Handles local or global matches
+   *
+   */
+  def findMatches(
+    step: StepQName,
+    candidates: Seq[DPathElementCompileInfo]
+  ): Seq[DPathElementCompileInfo] = {
+    val matched = candidates.filter { x =>
+      val other = x.namedQName
+      val res = step.matches(other)
+      res
+    }
+    matched
+  }
+
   private def findNamedMatches(
     step: StepQName,
     possibles: Seq[DPathElementCompileInfo],
     expr: ImplementsThrowsOrSavesSDE
   ): Seq[DPathElementCompileInfo] = {
-    val matchesERD: Seq[DPathElementCompileInfo] = step.findMatches(possibles)
+    val matchesERD: Seq[DPathElementCompileInfo] = findMatches(step, possibles)
 
     val retryMatchesERD =
       if (
@@ -476,7 +495,7 @@ class DPathElementCompileInfo(
         // default namespace was assumed but didn't match, the unqualified path
         // step policy allows us to try to match NoNamespace elements.
         val noNamespaceStep = step.copy(namespace = NoNamespace)
-        noNamespaceStep.findMatches(possibles)
+        findMatches(noNamespaceStep, possibles)
       } else {
         matchesERD
       }
@@ -493,7 +512,7 @@ class DPathElementCompileInfo(
     step: StepQName,
     possibles: Seq[DPathElementCompileInfo]
   ): Seq[DPathElementCompileInfo] = {
-    val matchesERD = step.findMatches(possibles)
+    val matchesERD = findMatches(step, possibles)
     val retryMatchesERD =
       if (
         matchesERD.isEmpty &&
@@ -504,7 +523,7 @@ class DPathElementCompileInfo(
         // default namespace was assumed but didn't match, the unqualified path
         // step policy allows us to try to match NoNamespace elements.
         val noNamespaceStep = step.copy(namespace = NoNamespace)
-        noNamespaceStep.findMatches(possibles)
+        findMatches(noNamespaceStep, possibles)
       } else {
         matchesERD
       }

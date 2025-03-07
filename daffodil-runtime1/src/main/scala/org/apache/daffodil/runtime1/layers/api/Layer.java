@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
+import org.apache.daffodil.lib.util.SimpleNamedLoadableService;
 import org.apache.daffodil.runtime1.layers.LayerRuntime;
 import org.apache.daffodil.runtime1.layers.LayerUtils;
 
@@ -257,7 +258,7 @@ import java.util.List;
  * <p>
  * Unhandled exceptions thrown by the layer code are treated as fatal errors.
  */
-public abstract class Layer {
+public abstract class Layer implements SimpleNamedLoadableService {
 
   private final String localName;
   private final String targetNamespace;
