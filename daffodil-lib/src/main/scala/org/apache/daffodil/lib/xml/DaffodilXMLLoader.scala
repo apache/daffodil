@@ -734,7 +734,15 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     // javax.xml.validation.Validator's validate method.
     //
     optSchemaURI.foreach { schemaURI =>
-      val validator = XercesValidator.fromURIs(Seq(schemaURI))
+      val validator =
+        try {
+          XercesValidator.fromURIs(Seq(schemaURI))
+        } catch {
+          case e: org.xml.sax.SAXParseException =>
+            Assert.invariantFailed(
+              s"Failed to load validation schema ($schemaURI), this indicates a bug or incorrect build configuration: $e"
+            )
+        }
       val inputStream = source.uriForLoading.toURL.openStream()
       validator.validateXML(inputStream, errorHandler)
       inputStream.close()
