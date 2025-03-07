@@ -24,7 +24,6 @@ import java.nio.file.StandardOpenOption
 import scala.xml._
 
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.JDOMUtils
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -157,13 +156,6 @@ class TestXMLUtils {
     val d2 = "9.11"
     val isSame = XMLUtils.textIsSame(d1, d2, Some("xs:float"), Some(0.01.toFloat), None)
     assertFalse(isSame)
-  }
-
-  @Test def testIsNil(): Unit = {
-    val d1 = JDOMUtils.elem2Element(<a xmlns:xsi={XMLUtils.XSI_NAMESPACE} xsi:nil="true"/>)
-    val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={XMLUtils.XSI_NAMESPACE}>foo</a>)
-    assertTrue(JDOMUtils.isNil(d1))
-    assertFalse(JDOMUtils.isNil(d2))
   }
 
   @Test def testWalkUnicodeString1(): Unit = {

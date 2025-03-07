@@ -19,7 +19,6 @@ package org.apache.daffodil.lib
 
 import java.io.{ BufferedInputStream, ByteArrayInputStream }
 import scala.language.implicitConversions
-import scala.language.reflectiveCalls
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.NS
@@ -47,10 +46,10 @@ object Implicits {
 
   /**
    * Used for reading/writing to database, files, etc.
-   * Code From the book "Beginning Scala"
-   * http://www.amazon.com/Beginning-Scala-David-Pollak/dp/1430219890
+   * Code without reflection
+   * TODO: scala 2.12 Phaseout. Replace with scala.util.Using
    */
-  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
+  def using[A <: AutoCloseable, B](param: A)(f: A => B): B =
     try { f(param) }
     finally { param.close() }
 

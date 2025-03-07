@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.lib.api
 
+import org.apache.daffodil.lib.util.SimpleNamedLoadableService
+
 import com.typesafe.config.Config
 
 /**
@@ -35,7 +37,7 @@ trait Validator {
  *
  * The factory implementations are expected to be thread safe
  */
-trait ValidatorFactory {
+trait ValidatorFactory extends SimpleNamedLoadableService {
 
   /**
    * Unique name of this Validator service

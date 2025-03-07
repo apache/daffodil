@@ -19,7 +19,6 @@ package org.apache.daffodil.lib.xml
 
 import java.net.URI
 import java.net.URISyntaxException
-import scala.language.reflectiveCalls
 import scala.util.Try
 
 import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
@@ -486,23 +485,6 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
       case _ => Assert.usageError("other must be a NamedQName")
     }
   }
-
-  /**
-   * Finds the matches in a list of things that have QNames.
-   * Used for finding if a named path step has corresponding element declaration.
-   *
-   * Handles local or global matches
-   *
-   */
-  def findMatches[T <: { def namedQName: NamedQName }](candidates: Seq[T]): Seq[T] = {
-    val matched = candidates.filter { x =>
-      val other = x.namedQName
-      val res = matches(other)
-      res
-    }
-    matched
-  }
-
 }
 
 protected trait RefQNameFactoryBase[T] {

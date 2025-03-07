@@ -19,7 +19,8 @@ package org.apache.daffodil.lib.util
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import scala.collection.mutable.ArrayBuffer
-import scala.language.reflectiveCalls
+
+trait SimpleNamedLoadableService { def name(): String }
 
 /**
  * Contains methods for dynamic loading of classes from the class path.
@@ -39,7 +40,7 @@ object SimpleNamedServiceLoader {
    *           It must have a name member returning a string. It must have a default (no-arg) constructor.
    * @return A map from the name (string) to the corresponding instance of the class.
    */
-  def loadClass[T <: { def name(): String }](clazz: Class[T]): Map[String, T] = {
+  def loadClass[T <: SimpleNamedLoadableService](clazz: Class[T]): Map[String, T] = {
     val thingName = Misc.getNameGivenAClassObject(clazz)
     val iter = ServiceLoader.load(clazz).iterator()
     val instanceBuf = new ArrayBuffer[T]
