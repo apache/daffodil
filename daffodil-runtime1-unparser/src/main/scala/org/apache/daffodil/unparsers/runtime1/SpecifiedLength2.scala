@@ -21,7 +21,6 @@ import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
 
 import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.ZeroLengthStatus
 import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.lib.exceptions.Assert
@@ -229,7 +228,7 @@ class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeDa
   override def runtimeDependencies = Vector()
 
   override def unparse(state: UState): Unit = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     if (dos.maybeAbsBitPos0b.isDefined) {
       elem.contentLength.setAbsStartPos0bInBits(dos.maybeAbsBitPos0b.getULong)
@@ -247,7 +246,7 @@ class CaptureEndOfContentLengthUnparser(
   override def runtimeDependencies = Vector()
 
   override def unparse(state: UState): Unit = {
-    val dos = state.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
+    val dos = state.getDataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
 
     if (
@@ -278,7 +277,7 @@ class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData
   override def runtimeDependencies = Vector()
 
   override def unparse(state: UState): Unit = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     if (dos.maybeAbsBitPos0b.isDefined) {
       elem.valueLength.setAbsStartPos0bInBits(dos.maybeAbsBitPos0b.getULong)
@@ -294,7 +293,7 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
   override def runtimeDependencies = Vector()
 
   override def unparse(state: UState): Unit = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
     if (dos.maybeAbsBitPos0b.isDefined) {
       elem.valueLength.setAbsEndPos0bInBits(dos.maybeAbsBitPos0b.getULong)
@@ -431,17 +430,17 @@ trait SkipTheBits { self: SuspendableOperation =>
 
   protected final def skipTheBits(ustate: UState, skipInBits: Long): Unit = {
     if (skipInBits > 0) {
-      val dos = ustate.dataOutputStream
+      val dos = ustate.getDataOutputStream
       if (!dos.skip(skipInBits, ustate))
         UE(ustate, "Unable to skip %s(bits).", skipInBits)
     }
     if (skipInBits == 0) {
       Logger.log.debug(
-        s"${Misc.getNameFromClass(this)} no fill for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}."
+        s"${Misc.getNameFromClass(this)} no fill for ${rd.diagnosticDebugName} DOS ${ustate.getDataOutputStream}."
       )
     } else {
       Logger.log.debug(
-        s"${Misc.getNameFromClass(this)} filled ${skipInBits} bits for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}."
+        s"${Misc.getNameFromClass(this)} filled ${skipInBits} bits for ${rd.diagnosticDebugName} DOS ${ustate.getDataOutputStream}."
       )
     }
   }
@@ -623,7 +622,7 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
 
     val nChars = numPadChars(skipInBits, cs.padCharWidthInBits)
     if (nChars > 0) {
-      val dos = state.dataOutputStream
+      val dos = state.getDataOutputStream
       var i = 0
       val padChar = maybePadChar.get
       val padString = padChar.toString

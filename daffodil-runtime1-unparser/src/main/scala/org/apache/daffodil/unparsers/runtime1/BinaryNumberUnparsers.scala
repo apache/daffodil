@@ -57,7 +57,7 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
   def unparse(state: UState): Unit = {
     val nBits = getBitLength(state)
     val value = getNumberToPut(state)
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val res = putNumber(dos, value, nBits, state)
 
     if (!res) {

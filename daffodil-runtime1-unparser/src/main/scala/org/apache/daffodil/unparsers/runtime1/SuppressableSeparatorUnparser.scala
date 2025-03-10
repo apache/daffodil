@@ -88,7 +88,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    */
   private lazy val dosToCheck_ = {
     Assert.usage(maybeDOSAfterSeparatorRegion.isDefined)
-    val dosForStartOfSeparatedRegion = savedUstate.dataOutputStream.maybeNextInChain.get
+    val dosForStartOfSeparatedRegion = savedUstate.getDataOutputStream.maybeNextInChain.get
     val dosForEndOfSeparatedRegion = maybeDOSAfterSeparatorRegion.get
     val primaryDOSList =
       getDOSFromAtoB(dosForStartOfSeparatedRegion, dosForEndOfSeparatedRegion)

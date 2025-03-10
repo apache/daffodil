@@ -553,7 +553,9 @@ class DataProcessor(
           unparserState.notifyDebugging(true)
         }
         unparserState.dataProc.get.init(unparserState, ssrd.unparser)
-        unparserState.dataOutputStream.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
+        unparserState.getDataOutputStream.setPriorBitOrder(
+          ssrd.elementRuntimeData.defaultBitOrder
+        )
         doUnparse(unparserState)
         unparserState.evalSuspensions(isFinal = true)
         unparserState.unparseResult
@@ -600,7 +602,7 @@ class DataProcessor(
         }
         case th: Throwable => throw th
       } finally {
-        unparserState.dataOutputStream.cleanUp()
+        unparserState.getDataOutputStream.cleanUp()
       }
     res
   }
@@ -656,9 +658,9 @@ class DataProcessor(
     // An application could do this in a loop calling unparse repeatedly
     // without having to create a new infoset event stream or outputstream.
     //
-    Assert.invariant(!state.dataOutputStream.isFinished)
+    Assert.invariant(!state.getDataOutputStream.isFinished)
     try {
-      state.dataOutputStream.setFinished(state)
+      state.getDataOutputStream.setFinished(state)
     } catch {
       case boc: BitOrderChangeException =>
         state.SDE(boc)
