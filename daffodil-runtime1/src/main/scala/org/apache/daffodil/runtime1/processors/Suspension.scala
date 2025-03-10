@@ -84,7 +84,7 @@ trait Suspension extends Serializable {
         // We are done, and we're not readOnly, so the
         // DOS needs to be set finished now.
         //
-        savedUstate.dataOutputStream.setFinished(savedUstate)
+        savedUstate.getDataOutputStream.setFinished(savedUstate)
       } catch {
         case boc: BitOrderChangeException =>
           savedUstate.SDE(boc)
@@ -113,7 +113,7 @@ trait Suspension extends Serializable {
     // specifically known length of zero bits. So nothing being written out.
     // In that case, why do we need to split at all?
     //
-    val original = ustate.dataOutputStream.asInstanceOf[DirectOrBufferedDataOutputStream]
+    val original = ustate.getDataOutputStream
     if (mkl.isEmpty || (mkl.isDefined && mkl.get > 0)) {
       //
       // only split if the length is either unknown
@@ -168,7 +168,7 @@ trait Suspension extends Serializable {
 
     // the main-thread will carry on using the original ustate but unparsing
     // into this buffered stream.
-    ustate.dataOutputStream = buffered
+    ustate.setDataOutputStream(buffered)
   }
 
   private def suspend(ustate: UState, original: DirectOrBufferedDataOutputStream): Unit = {
@@ -178,7 +178,7 @@ trait Suspension extends Serializable {
     // TODO: Performance - copying this whole state, just for OVC is painful.
     // Some sort of copy-on-write scheme would be better.
     //
-    val didSplit = (ustate.dataOutputStream ne original)
+    val didSplit = (ustate.getDataOutputStream ne original)
     val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
     if (isReadOnly && didSplit) {
       Assert.invariantFailed("Shouldn't have split. read-only case")

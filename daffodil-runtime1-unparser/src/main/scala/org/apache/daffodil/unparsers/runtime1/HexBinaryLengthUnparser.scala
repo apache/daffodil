@@ -72,7 +72,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
         lengthInBits
       }
 
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
 
     if (bitsFromValueToPut > 0) {
       val ret = dos.putByteArray(value, bitsFromValueToPut, state)

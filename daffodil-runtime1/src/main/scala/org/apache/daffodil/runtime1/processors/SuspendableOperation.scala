@@ -70,7 +70,7 @@ trait SuspendableOperation extends Suspension {
           val nodeOpt =
             if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get
             else "No Node"
-          block(nodeOpt, ustate.dataOutputStream, 0, this)
+          block(nodeOpt, ustate.getDataOutputStream, 0, this)
         }
       } catch {
         case e: RetryableException => {
@@ -78,7 +78,7 @@ trait SuspendableOperation extends Suspension {
           val nodeOpt =
             if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get
             else "No Node"
-          block(nodeOpt, ustate.dataOutputStream, 0, e)
+          block(nodeOpt, ustate.getDataOutputStream, 0, e)
         }
       }
       if (!isDone) {
