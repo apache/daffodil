@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.walker.SimpleTypeView
@@ -165,8 +166,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 
   override final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:simpleType>{contents @ _*}</dfdl:simpleType> =>
-        Some(new DFDLSimpleType(node, this))
+      case Elem("dfdl", "simpleType", _, _, _*) => Some(new DFDLSimpleType(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }

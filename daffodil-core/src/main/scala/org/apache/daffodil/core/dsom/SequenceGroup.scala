@@ -271,7 +271,7 @@ trait SequenceDefMixin
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:sequence>{contents @ _*}</dfdl:sequence> => Some(new DFDLSequence(node, this))
+      case Elem("dfdl", "sequence", _, _, _*) => Some(new DFDLSequence(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
