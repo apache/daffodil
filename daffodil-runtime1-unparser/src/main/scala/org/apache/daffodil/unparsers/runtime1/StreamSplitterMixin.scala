@@ -92,7 +92,7 @@ class RegionSplitUnparser(override val context: TermRuntimeData)
 
   override lazy val suspendableOperation = new RegionSplitSuspendableOperation(context)
 
-  lazy val dataOutputStream = suspendableOperation.savedUstate.dataOutputStream
+  lazy val dataOutputStream = suspendableOperation.savedUstate.getDataOutputStream
 }
 
 final class RegionSplitSuspendableOperation(override val rd: TermRuntimeData)

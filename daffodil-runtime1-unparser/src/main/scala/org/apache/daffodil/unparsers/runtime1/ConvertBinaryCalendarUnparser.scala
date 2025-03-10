@@ -84,7 +84,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
       case _ => Assert.impossibleCase
     }
 
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val res = putNumber(dos, diff, lengthInBits, state)
 
     if (!res) {

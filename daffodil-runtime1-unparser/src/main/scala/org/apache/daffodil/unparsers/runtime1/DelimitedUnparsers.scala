@@ -118,7 +118,7 @@ sealed class StringDelimitedUnparser(
           }
         } else valueString // No EscapeScheme
 
-      val outStream = state.dataOutputStream
+      val outStream = state.getDataOutputStream
       val nCharsWritten = outStream.putString(escapedValue, state)
       if (nCharsWritten != escapedValue.length)
         UE(

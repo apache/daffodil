@@ -51,7 +51,7 @@ class DelimiterTextUnparser(
   def unparse(state: UState): Unit = {
 
     Logger.log.debug(
-      s"Unparsing starting at bit position: ${state.dataOutputStream.maybeAbsBitPos0b}"
+      s"Unparsing starting at bit position: ${state.getDataOutputStream.maybeAbsBitPos0b}"
     )
 
     val localDelimNode = state.localDelimiters
@@ -72,7 +72,7 @@ class DelimiterTextUnparser(
     try {
       val valueString = delimDFA.unparseValue
 
-      val outStream = state.dataOutputStream
+      val outStream = state.getDataOutputStream
       val nCharsWritten = outStream.putString(valueString, state)
       if (nCharsWritten != valueString.length)
         UE(

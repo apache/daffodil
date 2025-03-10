@@ -49,7 +49,7 @@ class StringNoTruncateUnparser(erd: ElementRuntimeData)
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def unparse(state: UState): Unit = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val valueToWrite = contentString(state)
     val nCharsWritten =
       try {
@@ -178,7 +178,7 @@ class StringMaybeTruncateBitsUnparser(
     // Then we can figure out the number of padChars to add because a padChar must
     // be a minimum-width character.
     //
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val valueString = contentString(state)
     val valueToWrite = {
       //
@@ -260,7 +260,7 @@ class StringMaybeTruncateCharactersUnparser(
   override def runtimeDependencies = Vector(lengthInCharactersEv)
 
   override def unparse(state: UState): Unit = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val valueString = contentString(state)
     val targetLengthInCharacters =
       lengthInCharactersEv.evaluate(state)

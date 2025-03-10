@@ -29,7 +29,7 @@ class SkipRegionUnparser(skipInBits: Int, override val context: TermRuntimeData)
   override def runtimeDependencies = Vector()
 
   override def unparse(state: UState) = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     if (!dos.skip(skipInBits, state)) UE(state, "Unable to skip %s(bits).", skipInBits)
   }
 }
@@ -40,7 +40,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
   def rd: TermRuntimeData
 
   def test(ustate: UState) = {
-    val dos = ustate.dataOutputStream
+    val dos = ustate.getDataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
       Logger.log.debug(
         s"${this} ${ustate} Unable to align to ${alignmentInBits} bits because there is no absolute bit position."
@@ -50,7 +50,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
   }
 
   def continuation(state: UState): Unit = {
-    val dos = state.dataOutputStream
+    val dos = state.getDataOutputStream
     val b4 = dos.relBitPos0b
     if (!dos.align(alignmentInBits, state))
       UE(state, "Unable to align to %s(bits).", alignmentInBits)
