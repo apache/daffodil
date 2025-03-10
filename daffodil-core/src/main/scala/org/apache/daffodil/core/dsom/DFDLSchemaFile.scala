@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import java.io.File
+import scala.xml.Elem
 
 import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.Diagnostic
@@ -249,7 +250,7 @@ final class DFDLSchemaFile(
     sf: Option[DFDLSchemaFile]
   ): XMLSchemaDocument = {
     val sd = node match {
-      case <schema>{_*}</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
+      case Elem(_, "schema", _, _, _*) if (NS(node.namespace) == XMLUtils.xsdURI) => {
         val sd = XMLSchemaDocument(node, sset, Some(iiParent), sf, before, false)
         sd
       }

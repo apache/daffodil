@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import scala.xml.Comment
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.Text
 
@@ -43,7 +44,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final def sequence = group.asInstanceOf[LocalSequence]
   final def choice = group.asInstanceOf[Choice]
 
-  private lazy val <complexType>{xmlChildren @ _*}</complexType> = xml
+  private lazy val Elem(_, "complexType", _, _, xmlChildren @ _*) = xml
 
   final lazy val Seq(modelGroup) = {
     val s = smg
@@ -73,7 +74,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
     xmlChildren.flatMap { xmlChild =>
       {
         xmlChild match {
-          case <annotation>{annotationChildren @ _*}</annotation> => {
+          case Elem(_, "annotation", _, _, annotationChildren @ _*) => {
             val dais = annotationChildren.find { ai =>
               ai.attribute("source") match {
                 case Some(n) => n.text.contains("ogf") && n.text.contains("dfdl")
