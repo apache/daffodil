@@ -165,7 +165,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
 
   override final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:simpleType>{contents @ _*}</dfdl:simpleType> =>
+      case _ if node.prefix == "dfdl" && node.label == "simpleType" =>
         Some(new DFDLSimpleType(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }

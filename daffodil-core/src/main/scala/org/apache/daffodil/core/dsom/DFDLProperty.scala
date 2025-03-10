@@ -65,8 +65,14 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
     val values: Option[NodeSeq] = xml match {
       case <dfdl:property/> => None
       case <daf:property/> => None
-      case <dfdl:property>{valueNodes @ _*}</dfdl:property> => Some(valueNodes)
-      case <daf:property>{valueNodes @ _*}</daf:property> => Some(valueNodes)
+      case p if xml.prefix == "dfdl" && xml.label == "property" => {
+        val valueNodes = p.nonEmptyChildren
+        Some(valueNodes)
+      }
+      case p if xml.prefix == "daf" && xml.label == "property" => {
+        val valueNodes = p.nonEmptyChildren
+        Some(valueNodes)
+      }
     }
 
     values match {

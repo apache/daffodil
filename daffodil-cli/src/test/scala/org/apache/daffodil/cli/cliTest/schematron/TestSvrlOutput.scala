@@ -61,11 +61,16 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.Success)
 
-          XML.loadFile(svrl.toFile) match {
-            case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-              val res = rules.find {
-                case <svrl:failed-assert>{_*}</svrl:failed-assert> => true
-                case _ => false
+          val svrlFileXML = XML.loadFile(svrl.toFile)
+          lazy val rules = svrlFileXML.nonEmptyChildren
+          svrlFileXML match {
+            case _
+                if svrlFileXML.prefix == "svrl" && svrlFileXML.label == "schematron-output" && rules.nonEmpty =>
+              val res = rules.find { r =>
+                r match {
+                  case _ if r.prefix == "svrl" && r.label == "failed-assert" => true
+                  case _ => false
+                }
               }
               // we should not have found failures
               assertFalse(res.isDefined)
@@ -93,11 +98,16 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.ParseError)
 
-          XML.loadFile(svrl.toFile) match {
-            case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-              val res = rules.find {
-                case <svrl:failed-assert>{_*}</svrl:failed-assert> => true
-                case _ => false
+          val svrlFileXML = XML.loadFile(svrl.toFile)
+          lazy val rules = svrlFileXML.nonEmptyChildren
+          svrlFileXML match {
+            case _
+                if svrlFileXML.prefix == "svrl" && svrlFileXML.label == "schematron-output" =>
+              val res = rules.find { r =>
+                r match {
+                  case _ if r.prefix == "svrl" && r.label == "failed-assert" => true
+                  case _ => false
+                }
               }
               // we should have found some failures
               assertTrue(res.isDefined)
@@ -169,11 +179,16 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.Success)
 
-          XML.loadFile(svrl.toFile) match {
-            case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-              val res = rules.find {
-                case <svrl:failed-assert>{_*}</svrl:failed-assert> => true
-                case _ => false
+          val svrlFileXML = XML.loadFile(svrl.toFile)
+          lazy val rules = svrlFileXML.nonEmptyChildren
+          svrlFileXML match {
+            case _
+                if svrlFileXML.prefix == "svrl" && svrlFileXML.label == "schematron-output" =>
+              val res = rules.find { r =>
+                r match {
+                  case _ if r.prefix == "svrl" && r.label == "failed-assert" => true
+                  case _ => false
+                }
               }
               // we should not have found failures
               assertFalse(res.isDefined)

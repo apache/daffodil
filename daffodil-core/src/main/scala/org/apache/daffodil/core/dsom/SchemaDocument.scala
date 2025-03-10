@@ -224,11 +224,12 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
 
   protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     val res = node match {
-      case <dfdl:format>{content @ _*}</dfdl:format> => DFDLFormat(node, this)
-      case <dfdl:defineFormat>{content @ _*}</dfdl:defineFormat> => DFDLDefineFormat(node, this)
-      case <dfdl:defineEscapeScheme>{content @ _*}</dfdl:defineEscapeScheme> =>
+      case _ if node.prefix == "dfdl" && node.label == "format" => DFDLFormat(node, this)
+      case _ if node.prefix == "dfdl" && node.label == "defineFormat" =>
+        DFDLDefineFormat(node, this)
+      case _ if node.prefix == "dfdl" && node.label == "defineEscapeScheme" =>
         DFDLDefineEscapeSchemeFactory(node, this)
-      case <dfdl:defineVariable>{content @ _*}</dfdl:defineVariable> =>
+      case _ if node.prefix == "dfdl" && node.label == "defineVariable" =>
         DFDLDefineVariable(node, this)
       case _ => {
         val prefix =

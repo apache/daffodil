@@ -29,7 +29,8 @@ trait ElementLikeMixin extends AnnotatedSchemaComponent with ProvidesDFDLStateme
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:element>{contents @ _*}</dfdl:element> => Some(new DFDLElement(node, this))
+      case _ if node.prefix == "dfdl" && node.label == "element" =>
+        Some(new DFDLElement(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }

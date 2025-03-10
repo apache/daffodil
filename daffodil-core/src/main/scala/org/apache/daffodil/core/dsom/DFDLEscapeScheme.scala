@@ -237,10 +237,9 @@ final class DFDLDefineEscapeScheme private (
 
   lazy val escapeScheme = {
     val des = Utility.trim(node)
+    lazy val e = (des \ "escapeScheme").head
     val res = des match {
-      case <dfdl:defineEscapeScheme>{
-            e @ <dfdl:escapeScheme>{contents @ _*}</dfdl:escapeScheme>
-          }</dfdl:defineEscapeScheme> =>
+      case _ if des.prefix == "dfdl" && des.label == "defineEscapeScheme" && e.nonEmpty =>
         new DFDLEscapeScheme(e, decl, this)
       case _ => SDE("The content of %s is not complete.", des.label)
     }

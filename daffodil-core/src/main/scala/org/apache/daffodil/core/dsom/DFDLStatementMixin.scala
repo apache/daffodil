@@ -114,18 +114,19 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
   ): Option[DFDLAnnotation] = {
     val term = self
     node match {
-      case <dfdl:assert>{content @ _*}</dfdl:assert> => Some(new DFDLAssert(node, term))
-      case <dfdl:discriminator>{content @ _*}</dfdl:discriminator> =>
+      case _ if node.prefix == "dfdl" && node.label == "assert" =>
+        Some(new DFDLAssert(node, term))
+      case _ if node.prefix == "dfdl" && node.label == "discriminator" =>
         Some(new DFDLDiscriminator(node, term))
-      case <dfdl:setVariable>{content @ _*}</dfdl:setVariable> =>
+      case _ if node.prefix == "dfdl" && node.label == "setVariable" =>
         Some(new DFDLSetVariable(node, term))
-      case <dfdl:newVariableInstance>{content @ _*}</dfdl:newVariableInstance> =>
+      case _ if node.prefix == "dfdl" && node.label == "newVariableInstance" =>
         Some(new DFDLNewVariableInstance(node, term))
       //
       // property element annotations aren't "statements" so we don't want them back from this
       // and in fact can't construct them here without causing trouble (circular definitions)
       //
-      case <dfdl:property>{_*}</dfdl:property> =>
+      case _ if node.prefix == "dfdl" && node.label == "property" =>
         SDE(
           "A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. "
         )

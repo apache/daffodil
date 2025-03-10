@@ -2266,11 +2266,12 @@ case class Document(d: NodeSeq, parent: TestCase) {
     }
   }
 
-  private lazy val Seq(<document>{children @ _*}</document>) = d
+  private lazy val Seq(doc) = d
+  private lazy val children = doc.nonEmptyChildren
 
   private val actualDocumentPartElementChildren = children.toList.flatMap { child =>
     child match {
-      case <documentPart>{_*}</documentPart> => {
+      case _ if child.label == "documentPart" => {
         List((child \ "@type").toString match {
           case "text" => new TextDocumentPart(child, this)
           case "byte" => new ByteDocumentPart(child, this)
@@ -2290,7 +2291,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
   if (actualDocumentPartElementChildren.nonEmpty) {
     children.foreach { child =>
       child match {
-        case <documentPart>{_*}</documentPart> => // ok
+        case _ if child.label == "documentPart" => // ok
         case scala.xml.Text(s) if (s.matches("""\s+""")) => // whitespace text nodes ok
         case scala.xml.Comment(_) => // ok
         case scala.xml.PCData(s) => // ok

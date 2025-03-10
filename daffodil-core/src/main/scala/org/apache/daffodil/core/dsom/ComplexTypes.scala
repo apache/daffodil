@@ -43,7 +43,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final def sequence = group.asInstanceOf[LocalSequence]
   final def choice = group.asInstanceOf[Choice]
 
-  private lazy val <complexType>{xmlChildren @ _*}</complexType> = xml
+  private lazy val xmlChildren = xml.nonEmptyChildren
 
   final lazy val Seq(modelGroup) = {
     val s = smg
@@ -72,8 +72,9 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   private lazy val childrenForTerms = {
     xmlChildren.flatMap { xmlChild =>
       {
+        lazy val annotationChildren = xmlChild.nonEmptyChildren
         xmlChild match {
-          case <annotation>{annotationChildren @ _*}</annotation> => {
+          case _ if xmlChild.label == "annotation" && annotationChildren.nonEmpty => {
             val dais = annotationChildren.find { ai =>
               ai.attribute("source") match {
                 case Some(n) => n.text.contains("ogf") && n.text.contains("dfdl")

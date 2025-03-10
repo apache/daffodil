@@ -249,7 +249,7 @@ final class DFDLSchemaFile(
     sf: Option[DFDLSchemaFile]
   ): XMLSchemaDocument = {
     val sd = node match {
-      case <schema>{_*}</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
+      case _ if (node.label == "schema") && (NS(node.namespace) == XMLUtils.xsdURI) => {
         val sd = XMLSchemaDocument(node, sset, Some(iiParent), sf, before, false)
         sd
       }

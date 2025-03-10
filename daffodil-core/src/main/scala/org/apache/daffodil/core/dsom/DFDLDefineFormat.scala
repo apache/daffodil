@@ -35,8 +35,10 @@ final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   {
 
   lazy val formatAnnotation = LV(Symbol("formatAnnotation")) {
-    XMLUtils.removeComments(Utility.trim(node)) match {
-      case <defineFormat>{f @ <format>{_*}</format>}</defineFormat> =>
+    val cleanedNode = XMLUtils.removeComments(Utility.trim(node))
+    lazy val f = (cleanedNode \ "format").head
+    cleanedNode match {
+      case _ if cleanedNode.label == "defineFormat" && f.nonEmpty =>
         DFDLFormat(f, sd)
       case _ =>
         schemaDefinitionError("dfdl:defineFormat does not contain a dfdl:format element.")
