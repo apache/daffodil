@@ -25,10 +25,10 @@ import org.apache.daffodil.lib.util.SimpleNamedLoadableService
  * daffodil-io/src/main/resources/META-INF/services. name() must return a fully capitalized string
  */
 abstract class BitsCharsetDefinition(
-  charset: BitsCharset,
+  _charset: BitsCharset,
   alias: Option[String] = None
 ) extends SimpleNamedLoadableService {
-  final def name(): String = alias.getOrElse(charset.name).toUpperCase()
+  final def name(): String = alias.getOrElse(_charset.name).toUpperCase()
 
-  final def charset(): BitsCharset = charset
+  final def charset(): BitsCharset = _charset
 }
