@@ -236,7 +236,7 @@ abstract class InfosetOutputter extends SInfosetOutputter {
  */
 class ScalaXMLInfosetOutputter() extends InfosetOutputterProxy {
 
-  override val infosetOutputter = new SScalaXMLInfosetOutputter()
+  override val infosetOutputter: SScalaXMLInfosetOutputter = new SScalaXMLInfosetOutputter()
 
   /**
    * Get the scala.xml.Node representing the infoset created during a parse
@@ -305,7 +305,7 @@ class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
  */
 class JDOMInfosetOutputter() extends InfosetOutputterProxy {
 
-  override val infosetOutputter = new SJDOMInfosetOutputter()
+  override val infosetOutputter: SJDOMInfosetOutputter = new SJDOMInfosetOutputter()
 
   /**
    * Get the jdom Document representing the infoset created during a parse
@@ -320,7 +320,7 @@ class JDOMInfosetOutputter() extends InfosetOutputterProxy {
  */
 class W3CDOMInfosetOutputter() extends InfosetOutputterProxy {
 
-  override val infosetOutputter = new SW3CDOMInfosetOutputter()
+  override val infosetOutputter: SW3CDOMInfosetOutputter = new SW3CDOMInfosetOutputter()
 
   /**
    * Get the w3c Document representing the infoset created during a parse

@@ -69,7 +69,7 @@ trait ElementBase
   with OverlapCheckMixin
   with ElementBaseView {
 
-  protected override def initialize() = {
+  protected[dsom] override def initialize() = {
     super.initialize()
   }
 
@@ -200,12 +200,6 @@ trait ElementBase
    */
   final lazy val optPrimType: Option[PrimType] =
     Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
-
-  /**
-   * An array element is required if its index is less than the minOccurs of the
-   * array. For an array with a fixed number of elements, all elements are required.
-   */
-  def isArrayWithAtLeastOneRequiredArrayElement: Boolean
 
   private def nsBindingsToSet(nsb: NamespaceBinding): Set[(String, NS)] = {
     if (nsb == scala.xml.TopScope) Set()

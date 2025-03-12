@@ -96,7 +96,7 @@ class CodeGeneratorState(private val root: ElementBase) {
         structs.top().parserStatements +=
           s"""    parse_alignment_bits(end_bitPos0b, pstate);
              |    if (pstate->pu.error) return;""".stripMargin
-        val octalFillByte = context.fillByteEv.constValue.toByte.toOctalString
+        val octalFillByte = context.fillByteEv.constValue.toByte.toInt.toOctalString
         structs.top().unparserStatements +=
           s"""    unparse_alignment_bits(end_bitPos0b, '\\$octalFillByte', ustate);
              |    if (ustate->pu.error) return;""".stripMargin

@@ -179,7 +179,7 @@ trait ElementBaseGrammarMixin
         prefixLengthType
       )
       schemaDefinitionWhen(
-        detachedElementDecl.alignment != 1,
+        detachedElementDecl.alignment.asInstanceOf[Int] != 1,
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1",
         prefixLengthType
       )

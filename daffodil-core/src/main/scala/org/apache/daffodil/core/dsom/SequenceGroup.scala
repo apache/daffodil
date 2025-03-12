@@ -264,8 +264,6 @@ trait SequenceDefMixin
   with GroupDefLike
   with FindPropertyMixin {
 
-  def groupMembersNotShared: Seq[Term]
-
   protected final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean =
     a.isInstanceOf[DFDLSequence]
 

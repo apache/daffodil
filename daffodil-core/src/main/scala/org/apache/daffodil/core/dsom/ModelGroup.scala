@@ -257,7 +257,7 @@ abstract class ModelGroup protected (index: Int)
   with NestingLexicalMixin
   with ModelGroupView {
 
-  protected override def initialize(): Unit = {
+  protected[dsom] override def initialize(): Unit = {
     super.initialize()
     xmlChildren
   }

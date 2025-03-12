@@ -54,7 +54,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
   with NestingLexicalMixin
   with TypeChecks {
 
-  protected override def initialize() = {
+  protected[dsom] override def initialize() = {
     super.initialize()
     optUnion
   }
@@ -250,7 +250,7 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
   with NestingLexicalMixin {
   Assert.invariant(xmlArg.asInstanceOf[scala.xml.Elem].label == "union")
 
-  protected override def initialize() = {
+  protected[dsom] override def initialize() = {
     super.initialize()
     unionMemberTypes
   }
