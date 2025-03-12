@@ -30,7 +30,7 @@ class LayeredSequenceUnparser(
 
   override def unparse(state: UState): Unit = {
 
-    val originalDOS = state.dataOutputStream
+    val originalDOS = state.getDataOutputStream
 
     // create a new buffered DOS that this layer will flush to when the layer
     // completes unparsing. This ensures that any fragment bits or bitOrder
@@ -73,7 +73,7 @@ class LayeredSequenceUnparser(
       val layerDOS = layerDriver.addOutputLayer(layerUnderlyingDOS)
 
       // unparse the layer body into layerDOS
-      state.dataOutputStream = layerDOS
+      state.setDataOutputStream(layerDOS)
       super.unparse(state)
       // now we're done unparsing the layer recursively.
       // While doing that unparsing, the data output stream may have been split, so the
@@ -83,7 +83,7 @@ class LayeredSequenceUnparser(
       // DOS is consolidated and written out, that is when the layer is finished
       // and the wrap-up of the layer (such as writing output variables) can occur.
       //
-      val endOfLayerUnparseDOS = state.dataOutputStream
+      val endOfLayerUnparseDOS = state.getDataOutputStream
       val formatInfoPost =
         state.asInstanceOf[UStateMain].cloneForSuspension(endOfLayerUnparseDOS)
 
@@ -101,7 +101,7 @@ class LayeredSequenceUnparser(
       // just let that propagate.
     } finally {
       // reset the state so subsequent unparsers write to the following DOS
-      state.dataOutputStream = layerFollowingDOS
+      state.setDataOutputStream(layerFollowingDOS)
     }
   }
 

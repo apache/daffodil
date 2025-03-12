@@ -126,10 +126,16 @@ abstract class UState(
     val elt =
       if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString
       else ""
-    "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
+    "UState(" + elt + " DOS=" + getDataOutputStream.toString() + ")"
   }
 
-  var dataOutputStream: DirectOrBufferedDataOutputStream
+  protected var _dataOutputStream: DirectOrBufferedDataOutputStream = _
+
+  def getDataOutputStream: DirectOrBufferedDataOutputStream = _dataOutputStream
+
+  def setDataOutputStream(dos: DirectOrBufferedDataOutputStream): Unit = {
+    _dataOutputStream = dos
+  }
 
   def currentInfosetNode: DINode
   def currentInfosetNodeMaybe: Maybe[DINode]
@@ -158,7 +164,7 @@ abstract class UState(
   def advanceOrError: InfosetAccessor
   def isInspectArrayEnd: Boolean
 
-  override def dataStream = Maybe(dataOutputStream)
+  override def dataStream = Maybe(getDataOutputStream)
 
   override def currentNode = currentInfosetNodeMaybe
 
@@ -196,21 +202,21 @@ abstract class UState(
   def currentLocation: DataLocation = {
     val m = maybeCurrentInfosetElement
     val mrd = if (m.isDefined) Maybe(m.value.runtimeData) else Nope
-    new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream), mrd)
+    new DataLoc(bitPos1b, bitLimit1b, Left(getDataOutputStream), mrd)
   }
 
   lazy val unparseResult = new UnparseResult(dataProc.get, this)
 
-  def bitPos0b = if (dataOutputStream.maybeAbsBitPos0b.isDefined)
-    dataOutputStream.maybeAbsBitPos0b.get
+  def bitPos0b = if (getDataOutputStream.maybeAbsBitPos0b.isDefined)
+    getDataOutputStream.maybeAbsBitPos0b.get
   else 0L
 
-  def bitLimit0b = dataOutputStream.maybeRelBitLimit0b
+  def bitLimit0b = getDataOutputStream.maybeRelBitLimit0b
 
   def charPos = -1L
 
   final def notifyDebugging(flag: Boolean): Unit = {
-    dataOutputStream.setDebugging(flag)
+    getDataOutputStream.setDebugging(flag)
   }
 
   def addUnparseError(ue: UnparseError): Unit = {
@@ -249,7 +255,7 @@ abstract class UState(
     // can be assumed to be byte aligned (which will be checked on combining),
     // and the bytes in it will actually start out byte aligned.
     //
-    val dos = this.dataOutputStream
+    val dos = this.getDataOutputStream
     val isChanging = isUnparseBitOrderChanging(dos)
     if (isChanging) {
       //
@@ -387,7 +393,7 @@ abstract class UState(
       }
 
       val newDOS = dos.addBuffered()
-      dataOutputStream = newDOS
+      setDataOutputStream(newDOS)
       dos.setFinished(finfo)
     }
   }
@@ -412,7 +418,7 @@ abstract class UState(
  */
 final class UStateForSuspension(
   val mainUState: UStateMain,
-  override var dataOutputStream: DirectOrBufferedDataOutputStream,
+  val dataOutputStream: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   override val currentInfosetNode: DINode,
   arrayIterationIndex: Long,
@@ -423,6 +429,7 @@ final class UStateForSuspension(
   areDebugging: Boolean
 ) extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
+  _dataOutputStream = dataOutputStream
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
   dState.setContextNode(thisElement.asInstanceOf[DINode])
@@ -490,6 +497,9 @@ final class UStateForSuspension(
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
   override def withinHiddenNest =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def setDataOutputStream(value: DirectOrBufferedDataOutputStream) = {
+    Assert.invariantFailed("Should never change dataOutputStream on a suspension")
+  }
 }
 
 final class UStateMain private (
@@ -523,7 +533,7 @@ final class UStateMain private (
       areDebugging
     )
 
-  override var dataOutputStream: DirectOrBufferedDataOutputStream = {
+  setDataOutputStream({
     val out = DirectOrBufferedDataOutputStream(
       outStream,
       null, // null means no other stream created this one.
@@ -533,7 +543,7 @@ final class UStateMain private (
       tunable.tempFilePath
     )
     out
-  }
+  })
 
   def cloneForSuspension(suspendedDOS: DirectOrBufferedDataOutputStream): UState = {
     val es =
@@ -730,7 +740,7 @@ final class UStateMain private (
       if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString
       else ""
     val hidden = if (withinHiddenNest) " hidden" else ""
-    "UState(" + elt + hidden + " DOS=" + dataOutputStream.toString() + ")"
+    "UState(" + elt + hidden + " DOS=" + getDataOutputStream.toString() + ")"
   }
 }
 

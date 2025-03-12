@@ -452,7 +452,7 @@ final class DaffodilTDMLUnparseResult(
 
   private val ustate = actual.resultState.asInstanceOf[UState]
 
-  override def finalBitPos0b = ustate.dataOutputStream.maybeAbsBitPos0b.get
+  override def finalBitPos0b = ustate.getDataOutputStream.maybeAbsBitPos0b.get
 
   override def isScannable: Boolean = actual.isScannable
 
