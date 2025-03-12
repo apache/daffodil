@@ -129,11 +129,11 @@ abstract class UState(
     "UState(" + elt + " DOS=" + getDataOutputStream.toString() + ")"
   }
 
-  private var _dataOutputStream: DirectOrBufferedDataOutputStream = _
+  protected var _dataOutputStream: DirectOrBufferedDataOutputStream = _
 
-  def getDataOutputStream = _dataOutputStream
+  def getDataOutputStream: DirectOrBufferedDataOutputStream = _dataOutputStream
 
-  def setDataOutputStream(dos: DirectOrBufferedDataOutputStream) = {
+  def setDataOutputStream(dos: DirectOrBufferedDataOutputStream): Unit = {
     _dataOutputStream = dos
   }
 
@@ -429,7 +429,7 @@ final class UStateForSuspension(
   areDebugging: Boolean
 ) extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
-  setDataOutputStream(dataOutputStream)
+  _dataOutputStream = dataOutputStream
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
   dState.setContextNode(thisElement.asInstanceOf[DINode])
@@ -497,6 +497,9 @@ final class UStateForSuspension(
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
   override def withinHiddenNest =
     Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def setDataOutputStream(value: DirectOrBufferedDataOutputStream) = {
+    Assert.invariantFailed("Should never change dataOutputStream on a suspension")
+  }
 }
 
 final class UStateMain private (
