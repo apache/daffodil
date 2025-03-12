@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.Utility
 
@@ -35,10 +36,8 @@ final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   {
 
   lazy val formatAnnotation = LV(Symbol("formatAnnotation")) {
-    val cleanedNode = XMLUtils.removeComments(Utility.trim(node))
-    lazy val f = (cleanedNode \ "format").head
-    cleanedNode match {
-      case _ if cleanedNode.label == "defineFormat" && f.nonEmpty =>
+    XMLUtils.removeComments(Utility.trim(node)) match {
+      case Elem(_, "defineFormat", _, _, Seq(f @ Elem(_, "format", _, _, _*))) =>
         DFDLFormat(f, sd)
       case _ =>
         schemaDefinitionError("dfdl:defineFormat does not contain a dfdl:format element.")

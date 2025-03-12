@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption.APPEND
+import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.cli.Main.ExitCode
@@ -61,14 +62,11 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.Success)
 
-          val svrlFileXML = XML.loadFile(svrl.toFile)
-          lazy val rules = svrlFileXML.nonEmptyChildren
-          svrlFileXML match {
-            case _
-                if svrlFileXML.prefix == "svrl" && svrlFileXML.label == "schematron-output" && rules.nonEmpty =>
+          XML.loadFile(svrl.toFile) match {
+            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
               val res = rules.find { r =>
                 r match {
-                  case _ if r.prefix == "svrl" && r.label == "failed-assert" => true
+                  case Elem("svrl", "failed-assert", _, _, _*) => true
                   case _ => false
                 }
               }
@@ -98,14 +96,11 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.ParseError)
 
-          val svrlFileXML = XML.loadFile(svrl.toFile)
-          lazy val rules = svrlFileXML.nonEmptyChildren
-          svrlFileXML match {
-            case _
-                if svrlFileXML.prefix == "svrl" && svrlFileXML.label == "schematron-output" =>
+          XML.loadFile(svrl.toFile) match {
+            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
               val res = rules.find { r =>
                 r match {
-                  case _ if r.prefix == "svrl" && r.label == "failed-assert" => true
+                  case Elem("svrl", "failed-assert", _, _, _*) => true
                   case _ => false
                 }
               }
@@ -179,14 +174,11 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.Success)
 
-          val svrlFileXML = XML.loadFile(svrl.toFile)
-          lazy val rules = svrlFileXML.nonEmptyChildren
-          svrlFileXML match {
-            case _
-                if svrlFileXML.prefix == "svrl" && svrlFileXML.label == "schematron-output" =>
+          XML.loadFile(svrl.toFile) match {
+            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
               val res = rules.find { r =>
                 r match {
-                  case _ if r.prefix == "svrl" && r.label == "failed-assert" => true
+                  case Elem("svrl", "failed-assert", _, _, _*) => true
                   case _ => false
                 }
               }

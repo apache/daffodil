@@ -97,8 +97,8 @@ object ModelGroupFactory {
         else
           LocalSequence(xmlNode, lexicalParent, position) // No rewriting the sequence.
       }
-      case c if c.label == "choice" => Choice(xmlNode, lexicalParent, position)
-      case g if g.label == "group" => {
+      case Elem(_, "choice", _, _, _*) => Choice(xmlNode, lexicalParent, position)
+      case Elem(_, "group", _, _, _*) => {
         val pos: Int = lexicalParent match {
           case ct: ComplexTypeBase => 1
           case mg: ModelGroup => position
@@ -143,10 +143,9 @@ object ModelGroupFactory {
       case _ => false
     }
 
-    lazy val annotation +: terms = realChildren
     val newXML = realChildren match {
       // If an annotation is first, that stays on the outer sequence
-      case _ if annotation.nonEmpty && annotation.label == "annotation" =>
+      case Seq(annotation @ Elem(_, "annotation", _, _, _*), terms @ _*) =>
         <sequence dfdlx:layer={seq.xml.attribute("layer")}>
           {annotation}
           <sequence>
@@ -227,7 +226,7 @@ object TermFactory {
     nodesAlreadyTrying: Set[Node] = Set()
   ) = {
     val childTerm: Term = child match {
-      case e if e.label == "element" => {
+      case Elem(_, "element", _, _, _*) => {
         val refProp = child.attribute("ref").map { _.text }
         // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
         // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.

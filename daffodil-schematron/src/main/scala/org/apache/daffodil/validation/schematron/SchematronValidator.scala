@@ -21,6 +21,7 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.nio.file.Path
 import scala.util.Try
+import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.lib.api.ValidationException
@@ -34,12 +35,10 @@ import org.apache.daffodil.lib.api.Validator
 final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) extends Validator {
   def validateXML(document: InputStream): ValidationResult = {
     val svrl = XML.loadString(engine.validate(document))
-    val valErr: Seq[ValidationFailure] = svrl.child.flatMap {
-      case f if f.prefix == "svrl" && f.label == "failed-assert" =>
-        val msg = f.nonEmptyChildren
-        Some(SchematronValidationError(msg.text.trim, { f \\ "@location" }.text))
-      case _ => None
-    }
+    val valErr: Seq[ValidationFailure] =
+      for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
+        SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
+      }
 
     val svrlString = svrl.mkString
     val svrlOutputFailure = svrlPath.flatMap { path =>

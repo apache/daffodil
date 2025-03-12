@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq
 
@@ -63,16 +64,10 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   // have to be resolved by THIS Object
   lazy val value = {
     val values: Option[NodeSeq] = xml match {
-      case <dfdl:property/> => None
-      case <daf:property/> => None
-      case p if xml.prefix == "dfdl" && xml.label == "property" => {
-        val valueNodes = p.nonEmptyChildren
-        Some(valueNodes)
-      }
-      case p if xml.prefix == "daf" && xml.label == "property" => {
-        val valueNodes = p.nonEmptyChildren
-        Some(valueNodes)
-      }
+      case Elem("dfdl", "property", _, _, valueNodes @ _*) if valueNodes.isEmpty => None
+      case Elem("daf", "property", _, _, valueNodes @ _*) if valueNodes.isEmpty => None
+      case Elem("dfdl", "property", _, _, valueNodes @ _*) => Some(valueNodes)
+      case Elem("daf", "property", _, _, valueNodes @ _*) => Some(valueNodes)
     }
 
     values match {

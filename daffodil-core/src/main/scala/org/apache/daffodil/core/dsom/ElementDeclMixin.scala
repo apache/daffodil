@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.walker.ElementDeclView
@@ -29,7 +30,7 @@ trait ElementLikeMixin extends AnnotatedSchemaComponent with ProvidesDFDLStateme
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case _ if node.prefix == "dfdl" && node.label == "element" =>
+      case Elem("dfdl", "element", _, _, _*) =>
         Some(new DFDLElement(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }

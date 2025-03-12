@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.Utility
 
@@ -237,9 +238,14 @@ final class DFDLDefineEscapeScheme private (
 
   lazy val escapeScheme = {
     val des = Utility.trim(node)
-    lazy val e = (des \ "escapeScheme").head
     val res = des match {
-      case _ if des.prefix == "dfdl" && des.label == "defineEscapeScheme" && e.nonEmpty =>
+      case Elem(
+            "dfdl",
+            "defineEscapeScheme",
+            _,
+            _,
+            Seq(e @ Elem("dfdl", "escapeScheme", _, _, _*))
+          ) =>
         new DFDLEscapeScheme(e, decl, this)
       case _ => SDE("The content of %s is not complete.", des.label)
     }

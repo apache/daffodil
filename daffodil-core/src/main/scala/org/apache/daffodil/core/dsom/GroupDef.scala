@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import scala.xml.Comment
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.Text
 
@@ -28,13 +29,12 @@ object GlobalGroupDef {
 
   def apply(defXML: Node, schemaDocument: SchemaDocument) = {
     val trimmedXml = scala.xml.Utility.trim(defXML)
-    lazy val contents = trimmedXml.nonEmptyChildren
     trimmedXml match {
-      case _ if trimmedXml.label == "group" && contents.nonEmpty => {
+      case Elem(_, "group", _, _, contents @ _*) => {
         val list = contents.collect {
-          case groupXML if groupXML.label == "sequence" =>
+          case groupXML @ Elem(_, "sequence", _, _, _*) =>
             GlobalSequenceGroupDef(defXML, groupXML, schemaDocument)
-          case groupXML if groupXML.label == "choice" =>
+          case groupXML @ Elem(_, "choice", _, _, _*) =>
             GlobalChoiceGroupDef(defXML, groupXML, schemaDocument)
         }
         val res = list(0)
@@ -92,7 +92,7 @@ trait GroupDefLike extends AnnotatedSchemaComponent with ProvidesDFDLStatementMi
     val childElem: Option[Node] = child match {
       case _: Text => None
       case _: Comment => None
-      case _ if child.label == "annotation" => None
+      case Elem(_, "annotation", _, _, _*) => None
       case _ => Some(child)
     }
     childElem
