@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.walker.ChoiceView
@@ -65,7 +66,8 @@ trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
 
   protected override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:choice>{contents @ _*}</dfdl:choice> => Some(new DFDLChoice(node, this))
+      case Elem("dfdl", "choice", _, _, _*) =>
+        Some(new DFDLChoice(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
@@ -74,12 +76,12 @@ trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
     new DFDLChoice(newDFDLAnnotationXML("choice"), this)
 
   lazy val xmlChildren = xml match {
-    case <choice>{c @ _*}</choice> => c
-    case <group>{_*}</group> => {
+    case Elem(_, "choice", _, _, c @ _*) => c
+    case Elem(_, "group", _, _, _*) => {
       val ch = this match {
         case cgd: GlobalChoiceGroupDef => cgd.xml \ "choice"
       }
-      val <choice>{c @ _*}</choice> = ch(0)
+      val Elem(_, "choice", _, _, c @ _*) = ch(0)
       c
     }
   }

@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 
@@ -136,8 +137,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
 
   private lazy val attrValue = getAttributeOption("value")
 
-  private lazy val <dfdl:newVariableInstance>{eltChildren @ _*}</dfdl:newVariableInstance> =
-    node
+  private lazy val Elem("dfdl", "newVariableInstance", _, _, eltChildren @ _*) = node
 
   private lazy val eltValue = eltChildren.text.trim
 
@@ -177,7 +177,7 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   extends VariableReference(node, decl)
   with DFDLSetVariableRuntime1Mixin {
   private lazy val attrValue = getAttributeOption("value")
-  private lazy val <dfdl:setVariable>{eltChildren @ _*}</dfdl:setVariable> = node
+  private lazy val Elem("dfdl", "setVariable", _, _, eltChildren @ _*) = node
   private lazy val eltValue = eltChildren.text.trim
   final lazy val value = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v

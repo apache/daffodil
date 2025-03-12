@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.IIUtils.IIMap
@@ -224,12 +225,11 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
 
   protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     val res = node match {
-      case <dfdl:format>{content @ _*}</dfdl:format> => DFDLFormat(node, this)
-      case <dfdl:defineFormat>{content @ _*}</dfdl:defineFormat> => DFDLDefineFormat(node, this)
-      case <dfdl:defineEscapeScheme>{content @ _*}</dfdl:defineEscapeScheme> =>
+      case Elem("dfdl", "format", _, _, _*) => DFDLFormat(node, this)
+      case Elem("dfdl", "defineFormat", _, _, _*) => DFDLDefineFormat(node, this)
+      case Elem("dfdl", "defineEscapeScheme", _, _, _*) =>
         DFDLDefineEscapeSchemeFactory(node, this)
-      case <dfdl:defineVariable>{content @ _*}</dfdl:defineVariable> =>
-        DFDLDefineVariable(node, this)
+      case Elem("dfdl", "defineVariable", _, _, _*) => DFDLDefineVariable(node, this)
       case _ => {
         val prefix =
           if (node.prefix == null || node.prefix == "") ""

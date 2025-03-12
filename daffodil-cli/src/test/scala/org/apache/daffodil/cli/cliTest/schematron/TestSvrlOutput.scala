@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption.APPEND
+import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.cli.Main.ExitCode
@@ -62,10 +63,12 @@ class TestSvrlOutput {
           }(ExitCode.Success)
 
           XML.loadFile(svrl.toFile) match {
-            case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-              val res = rules.find {
-                case <svrl:failed-assert>{_*}</svrl:failed-assert> => true
-                case _ => false
+            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
+              val res = rules.find { r =>
+                r match {
+                  case Elem("svrl", "failed-assert", _, _, _*) => true
+                  case _ => false
+                }
               }
               // we should not have found failures
               assertFalse(res.isDefined)
@@ -94,10 +97,12 @@ class TestSvrlOutput {
           }(ExitCode.ParseError)
 
           XML.loadFile(svrl.toFile) match {
-            case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-              val res = rules.find {
-                case <svrl:failed-assert>{_*}</svrl:failed-assert> => true
-                case _ => false
+            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
+              val res = rules.find { r =>
+                r match {
+                  case Elem("svrl", "failed-assert", _, _, _*) => true
+                  case _ => false
+                }
               }
               // we should have found some failures
               assertTrue(res.isDefined)
@@ -170,10 +175,12 @@ class TestSvrlOutput {
           }(ExitCode.Success)
 
           XML.loadFile(svrl.toFile) match {
-            case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-              val res = rules.find {
-                case <svrl:failed-assert>{_*}</svrl:failed-assert> => true
-                case _ => false
+            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
+              val res = rules.find { r =>
+                r match {
+                  case Elem("svrl", "failed-assert", _, _, _*) => true
+                  case _ => false
+                }
               }
               // we should not have found failures
               assertFalse(res.isDefined)

@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.grammar.primitives.AssertBase
@@ -114,18 +115,16 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
   ): Option[DFDLAnnotation] = {
     val term = self
     node match {
-      case <dfdl:assert>{content @ _*}</dfdl:assert> => Some(new DFDLAssert(node, term))
-      case <dfdl:discriminator>{content @ _*}</dfdl:discriminator> =>
-        Some(new DFDLDiscriminator(node, term))
-      case <dfdl:setVariable>{content @ _*}</dfdl:setVariable> =>
-        Some(new DFDLSetVariable(node, term))
-      case <dfdl:newVariableInstance>{content @ _*}</dfdl:newVariableInstance> =>
+      case Elem("dfdl", "assert", _, _, _*) => Some(new DFDLAssert(node, term))
+      case Elem("dfdl", "discriminator", _, _, _*) => Some(new DFDLDiscriminator(node, term))
+      case Elem("dfdl", "setVariable", _, _, _*) => Some(new DFDLSetVariable(node, term))
+      case Elem("dfdl", "newVariableInstance", _, _, _*) =>
         Some(new DFDLNewVariableInstance(node, term))
       //
       // property element annotations aren't "statements" so we don't want them back from this
       // and in fact can't construct them here without causing trouble (circular definitions)
       //
-      case <dfdl:property>{_*}</dfdl:property> =>
+      case Elem("dfdl", "property", _, _, _*) =>
         SDE(
           "A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. "
         )
