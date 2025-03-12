@@ -27,7 +27,7 @@ trait AlignmentFillCodeGenerator {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (cgState.hasArray) INDENT else NO_INDENT
     val alignmentInBits = g.alignment
-    val octalFillByte = g.e.fillByteEv.constValue.toByte.toOctalString
+    val octalFillByte = g.e.fillByteEv.constValue.toByte.toInt.toOctalString
     val initERDStatement = ""
     val parseStatement =
       s"""$indent1$indent2    // Align to closest alignment

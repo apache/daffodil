@@ -21,6 +21,7 @@ import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.walker.ChoiceView
 import org.apache.daffodil.core.grammar.ChoiceGrammarMixin
+import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.Choice_AnnotationMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
@@ -101,7 +102,11 @@ abstract class ChoiceTermBase(
 
   final protected lazy val optionChoiceDispatchKeyRaw =
     findPropertyOption("choiceDispatchKey", expressionAllowed = true)
-  final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
+  final protected lazy val choiceDispatchKeyRaw = requireProperty(
+    optionChoiceDispatchKeyRaw
+  )
+
+  def getChoiceDispatchKeyRaw: Found = choiceDispatchKeyRaw
 
   final lazy val isDirectDispatch = {
     val isDD = optionChoiceDispatchKeyRaw.isDefined

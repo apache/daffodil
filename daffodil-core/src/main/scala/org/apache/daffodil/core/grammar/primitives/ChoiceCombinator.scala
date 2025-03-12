@@ -83,7 +83,11 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       ch.choiceLengthKind match {
         case ChoiceLengthKind.Implicit => cp
         case ChoiceLengthKind.Explicit =>
-          new SpecifiedLengthChoiceParser(cp, ch.choiceRuntimeData, choiceLengthInBits.get)
+          new SpecifiedLengthChoiceParser(
+            cp,
+            ch.choiceRuntimeData,
+            choiceLengthInBits.get.toLong
+          )
       }
     } else {
       // Verify that every alternative has some form of branch key

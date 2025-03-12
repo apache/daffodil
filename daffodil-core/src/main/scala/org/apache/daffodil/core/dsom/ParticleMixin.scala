@@ -146,7 +146,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
    * on a minOccurs and a dfdl:occursCountKind that means that
    * minOccurs will be respected.
    */
-  override final lazy val isArrayWithAtLeastOneRequiredArrayElement = {
+  final lazy val isArrayWithAtLeastOneRequiredArrayElement = {
     isArray &&
     minOccurs > 0 &&
     (occursCountKind == OccursCountKind.Fixed ||
