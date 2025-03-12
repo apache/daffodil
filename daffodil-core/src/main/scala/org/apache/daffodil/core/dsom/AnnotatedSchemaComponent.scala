@@ -294,7 +294,7 @@ trait AnnotatedSchemaComponent
   with AnnotatedMixin
   with OverlapCheckMixin {
 
-  protected override def initialize(): Unit = {
+  protected[dsom] override def initialize(): Unit = {
     super.initialize()
   }
 

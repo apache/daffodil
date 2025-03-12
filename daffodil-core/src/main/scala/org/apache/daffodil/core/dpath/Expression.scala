@@ -2931,9 +2931,11 @@ case class DFDLTestBitExpr(nameAsParsed: String, fnQName: RefQName, args: List[E
   override lazy val inherentType = NodeInfo.Boolean
 
   override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = {
+    val dataValue = data
+    val bitPosValue = bitPos
     subexpr match {
-      case `data` => NodeInfo.UnsignedByte
-      case `bitPos` => NodeInfo.UnsignedByte
+      case `dataValue` => NodeInfo.UnsignedByte
+      case `bitPosValue` => NodeInfo.UnsignedByte
       case _ => Assert.invariantFailed("wasn't one of the subexpressions.")
     }
   }

@@ -36,7 +36,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final override def optUnion = None
   final override def typeNode = NodeInfo.Complex
 
-  override final def group = modelGroup
+  override final def group: ModelGroup = modelGroup
 
   /**
    * Convenience methods for unit testing. Just makes tests a bit more compact and clearer.

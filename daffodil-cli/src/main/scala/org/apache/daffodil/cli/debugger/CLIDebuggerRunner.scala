@@ -136,10 +136,10 @@ class CLIDebuggerCompleter(id: InteractiveDebugger) extends Completer {
             // We have the name for the next command, try to find the
             // associated subcommand of the current DebugCommand. If we don't
             // find one, it just means they user typed something that's not a
-            // valid command and we have no command to use for completing. Note
-            // that by comparing using == with the RHS being a String, we match
-            // against both short and long debug command names
-            val nextCmd = cmd.subcommands.find { _ == nextCmdName }
+            // valid command and we have no command to use for completing.
+            val nextCmd = cmd.subcommands.find { s =>
+              s.name == nextCmdName || s.short == nextCmdName
+            }
             nextCmd
           }
           case None => {

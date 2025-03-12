@@ -34,10 +34,10 @@ import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 object ExpressionCompilers extends ExpressionCompilerClass {
-  override val String = new ExpressionCompiler[String]
-  override val JLong = new ExpressionCompiler[JLong]
-  override val AnyRef = new ExpressionCompiler[AnyRef]
-  override val JBoolean = new ExpressionCompiler[JBoolean]
+  override val String: ExpressionCompiler[String] = new ExpressionCompiler[String]
+  override val JLong: ExpressionCompiler[JLong] = new ExpressionCompiler[JLong]
+  override val AnyRef: ExpressionCompiler[AnyRef] = new ExpressionCompiler[AnyRef]
+  override val JBoolean: ExpressionCompiler[JBoolean] = new ExpressionCompiler[JBoolean]
 }
 
 class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {

@@ -205,7 +205,7 @@ object SchemaDocument {
 final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   extends AnnotatedSchemaComponent {
 
-  protected override def initialize() = {
+  protected[dsom] override def initialize() = {
     super.initialize()
   }
 

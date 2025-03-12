@@ -50,7 +50,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     ExpressionCompilers.String.compileProperty(
       qn,
       NodeInfo.NonEmptyString,
-      choiceDispatchKeyRaw,
+      getChoiceDispatchKeyRaw,
       this,
       dpathCompileInfo
     )

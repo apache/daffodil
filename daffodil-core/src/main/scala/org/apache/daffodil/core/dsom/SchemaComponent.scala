@@ -60,7 +60,7 @@ trait SchemaComponent
   with PropTypes
   with SchemaComponentRuntime1Mixin {
 
-  override protected def initialize(): Unit = {
+  override protected[dsom] def initialize(): Unit = {
     super.initialize()
     xml
     namespaces

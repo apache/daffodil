@@ -99,7 +99,7 @@ final class SchemaSet private (
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
 
-  override protected def initialize(): Unit = {
+  override protected[dsom] def initialize(): Unit = {
     // no normal schema component initialization for SchemaSet
   }
 

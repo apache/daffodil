@@ -1317,7 +1317,7 @@ class Main(
                         val bitsToDisplay = 8 - bitsAlreadyConsumed
                         val pbp = inStream.inputSource.position() + 1
                         val firstByteBitArray = inStream.getByteArray(bitsToDisplay, finfo)
-                        val fbs = firstByteBitArray(0).toBinaryString
+                        val fbs = firstByteBitArray(0).toInt.toBinaryString
                           .takeRight(8)
                           .reverse
                           .padTo(8, '0')
