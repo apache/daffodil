@@ -58,8 +58,16 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt-get install -y libmxml-dev rpm
+          sudo apt-get install -y libmxml-dev rpm wine winetricks
           sudo locale-gen $LANG
+
+          INNO_SETUP_EXE="innosetup-6.4.1.exe"
+          EXPECTED_SHA=5dfc9999e2feafa28754baaf80cf73ac96414228b94a1132a919554a822c892810197305d9355885b9ac408c214691cd45279fc2df3a891fbebc4f8eb86bac87
+          curl -L https://files.jrsoftware.org/is/6/$INNO_SETUP_EXE -o $INNO_SETUP_EXE
+          echo "$EXPECTED_SHA $INNO_SETUP_EXE" | sha512sum --quiet -c -
+          winetricks -q win10
+          xvfb-run wine $INNO_SETUP_EXE /VERYSILENT /SUPPRESSMSGBOXES /TASKS= '/DIR=C:\\Program Files (x86)\\Inno Setup 6'
+          rm $INNO_SETUP_EXE
 
       - name: Setup Java
         uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
@@ -67,45 +75,6 @@ jobs:
           distribution: temurin
           java-version: 8
           cache: sbt
-
-      # WIX is a Microsoft Windows Installer creation tool kit.
-      #
-      # Install wix, including changes to allow WiX to run in wine on Linux.
-      # See src/wix_wine.sh for more details on why we need to do this and how
-      # it works
-      #
-      # Updating WIX should be done only if there is a specific need (for
-      # security, or other compelling reason) because it is likely things will
-      # break and the release scripts/process will have to adapt. The WIX
-      # version 3.11.2 is hard coded into these script lines as tokens
-      # wix3112rtm and wix311.
-      #
-      # In order to ensure we are downloading and using the exact WIX binary we
-      # have tested and trust we verify the sha512 is the same as the one
-      # expected. This protects us from if someone was to get github
-      # credentials allowing them to change the wix binaries on github. If WIX
-      # is updated to a newer version, this sha512 will need to be recomputed.
-      - name: Setup WIX
-        run: |
-          # install wine32 and dotnet to run wine
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y wine32 winetricks
-          winetricks -q dotnet40
-
-          WIXSHA=6fd961c85e1e6adafb99ef50c9659e3eb83c84ecaf49f523e556788845b206e1857aba2c39409405d4cda1df9b30a552ce5aab808be5f8368a37a447d78d1a05
-          curl -sS -L https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -o wix311-binaries.zip
-          echo "$WIXSHA wix311-binaries.zip" | sha512sum --quiet -c
-
-          WIX=/opt/wix
-          sudo mkdir $WIX
-          sudo unzip -q wix311-binaries.zip -d $WIX
-          rm wix311-binaries.zip
-          sudo mv $WIX/{candle.exe,real-candle.exe}
-          sudo mv $WIX/{light.exe,real-light.exe}
-          sudo cp containers/build-release/src/wix_wine.sh $WIX/candle.exe
-          sudo cp containers/build-release/src/wix_wine.sh $WIX/light.exe
-          echo "WIX=$WIX" >> $GITHUB_ENV
 
       # Publish jars to a staging maven repository and write helper binary
       # artifacts to the artifact directory
@@ -122,14 +91,12 @@ jobs:
             daffodil-cli/Rpm/packageBin \
             daffodil-cli/Universal/packageBin \
             daffodil-cli/Universal/packageZipTarball \
-            daffodil-cli/Windows/packageBin
+            daffodil-cli/packageWindowsBin
 
           ARTIFACT_BIN_DIR=${{ steps.rc.outputs.artifact_dir }}/bin
           mkdir -p $ARTIFACT_BIN_DIR
           cp daffodil-cli/target/universal/apache-daffodil-*.tgz $ARTIFACT_BIN_DIR/
           cp daffodil-cli/target/universal/apache-daffodil-*.zip $ARTIFACT_BIN_DIR/
           cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $ARTIFACT_BIN_DIR/
-
-          MSI_NAME=$(basename $ARTIFACT_BIN_DIR/*.zip .zip).msi
-          cp daffodil-cli/target/windows/Daffodil.msi $ARTIFACT_BIN_DIR/$MSI_NAME
-          chmod -x $ARTIFACT_BIN_DIR/$MSI_NAME
+          cp daffodil-cli/target/windows/apache-daffodil-*.exe $ARTIFACT_BIN_DIR/
+          chmod -x $ARTIFACT_BIN_DIR/*.exe
