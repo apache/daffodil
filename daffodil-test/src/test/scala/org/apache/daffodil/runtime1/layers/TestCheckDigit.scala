@@ -114,7 +114,7 @@ class TestCheckDigit extends TdmlTests {
   }
 
   val okInfoset: Elem =
-    <ex:e1 xmlns="" xmlns:ex={example}>
+    <ex:e1 xmlns:ex={example}>
       <value>2021-09-25</value>
       <checkDigit>1</checkDigit>
       <computedCheckDigit>1</computedCheckDigit>
@@ -200,7 +200,7 @@ class TestCheckDigit extends TdmlTests {
     val sch = cdSchema(10, "ascii")
     val data = "123:6"
     val infoset =
-      <ex:e1 xmlns="" xmlns:ex={example}>
+      <ex:e1 xmlns:ex={example}>
         <value>123</value>
         <checkDigit>0</checkDigit>
         <computedCheckDigit>0</computedCheckDigit>
@@ -212,7 +212,7 @@ class TestCheckDigit extends TdmlTests {
     val sch = cdSchema(5, "ascii")
     val data = "1234567890:1"
     val infoset =
-      <ex:e1 xmlns="" xmlns:ex={example}>
+      <ex:e1 xmlns:ex={example}>
         <value>1234567890</value>
         <checkDigit>0</checkDigit>
         <computedCheckDigit>0</computedCheckDigit>
@@ -228,7 +228,7 @@ class TestCheckDigit extends TdmlTests {
     val sch = cdSchema(10, "notACharsetName")
     val data = "1234567890:1"
     val infoset =
-      <ex:e1 xmlns="" xmlns:ex={example}>
+      <ex:e1 xmlns:ex={example}>
         <value>1234567890</value>
         <checkDigit>0</checkDigit>
         <computedCheckDigit>0</computedCheckDigit>

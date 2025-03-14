@@ -34,7 +34,6 @@ import java.net.URISyntaxException
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Enum
 import org.apache.daffodil.lib.util.MaybeInt
@@ -84,32 +83,14 @@ sealed abstract class TypeNode private (
   childrenDelay: Delay[Seq[NodeInfo.Kind]]
 ) extends Serializable
   with NodeInfo.Kind {
-
   def this(parents: => Seq[NodeInfo.Kind], children: => Seq[NodeInfo.Kind]) =
     this(Delay("TypeNode", parents), Delay("TypeNode", children))
-
-  def this(parentArg: NodeInfo.Kind, childrenArg: => Seq[NodeInfo.Kind]) =
-    this(Delay("TypeNode", Seq(parentArg)), Delay("TypeNode", childrenArg))
 
   def this(parentArg: => NodeInfo.Kind) =
     this(
       Delay("TypeNode", Seq(parentArg)),
       Delay("TypeNode", Seq[NodeInfo.Kind](NodeInfo.Nothing))
     )
-
-  /**
-   * Cyclic structures require an initialization
-   */
-  lazy val initialize: Unit = {
-    parents
-    children // demand their value
-    parents.foreach { p =>
-      // if this fails, it is because cyclic graph construction of the types
-      // has failed. For some reason, this doesn't cause a stack overflow, but
-      // you just get null as the value of one of the case object type nodes.
-      Assert.invariant(p ne null)
-    }
-  }
 
   final override lazy val parents = parentsDelay.value
   final override lazy val children = childrenDelay.value
@@ -122,12 +103,11 @@ sealed abstract class TypeNode private (
  */
 sealed abstract class PrimTypeNode(
   val dfdlType: DFDLPrimType,
-  parent: NodeInfo.Kind,
+  parent: => NodeInfo.Kind,
   childrenArg: => Seq[NodeInfo.Kind]
-) extends TypeNode(parent, childrenArg)
+) extends TypeNode(Seq(parent), childrenArg)
   with NodeInfo.PrimType {
-
-  def this(javaType: DFDLPrimType, parent: NodeInfo.Kind) =
+  def this(javaType: DFDLPrimType, parent: => NodeInfo.Kind) =
     this(javaType, parent, Seq(NodeInfo.Nothing))
 
 }
@@ -172,16 +152,6 @@ class InvalidPrimitiveDataException(msg: String, cause: Throwable = null)
  * if your match-case exhausts all possibilities and warn you if it does not.
  */
 object NodeInfo extends Enum {
-
-  /**
-   * Cyclic structures require initialization
-   */
-  private lazy val initialize: Boolean = {
-    allTypes.foreach {
-      _.initialize
-    }
-    true
-  }
 
   // Primitives are not "global" because they don't appear in any schema document
 
@@ -256,6 +226,7 @@ object NodeInfo extends Enum {
       case _ => QName.createGlobal(name, NoNamespace, scala.xml.TopScope)
     }
   }
+
   val ClassString = classOf[java.lang.String]
   val ClassIntBoxed = classOf[java.lang.Integer]
   val ClassIntPrim = classOf[scala.Int]
@@ -392,14 +363,16 @@ object NodeInfo extends Enum {
   protected sealed trait AnySimpleTypeKind extends AnyType.Kind {
     final def primType: PrimType = optPrimType.get
   }
-  case object AnySimpleType extends TypeNode(AnyType, Seq(AnyAtomic)) with AnySimpleTypeKind {
+  case object AnySimpleType
+    extends TypeNode(Seq(AnyType), Seq(AnyAtomic))
+    with AnySimpleTypeKind {
     type Kind = AnySimpleTypeKind
   }
 
   protected sealed trait AnyAtomicKind extends AnySimpleType.Kind
   case object AnyAtomic
     extends TypeNode(
-      AnySimpleType,
+      Seq(AnySimpleType),
       Seq(String, Numeric, Boolean, Opaque, AnyDateTime, AnyURI)
     )
     with AnyAtomicKind {
@@ -408,27 +381,27 @@ object NodeInfo extends Enum {
 
   protected sealed trait NumericKind extends AnyAtomic.Kind
   case object Numeric
-    extends TypeNode(AnyAtomic, Seq(SignedNumeric, UnsignedNumeric))
+    extends TypeNode(Seq(AnyAtomic), Seq(SignedNumeric, UnsignedNumeric))
     with NumericKind {
     type Kind = NumericKind
   }
 
   protected sealed trait SignedNumericKind extends Numeric.Kind
   case object SignedNumeric
-    extends TypeNode(Numeric, Seq(Float, Double, Decimal))
+    extends TypeNode(Seq(Numeric), Seq(Float, Double, Decimal))
     with SignedNumericKind {
     type Kind = SignedNumericKind
   }
 
   protected sealed trait UnsignedNumericKind extends Numeric.Kind
   case object UnsignedNumeric
-    extends TypeNode(Numeric, Seq(NonNegativeInteger))
+    extends TypeNode(Seq(Numeric), Seq(NonNegativeInteger))
     with UnsignedNumericKind {
     type Kind = UnsignedNumericKind
   }
 
   protected sealed trait OpaqueKind extends AnyAtomic.Kind
-  case object Opaque extends TypeNode(AnyAtomic, Seq(HexBinary)) with OpaqueKind {
+  case object Opaque extends TypeNode(Seq(AnyAtomic), Seq(HexBinary)) with OpaqueKind {
     type Kind = OpaqueKind
   }
 
@@ -452,33 +425,33 @@ object NodeInfo extends Enum {
 
   protected sealed trait AnyDateTimeKind extends AnyAtomicKind
   case object AnyDateTime
-    extends TypeNode(AnyAtomic, Seq(Date, Time, DateTime))
+    extends TypeNode(Seq(AnyAtomic), Seq(Date, Time, DateTime))
     with AnyDateTimeKind {
     type Kind = AnyDateTimeKind
   }
 
   // One might think these can be def, but scala insists on "stable identifier"
   // where these are used in case matching.
-  val String = PrimType.String
-  val Int = PrimType.Int
-  val Byte = PrimType.Byte
-  val Short = PrimType.Short
-  val Long = PrimType.Long
-  val Integer = PrimType.Integer
-  val Decimal = PrimType.Decimal
-  val UnsignedInt = PrimType.UnsignedInt
-  val UnsignedByte = PrimType.UnsignedByte
-  val UnsignedShort = PrimType.UnsignedShort
-  val UnsignedLong = PrimType.UnsignedLong
-  val NonNegativeInteger = PrimType.NonNegativeInteger
-  val Double = PrimType.Double
-  val Float = PrimType.Float
-  val HexBinary = PrimType.HexBinary
-  val AnyURI = PrimType.AnyURI
-  val Boolean = PrimType.Boolean
-  val DateTime = PrimType.DateTime
-  val Date = PrimType.Date
-  val Time = PrimType.Time
+  lazy val String = PrimType.String
+  lazy val Int = PrimType.Int
+  lazy val Byte = PrimType.Byte
+  lazy val Short = PrimType.Short
+  lazy val Long = PrimType.Long
+  lazy val Integer = PrimType.Integer
+  lazy val Decimal = PrimType.Decimal
+  lazy val UnsignedInt = PrimType.UnsignedInt
+  lazy val UnsignedByte = PrimType.UnsignedByte
+  lazy val UnsignedShort = PrimType.UnsignedShort
+  lazy val UnsignedLong = PrimType.UnsignedLong
+  lazy val NonNegativeInteger = PrimType.NonNegativeInteger
+  lazy val Double = PrimType.Double
+  lazy val Float = PrimType.Float
+  lazy val HexBinary = PrimType.HexBinary
+  lazy val AnyURI = PrimType.AnyURI
+  lazy val Boolean = PrimType.Boolean
+  lazy val DateTime = PrimType.DateTime
+  lazy val Date = PrimType.Date
+  lazy val Time = PrimType.Time
 
   protected sealed trait PrimTypeKind extends AnyAtomic.Kind
 
@@ -1048,6 +1021,4 @@ object NodeInfo extends Enum {
       NonEmptyString,
       Nothing
     ) ++ allAbstractTypes
-
-  initialize // initialize self - creates all cyclic structures
 }
