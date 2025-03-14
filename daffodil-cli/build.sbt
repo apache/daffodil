@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-import scala.xml.Attribute
-import scala.xml.transform.RewriteRule
-import scala.xml.transform.RuleTransformer
+import scala.sys.process.Process
+
+import sbt.internal.util.Util.isWindows
 
 enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
-enablePlugins(WindowsPlugin)
+
+lazy val packageWindowsBin = taskKey[Unit]("Generate windows installer")
+lazy val isccPath = settingKey[String]("Path to the Inno Setup ISCC.exe file")
 
 executableScriptName := "daffodil"
 
 Universal / packageName := "apache-daffodil-" + version.value + "-bin" //tarball name
 Linux / packageName := executableScriptName.value
 Rpm / packageName := "apache-" + executableScriptName.value
-Windows / packageName := executableScriptName.value
 
 val optSourceDateEpoch = scala.util.Properties.envOrNone("SOURCE_DATE_EPOCH")
 
@@ -158,184 +159,47 @@ rpmPrefix := Some(defaultLinuxInstallLocation.value)
 // Windows configuration
 //
 
-//
-// Here we set the variables that are supported by the sbt Native Packager plug-in.
-// We also get fairly aggressive in editing/modifying the XML in order
-// to control and use some specific features that are supported by WiX
-// but which are not properly suported by the sbt plug-in.
-//
-
-// Force the correct installation directory name. This overwrites
-// 'daffodil-cli', which is the directory that we invoke sbt in.
-// The sbt WiX plug-in incorrectly assumes that the directory of
-// invocation is the same name as the direcotry you eventually
-// want to install into.
-Windows / name := "Daffodil"
-
-// The Windows packager sbt plug-in maps the packageSummary variable
-// into the WiX productName field. Another strange choice.
-Windows / packageSummary := "Daffodil"
-
-// The Windows packager sbt plug-in limits the length of the packageDescription
-// field to a single line. Use the short packageSummary from the RPM config.
-Windows / packageDescription := (Rpm / packageSummary).value
-
-// Use the same version number as in the rpm, which has SNAPSHOT removed if it
-// exists. Windows version numbers has no concept of a "snapshot build", only
-// major, minor, patch, and build. So Windows MSI versions do not differentiate
-// between snapshots and non-snapshots.
-Windows / version := (Rpm / version).value
-
-// Required and critical GUIDs. Ironically the ProductId is unique
-// to a given release, but UpgradeId must NEVER change! This may
-// seem conter-intuitive, but the UpgradeId is actually what ties
-// the product to it's upgrades and the product is actually unique
-// each time it is released, so there is some semblance of logic
-// to this scheme.
-wixProductUpgradeId := "4C966AFF-585E-4E17-8CC2-059FD70FEC77"
-
-// Light options. Bring in standard dialog boxes and localization.
-// The suppression of ICE61 is required as we *DO* permit
-// re-installation of the same version. Despite the presence of
-// specific XML to enable this, the WiX compiler and linker
-// complain about it unless you specifically suppress the warning.
-lightOptions ++= Seq(
-  "-sval", // validation does not currently work under Wine, this disables that
-  "-sice:ICE61",
-  "-loc",
-  ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString
-)
-
-// Build an RTF version of the license file for display in the license
-// acceptance dialog box. This file will also be sent to the
-// printer when and if the user asks for hard copy via the 'print' button.
-wixProductLicense := {
-  // Make sure the target direcotry exists.
-  (Windows / target).value.mkdirs()
-
-  // This target file doesn't exist until placed there by the build.
-  val targetLicense = (Windows / target).value / "LICENSE.rtf"
-  val sourceLicense = baseDirectory.value / "bin.LICENSE"
-  // somehow convert sourceLicense into RTF and store at targetLicense
-  val rtfHeader = """{\rtf {\fonttbl {\f0 Arial;}} \f0\fs18"""
-  val rtfFooter = """}"""
-
-  val licenseLines = scala.io.Source.fromFile(sourceLicense, "UTF-8").getLines
-  val writer = new java.io.PrintWriter(targetLicense, "UTF-8")
-  // windows style line endings in the license are required by the WiX toolkit
-  writer.write(rtfHeader + "\r\n")
-  licenseLines.foreach { line =>
-    writer.write(line + """\line""" + "\r\n")
-  }
-  writer.write(rtfFooter + "\r\n")
-  writer.close
-  Option(targetLicense)
+/**
+ * If building on a non-Windows machine, uses winepath to convert a Unix file path to a Windows
+ * path that can be used with wine. If this is Windows, just return the file path as a string
+ */
+def winpath(file: File): String = {
+  if (isWindows) file.toString
+  else Process(Seq("winepath", "-w", file.toString)).!!
 }
 
-// Use the wixFiles variable to add in the Daffodil-specific dialog
-// boxes and sequence.
-wixFiles ++= Seq(
-  (Windows / sourceDirectory).value / "WixUI_Daffodil.wxs"
-)
+/**
+ * Set the default path to the ISCC compiler to the Windows path. Since we run it with wine on
+ * Linux, this path should work on both Windows and Linux. Depending on the wine config, windows
+ * version, or how Inno Setup is installed, this might need to be set to a different value.
+ */
+isccPath := "C:\\Program Files (x86)\\Inno Setup 6\\ISCC.exe"
 
-// The sbt Native Packager plug-in assumes that we want to give the user
-// a Feature Tree to select from. One of the 'features' that the plug-in
-// offers up is a set of all shortcuts and menu links. Daffodil is
-// actually a command-line executable, so we do not include
-// configuration links as they are unnecessary. From a practical
-// standpoint the user must invoke a command shell in a window
-// before they can invoke Daffodil anyway.
-wixFeatures := {
-  val features = wixFeatures.value
-  features.filter { _.id != "AddConfigLinks" }
-}
+packageWindowsBin := {
+  (Universal / stage).value
 
-// Make sure that we don't use an MSI installer that is older than
-// version 2.0. It also fixes the comment attribute that hangs
-// out on the Package keyword.
-wixPackageInfo := wixPackageInfo.value.copy(
-  installerVersion = "200",
-  comments = "!(loc.Comments)"
-)
-
-// Fix the XML that is associated with the installable files and directories.
-wixProductConfig := {
-  // Pick up the generated code.
-  val pc = wixProductConfig.value
-
-  // Replace the default headline banner and Welcome/Exit screen
-  // bitmaps with the custom ones we developed for Daffodil.
-  val banner = <WixVariable Id="WixUIBannerBmp" Value={
-    ((Windows / sourceDirectory).value / "banner.bmp").toString
-  } />
-  val dialog = <WixVariable Id="WixUIDialogBmp" Value={
-    ((Windows / sourceDirectory).value / "dialog.bmp").toString
-  } />
-
-  // Reference the Daffodil-specific User Interface (dialog box) sequence.
-  val ui = <UI><UIRef Id="WixUI_Daffodil" /></UI>
-
-  // Make sure we abort if we are not installing on Windows 95 or later.
-  val osCondition =
-    <Condition Message="!(loc.OS2Old)"><![CDATA[Installed OR (VersionNT >= 400)]]></Condition>
-
-  // Define icons (ID should not be longer than 18 chars and must end with ".exe")
-  val icon = Seq(
-    <Icon Id="Daffodil.ico" SourceFile={
-      ((Windows / sourceDirectory).value / "apache-daffodil.ico").toString
-    } />,
-    <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />
-  )
-
-  // String together the additional XML around the generated directory and file lists.
-  val pcGroup = pc.asInstanceOf[scala.xml.Group]
-  val newNodes = osCondition ++ icon ++ pcGroup.nodes ++ dialog ++ banner ++ ui
-  val pcWithNewNodes = pcGroup.copy(nodes = newNodes)
-
-  // Change (edit) some items inside the directory/files list.
-  val pcRewriteRule = new RewriteRule {
-    override def transform(n: scala.xml.Node): Seq[scala.xml.Node] = n match {
-
-      // We want to comply with the Windows standard pattern of
-      // installing at /Program Files/ManufacturerName/Application
-      // This case effectively inserts the manufacturer name into
-      // the XML as a directory to comply with the standard.
-      case e: scala.xml.Elem if (e \ "@Name").text == "PFiles" => {
-        val apacheDir = <Directory Id="ProgramFilesApache" Name="!(loc.ManufacturerName)" />
-        val apacheDirWithChild = apacheDir.copy(child = e.child)
-        e.copy(child = apacheDirWithChild)
-      }
-
-      // We *ARE* going to allow the user to repair and reinstall
-      // the same exact version, so we need to add an attribute
-      // to the MajorUpgrade keyword.  This will trigger an 'ICE61'
-      // error that we suppress on the 'light' linker command line.
-      case e: scala.xml.Elem if e.label == "MajorUpgrade" => {
-        e % scala.xml.Attribute("", "AllowSameVersionUpgrades", "yes", e.attributes)
-      }
-
-      // Fixup for registry key.
-      case e: scala.xml.Elem if e.label == "RegistryValue" => {
-        val attribs = e.attributes.remove("Key")
-        e % scala.xml.Attribute(
-          "",
-          "Key",
-          """Software\Apache\Installed Products\Daffodil""",
-          attribs
-        )
-      }
-
-      // The WixUI_FeatureTree reference has to be removed so that
-      // our custom Daffodil UI can operate properly.
-      case e: scala.xml.Elem
-          if e.label == "UIRef" && (e \ "@Id").text == "WixUI_FeatureTree" => {
-        scala.xml.NodeSeq.Empty
-      }
-      case `n` => n
+  // if SOURCE_DATE_EPOCH is defined, then we use that as the TouchDate/Time settings to set
+  // embedded timestamps, which allows for reproducible builds
+  val (touchDate, touchTime) = optSourceDateEpoch
+    .map { epoch =>
+      val fmt = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+      fmt.setTimeZone(java.util.TimeZone.getTimeZone("UTC"))
+      val time = fmt.format(new java.util.Date(epoch.toLong * 1000))
+      val dateTime = time.split(" ")
+      (dateTime(0), dateTime(1))
     }
-  }
+    .getOrElse(("current", "current"))
 
-  // Now apply all the edits in the RewriteRule defined above.
-  val newXml = new RuleTransformer(pcRewriteRule).transform(pcWithNewNodes)
-  <xml:group>{newXml}</xml:group>
+  val optWine = if (!isWindows) Some("wine") else None
+  val isccCmd = optWine ++: Seq(
+    isccPath.value,
+    "/O" + winpath(target.value / "windows"),
+    "/F" + (Universal / packageName).value,
+    "/DVERSION=" + version.value,
+    "/DBASEDIR=" + winpath(baseDirectory.value),
+    "/DTOUCHDATE=" + touchDate,
+    "/DTOUCHTIME=" + touchTime,
+    winpath(baseDirectory.value / "src" / "windows" / "apache-daffodil.iss")
+  )
+  Process(isccCmd).!!
 }

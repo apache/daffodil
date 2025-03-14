@@ -36,7 +36,6 @@ object Rat {
 
     // images used for the windows installer
     file("daffodil-cli/src/windows/apache-daffodil.ico"),
-    file("daffodil-cli/src/windows/banner.bmp"),
     file("daffodil-cli/src/windows/dialog.bmp"),
 
     // generated code examples
