@@ -40,37 +40,27 @@ RUN \
     unzip \
     vim-minimal \
     wine \
-    winetricks && \
+    winetricks \
+    xorg-x11-server-Xvfb && \
   dnf clean all
 
 # Enable sbt-pgp plugin
 COPY src/plugins.sbt /root/.sbt/1.0/plugins/
 
-# WIX is a Microsoft Windows Installer creation tool kit.
-#
-# Install wix, including changes to allow WiX to run in wine on Linux. See
-# src/wix_wine.sh for more details on why we need to do this and how it works
-#
-# Updating WIX should be done only if there is a specific need (for security, or other compelling reason)
-# because it is likely things will break and the release scripts/process will have to adapt.
-# The WIX version 3.11.2 is hard coded into these script lines as tokens wix3112rtm and wix311.
-#
-# In order to ensure we are downloading and using the exact WIX binary we have tested and trust
-# we verify the sha512 is the same as the one expected. This protects us from if someone
-# was to get github credentials allowing them to change the wix binaries on github.
-# If WIX is updated to a newer version, this sha512 will need to be recomputed.
-ARG WIXSHA=6fd961c85e1e6adafb99ef50c9659e3eb83c84ecaf49f523e556788845b206e1857aba2c39409405d4cda1df9b30a552ce5aab808be5f8368a37a447d78d1a05
-#
+# Download and install Inno Setup via wine. Even though we provide options to
+# make Inno Setup a headless install, wine still thinks it wants to open a
+# window so we need install with a temporary virtual X server with xvfb-run.
+# Also ensure it is installed in the directory where the deafult Daffodil SBT
+# configuration expects it--different wine configurations could install it
+# somewhere else.
 RUN \
-  curl -sS -L https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -o wix311-binaries.zip && \
-  echo "$WIXSHA wix311-binaries.zip" | sha512sum --quiet -c - && \
-  mkdir /opt/wix311 && \
-  unzip -q wix311-binaries.zip -d /opt/wix311/ && \
-  rm wix311-binaries.zip
-RUN mv /opt/wix311/{candle.exe,real-candle.exe}
-RUN mv /opt/wix311/{light.exe,real-light.exe}
-COPY src/wix_wine.sh /opt/wix311/candle.exe
-COPY src/wix_wine.sh /opt/wix311/light.exe
+  INNO_SETUP_EXE="innosetup-6.4.1.exe" && \
+  EXPECTED_SHA=5dfc9999e2feafa28754baaf80cf73ac96414228b94a1132a919554a822c892810197305d9355885b9ac408c214691cd45279fc2df3a891fbebc4f8eb86bac87 && \
+  curl -sS -L https://files.jrsoftware.org/is/6/$INNO_SETUP_EXE -o $INNO_SETUP_EXE && \
+  echo "$EXPECTED_SHA $INNO_SETUP_EXE" | sha512sum --quiet -c - && \
+  winetricks -q win10 && \
+  xvfb-run wine $INNO_SETUP_EXE /VERYSILENT /SUPPRESSMSGBOXES /TASKS= '/DIR=C:\\Program Files (x86)\\Inno Setup 6' && \
+  rm $INNO_SETUP_EXE
 
 # Install a pinned version of sbt. This is used only as a bootstrap so does not need to be updated.
 # This version of sbt is not used to build any Daffodil project parts, as they specify their own sbt versions.
