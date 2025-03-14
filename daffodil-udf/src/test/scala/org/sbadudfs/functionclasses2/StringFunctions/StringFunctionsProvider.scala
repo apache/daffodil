@@ -31,7 +31,7 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
   val nonSerializable = new SomeNonSerializableClass
   val serializable = new SomeSerializableClass
 
-  override def getUserDefinedFunctionClasses = {
+  override def getUserDefinedFunctionClasses: Array[Class[?]] = {
     Array(classOf[GetNonSerializableState], classOf[GetSerializableState])
   }
 
