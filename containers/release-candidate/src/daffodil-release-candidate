@@ -295,7 +295,7 @@ case $PROJECT_REPO in
       "+compile" \
       "+$SBT_PUBLISH" \
       "daffodil-cli/Rpm/packageBin" \
-      "daffodil-cli/Windows/packageBin" \
+      "daffodil-cli/packageWindowsBin" \
       "daffodil-cli/Universal/packageBin" \
       "daffodil-cli/Universal/packageZipTarball" \
       "unidoc" \
@@ -306,9 +306,8 @@ case $PROJECT_REPO in
     cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
     cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
     cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
-    MSI_NAME=$(basename $DAFFODIL_RELEASE_DIR/bin/*.zip .zip).msi
-    cp daffodil-cli/target/windows/Daffodil.msi $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
-    chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+    cp daffodil-cli/target/windows/apache-daffodil-*.exe $DAFFODIL_RELEASE_DIR/bin/
+    chmod -x $DAFFODIL_RELEASE_DIR/bin/*.exe
 
     echo "Embedding RPM Signature..."
     rpmsign --define "_gpg_name $PGP_SIGNING_KEY_ID" --define "_binary_filedigest_algorithm 10" --addsign $DAFFODIL_RELEASE_DIR/bin/*.rpm
