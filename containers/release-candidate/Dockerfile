@@ -40,6 +40,7 @@ RUN \
     unzip \
     vim-minimal \
     wine \
+    winetricks \
     xorg-x11-server-Xvfb && \
   dnf clean all
 
@@ -57,7 +58,7 @@ RUN \
   EXPECTED_SHA=5dfc9999e2feafa28754baaf80cf73ac96414228b94a1132a919554a822c892810197305d9355885b9ac408c214691cd45279fc2df3a891fbebc4f8eb86bac87 && \
   curl -sS -L https://files.jrsoftware.org/is/6/$INNO_SETUP_EXE -o $INNO_SETUP_EXE && \
   echo "$EXPECTED_SHA $INNO_SETUP_EXE" | sha512sum --quiet -c - && \
-  winecfg && \
+  winetricks -q win10 && \
   xvfb-run wine $INNO_SETUP_EXE /VERYSILENT /SUPPRESSMSGBOXES /TASKS= '/DIR=C:\\Program Files (x86)\\Inno Setup 6' && \
   rm $INNO_SETUP_EXE
 
