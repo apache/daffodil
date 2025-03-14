@@ -27,12 +27,19 @@ class TestXMLLiterals {
    */
   @Test def test_scala_literals_cdata_bug(): Unit = {
     //
-    // because we know scala's XML literals don't preserve CDATA as PCData nodes
-    // we force it to have a PCData node by constructing one explicitly here.
+    // since Scala 3 is dropping support for XML Literals, we explicitly create an Elem
+    // with PCData as the child here.
     //
-    val actual = <x><![CDATA[a
-b]]></x>
-    val <x>{xbody @ _*}</x> = actual
+    val actual =
+      scala.xml.Elem(
+        null,
+        "x",
+        scala.xml.Null,
+        scala.xml.TopScope,
+        true,
+        scala.xml.PCData("a\nb")
+      )
+    val xbody = actual.child
     assertEquals(1, xbody.length)
     val body = xbody(0)
     val txt = body.text

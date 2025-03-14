@@ -64,7 +64,7 @@ trait TimeTrackerUsingMacrosMixin {
         }
 
         if (!TimeTracker.childrenTimeStack.isEmpty) {
-          TimeTracker.childrenTimeStack.push(TimeTracker.childrenTimeStack.pop + timeTaken)
+          TimeTracker.childrenTimeStack.push(TimeTracker.childrenTimeStack.pop() + timeTaken)
         }
       }
     result

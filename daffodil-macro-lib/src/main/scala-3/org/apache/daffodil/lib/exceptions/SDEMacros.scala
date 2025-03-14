@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.lib.exceptions
 
-import scala.reflect.macros.blackbox.Context
-
 object SDEMacros {
   // Macros not needed for scala 3; inlined the function instead
 }

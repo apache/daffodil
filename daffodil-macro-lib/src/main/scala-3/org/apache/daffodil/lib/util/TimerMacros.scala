@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.reflect.macros.blackbox.Context
-
 object TimerMacros {
   // Macros not needed for scala 3; inlined the function instead
 }

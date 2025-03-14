@@ -450,7 +450,7 @@ object Util {
    * sometimes needed since Daffodil may need to receive an EOF before it can
    * finish parsing.
    */
-  private class CLITester(expect: Expect, toIn: OutputStream) {
+  protected class CLITester(expect: Expect, toIn: OutputStream) {
 
     /**
      * Close stdin, triggering an EOF.

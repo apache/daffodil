@@ -1510,7 +1510,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQNameString,
           functionQName,
           NodeInfo.String,
-          FNLocalName0
+          FNLocalName0.apply
         )
 
       case (RefQName(_, "local-name", FUNC), args) if args.length == 1 =>
@@ -1528,7 +1528,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQNameString,
           functionQName,
           NodeInfo.String,
-          FNNamespaceUri0
+          FNNamespaceUri0.apply
         )
 
       case (RefQName(_, "namespace-uri", FUNC), args) if args.length == 1 =>

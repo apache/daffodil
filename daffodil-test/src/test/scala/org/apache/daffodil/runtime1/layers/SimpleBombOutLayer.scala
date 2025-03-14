@@ -39,15 +39,15 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
   object Loc
     extends Enum[Loc] // with ThrowsSDE
     {
-    final case object Nowhere extends Loc
-    final case object Setter extends Loc
-    final case object Getter extends Loc
-    final case object WrapInput extends Loc
-    final case object WrapOutput extends Loc
-    final case object Read extends Loc
-    final case object CloseInput extends Loc
-    final case object Write extends Loc
-    final case object CloseOutput extends Loc
+    case object Nowhere extends Loc
+    case object Setter extends Loc
+    case object Getter extends Loc
+    case object WrapInput extends Loc
+    case object WrapOutput extends Loc
+    case object Read extends Loc
+    case object CloseInput extends Loc
+    case object Write extends Loc
+    case object CloseOutput extends Loc
     override lazy val values: Array[Loc] =
       Array(
         Nowhere,
@@ -69,13 +69,13 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
 
   sealed trait Kind extends EnumValue
   object Kind extends Enum[Kind] {
-    final case object ThrowRE extends Kind
-    final case object ThrowEX extends Kind
-    final case object ProcErr extends Kind
-    final case object ProcErrWithCause extends Kind
-    final case object RSDE extends Kind
-    final case object NoBomb extends Kind
-    final case object Abort extends Kind
+    case object ThrowRE extends Kind
+    case object ThrowEX extends Kind
+    case object ProcErr extends Kind
+    case object ProcErrWithCause extends Kind
+    case object RSDE extends Kind
+    case object NoBomb extends Kind
+    case object Abort extends Kind
     override lazy val values: Array[Kind] =
       Array(ThrowRE, ThrowEX, ProcErr, ProcErrWithCause, RSDE, NoBomb, Abort)
 

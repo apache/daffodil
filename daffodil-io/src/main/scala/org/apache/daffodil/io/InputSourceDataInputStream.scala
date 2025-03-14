@@ -108,7 +108,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     str
   }
 
-  override final val cst = new MarkState
+  override final val cst: MarkState = new MarkState
   val markStack = new MStackOf[MarkState]
   val markPool = new MarkPool()
 

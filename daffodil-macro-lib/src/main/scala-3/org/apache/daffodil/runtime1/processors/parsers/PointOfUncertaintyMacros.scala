@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import scala.reflect.macros.blackbox.Context
-
 object PointOfUncertaintyMacros {
   // Macros not needed for scala 3; inlined the function instead
 }
