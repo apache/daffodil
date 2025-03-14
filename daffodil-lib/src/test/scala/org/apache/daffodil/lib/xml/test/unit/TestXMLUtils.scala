@@ -212,7 +212,18 @@ class TestXMLUtils {
    * different behaviors.
    */
   @Test def testScalaLiteralXMLCoalesceText(): Unit = {
-    val xml = <foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>
+    val xml = Elem(
+      null,
+      "foo",
+      Null,
+      TopScope,
+      true,
+      Text("abc"),
+      PCData("&&&"),
+      Text("def"),
+      Text("\uE000"),
+      Text("ghi")
+    )
     assertEquals(5, xml.child.length)
     assertTrue(xml.child(0).isInstanceOf[Text])
     assertTrue(xml.child(1).isInstanceOf[PCData])

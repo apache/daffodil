@@ -46,7 +46,7 @@ final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) exte
         val os = new FileOutputStream(path.toFile)
         os.write(svrlString.getBytes)
         os.close()
-      }.failed.map(SvrlOutputException).toOption
+      }.failed.map(SvrlOutputException(_)).toOption
     }
 
     val err = svrlOutputFailure.fold(valErr)(f => valErr :+ f)
