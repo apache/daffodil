@@ -26,7 +26,7 @@ object Dependencies {
     "com.lihaoyi" %% "os-lib" % "0.11.3", // for writing/compiling C source files
     "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "2.4.0",
-    "com.ibm.icu" % "icu4j" % "76.1",
+    "com.ibm.icu" % "icu4j" % "77.1",
     "xerces" % "xercesImpl" % "2.12.2",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.19.0",
