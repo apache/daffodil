@@ -347,7 +347,7 @@ class TunableEnumDefinition(
   private val allEnumerationValues = getAllEnumerationValues(simpleTypeNode)
 
   private val top = s"""
-    |sealed trait ${scalaType} extends ${scalaType}.Value
+    |sealed trait ${scalaType} extends Enum.Value[${scalaType}]
     |object ${scalaType} extends Enum[${scalaType}] {
 """.trim.stripMargin
 

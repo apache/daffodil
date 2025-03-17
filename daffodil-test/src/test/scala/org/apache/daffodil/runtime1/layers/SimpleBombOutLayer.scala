@@ -34,7 +34,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
 
   private lazy val context: ThrowsSDE = this.getLayerRuntime.layerRuntimeData.context
 
-  sealed trait Loc extends Loc.Value
+  sealed trait Loc extends Enum.Value[Loc]
   object Loc
     extends Enum[Loc] // with ThrowsSDE
     {
@@ -66,7 +66,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
   }
   import Loc._
 
-  sealed trait Kind extends Kind.Value
+  sealed trait Kind extends Enum.Value[Kind]
   object Kind extends Enum[Kind] {
     final case object ThrowRE extends Kind
     final case object ThrowEX extends Kind

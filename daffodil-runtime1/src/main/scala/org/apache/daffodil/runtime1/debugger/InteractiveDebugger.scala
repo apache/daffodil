@@ -138,8 +138,10 @@ class InteractiveDebugger(
     /* keeps track of which parse step we're on for trace output */
     var parseStep = 0
 
+    import org.apache.daffodil.lib.schema.annotation.props.Enum
     /* how to display data */
-    var representation: Representation.Value = Representation.Text
+    var representation: Enum.Value[Representation] =
+      Representation.Text
   }
 
   var debugState: DebugState.Type = DebugState.Pause
