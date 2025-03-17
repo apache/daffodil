@@ -56,6 +56,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |import org.apache.daffodil.lib.exceptions.ThrowsSDE
     |import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
     |import org.apache.daffodil.lib.schema.annotation.props.Enum
+    |import org.apache.daffodil.lib.schema.annotation.props.EnumValue
     |import org.apache.daffodil.lib.util.Misc
     |import org.apache.daffodil.lib.xml.DaffodilXMLLoader
     |import org.apache.daffodil.lib.xml.XMLUtils
@@ -347,7 +348,7 @@ class TunableEnumDefinition(
   private val allEnumerationValues = getAllEnumerationValues(simpleTypeNode)
 
   private val top = s"""
-    |sealed trait ${scalaType} extends ${scalaType}.Value
+    |sealed trait ${scalaType} extends EnumValue
     |object ${scalaType} extends Enum[${scalaType}] {
 """.trim.stripMargin
 

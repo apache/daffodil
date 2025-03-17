@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.schema.annotation.props._
 import org.junit.Assert._
 import org.junit.Test
 
-sealed trait MyPropType extends MyProp.Value
+sealed trait MyPropType extends EnumValue
 object MyProp
   extends Enum[MyPropType] // with ThrowsSDE
   {
@@ -87,7 +87,7 @@ class HasMixin
   lazy val properties: PropMap = Map.empty
 }
 
-sealed trait TheExampleProp extends TheExampleProp.Value
+sealed trait TheExampleProp extends EnumValue
 object TheExampleProp extends Enum[TheExampleProp] {
   case object Left extends TheExampleProp
   case object Right extends TheExampleProp

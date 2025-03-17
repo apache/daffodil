@@ -53,8 +53,9 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     |import org.apache.daffodil.lib.exceptions.Assert
     |import org.apache.daffodil.lib.exceptions.ThrowsSDE
     |import org.apache.daffodil.lib.schema.annotation.props.Enum
+    |import org.apache.daffodil.lib.schema.annotation.props.EnumValue
     |
-    |sealed trait WarnID extends WarnID.Value
+    |sealed trait WarnID extends EnumValue
     |object WarnID extends Enum[WarnID] {
     """.trim.stripMargin
 
