@@ -139,7 +139,7 @@ class InteractiveDebugger(
     var parseStep = 0
 
     /* how to display data */
-    var representation: Representation.Value = Representation.Text
+    var representation: Representation = Representation.Text
   }
 
   var debugState: DebugState.Type = DebugState.Pause

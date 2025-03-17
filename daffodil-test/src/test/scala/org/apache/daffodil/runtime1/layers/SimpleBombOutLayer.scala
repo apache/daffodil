@@ -24,6 +24,7 @@ import java.io.OutputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.Enum
+import org.apache.daffodil.lib.schema.annotation.props.EnumValue
 import org.apache.daffodil.runtime1.layers.api.Layer
 
 /**
@@ -34,7 +35,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
 
   private lazy val context: ThrowsSDE = this.getLayerRuntime.layerRuntimeData.context
 
-  sealed trait Loc extends Loc.Value
+  sealed trait Loc extends EnumValue
   object Loc
     extends Enum[Loc] // with ThrowsSDE
     {
@@ -66,7 +67,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
   }
   import Loc._
 
-  sealed trait Kind extends Kind.Value
+  sealed trait Kind extends EnumValue
   object Kind extends Enum[Kind] {
     final case object ThrowRE extends Kind
     final case object ThrowEX extends Kind
