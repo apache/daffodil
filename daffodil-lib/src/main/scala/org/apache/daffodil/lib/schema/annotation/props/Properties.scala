@@ -116,22 +116,19 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
 
   def apply(name: String, context: ThrowsSDE): A
 } // end class
-object Enum {
-  trait Value[A] extends EnumValueBase { self: A =>
-    override lazy val toString = {
-      val theVal = this
-      val cn = getNameFromClass(this)
-      val en = cn match {
-        //
-        // Special case for CalendarFirstDayOfWeek
-        //
-        case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" |
-            "Saturday" =>
-          cn
-        case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
-      }
-      en
+trait EnumValue extends EnumValueBase {
+  override lazy val toString = {
+    val theVal = this
+    val cn = getNameFromClass(this)
+    val en = cn match {
+      //
+      // Special case for CalendarFirstDayOfWeek
+      //
+      case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" =>
+        cn
+      case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
     }
+    en
   }
 }
 

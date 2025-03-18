@@ -379,7 +379,7 @@ class PropertyGenerator(arg: Node) {
    */
 
   val templateStart =
-    """sealed trait Currency extends Enum.Value[Currency]
+    """sealed trait Currency extends EnumValue
 object Currency extends Enum[Currency] {
 """
   val templateMiddle =
