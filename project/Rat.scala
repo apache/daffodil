@@ -29,6 +29,9 @@ object Rat {
     // scaladoc related, has no way to include a license
     file("daffodil-sapi/root-doc.txt"),
 
+    // version file does not contain a license header
+    file("VERSION"),
+
     // UTF-16BE, Apache Rat thinks it is a binary and cannot tell it includes the Apache v2 license
     file(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_09.dfdl.xsd"
