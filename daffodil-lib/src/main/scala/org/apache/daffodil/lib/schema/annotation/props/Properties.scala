@@ -84,23 +84,6 @@ import org.apache.daffodil.lib.util._
 abstract class EnumBase
 abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase with Converter[String, A] {
-  class Value extends EnumValueBase { self: A =>
-    override lazy val toString = {
-      val theVal = this
-      val cn = getNameFromClass(this)
-      val en = cn match {
-        //
-        // Special case for CalendarFirstDayOfWeek
-        //
-        case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" |
-            "Saturday" =>
-          cn
-        case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
-      }
-      en
-    }
-  }
-
   def toPropName(prop: A) = prop.toString
 
   val values: Array[A]
@@ -133,6 +116,21 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
 
   def apply(name: String, context: ThrowsSDE): A
 } // end class
+trait EnumValue extends EnumValueBase {
+  override lazy val toString = {
+    val theVal = this
+    val cn = getNameFromClass(this)
+    val en = cn match {
+      //
+      // Special case for CalendarFirstDayOfWeek
+      //
+      case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" =>
+        cn
+      case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
+    }
+    en
+  }
+}
 
 /**
  * base mixin for traits representing collections of DFDL properties

@@ -88,7 +88,7 @@ lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
   .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(
     io,
-    lib % "test->test",
+    lib % "compile-internal, test->test",
     udf,
     macroLib % "compile-internal, test-internal",
     slf4jLogger % "test"

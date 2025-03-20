@@ -55,7 +55,7 @@ import passera.unsigned.ULong
  * So the code generator has exclusions for these.
  */
 
-sealed trait AlignmentType extends AlignmentType.Value
+sealed trait AlignmentType extends EnumValue
 object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mixin here!
   case object Implicit extends AlignmentType
   override lazy val values = Array(Implicit)
@@ -140,7 +140,7 @@ trait TextStandardBaseMixin extends PropertyMixin {
   }
 }
 
-sealed trait SeparatorSuppressionPolicy extends SeparatorSuppressionPolicy.Value
+sealed trait SeparatorSuppressionPolicy extends EnumValue
 object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   case object Never extends SeparatorSuppressionPolicy
   case object TrailingEmpty extends SeparatorSuppressionPolicy
@@ -484,7 +484,7 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
  * By hand because we can set our preference for it via a tunable.
  * And also can require it to be present or not via a tunable.
  */
-sealed trait EmptyElementParsePolicy extends EmptyElementParsePolicy.Value
+sealed trait EmptyElementParsePolicy extends EnumValue
 object EmptyElementParsePolicy extends Enum[EmptyElementParsePolicy] {
   case object TreatAsMissing extends EmptyElementParsePolicy // deprecated
   case object TreatAsEmpty extends EmptyElementParsePolicy
