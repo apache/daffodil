@@ -332,7 +332,7 @@ class TestInputSourceDataInputStream {
   @Test def testUnsignedBigInt1(): Unit = {
     val dis = InputSourceDataInputStream(List(0xff).map { _.toByte }.toArray)
     val ml = dis.getUnsignedBigInt(2, finfo)
-    assertEqualsTyped(2, dis.bitPos0b)
+    assertEqualsTyped(2L, dis.bitPos0b)
     val expected = JBigInt.valueOf(3)
     assertEqualsTyped[JBigInt](expected, ml)
   }
@@ -342,7 +342,7 @@ class TestInputSourceDataInputStream {
       _.toByte
     }.toArray)
     val ml = dis.getUnsignedBigInt(40, finfo)
-    assertEqualsTyped(40, dis.bitPos0b)
+    assertEqualsTyped(40L, dis.bitPos0b)
     val expected = JBigInt.valueOf(0xc1c2c3c4c5L)
     assertEqualsTyped[JBigInt](expected, ml)
   }

@@ -27,7 +27,7 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider
  */
 class StringFunctionsProvider extends UserDefinedFunctionProvider {
 
-  override def getUserDefinedFunctionClasses = {
+  override def getUserDefinedFunctionClasses: Array[Class[?]] = {
     Array(classOf[ReverseWords], classOf[Reverse])
   }
 }

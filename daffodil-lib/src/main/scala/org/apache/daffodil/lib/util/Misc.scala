@@ -740,5 +740,4 @@ object Misc {
       case _ => Paths.get(uri.getPath).toFile
     }
   }
-
 }

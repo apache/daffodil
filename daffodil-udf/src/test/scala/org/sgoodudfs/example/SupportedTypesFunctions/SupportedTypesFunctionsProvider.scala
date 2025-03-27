@@ -25,7 +25,7 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider
  *
  */
 class SupportedTypesFunctionsProvider extends UserDefinedFunctionProvider {
-  override def getUserDefinedFunctionClasses = {
+  override def getUserDefinedFunctionClasses: Array[Class[?]] = {
     Array(
       classOf[PrimByteFunc],
       classOf[BoxedByteFunc],
