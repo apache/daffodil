@@ -46,7 +46,7 @@ class DataLoc(
 
   private val Dump = new DataDumper
 
-  lazy val optERD = maybeERD.toScalaOption
+  lazy val optERD = maybeERD.toOption
 
   Assert.usage(bitLimit1b.isEmpty || bitLimit1b.get >= 0)
   Assert.usage(bitPos1b >= 1)
@@ -90,7 +90,7 @@ class DataLoc(
         else Some(erd.encodingInfo.knownEncodingName) // byte-aligned encoding
       } else None
     }
-    val optEncodingName = maybeEncodingName.toScalaOption
+    val optEncodingName = maybeEncodingName.toOption
 
     def binary: Dump.Kind = optERD
       .map { erd =>

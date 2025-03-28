@@ -410,7 +410,7 @@ class DataProcessor(
 
     val pr = if (state.processorStatus == Success) {
       // validate infoset, errors are added to the PState diagnostics
-      val vr = maybeValidationBytes.toScalaOption.map { bytes =>
+      val vr = maybeValidationBytes.toOption.map { bytes =>
         val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
         val res = validator.validateXML(bis)
         res.warnings().forEach { w => state.validationError(w.getMessage) }

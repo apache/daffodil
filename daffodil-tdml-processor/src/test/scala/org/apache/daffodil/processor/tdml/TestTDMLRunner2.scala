@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.processor.tdml
 
+import scala.util.Using
+
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Document
 import org.apache.daffodil.tdml.Runner
@@ -629,7 +630,7 @@ abc # a comment
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {
-      using(new java.io.FileWriter(tmpTDMLFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpTDMLFileName)) { fw =>
         fw.write(testSuite.toString())
       }
       val runner = new Runner(new java.io.File(tmpTDMLFileName))

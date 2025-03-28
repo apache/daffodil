@@ -19,7 +19,6 @@ package org.apache.daffodil.lib.util
 
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
-import scala.collection.compat.immutable.LazyList
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure

@@ -32,7 +32,6 @@ import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.collections.MultiMap
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom._
 
@@ -95,16 +94,20 @@ class TextNumberFormatEv(
     groupingSep: MaybeChar,
     exponentRep: Maybe[String]
   ): Unit = {
+    val bindings: Seq[(String, String)] = {
+      decimalSep.toOption.map { v => (v.toString, "textStandardDecimalSeparator") } ++
+        groupingSep.toOption.map { v => (v.toString, "textStandardGroupingSeparator") } ++
+        exponentRep.toOption.map { v => (v, "textStandardExponentRep") } ++
+        infRep.toOption.map { v => (v, "textStandardInfinityRep") } ++
+        nanRep.toOption.map { v => (v, "textStandardNaNRep") } ++
+        zeroRepsRaw.map { zr => (zr, "textStandardZeroRep") }
+    }.toSeq
 
-    val mm = new MultiMap[String, String]
-    if (decimalSep.isDefined)
-      mm.addBinding(decimalSep.get.toString, "textStandardDecimalSeparator")
-    if (groupingSep.isDefined)
-      mm.addBinding(groupingSep.get.toString, "textStandardGroupingSeparator")
-    if (exponentRep.isDefined) mm.addBinding(exponentRep.get, "textStandardExponentRep")
-    if (infRep.isDefined) mm.addBinding(infRep.get, "textStandardInfinityRep")
-    if (nanRep.isDefined) mm.addBinding(nanRep.get, "textStandardNaNRep")
-    zeroRepsRaw.foreach { zr => mm.addBinding(zr, "textStandardZeroRep") }
+    val mm: Map[String, Seq[String]] = bindings
+      .groupBy(_._1)
+      .view
+      .mapValues(t => t.map(_._2))
+      .toMap
 
     val dupes = mm.filter { case (k, s) => s.size > 1 }
     val dupeStrings = dupes.map { case (k, s) =>

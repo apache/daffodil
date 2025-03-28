@@ -309,7 +309,7 @@ abstract class Evaluatable[+T <: AnyRef](
    * for that. So this variant supplies that.
    */
   @inline final def optConstant = {
-    maybeConstant.toScalaOption
+    maybeConstant.toOption
   }
 
   /**

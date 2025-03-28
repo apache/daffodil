@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.layers
 import java.io._
 import java.nio._
 import java.nio.charset._
+import scala.util.Using
 
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -27,7 +28,6 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
@@ -114,7 +114,7 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
   override def close(): Unit = {
     if (!closed) {
       val ba = baos.toByteArray
-      using(InputSourceDataInputStream(ba)) { dis =>
+      Using.resource(InputSourceDataInputStream(ba)) { dis =>
         val finfo = FormatInfoForAISDecode
         val cb = CharBuffer.allocate(256)
         //

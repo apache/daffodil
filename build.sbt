@@ -239,7 +239,7 @@ lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
   version := "4.0.0-SNAPSHOT",
   scalaVersion := "2.13.16",
-  crossScalaVersions := Seq("2.13.16", "2.12.20"),
+  crossScalaVersions := Seq("2.13.16"),
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
   Test / scalacOptions ++= buildTestScalacOptions(scalaVersion.value),
   Compile / compile / javacOptions ++= buildJavacOptions(),
@@ -282,23 +282,11 @@ def buildScalacOptions(scalaVersion: String) = {
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 12)) =>
-      Seq(
-        "-Xfuture",
-        "-Ywarn-infer-any",
-        "-Ywarn-inaccessible"
-        // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
-        // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
-      )
     case Some((2, 13)) =>
       Seq(
         "-Xlint:inaccessible",
         "-Xlint:infer-any",
         "-Xlint:nullary-unit",
-        // TODO: scala 2.12 phase out
-        // the import is needed for Scala 2.12 but issues an unused import warning under 2.13, so we add this to
-        // suppresss the warning
-        "-Wconf:origin=scala.collection.compat.*:s",
         // suppress nullary-unit warning in the specific trait
         "-Wconf:cat=lint-nullary-unit:silent,site=org.apache.daffodil.junit.tdml.TdmlTests:silent"
       )

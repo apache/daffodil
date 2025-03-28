@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.lib.util
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-
-import org.apache.daffodil.lib.util.collections.Stack
 
 object Timer {
 
@@ -190,7 +189,7 @@ object TimeTracker extends TimeTrackerUsingMacrosMixin {
    *
    * TODO: not covered by tests
    */
-  val childrenTimeStack = new Stack[Long]()
+  val childrenTimeStack = new mutable.Stack[Long]()
 
   /**
    * Output the results of the tracked sections in sorted columnar format.

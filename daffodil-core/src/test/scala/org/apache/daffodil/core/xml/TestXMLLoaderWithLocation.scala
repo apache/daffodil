@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.xml
 
 import java.io.File
+import scala.util.Using
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api.URISchemaSource
@@ -34,7 +35,7 @@ class TestXMLLoaderWithLocation {
     // if it can.
     val testXML = <xs:schema xmlns:xs={XMLUtils.XSD_NAMESPACE}><xs:annotation/></xs:schema>
     try {
-      using(new java.io.FileWriter(tmpXMLFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpXMLFileName)) { fw =>
         fw.write(testXML.toString())
       }
       val tmpXMLFile = new File(tmpXMLFileName)
@@ -68,7 +69,7 @@ class TestXMLLoaderWithLocation {
     // if it can.
     val testXML = <xs:schema xmlns:xs={XMLUtils.XSD_NAMESPACE}><xs:illegal/></xs:schema>
     try {
-      using(new java.io.FileWriter(tmpXMLFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpXMLFileName)) { fw =>
         fw.write(testXML.toString())
       }
       val tmpXMLFile = new File(tmpXMLFileName)

@@ -20,8 +20,8 @@ package org.apache.daffodil.example
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import scala.util.Using
 
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult
 import org.apache.daffodil.lib.api.ValidationWarning
@@ -46,7 +46,9 @@ abstract class ValidatorExamplesSupport {
   }
 
   def withInput(name: String)(f: InputSourceDataInputStream => Unit): Unit = {
-    using(new InputSourceDataInputStream(new FileInputStream(fileFromResource(name)))) { s =>
+    Using.resource(
+      new InputSourceDataInputStream(new FileInputStream(fileFromResource(name)))
+    ) { s =>
       f(s)
     }
   }

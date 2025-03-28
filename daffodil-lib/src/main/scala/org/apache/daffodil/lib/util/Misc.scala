@@ -35,6 +35,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import scala.io.Source
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
@@ -640,19 +641,11 @@ object Misc {
   }
 
   /**
-   * Convenient I/O tools
-   * TODO: scala 2.12 Phaseout. Replace with scala.util.Using
-   */
-  def using[A <: AutoCloseable, B](param: A)(f: A => B): B =
-    try { f(param) }
-    finally { param.close() }
-
-  /**
    * convenience method
    */
   def writeToFile(fileName: String)(body: java.io.Writer => Unit): Unit = {
     val writer = new java.io.FileWriter(fileName)
-    using(writer) { body(_) }
+    Using.resource(writer) { body(_) }
   }
 
   /**

@@ -36,6 +36,7 @@ final case class MaybeDouble private (__rep: Long) extends AnyVal {
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeDouble.undefValue
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Double] = if (isDefined) Some(get) else None
   override def toString = if (isEmpty) "Nope" else "MaybeDouble(" + get + ")"
   // @inline final def map(f: Double => Double): MaybeDouble = if (isEmpty) MaybeDouble.Nope else MaybeDouble(f(get))
 }
@@ -67,6 +68,7 @@ final case class MaybeFloat private (__rep: Long) extends AnyVal {
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeFloat.undefValue
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Float] = if (isDefined) Some(get) else None
   override def toString = if (isEmpty) "Nope" else "MaybeFloat(" + get + ")"
 }
 

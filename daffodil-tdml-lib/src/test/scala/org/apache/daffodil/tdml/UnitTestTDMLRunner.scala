@@ -18,9 +18,9 @@
 package org.apache.daffodil.tdml
 
 import java.io.File
+import scala.util.Using
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -283,7 +283,7 @@ class UnitTestTDMLRunner {
     val tmpTDMLFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     try {
-      using(new java.io.FileWriter(tmpTDMLFile)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpTDMLFile)) { fw =>
         fw.write(testSuite.toString())
       }
 

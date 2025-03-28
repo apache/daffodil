@@ -21,6 +21,7 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -41,7 +42,6 @@ import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Pool
 import org.apache.daffodil.lib.util.Poolable
-import org.apache.daffodil.lib.util.collections.ArrayBuffer1
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.api.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.DIComplex
@@ -136,7 +136,7 @@ class MPState private () {
     Assert.invariant(res >= 1)
     res
   }
-  val delimiters = new ArrayBuffer1[DFADelimiter]
+  val delimiters = new ArrayBuffer[DFADelimiter]
   val delimitersLocalIndexStack = MStackOfInt()
 
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]

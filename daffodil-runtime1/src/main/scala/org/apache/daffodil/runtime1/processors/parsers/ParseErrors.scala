@@ -49,7 +49,7 @@ final class CharsetNotByteAlignedError(
   pstate: PState,
   cause: BitsCharsetDecoderUnalignedCharDecodeException
 ) extends ParseError(
-    Maybe.toMaybe(pstate.maybeERD.toScalaOption.map { _.schemaFileLocation }),
+    Maybe.toMaybe(pstate.maybeERD.toOption.map { _.schemaFileLocation }),
     One(pstate.currentLocation),
     One(cause),
     Nope
