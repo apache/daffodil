@@ -21,7 +21,6 @@ import scala.collection.mutable.Queue
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.collections.RichMap
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 
 class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
@@ -122,12 +121,11 @@ class SuspensionDeadlockException(suspExprs: Seq[Suspension])
   extends RuntimeSchemaDefinitionError(
     suspExprs(0).rd.schemaFileLocation,
     "Expressions/Unparsers are circularly deadlocked (mutually defined):\n%s",
-    new RichMap(
-      suspExprs
-        .groupBy {
-          _.rd
-        }
-    )
+    suspExprs
+      .groupBy {
+        _.rd
+      }
+      .view
       .mapValues {
         _(0)
       }

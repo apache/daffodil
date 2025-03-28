@@ -22,7 +22,6 @@ import java.io.InputStream
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import scala.collection.compat.immutable.LazyList
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml._

@@ -19,7 +19,6 @@ package org.apache.daffodil.runtime1.externalvars
 
 import java.io.File
 import java.net.URI
-import scala.collection.compat._
 import scala.collection.immutable.Queue
 import scala.io.Codec.string2codec
 import scala.xml.Node

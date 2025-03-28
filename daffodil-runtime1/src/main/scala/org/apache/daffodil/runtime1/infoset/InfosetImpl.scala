@@ -30,6 +30,7 @@ import java.math.{ BigInteger => JBigInt }
 import java.net.URI
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
+import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -50,7 +51,6 @@ import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Numbers
-import org.apache.daffodil.lib.util.collections.ArrayBuffer1
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.ComplexElementMetadata
@@ -1216,7 +1216,7 @@ final class DIArray(
 
   def namedQName = erd.namedQName
 
-  protected final val _contents = new ArrayBuffer1[DIElement](initialSize)
+  protected final val _contents = new ArrayBuffer[DIElement](initialSize)
 
   override def indexOf(item: DINode): Int = _contents.indexOf(item)
 
@@ -1224,7 +1224,7 @@ final class DIArray(
    * Used to shorten array when backtracking out of having appended elements.
    */
   def reduceToSize(n: Int): Unit = {
-    _contents.reduceToSize1(n)
+    _contents.dropRightInPlace(_contents.length - n)
   }
 
   override def numChildren: Int = _contents.length
@@ -1673,10 +1673,10 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (!isFinal) throw nfe
   }
 
-  private val childNodes = new ArrayBuffer1[DINode]
+  private val childNodes = new ArrayBuffer[DINode]
 
   private lazy val nameToChildNodeLookup =
-    new java.util.HashMap[NamedQName, ArrayBuffer1[DINode]]
+    new java.util.HashMap[NamedQName, ArrayBuffer[DINode]]
 
   override def numChildren: Int = childNodes.length
 
@@ -1766,8 +1766,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     val groups = unordered.groupBy(_.erd)
     unordered.clear()
     groups.foreach {
-      case (erd, _nodes) => {
-        val nodes = ArrayBuffer1(_nodes)
+      case (erd, nodes) => {
         // Check min/maxOccurs validity while iterating over childNodes
         val min = erd.minOccurs
         val max = erd.maxOccurs
@@ -1777,12 +1776,12 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
         if (erd.isArray) {
           val a = nodes(0).asInstanceOf[DIArray]
           nodes.tail.foreach(b => a.concat(b.asInstanceOf[DIArray]))
-          nodes.reduceToSize1(1)
+          nodes.dropRightInPlace(nodes.length - 1)
 
           // Need to also remove duplicates from fastLookup
           val fastSeq = nameToChildNodeLookup.get(a.namedQName)
           if (fastSeq != null)
-            fastSeq.reduceToSize1(1)
+            fastSeq.dropRightInPlace(fastSeq.length - 1)
 
           // Validate min/maxOccurs for array
           val occurrence = nodes(0).numChildren
@@ -1873,7 +1872,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       if (fastSeq != null) {
         fastSeq += node
       } else {
-        val ab = new ArrayBuffer1[DINode]()
+        val ab = new ArrayBuffer[DINode]()
         ab += node
         nameToChildNodeLookup.put(name, ab)
       }
@@ -1950,13 +1949,13 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
           nameToChildNodeLookup.remove(childToRemove.namedQName)
         } else {
           // not the last one, just drop the end
-          fastSeq.reduceToSize1(fastSeq.length - 1)
+          fastSeq.dropRightInPlace(1)
         }
       }
       i -= 1
     }
     // now just quickly remove all those children
-    childNodes.reduceToSize1(cs._numChildren)
+    childNodes.dropRightInPlace(childNodes.length - cs._numChildren)
     _numChildren = cs._numChildren
 
     if (cs._arraySize.isDefined && _numChildren > 0) {

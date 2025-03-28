@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.lib.util
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-
-import org.apache.daffodil.lib.util.collections.Stack
 
 object Timer {
 
@@ -190,7 +189,7 @@ object TimeTracker {
    *
    * TODO: not covered by tests
    */
-  val childrenTimeStack = new Stack[Long]()
+  val childrenTimeStack = new mutable.Stack[Long]()
 
   /**
    * Used to measure a section of code that might get called multiple times.
