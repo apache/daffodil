@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.core.dsom
 
-import scala.collection.compat.immutable.LazyList
 import scala.collection.mutable
 import scala.xml.Node
 import scala.xml.NodeSeq

@@ -19,7 +19,6 @@ package org.apache.daffodil.core.dsom
 
 import java.lang.{ Integer => JInt }
 import java.util.UUID
-import scala.collection.compat.immutable.LazyList
 
 import org.apache.daffodil.core.dsom.walker.TermView
 import org.apache.daffodil.core.grammar.TermGrammarMixin

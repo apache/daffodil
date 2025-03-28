@@ -18,11 +18,11 @@
 package org.apache.daffodil.core.api
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Using
 import scala.xml.Elem
 
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.runtime1.api.ChoiceMetadata
 import org.apache.daffodil.runtime1.api.ComplexElementMetadata
@@ -56,7 +56,7 @@ class TestMetadataWalking {
   def parseAndWalkData(dp: DataProcessor, infosetOutputter: InfosetOutputter)(
     data: Array[Byte]
   ): ParseResult = {
-    using(InputSourceDataInputStream(data)) { isdis =>
+    Using.resource(InputSourceDataInputStream(data)) { isdis =>
       val res = dp.parse(isdis, infosetOutputter)
       res
     }

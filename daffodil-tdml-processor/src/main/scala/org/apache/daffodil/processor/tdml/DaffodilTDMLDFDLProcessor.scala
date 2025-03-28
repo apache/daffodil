@@ -25,12 +25,12 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import scala.util.Using
 import scala.xml.Node
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
@@ -274,7 +274,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     }
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
-    using(InputSourceDataInputStream(dpInputStream)) { dis =>
+    Using.resource(InputSourceDataInputStream(dpInputStream)) { dis =>
       // The length limit here should be the length of the document
       // under test. Only set a limit when the end of the document
       // do not match a byte boundary.
@@ -286,7 +286,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
       val actual = dp.parse(dis, outputter)
       if (tdmlApiInfosetsEnv == "all") {
         val saxInputStream = optSaxInputStream.get
-        using(InputSourceDataInputStream(saxInputStream)) { sis =>
+        Using.resource(InputSourceDataInputStream(saxInputStream)) { sis =>
           // The length limit here should be the length of the document
           // under test. Only set a limit when the end of the document
           // do not match a byte boundary.

@@ -20,6 +20,8 @@ package org.apache.daffodil.lib.util
 import java.io.File
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParser
+import scala.collection.mutable
+import scala.util.Using
 import scala.xml.Attribute
 import scala.xml.Elem
 import scala.xml.MetaData
@@ -30,9 +32,7 @@ import scala.xml.SAXParseException
 import scala.xml.Text
 import scala.xml.parsing.NoBindingFactoryAdapter
 
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.collections.Stack
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NS.implicitNStoString
@@ -117,13 +117,13 @@ class TestXMLCatalogAndValidate {
                       </catalog>
 
     try {
-      using(new java.io.FileWriter(tmpSchemaFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpSchemaFileName)) { fw =>
         fw.write(testSchema.toString())
       }
-      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpDataFileName)) { fw =>
         fw.write(testSuite.toString())
       }
-      using(new java.io.FileWriter(tmpCatalogFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpCatalogFileName)) { fw =>
         fw.write(testCatalog.toString())
       }
 
@@ -182,16 +182,16 @@ class TestXMLCatalogAndValidate {
                       </catalog>
 
     try {
-      using(new java.io.FileWriter(tmpSchema1FileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpSchema1FileName)) { fw =>
         fw.write(testSchema1.toString())
       }
-      using(new java.io.FileWriter(tmpSchema2FileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpSchema2FileName)) { fw =>
         fw.write(testSchema2.toString())
       }
-      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpDataFileName)) { fw =>
         fw.write(testSuite.toString())
       }
-      using(new java.io.FileWriter(tmpCatalogFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpCatalogFileName)) { fw =>
         fw.write(testCatalog.toString())
       }
 
@@ -233,7 +233,7 @@ class TestXMLCatalogAndValidate {
 
     val tmpDataFileName = tempFileName("_data.xml")
     try {
-      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpDataFileName)) { fw =>
         fw.write(testSuite.toString())
       }
 
@@ -264,7 +264,7 @@ class TestXMLCatalogAndValidate {
 
     val tmpDataFileName = tempFileName("_data.xml")
     try {
-      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpDataFileName)) { fw =>
         fw.write(testSuite.toString())
       }
 
@@ -321,7 +321,7 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
   // starting element tag.
 
   // startElement saves locator information on stack
-  val locatorStack = new Stack[Locator]
+  val locatorStack = new mutable.Stack[Locator]
   // endElement pops it off into here
   var elementStartLocator: Locator = _
 

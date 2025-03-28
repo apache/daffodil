@@ -23,7 +23,6 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.Scanner
 import java.util.regex.Pattern
-import scala.collection.compat.immutable.LazyList
 
 import org.apache.daffodil.lib.exceptions.Assert
 

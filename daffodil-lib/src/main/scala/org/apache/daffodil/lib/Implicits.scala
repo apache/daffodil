@@ -44,15 +44,6 @@ object Implicits {
   ): BufferedInputStream =
     new BufferedInputStream(bais)
 
-  /**
-   * Used for reading/writing to database, files, etc.
-   * Code without reflection
-   * TODO: scala 2.12 Phaseout. Replace with scala.util.Using
-   */
-  def using[A <: AutoCloseable, B](param: A)(f: A => B): B =
-    try { f(param) }
-    finally { param.close() }
-
   // TODO: move these to TestUtils object in daffodil-lib-unittest
   // add test->test dependency on that
 

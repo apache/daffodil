@@ -56,6 +56,7 @@ final case class MaybeInt private (__v: Long) extends AnyVal {
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeInt.undefValue
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Int] = if (isDefined) Some(get) else None
   override def toString = if (isEmpty) "Nope" else "MaybeInt(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -107,6 +108,7 @@ final class MaybeJInt(mi: MaybeInt) {
   // @inline final def getOrElse(alternate: Int): Int = mi.getOrElse(alternate)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Int] = if (isDefined) Some(get) else None
   override def toString = mi.toString
 }
 
@@ -123,6 +125,7 @@ final case class MaybeChar private (__v: Int) extends AnyVal {
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeChar.undefValue
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Char] = if (isDefined) Some(get) else None
   override def toString = if (isEmpty) "Nope" else "MaybeChar(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -146,6 +149,7 @@ final class MaybeBoolean private (val __v: Int) extends AnyVal {
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeBoolean.undefValue
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Boolean] = if (isDefined) Some(get) else None
   override def toString = if (isEmpty) "Nope" else "MaybeBoolean(" + get + ")"
 
   // No map function or other monad features because we don't want usage

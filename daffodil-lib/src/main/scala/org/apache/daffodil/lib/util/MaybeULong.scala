@@ -37,6 +37,7 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeULong.undefValue
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Long] = if (isDefined) Some(get) else None
   override def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 
   // No map function or other monad features because we don't want usage
@@ -77,6 +78,7 @@ final class MaybeJULong(mi: MaybeULong) extends Serializable {
   // @inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
+  @inline final def toOption: Option[Long] = if (isDefined) Some(get) else None
   override def toString = mi.toString
 
   @inline def toMaybeULong = mi

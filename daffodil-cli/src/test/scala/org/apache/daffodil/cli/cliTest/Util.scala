@@ -80,7 +80,6 @@ object Util {
       .getOrElse(throw new IllegalStateException("No Scala Version found"))
 
     scalaVersion match {
-      case v if v.startsWith("2.12") => "scala-2.12"
       case v if v.startsWith("2.13") => "scala-2.13"
       case v if v.startsWith("3.") => "scala-" + v
       case _ =>

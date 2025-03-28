@@ -167,19 +167,3 @@ The following NOTICE information applies to binary components distributed with t
   Portions of this code are derived from classes placed in the
   public domain by Arbortext on 10 Apr 2000. See:
   http://www.arbortext.com/customer_support/updates_and_technical_notes/catalogs/docs/README.htm
-
-- org.scala-lang.scala-collection-compat_2.13-<VERSION>.jar
-  scala-collection-compat
-  Copyright (c) 2002-2025 EPFL
-  Copyright (c) 2011-2025 Lightbend, Inc. dba Akka
-
-  Scala includes software developed at
-  LAMP/EPFL (https://lamp.epfl.ch/) and
-  Akka (https://akka.io/).
-
-  Licensed under the Apache License, Version 2.0 (the "License").
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.

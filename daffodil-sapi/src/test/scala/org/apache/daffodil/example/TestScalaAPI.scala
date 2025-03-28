@@ -29,9 +29,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import javax.xml.XMLConstants
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
+import scala.util.Using
 
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DaffodilParseXMLReader
@@ -160,7 +160,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -213,7 +213,7 @@ class TestScalaAPI {
     // and byte buffer.
     val ba = FileUtils.readFileToByteArray(file)
     val bb = ByteBuffer.wrap(ba)
-    using(new InputSourceDataInputStream(bb)) { input =>
+    Using.resource(new InputSourceDataInputStream(bb)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = parser.parse(input, outputter)
       val err = res.isError()
@@ -249,7 +249,7 @@ class TestScalaAPI {
     // the constructor for creating an InputSourceDataInputStream from a byte array
     // and byte buffer.
     val ba = FileUtils.readFileToByteArray(file)
-    using(new InputSourceDataInputStream(ba)) { input =>
+    Using.resource(new InputSourceDataInputStream(ba)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
 
@@ -289,7 +289,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -330,7 +330,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = parser.parse(input, outputter)
       val err = res.isError()
@@ -358,7 +358,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData2.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -388,7 +388,7 @@ class TestScalaAPI {
     val file = getResource("/test/sapi/myData3.dat"); // contains 5
     // bytes
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -447,7 +447,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -482,7 +482,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -513,7 +513,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -556,7 +556,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData4.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -582,7 +582,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData5.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -616,7 +616,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -649,7 +649,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -681,7 +681,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -778,7 +778,7 @@ class TestScalaAPI {
       .withValidationMode(ValidationMode.Limited)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
@@ -804,7 +804,7 @@ class TestScalaAPI {
       .withValidationMode(ValidationMode.Full)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
@@ -839,7 +839,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData2.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       var res: ParseResult = null
       var err: Boolean = false
@@ -879,7 +879,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData19.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       var res: ParseResult = null
       var err: Boolean = false
@@ -915,7 +915,7 @@ class TestScalaAPI {
     val file = getResource("/test/sapi/myData.dat")
     val fisDP = new java.io.FileInputStream(file)
     val fisSAX = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fisSAX)) { inputSAX =>
+    Using.resource(new InputSourceDataInputStream(fisSAX)) { inputSAX =>
       val inputDP = new InputSourceDataInputStream(fisDP)
       val bosDP = new ByteArrayOutputStream()
       val outputter = new XMLTextInfosetOutputter(bosDP, pretty = true)
@@ -996,7 +996,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val contentHandler = new org.jdom2.input.sax.SAXHandler()
       val errorHandler = new SAXErrorHandlerForSAPITest()
       parseXMLReader.setContentHandler(contentHandler)
@@ -1155,7 +1155,7 @@ class TestScalaAPI {
     {
       val ba = Array[Byte]()
       val bb = ByteBuffer.wrap(ba)
-      using(new InputSourceDataInputStream(bb)) { dis =>
+      Using.resource(new InputSourceDataInputStream(bb)) { dis =>
         val outputter = new ScalaXMLInfosetOutputter()
         val res = dp.parse(dis, outputter)
         assertFalse(res.isError())
@@ -1170,7 +1170,7 @@ class TestScalaAPI {
     {
       val ba = Array[Byte]()
       val bb = ByteBuffer.wrap(ba)
-      using(new InputSourceDataInputStream(bb)) { dis =>
+      Using.resource(new InputSourceDataInputStream(bb)) { dis =>
         val outputter = new ScalaXMLInfosetOutputter()
         val res = dp.parse(dis, outputter)
         assertFalse(res.isError())
@@ -1202,7 +1202,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { dis =>
+    Using.resource(new InputSourceDataInputStream(fis)) { dis =>
       val outputter = new TestInfosetOutputter()
       val pr = dp.parse(dis, outputter)
 
@@ -1290,7 +1290,7 @@ class TestScalaAPI {
     var dp = pf.onPath("/")
 
     val is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8))
-    using(new InputSourceDataInputStream(is)) { input =>
+    Using.resource(new InputSourceDataInputStream(is)) { input =>
       val bosDP = new ByteArrayOutputStream()
       val outputter = new XMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA)
       val res = dp.parse(input, outputter)
@@ -1314,7 +1314,7 @@ class TestScalaAPI {
 
     val data = Array[Byte](0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04)
     val bis = new ByteArrayInputStream(data)
-    using(new InputSourceDataInputStream(data)) { input =>
+    Using.resource(new InputSourceDataInputStream(data)) { input =>
       val blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "sapi")
       Files.createDirectories(blobRoot)
       val blobDir = Files.createTempDirectory(blobRoot, "blob-")
@@ -1357,7 +1357,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
@@ -1400,7 +1400,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
@@ -1420,7 +1420,7 @@ class TestScalaAPI {
 
     val file = getResource("/test/sapi/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new ScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
@@ -1468,13 +1468,13 @@ class TestScalaAPI {
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val bos = new ByteArrayOutputStream()
-    using(new InputSourceDataInputStream(fis)) { input =>
+    Using.resource(new InputSourceDataInputStream(fis)) { input =>
       val outputter = new JsonInfosetOutputter(bos, pretty = false)
       val res = dp.parse(input, outputter)
       assertFalse(res.isError())
     }
 
-    using(new ByteArrayInputStream(bos.toByteArray())) { input =>
+    Using.resource(new ByteArrayInputStream(bos.toByteArray())) { input =>
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = new JsonInfosetInputter(input)
@@ -1494,7 +1494,7 @@ class TestScalaAPI {
     // e2 should be a simple type
     val badJsonInfoset = """{"e1": {"e2": {"unexpected": "object"}}}"""
 
-    using(new ByteArrayInputStream(badJsonInfoset.getBytes("UTF-8"))) { input =>
+    Using.resource(new ByteArrayInputStream(badJsonInfoset.getBytes("UTF-8"))) { input =>
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = new JsonInfosetInputter(input)

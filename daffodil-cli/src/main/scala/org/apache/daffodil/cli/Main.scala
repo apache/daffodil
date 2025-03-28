@@ -35,11 +35,12 @@ import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.util.Using
 import scala.util.matching.Regex
 
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
@@ -49,7 +50,6 @@ import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.DaffodilConfig
 import org.apache.daffodil.lib.api.DaffodilConfigException
 import org.apache.daffodil.lib.api.DaffodilTunables
@@ -1240,7 +1240,7 @@ class Main(
                 }
               }
             }
-            using(input) { inStream =>
+            Using.resource(input) { inStream =>
               val output = parseOpts.output.toOption match {
                 case Some("-") | None => STDOUT
                 case Some(file) => new FileOutputStream(file)
@@ -1484,7 +1484,7 @@ class Main(
                       })
                     case Right(bytes) =>
                       Timer.getTimeResult({
-                        using(InputSourceDataInputStream(bytes)) { input =>
+                        Using.resource(InputSourceDataInputStream(bytes)) { input =>
                           val infosetResult =
                             infosetHandler.parse(input, nullOutputStreamForParse)
                           val parseResult = infosetResult.parseResult

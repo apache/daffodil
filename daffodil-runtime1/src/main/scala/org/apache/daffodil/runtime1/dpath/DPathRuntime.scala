@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1.dpath
 
 import java.lang.{ Number => JNumber }
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
 import org.apache.daffodil.lib.api.DaffodilTunables

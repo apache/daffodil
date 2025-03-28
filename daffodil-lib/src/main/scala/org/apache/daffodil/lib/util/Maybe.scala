@@ -78,7 +78,7 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable 
   @inline private[util] final def _foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
   //  @inline final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
   //  @inline final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
-  @inline final def toScalaOption: scala.Option[T] =
+  @inline final def toOption: scala.Option[T] =
     if (isEmpty) scala.None else scala.Some(get)
   override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 }
@@ -99,7 +99,7 @@ object Maybe {
   /**
    * implicitly convert Option type to Maybe type.
    *
-   * The conversion the other way must be explicit by calling toScalaOption
+   * The conversion the other way must be explicit by calling toOption
    */
 
   implicit def toMaybe[T <: AnyRef](o: Option[T]): Maybe[T] = o match {

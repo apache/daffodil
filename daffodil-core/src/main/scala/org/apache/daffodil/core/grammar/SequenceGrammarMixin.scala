@@ -16,7 +16,6 @@
  */
 
 package org.apache.daffodil.core.grammar
-import scala.collection.compat.immutable.LazyList
 
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.primitives.OrderedSequence

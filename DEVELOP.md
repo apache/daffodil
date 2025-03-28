@@ -281,7 +281,7 @@ Daffodil's Java API from Maven or get Daffodil's Scala API from sbt:
 ```xml
 <dependency>
   <groupId>org.apache.daffodil</groupId>
-  <artifactId>daffodil-japi_2.12</artifactId>
+  <artifactId>daffodil-japi_2.13</artifactId>
   <version>3.4.0</version>
 </dependency>
 ```

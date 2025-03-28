@@ -19,9 +19,9 @@ package org.apache.daffodil.processor.tdml
 
 import java.io.File
 import java.io.FileNotFoundException
+import scala.util.Using
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -305,7 +305,7 @@ class TestTDMLRunner {
     )
 
     val tmpSchemaFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
-    using(new java.io.FileWriter(tmpSchemaFile)) { fileWriter =>
+    Using.resource(new java.io.FileWriter(tmpSchemaFile)) { fileWriter =>
       fileWriter.write(testSchema.toString())
     }
 
@@ -339,7 +339,7 @@ class TestTDMLRunner {
     )
 
     val tmpSchemaFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
-    using(new java.io.FileWriter(tmpSchemaFile)) { fileWriter =>
+    Using.resource(new java.io.FileWriter(tmpSchemaFile)) { fileWriter =>
       fileWriter.write(testSchema.toString())
     }
 
@@ -358,10 +358,10 @@ class TestTDMLRunner {
 
     val tmpTDMLFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
     try {
-      using(new java.io.FileWriter(tmpSchemaFile)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpSchemaFile)) { fw =>
         fw.write(testSchema.toString())
       }
-      using(new java.io.FileWriter(tmpTDMLFile)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpTDMLFile)) { fw =>
         fw.write(testSuite.toString())
       }
       val runner = new Runner(tmpTDMLFile)
@@ -406,7 +406,7 @@ class TestTDMLRunner {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {
-      using(new java.io.FileWriter(tmpTDMLFileName)) { fw =>
+      Using.resource(new java.io.FileWriter(tmpTDMLFileName)) { fw =>
         fw.write(testSuite.toString())
       }
       val runner = new Runner(new java.io.File(tmpTDMLFileName))

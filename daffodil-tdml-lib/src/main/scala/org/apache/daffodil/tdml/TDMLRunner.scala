@@ -28,10 +28,10 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
-import scala.collection.compat.immutable.LazyList
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Try
+import scala.util.Using
 import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -45,7 +45,6 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.io.processors.charset.CharsetUtils
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.DaffodilConfig
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
@@ -1983,7 +1982,7 @@ object VerifyTestCase {
       override def regexMatchBitPositionBuffer: LongBuffer = doNotUse
     }
 
-    using(InputSourceDataInputStream(bytes)) { dis =>
+    Using.resource(InputSourceDataInputStream(bytes)) { dis =>
       val finfo = new FormatInfoForTDMLDecode
       val cb = CharBuffer.allocate(256)
       val sb = new StringBuilder(256)

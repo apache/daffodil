@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1.debugger
 
 import java.io.File
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.WarnID

@@ -20,7 +20,7 @@ import sbtunidoc.GenJavadocPlugin.autoImport.unidocGenjavadocVersion
 
 object Dependencies {
 
-  def common = core ++ infoset ++ test ++ compat
+  lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
     "com.lihaoyi" %% "os-lib" % "0.11.3", // for writing/compiling C source files
@@ -66,10 +66,6 @@ object Dependencies {
 
   lazy val exi = Seq(
     "com.siemens.ct.exi" % "exificient" % "1.0.7"
-  )
-
-  lazy val compat = Seq(
-    "org.scala-lang.modules" %% "scala-collection-compat" % "2.13.0"
   )
 
   lazy val genjavadocVersion = {
