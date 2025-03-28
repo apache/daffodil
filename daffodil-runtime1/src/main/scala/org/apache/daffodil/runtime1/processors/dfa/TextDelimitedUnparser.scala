@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataInputStream

@@ -21,9 +21,9 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
+import scala.util.Using
 
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
@@ -138,7 +138,7 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
   override def parse(input: InputSource): Unit = {
     val is = input.getByteStream
     if (is != null) {
-      using(InputSourceDataInputStream(is)) { isdis =>
+      Using.resource(InputSourceDataInputStream(is)) { isdis =>
         parse(isdis)
       }
     } else {
@@ -171,13 +171,13 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
   }
 
   def parse(stream: InputStream): Unit = {
-    using(InputSourceDataInputStream(stream)) { isdis =>
+    Using.resource(InputSourceDataInputStream(stream)) { isdis =>
       parse(isdis)
     }
   }
 
   def parse(arr: Array[Byte]): Unit = {
-    using(InputSourceDataInputStream(arr)) { isdis =>
+    Using.resource(InputSourceDataInputStream(arr)) { isdis =>
       parse(isdis)
     }
   }

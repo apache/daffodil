@@ -58,7 +58,6 @@ object Util {
   }
 
   val scalaVersionForTargetPath: String = scala.util.Properties.versionNumberString match {
-    case v if v.startsWith("2.12") => "scala-2.12"
     case v if v.startsWith("2.13") => "scala-2.13"
     case _ => throw new IllegalStateException("Unsupported version provided for tests")
   }

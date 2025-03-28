@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.processors.dfa
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.collections.ArrayBuffer1
 import org.apache.daffodil.runtime1.processors.RuntimeData
 
 /**
@@ -36,7 +35,7 @@ abstract class DFAParser extends Serializable {
 }
 
 class LongestMatchTracker {
-  val longestMatches: ArrayBuffer1[DFADelimiter] = new ArrayBuffer1[DFADelimiter]
+  val longestMatches: ArrayBuffer[DFADelimiter] = new ArrayBuffer[DFADelimiter]
   var longestMatchedStartPos: Int = Int.MaxValue
   var longestMatchedString: String = null
 
@@ -55,14 +54,14 @@ class LongestMatchTracker {
       // match starts earlier than previous matches, make it the longest
       longestMatchedStartPos = matchedStartPos
       longestMatchedString = matchedString.toString
-      longestMatches.reduceToSize1(0)
+      longestMatches.dropRightInPlace(longestMatches.length)
       longestMatches.append(dfa)
     } else if (matchedStartPos == longestMatchedStartPos) {
       if (matchedString.length > longestMatchedString.length) {
         // match starts at the same point as previous matches, but
         // is longer. make it the only match
         longestMatchedString = matchedString.toString
-        longestMatches.reduceToSize1(0)
+        longestMatches.dropRightInPlace(longestMatches.length)
         longestMatches.append(dfa)
       } else if (matchedString.length == longestMatchedString.length) {
         // match starts at the same point as previous matches,

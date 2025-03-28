@@ -32,7 +32,6 @@ import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.collections.MultiMap
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom._
 
@@ -95,16 +94,49 @@ class TextNumberFormatEv(
     groupingSep: MaybeChar,
     exponentRep: Maybe[String]
   ): Unit = {
+    val zeroRepTuples: Seq[(String, String)] = zeroRepsRaw.map { zr =>
+      (zr, "textStandardZeroRep")
+    }
+    val bindings: Seq[(String, String)] = {
+      zeroRepTuples
+        .appended(
+          if (decimalSep.isDefined)
+            (decimalSep.get.toString, "textStandardDecimalSeparator")
+          else
+            null
+        )
+        .appended(
+          if (groupingSep.isDefined)
+            (groupingSep.get.toString, "textStandardGroupingSeparator")
+          else
+            null
+        )
+        .appended(
+          if (exponentRep.isDefined)
+            (exponentRep.get, "textStandardExponentRep")
+          else
+            null
+        )
+        .appended(
+          if (infRep.isDefined)
+            (infRep.get, "textStandardInfinityRep")
+          else
+            null
+        )
+        .appended(
+          if (nanRep.isDefined)
+            (nanRep.get, "textStandardNaNRep")
+          else
+            null
+        )
+        .filter(_ != null)
+    }
 
-    val mm = new MultiMap[String, String]
-    if (decimalSep.isDefined)
-      mm.addBinding(decimalSep.get.toString, "textStandardDecimalSeparator")
-    if (groupingSep.isDefined)
-      mm.addBinding(groupingSep.get.toString, "textStandardGroupingSeparator")
-    if (exponentRep.isDefined) mm.addBinding(exponentRep.get, "textStandardExponentRep")
-    if (infRep.isDefined) mm.addBinding(infRep.get, "textStandardInfinityRep")
-    if (nanRep.isDefined) mm.addBinding(nanRep.get, "textStandardNaNRep")
-    zeroRepsRaw.foreach { zr => mm.addBinding(zr, "textStandardZeroRep") }
+    val mm: Map[String, Seq[String]] = bindings
+      .groupBy(_._1)
+      .view
+      .mapValues(t => t.map(_._2))
+      .toMap
 
     val dupes = mm.filter { case (k, s) => s.size > 1 }
     val dupeStrings = dupes.map { case (k, s) =>

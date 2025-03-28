@@ -25,7 +25,7 @@ import java.io.Serializable
 import java.lang.reflect.Method
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.{ ArraySeq => IArraySeq }
 import scala.collection.mutable._
 
 import org.apache.daffodil.lib.util.Logger
@@ -57,7 +57,7 @@ object UserDefinedFunctionService {
     }
 
     def lookupMethod() = {
-      val m = decClass.getMethod(methodName, ArraySeq.unsafeWrapArray(paramTypes): _*)
+      val m = decClass.getMethod(methodName, IArraySeq.unsafeWrapArray(paramTypes): _*)
       m
     }
 

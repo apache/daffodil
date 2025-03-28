@@ -23,7 +23,7 @@
 <br clear="right" />
 [<img src="https://img.shields.io/codecov/c/github/apache/daffodil/main.svg" align="right"/>][CodeCov]
 <br clear="right" />
-[<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_2.12.svg?color=brightgreen&label=version" align="right"/>][Releases]
+[<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_2.13.svg?color=brightgreen&label=version" align="right"/>][Releases]
 <br clear="both" />
 
 Apache Daffodil is an open-source implementation of the [DFDL

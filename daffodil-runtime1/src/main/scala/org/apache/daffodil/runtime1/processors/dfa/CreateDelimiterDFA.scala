@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
-import scala.collection.compat.immutable.ArraySeq
+import scala.collection.immutable.ArraySeq
 
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.processors.CharDelim

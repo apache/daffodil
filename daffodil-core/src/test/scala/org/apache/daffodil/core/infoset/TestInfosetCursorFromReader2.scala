@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.core.infoset
 
-import scala.collection.compat.immutable.LazyList
-
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SchemaUtils
