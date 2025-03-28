@@ -454,13 +454,13 @@ sealed trait DITerm {
   final lazy val parserEvalCache = new EvalCache
   final lazy val unparserEvalCache = new EvalCache
 
-  def evalCache(state: ParseOrUnparseState) = state match {
+  def evalCache(state: ParseOrUnparseState): EvalCache = state match {
     case p: PState => parserEvalCache
     case _ => unparserEvalCache
   }
 
   def trd: TermRuntimeData
-  final def termRuntimeData = trd
+  final def termRuntimeData: TermRuntimeData = trd
 }
 
 /**
@@ -1034,8 +1034,8 @@ sealed trait DIElement
   def isArray: Boolean
 
   final def name: String = erd.name
-  override final def namedQName = erd.namedQName
-  override final def trd = erd
+  override final def namedQName: NamedQName = erd.namedQName
+  override final def trd: TermRuntimeData = erd
 
   /**
    * Used to prevent the infoset walker from walking into an infoset element.
@@ -1058,7 +1058,7 @@ sealed trait DIElement
    */
   override def toString = {
     val cl = Misc.getNameFromClass(this)
-    val n = trd.name
+    val n = erd.name
     val clStr = if (_contentLength eq null) "" else " " + contentLength.toString()
     val vlStr = if (_valueLength eq null) "" else " " + valueLength.toString()
     val validStr =
@@ -1107,12 +1107,12 @@ sealed trait DIElement
     _isHidden = true
   }
 
-  final def runtimeData = erd
+  final def runtimeData: ElementRuntimeData = erd
   protected final var _parent: DIComplex = null
 
-  def parent = _parent
+  def parent: DIComplex = _parent
 
-  def diParent = _parent.asInstanceOf[DIComplex]
+  def diParent: DIComplex = _parent.asInstanceOf[DIComplex]
 
   def setParent(p: DIComplex): Unit = {
     Assert.invariant(_parent eq null)

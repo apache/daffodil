@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.lang.reflect.Field
 import java.net.URI
 import java.net.URLClassLoader
 import java.nio.ByteBuffer
@@ -487,7 +488,7 @@ object Misc {
   ): Char = {
     val URC =
       0x2426 // Unicode control picture character for substitution (also looks like arabic q-mark)
-    val code = c.toInt match {
+    val code: Int = c.toInt match {
       //
       // C0 Control pictures
       case n if (n <= 0x1f) => n + 0x2400
@@ -535,7 +536,7 @@ object Misc {
       // on these being preserved. So we have a flag to control this.
       //
       case n if (n > 0x2400 && n < 0x2423 && replaceControlPictures) => URC
-      case _ => c
+      case x => x
     }
     code.toChar
   }
@@ -738,6 +739,19 @@ object Misc {
       }
       case "file" => Paths.get(uri).toFile
       case _ => Paths.get(uri.getPath).toFile
+    }
+  }
+
+  // helper function for scala 2.13 and 3 compatibility
+  def lookupDeclaredField(clazz: Class[?], fieldName: String): Field = {
+    try {
+      // TODO scala 2.12 phase out, we can remove the check for the plain name, and always
+      // check the lazy name version instead
+      clazz.getDeclaredField(fieldName)
+    } catch {
+      case _: NoSuchFieldException =>
+        // scala 3 changes the way lazy val are deserialized so it looks like fieldName$lzy1
+        clazz.getDeclaredField(fieldName + "$lzy1")
     }
   }
 

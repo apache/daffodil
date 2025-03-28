@@ -286,7 +286,7 @@ trait WithDiagnostics {
    * a usage error caused by illegal state caused by a compilation error
    */
   def checkNotError(): Unit = {
-    Assert.usage(
+    Assert.usageWithCause(
       !isError,
       new IllegalStateException(
         "Must call isError() to ensure there are no errors",

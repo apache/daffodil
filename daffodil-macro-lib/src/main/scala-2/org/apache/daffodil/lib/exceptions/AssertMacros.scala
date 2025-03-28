@@ -28,7 +28,7 @@ object AssertMacros {
 
     q"""
     if (!($testAbortsIfFalse)) {
-         Assert.usageError2("Usage error: " + $message, $testAsString)
+         Assert.usageError2($message, $testAsString)
     }
     """
   }
@@ -50,7 +50,7 @@ object AssertMacros {
 
     q"""
     if (!($testAbortsIfFalse)) {
-         Assert.usageError("Usage error: " + $testAsString)
+         Assert.usageError($testAsString)
     }
     """
   }

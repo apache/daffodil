@@ -173,7 +173,8 @@ final class PState private (
   var blobPaths: Seq[Path],
   tunable: DaffodilTunables
 ) // Runtime tunables obtained from DataProcessor)
-  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
+  extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable)
+  with PStateUsingMacrosMixin {
 
   override def currentNode = Maybe(infoset)
 
@@ -237,7 +238,7 @@ final class PState private (
   }
 
   override def hasInfoset = true
-  def thisElement = infoset
+  def thisElement: DIElement = infoset
 
   override def groupPos = mpstate.groupPos
   override def arrayIterationPos = mpstate.arrayIterationPos
@@ -402,28 +403,6 @@ final class PState private (
     // variable state, because newVariableInstance would have already called it
     variableMap.removeVariableInstance(vrd)
   }
-
-  /**
-   * Creates a new point of uncertainty and binds it to a variable where it can
-   * be used. The PoU can be reset, discarded, or resolved, via helper
-   * functions. If at the end of the func block, the PoU was not reset,
-   * discarded or resolved, it will automatically be discarded. Example usage
-   * of this is:
-   *
-   * pstate.withPointOfUncertainty { pou =>
-   *   // perform parsing logic that uses the "pou" variable
-   * }
-   *
-   * Note that this is implemented via a macro, and part of this macro magic
-   * will munges with variable names in the "func" variable. Thus, this is
-   * potentially fragile, e.g. reflection on the pou variable name will fail.
-   * It is recommend to keep the func body as small as possible and avoid
-   * things like reflection that could cause breakage.
-   */
-  def withPointOfUncertainty[B](pouID: String, context: RuntimeData)(
-    func: PState.Mark => B
-  ): B =
-    macro PointOfUncertaintyMacros.withPointOfUncertainty[PState.Mark, B]
 
   /**
    * This function creates a mark, which represents a point of uncertainty. This
