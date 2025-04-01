@@ -51,9 +51,9 @@ import org.apache.daffodil.lib.util.MaybeInt
 
 trait BitsCharsetNonByteSize extends BitsCharset {
 
-  protected val decodeString: String
+  protected def decodeString: String
 
-  val replacementCharCode: Int
+  def replacementCharCode: Int
 
   def averageCharsPerByte() = averageCharsPerBit() * 8.0f
   def averageCharsPerBit() = 1.0f / bitWidthOfACodeUnit

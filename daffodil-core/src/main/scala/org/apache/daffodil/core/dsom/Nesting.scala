@@ -30,9 +30,6 @@ case class EnclosingComponentDef(encloser: SchemaComponent, lexicalPosition: Int
 
 trait NestingLexicalMixin { self: SchemaComponent =>
 
-  /** The lexically enclosing schema component */
-  def optLexicalParent: Option[SchemaComponent]
-
   def shortSchemaComponentDesignator: String
 
   private def usageErr(sc: SchemaComponent) =

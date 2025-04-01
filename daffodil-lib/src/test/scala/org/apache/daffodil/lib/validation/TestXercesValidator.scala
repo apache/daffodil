@@ -29,7 +29,7 @@ class TestXercesValidator {
     val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
     val r = v.validateXML(infoset)
 
-    assertTrue(r.warnings().isEmpty)
-    assertTrue(r.errors().isEmpty)
+    assertTrue(r.warnings.isEmpty)
+    assertTrue(r.errors.isEmpty)
   }
 }

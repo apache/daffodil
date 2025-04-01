@@ -33,7 +33,7 @@ trait TdmlSuite {
   /**
    * Resource path to the TDML file to use for this JUnit suite
    */
-  val tdmlResource: String
+  def tdmlResource: String
 
   /**
    * Function to get the directory containing tdmlResource. Useful if createRunner is overridden

@@ -244,7 +244,7 @@ object DFDL {
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State
-    def validationResult(): Option[ValidationResult]
+    val validationResult: Option[ValidationResult]
   }
 
   trait UnparseResult extends Result with WithDiagnostics {

@@ -127,12 +127,11 @@ class XercesSchemaFileLocation(
     (if (xercesError.getColumnNumber > 0) Some(xercesError.getColumnNumber.toString) else None),
     schemaFileLocation.diagnosticFile,
     schemaFileLocation.toString,
-    schemaFileLocation.diagnosticDebugName
+    // we set this to blank string instead of "Schema File" since we don't have access to the element
+    // that causes this error from Xerces and "Schema File" doesn't really add much more info compared
+    // to the blank string
+    ""
   ) {
-  // we set this to blank string instead of "Schema File" since we don't have access to the element
-  // that causes this error from Xerces and "Schema File" doesn't really add much more info compared
-  // to the blank string
-  override val diagnosticDebugName = ""
 
   // we have to override equals and hashCode because the OOlag error checks for duplicates in its error list
   override def equals(obj: Any): Boolean = {

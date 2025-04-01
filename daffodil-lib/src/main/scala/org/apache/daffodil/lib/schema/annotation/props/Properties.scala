@@ -86,7 +86,7 @@ abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase with Converter[String, A] {
   def toPropName(prop: A) = prop.toString
 
-  val values: Array[A]
+  def values: Array[A]
 
   /**
    * This is invoked at runtime to compare expression results to see if they

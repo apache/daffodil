@@ -22,10 +22,6 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 
 trait RequiredOptionalMixin { self: ElementBase =>
-
-  def minOccurs: Int
-  def maxOccurs: Int
-
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
 
   /**
