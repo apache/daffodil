@@ -64,7 +64,10 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
   def optLexicalParent: Option[SchemaComponent]
 
   lazy val schemaFile: Option[DFDLSchemaFile] = optLexicalParent.flatMap { _.schemaFile }
-  lazy val schemaSet: SchemaSet = optLexicalParent.get.schemaSet
+  final lazy val schemaSet: SchemaSet = optLexicalParent match {
+    case Some(s) => s.schemaSet
+    case None => this.asInstanceOf[SchemaSet]
+  }
   lazy val optSchemaDocument: Option[SchemaDocument] = optLexicalParent.flatMap {
     _.optSchemaDocument
   }

@@ -49,9 +49,9 @@ import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService
  */
 abstract class Expression extends OOLAGHostImpl() with BasicComponent {
 
-  override lazy val tunable: DaffodilTunables = parent.tunable
+  override lazy val tunable: DaffodilTunables = wholeExpression.tunable
   override lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] =
-    parent.localSuppressSchemaDefinitionWarnings
+    wholeExpression.localSuppressSchemaDefinitionWarnings
 
   /**
    * Override where we traverse/access elements.
@@ -123,10 +123,10 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
     }
   }
 
-  final lazy val wholeExpression: Expression = {
+  final lazy val wholeExpression: WholeExpression = {
     parent match {
       case w: WholeExpression => w
-      case null => this
+      case null => this.asInstanceOf[WholeExpression]
       case _ => parent.wholeExpression
     }
   }
@@ -134,7 +134,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
   final lazy val wholeExpressionText = wholeExpression.text
 
   lazy val compileInfo: DPathCompileInfo = // override in WholeExpression
-    parent.compileInfo
+    wholeExpression.compileInfo
 
   final lazy val enclosingElementCompileInfos: Seq[DPathElementCompileInfo] =
     compileInfo.enclosingElementCompileInfos
@@ -147,9 +147,9 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
     ecis.head.rootElement
   }
 
-  lazy val namespaces: NamespaceBinding = parent.namespaces
+  lazy val namespaces: NamespaceBinding = wholeExpression.namespaces
 
-  lazy val noPrefixNamespace: NS = parent.noPrefixNamespace
+  lazy val noPrefixNamespace: NS = wholeExpression.noPrefixNamespace
 
   def children: Seq[Expression]
 
