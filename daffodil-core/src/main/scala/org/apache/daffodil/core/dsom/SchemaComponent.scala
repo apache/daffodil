@@ -84,7 +84,7 @@ trait SchemaComponent
 
   override def oolagContextViaArgs = optLexicalParent
 
-  override lazy val tunable: DaffodilTunables = optLexicalParent.get.tunable
+  override lazy val tunable: DaffodilTunables = schemaSet.tunable
   final override lazy val unqualifiedPathStepPolicy = tunable.unqualifiedPathStepPolicy
 
   // FIXME: I think this should be abstract. We never need this actual object.
@@ -304,8 +304,6 @@ final class Schema private (
 ) extends SchemaComponentImpl(<fake/>, Option(schemaSetArg)) {
 
   override def targetNamespace: NS = namespace
-
-  override lazy val schemaSet = schemaSetArg
 
   lazy val schemaDocuments = schemaDocs
 

@@ -122,8 +122,6 @@ final class SchemaSet private (
 
   lazy val resolver = DFDLCatalogResolver.get
 
-  override lazy val schemaSet = this
-
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None
 
