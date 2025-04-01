@@ -29,11 +29,9 @@ import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHost
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.lib.util.Numbers
-import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath._
-import org.apache.daffodil.runtime1.dsom.RelativePathPastRootError
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService

@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.core.infoset
 
-import javax.xml.stream.XMLInputFactory
-import javax.xml.stream.XMLStreamConstants
+// workaround for scala 3 bug where there are false positives with
+// unused imports: https://github.com/scala/scala3/issues/22692
+import javax.xml.stream._
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.intercept

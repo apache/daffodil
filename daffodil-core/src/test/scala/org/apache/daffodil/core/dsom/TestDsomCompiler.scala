@@ -43,7 +43,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils

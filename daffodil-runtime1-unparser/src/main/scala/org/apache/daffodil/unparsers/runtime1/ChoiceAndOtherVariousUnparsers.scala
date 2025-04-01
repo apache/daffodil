@@ -24,7 +24,6 @@ import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.ProperlySerializableMap._
 import org.apache.daffodil.runtime1.infoset._
-import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.processors.unparsers._
 

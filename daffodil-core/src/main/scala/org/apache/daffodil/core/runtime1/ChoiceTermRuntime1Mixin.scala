@@ -22,7 +22,6 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.dsom.Term
-import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Delay
@@ -34,15 +33,6 @@ import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
-
-  /**
-   * The members of the choice group with special treatment given to some kinds of members.
-   *
-   * An invariant is that if a direct child member is an array element, the child
-   * will have been encapsulated as a sequence, so that arrays always live within
-   * sequences.
-   */
-  protected def alternatives: Seq[Gram]
 
   final protected lazy val choiceDispatchKeyExpr = {
     val qn = this.qNameForProperty("choiceDispatchKey")

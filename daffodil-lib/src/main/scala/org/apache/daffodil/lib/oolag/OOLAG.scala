@@ -24,9 +24,7 @@ import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
-import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util._
 
 /**

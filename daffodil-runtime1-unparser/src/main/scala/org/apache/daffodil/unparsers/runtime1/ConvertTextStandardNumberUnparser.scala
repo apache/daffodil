@@ -24,7 +24,6 @@ import java.math.{ BigDecimal => JBigDecimal }
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Numbers.isZero
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
 import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
 import org.apache.daffodil.runtime1.processors.unparsers._

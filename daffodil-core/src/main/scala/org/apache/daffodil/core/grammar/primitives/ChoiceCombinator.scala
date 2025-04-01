@@ -22,7 +22,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import org.apache.daffodil.core.dsom.ChoiceTermBase
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal

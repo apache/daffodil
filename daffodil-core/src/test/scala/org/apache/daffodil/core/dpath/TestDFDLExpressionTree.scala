@@ -23,9 +23,7 @@ import scala.util.parsing.combinator.Parsers
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.lib.xml.StepQName
 import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath._
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 

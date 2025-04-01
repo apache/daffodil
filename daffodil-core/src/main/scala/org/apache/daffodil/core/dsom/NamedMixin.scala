@@ -22,7 +22,6 @@ import scala.xml.Node
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.NamedMixinBase
-import org.apache.daffodil.lib.xml.GetAttributesMixin
 import org.apache.daffodil.lib.xml._
 
 /**
