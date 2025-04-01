@@ -25,12 +25,8 @@ import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.processors.parsers.Parser
-import org.apache.daffodil.runtime1.processors.parsers.SpecifiedLengthExplicitParser
-import org.apache.daffodil.runtime1.processors.parsers.SpecifiedLengthImplicitParser
 import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.runtime1.processors.unparsers._
-import org.apache.daffodil.unparsers.runtime1.SpecifiedLengthExplicitImplicitUnparser
 import org.apache.daffodil.unparsers.runtime1._
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)

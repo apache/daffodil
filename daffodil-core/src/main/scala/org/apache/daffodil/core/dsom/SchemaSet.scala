@@ -31,9 +31,6 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.TransitiveClosure
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver
-import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
 
 object SchemaSet {

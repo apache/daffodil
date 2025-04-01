@@ -64,8 +64,6 @@ trait AssertsUsingMacrosMixin {
  * they need access to Assert which is lib class and is not accessible from macro-lib
  */
 object AssertMacros {
-
-  import org.apache.daffodil.lib.exceptions.Assert
   /*
    * Note that in macro definitions, the argument names here must match the argument names
    * in the macro implementations.

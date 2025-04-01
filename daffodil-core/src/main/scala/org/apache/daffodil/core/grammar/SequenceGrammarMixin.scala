@@ -18,8 +18,6 @@
 package org.apache.daffodil.core.grammar
 
 import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.core.grammar.primitives.OrderedSequence
-import org.apache.daffodil.core.grammar.primitives.UnorderedSequence
 import org.apache.daffodil.core.grammar.primitives._
 import org.apache.daffodil.core.runtime1.SequenceTermRuntime1Mixin
 import org.apache.daffodil.lib.exceptions.Assert

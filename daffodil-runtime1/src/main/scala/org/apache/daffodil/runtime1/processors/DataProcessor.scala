@@ -46,7 +46,6 @@ import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.debugger.Debugger
-import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.dsom._
 object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning()

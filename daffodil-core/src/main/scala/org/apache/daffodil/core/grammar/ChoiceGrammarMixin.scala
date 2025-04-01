@@ -28,6 +28,13 @@ trait ChoiceGrammarMixin extends GrammarMixin with ChoiceTermRuntime1Mixin {
     ChoiceCombinator(this, alternatives)
   }
 
+  /**
+   * The members of the choice group with special treatment given to some kinds of members.
+   *
+   * An invariant is that if a direct child member is an array element, the child
+   * will have been encapsulated as a sequence, so that arrays always live within
+   * sequences.
+   */
   final protected lazy val alternatives: Seq[Gram] =
     groupMembers.map { _.termContentBody }
 

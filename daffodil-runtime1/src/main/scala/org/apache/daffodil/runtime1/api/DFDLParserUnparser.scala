@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.api
 import java.io.File
 
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.lib.api._
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.runtime1.infoset.InfosetInputter

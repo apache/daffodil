@@ -31,7 +31,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.math.abs
 import scala.util.matching.Regex
-import scala.xml.NamespaceBinding
 import scala.xml._
 
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
