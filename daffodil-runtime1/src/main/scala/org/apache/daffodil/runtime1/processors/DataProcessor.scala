@@ -413,8 +413,8 @@ class DataProcessor(
       val vr = maybeValidationBytes.toOption.map { bytes =>
         val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
         val res = validator.validateXML(bis)
-        res.warnings().forEach { w => state.validationError(w.getMessage) }
-        res.errors().forEach {
+        res.warnings.forEach { w => state.validationError(w.getMessage) }
+        res.errors.forEach {
           case e: ValidationException =>
             state.validationErrorNoContext(e.getCause)
           case f: ValidationFailure =>

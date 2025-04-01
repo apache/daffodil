@@ -37,8 +37,10 @@ import org.apache.daffodil.runtime1.processors.VariableRuntimeData
  */
 abstract class ExpressionEvaluationParser(
   expr: CompiledExpression[AnyRef],
-  override val context: RuntimeData
+  contextParam: RuntimeData
 ) extends PrimParserNoData {
+
+  override val context: RuntimeData = contextParam
 
   override def runtimeDependencies = Vector()
 

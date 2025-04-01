@@ -496,7 +496,7 @@ class InteractiveDebugger(
   /**********************************/
 
   abstract class DebugCommand {
-    val name: String
+    def name: String
     lazy val short: String = name(0).toString
     val desc: String
     val longDesc: String

@@ -188,8 +188,6 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     self.schemaSet.diagnosticFile
   }
 
-  protected def seenBefore: IIMap
-
   // val iiXML: Node = xml // override in SchemaSet
 
   lazy val impNodes = (xml \ "import")

@@ -36,7 +36,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
   // initialize cyclic structure
   requiredEvaluationsIfActivated(
-    dpathElementCompileInfo.initialize
+    dpathElementCompileInfo.initialize()
   )
 
   // initialize cyclic structure

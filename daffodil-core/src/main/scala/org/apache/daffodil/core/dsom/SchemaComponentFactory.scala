@@ -27,8 +27,6 @@ import org.apache.daffodil.lib.xml.XMLUtils
 
 trait SchemaFileLocatableImpl extends SchemaFileLocatable { self: SchemaComponent =>
 
-  def xml: scala.xml.Node
-  def schemaFile: Option[DFDLSchemaFile]
   def optLexicalParent: Option[SchemaComponent]
 
   /**
@@ -61,8 +59,6 @@ trait SchemaFileLocatableImpl extends SchemaFileLocatable { self: SchemaComponen
 trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
   self: SchemaComponent =>
 
-  def optLexicalParent: Option[SchemaComponent]
-
   lazy val schemaFile: Option[DFDLSchemaFile] = optLexicalParent.flatMap { _.schemaFile }
   lazy val schemaSet: SchemaSet = optLexicalParent.get.schemaSet
   lazy val optSchemaDocument: Option[SchemaDocument] = optLexicalParent.flatMap {
@@ -75,8 +71,6 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
   final def xmlSchemaDocument: XMLSchemaDocument = optXMLSchemaDocument.get
   def uriString: String = optLexicalParent.get.uriString
   def diagnosticFile: File = optLexicalParent.get.diagnosticFile
-
-  def xml: scala.xml.Node
 
   /**
    * Namespace scope for resolving QNames.

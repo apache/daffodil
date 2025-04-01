@@ -59,8 +59,8 @@ trait ValidatorFactory extends SimpleNamedLoadableService {
  * Results of a validation execution
  */
 trait ValidationResult {
-  def warnings(): java.util.Collection[ValidationWarning]
-  def errors(): java.util.Collection[ValidationFailure]
+  val warnings: java.util.Collection[ValidationWarning]
+  val errors: java.util.Collection[ValidationFailure]
 }
 
 object ValidationResult {

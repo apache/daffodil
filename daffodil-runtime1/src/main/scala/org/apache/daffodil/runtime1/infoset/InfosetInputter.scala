@@ -149,7 +149,7 @@ abstract class InfosetInputter
    * some infoset representations may fail to unparse if the schema depends on
    * namespace information to differentiate between elements.
    */
-  val supportsNamespaces: Boolean
+  def supportsNamespaces: Boolean
 
   final override lazy val advanceAccessor = InfosetAccessor()
   final override lazy val inspectAccessor = InfosetAccessor()

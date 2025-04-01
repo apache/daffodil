@@ -367,10 +367,11 @@ class DPathElementCompileInfo(
   /**
    * Cyclic objects require initialization
    */
-  override lazy val initialize: Unit = {
+  private lazy val init_ : Unit = {
     parents
     elementChildrenCompileInfo
   }
+  override def initialize(): Unit = init_
 
   override def serializeParents(oos: java.io.ObjectOutputStream): Unit = {
     super.serializeParents(oos)
