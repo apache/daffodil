@@ -198,7 +198,6 @@ trait SchemaComponent
         case ct: GlobalComplexTypeDef => "ct=" + ct.namedQName.toQNameString
         case ct: ComplexTypeBase => "ct"
         case st: SimpleTypeDefBase => "st=" + st.namedQName.toQNameString
-        case st: SimpleTypeBase => "st=" + st.primType.globalQName.toQNameString
         case cgr: ChoiceGroupRef =>
           "cgr" + (if (cgr.isHidden) "h" else "") + (if (cgr.position > 1) cgr.position
                                                      else

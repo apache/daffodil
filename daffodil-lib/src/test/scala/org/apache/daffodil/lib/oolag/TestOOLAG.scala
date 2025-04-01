@@ -221,13 +221,8 @@ class TestOOLAG {
     val e = intercept[AlreadyTried] {
       h.a2_.value
     }
-    e match {
-      case at: AlreadyTried => {
-        val m = e.getMessage()
-        assertTrue(m.contains("a2"))
-      }
-      case _ => fail()
-    }
+    val m = e.getMessage()
+    assertTrue(m.contains("a2"))
   }
 
   @Test def testThrowToTopLevel(): Unit = {

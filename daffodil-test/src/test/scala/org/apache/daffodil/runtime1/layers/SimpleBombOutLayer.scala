@@ -114,8 +114,6 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
             // ok
             case Abort =>
               Assert.abort(msg)
-            case _ =>
-              Assert.invariantFailed(s"Not recognized bombHow value: $bombHow")
           }
         }
       }

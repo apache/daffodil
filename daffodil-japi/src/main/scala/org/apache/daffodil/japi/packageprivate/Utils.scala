@@ -51,7 +51,7 @@ private[japi] object XMLTextEscapeStyleConversions {
     val sxmlTextEscapeStyle: SXMLTextEscapeStyle.Value = style match {
       case XMLTextEscapeStyle.Standard => SXMLTextEscapeStyle.Standard
       case XMLTextEscapeStyle.CDATA => SXMLTextEscapeStyle.CDATA
-      case _ =>
+      case null =>
         throw new Exception(
           "Unrecognized value: %s for parameter: xmlTextEscapeStyle. Must be 'Standard' or 'CDATA'."
             .format(style)

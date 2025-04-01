@@ -73,10 +73,7 @@ trait InfosetCachedEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
         // is more memory efficient to just recalculate any evaluatables
         Assert.invariant(state.currentNode.isDefined)
         val cn = state.infoset
-        val termNode = cn match {
-          case t: DITerm => t
-          case _ => Assert.invariantFailed("current node was not a term.")
-        }
+        val termNode = cn.asInstanceOf[DITerm]
         val cache = termNode.evalCache(state)
         val optHit = cache.get(this)
         if (optHit.isDefined) optHit.get

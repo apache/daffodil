@@ -75,7 +75,7 @@ abstract class SequenceTermBase(
   def isLayered: Boolean = layerOption.isDefined
 
   lazy val optionLayerRuntimeData: Option[LayerRuntimeData] =
-    layerOption.map { layerProperty: RefQName =>
+    layerOption.map { (layerProperty: RefQName) =>
       val layerVars = variableMap.vrds.filter { vrd =>
         vrd.globalQName.namespace == layerProperty.namespace
       }

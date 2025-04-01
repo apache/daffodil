@@ -328,7 +328,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
 
   @Test def test_numbers1() = {
-    testExpr(dummySchema, "{ 0. }") { actual: Expression =>
+    testExpr(dummySchema, "{ 0. }") { (actual: Expression) =>
       val res = JBigDecimal.ZERO
       val a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _, _) =
         actual;

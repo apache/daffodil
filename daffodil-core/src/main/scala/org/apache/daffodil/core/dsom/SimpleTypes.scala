@@ -104,7 +104,6 @@ object PrimitiveType {
       case PrimType.Date => Date
       case PrimType.Time => Time
       case PrimType.AnyURI => AnyURI
-      case _ => Assert.usageError("Not a primitive type node: " + typeNode)
     }
   }
 

@@ -158,10 +158,10 @@ class LayerRuntimeCompiler {
         )
         // at this point we know each variable that was not a parameter of the setter
         // has a getter with matching name.
-        val resultVarPairs = resultGettersNames.map { rgn: String =>
+        val resultVarPairs = resultGettersNames.map { (rgn: String) =>
           val getter: Method =
             allVarResultGetters
-              .find { g: Method => g.getName == varResultPrefix + rgn }
+              .find { (g: Method) => g.getName == varResultPrefix + rgn }
               .getOrElse {
                 Assert.invariantFailed("no getter for getter name.")
               }

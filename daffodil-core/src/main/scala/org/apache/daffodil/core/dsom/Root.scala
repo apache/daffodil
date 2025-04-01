@@ -91,7 +91,7 @@ final class Root private (
   private def refsTo(g: GlobalComponent): Seq[SchemaComponent] =
     refMap.get(g).toSeq.flatMap { refSpec =>
       refSpec.flatMap { case (_, seqRS) =>
-        seqRS.map { rs: RefSpec => rs.from }
+        seqRS.map { (rs: RefSpec) => rs.from }
       }
     }
 

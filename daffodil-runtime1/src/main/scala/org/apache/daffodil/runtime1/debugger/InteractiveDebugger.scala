@@ -338,11 +338,7 @@ class InteractiveDebugger(
       // Evaluatable is really designed to be called from parsers/unparsers.
       //
       try {
-        val res = compiledExpr.evaluate(state)
-        res match {
-          case b: java.lang.Boolean => b.booleanValue()
-          case _ => false
-        }
+        compiledExpr.evaluate(state).booleanValue()
       } catch {
         case s: scala.util.control.ControlThrowable => throw s
         case u: UnsuppressableException => throw u

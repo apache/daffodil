@@ -88,7 +88,6 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       val encName = encodingEv.optConstant.get.toUpperCase()
       if (encName.startsWith("UTF-16")) {
         utf16Width // demand this so checking is done
-        true
       }
     }
     isKnown

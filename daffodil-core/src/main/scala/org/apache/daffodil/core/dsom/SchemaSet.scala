@@ -402,7 +402,6 @@ final class SchemaSet private (
           }
           firstElement
         }
-        case _ => Assert.invariantFailed("illegal combination of root element specifications")
       }
     re.asRoot
   }.value
@@ -649,11 +648,11 @@ final class SchemaSet private (
       // constructing the complete object graph. By just always obtaining all the simple types
       // defs we insure the quasi-elements used by them are always constructed, and names are
       // resolvable.
-      allSchemaDocuments.flatMap { sd: SchemaDocument =>
+      allSchemaDocuments.flatMap { (sd: SchemaDocument) =>
         sd.globalSimpleTypeDefs
       } ++ {
         if (this.checkAllTopLevel)
-          allSchemaDocuments.flatMap { sd: SchemaDocument =>
+          allSchemaDocuments.flatMap { (sd: SchemaDocument) =>
             sd.defaultFormat // just demand this since it should be possible to create it.
             sd.globalElementDecls ++
               sd.globalComplexTypeDefs ++

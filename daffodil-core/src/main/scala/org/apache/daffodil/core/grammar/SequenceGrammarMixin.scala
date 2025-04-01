@@ -172,19 +172,6 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
         )
       case (e: EB, Ordered__, Never______, Implicit__, ___, max) =>
         new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
-      case (
-            e: EB,
-            Ordered__,
-            Never______,
-            ock
-            /****/
-            ,
-            ___,
-            __2
-          ) if (ock ne null) =>
-        e.SDE(
-          "separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'."
-        )
       case (e: EB, Ordered__, Trailing___, Implicit__, ___, max) =>
         new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, TrailingStr, Implicit__, ___, UNB) =>

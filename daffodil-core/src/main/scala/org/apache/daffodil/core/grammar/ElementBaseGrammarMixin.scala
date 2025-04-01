@@ -642,7 +642,6 @@ trait ElementBaseGrammarMixin
         notYetImplemented("lengthKind='endOfParent' for complex type")
       case LengthKind.EndOfParent =>
         notYetImplemented("lengthKind='endOfParent' for simple type")
-      case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     }
   }
 
@@ -673,7 +672,6 @@ trait ElementBaseGrammarMixin
         notYetImplemented("lengthKind='endOfParent' for complex type")
       case LengthKind.EndOfParent =>
         notYetImplemented("lengthKind='endOfParent' for simple type")
-      case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     }
   }
 

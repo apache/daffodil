@@ -1853,7 +1853,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
         addChildToFastLookup(ia)
         childNodes += ia
         _numChildren = childNodes.length
-        ia
       }
       // Array is now always last, add the new child to it
       childNodes.last.asInstanceOf[DIArray].append(e)
