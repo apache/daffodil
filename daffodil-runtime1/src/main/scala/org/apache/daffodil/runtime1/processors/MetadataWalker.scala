@@ -43,9 +43,6 @@ class MetadataWalker(private val dp: DataProcessor) {
       case erd: ElementRuntimeData => walkElement(handler, erd)
       case srd: SequenceRuntimeData => walkSequence(handler, srd)
       case crd: ChoiceRuntimeData => walkChoice(handler, crd)
-      // $COVERAGE-OFF$
-      case _ => Assert.invariantFailed(s"unrecognized TermRuntimeData subtype: $trd")
-      // $COVERAGE-ON$
     }
   }
 

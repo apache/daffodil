@@ -90,7 +90,6 @@ object Daffodil {
 
   /** Create a new object used to compiled DFDL schemas */
   def compiler(): Compiler = {
-    new Daffodil // silence warning about unused private constructor above.
     new Compiler(SCompiler())
   }
 

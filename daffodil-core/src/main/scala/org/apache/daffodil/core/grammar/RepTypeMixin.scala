@@ -128,22 +128,22 @@ trait RepTypeMixin { self: ElementBase =>
     // This is Seq of attributes extracted from each enumeration, where each item in the
     // sequence is a 3-tuple containing the cooked repValues, repValueRanges, and enum value
     // from the associated enum
-    val enumAttributes = restriction.enumerations.map { enum =>
-      enum.schemaDefinitionWhen(
-        enum.repValuesRaw.isEmpty && enum.repValueRangesRaw.isEmpty,
+    val enumAttributes = restriction.enumerations.map { enumVal =>
+      enumVal.schemaDefinitionWhen(
+        enumVal.repValuesRaw.isEmpty && enumVal.repValueRangesRaw.isEmpty,
         "All enumerations must define dfdlx:repValues and/or dfdlx:repValueRanges when dfdlx:repType (%s) is defined",
         repType
       )
 
       val repValues: Seq[DataValueNumber] =
-        enum.repValuesRaw
+        enumVal.repValuesRaw
           .map(repTypeElementDecl.primType.fromXMLString(_).asInstanceOf[DataValueNumber])
       val repValueRanges: Seq[(DataValueNumber, DataValueNumber)] =
-        enum.repValueRangesRaw
+        enumVal.repValueRangesRaw
           .map(repTypeElementDecl.primType.fromXMLString(_).asInstanceOf[DataValueNumber])
           .sliding(2, 2)
           .map { case Seq(low, high) =>
-            enum.schemaDefinitionUnless(
+            enumVal.schemaDefinitionUnless(
               lt.operate(low, high).getBoolean,
               "dfdlx:repValueRanges low value (%s) must be less than high value (%s)",
               low.value,
@@ -152,7 +152,7 @@ trait RepTypeMixin { self: ElementBase =>
             (low, high)
           }
           .toSeq
-      val enumValue = enum.enumValueCooked.asInstanceOf[DataValueString]
+      val enumValue = enumVal.enumValueCooked.asInstanceOf[DataValueString]
       (repValues, repValueRanges, enumValue)
     }
 

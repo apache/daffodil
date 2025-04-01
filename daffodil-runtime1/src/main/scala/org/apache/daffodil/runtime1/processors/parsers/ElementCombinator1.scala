@@ -263,9 +263,6 @@ class ElementParser(
         // a simple element.
         currentElement.setParent(st.parent)
       }
-      case _ => {
-        Assert.invariantFailed("Unknown priorElement: " + priorElement)
-      }
     }
     Logger.log.debug(s"priorElement = ${priorElement}")
     pstate.setInfoset(currentElement, Nope)

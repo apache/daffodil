@@ -117,7 +117,7 @@ final class MStackOfMaybe[T <: AnyRef] {
   @inline final def isEmpty = delegate.isEmpty
 
   def clear() = delegate.clear()
-  def toListMaybe = delegate.toList.map { x: AnyRef =>
+  def toListMaybe = delegate.toList.map { (x: AnyRef) =>
     Maybe(x) // Scala compiler bug without this cast
   }
 }

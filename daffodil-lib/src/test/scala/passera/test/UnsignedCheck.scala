@@ -52,7 +52,7 @@ class UnsignedCheck {
 
   @Test def testIntToString() = {
     assertTrue(
-      forAll { n: Int => n >= 0 ==> (n.toUInt.toString == n.toString) }
+      forAll { (n: Int) => n >= 0 ==> (n.toUInt.toString == n.toString) }
     )
   }
 

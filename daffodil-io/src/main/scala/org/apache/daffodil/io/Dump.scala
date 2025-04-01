@@ -127,10 +127,7 @@ class DataDumper {
         convertBitsToBytesUnits(indStartBits0b, indLenBits)
       (indStartByteAddress0b, indLengthInBytes)
     }
-    val optEncName = kind match {
-      case t: TextKind => t.optCharset
-      case _ => None
-    }
+    val optEncName = Option(kind).collect { case t: TextKind => t.optCharset }.flatten
     kind match {
       case TextOnly(enc) => {
         dumpTextLine(
@@ -577,7 +574,7 @@ class DataDumper {
         bb.flip()
 
         Assert.invariant(bb.remaining > 0)
-        do {
+        while (cr.isOverflow && nConsumedBytes == 0 && cb.capacity <= bb.capacity) {
           // An overflow means we were able to start to decode at least 1 sequence of characters, but there was either insufficient
           // space in the output buffer to store said decoded char or there were left over bytes after parsing. If it is
           // the former, we can proceed and we'll get the left over bytes on the next run, if it was the latter
@@ -588,7 +585,7 @@ class DataDumper {
           if (cr.isOverflow && nConsumedBytes == 0) {
             cb = CharBuffer.allocate(cb.capacity + 1)
           }
-        } while (cr.isOverflow && nConsumedBytes == 0 && cb.capacity <= bb.capacity)
+        }
 
         // Once we leave the loop, we will either have consumed bytes to process (with a variety of left over bytes that we
         // don't care about) or malformed/unmappable results with no consumed bytes that we do care about so we will do a

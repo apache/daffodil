@@ -1038,7 +1038,6 @@ sealed abstract class SelfStepExpression(s: String, predArg: Option[PredicateExp
       priorStep.get match {
         case priorUp: UpStepExpression => SDE("Path '../.' is not allowed.")
         case priorDown: DownStepExpression => priorDown.stepElements
-        case x => Assert.invariantFailed("Not recognized: " + x)
       }
   }
 }
