@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation

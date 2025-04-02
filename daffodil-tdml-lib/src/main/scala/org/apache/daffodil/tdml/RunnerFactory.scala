@@ -20,8 +20,8 @@ package org.apache.daffodil.tdml
 import java.nio.file.Paths
 import scala.collection.immutable.ArraySeq
 
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Misc
 
 /**

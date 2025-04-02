@@ -221,7 +221,7 @@ class TestCLIUnparsing {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
 
-    runCLI(args"unparse -s $schema -r validation_check --validate on") { cli =>
+    runCLI(args"unparse -s $schema -r validation_check --validate xerces") { cli =>
       cli.sendLine(
         """<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""",
         inputDone = true

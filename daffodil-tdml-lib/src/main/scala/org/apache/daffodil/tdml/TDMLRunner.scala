@@ -28,7 +28,9 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
+import java.util.Properties
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 import scala.util.Try
 import scala.util.Using
@@ -38,6 +40,9 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 
+import org.apache.daffodil.api
+import org.apache.daffodil.api.validation.Validator
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
@@ -45,20 +50,18 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.io.processors.charset.CharsetUtils
-import org.apache.daffodil.lib.api.DaffodilConfig
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.EmbeddedSchemaSource
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
-import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.cookers.EntityReplacer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.iapi.DaffodilConfig
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.EmbeddedSchemaSource
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.URISchemaSource
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
@@ -410,7 +413,10 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
-  lazy val defaultValidationMode = ValidationMode.fromString(defaultValidation)
+  lazy val defaultValidatorName = defaultValidation match {
+    case "on" => "xerces"
+    case m => m
+  }
 
   lazy val defaultConfig = {
     val str = (ts \ "@defaultConfig").text
@@ -583,10 +589,13 @@ class DFDLTestSuite private[tdml] (
         GlobalTDMLCompileResultCache.cache
       }
 
+    val props = new Properties()
+    props.setProperty(Validator.rootSchemaKey, suppliedSchema.uriForLoading.toString)
+
     val compileResult = cache.getCompileResult(
       impl,
       key,
-      defaultValidationMode
+      Validators.get(defaultValidatorName).make(props)
     )
     compileResult
   }
@@ -626,7 +635,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   protected final var processor: TDMLDFDLProcessor = null
 
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
-  lazy val defaultValidationMode: ValidationMode.Type = parent.defaultValidationMode
+  lazy val defaultValidatorName: String = parent.defaultValidatorName
   lazy val defaultIgnoreUnexpectedWarnings: Boolean = parent.defaultIgnoreUnexpectedWarnings
   lazy val defaultIgnoreUnexpectedValidationErrors: Boolean =
     parent.defaultIgnoreUnexpectedValidationErrors
@@ -760,10 +769,19 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     case "false" => false
     case _ => false
   }
-  lazy val validationMode: ValidationMode.Type = (testCaseXML \ "@validation").text match {
-    case "" => defaultValidationMode
-    case mode => ValidationMode.fromString(mode)
+  lazy val validatorName: String = (testCaseXML \ "@validation").text match {
+    case "" => defaultValidatorName
+    case "on" => "xerces"
+    case mode => mode
   }
+  lazy val validator: api.validation.Validator =
+    Validators
+      .get(validatorName)
+      .make({
+        val props = new Properties()
+        props.setProperty(Validator.rootSchemaKey, getSuppliedSchema().uriForLoading.toString)
+        props
+      })
 
   protected def runProcessor(
     compileResult: TDML.CompileResult,
@@ -772,7 +790,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     errors: Option[Seq[ExpectedErrors]],
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: ValidationMode.Type,
+    validatorName: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ): Unit
@@ -937,8 +955,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
 
       val useSerializedProcessor =
-        if (validationMode == ValidationMode.Full) false
-        else if (defaultValidationMode == ValidationMode.Full) false
+        if (validatorName == "xerces") false
+        else if (defaultValidatorName == "xerces") false
         else if (optExpectedWarnings.isDefined) false
         else true
 
@@ -977,7 +995,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           optExpectedErrors,
           optExpectedWarnings,
           optExpectedValidationErrors,
-          validationMode,
+          validatorName,
           roundTrip,
           implString
         )
@@ -996,7 +1014,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   }
 
   protected def checkDiagnosticMessages(
-    diagnostics: Seq[Diagnostic],
+    diagnostics: Iterable[api.Diagnostic],
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
@@ -1057,7 +1075,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedErrors: Option[Seq[ExpectedErrors]],
     optExpectedWarnings: Option[Seq[ExpectedWarnings]],
     optExpectedValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: ValidationMode.Type,
+    validatorName: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -1075,7 +1093,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(
-              diags,
+              diags.asScala,
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
@@ -1088,10 +1106,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               nBits,
               optExpectedWarnings,
               optExpectedValidationErrors,
-              validationMode,
+              validator,
               roundTrip,
               implString,
-              diags
+              diags.asScala
             )
           }
         }
@@ -1101,7 +1119,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(
-              diags,
+              diags.asScala,
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
@@ -1115,9 +1133,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
-              validationMode,
+              validator,
               implString,
-              diags
+              diags.asScala
             )
           }
         }
@@ -1136,15 +1154,15 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: ValidationMode.Type,
+    validator: api.validation.Validator,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Iterable[api.Diagnostic]
   ): Unit = {
 
     try {
       processor = processor
         .withExternalDFDLVariables(externalVarBindings)
-        .withValidationMode(validationMode)
+        .withValidator(validator)
     } catch {
       case e: Exception => throw TDMLException(e, implString)
     }
@@ -1169,7 +1187,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           // didn't get an error.
           // If we're not at the end of data, synthesize an error for left-over-data
           //
-          val loc: DataLocation = actual.currentLocation
+          val loc: api.DataLocation = actual.currentLocation
 
           if (loc.bitPos1b >= 0 && loc.bitPos1b <= lengthLimitInBits) {
             val leftOverMsg =
@@ -1184,7 +1202,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           }
         }
 
-      val diagnostics = compileWarnings ++ actual.getDiagnostics
+      val diagnostics = compileWarnings ++ actual.getDiagnostics.asScala
       (actual, diagnostics, isErr)
     }
     if (!isError) {
@@ -1226,12 +1244,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
 
     val actual = processor.parse(new ByteArrayInputStream(testData), testDataLength)
-    val diagObjs = actual.getDiagnostics
+    val diagObjs = actual.getDiagnostics.asScala
 
     if (actual.isProcessingError) {
       // Means there was an error, not just warnings.
       if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
-      val diags = actual.getDiagnostics.map(_.toString()).mkString("\n")
+      val diags = actual.getDiagnostics.asScala.map(_.toString()).mkString("\n")
       throw TDMLException(diags, implString)
     } else {
       // If we think we've succeeded, verify there are no errors
@@ -1250,7 +1268,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     implString: Option[String]
   ) = {
-    val loc: DataLocation = actual.currentLocation
+    val loc: api.DataLocation = actual.currentLocation
 
     val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < lengthLimitInBits) {
       val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
@@ -1266,7 +1284,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   private def verifyParseResults(
-    compileWarnings: Seq[Diagnostic],
+    compileWarnings: Iterable[api.Diagnostic],
     actual: TDMLParseResult,
     testInfoset: Infoset,
     implString: Option[String]
@@ -1274,7 +1292,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val resultXmlNode = actual.getResult
     VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset, implString)
 
-    val allDiags = compileWarnings ++ actual.getDiagnostics
+    val allDiags = compileWarnings ++ actual.getDiagnostics.asScala
     checkDiagnosticMessages(
       allDiags,
       None,
@@ -1300,7 +1318,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val unparseResult = processor.unparse(parseResult, outStream)
     if (unparseResult.isProcessingError) {
-      val diagObjs = unparseResult.getDiagnostics
+      val diagObjs = unparseResult.getDiagnostics.asScala
       if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
       throw TDMLException(diagObjs, implString)
     }
@@ -1363,16 +1381,16 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: ValidationMode.Type,
+    validator: api.validation.Validator,
     roundTripArg: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Iterable[api.Diagnostic]
   ): Unit = {
 
     val roundTrip =
       roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
-    processor = processor.withValidationMode(validationMode)
+    processor = processor.withValidator(validator)
 
     val firstParseTestData = IOUtils.toByteArray(dataToParse)
     val testInfoset = optExpectedInfoset.get
@@ -1559,7 +1577,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: ValidationMode.Type,
+    validatorName: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -1567,7 +1585,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
         compileResult match {
-          case Left(diags) => throw TDMLException(diags, implString)
+          case Left(diags) => throw TDMLException(diags.asScala, implString)
           case Right((diags, proc)) => {
             processor = proc
             runUnparserExpectSuccess(
@@ -1576,7 +1594,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optValidationErrors,
               roundTrip,
               implString,
-              diags
+              diags.asScala
             )
           }
         }
@@ -1586,7 +1604,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(
-              diags,
+              diags.asScala,
               optErrors,
               optWarnings,
               optValidationErrors,
@@ -1600,7 +1618,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optWarnings,
               optValidationErrors,
               implString,
-              diags
+              diags.asScala
             )
           }
         }
@@ -1620,7 +1638,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     roundTrip: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Iterable[api.Diagnostic]
   ): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
@@ -1636,7 +1654,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         case t: Throwable => toss(t, implString)
       }
     if (actual.isProcessingError)
-      throw TDMLException(actual.getDiagnostics, implString)
+      throw TDMLException(actual.getDiagnostics.asScala, implString)
 
     //
     // Test that we are getting the number of full bytes needed.
@@ -1664,7 +1682,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyBinaryOrMixedData(expectedData, outStream, implString)
     }
 
-    val allDiags = actual.getDiagnostics ++ compileWarnings
+    val allDiags = actual.getDiagnostics.asScala ++ compileWarnings
     checkDiagnosticMessages(
       allDiags,
       None,
@@ -1685,11 +1703,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (parseActual.isProcessingError) {
         // Means there was an error, not just warnings.
         val diagObjs = parseActual.getDiagnostics
-        if (diagObjs.length == 1) throw diagObjs.head
-        val diags = parseActual.getDiagnostics.map(_.toString()).mkString("\n")
+        if (diagObjs.size == 1) throw diagObjs.get(0)
+        val diags = parseActual.getDiagnostics.asScala.map(_.toString()).mkString("\n")
         throw TDMLException(diags, implString)
       }
-      val loc: DataLocation = parseActual.currentLocation
+      val loc: api.DataLocation = parseActual.currentLocation
 
       val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < testDataLength) {
         //
@@ -1729,7 +1747,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Iterable[api.Diagnostic]
   ): Unit = {
 
     try {
@@ -1784,7 +1802,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // Done with the unparse results, safe to clean up any temporary files
     actual.cleanUp()
 
-    val diagnostics = compileWarnings ++ actual.getDiagnostics ++ dataErrors
+    val diagnostics = compileWarnings ++ actual.getDiagnostics.asScala ++ dataErrors
 
     if (diagnostics.isEmpty)
       throw TDMLException("Unparser test expected error. Didn't get one.", implString)
@@ -1863,7 +1881,7 @@ object VerifyTestCase {
    * @param implString                                Implementation string
    */
   def verifyDiagnosticsFound(
-    actualDiagsFiltered: Seq[Diagnostic],
+    actualDiagsFiltered: Iterable[api.Diagnostic],
     expectedDiags: Option[Seq[ErrorWarningBase]],
     ignoreUnexpectedDiags: Boolean,
     diagnosticType: DiagnosticType,
@@ -3080,7 +3098,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
     key: TDMLCompileResultCacheKey,
-    defaultValidationMode: ValidationMode.Type
+    defaultValidator: api.validation.Validator
   ): TDML.CompileResult = this.synchronized {
 
     if (entryExpireDurationSeconds.isDefined) {
@@ -3109,11 +3127,11 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
       compileResult match {
         case Left(diags) => {
           // a Left must have at least one error diagnostic if we don't get a processor
-          Assert.invariant(diags.exists(_.isError))
+          Assert.invariant(diags.asScala.exists(_.isError))
         }
         case Right((diags, _)) => {
           // if a Right has diags, they must all be warnings
-          Assert.invariant(diags.forall(!_.isError))
+          Assert.invariant(diags.asScala.forall(!_.isError))
         }
       }
 
@@ -3125,7 +3143,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
       // have to rebuild it for every test. This saves memory and should be significantly
       // faster.
       val value = compileResult.map { case (diags, proc) =>
-        (diags, proc.withValidationMode(defaultValidationMode))
+        (diags, proc.withValidator(defaultValidator))
       }
       cache += (key -> TDMLCompileResultCacheValue(value, None))
       value

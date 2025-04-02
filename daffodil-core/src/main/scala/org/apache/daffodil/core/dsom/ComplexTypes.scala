@@ -23,7 +23,7 @@ import scala.xml.Node
 import scala.xml.Text
 
 import org.apache.daffodil.core.dsom.walker.ComplexTypeView
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)

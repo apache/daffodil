@@ -18,15 +18,16 @@
 package org.apache.daffodil.core.infoset
 
 import java.math.BigInteger
+import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api.infoset.InfosetArray
+import org.apache.daffodil.api.infoset.InfosetSimpleElement
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.dsom.{ ElementBase, Root }
-import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
@@ -64,7 +65,7 @@ object TestInfoset {
     val dummyOutStream = NullOutputStream.INSTANCE
     val unparseResult = dp.unparse(inputter, dummyOutStream)
     if (unparseResult.isError) {
-      val exc = unparseResult.getDiagnostics.filter(_.isError).head
+      val exc = unparseResult.getDiagnostics.asScala.filter(_.isError).head
       throw exc
     }
     val infosetRootNode = {
@@ -94,12 +95,12 @@ object TestInfoset {
         .withTunable("releaseUnneededInfoset", "false")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     if (pf.isError) {
-      val msgs = pf.getDiagnostics.map { _.getMessage() }.mkString("\n")
+      val msgs = pf.getDiagnostics.asScala.map { _.getMessage() }.mkString("\n")
       fail("pf compile errors: " + msgs)
     }
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]
     if (dp.isError) {
-      val msgs = dp.getDiagnostics.map { _.getMessage() }.mkString("\n")
+      val msgs = dp.getDiagnostics.asScala.map { _.getMessage() }.mkString("\n")
       fail("dp compile errors: " + msgs)
     }
     val infosetRootElem = TestInfoset.elem2Infoset(infosetAsXML, dp)

@@ -16,11 +16,13 @@
  */
 
 package org.apache.daffodil.core.dsom
+
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo._
 import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.infoset.DIDocument
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.processors.parsers.PState
@@ -99,7 +101,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionFirstUnionMemberOk(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "1")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -114,7 +118,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionSecondUnionMemberOk(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema1, "2")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -129,7 +135,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNoUnionMemberOK(): Unit = {
     val (result, _) = TestUtils.testString(testSchema1, "3")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -140,8 +148,8 @@ class TestSimpleTypeUnions {
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
     val ds = result.getDiagnostics
-    assertTrue(ds.length == 1)
-    val d = ds.head
+    assertTrue(ds.size == 1)
+    val d = ds.get(0)
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die() = { println(msg); fail() }
@@ -222,7 +230,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3(): Unit = {
     val (result, _) = TestUtils.testString(testSchema2, "3")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -233,8 +243,8 @@ class TestSimpleTypeUnions {
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
     val ds = result.getDiagnostics
-    assertTrue(ds.length == 1)
-    val d = ds.head
+    assertTrue(ds.size == 1)
+    val d = ds.get(0)
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die() = { println(msg); fail() }
@@ -252,7 +262,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3_01(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "1")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -267,7 +279,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3_02(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "2")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -282,7 +296,9 @@ class TestSimpleTypeUnions {
 
   @Test def testUnionNot3_03(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema2, "-1")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -347,7 +363,9 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnion_01(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo3bar")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -362,7 +380,9 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnion_02(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo1bar")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -377,7 +397,9 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnion_03(): Unit = {
     val (result, actual) = TestUtils.testString(testSchema3, "foo2bar")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -392,7 +414,9 @@ class TestSimpleTypeUnions {
 
   @Test def testRestrictionOnUnionFail_01(): Unit = {
     val (result, _) = TestUtils.testString(testSchema3, "foo4bar")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -403,8 +427,8 @@ class TestSimpleTypeUnions {
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
     val ds = result.getDiagnostics
-    assertTrue(ds.length == 1)
-    val d = ds.head
+    assertTrue(ds.size == 1)
+    val d = ds.get(0)
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die() = { println(msg); fail() }
@@ -426,7 +450,9 @@ class TestSimpleTypeUnions {
    */
   @Test def testRestrictionOnUnionFail_02(): Unit = {
     val (result, _) = TestUtils.testString(testSchema3, "notfoo1bar")
-    val i = result.resultState
+    val i = result
+      .asInstanceOf[DFDL.ParseResult]
+      .resultState
       .asInstanceOf[PState]
       .infoset
       .asInstanceOf[DIDocument]
@@ -437,8 +463,8 @@ class TestSimpleTypeUnions {
     assertTrue(i.unionMemberRuntimeData.isEmpty)
     assertFalse(i.valid.get)
     val ds = result.getDiagnostics
-    assertTrue(ds.length == 1)
-    val d = ds.head
+    assertTrue(ds.size == 1)
+    val d = ds.get(0)
     assertTrue(d.isInstanceOf[ValidationError])
     val msg = d.getMessage()
     def die() = { println(msg); fail() }

@@ -20,12 +20,12 @@ package org.apache.daffodil.core.processor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
+import org.apache.daffodil.api
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.ParseResult
@@ -43,7 +43,7 @@ class TestSAXParseUnparseAPI {
    */
   @Test def test_DaffodilParseXMLReader_parse_DaffodilUnparseContentHandler_unparse(): Unit = {
     val (
-      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      parseXMLReader: api.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
@@ -116,7 +116,7 @@ class TestSAXParseUnparseAPI {
     assertEquals(testData, unparsedData)
 
     val (
-      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      parseXMLReader: api.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, baosUnparse.toString)
@@ -159,7 +159,7 @@ class TestSAXParseUnparseAPI {
 
   @Test def test_DaffodilParseXMLReader_parse_DataProcessor_unparse(): Unit = {
     val (
-      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      parseXMLReader: api.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
@@ -191,7 +191,7 @@ class TestSAXParseUnparseAPI {
     assertEquals(testData, baosUnparse.toString)
 
     val (
-      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      parseXMLReader: api.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, baosUnparse.toString)

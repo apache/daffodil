@@ -18,23 +18,27 @@
 package org.apache.daffodil.validation.schematron
 
 import java.io.ByteArrayInputStream
+import java.util.Properties
 import scala.io.Source
 
-import org.apache.daffodil.lib.validation.Validators
+import org.apache.daffodil.api.validation.Validators
+import org.apache.daffodil.lib.util.Misc
 
-import com.typesafe.config.ConfigFactory
 import org.junit.Test
 
 class TestSpiLoading {
   @Test def load(): Unit = {
     val vf = Validators.get(SchematronValidator.name)
-    val v = vf.make(ConfigFactory.parseString("""
-        |schematron = sch/schematron-2.sch
-        |""".stripMargin))
+    val v = vf.make({
+      val props = new Properties()
+      val uri = Misc.getRequiredResource("sch/schematron-2.sch")
+      props.setProperty("schematron", uri.toString)
+      props
+    })
     val xml = Source.fromResource("xml/article-2.xml").mkString
-
-    val result = v.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.errors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.errors.size() == 2)
+    val validationHandler = new TestingValidationHandler
+    v.validateXML(new ByteArrayInputStream(xml.getBytes), validationHandler)
+    validationHandler.errors.foreach(e => println(s"Fail: ${e}"))
+    assert(validationHandler.errors.length == 2)
   }
 }

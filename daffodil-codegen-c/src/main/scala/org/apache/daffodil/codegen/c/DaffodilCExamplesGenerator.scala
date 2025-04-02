@@ -17,8 +17,10 @@
 
 package org.apache.daffodil.codegen.c
 
+import scala.jdk.CollectionConverters._
+
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.iapi.TDMLImplementation
 
 /** 
  * Runs from "sbt compile" to keep all examples of generated C code up
@@ -34,11 +36,11 @@ object DaffodilCExamplesGenerator {
   ): Unit = {
     // Generate example code from the sample schema
     val pf = Compiler().compileFile(schemaFile.toIO, optRootName)
-    assert(!pf.isError, pf.getDiagnostics.map(_.toString()).mkString("\n"))
+    assert(!pf.isError, pf.getDiagnostics.asScala.map(_.toString()).mkString("\n"))
     val cg = pf.forLanguage("c")
     val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
-    val codeDir = cg.generateCode(tempDir.toString)
-    assert(!cg.isError, cg.getDiagnostics.map(_.toString()).mkString("\n"))
+    val codeDir = os.Path(cg.generateCode(tempDir.toString))
+    assert(!cg.isError, cg.getDiagnostics.asScala.map(_.toString()).mkString("\n"))
 
     // Replace the example generated files with the newly generated files
     val generatedCodeHeader = codeDir / "libruntime" / "generated_code.h"

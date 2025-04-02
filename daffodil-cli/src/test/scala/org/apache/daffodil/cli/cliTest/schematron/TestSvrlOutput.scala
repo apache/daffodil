@@ -37,12 +37,12 @@ class TestSvrlOutput {
   private def makeConf(conf: Path, schematron: Path, svrl: Path): Unit = {
     Files.write(
       conf,
-      s"""schematron.path="${jsonEscape(schematron.toString)}"\n""".getBytes(UTF_8),
+      s"""schematron=${schematron.toUri.toString}\n""".getBytes(UTF_8),
       APPEND
     )
     Files.write(
       conf,
-      s"""schematron.svrl.file="${jsonEscape(svrl.toString)}"\n""".getBytes(UTF_8),
+      s"""schematron.svrl.file=${svrl.toUri.toString}\n""".getBytes(UTF_8),
       APPEND
     )
   }
@@ -95,7 +95,6 @@ class TestSvrlOutput {
           runCLI(args"parse --validate schematron=$conf -s $schema $input") { cli =>
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.ParseError)
-
           XML.loadFile(svrl.toFile) match {
             case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
               val res = rules.find { r =>

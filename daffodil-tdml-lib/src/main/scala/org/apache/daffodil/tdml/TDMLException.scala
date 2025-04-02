@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.tdml
 
-import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Misc
 
@@ -34,7 +34,7 @@ object TDMLException {
     new TDMLExceptionImpl(msg, implementation)
   def apply(cause: Throwable, implementation: Option[String]) =
     new TDMLExceptionImpl(cause, implementation)
-  def apply(causes: Seq[Throwable], implementation: Option[String]) =
+  def apply(causes: Iterable[Throwable], implementation: Option[String]) =
     new TDMLExceptionImpl(causes, implementation)
 }
 
@@ -46,7 +46,7 @@ object TDMLException {
  */
 trait TDMLException { self: Exception =>
   def msg: String
-  def causes: Seq[Throwable]
+  def causes: Iterable[Throwable]
   def implementation: Option[String]
 
   /**
@@ -63,20 +63,21 @@ trait TDMLException { self: Exception =>
 
 class TDMLExceptionImpl(
   override val msg: String,
-  override val causes: Seq[Throwable],
+  override val causes: Iterable[Throwable],
   override val implementation: Option[String]
 ) extends Exception(
     TDMLException.msgWithImpl(msg, implementation),
-    if (causes.length > 0) causes(0) else null
+    if (causes.nonEmpty) causes.head else null
   )
   with TDMLException {
 
-  def this(msg: String, implementation: Option[String]) = this(msg, Nil, implementation)
+  def this(msg: String, implementation: Option[String]) =
+    this(msg, Nil, implementation)
 
   def this(cause: Throwable, implementation: Option[String]) =
     this(Misc.getNameFromClass(cause) + ": " + cause.getMessage(), List(cause), implementation)
 
-  def this(causes: Seq[Throwable], implementation: Option[String]) = this(
+  def this(causes: Iterable[Throwable], implementation: Option[String]) = this(
     causes
       .map { cause => Misc.getNameFromClass(cause) + ": " + cause.getMessage() }
       .mkString("\n"),

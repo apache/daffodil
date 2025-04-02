@@ -17,14 +17,12 @@
 
 package org.apache.daffodil.core.general
 
-import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
 
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
 import org.apache.daffodil.core.util.Fakes
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Assert.assertEquals
@@ -43,46 +41,6 @@ class TestTunables {
   // is any problem in the Fakes, the whole class can't be constructed, and None
   // of the tests will run. Lazy lets this class be constructed no matter what.
   lazy val dummyGroupRef = Fakes.fakeGroupRef
-
-  @Test def testTunableCopy(): Unit = {
-    val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="list" type="tns:example1"/>
-      <xs:complexType name="example1">
-        <xs:sequence>
-          <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
-        </xs:sequence>
-      </xs:complexType>
-    )
-
-    val c = Compiler()
-    val c1 = c.withTunable("maxSkipLengthInBytes", "1026")
-    val pf1 = c1.compileNode(testSchema)
-
-    val c2 = c.withTunable("maxSkipLengthInBytes", "2048")
-    val pf2 = c2.compileNode(testSchema)
-
-    val dp1 = pf1.onPath("/")
-    var dp2 = pf2.onPath("/")
-
-    val t1 = dp1.tunables
-    val t2 = dp2.tunables
-
-    /* Set tunable at run-time via data processor */
-    dp2 = dp2.withTunable("maxSkipLengthInBytes", "50")
-
-    val t3 = dp2.tunables // modified tunables at 'run-time'
-    val t4 = dp1.tunables // obtain first data processor to see if anything changed
-
-    assertEquals(1026, t1.maxSkipLengthInBytes) // initial compiler-set value
-    assertEquals(2048, t2.maxSkipLengthInBytes) // overwrite of compiler-set value
-    assertEquals(50, t3.maxSkipLengthInBytes) // data-processor-set value
-    //
-    //  initial compiler-set value not changed
-    //  for first data processor object.
-    assertEquals(1026, t4.maxSkipLengthInBytes)
-  }
 
   @Test def testTunableSuppressionListCopying(): Unit = {
     val t1 = DaffodilTunables("suppressSchemaDefinitionWarnings", "escapeSchemeRefUndefined")

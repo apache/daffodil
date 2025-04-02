@@ -718,10 +718,10 @@ object PropertyGenerator {
   def generatedCodePackage = "org.apache.daffodil.lib.schema.annotation.props.gen"
 
   def tunableCodeFilename = "DaffodilTunablesGen.scala"
-  def tunableCodePackage = "org.apache.daffodil.lib.api"
+  def tunableCodePackage = "org.apache.daffodil.lib.iapi"
 
   def warnIdCodeFilename = "WarnIdGen.scala"
-  def warnIdCodePackage = "org.apache.daffodil.lib.api"
+  def warnIdCodePackage = "org.apache.daffodil.lib.iapi"
 
   def preamble = "package " + generatedCodePackage + """
 

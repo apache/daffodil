@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.jdk.CollectionConverters._
+
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -807,7 +809,7 @@ class TestRefMap {
     val pf = compiler.compileNode(testRootPathsSchema1, None, Some("h"))
     val isError = pf.isError
     assertTrue(isError)
-    val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
+    val msgs = pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
     assertTrue(isError)
     assertTrue(
       msgs.toLowerCase.contains("Relative path '../../rr/f' past root element".toLowerCase)
@@ -912,7 +914,7 @@ class TestRefMap {
     val compiler = Compiler().withCheckAllTopLevel(true)
     val pf = compiler.compileNode(testRootPathsSchema3)
     val isError = pf.isError
-    val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
+    val msgs = pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
     println(msgs)
     assertTrue(isError)
     assertTrue(msgs.toLowerCase.contains("not found".toLowerCase))

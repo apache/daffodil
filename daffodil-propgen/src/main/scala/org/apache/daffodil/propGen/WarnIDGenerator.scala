@@ -37,7 +37,7 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     | * limitations under the License.
     | */
     |
-    |package org.apache.daffodil.lib.api
+    |package org.apache.daffodil.lib.iapi
     |
     |////////////////////////////////////////////////////////////////////////////////////////////
     |//

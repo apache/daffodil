@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull

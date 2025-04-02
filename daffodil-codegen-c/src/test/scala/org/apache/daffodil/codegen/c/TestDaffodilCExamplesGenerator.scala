@@ -17,8 +17,10 @@
 
 package org.apache.daffodil.codegen.c
 
+import scala.jdk.CollectionConverters._
+
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.lib.util.SchemaUtils
 
 import org.junit.Test
@@ -60,11 +62,11 @@ class TestDaffodilCExamplesGenerator {
 
     // Compile the schema into a ProcessorFactory
     val pf = Compiler().compileNode(testSchema)
-    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!pf.isError, pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
 
     // Get a CodeGenerator from the ProcessorFactory
     val cg = pf.forLanguage("c")
-    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!cg.isError, cg.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
 
     // Generate C code into a temporary directory
     val tempDir: os.Path =
@@ -73,7 +75,7 @@ class TestDaffodilCExamplesGenerator {
     os.remove.all(tempDir)
 
     // Check the C code was generated successfully
-    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!cg.isError, cg.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
   }
 
 }

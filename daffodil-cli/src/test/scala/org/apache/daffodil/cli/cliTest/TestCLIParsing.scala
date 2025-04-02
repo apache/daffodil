@@ -460,10 +460,26 @@ class TestCLIParsing {
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
-    runCLI(args"parse -s $schema -r matrix --validate on") { cli =>
+    runCLI(args"parse -s $schema -r matrix --validate xerces") { cli =>
       cli.sendLine("0,1,2", inputDone = true)
       cli.expect("<tns:cell>2</tns:cell>")
     }(ExitCode.LeftOverData)
+  }
+
+  @Test def test_CLI_Parsing_SimpleSchema_basicTest_validationOnDifferentValidatingSchema()
+    : Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    )
+    val validatingSchema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities_enforced.dfdl.xsd"
+    )
+
+    runCLI(args"parse -s $schema -r matrix --validate xerces=$validatingSchema") { cli =>
+      cli.sendLine("0,1,2", inputDone = true)
+      cli.expect("<tns:cell>2</tns:cell>")
+      cli.expectErr("value '2' of element 'tns:cell' is not valid")
+    }(ExitCode.ParseError)
   }
 
   @Test def test_CLI_Parsing_SimpleSchema_basicTest_validation_missing_mode(): Unit = {
