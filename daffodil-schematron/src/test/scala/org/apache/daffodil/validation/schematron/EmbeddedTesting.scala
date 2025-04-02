@@ -21,13 +21,12 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
+import org.apache.daffodil.api.Daffodil
+import org.apache.daffodil.api.DataProcessor
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ParseResult
+import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.sapi.Daffodil
-import org.apache.daffodil.sapi.DataProcessor
-import org.apache.daffodil.sapi.Diagnostic
-import org.apache.daffodil.sapi.ParseResult
-import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 import org.apache.daffodil.validation.schematron.SchSource.Xsd
 
 import org.junit.Assert.assertFalse
@@ -36,7 +35,7 @@ import org.junit.Assert.assertTrue
 trait EmbeddedTesting {
   case class PR(r: ParseResult) {
     def validated: Boolean = !r.isValidationError()
-    def diagnostics: Seq[Diagnostic] = r.getDiagnostics
+    def diagnostics: java.util.List[Diagnostic] = r.getDiagnostics
   }
 
   sealed trait PrintInfosetMode
@@ -53,14 +52,14 @@ trait EmbeddedTesting {
     def withBytes(bytes: Array[Byte], verbose: PrintInfosetMode = Quiet): PR = {
       val bos = new ByteArrayOutputStream()
       val r1 = dp.parse(
-        new InputSourceDataInputStream(new ByteArrayInputStream(bytes)),
-        new XMLTextInfosetOutputter(bos, pretty = true)
+        Infoset.getInputSourceDataInputStream(new ByteArrayInputStream(bytes)),
+        Infoset.getXMLTextInfosetOutputter(bos, true)
       )
       verbose match {
-        case Always | AnyError if r1.isError() => r1.getDiagnostics.foreach(println)
+        case Always | AnyError if r1.isError() => r1.getDiagnostics.forEach(println)
         case Always => println(bos.toString)
-        case ValError if r1.isValidationError() => r1.getDiagnostics.foreach(println)
-        case ProcError if r1.isProcessingError() => r1.getDiagnostics.foreach(println)
+        case ValError if r1.isValidationError() => r1.getDiagnostics.forEach(println)
+        case ProcError if r1.isProcessingError() => r1.getDiagnostics.forEach(println)
         case _ =>
       }
 
@@ -73,7 +72,7 @@ trait EmbeddedTesting {
     val c = Daffodil.compiler()
     val pf = c.compileFile(new File(schema))
 
-    if (pf.isError()) pf.getDiagnostics.foreach(println)
+    if (pf.isError()) pf.getDiagnostics.forEach(println)
     assertFalse("Schema did not compile", pf.isError())
 
     val v = SchematronValidatorFactory.makeValidator(
@@ -90,7 +89,7 @@ trait EmbeddedTesting {
   def shouldFail(pr: PR): Unit = check(pr)(assertFalse)
 
   def check(pr: PR)(f: Boolean => Unit): Unit = {
-    if (!pr.validated) pr.diagnostics.foreach(println)
+    if (!pr.validated) pr.diagnostics.forEach(println)
     f(pr.validated)
   }
 }

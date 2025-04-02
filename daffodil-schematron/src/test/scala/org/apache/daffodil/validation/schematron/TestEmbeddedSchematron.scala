@@ -35,9 +35,9 @@ class TestEmbeddedSchematron extends EmbeddedTesting {
   }
 
   @Test def variation3(): Unit = withSchema("xsd/embedded-3.dfdl.xsd") { f =>
-    f.parse(UUID.randomUUID.toString).diagnostics.foreach(println)
+    f.parse(UUID.randomUUID.toString).diagnostics.forEach(println(_))
     assertTrue(f.parse(UUID.randomUUID.toString).validated)
-    f.parse(UUID.randomUUID.toString).diagnostics.foreach(println)
+    f.parse(UUID.randomUUID.toString).diagnostics.forEach(println(_))
     assertFalse(f.parse(UUID.randomUUID.toString.drop(1)).validated)
   }
 

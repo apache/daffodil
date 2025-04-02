@@ -28,20 +28,23 @@ import java.nio.channels.Channels
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 import scala.util.Try
 import scala.xml.Node
 
+import org.apache.daffodil.api
+import org.apache.daffodil.api.exceptions.InvalidParserException
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.URISchemaSource
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
 
 /**
@@ -84,7 +87,7 @@ final class ProcessorFactory private (
       tunables
     )
 
-  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): ProcessorFactory =
+  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): api.ProcessorFactory =
     new ProcessorFactory(
       optRootSpec,
       schemaSource,
@@ -100,7 +103,7 @@ final class ProcessorFactory private (
 
   def elementBaseInstanceCount: Long = sset.elementBaseInstanceCount
 
-  def diagnostics: Seq[Diagnostic] = {
+  def diagnostics: java.util.List[api.Diagnostic] = {
     // The work to compile a schema and build diagnostics is triggered by the user calling
     // isError. But if a user gets diagnostics before doing so, then no work will have been done
     // and the diagnostics will be empty. Technically this is incorrect usage--a user should
@@ -114,11 +117,11 @@ final class ProcessorFactory private (
     sset.diagnostics
   }
 
-  def getDiagnostics: Seq[Diagnostic] = diagnostics
+  def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
 
-  override def onPath(xpath: String): DFDL.DataProcessor = sset.onPath(xpath)
+  override def onPath(xpath: String): api.DataProcessor = sset.onPath(xpath)
 
-  override def forLanguage(language: String): DFDL.CodeGenerator = {
+  def forLanguage(language: String): api.CodeGenerator = {
     checkNotError()
 
     // Do a poor man's pluggable code generator implementation - we can replace
@@ -135,7 +138,7 @@ final class ProcessorFactory private (
     val clazz = Try(Class.forName(className))
     val constructor = clazz.map { _.getDeclaredConstructor(sset.root.getClass) }
     val tryInstance = constructor.map {
-      _.newInstance(sset.root).asInstanceOf[DFDL.CodeGenerator]
+      _.newInstance(sset.root).asInstanceOf[api.CodeGenerator]
     }
     val codeGenerator = tryInstance.recover { case ex =>
       throw new InvalidParserException(s"Error creating $className", ex)
@@ -146,13 +149,14 @@ final class ProcessorFactory private (
 
   override lazy val isError: Boolean = sset.isError
 
-  def withDistinguishedRootNode(name: String, namespace: String): ProcessorFactory = {
+  def withDistinguishedRootNode(
+    name: String,
+    namespace: String
+  ): api.ProcessorFactory = {
     Assert.usage(name ne null)
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
   }
 }
-
-class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
 class Compiler private (
   val validateDFDLSchemas: Boolean,
@@ -217,17 +221,17 @@ class Compiler private (
   def withCheckAllTopLevel(flag: Boolean): Compiler =
     copy(checkAllTopLevel = flag)
 
-  def reload(savedParser: File): DFDL.DataProcessor = reload(new FileInputStream(savedParser))
+  def reload(savedParser: File): api.DataProcessor = reload(new FileInputStream(savedParser))
 
-  def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor =
+  def reload(savedParser: java.nio.channels.ReadableByteChannel): api.DataProcessor =
     reload(Channels.newInputStream(savedParser))
 
-  def reload(schemaSource: DaffodilSchemaSource): DFDL.DataProcessor =
+  def reload(schemaSource: DaffodilSchemaSource): api.DataProcessor =
     reload(schemaSource.uriForLoading)
 
-  def reload(uri: URI): DFDL.DataProcessor = reload(uri.toURL.openStream())
+  def reload(uri: URI): api.DataProcessor = reload(uri.toURL.openStream())
 
-  def reload(is: java.io.InputStream): DFDL.DataProcessor = {
+  def reload(is: java.io.InputStream): DataProcessor = {
     try {
       // Read the required prefix and version information for this saved parser
       // directly from the input stream. This information is not compressed or
@@ -400,6 +404,53 @@ class Compiler private (
     compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir), optRootName, optRootNamespace)
   }
 
+  def compileSource(
+    uri: URI,
+    optRootName: Option[String],
+    optRootNamespace: Option[String]
+  ): api.ProcessorFactory = {
+    compileSource(
+      URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
+      optRootName,
+      optRootNamespace
+    )
+  }
+
+  def compileResource(
+    name: String,
+    optRootName: Option[String],
+    optRootNamespace: Option[String]
+  ): api.ProcessorFactory = {
+    val uri = Misc.getRequiredResource(name)
+    val source = URISchemaSource(new File(name), uri)
+    compileSource(source, optRootName, optRootNamespace)
+  }
+
+  override def compileFile(
+    schemaFile: File,
+    optRootName: java.util.Optional[String],
+    optRootNamespace: java.util.Optional[String]
+  ): api.ProcessorFactory =
+    compileFile(schemaFile, optRootName.toScala, optRootNamespace.toScala)
+
+  override def compileSource(
+    uri: URI,
+    optRootName: java.util.Optional[String],
+    optRootNamespace: java.util.Optional[String]
+  ): api.ProcessorFactory =
+    compileSource(uri, optRootName.toScala, optRootNamespace.toScala)
+
+  override def compileResource(
+    name: String,
+    optRootName: java.util.Optional[String],
+    optRootNamespace: java.util.Optional[String]
+  ): api.ProcessorFactory =
+    compileResource(name, optRootName.toScala, optRootNamespace.toScala)
+
+  override def withTunables(tunables: java.util.Map[String, String]): api.Compiler =
+    withTunables(
+      tunables.asScala.toMap
+    )
 }
 
 /**

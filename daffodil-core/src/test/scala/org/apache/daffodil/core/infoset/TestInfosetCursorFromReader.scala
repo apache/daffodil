@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.core.infoset
 
+import scala.jdk.CollectionConverters._
+
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
@@ -50,16 +52,16 @@ class TestInfosetInputterFromReader {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
+      val msgs = pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
+      val msgs = u.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
-    val inputter = new ScalaXMLInfosetInputter(infosetXML)
+    val inputter = new InfosetInputter(new ScalaXMLInfosetInputter(infosetXML))
     inputter.initialize(rootERD, u.tunables)
     val is = Adapter(inputter)
     (is, rootERD, inputter, u.tunables)

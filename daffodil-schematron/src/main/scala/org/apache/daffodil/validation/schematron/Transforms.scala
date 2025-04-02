@@ -18,7 +18,7 @@
 package org.apache.daffodil.validation.schematron
 
 import java.io.InputStream
-import java.nio.file.Path
+import java.net.URI
 import javax.xml.transform.ErrorListener
 import javax.xml.transform.Source
 import javax.xml.transform.Templates
@@ -78,7 +78,7 @@ sealed trait SchSource {
   def stages: Seq[String]
 }
 object SchSource {
-  def from(p: Path): SchSource = p.getFileName.toString.split("\\.").last match {
+  def from(p: URI): SchSource = p.toString.split("\\.").last match {
     case "sch" => Sch
     case _ => Xsd
   }

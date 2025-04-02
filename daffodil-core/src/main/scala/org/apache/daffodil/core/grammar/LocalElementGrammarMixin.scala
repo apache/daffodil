@@ -16,6 +16,7 @@
  */
 
 package org.apache.daffodil.core.grammar
+
 import org.apache.daffodil.core.dsom.ElementBase
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: ElementBase =>

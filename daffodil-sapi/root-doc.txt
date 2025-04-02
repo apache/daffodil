@@ -1,9 +1,0 @@
-This is the documentation for the Apache Daffodil Scala API.
-
-=== Package structure ===
-
-[[org.apache.daffodil.sapi]] - Provides the classes necessary to compile DFDL schemas, parse and unparse files using the compiled objects, and retrieve results and parsing diagnostics
-
-[[org.apache.daffodil.udf]] - Provides the classes necessary to create User Defined Functions to extend the DFDL expression language
-
-[[org.apache.daffodil.runtime1.layers.api]] - Provides the classes necessary to create custom Layer extensions to DFDL.

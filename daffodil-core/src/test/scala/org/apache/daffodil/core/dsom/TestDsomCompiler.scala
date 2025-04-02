@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import java.nio.file.Paths
+import scala.jdk.CollectionConverters._
 import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
@@ -28,8 +29,7 @@ import org.apache.daffodil.lib.Implicits._
 import org.junit.Assert._
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.compiler._
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
@@ -100,8 +100,8 @@ class TestDsomCompiler {
     val compiler = Compiler().withCheckAllTopLevel(true)
     val sset = compiler.compileNode(sch).sset
     assertTrue(sset.isError)
-    val diagnostics = sset.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
-    val msgs = diagnostics.map { _.getMessage() }
+    val diagnostics = sset.getDiagnostics
+    val msgs = diagnostics.asScala.map { _.getMessage() }
     val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
@@ -498,7 +498,7 @@ class TestDsomCompiler {
     // because these unit tests are outside the normal framework,
     // we sometimes have to demand things in order for errors to be noticed.
     assertTrue(root.isError)
-    val msgs = root.getDiagnostics.mkString("\n").toLowerCase
+    val msgs = root.getDiagnostics.asScala.mkString("\n").toLowerCase
     assertTrue(msgs.contains("overlap"))
     assertTrue(msgs.contains("initiator".toLowerCase))
   }
@@ -550,7 +550,7 @@ class TestDsomCompiler {
     // Tests overlapping properties
     assertTrue(e5.isError)
 
-    val msg = e5.getDiagnostics.mkString("\n").toLowerCase
+    val msg = e5.getDiagnostics.asScala.mkString("\n").toLowerCase
     val res = msg.contains("overlap")
     if (!res) println(msg)
     assertTrue(res)

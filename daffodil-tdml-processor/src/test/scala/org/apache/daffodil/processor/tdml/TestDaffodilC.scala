@@ -19,12 +19,13 @@ package org.apache.daffodil.processor.tdml
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.codegen.c.DaffodilCCodeGenerator
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -72,7 +73,7 @@ class TestDaffodilC {
     val pf = Compiler().compileNode(testSchema)
     assert(
       !pf.isError && pf.getDiagnostics.isEmpty,
-      pf.getDiagnostics.map(_.getMessage()).mkString("\n")
+      pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
     )
   }
 
@@ -80,19 +81,19 @@ class TestDaffodilC {
   @Test def test_forLanguage_success(): Unit = {
     // Create a ProcessorFactory from the test schema
     val pf = Compiler().compileNode(testSchema)
-    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!pf.isError, pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
 
     // Create a CodeGenerator from the ProcessorFactory for a supported language
     val cg = pf.forLanguage("c")
     assert(cg.isInstanceOf[DaffodilCCodeGenerator])
-    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!cg.isError, cg.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
   }
 
   // Checks that processorFactory.forLanguage("hls") fails
   @Test def test_forLanguage_error(): Unit = {
     // Create a ProcessorFactory from the test schema
     val pf = Compiler().compileNode(testSchema)
-    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!pf.isError, pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
 
     // Create a CodeGenerator from the ProcessorFactory for an unsupported language
     val e = intercept[Exception] {
@@ -108,11 +109,11 @@ class TestDaffodilC {
     val cg = pf.forLanguage("c")
 
     // Generate code from the test schema successfully
-    val codeDir = cg.generateCode(tempDir.toString)
+    val codeDir = os.Path(cg.generateCode(tempDir.toString))
     val daffodilMain = codeDir / "libcli" / "daffodil_main.c"
     val generatedCodeHeader = codeDir / "libruntime" / "generated_code.h"
     val generatedCodeFile = codeDir / "libruntime" / "generated_code.c"
-    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!cg.isError, cg.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
     assert(os.exists(codeDir))
     assert(os.exists(daffodilMain))
     assert(os.exists(generatedCodeHeader))
@@ -127,8 +128,8 @@ class TestDaffodilC {
     val codeDir = cg.generateCode(tempDir.toString)
 
     // Compile the generated code into an executable successfully
-    val executable = cg.compileCode(codeDir)
-    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val executable = os.Path(cg.compileCode(codeDir))
+    assert(!cg.isError, cg.getDiagnostics.asScala.map(_.getMessage()).mkString("\n"))
     assert(os.exists(executable))
   }
 
@@ -138,7 +139,7 @@ class TestDaffodilC {
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
-    val executable = cg.compileCode(codeDir)
+    val executable = os.Path(cg.compileCode(codeDir))
 
     // Create a DaffodilCTDMLDFDLProcessor and parse a binary int32 number successfully
     val tdp = new DaffodilCTDMLDFDLProcessor(executable)
@@ -147,7 +148,7 @@ class TestDaffodilC {
     val pr = tdp.parse(input, b.length * 8)
     assert(
       !pr.isProcessingError && pr.getDiagnostics.isEmpty,
-      pr.getDiagnostics.map(_.getMessage()).mkString("\n")
+      pr.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
     )
     val expected = <e1><x>1280</x></e1>
     XMLUtils.compareAndReport(expected, pr.getResult)
@@ -159,7 +160,7 @@ class TestDaffodilC {
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
-    val executable = cg.compileCode(codeDir)
+    val executable = os.Path(cg.compileCode(codeDir))
 
     // Create a DaffodilCTDMLDFDLProcessor and parse an empty file unsuccessfully
     val tdp = new DaffodilCTDMLDFDLProcessor(executable)
@@ -167,7 +168,7 @@ class TestDaffodilC {
     val input = new ByteArrayInputStream(b)
     val pr = tdp.parse(input, b.length * 8)
     assert(pr.isProcessingError, "expected pr.isError to be true")
-    assert(pr.getDiagnostics.nonEmpty, "expected pr.getDiagnostics to be non-empty")
+    assert(!pr.getDiagnostics.isEmpty, "expected pr.getDiagnostics to be non-empty")
   }
 
   // Checks that daffodilTDMLDFDLProcessor.unparse(goodData) succeeds
@@ -176,7 +177,7 @@ class TestDaffodilC {
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
-    val executable = cg.compileCode(codeDir)
+    val executable = os.Path(cg.compileCode(codeDir))
 
     // Create a DaffodilCTDMLDFDLProcessor and unparse a binary int32 number successfully
     val tdp = new DaffodilCTDMLDFDLProcessor(executable)
@@ -185,7 +186,7 @@ class TestDaffodilC {
     val ur = tdp.unparse(infosetXML, output)
     assert(
       !ur.isProcessingError && ur.getDiagnostics.isEmpty,
-      ur.getDiagnostics.map(_.getMessage()).mkString("\n")
+      ur.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
     )
     val expected = Misc.hex2Bytes("00000500")
     assertArrayEquals(expected, output.toByteArray)
@@ -197,7 +198,7 @@ class TestDaffodilC {
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
-    val executable = cg.compileCode(codeDir)
+    val executable = os.Path(cg.compileCode(codeDir))
 
     // Create a DaffodilCTDMLDFDLProcessor and unparse a binary int32 number unsuccessfully
     val tdp = new DaffodilCTDMLDFDLProcessor(executable)
@@ -205,7 +206,7 @@ class TestDaffodilC {
     val output = new ByteArrayOutputStream()
     val ur = tdp.unparse(infosetXML, output)
     assert(ur.isProcessingError, "expected ur.isProcessingError to be true")
-    assert(ur.getDiagnostics.nonEmpty, "expected ur.getDiagnostics to be non-empty")
+    assert(!ur.getDiagnostics.isEmpty, "expected ur.getDiagnostics to be non-empty")
   }
 
   // Checks that DaffodilCTDMLDFDLProcessorFactory.getProcessor succeeds
@@ -225,11 +226,11 @@ class TestDaffodilC {
       tunables
     )
     cr match {
-      case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.mkString}")
+      case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.asScala.mkString}")
       case Right((diagnostics, tdmlDFDLProcessor)) =>
         assert(
-          diagnostics.forall(!_.isError),
-          diagnostics.filter(_.isError).map(_.getMessage()).mkString("\n")
+          diagnostics.asScala.forall(!_.isError),
+          diagnostics.asScala.filter(_.isError).map(_.getMessage()).mkString("\n")
         )
         assert(tdmlDFDLProcessor.isInstanceOf[DaffodilCTDMLDFDLProcessor])
     }

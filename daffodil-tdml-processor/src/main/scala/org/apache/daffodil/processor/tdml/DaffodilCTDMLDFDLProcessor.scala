@@ -20,16 +20,17 @@ package org.apache.daffodil.processor.tdml
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
+import scala.jdk.CollectionConverters._
 import scala.xml.Node
 import scala.xml.XML
 
+import org.apache.daffodil.api
+import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
@@ -102,7 +103,7 @@ final class DaffodilCTDMLDFDLProcessorFactory(compiler: Compiler)
         Left(generator.getDiagnostics) // C compilation diagnostics
       } else {
         // Create a processor for running the executable
-        val processor = new DaffodilCTDMLDFDLProcessor(executable)
+        val processor = new DaffodilCTDMLDFDLProcessor(os.Path(executable))
         // Although we return C compilation diagnostics to TDMLRunner, TDMLRunner
         // won't do anything with them in its usual path
         Right((generator.getDiagnostics, processor))
@@ -125,7 +126,7 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   override def withDebugging(onOff: Boolean): R = this
   override def withTracing(onOff: Boolean): R = this
   override def withDebugger(db: AnyRef): R = this
-  override def withValidationMode(validationMode: ValidationMode.Type): R = this
+  override def withValidator(validator: api.validation.Validator): R = this
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R = this
 
   // Parses the input stream to an infoset and returns a TDMLParseResult
@@ -228,14 +229,20 @@ final class DaffodilCTDMLParseResult(
   messages: String = ""
 ) extends TDMLParseResult {
 
-  private var diagnostics: Seq[Diagnostic] = processorResult match {
+  private var diagnostics: java.util.List[api.Diagnostic] = processorResult match {
     case Success =>
-      if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
-    case Failure(cause) => List(cause)
+      if (messages.nonEmpty)
+        new java.util.LinkedList[api.Diagnostic](
+          java.util.Arrays.asList(DaffodilCTDMLMessages(messages))
+        )
+      else java.util.Arrays.asList()
+    case Failure(cause) =>
+      new java.util.LinkedList[api.Diagnostic](java.util.Arrays.asList(cause))
   }
 
   override def addDiagnostic(diagnostic: Diagnostic): Unit = {
-    diagnostics = diagnostics :+ diagnostic
+    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
+    diagnostics.add(diagnostic)
   }
 
   // We must read outFile right away (def or lazy val will not work) because the parse
@@ -253,9 +260,9 @@ final class DaffodilCTDMLParseResult(
   }
 
   override def currentLocation: DataLocation = DaffodilCTDMLDataLocation(finalBitPos0b)
-  override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
+  override def isValidationError: Boolean = diagnostics.asScala.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
 }
 
 /**
@@ -290,16 +297,18 @@ final class DaffodilCTDMLUnparseResult(
   messages: String = ""
 ) extends TDMLUnparseResult {
 
-  private val diagnostics: Seq[Diagnostic] = processorResult match {
+  private val diagnostics: java.util.List[api.Diagnostic] = processorResult match {
     case Success =>
-      if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
-    case Failure(cause) => List(cause)
+      if (messages.nonEmpty)
+        new java.util.LinkedList(java.util.Arrays.asList(DaffodilCTDMLMessages(messages)))
+      else new java.util.ArrayList[api.Diagnostic]()
+    case Failure(cause) => new java.util.LinkedList(java.util.Arrays.asList(cause))
   }
 
   override def bitPos0b: Long = finalBitPos0b
   override def isScannable: Boolean = false // binary data is not scannable
   override def encodingName: String = "" // encoding needed only if scannable
-  override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
+  override def isValidationError: Boolean = diagnostics.asScala.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
 }

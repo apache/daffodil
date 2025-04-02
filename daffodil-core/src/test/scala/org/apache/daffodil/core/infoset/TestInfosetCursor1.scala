@@ -20,6 +20,7 @@ package org.apache.daffodil.core.infoset
 // workaround for scala 3 bug where there are false positives with
 // unused imports: https://github.com/scala/scala3/issues/22692
 import javax.xml.stream._
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.intercept
@@ -42,16 +43,16 @@ class TestInfosetInputter1 {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
+      val msgs = pf.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
+      val msgs = u.getDiagnostics.asScala.map(_.getMessage()).mkString("\n")
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
-    val ic = new XMLTextInfosetInputter(is)
+    val ic = new InfosetInputter(new XMLTextInfosetInputter(is))
     ic.initialize(rootERD, u.tunables)
     ic
   }

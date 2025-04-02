@@ -17,40 +17,40 @@
 
 package org.apache.daffodil.validation.schematron
 
+import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.nio.file.Path
+import java.net.URI
 import scala.util.Try
 import scala.xml.Elem
 import scala.xml.XML
 
-import org.apache.daffodil.lib.api.ValidationException
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.api
 
 /**
  * Daffodil Validator implementation for ISO schematron
  */
-final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) extends Validator {
-  def validateXML(document: InputStream): ValidationResult = {
+final class SchematronValidator(
+  engine: Schematron,
+  svrlPath: Option[URI]
+) extends api.validation.Validator {
+  def validateXML(
+    document: InputStream,
+    handler: api.validation.ValidationHandler
+  ): Unit = {
     val svrl = XML.loadString(engine.validate(document))
-    val valErr: Seq[ValidationFailure] =
-      for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
-        SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
-      }
-
-    val svrlString = svrl.mkString
-    val svrlOutputFailure = svrlPath.flatMap { path =>
-      Try {
-        val os = new FileOutputStream(path.toFile)
-        os.write(svrlString.getBytes)
-        os.close()
-      }.failed.map(SvrlOutputException(_)).toOption
+    for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
+      handler.validationError(msg.text.trim, { f \\ "@location" }.text)
     }
 
-    val err = svrlOutputFailure.fold(valErr)(f => valErr :+ f)
-    SchematronResult(Seq.empty, err, svrlString)
+    val svrlString = svrl.mkString
+    svrlPath.foreach { uri =>
+      Try {
+        val os = new FileOutputStream(new File(uri))
+        os.write(svrlString.getBytes)
+        os.close()
+      }.failed.foreach(handler.validationErrorNoContext)
+    }
   }
 }
 
@@ -58,22 +58,7 @@ object SchematronValidator {
   val name = "schematron"
 
   object ConfigKeys {
-    val schPath = s"$name.path"
+    val schPath = s"$name"
     val svrlOutputFile = s"$name.svrl.file"
   }
 }
-
-/**
- * Represents an error reported by the Schematron validation
- * @param text the failed constraint text
- * @param location the failed constraint location
- */
-case class SchematronValidationError(text: String, location: String) extends ValidationFailure {
-  def getMessage: String = text
-}
-
-/**
- * Thrown when raw SVRL output is requested but cannot be written
- * @param e the cause
- */
-final case class SvrlOutputException(e: Throwable) extends Exception(e) with ValidationException

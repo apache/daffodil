@@ -20,10 +20,12 @@ package org.apache.daffodil.codegen.c
 import java.io.File
 import java.net.JarURLConnection
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
+import org.apache.daffodil.api
 import org.apache.daffodil.codegen.c.generators.AlignmentFillCodeGenerator
 import org.apache.daffodil.codegen.c.generators.AssertStatementGenerateCode
 import org.apache.daffodil.codegen.c.generators.BinaryBooleanCodeGenerator
@@ -60,12 +62,10 @@ import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthPrefixed
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
 
@@ -78,10 +78,10 @@ import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
  *
  * @param root Passes DFDL schema from which to generate code
  */
-class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
+class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
   // Note this class is not thread-safe due to mutable state needed to
   // implement WithDiagnostics trait
-  private var diagnostics: Seq[Diagnostic] = Nil
+  private var diagnostics: java.util.List[api.Diagnostic] = java.util.Collections.emptyList()
   private var errorStatus: Boolean = false
 
   /**
@@ -90,7 +90,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
    * subdirectory if it existed before.  Returns the newly created "c"
    * subdirectory.
    */
-  override def generateCode(outputDirArg: String): os.Path = {
+  override def generateCode(outputDirArg: String): Path = {
     // Get the paths of the output directory and its code subdirectory and
     // recreate the code subdirectory to ensure it has no old files in it
     val outputDir = os.Path(Paths.get(outputDirArg).toAbsolutePath)
@@ -123,7 +123,8 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
     // while appending any warnings to our diagnostics
     val cgState = new CodeGeneratorState(root)
     DaffodilCCodeGenerator.generateCode(root.document, cgState)
-    diagnostics = diagnostics ++ root.warnings
+    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
+    diagnostics.addAll(root.warnings.asJava)
     val versionHeaderText = cgState.generateVersionHeader
     val codeHeaderText = cgState.generateCodeHeader
     val codeFileText = cgState.generateCodeFile
@@ -137,23 +138,24 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
     os.write(generatedCodeFile, codeFileText)
 
     // Return our code directory in case caller wants to call compileCode next
-    codeDir
+    codeDir.toNIO
   }
 
   /**
    * Compiles any C files inside the given code directory.  Returns the path
    * of the newly built executable in order to run it in a TDML test.
    */
-  override def compileCode(codeDir: os.Path): os.Path = {
+  override def compileCode(codeDir: Path): Path = {
+    val codeDirOsPath = os.Path(codeDir)
     // Get the path of the executable we will build
-    val exe = if (isWin) codeDir / "daffodil.exe" else codeDir / "daffodil"
+    val exe = if (isWin) codeDirOsPath / "daffodil.exe" else codeDirOsPath / "daffodil"
 
     try {
       // Assemble the compilation command line arguments
       val command = pickCommand
       val cFlags = Seq("-std=gnu11")
       val includes = Seq("-Ilibcli", "-Ilibruntime")
-      val absFiles = os.walk(codeDir, skip = _.last == "tests").filter(_.ext == "c")
+      val absFiles = os.walk(codeDirOsPath, skip = _.last == "tests").filter(_.ext == "c")
       val relFiles = Seq("libcli/*.c", "libruntime/*.c")
       val libs = Seq("-lmxml")
 
@@ -161,7 +163,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
       if (command.nonEmpty) {
         val result = os
           .proc(command, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe)
-          .call(cwd = codeDir, stderr = os.Pipe)
+          .call(cwd = codeDirOsPath, stderr = os.Pipe)
         if (result.chunks.nonEmpty) {
           // Report any compilation output as a warning
           warning(result.toString())
@@ -181,7 +183,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
     if (!os.exists(exe)) error("No executable was built: %s", exe.toString)
 
     // Return our executable in case caller wants to run it next
-    exe
+    exe.toNIO
   }
 
   /**
@@ -226,7 +228,8 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
   private def warning(formatString: String, args: Any*): Unit = {
     val sde =
       new SchemaDefinitionWarning(WarnID.CodeGenerator, None, None, formatString, args: _*)
-    diagnostics :+= sde
+    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
+    diagnostics.add(sde)
   }
 
   /**
@@ -234,12 +237,13 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
    */
   private def error(formatString: String, args: Any*): Unit = {
     val sde = new SchemaDefinitionError(None, None, formatString, args: _*)
-    diagnostics :+= sde
+    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
+    diagnostics.add(sde)
     errorStatus = true
   }
 
   // Implements the WithDiagnostics trait
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
   override def isError: Boolean = errorStatus
 }
 

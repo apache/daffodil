@@ -29,6 +29,7 @@ import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.util.Properties
 import java.util.Scanner
 import java.util.concurrent.Executors
 import javax.xml.parsers.SAXParserFactory
@@ -40,41 +41,42 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 import scala.util.matching.Regex
 
+import org.apache.daffodil.api
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
+import org.apache.daffodil.api.exceptions.InvalidParserException
+import org.apache.daffodil.api.validation.ValidatorFactory
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.core.compiler.InvalidParserException
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.api.DaffodilConfig
-import org.apache.daffodil.lib.api.DaffodilConfigException
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.ValidationMode
-import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.NotYetImplementedException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.externalvars.BindingException
+import org.apache.daffodil.lib.iapi.DaffodilConfig
+import org.apache.daffodil.lib.iapi.DaffodilConfigException
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Timer
-import org.apache.daffodil.lib.validation.Validators
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.debugger.DebuggerExitException
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
-import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -84,12 +86,12 @@ import org.apache.daffodil.slf4j.DaffodilLogger
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
+import org.apache.daffodil.validation.NoValidator
 
 import com.siemens.ct.exi.core.EXIFactory
 import com.siemens.ct.exi.core.exceptions.EXIException
 import com.siemens.ct.exi.main.api.sax.EXIResult
 import com.siemens.ct.exi.main.api.sax.EXISource
-import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.output.NullOutputStream
 import org.rogach.scallop
 import org.rogach.scallop.ArgType
@@ -161,23 +163,47 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  implicit def validateConverter: ValueConverter[ValidationMode.Type] =
-    singleArgConverter[ValidationMode.Type]((s: String) => {
+  def validateConverter(
+    schema: ScallopOption[URISchemaSource],
+    parser: ScallopOption[File]
+  ): ValueConverter[api.validation.Validator] =
+    singleArgConverter[api.validation.Validator]((s: String) => {
       import ValidatorPatterns._
+
+      def doesNotSupportReloadableParsers(name: String): Boolean =
+        // TODO: DAFFODIL-1749, this will change once ticket is implemented
+        schema.isEmpty && parser.isDefined && !Seq("limited", "off").exists(_.contains(name))
+
+      val defaults = {
+        schema
+          .map(sch => ValidatorFactory.makeConfig(sch.uri.toString))
+          .getOrElse(new Properties())
+      }
+      val props = new Properties(defaults)
+
       s match {
-        case "on" => ValidationMode.Full
-        case "limited" => ValidationMode.Limited
-        case "off" => ValidationMode.Off
         case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
-          val config =
-            if (arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg))
-            else ConfigFactory.parseString(s"$name=$arg")
-          ValidationMode.Custom(Validators.get(name).make(config))
+          if (doesNotSupportReloadableParsers(name)) {
+            null
+          } else {
+            if (Seq(".conf", ".properties").exists(arg.endsWith)) {
+              val is = new FileInputStream(arg)
+              props.load(is)
+            } else {
+              val uss = fileResourceToURI(arg)
+              props.setProperty(name, uss.uri.toString)
+            }
+            Validators.get(name).make(props)
+          }
         case NoArgsPattern(name) if Validators.isRegistered(name) =>
-          ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
+          if (doesNotSupportReloadableParsers(name)) {
+            null
+          } else {
+            Validators.get(name).make(props)
+          }
         case _ =>
           throw new Exception(
-            "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
+            "Unrecognized Validator name %s.  Must be 'xerces', 'limited', 'off', or name of spi validator."
               .format(s)
           )
       }
@@ -238,56 +264,60 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
   implicit def fileResourceURIConverter: ValueConverter[URISchemaSource] =
     singleArgConverter[URISchemaSource]((s: String) => {
-      val optResolved =
-        try {
-          val uri =
-            if (File.separatorChar == '/' || s.startsWith("/")) {
-              // This is either a non-Windows system or a resource on the classpath. Either way we
-              // assume it is a valid URI except for things like spaces, which this URI
-              // constructor converts. We do not specify a schema since this might be a relative
-              // path
-              new URI(null, s, null)
-            } else {
-              // This is a Windows system, which has complex path resolution and paths that are
-              // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
-              // settle for an absolute URI
-              val p = Paths.get(s)
-              if (p.isAbsolute() || s.startsWith("\\")) {
-                // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
-                // starts with a backslash (which resolves relative to the current drive instead
-                // of the current working directory), then there is no valid relative URI
-                // representation, so we just convert it to an absolute URI
-                p.toUri
-              } else {
-                // this Windows path is relative to the current working directory. We can convert
-                // it to a relative URI by just switching all the path separators. We do not
-                // specify a schema since this is a relative path
-                new URI(null, s.replace('\\', '/'), null)
-              }
-            }
-          // At this point we have a valid URI, which could be absolute or relative, with relative
-          // URIs resolved from the current working directory. We create a fake contextPath that represents
-          // a fake file in the current working directory and pass that as the contextSource to the
-          // resolveSchemaLocation function to find the actual file or resource. This is necessary because
-          // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
-          val contextPath = Paths.get("fakeContext.dfdl.xsd")
-          val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
-          XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
-        } catch {
-          case _: Exception => throw new Exception(s"Could not find file or resource $s")
-        }
-      optResolved match {
-        case Some((uriSchemaSource, relToAbs)) => {
-          if (relToAbs) {
-            Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$s")
-          }
-          uriSchemaSource
-        }
-        case None => {
-          throw new Exception(s"Could not find file or resource $s")
-        }
-      }
+      fileResourceToURI(s)
     })
+
+  private def fileResourceToURI(path: String) = {
+    val optResolved =
+      try {
+        val uri =
+          if (File.separatorChar == '/' || path.startsWith("/")) {
+            // This is either a non-Windows system or a resource on the classpath. Either way we
+            // assume it is a valid URI except for things like spaces, which this URI
+            // constructor converts. We do not specify a schema since this might be a relative
+            // path
+            new URI(null, path, null)
+          } else {
+            // This is a Windows system, which has complex path resolution and paths that are
+            // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
+            // settle for an absolute URI
+            val p = Paths.get(path)
+            if (p.isAbsolute() || path.startsWith("\\")) {
+              // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
+              // starts with a backslash (which resolves relative to the current drive instead
+              // of the current working directory), then there is no valid relative URI
+              // representation, so we just convert it to an absolute URI
+              p.toUri
+            } else {
+              // this Windows path is relative to the current working directory. We can convert
+              // it to a relative URI by just switching all the path separators. We do not
+              // specify a schema since this is a relative path
+              new URI(null, path.replace('\\', '/'), null)
+            }
+          }
+        // At this point we have a valid URI, which could be absolute or relative, with relative
+        // URIs resolved from the current working directory. We create a fake contextPath that represents
+        // a fake file in the current working directory and pass that as the contextSource to the
+        // resolveSchemaLocation function to find the actual file or resource. This is necessary because
+        // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
+        val contextPath = Paths.get("fakeContext.dfdl.xsd")
+        val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
+        XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
+      } catch {
+        case _: Exception => throw new Exception(s"Could not find file or resource $path")
+      }
+    optResolved match {
+      case Some((uriSchemaSource, relToAbs)) => {
+        if (relToAbs) {
+          Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$path")
+        }
+        uriSchemaSource
+      }
+      case None => {
+        throw new Exception(s"Could not find file or resource $path")
+      }
+    }
+  }
 
   printedName = "Apache Daffodil"
 
@@ -405,12 +435,15 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
+    val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
-      default = Some(ValidationMode.Off),
-      argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
-    )
+      default = Some(NoValidator),
+      argName = "validator_name",
+      descr =
+        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
+          "is an optional schema to validate against, a key/value configuration file or a required schematron" +
+          " schema in the case of the schematron validator plugin."
+    )(validateConverter(schema, parser))
     val debug = opt[Option[String]](
       argName = "file",
       descr =
@@ -445,8 +478,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     }
 
     validateOpt(parser, validate) {
-      case (Some(_), Some(ValidationMode.Full)) =>
-        Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
+      case (Some(_), Some(null)) =>
+        Left("The validation name must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(())
     }
 
@@ -532,12 +565,15 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
+    val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
-      default = Some(ValidationMode.Off),
-      argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
-    )
+      default = Some(NoValidator),
+      argName = "validator_name",
+      descr =
+        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
+          "is an optional schema to validate against, a key/value configuration file or a required schematron" +
+          " schema in the case of the schematron validator plugin."
+    )(validateConverter(schema, parser))
     val debug = opt[Option[String]](
       argName = "file",
       descr =
@@ -764,12 +800,15 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       default = Some(false),
       descr = "Perform unparse instead of parse for performance test"
     )
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
+    val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
-      default = Some(ValidationMode.Off),
-      argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
-    )
+      default = Some(NoValidator),
+      argName = "validator_name",
+      descr =
+        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
+          "is an optional schema to validate against, a key/value configuration file or a required schematron" +
+          " schema in the case of the schematron validator plugin."
+    )(validateConverter(schema, parser))
 
     val infile = trailArg[String](
       required = true,
@@ -998,8 +1037,8 @@ class Main(
     bindingsWithUpdates
   }
 
-  def displayDiagnostics(pr: WithDiagnostics): Unit = {
-    pr.getDiagnostics.foreach { d =>
+  def displayDiagnostics(pr: api.WithDiagnostics): Unit = {
+    pr.getDiagnostics.forEach { d =>
       if (d.isError) {
         Logger.log.error(d.toString())
       } else {
@@ -1021,7 +1060,7 @@ class Main(
     val configFileVars: Seq[Binding] =
       optDafConfig.map { _.externalVariableBindings }.getOrElse(Seq())
 
-    val individualVars = ExternalVariablesLoader.mapToBindings(vars)
+    val individualVars = ExternalVariablesLoader.mapToBindings(vars.asJava)
 
     val bindings = overrideBindings(individualVars, configFileVars)
     bindings
@@ -1030,7 +1069,7 @@ class Main(
   def createProcessorFromParser(
     savedParser: File,
     path: Option[String],
-    mode: ValidationMode.Type
+    validator: api.validation.Validator
   ) = {
     try {
       val compiler = Compiler()
@@ -1044,7 +1083,7 @@ class Main(
           Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
           Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
         }
-        Some(processor.withValidationMode(mode))
+        Some(processor.withValidator(validator))
       } else {
         None
       }
@@ -1057,10 +1096,10 @@ class Main(
   }
 
   def withDebugOrTrace(
-    proc: DFDL.DataProcessor,
+    proc: api.DataProcessor,
     traceArg: ScallopOption[Boolean],
     debugArg: ScallopOption[Option[String]]
-  ): DFDL.DataProcessor = {
+  ): api.DataProcessor = {
     (traceArg() || debugArg.isDefined) match {
       case true => {
         val runner =
@@ -1077,7 +1116,7 @@ class Main(
     debug: ScallopOption[Option[String]]
   ) = {
     if (trace()) {
-      new TraceDebuggerRunner(STDOUT)
+      InteractiveDebuggerRunnerFactory.getTraceDebuggerRunner(STDOUT)
     } else {
       if (System.console == null) {
         Logger.log.warn(
@@ -1096,8 +1135,8 @@ class Main(
     rootNS: Option[RefQName],
     path: Option[String],
     tunablesMap: Map[String, String],
-    mode: ValidationMode.Type
-  ): Option[DFDL.DataProcessor] = {
+    validator: api.validation.Validator
+  ): Option[api.DataProcessor] = {
     val compiler = {
       val c = Compiler().withTunables(tunablesMap)
       rootNS match {
@@ -1117,14 +1156,18 @@ class Main(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
         if (!processorFactory.isError) {
-          val processor = processorFactory.onPath(path.getOrElse("/")).withValidationMode(mode)
+          val processor = processorFactory
+            .onPath(path.getOrElse("/"))
+            .withValidator(validator)
+            // needed to access SchemaSetRuntimeData
+            .asInstanceOf[DataProcessor]
           if (processor.isError) {
             displayDiagnostics(processor)
             None
           } else {
             displayDiagnostics(processor)
             Logger.log.whenDebugEnabled {
-              val processorImpl = processor.asInstanceOf[DataProcessor]
+              val processorImpl = processor
               Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
               Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
             }
@@ -1144,7 +1187,7 @@ class Main(
     rootNS: Option[RefQName],
     tunables: Map[String, String],
     language: String
-  ): Option[DFDL.CodeGenerator] = {
+  ): Option[api.CodeGenerator] = {
     val compiler = {
       val c = Compiler().withTunables(tunables)
       rootNS match {
@@ -1199,7 +1242,7 @@ class Main(
 
         val optDafConfig = parseOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
-        val processor: Option[DFDL.DataProcessor] = {
+        val processor: Option[api.DataProcessor] = {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.toOption, validate)
           } else {
@@ -1213,9 +1256,12 @@ class Main(
               validate
             )
           }
-        }.map {
-          _.withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig))
-        }.map { _.withValidationMode(validate) }
+        }.map { p =>
+          p.asInstanceOf[DFDL.DataProcessor]
+            .withExternalVariables(
+              combineExternalVariables(parseOpts.vars, optDafConfig)
+            )
+        }.map { _.withValidator(validate) }
           .map { withDebugOrTrace(_, parseOpts.trace, parseOpts.debug) }
 
         val rc = processor match {
@@ -1261,6 +1307,8 @@ class Main(
                 val infosetResult =
                   Timer.getResult("parsing", infosetHandler.parse(inStream, output))
                 val parseResult = infosetResult.parseResult
+                  // needed to access resultState
+                  .asInstanceOf[DFDL.ParseResult]
 
                 val finfo = parseResult.resultState.asInstanceOf[FormatInfo]
                 val loc = parseResult.resultState.currentLocation.asInstanceOf[DataLoc]
@@ -1405,9 +1453,10 @@ class Main(
               validate
             )
           }
-        }.map {
-          _.withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig))
-        }.map { _.withValidationMode(validate) }
+        }.map { p =>
+          p.asInstanceOf[DFDL.DataProcessor]
+            .withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig))
+        }.map { _.withValidator(validate) }
 
         val rc: ExitCode.Value = processor match {
           case None => ExitCode.UnableToCreateProcessor
@@ -1554,9 +1603,10 @@ class Main(
               validate
             )
           }
-        }.map {
-          _.withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig))
-        }.map { _.withValidationMode(validate) }
+        }.map { p =>
+          p.asInstanceOf[DFDL.DataProcessor]
+            .withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig))
+        }.map { _.withValidator(validate) }
           .map { withDebugOrTrace(_, unparseOpts.trace, unparseOpts.debug) }
 
         val output = unparseOpts.output.toOption match {
@@ -1639,7 +1689,7 @@ class Main(
       case Some(conf.save) => {
         val saveOpts = conf.save
 
-        val validate = ValidationMode.Off
+        val validate = NoValidator
         val optDafConfig = saveOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
         val tunables =
@@ -2074,7 +2124,6 @@ class Main(
       }
     ret
   }
-
 }
 
 class EXIErrorHandler extends org.xml.sax.ErrorHandler with javax.xml.transform.ErrorListener {

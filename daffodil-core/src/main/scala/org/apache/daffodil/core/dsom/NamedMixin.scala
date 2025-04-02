@@ -19,7 +19,7 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
 
-import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.NamedMixinBase
 import org.apache.daffodil.lib.xml._

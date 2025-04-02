@@ -22,9 +22,9 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import scala.xml.SAXParseException
 
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.runtime1.processors.ParseResult
 
@@ -191,7 +191,7 @@ class TestSAXParseAPI {
    */
   @Test def testDaffodilParseXMLReader_parse_inputSource_with_backing_stream(): Unit = {
     val (
-      xmlReader: DFDL.DaffodilParseXMLReader,
+      xmlReader: api.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
@@ -210,7 +210,7 @@ class TestSAXParseAPI {
    */
   @Test def testDaffodilParseXMLReader_parse_inputStream(): Unit = {
     val (
-      xmlReader: DFDL.DaffodilParseXMLReader,
+      xmlReader: api.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
@@ -228,7 +228,7 @@ class TestSAXParseAPI {
    */
   @Test def testDaffodilParseXMLReader_parse_byteArray(): Unit = {
     val (
-      xmlReader: DFDL.DaffodilParseXMLReader,
+      xmlReader: api.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
@@ -244,7 +244,7 @@ class TestSAXParseAPI {
    * tests that the error handler is populated if we try to parse an empty input
    */
   @Test def testDaffodilParseXMLReader_parse_errorHandler_empty_byteArray(): Unit = {
-    val (xmlReader: DFDL.DaffodilParseXMLReader, _, inArray: Array[Byte]) =
+    val (xmlReader: api.DaffodilParseXMLReader, _, inArray: Array[Byte]) =
       setupSAXParserTest(dp, "")
     val eh = new BuilderErrorHandler
     xmlReader.setErrorHandler(eh)
