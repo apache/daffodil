@@ -58,7 +58,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt-get install -y libmxml-dev rpm wine winetricks
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y libmxml-dev rpm wine32 winetricks
           sudo locale-gen $LANG
 
           INNO_SETUP_EXE="innosetup-6.4.1.exe"
