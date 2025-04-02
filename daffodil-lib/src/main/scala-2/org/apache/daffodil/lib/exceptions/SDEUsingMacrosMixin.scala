@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.exceptions
 
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 
 trait SDEUsingMacrosMixin {
   final def schemaDefinitionUnless(

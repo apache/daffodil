@@ -24,7 +24,7 @@ import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.CharSequenceReader
 import scala.xml.NamespaceBinding
 
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.xml.NS

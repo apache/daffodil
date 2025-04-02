@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.lib.validation
 
-import org.apache.daffodil.lib.api.ValidatorFactory
+import org.apache.daffodil.lib.iapi.ValidatorFactory
 import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
 
 /**
- * Access SPI registered [[org.apache.daffodil.lib.api.ValidatorFactory]] instances.
+ * Access SPI registered [[org.apache.daffodil.lib.iapi.ValidatorFactory]] instances.
  *
  * Registered instances provide a unique name for lookup.
  */
@@ -32,9 +32,10 @@ object Validators {
 
   /**
    * Get the factory by name or throw
+ *
    * @param name registered name of the validator factory
    * @throws ValidatorNotRegisteredException when factory is not found in the registered services
-   * @return [[org.apache.daffodil.lib.api.ValidatorFactory]] the factory instance
+   * @return [[org.apache.daffodil.lib.iapi.ValidatorFactory]] the factory instance
    */
   @throws(classOf[ValidatorNotRegisteredException])
   def get(name: String): ValidatorFactory =
@@ -42,8 +43,9 @@ object Validators {
 
   /**
    * Optionally find the factory
+ *
    * @param name registered name of the validator factory
-   * @return [[org.apache.daffodil.lib.api.ValidatorFactory]] optional factory instance
+   * @return [[org.apache.daffodil.lib.iapi.ValidatorFactory]] optional factory instance
    */
   def find(name: String): Option[ValidatorFactory] = impls.get(name)
 

@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.api.ThinDiagnostic
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.ThinDiagnostic
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.externalvars.Binding

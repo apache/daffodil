@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.core.api;
+package org.apache.daffodil.core.iapi;
 
 import scala.xml.NodeSeq
 
 import org.apache.daffodil.core.util.TestUtils.compileSchema
-import org.apache.daffodil.lib.api._
+import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.util._
 
 import org.junit.Assert.fail

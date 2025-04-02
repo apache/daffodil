@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.runtime1.api
+package org.apache.daffodil.runtime1.iapi
 
 import java.lang.{ Long => JLong }
 import scala.xml.NamespaceBinding

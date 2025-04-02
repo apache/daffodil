@@ -46,19 +46,19 @@ object Rat {
 
     // Apache Rat thinks these files are binary since the file name contains ".lib"
     file(
-      "daffodil-schematron/src/main/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"
+      "daffodil-schematron/src/main/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
     ),
     file(
-      "daffodil-japi/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"
+      "daffodil-japi/src/test/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
     ),
     file(
-      "daffodil-sapi/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"
+      "daffodil-sapi/src/test/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
     ),
     file(
-      "daffodil-lib/src/main/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"
+      "daffodil-lib/src/main/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
     ),
     file(
-      "daffodil-lib/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"
+      "daffodil-lib/src/test/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
     ),
 
     // test files that cannot include the Apache license without breaking tests

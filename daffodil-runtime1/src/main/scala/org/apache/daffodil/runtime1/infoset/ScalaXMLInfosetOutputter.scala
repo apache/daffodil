@@ -26,10 +26,10 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDLPrimType
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.DFDLPrimType
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOutputter {
 

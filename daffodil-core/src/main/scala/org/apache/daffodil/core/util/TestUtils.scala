@@ -31,13 +31,13 @@ import org.apache.daffodil.core.compiler.ProcessorFactory
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.api._
+import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.exceptions.MultiException
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.api.MetadataHandler
+import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.debugger._
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter

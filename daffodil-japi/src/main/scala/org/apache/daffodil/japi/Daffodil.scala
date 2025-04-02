@@ -32,25 +32,25 @@ import org.apache.daffodil.japi.debugger._
 import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
 import org.apache.daffodil.japi.packageprivate._
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.lib.iapi.URISchemaSource
+import org.apache.daffodil.lib.iapi.Validator
+import org.apache.daffodil.lib.iapi.{ DataLocation => SDataLocation }
+import org.apache.daffodil.lib.iapi.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.lib.iapi.{ LocationInSchemaFile => SLocationInSchemaFile }
+import org.apache.daffodil.lib.iapi.{ WithDiagnostics => SWithDiagnostics }
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL.{
+import org.apache.daffodil.runtime1.iapi.DFDL.{
   DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException
 }
-import org.apache.daffodil.runtime1.api.DFDL.{
+import org.apache.daffodil.runtime1.iapi.DFDL.{
   DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler
 }
-import org.apache.daffodil.runtime1.api.DFDL.{
+import org.apache.daffodil.runtime1.iapi.DFDL.{
   DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException
 }
-import org.apache.daffodil.runtime1.api.MetadataHandler
+import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
@@ -527,7 +527,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    */
   def withValidator(validator: Validator): DataProcessor =
     copy(dp =
-      dp.withValidationMode(org.apache.daffodil.lib.api.ValidationMode.Custom(validator))
+      dp.withValidationMode(org.apache.daffodil.lib.iapi.ValidationMode.Custom(validator))
     )
 
   /**
@@ -576,13 +576,13 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
   /**
-   * Walks the handler over the runtime [[org.apache.daffodil.runtime1.api.Metadata]] structures.
+   * Walks the handler over the runtime [[org.apache.daffodil.runtime1.iapi.Metadata]] structures.
    * These provide information about name, namespace, type, simple/complex, etc.
    *
    * This is used to interface Daffodil runtime1 metadata to the metadata structures
    * of other software systems.
    *
-   * See [[org.apache.daffodil.runtime1.api.MetadataHandler]] for more motivating materials about
+   * See [[org.apache.daffodil.runtime1.iapi.MetadataHandler]] for more motivating materials about
    * runtime1 metadata walking.
    *
    * @param handler - the handler is called-back during the walk as each metadata structure is encountered.

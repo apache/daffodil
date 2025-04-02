@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime1.api
+package org.apache.daffodil.runtime1.iapi
 
 import java.lang.{ Boolean => JBoolean }
 import java.lang.{ Byte => JByte }

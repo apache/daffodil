@@ -23,8 +23,8 @@ import java.io.ByteArrayOutputStream
 import org.apache.daffodil.codegen.c.DaffodilCCodeGenerator
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils

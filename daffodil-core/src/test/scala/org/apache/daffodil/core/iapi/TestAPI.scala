@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.core.api
+package org.apache.daffodil.core.iapi
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._

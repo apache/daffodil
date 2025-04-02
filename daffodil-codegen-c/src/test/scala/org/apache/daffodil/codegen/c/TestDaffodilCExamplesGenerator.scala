@@ -18,7 +18,7 @@
 package org.apache.daffodil.codegen.c
 
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.lib.util.SchemaUtils
 
 import org.junit.Test

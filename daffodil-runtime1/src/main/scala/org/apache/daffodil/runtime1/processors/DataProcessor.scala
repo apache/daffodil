@@ -28,23 +28,23 @@ import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.runtime1.api.MetadataHandler
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()
 }
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.ValidationException
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationMode
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.WithDiagnostics
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.ValidationException
+import org.apache.daffodil.lib.iapi.ValidationFailure
+import org.apache.daffodil.lib.iapi.ValidationMode
+import org.apache.daffodil.lib.iapi.ValidationResult
+import org.apache.daffodil.lib.iapi.Validator
+import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.dsom._
 object EqualityNoWarn3 {

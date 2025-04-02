@@ -25,7 +25,7 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.GlobalComplexTypeDef
 import org.apache.daffodil.core.dsom.GlobalElementDecl
 import org.apache.daffodil.core.dsom.SchemaComponent
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType

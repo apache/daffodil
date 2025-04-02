@@ -23,7 +23,7 @@ import java.io.ByteArrayOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter

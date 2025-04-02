@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.dsom
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._

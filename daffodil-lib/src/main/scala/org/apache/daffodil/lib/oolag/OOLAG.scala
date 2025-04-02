@@ -19,8 +19,8 @@ package org.apache.daffodil.lib.oolag
 
 import scala.collection.mutable
 
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.WithDiagnostics
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException

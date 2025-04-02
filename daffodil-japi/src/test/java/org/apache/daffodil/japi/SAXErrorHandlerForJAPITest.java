@@ -17,11 +17,10 @@
 
 package org.apache.daffodil.japi;
 
-import org.apache.daffodil.lib.api.Diagnostic;
+import org.apache.daffodil.lib.iapi.Diagnostic;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
-import scala.collection.Seq;
 
 import java.util.ArrayList;
 

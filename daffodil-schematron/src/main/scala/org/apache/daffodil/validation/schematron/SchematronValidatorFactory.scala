@@ -23,9 +23,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.ValidatorFactory
-import org.apache.daffodil.lib.api.ValidatorInitializationException
+import org.apache.daffodil.lib.iapi.Validator
+import org.apache.daffodil.lib.iapi.ValidatorFactory
+import org.apache.daffodil.lib.iapi.ValidatorInitializationException
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
 import com.typesafe.config.Config

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Accessor
 import org.apache.daffodil.lib.util.CursorImplMixin

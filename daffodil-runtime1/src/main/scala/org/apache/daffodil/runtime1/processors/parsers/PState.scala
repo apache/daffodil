@@ -25,9 +25,9 @@ import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
@@ -42,8 +42,8 @@ import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Pool
 import org.apache.daffodil.lib.util.Poolable
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.api.InfosetDocument
+import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.iapi.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DIComplexState
 import org.apache.daffodil.runtime1.infoset.DIElement

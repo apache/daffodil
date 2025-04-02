@@ -19,9 +19,9 @@ package org.apache.daffodil.runtime1.infoset
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 /**
  * Defines the interface for InfosetOutputters.

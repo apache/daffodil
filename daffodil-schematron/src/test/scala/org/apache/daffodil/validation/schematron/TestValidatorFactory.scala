@@ -18,7 +18,7 @@
 package org.apache.daffodil.validation.schematron
 
 import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.lib.api.ValidatorInitializationException
+import org.apache.daffodil.lib.iapi.ValidatorInitializationException
 
 import com.typesafe.config.ConfigFactory
 import org.junit.Test

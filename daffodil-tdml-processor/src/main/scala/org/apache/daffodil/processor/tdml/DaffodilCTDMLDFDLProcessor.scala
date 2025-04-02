@@ -24,11 +24,11 @@ import scala.xml.Node
 import scala.xml.XML
 
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.ValidationMode
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope

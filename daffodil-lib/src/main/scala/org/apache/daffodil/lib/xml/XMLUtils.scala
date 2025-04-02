@@ -33,8 +33,8 @@ import scala.math.abs
 import scala.util.matching.Regex
 import scala.xml._
 
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion

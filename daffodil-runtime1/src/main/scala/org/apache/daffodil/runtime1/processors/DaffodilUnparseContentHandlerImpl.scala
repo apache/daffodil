@@ -28,9 +28,9 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnhandledSAXException
-import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument

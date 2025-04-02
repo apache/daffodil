@@ -477,9 +477,9 @@ def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source 
     // these files, so for now these are undocumented.
     //
     // FIXME: DAFFODIL-2902
-    //    str.contains(oad + "/runtime1/api/DFDLPrimType") ||
-    //    str.contains(oad + "/runtime1/api/Infoset") ||
-    //    str.contains(oad + "/runtime1/api/Metadata")
+    //    str.contains(oad + "/runtime1/iapi/DFDLPrimType") ||
+    //    str.contains(oad + "/runtime1/iapi/Infoset") ||
+    //    str.contains(oad + "/runtime1/iapi/Metadata")
   }
   val res = included && !excludedForJAPI
   res

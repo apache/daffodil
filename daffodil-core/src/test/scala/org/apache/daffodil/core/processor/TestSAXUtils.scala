@@ -24,12 +24,12 @@ import java.nio.file.Paths
 import scala.xml.Elem
 
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ParseResult

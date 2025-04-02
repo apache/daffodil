@@ -28,8 +28,8 @@ import org.apache.daffodil.lib.Implicits._
 import org.junit.Assert._
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.compiler._
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits

@@ -22,7 +22,7 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.dsom.Term
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.runtime1.dpath.NodeInfo

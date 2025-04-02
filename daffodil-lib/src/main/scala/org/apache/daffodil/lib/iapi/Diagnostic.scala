@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.lib.api
+package org.apache.daffodil.lib.iapi
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation

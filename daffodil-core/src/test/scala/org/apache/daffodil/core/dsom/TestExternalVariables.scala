@@ -24,7 +24,7 @@ import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.ns2String
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.NS

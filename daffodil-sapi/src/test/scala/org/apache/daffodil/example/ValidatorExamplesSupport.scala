@@ -22,11 +22,11 @@ import java.io.FileInputStream
 import java.io.InputStream
 import scala.util.Using
 
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.ValidationWarning
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.ValidatorFactory
+import org.apache.daffodil.lib.iapi.ValidationFailure
+import org.apache.daffodil.lib.iapi.ValidationResult
+import org.apache.daffodil.lib.iapi.ValidationWarning
+import org.apache.daffodil.lib.iapi.Validator
+import org.apache.daffodil.lib.iapi.ValidatorFactory
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DataProcessor
 import org.apache.daffodil.sapi.infoset.NullInfosetOutputter

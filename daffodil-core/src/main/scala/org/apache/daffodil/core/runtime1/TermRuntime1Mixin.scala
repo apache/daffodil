@@ -18,7 +18,7 @@
 package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.lib.util.Logger

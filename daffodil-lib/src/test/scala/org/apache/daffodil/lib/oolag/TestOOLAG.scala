@@ -18,7 +18,7 @@
 package org.apache.daffodil.lib.oolag
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.oolag.OOLAG._

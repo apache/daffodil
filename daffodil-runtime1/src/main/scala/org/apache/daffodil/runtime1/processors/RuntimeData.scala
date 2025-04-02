@@ -24,7 +24,7 @@ import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
@@ -44,15 +44,15 @@ import org.apache.daffodil.lib.xml.QNameBase
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.StepQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.ChoiceMetadata
-import org.apache.daffodil.runtime1.api.ComplexElementMetadata
-import org.apache.daffodil.runtime1.api.DFDLPrimType
-import org.apache.daffodil.runtime1.api.ElementMetadata
-import org.apache.daffodil.runtime1.api.Metadata
-import org.apache.daffodil.runtime1.api.ModelGroupMetadata
-import org.apache.daffodil.runtime1.api.SequenceMetadata
-import org.apache.daffodil.runtime1.api.SimpleElementMetadata
-import org.apache.daffodil.runtime1.api.TermMetadata
+import org.apache.daffodil.runtime1.iapi.ChoiceMetadata
+import org.apache.daffodil.runtime1.iapi.ComplexElementMetadata
+import org.apache.daffodil.runtime1.iapi.DFDLPrimType
+import org.apache.daffodil.runtime1.iapi.ElementMetadata
+import org.apache.daffodil.runtime1.iapi.Metadata
+import org.apache.daffodil.runtime1.iapi.ModelGroupMetadata
+import org.apache.daffodil.runtime1.iapi.SequenceMetadata
+import org.apache.daffodil.runtime1.iapi.SimpleElementMetadata
+import org.apache.daffodil.runtime1.iapi.TermMetadata
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
@@ -66,7 +66,7 @@ import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.util.regex.Matcher
 
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.OKOrError

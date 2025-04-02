@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.sapi
 
-import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.lib.iapi.{ Diagnostic => SDiagnostic }
 
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException

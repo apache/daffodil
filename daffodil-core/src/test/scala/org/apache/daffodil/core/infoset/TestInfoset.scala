@@ -21,12 +21,12 @@ import java.math.BigInteger
 
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.dsom.{ ElementBase, Root }
-import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.unparsers.UStateMain

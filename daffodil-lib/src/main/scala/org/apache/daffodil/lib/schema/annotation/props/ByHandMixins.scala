@@ -19,8 +19,8 @@ package org.apache.daffodil.lib.schema.annotation.props
 
 import java.lang.{ Integer => JInt }
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.cookers.NilValueLiteralCharacterCooker
 import org.apache.daffodil.lib.cookers.NilValueLiteralValueBinaryCooker
 import org.apache.daffodil.lib.cookers.NilValueLiteralValueTextCooker

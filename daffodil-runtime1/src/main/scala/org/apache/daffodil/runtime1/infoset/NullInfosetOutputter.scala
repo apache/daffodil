@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 /**
  * Ignores all infoset events, outputting nothing

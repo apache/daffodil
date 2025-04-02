@@ -40,8 +40,8 @@ import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc

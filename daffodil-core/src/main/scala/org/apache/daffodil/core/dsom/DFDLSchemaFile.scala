@@ -21,7 +21,7 @@ import java.io.File
 import scala.xml.Elem
 
 import org.apache.daffodil.core.dsom.IIUtils._
-import org.apache.daffodil.lib.api._
+import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.XercesSchemaFileLocation

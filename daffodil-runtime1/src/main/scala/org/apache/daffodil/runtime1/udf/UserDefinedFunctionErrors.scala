@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.udf
 
-import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.util.Maybe

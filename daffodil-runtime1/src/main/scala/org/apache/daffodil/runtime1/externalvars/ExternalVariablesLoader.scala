@@ -23,7 +23,7 @@ import scala.collection.immutable.Queue
 import scala.io.Codec.string2codec
 import scala.xml.Node
 
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.externalvars._

@@ -26,9 +26,9 @@ import org.apache.daffodil.io.StringDataInputStreamForUnparse
 import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.equality.EqualitySuppressUnusedImportWarning
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
@@ -41,7 +41,7 @@ import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.dpath.UnparserBlocking
 import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIDocument

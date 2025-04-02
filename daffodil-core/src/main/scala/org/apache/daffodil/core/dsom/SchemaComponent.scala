@@ -20,8 +20,8 @@ package org.apache.daffodil.core.dsom
 import scala.xml.Node
 
 import org.apache.daffodil.core.runtime1.SchemaComponentRuntime1Mixin
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.PropTypes
 import org.apache.daffodil.lib.util.Delay

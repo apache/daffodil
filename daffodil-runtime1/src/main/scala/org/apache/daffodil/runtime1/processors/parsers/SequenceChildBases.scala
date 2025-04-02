@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.iapi.ValidationMode
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.util.Maybe

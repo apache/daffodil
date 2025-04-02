@@ -60,12 +60,12 @@ import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthPrefixed
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
 

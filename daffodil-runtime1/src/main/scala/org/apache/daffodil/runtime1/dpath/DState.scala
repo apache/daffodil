@@ -38,8 +38,8 @@ object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 

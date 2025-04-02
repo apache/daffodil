@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.xml
 
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 

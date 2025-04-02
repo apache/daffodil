@@ -19,8 +19,8 @@ package org.apache.daffodil.runtime1.dsom
 
 import scala.runtime.ScalaRunTime.stringOf
 
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.util.Delay

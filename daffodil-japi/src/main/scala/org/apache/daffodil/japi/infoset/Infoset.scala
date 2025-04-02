@@ -20,9 +20,9 @@ package org.apache.daffodil.japi.infoset
 import org.apache.daffodil.japi.packageprivate._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MaybeBoolean
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.{ InfosetInputter => SInfosetInputter }

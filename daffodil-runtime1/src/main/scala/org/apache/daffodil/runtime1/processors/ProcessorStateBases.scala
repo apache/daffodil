@@ -29,10 +29,10 @@ import org.apache.daffodil.io.processors.charset.CoderInfo
 import org.apache.daffodil.io.processors.charset.DecoderInfo
 import org.apache.daffodil.io.processors.charset.EncoderDecoderMixin
 import org.apache.daffodil.io.processors.charset.EncoderInfo
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
@@ -47,8 +47,8 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.iapi.InfosetElement
 import org.apache.daffodil.runtime1.dpath.DState
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError

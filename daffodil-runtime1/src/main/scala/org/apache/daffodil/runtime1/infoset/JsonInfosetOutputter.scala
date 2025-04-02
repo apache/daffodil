@@ -21,11 +21,11 @@ import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
-import org.apache.daffodil.runtime1.api.DFDLPrimType
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetElement
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.DFDLPrimType
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetElement
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 

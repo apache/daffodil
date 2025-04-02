@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
 import org.apache.daffodil.core.util.Fakes
-import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 

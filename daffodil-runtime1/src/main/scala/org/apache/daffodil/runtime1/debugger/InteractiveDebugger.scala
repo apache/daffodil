@@ -20,8 +20,8 @@ package org.apache.daffodil.runtime1.debugger
 import java.io.File
 import scala.collection.immutable.ArraySeq
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.oolag.ErrorsNotYetRecorded
@@ -35,7 +35,7 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.BasicComponent
-import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.iapi.InfosetElement
 import org.apache.daffodil.runtime1.dpath.ExpressionEvaluationException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom.ExpressionCompilerClass
@@ -2357,7 +2357,7 @@ class DebuggerHost(override val tunable: DaffodilTunables)
   // Members declared in org.apache.daffodil.lib.xml.ResolvesQNames
   def namespaces: scala.xml.NamespaceBinding = ???
   def noPrefixNamespace: NS = ???
-  def unqualifiedPathStepPolicy: org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy = ???
+  def unqualifiedPathStepPolicy: org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy = ???
   // Members declared in org.apache.daffodil.lib.exceptions.ThrowsSDE
   def schemaFileLocation: org.apache.daffodil.lib.exceptions.SchemaFileLocation = ???
 

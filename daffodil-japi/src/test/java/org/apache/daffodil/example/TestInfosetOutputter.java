@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import org.apache.daffodil.japi.infoset.InfosetOutputter;
 
 // TODO: Shouldn't need to import things not in the japi package
-import org.apache.daffodil.runtime1.api.InfosetArray;
-import org.apache.daffodil.runtime1.api.InfosetComplexElement;
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement;
+import org.apache.daffodil.runtime1.iapi.InfosetArray;
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement;
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement;
 
 import static org.junit.Assert.assertEquals;
 

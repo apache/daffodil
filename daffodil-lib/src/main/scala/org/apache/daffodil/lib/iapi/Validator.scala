@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.lib.api
+package org.apache.daffodil.lib.iapi
 
 import org.apache.daffodil.lib.util.SimpleNamedLoadableService
 
@@ -47,9 +47,10 @@ trait ValidatorFactory extends SimpleNamedLoadableService {
 
   /**
    * The factory method to generate the Validator instance
+ *
    * @param config com.typesafe.config.Config to pass to validator instance
-   * @return [[org.apache.daffodil.lib.api.Validator]] instance ready to execute
-   * @throws org.apache.daffodil.lib.api.ValidatorInitializationException when initialization fails
+   * @return [[org.apache.daffodil.lib.iapi.Validator]] instance ready to execute
+   * @throws org.apache.daffodil.lib.iapi.ValidatorInitializationException when initialization fails
    */
   @throws(classOf[ValidatorInitializationException])
   def make(config: Config): Validator
@@ -66,7 +67,7 @@ trait ValidationResult {
 object ValidationResult {
 
   /**
-   * an empty [[org.apache.daffodil.lib.api.ValidationResult]]
+   * an empty [[org.apache.daffodil.lib.iapi.ValidationResult]]
    */
   val empty: ValidationResult = ValidationResult(Seq.empty, Seq.empty)
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.core.api
+package org.apache.daffodil.core.iapi
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Using
@@ -24,19 +24,19 @@ import scala.xml.Elem
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util._
-import org.apache.daffodil.runtime1.api.ChoiceMetadata
-import org.apache.daffodil.runtime1.api.ComplexElementMetadata
-import org.apache.daffodil.runtime1.api.DFDL.ParseResult
-import org.apache.daffodil.runtime1.api.ElementMetadata
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetElement
-import org.apache.daffodil.runtime1.api.InfosetItem
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
-import org.apache.daffodil.runtime1.api.Metadata
-import org.apache.daffodil.runtime1.api.MetadataHandler
-import org.apache.daffodil.runtime1.api.SequenceMetadata
-import org.apache.daffodil.runtime1.api.SimpleElementMetadata
+import org.apache.daffodil.runtime1.iapi.ChoiceMetadata
+import org.apache.daffodil.runtime1.iapi.ComplexElementMetadata
+import org.apache.daffodil.runtime1.iapi.DFDL.ParseResult
+import org.apache.daffodil.runtime1.iapi.ElementMetadata
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetElement
+import org.apache.daffodil.runtime1.iapi.InfosetItem
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.Metadata
+import org.apache.daffodil.runtime1.iapi.MetadataHandler
+import org.apache.daffodil.runtime1.iapi.SequenceMetadata
+import org.apache.daffodil.runtime1.iapi.SimpleElementMetadata
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 

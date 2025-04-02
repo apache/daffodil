@@ -21,7 +21,7 @@ import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.IIUtils.IIMap
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
 

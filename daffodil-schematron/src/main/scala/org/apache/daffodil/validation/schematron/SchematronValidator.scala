@@ -24,10 +24,10 @@ import scala.util.Try
 import scala.xml.Elem
 import scala.xml.XML
 
-import org.apache.daffodil.lib.api.ValidationException
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.iapi.ValidationException
+import org.apache.daffodil.lib.iapi.ValidationFailure
+import org.apache.daffodil.lib.iapi.ValidationResult
+import org.apache.daffodil.lib.iapi.Validator
 
 /**
  * Daffodil Validator implementation for ISO schematron

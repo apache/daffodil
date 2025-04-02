@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.lib.schema.annotation.props
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.lib.schema.annotation.props.gen._

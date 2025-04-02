@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.compiler
 
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy.NoNamespace
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy.NoNamespace
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.NS
 

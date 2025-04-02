@@ -22,7 +22,7 @@ import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.core.dsom.walker.ElementBaseView
 import org.apache.daffodil.core.grammar.ElementBaseGrammarMixin
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props._

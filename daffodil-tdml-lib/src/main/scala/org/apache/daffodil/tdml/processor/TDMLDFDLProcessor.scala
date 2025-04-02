@@ -19,10 +19,10 @@ package org.apache.daffodil.tdml.processor
 
 import java.nio.file.Path
 
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.ValidationMode
 import org.apache.daffodil.lib.externalvars.Binding
 
 object TDML {

@@ -23,12 +23,12 @@ import javax.xml.transform.stream.StreamSource
 import scala.jdk.CollectionConverters._
 import scala.xml.SAXException
 
-import org.apache.daffodil.lib.api.ValidationException
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.ValidationWarning
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.ValidatorFactory
+import org.apache.daffodil.lib.iapi.ValidationException
+import org.apache.daffodil.lib.iapi.ValidationFailure
+import org.apache.daffodil.lib.iapi.ValidationResult
+import org.apache.daffodil.lib.iapi.ValidationWarning
+import org.apache.daffodil.lib.iapi.Validator
+import org.apache.daffodil.lib.iapi.ValidatorFactory
 import org.apache.daffodil.lib.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils

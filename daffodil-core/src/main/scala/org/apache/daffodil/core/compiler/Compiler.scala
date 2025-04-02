@@ -33,14 +33,14 @@ import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.URISchemaSource
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.DataProcessor
 

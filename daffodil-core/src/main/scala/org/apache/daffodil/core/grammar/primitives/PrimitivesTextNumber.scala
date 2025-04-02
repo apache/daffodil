@@ -20,7 +20,7 @@ package org.apache.daffodil.core.grammar.primitives
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.cookers.EntityReplacer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy

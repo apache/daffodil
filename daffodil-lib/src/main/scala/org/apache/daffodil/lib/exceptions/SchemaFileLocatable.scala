@@ -20,7 +20,7 @@ package org.apache.daffodil.lib.exceptions
 import java.io.File
 import scala.xml.SAXParseException
 
-import org.apache.daffodil.lib.api.LocationInSchemaFile
+import org.apache.daffodil.lib.iapi.LocationInSchemaFile
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
 trait HasSchemaFileLocation extends LookupLocation {

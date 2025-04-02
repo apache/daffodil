@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.core.api
+package org.apache.daffodil.core.iapi
 
 import java.io.InputStream
 import java.io.OutputStream
@@ -30,7 +30,7 @@ import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.SocketPairTestRig
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.api._
+import org.apache.daffodil.runtime1.iapi._
 
 import org.junit.Assert._
 import org.junit.Test

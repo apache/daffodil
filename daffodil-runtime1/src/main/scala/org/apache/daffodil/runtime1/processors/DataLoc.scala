@@ -21,7 +21,7 @@ import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.Utils
-import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation

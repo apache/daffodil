@@ -20,9 +20,9 @@ package org.apache.daffodil.validation.schematron
 import java.util
 import scala.jdk.CollectionConverters._
 
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.ValidationWarning
+import org.apache.daffodil.lib.iapi.ValidationFailure
+import org.apache.daffodil.lib.iapi.ValidationResult
+import org.apache.daffodil.lib.iapi.ValidationWarning
 
 /**
  * Captures the output of Schematron validation as a Daffodil ValidationResult

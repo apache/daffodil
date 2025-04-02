@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.dsom
 
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 
 import org.junit.Assert._
 import org.junit.Test

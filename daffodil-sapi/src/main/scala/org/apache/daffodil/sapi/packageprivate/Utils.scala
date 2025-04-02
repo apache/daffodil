@@ -23,7 +23,7 @@ package org.apache.daffodil.sapi.packageprivate
 // them from Javadocs. So, when we generate Javadocs, we manually exclude
 // anything in the sapi.packageprivate package. So anything that should be package
 // private should go in this package.
-import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
+import org.apache.daffodil.lib.iapi.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{
   InteractiveDebuggerRunner => SInteractiveDebuggerRunner

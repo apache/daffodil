@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.lib.api
+package org.apache.daffodil.lib.iapi
 import java.io.File
 import java.io.FileInputStream
 import java.net.URI

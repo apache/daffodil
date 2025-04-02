@@ -34,9 +34,9 @@ import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.ThinDiagnostic
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.ThinDiagnostic
 import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.equality.ViewEqual
@@ -53,15 +53,15 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.ComplexElementMetadata
-import org.apache.daffodil.runtime1.api.ElementMetadata
-import org.apache.daffodil.runtime1.api.InfosetArray
-import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetDocument
-import org.apache.daffodil.runtime1.api.InfosetElement
-import org.apache.daffodil.runtime1.api.InfosetSimpleElement
-import org.apache.daffodil.runtime1.api.InfosetTypeException
-import org.apache.daffodil.runtime1.api.SimpleElementMetadata
+import org.apache.daffodil.runtime1.iapi.ComplexElementMetadata
+import org.apache.daffodil.runtime1.iapi.ElementMetadata
+import org.apache.daffodil.runtime1.iapi.InfosetArray
+import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
+import org.apache.daffodil.runtime1.iapi.InfosetDocument
+import org.apache.daffodil.runtime1.iapi.InfosetElement
+import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
+import org.apache.daffodil.runtime1.iapi.InfosetTypeException
+import org.apache.daffodil.runtime1.iapi.SimpleElementMetadata
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo

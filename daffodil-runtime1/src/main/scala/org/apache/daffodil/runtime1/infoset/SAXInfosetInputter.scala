@@ -28,7 +28,7 @@ import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement

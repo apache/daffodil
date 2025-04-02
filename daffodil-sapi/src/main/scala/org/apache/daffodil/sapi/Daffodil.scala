@@ -27,25 +27,25 @@ import org.apache.daffodil.core.compiler.{ InvalidParserException => SInvalidPar
 import org.apache.daffodil.core.compiler.{ ProcessorFactory => SProcessorFactory }
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.walker.RootView
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.lib.iapi.URISchemaSource
+import org.apache.daffodil.lib.iapi.Validator
+import org.apache.daffodil.lib.iapi.{ DataLocation => SDataLocation }
+import org.apache.daffodil.lib.iapi.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.lib.iapi.{ LocationInSchemaFile => SLocationInSchemaFile }
+import org.apache.daffodil.lib.iapi.{ WithDiagnostics => SWithDiagnostics }
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL.{
+import org.apache.daffodil.runtime1.iapi.DFDL.{
   DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException
 }
-import org.apache.daffodil.runtime1.api.DFDL.{
+import org.apache.daffodil.runtime1.iapi.DFDL.{
   DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler
 }
-import org.apache.daffodil.runtime1.api.DFDL.{
+import org.apache.daffodil.runtime1.iapi.DFDL.{
   DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException
 }
-import org.apache.daffodil.runtime1.api.MetadataHandler
+import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }

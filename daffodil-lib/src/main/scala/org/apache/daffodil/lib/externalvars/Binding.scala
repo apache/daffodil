@@ -19,7 +19,7 @@ package org.apache.daffodil.lib.externalvars
 
 import scala.xml.Node
 
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.xml._
 
 /**
