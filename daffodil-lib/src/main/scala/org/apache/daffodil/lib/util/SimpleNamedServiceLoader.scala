@@ -49,8 +49,11 @@ object SimpleNamedServiceLoader {
         try {
           instanceBuf += iter.next()
         } catch {
-          case e: ServiceConfigurationError =>
-            Logger.log.warn(s"Named service $thingName failed to load. Cause: ${e.getMessage}")
+          case e: ServiceConfigurationError => {
+            val msg = s"Named service $thingName failed to load: ${e.getMessage}"
+            val cause = Option(e.getCause).map(c => ". Cause: " + c.toString()).getOrElse("")
+            Logger.log.warn(msg + cause)
+          }
         }
     }
     val instancesFound: Map[String, Seq[T]] = instanceBuf.toSeq.groupBy { _.name() }
