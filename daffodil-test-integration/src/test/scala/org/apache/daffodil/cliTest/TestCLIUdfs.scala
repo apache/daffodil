@@ -376,6 +376,9 @@ class TestCLIUdfs {
       cli.expectErr(
         "Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated"
       )
+      cli.expectErr(
+        "Cause: org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider$CustomException: UDFP Error!"
+      )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")
     }(ExitCode.UnableToCreateProcessor)
   }

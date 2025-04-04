@@ -110,7 +110,9 @@ object UserDefinedFunctionService {
           Some(providerIter.next())
         } catch {
           case e: ServiceConfigurationError => {
-            Logger.log.warn(s"User Defined Function Provider failed to load: ${e.getMessage}")
+            val msg = s"User Defined Function Provider failed to load: ${e.getMessage}"
+            val cause = Option(e.getCause).map(c => ". Cause: " + c.toString()).getOrElse("")
+            Logger.log.warn(msg + cause)
             None
           }
         }
