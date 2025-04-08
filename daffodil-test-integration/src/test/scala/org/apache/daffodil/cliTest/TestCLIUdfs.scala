@@ -369,12 +369,15 @@ class TestCLIUdfs {
       "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions2/StringFunctions/"
     )
 
-    runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
+    runCLI(args"-vv parse -s $schema -r user_func3", classpath) { cli =>
       cli.expectErr(
         "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider"
       )
       cli.expectErr(
         "Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated"
+      )
+      cli.expectErr(
+        "Caused by: org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider$CustomException: UDFP Error!"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")
     }(ExitCode.UnableToCreateProcessor)
