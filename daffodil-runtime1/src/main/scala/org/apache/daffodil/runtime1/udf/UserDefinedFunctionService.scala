@@ -21,7 +21,9 @@ import java.io.ByteArrayOutputStream
 import java.io.NotSerializableException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.PrintWriter
 import java.io.Serializable
+import java.io.StringWriter
 import java.lang.reflect.Method
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
@@ -110,7 +112,16 @@ object UserDefinedFunctionService {
           Some(providerIter.next())
         } catch {
           case e: ServiceConfigurationError => {
-            Logger.log.warn(s"User Defined Function Provider failed to load: ${e.getMessage}")
+            Logger.log.warn(
+              s"User Defined Function Provider failed to load: ${e.getMessage}. Enable debug logging for more details"
+            )
+            Logger.log.debug({
+              val sw = new StringWriter()
+              val pw = new PrintWriter(sw)
+              e.printStackTrace(pw)
+              pw.close()
+              sw.toString()
+            })
             None
           }
         }
