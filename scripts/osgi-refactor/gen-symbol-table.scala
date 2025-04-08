@@ -107,7 +107,8 @@ object GenSymbolTable extends App {
     val files = dir.listFiles()
     for (file <- files) {
       val name = file.getName
-      if (name.startsWith("Test") || name == "test") {} else if (file.isDirectory)
+      if (name.startsWith("Test") || name == "test") {}
+      else if (file.isDirectory)
         symbols ++= processDir(libraryName, file)
       else if (name.endsWith(".scala") || name.endsWith(".java")) {
         processFile(libraryName, file) match {
