@@ -16,6 +16,8 @@
  */
 package org.apache.daffodil.lib.util
 
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import scala.collection.mutable.ArrayBuffer
@@ -49,8 +51,18 @@ object SimpleNamedServiceLoader {
         try {
           instanceBuf += iter.next()
         } catch {
-          case e: ServiceConfigurationError =>
-            Logger.log.warn(s"Named service $thingName failed to load. Cause: ${e.getMessage}")
+          case e: ServiceConfigurationError => {
+            Logger.log.warn(
+              s"Named service $thingName failed to load: ${e.getMessage}. Enable debug logging for more details"
+            )
+            Logger.log.debug({
+              val sw = new StringWriter()
+              val pw = new PrintWriter(sw, true)
+              e.printStackTrace(pw)
+              pw.close()
+              sw.toString()
+            })
+          }
         }
     }
     val instancesFound: Map[String, Seq[T]] = instanceBuf.toSeq.groupBy { _.name() }
