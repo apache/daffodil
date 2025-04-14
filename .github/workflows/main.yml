@@ -208,7 +208,7 @@ jobs:
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
+        uses: codecov/codecov-action@cf3f51a67d2820f7a7cefa0831889fbbef41ca57 # v5.4.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
