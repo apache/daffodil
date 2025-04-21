@@ -566,25 +566,23 @@ class InteractiveDebugger(
     }
 
     // This ensures that there are no naming conflicts (e.g. short form names
-    // conflict). This really only needs to be run whenever names change or new
-    // commands are added.
-
-    // Uncomment this and the DebugCommandBase.checkNameConflicts line to do a
-    // check when changes are made.
-    //
-    /*
-    def checkNameConflicts() {
-      val allNames = subcommands.map(_.name) ++ subcommands.filter{ sc => sc.name != sc.short }.map(_.short)
-      val duplicates = allNames.groupBy{ n => n }.filter{ case(_, l) => l.size > 1 }.keys
-      if (duplicates.size > 0) {
-        Assert.invariantFailed("Duplicate debug commands found in '%s' command: ".format(name) + duplicates)
+    // conflict).
+    def checkNameConflicts: Unit = {
+      val allNames = subcommands.flatMap { cmd =>
+        Seq(cmd.name, cmd.short).distinct
       }
+      val duplicates = allNames.groupBy(identity).collect {
+        case (elem, occurs) if occurs.size > 1 => elem
+      }
+      Assert.invariant(
+        duplicates.size == 0,
+        s"""Duplicate debug commands found in '$name' command: ${duplicates.mkString(", ")}"""
+      )
       subcommands.foreach(_.checkNameConflicts)
     }
-     */
   }
 
-  // DebugCommandBase.checkNameConflicts
+  DebugCommandBase.checkNameConflicts
 
   trait DebugCommandValidateSubcommands { self: DebugCommand =>
     override def validate(args: Seq[String]): Unit = {
@@ -1342,11 +1340,11 @@ class InteractiveDebugger(
       private def buildInfoCommands(args: Seq[String]): Seq[Seq[String]] = {
         val backwardsInfoCommands = args.foldLeft(Seq.empty[Seq[String]]) {
           case (infoCmds, arg) =>
-            val cmd = subcommands.find(_.name == arg)
+            val cmd = subcommands.find(_.matches(arg))
             if (cmd.isDefined || infoCmds.isEmpty) {
               // Found a new info subcommand, or we don't have an info commands
               // yet. Create a new Seq to hold the subcommand + args and
-              // prepend this Weq to our list of info subcommands. Note that if
+              // prepend this Seq to our list of info subcommands. Note that if
               // this isn't actually an info subcommand, we'll detect that later
               // when we validate this list.
               val newCommand = Seq(arg)
@@ -1372,7 +1370,7 @@ class InteractiveDebugger(
         val infocmds = buildInfoCommands(args)
         infocmds.foreach { cmds =>
           val cmd :: args = cmds
-          subcommands.find(_.name == cmd) match {
+          subcommands.find(_.matches(cmd)) match {
             case Some(c) => c.validate(args)
             case None => throw new DebugException("undefined info command: %s".format(cmd))
           }
@@ -1387,7 +1385,7 @@ class InteractiveDebugger(
         val infocmds = buildInfoCommands(args)
         infocmds.foreach { cmds =>
           val cmd :: args = cmds
-          val action = subcommands.find(_.name == cmd).get
+          val action = subcommands.find(_.matches(cmd)).get
           action.act(args, state, processor)
         }
         DebugState.Pause
@@ -1665,7 +1663,7 @@ class InteractiveDebugger(
           debugPrintln("%s:".format(name))
           val foundDiff = infoDiffables.foldLeft(false) { case (prevCmdsFoundDiff, curCmd) =>
             val curCmdFoundDiff =
-              if (DebuggerConfig.diffExcludes.contains(curCmd.name)) {
+              if (DebuggerConfig.diffExcludes.exists(de => curCmd.matches(de))) {
                 false // skip current command since it's excluded
               } else {
                 curCmd.diff(previousProcessorState, state)
@@ -2151,8 +2149,9 @@ class InteractiveDebugger(
         override lazy val short = "de"
 
         override def validate(args: Seq[String]): Unit = {
-          val diffableNames = Info.InfoDiff.infoDiffables.map { _.name }
-          val unknown = args.diff(diffableNames)
+          val unknown = args.filter { arg =>
+            !Info.InfoDiff.infoDiffables.exists(_.matches(arg))
+          }
           if (unknown.size > 0) {
             throw new DebugException(
               "unknown or undiffable info commands: " + unknown.mkString(", ")
