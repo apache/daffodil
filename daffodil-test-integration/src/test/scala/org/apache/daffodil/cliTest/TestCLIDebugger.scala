@@ -225,7 +225,7 @@ class TestCLIDebugger {
     runCLI(args"parse -d -s $schema -r e $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("set removeHidden false")
-      cli.sendLine("display info infoset")
+      cli.sendLine("di i i") // short form of "display info infoset"
       cli.sendLine("step")
       cli.sendLine("step")
       // intentionally look for a newline to make sure normally hidden elements
