@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.nio.charset.StandardCharsets
 
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
 import org.apache.daffodil.runtime1.iapi.DFDLPrimType
@@ -30,7 +31,7 @@ import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 
 class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Boolean)
-  extends InfosetOutputter
+  extends JInfosetOutputter
   with Indentable {
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {

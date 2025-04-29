@@ -18,17 +18,19 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.io.InputStream
+import java.lang.{ Boolean => JBoolean }
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.Elem
 import scala.xml.SAXParser
 import scala.xml.Text
 import scala.xml.XML
 
-import org.apache.daffodil.lib.util.MaybeBoolean
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
 
 object NullInfosetInputter {
 
@@ -37,7 +39,7 @@ object NullInfosetInputter {
     localName: String = null,
     namespaceURI: String = null,
     simpleText: String = null,
-    isNilled: MaybeBoolean = MaybeBoolean.Nope
+    isNilled: Option[JBoolean] = None
   )
 
   def toEvents(is: InputStream): Array[Event] = {
@@ -76,12 +78,11 @@ object NullInfosetInputter {
         .map { attrs =>
           val str = attrs.head.toString
           val value = str == "true" || str == "1"
-          MaybeBoolean(value)
+          value.asInstanceOf[JBoolean]
         }
-        .getOrElse(MaybeBoolean.Nope)
       (text, isNilled)
     } else {
-      (null, MaybeBoolean.Nope)
+      (null, None)
     }
 
     events += Event(StartElement, localName, namespaceURI, simpleText, isNilled)
@@ -97,21 +98,18 @@ object NullInfosetInputter {
  * prior to any performance testing and outside any critical sections, and
  * passed into a new NullInfosetInputter for unparsing.
  */
-class NullInfosetInputter(events: Array[NullInfosetInputter.Event]) extends InfosetInputter {
+class NullInfosetInputter(events: Array[NullInfosetInputter.Event]) extends JInfosetInputter {
 
   private var curIndex = 0
   private var curEvent: NullInfosetInputter.Event = events(0)
 
-  val supportsNamespaces: Boolean = true
+  override def getSupportsNamespaces: Boolean = true
 
   def getEventType(): InfosetInputterEventType = curEvent.eventType
   def getLocalName(): String = curEvent.localName
   def getNamespaceURI(): String = curEvent.namespaceURI
-  def getSimpleText(
-    primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String]
-  ): String = curEvent.simpleText
-  def isNilled(): MaybeBoolean = curEvent.isNilled
+  def getSimpleText(primType: NodeInfo.Kind): String = curEvent.simpleText
+  def isNilled(): Option[JBoolean] = curEvent.isNilled
 
   def hasNext(): Boolean = curIndex + 1 < events.length
   def next(): Unit = {

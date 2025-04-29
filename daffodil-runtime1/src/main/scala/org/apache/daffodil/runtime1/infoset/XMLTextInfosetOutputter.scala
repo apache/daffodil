@@ -21,13 +21,14 @@ import java.io.StringReader
 import java.nio.charset.StandardCharsets
 import javax.xml.stream.XMLStreamConstants._
 
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.iapi.InfosetArray
 import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
 import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 /**
  * Writes the infoset to a java.io.BufferedWriter as XML text.
@@ -44,7 +45,7 @@ class XMLTextInfosetOutputter private (
   pretty: Boolean,
   xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
   minimal: Boolean
-) extends InfosetOutputter
+) extends JInfosetOutputter
   with Indentable {
 
   def this(

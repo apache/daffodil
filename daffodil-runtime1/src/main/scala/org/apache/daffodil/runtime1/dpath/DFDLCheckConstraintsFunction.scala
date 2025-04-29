@@ -25,7 +25,7 @@ import org.apache.daffodil.runtime1.processors.parsers.PState
 object DFDLCheckConstraintsFunction {
 
   /**
-   * Used for validation purposes when ValidationMode is Limited.
+   * Used for validation purposes when the Validator is DaffodilLimitedValidator.
    *
    * Provides the result Unit on Success or a message (String) on Failure.
    *

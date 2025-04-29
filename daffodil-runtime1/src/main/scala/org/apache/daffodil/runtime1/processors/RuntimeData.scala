@@ -24,11 +24,12 @@ import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.iapi.LocationInSchemaFile
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
@@ -44,6 +45,13 @@ import org.apache.daffodil.lib.xml.QNameBase
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.StepQName
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom.CompiledExpression
+import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
+import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
+import org.apache.daffodil.runtime1.dsom.FacetTypes
+import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
 import org.apache.daffodil.runtime1.iapi.ChoiceMetadata
 import org.apache.daffodil.runtime1.iapi.ComplexElementMetadata
 import org.apache.daffodil.runtime1.iapi.DFDLPrimType
@@ -53,13 +61,6 @@ import org.apache.daffodil.runtime1.iapi.ModelGroupMetadata
 import org.apache.daffodil.runtime1.iapi.SequenceMetadata
 import org.apache.daffodil.runtime1.iapi.SimpleElementMetadata
 import org.apache.daffodil.runtime1.iapi.TermMetadata
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
-import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
-import org.apache.daffodil.runtime1.dsom.FacetTypes
-import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
 import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 
@@ -88,7 +89,8 @@ import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
  */
 
 sealed trait RuntimeData
-  extends Metadata
+  extends LocationInSchemaFile
+  with Metadata
   with ImplementsThrowsSDE
   with HasSchemaFileLocation
   with Serializable {

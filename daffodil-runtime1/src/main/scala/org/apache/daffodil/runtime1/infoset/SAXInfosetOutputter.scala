@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.infoset
 
 import scala.xml.NamespaceBinding
 
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.iapi.DFDLPrimType
@@ -34,7 +35,7 @@ class SAXInfosetOutputter(
   xmlReader: DFDL.DaffodilParseXMLReader,
   val namespacesFeature: Boolean,
   val namespacePrefixesFeature: Boolean
-) extends InfosetOutputter {
+) extends JInfosetOutputter {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
@@ -270,5 +271,4 @@ class SAXInfosetOutputter(
     val qName = elem.asInstanceOf[DIElement].erd.prefixedName
     (ns, elemName, qName)
   }
-
 }

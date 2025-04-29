@@ -20,10 +20,13 @@ package org.apache.daffodil.runtime1.debugger
 import java.io.File
 import scala.collection.immutable.ArraySeq
 
-import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.WarnID
+import org.apache.daffodil.api.debugger.{
+  InteractiveDebuggerRunner => JInteractiveDebuggerRunner
+}
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.oolag.ErrorsNotYetRecorded
 import org.apache.daffodil.lib.oolag.OOLAG._
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
@@ -35,12 +38,12 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.BasicComponent
-import org.apache.daffodil.runtime1.iapi.InfosetElement
 import org.apache.daffodil.runtime1.dpath.ExpressionEvaluationException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom.ExpressionCompilerClass
 import org.apache.daffodil.runtime1.dsom.RelativePathPastRootError
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.runtime1.iapi.InfosetElement
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.processors.parsers._
@@ -48,7 +51,7 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateForSuspension
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
-abstract class InteractiveDebuggerRunner {
+abstract class InteractiveDebuggerRunner extends JInteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
   def getCommand: String
   def lineOutput(line: String): Unit
@@ -58,7 +61,7 @@ abstract class InteractiveDebuggerRunner {
 case class DebuggerExitException() extends UnsuppressableException("Debugger exit")
 
 class InteractiveDebugger(
-  runner: InteractiveDebuggerRunner,
+  runner: JInteractiveDebuggerRunner,
   eCompilers: ExpressionCompilerClass
 ) extends Debugger {
 
@@ -471,7 +474,7 @@ class InteractiveDebugger(
     val xml = new XMLTextInfosetOutputter(bos, pretty = true, minimal = true)
     val iw = InfosetWalker(
       ie.asInstanceOf[DIElement],
-      xml,
+      new InfosetOutputter(xml),
       walkHidden = !DebuggerConfig.removeHidden,
       ignoreBlocks = true,
       releaseUnneededInfoset = false

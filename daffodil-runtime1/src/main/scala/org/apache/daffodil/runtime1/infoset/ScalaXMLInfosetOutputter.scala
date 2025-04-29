@@ -22,6 +22,7 @@ import scala.xml.MetaData
 import scala.xml.Null
 import scala.xml.UnprefixedAttribute
 
+import org.apache.daffodil.api.infoset.{ ScalaXMLInfosetOutputter => JScalaXMLInfosetOutputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
@@ -31,7 +32,8 @@ import org.apache.daffodil.runtime1.iapi.InfosetArray
 import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
 import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
-class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOutputter {
+class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
+  extends JScalaXMLInfosetOutputter {
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope

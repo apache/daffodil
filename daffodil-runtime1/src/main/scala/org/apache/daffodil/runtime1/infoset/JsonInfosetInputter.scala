@@ -17,9 +17,12 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import java.lang.{ Boolean => JBoolean }
+
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
-import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 import com.fasterxml.jackson.core.JsonFactory
@@ -31,7 +34,7 @@ object JsonInfosetInputter {
   lazy val jsonFactory = new JsonFactory()
 }
 
-class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
+class JsonInfosetInputter(input: java.io.InputStream) extends JInfosetInputter {
 
   private lazy val jsp = {
     val j = JsonInfosetInputter.jsonFactory.createParser(input)
@@ -110,16 +113,13 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
     }
   }
 
-  override val supportsNamespaces = false
+  override def getSupportsNamespaces: Boolean = false
 
   override def getNamespaceURI(): String = {
     null
   }
 
-  override def getSimpleText(
-    primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String]
-  ): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     if (!jsp.getCurrentToken().isScalarValue()) {
       throw new NonTextFoundInSimpleContentException(
         "Unexpected array or object '" + getLocalName() + "' on line " + jsp
@@ -134,11 +134,11 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
     }
   }
 
-  override def isNilled(): MaybeBoolean = {
+  override def isNilled(): Option[JBoolean] = {
     if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
-      MaybeBoolean(true)
+      Some(true)
     } else {
-      MaybeBoolean.Nope
+      None
     }
   }
 

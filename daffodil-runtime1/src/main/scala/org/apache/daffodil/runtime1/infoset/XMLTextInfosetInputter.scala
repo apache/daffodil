@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.io.StringWriter
+import java.lang.{ Boolean => JBoolean }
 import java.nio.charset.StandardCharsets
 import javax.xml.XMLConstants
 import javax.xml.stream.XMLInputFactory
@@ -26,13 +27,15 @@ import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.stream.util.XMLEventAllocator
+import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
 
 object XMLTextInfoset {
   lazy val xmlInputFactory = {
@@ -185,7 +188,7 @@ object XMLTextInfoset {
   }
 }
 
-class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
+class XMLTextInfosetInputter(input: java.io.InputStream) extends JInfosetInputter {
 
   /**
    * evAlloc is only to be used for diagnostic messages. It lets us easily
@@ -235,7 +238,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
     xsr.getLocalName()
   }
 
-  override val supportsNamespaces = true
+  override def getSupportsNamespaces = true
 
   override def getNamespaceURI(): String = {
     xsr.getNamespaceURI()
@@ -290,6 +293,9 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
     xmlString
   }
 
+  override def getSimpleText(primType: NodeInfo.Kind): String =
+    getSimpleText(primType, Map[String, String](XMLTextInfoset.stringAsXml -> "false").asJava)
+
   override def getSimpleText(
     primType: NodeInfo.Kind,
     runtimeProperties: java.util.Map[String, String]
@@ -339,17 +345,17 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
     txt
   }
 
-  override def isNilled(): MaybeBoolean = {
+  override def isNilled(): Option[JBoolean] = {
     Assert.invariant(xsr.getEventType() == START_ELEMENT)
     // this should use a fast hash lookup
     val nilAttrValue = xsr.getAttributeValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil")
-    val res =
+    val res: Option[JBoolean] =
       if (nilAttrValue == null) {
-        MaybeBoolean.Nope
+        None
       } else if (nilAttrValue == "true" || nilAttrValue == "1") {
-        MaybeBoolean(true)
+        Some(true)
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
-        MaybeBoolean(false)
+        Some(false)
       } else {
         throw new InvalidInfosetException(
           "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' on line " + evAlloc
@@ -427,5 +433,4 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
     }
     result
   }
-
 }

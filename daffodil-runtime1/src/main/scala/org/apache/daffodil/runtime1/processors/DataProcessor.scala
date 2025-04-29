@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import java.io.File
 import java.io.IOException
 import java.io.ObjectOutputStream
+import java.net.URI
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.channels.Channels
@@ -27,8 +28,18 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
+import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
+import org.apache.daffodil.api.validation.{ ValidationException => JValidationException }
+import org.apache.daffodil.api.validation.{ ValidationFailure => JValidationFailure }
+import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
+import org.apache.daffodil.api.validation.{ Validator => JValidator }
+import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
+import org.apache.daffodil.lib.validation.XercesValidator
 import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.layers.LayerFatalException
@@ -37,10 +48,6 @@ object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()
 }
 import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.ValidationException
-import org.apache.daffodil.lib.iapi.ValidationFailure
-import org.apache.daffodil.lib.iapi.ValidationMode
-import org.apache.daffodil.lib.iapi.ValidationResult
 import org.apache.daffodil.lib.iapi.Validator
 import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.lib.equality._
@@ -50,6 +57,9 @@ import org.apache.daffodil.runtime1.dsom._
 object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning()
 }
+import org.apache.daffodil.api.exceptions.{ InvalidUsageException => JInvalidUsageException }
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.io.BitOrderChangeException
 import org.apache.daffodil.io.FileIOException
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -60,7 +70,6 @@ import org.apache.daffodil.lib.oolag.ErrorAlreadyHandled
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.validation.XercesValidatorFactory
 import org.apache.daffodil.runtime1.events.MultipleEventHandler
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.infoset.DIElement
@@ -84,7 +93,8 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
   //  }
 }
 
-class InvalidUsageException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
+class InvalidUsageException(msg: String, cause: Throwable = null)
+  extends JInvalidUsageException(msg, cause)
 
 object DataProcessor {
 
@@ -95,9 +105,9 @@ object DataProcessor {
    * processor versus an original one.
    *
    * When we reload a processor, we want it to have default values for everything settable
-   * like validation mode, debug mode, and debugger.
+   * like debug mode and debugger.
    *
-   * Note that this class does preserve variableMap and validationMode. That is because
+   * Note that this class does preserve variableMap. That is because
    * serializations other than our own save/reload may need such settings (e.g., Apache Spark
    * which serializes to move objects for remote execution).
    *
@@ -106,19 +116,25 @@ object DataProcessor {
   private class SerializableDataProcessor(
     ssrd: SchemaSetRuntimeData,
     tunables: DaffodilTunables,
-    variableMap: VariableMap, // must be explicitly reset by save method
-    validationMode: ValidationMode.Type // must be explicitly turned off by save method
-  ) extends DataProcessor(ssrd, tunables, variableMap, validationMode) {
+    variableMap: VariableMap // must be explicitly reset by save method
+  ) extends DataProcessor(ssrd, tunables, variableMap) {
 
-    override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
-      if (mode == ValidationMode.Full) {
+    override def getMainSchemaURIForFullValidation: URI = {
+      throw new InvalidUsageException(
+        "'Full' validation not allowed when using a restored parser."
+      )
+    }
+
+    override def withValidator(validator: JValidator): JDataProcessor = {
+      if (validator.isInstanceOf[XercesValidator]) {
         throw new InvalidUsageException(
           "'Full' validation not allowed when using a restored parser."
         )
       }
-      super.withValidationMode(mode)
+      super.withValidator(validator)
     }
   }
+
 }
 
 /**
@@ -129,18 +145,11 @@ class DataProcessor(
   val ssrd: SchemaSetRuntimeData,
   val tunables: DaffodilTunables, // Compiler-set tunables
   val variableMap: VariableMap,
-  //
-  // The below do not need to be transient
-  // because this object itself isn't serialized. A SerializableDataProcessor is.
-  // The values these will have (since this is a base class) are the correct default values that we want
-  // back when the object is re-initialized.
-  //
-  val validationMode: ValidationMode.Type = ValidationMode.Off,
   // The Validator API requires this to be thread-safe so this is safe to share among different
   // DataProcessors
-  val validator: Validator = null,
+  val validator: JValidator = null,
   protected val areDebugging: Boolean = false,
-  protected val optDebugger: Option[Debugger] = None,
+  protected val optDebugger: Option[JDebugger] = None,
   protected val diagnostics: Seq[Diagnostic] = Seq.empty
 ) extends DFDL.DataProcessor
   with Serializable
@@ -148,41 +157,39 @@ class DataProcessor(
 
   import DataProcessor.SerializableDataProcessor
 
+  override def getMainSchemaURIForFullValidation: URI = ssrd.mainSchemaUriForFullValidation
+
   /**
    * In order to make this serializable, without serializing the unwanted current state of
-   * validation mode, debugging mode, debugger, etc. we replace, at serialization time, this
+   * debugging mode, debugger, etc. we replace, at serialization time, this
    * object with a [[SerializableDataProcessor]] which is a private derived class that
    * sets all these troublesome slots back to the default values.
    *
    * But note: there is serialization for us to save/reload, and there is serialization
    * in other contexts like Apache Spark, which may serialize objects without notifying us.
    *
-   * So we preserve everything that something like Spark might need preserved (validation mode)
+   * So we preserve everything that something like Spark might need preserved
    * and reinitialize things that are *always* reinitialized e.g., debugger, areDebugging.
-   *
-   * That means when we save for reloading, we must explicitly clobber validationMode in save().
    *
    * @throws java.io.ObjectStreamException Must be part of writeReplace's API
    * @return the serializable object
    */
   @throws(classOf[java.io.ObjectStreamException])
   private def writeReplace(): Object =
-    new SerializableDataProcessor(ssrd, tunables, variableMap.copy(), validationMode)
+    new SerializableDataProcessor(ssrd, tunables, variableMap.copy())
 
   def copy(
     ssrd: SchemaSetRuntimeData = ssrd,
     tunables: DaffodilTunables = tunables,
     variableMap: VariableMap = variableMap.copy(),
-    validationMode: ValidationMode.Type = validationMode,
-    validator: Validator = validator,
+    validator: JValidator = validator,
     areDebugging: Boolean = areDebugging,
-    optDebugger: Option[Debugger] = optDebugger,
+    optDebugger: Option[JDebugger] = optDebugger,
     diagnostics: Seq[Diagnostic] = diagnostics
   ) = new DataProcessor(
     ssrd,
     tunables,
     variableMap,
-    validationMode,
     validator,
     areDebugging,
     optDebugger,
@@ -208,40 +215,15 @@ class DataProcessor(
    */
   override def clone(): DataProcessor = copy()
 
-  /**
-   * Returns a data processor with all the same state, but the validation mode and validator changed to that of the argument.
-   *
-   * Note that the default validation mode is "off", that is, no validation is performed.
-   */
-  def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
-    // create the appropriate validator for the mode. If the mode isn't actually changing then
-    // we won't generate a new validator and just use the same one. The Validator API requires
-    // the Validator to be thread safe, so it is fine to share the same Validator with multiple
-    // DataProcessors
-    val newValidator = mode match {
-      case `validationMode` => validator
-      case ValidationMode.Off => null
-      case ValidationMode.Limited => null
-      case ValidationMode.Custom(cv) => cv
-      case ValidationMode.Full => {
-        // we only need to provide the main schema, Xerces will find imported/included schemas
-        // using the Daffodil resolver set in the XercesValidatorFactory
-        val sources = Seq(ssrd.mainSchemaUriForFullValidation.toString)
-        val cfg = XercesValidatorFactory.makeConfig(sources)
-        XercesValidatorFactory.makeValidator(cfg)
-      }
-    }
+  def withValidator(validator: Validator): DataProcessor = {
     copy(
-      validationMode = mode,
-      validator = newValidator
+      validator = validator
     )
   }
 
-  def withValidator(validator: Validator): DataProcessor = {
-    copy(
-      validationMode = ValidationMode.Custom(validator),
-      validator = validator
-    )
+  override def withValidator(validator: JValidator) = {
+    import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+    copy(validator = validator).asInstanceOf[JDataProcessor]
   }
 
   def debugger = {
@@ -249,8 +231,8 @@ class DataProcessor(
     optDebugger.get
   }
 
-  def withDebugger(dbg: AnyRef): DataProcessor = {
-    val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
+  override def withDebugger(dbg: JDebugger): DataProcessor = {
+    val optDbg = if (dbg eq null) None else Some(dbg)
     copy(areDebugging = optDbg.isDefined, optDebugger = optDbg)
   }
 
@@ -317,15 +299,13 @@ class DataProcessor(
     //
     // Make a copy of this object so that we can make its saved state
     // different than its original state.  Note other software like
-    // Apache Spark may require variableMap and validationMode to be
+    // Apache Spark may require variableMap to be
     // preserved.  But for our save/reload purposes, we want to reset
     // them back to their original values.
     //
     val dpToSave = this.copy(
       // reset to original variables defined in schema
       variableMap = ssrd.originalVariables,
-      // explicitly turn off validation, reloaded processors must call withValidationMode
-      validationMode = ValidationMode.Off,
       validator = null,
       // don't save any warnings that were generated
       diagnostics = Seq.empty
@@ -366,7 +346,7 @@ class DataProcessor(
    * Here begins the parser runtime. Compiler-oriented mechanisms (OOLAG etc.) aren't used in the
    * runtime. Instead we deal with success and failure statuses.
    */
-  def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = {
+  def parse(input: InputSourceDataInputStream, output: JInfosetOutputter): DFDL.ParseResult = {
     checkNotError()
     // If full validation is enabled, tee all the infoset events to a second
     // infoset outputter that writes the infoset to a byte array, and then
@@ -377,9 +357,11 @@ class DataProcessor(
     // events are created rather than writing the entire infoset in memory and
     // then validating at the end of the parse. See DAFFODIL-2386
     //
-    val (outputter, maybeValidationBytes) = {
-      validationMode match {
-        case ValidationMode.Full | ValidationMode.Custom(_) =>
+    val (outputter: InfosetOutputter, maybeValidationBytes) = {
+      validator match {
+        case DaffodilLimitedValidator | null =>
+          (new InfosetOutputter(output), Nope)
+        case _ =>
           val bos = new java.io.ByteArrayOutputStream()
           val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
           val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
@@ -390,9 +372,7 @@ class DataProcessor(
             output.getBlobPrefix(),
             output.getBlobSuffix()
           )
-          (teeOutputter, One(bos))
-        case _ =>
-          (output, Nope)
+          (new InfosetOutputter(teeOutputter), One(bos))
       }
     }
 
@@ -412,11 +392,11 @@ class DataProcessor(
       val vr = maybeValidationBytes.toOption.map { bytes =>
         val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
         val res = validator.validateXML(bis)
-        res.warnings.forEach { w => state.validationError(w.getMessage) }
-        res.errors.forEach {
-          case e: ValidationException =>
+        res.getWarnings.forEach { w => state.validationError(w.getMessage) }
+        res.getErrors.forEach {
+          case e: JValidationException =>
             state.validationErrorNoContext(e.getCause)
-          case f: ValidationFailure =>
+          case f: JValidationFailure =>
             state.validationError(f.getMessage)
         }
         res
@@ -534,13 +514,14 @@ class DataProcessor(
 
   }
 
-  def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = {
+  def unparse(actualInputter: JInfosetInputter, output: DFDL.Output): UnparseResult = {
     checkNotError()
     val outStream = java.nio.channels.Channels.newOutputStream(output)
-    unparse(inputter, outStream)
+    unparse(actualInputter, outStream)
   }
 
-  def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
+  def unparse(actualInputter: JInfosetInputter, outStream: java.io.OutputStream) = {
+    val inputter = new InfosetInputter(actualInputter)
     inputter.initialize(ssrd.elementRuntimeData, tunables)
     val unparserState =
       UState.createInitialUState(outStream, this, inputter, areDebugging)
@@ -677,13 +658,22 @@ class DataProcessor(
       )
     }
   }
+
+  override def parse(
+    input: JInputSourceDataInputStream,
+    output: JInfosetOutputter
+  ): DFDL.ParseResult = {
+    parse(input.asInstanceOf[InputSourceDataInputStream], output)
+  }
 }
 
 class ParseResult(
   override val resultState: PState,
-  val validationResult: Option[ValidationResult]
+  val validationResult: Option[JValidationResult]
 ) extends DFDL.ParseResult
-  with WithDiagnosticsImpl
+  with WithDiagnosticsImpl {
+  override def location(): DataLocation = resultState.currentLocation
+}
 
 class UnparseResult(dp: DataProcessor, ustate: UState)
   extends DFDL.UnparseResult
@@ -701,6 +691,7 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
   else dp.ssrd.elementRuntimeData.encodingInfo
 
   override def isScannable = encodingInfo.isScannable
+
   override def encodingName = {
     Assert.invariant(encodingInfo.isKnownEncoding)
     // we're not supporting runtime-calculated encodings yet so not

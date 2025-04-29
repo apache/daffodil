@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.iapi.Diagnostic
-import org.apache.daffodil.lib.iapi.ValidationMode
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
 import org.apache.daffodil.runtime1.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -201,7 +201,7 @@ abstract class ElementParserBase(
       // if we should do limited validation via CheckConstraints
       val shouldValidate = erd.isSimpleType &&
         pstate.dataProc.isDefined &&
-        pstate.dataProc.value.validationMode == ValidationMode.Limited
+        pstate.dataProc.value.validator == DaffodilLimitedValidator
 
       if (shouldValidate) {
         validate(pstate)

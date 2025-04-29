@@ -16,8 +16,8 @@
  */
 
 package org.apache.daffodil.runtime1.processors.unparsers
-import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.runtime1.processors._

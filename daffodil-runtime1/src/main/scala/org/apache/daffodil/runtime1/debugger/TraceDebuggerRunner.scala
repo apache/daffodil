@@ -19,7 +19,9 @@ package org.apache.daffodil.runtime1.debugger
 
 import java.io.PrintStream
 
-class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebuggerRunner {
+import org.apache.daffodil.api.debugger.{ TraceDebuggerRunner => JTraceDebuggerRunner }
+
+class TraceDebuggerRunner(out: PrintStream = System.out) extends JTraceDebuggerRunner {
   val traceIter = Seq(
     "set infosetParents 1",
     "display info parser",
@@ -30,11 +32,11 @@ class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebu
     "trace"
   ).iterator
 
-  def init(id: InteractiveDebugger): Unit = {
+  override def init(id: InteractiveDebugger): Unit = {
     // do nothing
   }
 
-  def getCommand: String = {
+  override def getCommand: String = {
     if (traceIter.hasNext) {
       traceIter.next()
     } else {
@@ -46,11 +48,12 @@ class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebu
     }
   }
 
-  def lineOutput(line: String): Unit = {
+  override def lineOutput(line: String): Unit = {
     out.println(line)
   }
 
-  def fini(): Unit = {
+  override def fini(): Unit = {
     // do nothing
   }
+
 }

@@ -17,10 +17,12 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import java.lang.{ Boolean => JBoolean }
 import java.util.Iterator
 
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.util.MStackOf
-import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
@@ -37,7 +39,7 @@ object JDOMInfosetInputter {
   protected val JDOM_XSI_NAMESPACE = Namespace.getNamespace(XMLUtils.XSI_NAMESPACE)
 }
 
-class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
+class JDOMInfosetInputter(doc: Document) extends JInfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -77,14 +79,11 @@ class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
 
   override def getLocalName(): String = stack.top._1.getName
 
-  override val supportsNamespaces = true
+  override def getSupportsNamespaces: Boolean = true
 
   override def getNamespaceURI(): String = stack.top._1.getNamespace.getURI
 
-  override def getSimpleText(
-    primType: NodeInfo.Kind,
-    runtimePropertes: java.util.Map[String, String]
-  ): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text =
       if (stack.top._2.hasNext) {
         val child = stack.top._2.next
@@ -109,16 +108,16 @@ class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
     text
   }
 
-  override def isNilled(): MaybeBoolean = {
+  override def isNilled(): Option[JBoolean] = {
     val elem = stack.top._1
     val nilAttrValue = elem.getAttributeValue("nil", JDOMInfosetInputter.JDOM_XSI_NAMESPACE)
-    val res =
+    val res: Option[JBoolean] =
       if (nilAttrValue == null) {
-        MaybeBoolean.Nope
+        None
       } else if (nilAttrValue == "true" || nilAttrValue == "1") {
-        MaybeBoolean(true)
+        Some(true)
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
-        MaybeBoolean(false)
+        Some(false)
       } else {
         throw new InvalidInfosetException(
           "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getQualifiedName

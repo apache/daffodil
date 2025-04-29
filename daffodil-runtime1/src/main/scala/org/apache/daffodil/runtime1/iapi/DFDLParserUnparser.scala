@@ -19,19 +19,36 @@ package org.apache.daffodil.runtime1.iapi
 
 import java.io.File
 
+import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
+import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
+import org.apache.daffodil.api.exceptions.{
+  DaffodilUnhandledSAXException => JDaffodilUnhandledSAXException
+}
+import org.apache.daffodil.api.exceptions.{
+  DaffodilUnparseErrorSAXException => JDaffodilUnparseErrorSAXException
+}
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
+import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
+import org.apache.daffodil.api.{ CodeGenerator => JCodeGenerator }
+import org.apache.daffodil.api.{ Compiler => JCompiler }
+import org.apache.daffodil.api.{ DaffodilParseXMLReader => JDaffodilParseXMLReader }
+import org.apache.daffodil.api.{
+  DaffodilUnparseContentHandler => JDaffodilUnparseContentHandler
+}
+import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
+import org.apache.daffodil.api.{ ParseResult => JParseResult }
+import org.apache.daffodil.api.{ Result => JResult }
+import org.apache.daffodil.api.{ State => JState }
+import org.apache.daffodil.api.{ UnparseResult => JUnparseResult }
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.externalvars.Binding
-import org.apache.daffodil.runtime1.infoset.InfosetInputter
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
+import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.runtime1.processors.Failure
-import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.VariableMap
-
-import org.xml.sax.ContentHandler
-import org.xml.sax.SAXException
-import org.xml.sax.XMLReader
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -65,7 +82,7 @@ object DFDL {
 
   type Output = java.nio.channels.WritableByteChannel // binary output stream/buffer
 
-  trait Compiler {
+  trait Compiler extends JCompiler {
 
     /**
      * User must establish error handlers, setup features appropriately before using the data access objects.
@@ -106,72 +123,50 @@ object DFDL {
      */
 
     /**
-     * Compilation returns a [[ProcessorFactory]], which must be interrogated for diagnostics
+     * Compilation returns a [[JProcessorFactory]], which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
     def compileSource(
       schemaSource: DaffodilSchemaSource,
       optRootNodeName: Option[String] = None,
       optRootNodeNamespace: Option[String] = None
-    ): ProcessorFactory
+    ): JProcessorFactory
 
-    def reload(savedParser: File): DataProcessor
+    def reload(savedParser: File): JDataProcessor
   }
 
   /**
    * The point of [[ProcessorFactory]] is to allow compilation of the path expression
    * and/or generation of source code to process data matching the compiled schema
    */
-  trait ProcessorFactory extends WithDiagnostics {
-
-    /**
-     * Returns a [[DataProcessor]] to process data matching a compiled XPath expression
-     * @param xpath XPath expression in DFDL schema that data should match (you can use only "/" at this time)
-     */
-    def onPath(xpath: String): DataProcessor
+  trait ProcessorFactory extends WithDiagnostics with JProcessorFactory {
 
     /**
      * Returns a [[CodeGenerator]] to generate code from a DFDL schema to parse or unparse data
      * @param language source language for generated code (you can use only "c" at this time)
      */
-    def forLanguage(language: String): CodeGenerator
+    def forLanguage(language: String): JCodeGenerator
   }
 
   /**
    * Source code generation and compilation is performed with a language-specific [[CodeGenerator]],
    * which must be interrogated for diagnostics to see if each call was successful or not.
    */
-  trait CodeGenerator extends WithDiagnostics {
+  trait CodeGenerator extends JCodeGenerator with WithDiagnostics
 
-    /**
-     * Generates language-specific code from a DFDL schema to parse or unparse data
-     * @param outputDir output directory in which to create code directory (codeDir)
-     * @return path of newly created directory (codeDir) containing generated code
-     */
-    def generateCode(outputDir: String): os.Path
-
-    /**
-     * Compiles the generated code in order to run it in a TDML test
-     * @param codeDir path of newly created directory containing generated code
-     * @return path of newly built executable (exe) compiled from generated code
-     */
-    def compileCode(codeDir: os.Path): os.Path
-  }
-
-  trait DataProcessor extends WithDiagnostics {
+  trait DataProcessor extends JDataProcessor with WithDiagnostics {
 
     /**
      * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
      *
      * Note that the default validation mode is "off", that is, no validation is performed.
      */
-    def withValidationMode(mode: ValidationMode.Type): DataProcessor
     def withTunable(name: String, value: String): DataProcessor
     def withTunables(tunables: Map[String, String]): DataProcessor
     def withExternalVariables(extVars: Map[String, String]): DataProcessor
     def withExternalVariables(extVars: File): DataProcessor
     def withExternalVariables(extVars: Seq[Binding]): DataProcessor
-    def withDebugger(dbg: AnyRef): DataProcessor
+//    def withDebugger(dbg: AnyRef): DataProcessor
     def withDebugging(flag: Boolean): DataProcessor
 
     def save(output: DFDL.Output): Unit
@@ -179,7 +174,6 @@ object DFDL {
     def walkMetadata(handler: MetadataHandler): Unit
     def tunables: DaffodilTunables
     def variableMap: VariableMap
-    def validationMode: ValidationMode.Type
 
     /**
      * Creates a new instance of XMLReader for SAX Parsing
@@ -194,12 +188,14 @@ object DFDL {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
-    def unparse(input: InfosetInputter, output: DFDL.Output): UnparseResult
+    def unparse(input: JInfosetInputter, output: DFDL.Output): UnparseResult
 
     /**
      * Returns an object which contains the result, and/or diagnostic information.
      */
-    def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult
+    def parse(input: JInputSourceDataInputStream, output: JInfosetOutputter): ParseResult
+
+    def withDebugger(dbg: JDebugger): DataProcessor
   }
 
   /**
@@ -207,10 +203,13 @@ object DFDL {
    * data that Daffodil usually expects. Used to parse data to a infoset represent as
    * SAX events
    */
-  trait DaffodilParseXMLReader extends XMLReader {
+  trait DaffodilParseXMLReader extends JDaffodilParseXMLReader {
     def parse(is: java.io.InputStream): Unit
     def parse(in: InputSourceDataInputStream): Unit
     def parse(ab: Array[Byte]): Unit
+    def parse(in: JInputSourceDataInputStream): Unit = {
+      parse(in.asInstanceOf[InputSourceDataInputStream])
+    }
   }
 
   /**
@@ -218,7 +217,7 @@ object DFDL {
    * UnparseResult. Used to unparse and infoset represented as SAX events from an
    * XMLReader to data.
    */
-  trait DaffodilUnparseContentHandler extends ContentHandler {
+  trait DaffodilUnparseContentHandler extends JDaffodilUnparseContentHandler {
     def getUnparseResult: UnparseResult
     def enableResolutionOfRelativeInfosetBlobURIs(): Unit
   }
@@ -229,25 +228,25 @@ object DFDL {
    * can be used to get the result and any diagnostics.
    */
   class DaffodilUnparseErrorSAXException(unparseResult: UnparseResult)
-    extends SAXException(unparseResult.getDiagnostics.mkString("\n"))
+    extends JDaffodilUnparseErrorSAXException(unparseResult.getDiagnostics.mkString("\n"))
 
   /**
    * Thrown by the DaffodilUnparseConentHandler when an unexpected error
    * occurs, this usually represents a bug in Daffodil
    */
   class DaffodilUnhandledSAXException(description: String, cause: Exception)
-    extends SAXException(description, cause) {
+    extends JDaffodilUnhandledSAXException(description, cause) {
     def this(msg: String) = this(msg, null)
 
     def this(cause: Exception) = this(null, cause)
   }
 
-  trait ParseResult extends Result with WithDiagnostics {
+  trait ParseResult extends Result with WithDiagnostics with JParseResult {
     def resultState: State
-    val validationResult: Option[ValidationResult]
+    val validationResult: Option[JValidationResult]
   }
 
-  trait UnparseResult extends Result with WithDiagnostics {
+  trait UnparseResult extends Result with JUnparseResult with WithDiagnostics {
 
     /**
      * Data is 'scannable' if it consists entirely of textual data, and that data
@@ -260,19 +259,13 @@ object DFDL {
   /**
    * Interface for Parse and Unparse states
    */
-  trait State {
-    def processorStatus: ProcessorResult
-    def validationStatus: Boolean
-    def diagnostics: Seq[Diagnostic]
-    def currentLocation: DataLocation
-  }
+  trait State extends JState
 
   /**
    * Interface for Parse and Unparse results
    */
-  abstract class Result {
-    def resultState: State
-    var diagnostics: Seq[Diagnostic] = Nil
+  abstract class Result extends JResult {
+    var diagnostics: Seq[JDiagnostic] = Nil
 
     private def resultStatusDiagnostics: Seq[Diagnostic] = {
       resultState.processorStatus match {
@@ -281,16 +274,16 @@ object DFDL {
       }
     }
 
-    def getDiagnostics = {
+    override def getDiagnostics: Seq[JDiagnostic] = {
       (diagnostics.toSet ++ resultState.diagnostics.toSet ++ resultStatusDiagnostics.toSet).toSeq
     }
 
-    def addDiagnostic(d: Diagnostic): Unit = {
+    override def addDiagnostic(d: JDiagnostic): Unit = {
       diagnostics = d +: diagnostics
     }
 
-    def isError = isProcessingError || isValidationError
-    def isProcessingError = resultState.processorStatus != Success
-    def isValidationError = resultState.validationStatus != true
+    override def isError = isProcessingError || isValidationError
+    override def isProcessingError = resultState.processorStatus != Success
+    override def isValidationError = resultState.validationStatus != true
   }
 }

@@ -17,8 +17,9 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.nio.file.Path
-import java.nio.file.Paths
 
+import org.apache.daffodil.api.infoset.{ BlobMethods => JBlobMethods }
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.runtime1.iapi.InfosetArray
 import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
 import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
@@ -37,13 +38,13 @@ import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
  * by implementations. This does mean some exceptions that you might normally
  * expect to bubble up and will not, and will instead be turned into an SDE.
  */
-trait InfosetOutputter extends BlobMethodsMixin {
+final class InfosetOutputter(actualOutputter: JInfosetOutputter) extends BlobMethodsMixin {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
    * in between calls to the parse method.
    */
-  def reset(): Unit
+  def reset(): Unit = actualOutputter.reset()
 
   /**
    * Called by Daffodil internals to signify the beginning of the infoset.
@@ -51,7 +52,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    */
   @throws[Exception]
-  def startDocument(): Unit
+  def startDocument(): Unit = actualOutputter.startDocument()
 
   /**
    * Called by Daffodil internals to signify the end of the infoset.
@@ -59,7 +60,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    */
   @throws[Exception]
-  def endDocument(): Unit
+  def endDocument(): Unit = actualOutputter.endDocument()
 
   /**
    * Called by Daffodil internals to signify the beginning of a simple element.
@@ -71,7 +72,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    *                 value, nil, name, namespace, etc.
    */
   @throws[Exception]
-  def startSimple(diSimple: InfosetSimpleElement): Unit
+  def startSimple(diSimple: InfosetSimpleElement): Unit = actualOutputter.startSimple(diSimple)
 
   /**
    * Called by Daffodil internals to signify the end of a simple element.
@@ -83,7 +84,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    *                 value, nil, name, namespace, etc.
    */
   @throws[Exception]
-  def endSimple(diSimple: InfosetSimpleElement): Unit
+  def endSimple(diSimple: InfosetSimpleElement): Unit = actualOutputter.endSimple(diSimple)
 
   /**
    * Called by Daffodil internals to signify the beginning of a complex element.
@@ -95,7 +96,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    *                  nil, name, namespace, etc.
    */
   @throws[Exception]
-  def startComplex(complex: InfosetComplexElement): Unit
+  def startComplex(complex: InfosetComplexElement): Unit = actualOutputter.startComplex(complex)
 
   /**
    * Called by Daffodil internals to signify the end of a complex element.
@@ -107,7 +108,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    *                  nil, name, namespace, etc.
    */
   @throws[Exception]
-  def endComplex(complex: InfosetComplexElement): Unit
+  def endComplex(complex: InfosetComplexElement): Unit = actualOutputter.endComplex(complex)
 
   /**
    * Called by Daffodil internals to signify the beginning of an array of elements.
@@ -119,7 +120,7 @@ trait InfosetOutputter extends BlobMethodsMixin {
    *                  name, namespace, etc.
    */
   @throws[Exception]
-  def startArray(array: InfosetArray): Unit
+  def startArray(array: InfosetArray): Unit = actualOutputter.startArray(array)
 
   /**
    * Called by Daffodil internals to signify the end of an array of elements.
@@ -131,7 +132,15 @@ trait InfosetOutputter extends BlobMethodsMixin {
    *                  name, namespace, etc.
    */
   @throws[Exception]
-  def endArray(array: InfosetArray): Unit
+  def endArray(array: InfosetArray): Unit = actualOutputter.endArray(array)
+
+  override def getBlobPaths: Seq[Path] = actualOutputter.getBlobPaths
+
+  override def getBlobPrefix: String = actualOutputter.getBlobPrefix
+
+  override def getBlobSuffix: String = actualOutputter.getBlobSuffix
+
+  override def getBlobDirectory: Path = actualOutputter.getBlobDirectory
 }
 
 /**
@@ -141,35 +150,4 @@ trait InfosetOutputter extends BlobMethodsMixin {
  *
  * FIXME: Scaladoc
  */
-trait BlobMethodsMixin {
-
-  /**
-   * Set the attributes for how to create blob files.
-   *
-   * @param dir the Path the the directory to create files. If the directory
-   *            does not exist, Daffodil will attempt to create it before
-   *            writing a blob.
-   * @param prefix the prefix string to be used in generating a blob file name
-   * @param suffix the suffix string to be used in generating a blob file name
-   */
-  final def setBlobAttributes(dir: Path, prefix: String, suffix: String): Unit = {
-    blobDirectory = dir
-    blobPrefix = prefix
-    blobSuffix = suffix
-  }
-
-  /**
-   * Get the list of blob paths that were output in the infoset.
-   *
-   * This is the same as what would be found by iterating over the infoset.
-   */
-  final def getBlobPaths(): Seq[Path] = blobPaths
-  final def getBlobDirectory(): Path = blobDirectory
-  final def getBlobPrefix(): String = blobPrefix
-  final def getBlobSuffix(): String = blobSuffix
-  final def setBlobPaths(paths: Seq[Path]): Unit = blobPaths = paths
-  private var blobDirectory: Path = Paths.get(System.getProperty("java.io.tmpdir"))
-  private var blobPrefix: String = "daffodil-"
-  private var blobSuffix: String = ".blob"
-  private var blobPaths: Seq[Path] = Seq.empty
-}
+trait BlobMethodsMixin extends JBlobMethods

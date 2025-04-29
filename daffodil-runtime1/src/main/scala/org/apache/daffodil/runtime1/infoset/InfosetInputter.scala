@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.Accessor
 import org.apache.daffodil.lib.util.CursorImplMixin
 import org.apache.daffodil.lib.util.MStackOfAnyRef
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ErrorERD
 import org.apache.daffodil.runtime1.processors.ProcessingError
@@ -34,21 +34,6 @@ import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 class InfosetError(kind: String, args: String*)
   extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
-
-/**
- * These are the events that a derived specific InfosetInputter
- * creates.
- *
- * The InfosetInputter base class figures out Daffodil InfosetEvents from
- * the call-backs providing these derived-class events types.
- */
-sealed trait InfosetInputterEventType
-object InfosetInputterEventType {
-  case object StartDocument extends InfosetInputterEventType
-  case object EndDocument extends InfosetInputterEventType
-  case object StartElement extends InfosetInputterEventType
-  case object EndElement extends InfosetInputterEventType
-}
 
 /**
  * Base class for objects that create Unparser infoset events from
@@ -79,7 +64,7 @@ object InfosetInputterEventType {
  * This is necessary so that the infoset inputter can resolve element
  * name + namespace into the proper ERD based on the proper dynamic context.
  */
-abstract class InfosetInputter
+final class InfosetInputter(actualInputter: JInfosetInputter)
   extends CursorImplMixin[InfosetAccessor]
   with NextElementResolver {
 
@@ -92,64 +77,6 @@ abstract class InfosetInputter
   // Should not need to be initialized for performance reasons, this will be
   // set to an already allocated tunable when initialize() is called
   var tunable: DaffodilTunables = _
-
-  /**
-   * Return the current infoset inputter event type
-   */
-  def getEventType(): InfosetInputterEventType
-
-  /**
-   * Get the local name of the current event. This will only be called when the
-   * current event type is StartElement.
-   */
-  def getLocalName(): String
-
-  /**
-   * Get the namespace of the current event. This will only be called when the
-   * current event type is StartElement. If the InfosetInputter does not
-   * support namespaces, this shoud return null. This may return null to
-   * represent no namespaces.
-   */
-  def getNamespaceURI(): String
-
-  /**
-   * Get the content of a simple type. This will only be called when the
-   * current event type is StartElement and the element is a simple type. If
-   * the event contains complex data, it is an error and should throw
-   * NonTextFoundInSimpleContentException. If the element does not have any
-   * simple content, this should return either null or the empty string.
-   */
-  def getSimpleText(
-    primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String]
-  ): String
-
-  /**
-   * Determine if the current event is nilled. This will only be called when
-   * the current event type is StartElement. Return MaybeBoolean.Nope if no
-   * nil property is set, which implies the element is not nilled. Return
-   * MaybeBoolean(false) if the nil property is set, but it is set to false.
-   * Return MaybeBoolean(true) if the nil property is set to true.
-   */
-  def isNilled(): MaybeBoolean
-
-  /**
-   * Return true if there are remaining events. False otherwise.
-   */
-  def hasNext(): Boolean
-
-  /**
-   * Move the internal state to the next event.
-   */
-  def next(): Unit
-
-  /**
-   * Set if this infoset inputter supports namespaces. The return value of
-   * getNamespace will be ignore if this is false. Note that if this is false,
-   * some infoset representations may fail to unparse if the schema depends on
-   * namespace information to differentiate between elements.
-   */
-  def supportsNamespaces: Boolean
 
   final override lazy val advanceAccessor = InfosetAccessor()
   final override lazy val inspectAccessor = InfosetAccessor()
@@ -178,7 +105,9 @@ abstract class InfosetInputter
     infoStack.push(documentElement_)
 
     try {
-      if (!hasNext() || getEventType() != InfosetInputterEventType.StartDocument) {
+      if (
+        !actualInputter.hasNext || actualInputter.getEventType != InfosetInputterEventType.StartDocument
+      ) {
         UnparseError(
           One(infoStack.top().erd.schemaFileLocation),
           Nope,
@@ -299,10 +228,10 @@ abstract class InfosetInputter
 
   private def reallyFill(advanceInput: Boolean): Boolean = {
     if (advanceInput) {
-      next()
+      actualInputter.next()
     }
     import InfosetInputterEventType._
-    getEventType() match {
+    actualInputter.getEventType match {
       case StartElement => handleStartElement()
       case EndElement => handleEndElement()
       case StartDocument =>
@@ -310,8 +239,8 @@ abstract class InfosetInputter
       case EndDocument => // ok. Just fall through
     }
 
-    if (!hasNext()) {
-      Assert.invariant(getEventType() == EndDocument)
+    if (!actualInputter.hasNext) {
+      Assert.invariant(actualInputter.getEventType == EndDocument)
       fini()
       false
     } else
@@ -408,12 +337,16 @@ abstract class InfosetInputter
   }
 
   private def nextElementErd() =
-    nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
+    nextElement(
+      actualInputter.getLocalName,
+      actualInputter.getNamespaceURI,
+      actualInputter.getSupportsNamespaces
+    )
 
   private def createElement(erd: ERD) = {
     val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
 
-    val optNilled = isNilled()
+    val optNilled = actualInputter.isNilled
 
     if (optNilled.isDefined) {
       if (!erd.isNillable) {
@@ -432,7 +365,7 @@ abstract class InfosetInputter
     if (erd.isSimpleType) {
       val txt =
         try {
-          getSimpleText(erd.optPrimType.get, erd.runtimeProperties)
+          actualInputter.getSimpleText(erd.optPrimType.get, erd.runtimeProperties)
         } catch {
           case ex: NonTextFoundInSimpleContentException =>
             UnparseError(One(elem.erd.schemaFileLocation), Nope, ex.getMessage())
@@ -526,6 +459,7 @@ abstract class InfosetInputter
     accessor.info = Info(arrayERD)
   }
 
+  override def fini(): Unit = actualInputter.fini();
 }
 
 // Performance Note - It's silly to use both a StartKind and EndKind accessor when

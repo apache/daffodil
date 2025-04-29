@@ -32,16 +32,9 @@ lazy val daffodil = project
   .aggregate(
     cli,
     codeGenC,
-    core,
-    io,
-    japi,
-    lib,
     macroLib,
     propgen,
     runtime1,
-    runtime1Layers,
-    runtime1Unparser,
-    sapi,
     schematron,
     slf4jLogger,
     tdmlJunit,
@@ -75,45 +68,24 @@ lazy val slf4jLogger = Project("daffodil-slf4j-logger", file("daffodil-slf4j-log
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.slf4jAPI)
 
-lazy val lib = Project("daffodil-lib", file("daffodil-lib"))
-  .dependsOn(macroLib % "compile-internal, test-internal", slf4jLogger % "test")
-  .settings(commonSettings, libManagedSettings, usesMacros)
-
-lazy val io = Project("daffodil-io", file("daffodil-io"))
-  .dependsOn(lib, macroLib % "compile-internal, test-internal", slf4jLogger % "test")
-  .settings(commonSettings, usesMacros)
-
 lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
   .enablePlugins(GenJavadocPlugin)
   .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(
-    io,
-    lib % "compile-internal, test->test",
     udf,
     macroLib % "compile-internal, test-internal",
     slf4jLogger % "test"
   )
-  .settings(commonSettings, usesMacros)
-
-lazy val runtime1Unparser =
-  Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser"))
-    .dependsOn(
-      runtime1,
-      lib % "test->test",
-      runtime1 % "test->test",
-      runtime1Layers,
-      slf4jLogger % "test"
-    )
-    .settings(commonSettings)
-
-lazy val runtime1Layers = Project("daffodil-runtime1-layers", file("daffodil-runtime1-layers"))
-  .dependsOn(runtime1, lib % "test->test", slf4jLogger % "test")
-  .settings(commonSettings)
+  .settings(commonSettings, libManagedSettings, usesMacros)
 
 val codeGenCLib = Library("libruntime.a")
 lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
   .enablePlugins(CcPlugin)
-  .dependsOn(core, core % "test->test", slf4jLogger % "test")
+  .dependsOn(
+    runtime1,
+    runtime1 % "test->test",
+    slf4jLogger % "test"
+  )
   .settings(commonSettings)
   .settings(
     Compile / cCompiler := sys.env.getOrElse("CC", "cc"),
@@ -133,33 +105,17 @@ lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
       .withDefaultValue(Seq("-Wall", "-Wextra", "-Wpedantic", "-std=gnu11"))
   )
 
-lazy val core = Project("daffodil-core", file("daffodil-core"))
+lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
   .dependsOn(
-    runtime1Unparser,
-    udf,
-    lib % "test->test",
+    macroLib % "compile-internal",
+    runtime1,
     runtime1 % "test->test",
-    io % "test->test",
     slf4jLogger % "test"
   )
   .settings(commonSettings)
 
-lazy val japi = Project("daffodil-japi", file("daffodil-japi"))
-  .enablePlugins(GenJavadocPlugin)
-  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
-  .dependsOn(core, slf4jLogger % "test")
-  .settings(commonSettings)
-
-lazy val sapi = Project("daffodil-sapi", file("daffodil-sapi"))
-  .dependsOn(core, slf4jLogger % "test")
-  .settings(commonSettings)
-
-lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
-  .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test", slf4jLogger % "test")
-  .settings(commonSettings)
-
 lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
-  .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)
+  .dependsOn(tdmlLib, codeGenC, runtime1, slf4jLogger)
   .settings(commonSettings)
 
 lazy val tdmlJunit = Project("daffodil-tdml-junit", file("daffodil-tdml-junit"))
@@ -171,11 +127,10 @@ lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
   .dependsOn(
     tdmlProc,
     codeGenC,
-    sapi,
-    japi,
+    runtime1,
     schematron % Runtime,
     slf4jLogger
-  ) // causes codegen-c/sapi/japi to be pulled into the helper zip/tar
+  ) // causes codegen-c to be pulled into the helper zip/tar
   .settings(commonSettings, nopublish)
   .settings(libraryDependencies ++= Dependencies.cli)
   .settings(libraryDependencies ++= Dependencies.exi)
@@ -185,7 +140,7 @@ lazy val udf = Project("daffodil-udf", file("daffodil-udf"))
   .settings(commonSettings)
 
 lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron"))
-  .dependsOn(lib, sapi % Test, slf4jLogger % "test")
+  .dependsOn(runtime1, runtime1 % Test, slf4jLogger % "test")
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.schematron)
 
@@ -456,16 +411,9 @@ lazy val ratSettings = Seq(
 def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source =>
   val str = source.toString
   val oad = "/org/apache/daffodil"
-  lazy val excludedForJAPI =
-    str.contains(oad + "/japi/") && {
-      // Some things are excluded from the JAPI javadoc because they are internal, non-API
-      // These cannot be excluded from SAPI because symbols-not-found issues with scaladoc.
-      str.contains("$") || str.contains("packageprivate")
-    }
   lazy val included = {
     str.contains(oad + "/udf/") ||
-    str.contains(oad + "/sapi/") ||
-    str.contains(oad + "/japi/") ||
+    str.contains(oad + "/api/") ||
     str.contains(oad + "/runtime1/layers/api/")
     //
     // There are files in runtime1/api that are NOT part of the public, supported API.
@@ -481,24 +429,24 @@ def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source 
     //    str.contains(oad + "/runtime1/iapi/Infoset") ||
     //    str.contains(oad + "/runtime1/iapi/Metadata")
   }
-  val res = included && !excludedForJAPI
+  val res = included
   res
 }
 
 lazy val unidocSettings =
   Seq(
     ScalaUnidoc / unidoc / unidocProjectFilter :=
-      inProjects(sapi, udf, runtime1),
+      inProjects(udf, runtime1),
     ScalaUnidoc / unidoc / scalacOptions := Seq(
       "-doc-title",
       "Apache Daffodil " + version.value + " Scala API",
       "-doc-root-content",
-      (sapi / baseDirectory).value + "/root-doc.txt"
+      (runtime1 / baseDirectory).value + "/root-doc.txt"
     ),
     ScalaUnidoc / unidoc / unidocAllSources :=
       (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter),
     JavaUnidoc / unidoc / unidocProjectFilter :=
-      inProjects(japi, udf, runtime1),
+      inProjects(udf, runtime1),
     JavaUnidoc / unidoc / javacOptions := Seq(
       "-windowtitle",
       "Apache Daffodil " + version.value + " Java API",

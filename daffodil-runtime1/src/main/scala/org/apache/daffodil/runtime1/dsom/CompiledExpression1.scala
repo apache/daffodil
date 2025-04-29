@@ -19,10 +19,11 @@ package org.apache.daffodil.runtime1.dsom
 
 import scala.runtime.ScalaRunTime.stringOf
 
-import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.iapi.LocationInSchemaFile
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
@@ -211,7 +212,8 @@ class DPathCompileInfo(
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-) extends ImplementsThrowsSDE
+) extends LocationInSchemaFile
+  with ImplementsThrowsSDE
   with PreSerialization
   with HasSchemaFileLocation {
 

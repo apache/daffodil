@@ -17,6 +17,6 @@
 
 package org.apache.daffodil.runtime1.debugger
 
-import org.apache.daffodil.runtime1.events.EventHandler
+import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
 
-trait Debugger extends EventHandler
+trait Debugger extends JDebugger

@@ -21,6 +21,7 @@ import javax.xml.XMLConstants
 import scala.xml.NamespaceBinding
 import scala.xml.TopScope
 
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MainCoroutine
@@ -31,10 +32,6 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseErrorSAXException
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
 import org.apache.daffodil.runtime1.infoset.SAXInfosetEvent
 import org.apache.daffodil.runtime1.infoset.SAXInfosetInputter
 

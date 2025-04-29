@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.runtime1.iapi.InfosetArray
 import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
 import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
@@ -24,7 +25,7 @@ import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 /**
  * Ignores all infoset events, outputting nothing
  */
-class NullInfosetOutputter() extends InfosetOutputter {
+class NullInfosetOutputter() extends JInfosetOutputter {
 
   override def reset(): Unit = {}
 

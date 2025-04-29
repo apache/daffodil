@@ -26,9 +26,6 @@ object Rat {
     // IntelliJ files
     file(".idea"),
 
-    // scaladoc related, has no way to include a license
-    file("daffodil-sapi/root-doc.txt"),
-
     // version file does not contain a license header
     file("VERSION"),
 
@@ -43,23 +40,6 @@ object Rat {
 
     // generated code examples
     file("daffodil-codegen-c/src/test/examples"),
-
-    // Apache Rat thinks these files are binary since the file name contains ".lib"
-    file(
-      "daffodil-schematron/src/main/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
-    ),
-    file(
-      "daffodil-japi/src/test/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
-    ),
-    file(
-      "daffodil-sapi/src/test/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
-    ),
-    file(
-      "daffodil-lib/src/main/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
-    ),
-    file(
-      "daffodil-lib/src/test/resources/META-INF/services/org.apache.daffodil.lib.iapi.ValidatorFactory"
-    ),
 
     // test files that cannot include the Apache license without breaking tests
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt"),
@@ -92,24 +72,15 @@ object Rat {
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt"),
     file("daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/data"),
     file("daffodil-io/src/test/resources/iso8859.doc.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/01very_simple.txt"),
-    file("daffodil-japi/src/test/resources/test/japi/myData.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myData2.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myData3.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myData4.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myData5.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myData16.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myData19.dat"),
-    file("daffodil-japi/src/test/resources/test/japi/myDataBroken.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/01very_simple.txt"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData2.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData3.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData4.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData5.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData16.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myData19.dat"),
-    file("daffodil-sapi/src/test/resources/test/sapi/myDataBroken.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/01very_simple.txt"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData2.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData3.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData4.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData5.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData16.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myData19.dat"),
+    file("daffodil-runtime1/src/test/resources/test/api/myDataBroken.dat"),
     file("daffodil-tdml-lib/src/test/resources/test/tdml/test.bin"),
     file("daffodil-tdml-lib/src/test/resources/test/tdml/test.txt"),
     file("daffodil-tdml-processor/src/test/resources/test/tdml/test.bin"),

@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.infoset
 
 import javax.xml.parsers.DocumentBuilderFactory
 
+import org.apache.daffodil.api.infoset.{ W3CDOMInfosetOutputter => JW3CDOMInfosetOutputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
@@ -33,7 +34,7 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
-class W3CDOMInfosetOutputter extends InfosetOutputter {
+class W3CDOMInfosetOutputter extends JW3CDOMInfosetOutputter {
 
   private var document: Document = null
   private val stack = new MStackOf[Node]

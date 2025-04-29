@@ -16,10 +16,10 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.iapi.ValidationMode
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.OccursCountEv
@@ -532,7 +532,7 @@ trait EndArrayChecksMixin {
       // if we should do limited validation
       val shouldValidate =
         state.dataProc.isDefined &&
-          state.dataProc.value.validationMode == ValidationMode.Limited
+          state.dataProc.value.validator == DaffodilLimitedValidator
 
       if (shouldValidate) {
         val minO = erd.minOccurs

@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.api.infoset.{ JDOMInfosetOutputter => JJDOMInfosetOutputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
@@ -27,7 +28,7 @@ import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
 import org.apache.daffodil.runtime1.iapi.InfosetElement
 import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
-class JDOMInfosetOutputter extends InfosetOutputter {
+class JDOMInfosetOutputter extends JJDOMInfosetOutputter {
 
   private val stack = new MStackOf[org.jdom2.Parent]
   private var result: Maybe[org.jdom2.Document] = Maybe.Nope

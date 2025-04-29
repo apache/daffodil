@@ -17,11 +17,14 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.iapi.ThinDiagnostic
-import org.apache.daffodil.lib.iapi.WarnID
+import org.apache.daffodil.api.exceptions.{
+  ExternalVariableException => JExternalVariableException
+}
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.iapi.ThinDiagnostic
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
@@ -589,4 +592,4 @@ class VariableMap private (
   }
 }
 
-class ExternalVariableException(message: String) extends Exception(message)
+class ExternalVariableException(message: String) extends JExternalVariableException(message)

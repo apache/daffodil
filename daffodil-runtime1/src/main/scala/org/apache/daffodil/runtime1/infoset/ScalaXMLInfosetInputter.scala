@@ -17,18 +17,20 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import java.lang.{ Boolean => JBoolean }
 import scala.xml.Comment
 import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.ProcInstr
 import scala.xml.Text
 
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.util.MStackOf
-import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
-class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
+class ScalaXMLInfosetInputter(rootNode: Node) extends JInfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -68,14 +70,11 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
 
   override def getLocalName(): String = stack.top._1.label
 
-  override val supportsNamespaces = true
+  override def getSupportsNamespaces = true
 
   override def getNamespaceURI(): String = stack.top._1.namespace
 
-  override def getSimpleText(
-    primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String]
-  ): String = {
+  override def getSimpleText(primType: NodeInfo.Kind): String = {
     val text = {
       val sb = new StringBuilder()
       val iter: Iterator[Node] = stack.top._2
@@ -116,12 +115,12 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
     result
   }
 
-  override def isNilled(): MaybeBoolean = {
+  override def isNilled(): Option[JBoolean] = {
     val elem = stack.top._1
     val nilAttrValueOpt = elem.attribute(XMLUtils.XSI_NAMESPACE, "nil")
-    val res =
+    val res: Option[JBoolean] =
       if (nilAttrValueOpt.isEmpty) {
-        MaybeBoolean.Nope
+        None
       } else {
         val nilAttrValueSeq = nilAttrValueOpt.get
         if (nilAttrValueSeq.length > 1) {
@@ -131,9 +130,9 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
         }
         val nilAttrValue = nilAttrValueSeq.head.toString
         if (nilAttrValue == "true" || nilAttrValue == "1") {
-          MaybeBoolean(true)
+          Some(true)
         } else if (nilAttrValue == "false" || nilAttrValue == "0") {
-          MaybeBoolean(false)
+          Some(false)
         } else {
           throw new InvalidInfosetException(
             "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.label
