@@ -19,6 +19,7 @@ package org.apache.daffodil.codegen.c
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.runtime1.iapi.DFDL.ProcessorFactory
 
 /** 
  * Runs from "sbt compile" to keep all examples of generated C code up
@@ -33,7 +34,7 @@ object DaffodilCExamplesGenerator {
     exampleDir: os.Path
   ): Unit = {
     // Generate example code from the sample schema
-    val pf = Compiler().compileFile(schemaFile.toIO, optRootName)
+    val pf = Compiler().compileFile(schemaFile.toIO, optRootName).asInstanceOf[ProcessorFactory]
     assert(!pf.isError, pf.getDiagnostics.map(_.toString()).mkString("\n"))
     val cg = pf.forLanguage("c")
     val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)

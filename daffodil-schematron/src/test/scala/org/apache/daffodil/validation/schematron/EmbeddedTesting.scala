@@ -21,13 +21,12 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 
+import org.apache.daffodil.api.Daffodil
+import org.apache.daffodil.api.DataProcessor
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.ParseResult
+import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.sapi.Daffodil
-import org.apache.daffodil.sapi.DataProcessor
-import org.apache.daffodil.sapi.Diagnostic
-import org.apache.daffodil.sapi.ParseResult
-import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 import org.apache.daffodil.validation.schematron.SchSource.Xsd
 
 import org.junit.Assert.assertFalse
@@ -53,8 +52,8 @@ trait EmbeddedTesting {
     def withBytes(bytes: Array[Byte], verbose: PrintInfosetMode = Quiet): PR = {
       val bos = new ByteArrayOutputStream()
       val r1 = dp.parse(
-        new InputSourceDataInputStream(new ByteArrayInputStream(bytes)),
-        new XMLTextInfosetOutputter(bos, pretty = true)
+        Infoset.getInputSourceDataInputStream(new ByteArrayInputStream(bytes)),
+        Infoset.getXMLTextInfosetOutputter(bos, true)
       )
       verbose match {
         case Always | AnyError if r1.isError() => r1.getDiagnostics.foreach(println)

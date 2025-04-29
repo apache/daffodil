@@ -65,9 +65,9 @@ import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
+import org.apache.daffodil.runtime1.iapi.DFDL
 
 /**
  * Generates C source files from a DFDL schema.  Implements

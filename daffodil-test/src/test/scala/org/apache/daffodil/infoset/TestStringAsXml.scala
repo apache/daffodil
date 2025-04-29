@@ -27,11 +27,11 @@ import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 
+import org.apache.daffodil.api.validation.ValidatorsFactory
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.iapi.URISchemaSource
-import org.apache.daffodil.lib.iapi.ValidationMode
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.iapi.DFDL.DataProcessor
@@ -49,7 +49,7 @@ class TestStringAsXml {
       URISchemaSource(Misc.uriToDiagnosticFile(dfdlSchemaURI), dfdlSchemaURI)
     )
     val dp = pf.onPath("/")
-    dp.withValidationMode(ValidationMode.Full)
+    dp.withValidator(ValidatorsFactory.getXercesValidator(dp.getMainSchemaURIForFullValidation))
   }
 
   private def doParse(dp: DataProcessor, data: InputStream) = {
@@ -78,7 +78,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val parseData = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat"
@@ -126,7 +126,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val unparseInfoset = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml"
@@ -151,7 +151,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val infoset1 = {
       val is = Misc
         .getRequiredResource(
@@ -181,7 +181,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val parseData = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_03.dat"
@@ -197,7 +197,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val unparseInfoset = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_04.xml"
@@ -213,7 +213,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val unparseInfoset = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_05.xml"
@@ -229,7 +229,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val unparseInfoset = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_06.xml"
@@ -249,7 +249,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val unparseInfoset = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_07.xml"
@@ -265,7 +265,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val unparseInfoset = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_08.dat"
@@ -281,7 +281,7 @@ class TestStringAsXml {
       Misc.getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessage.dfdl.xsd"
       )
-    )
+    ).asInstanceOf[DataProcessor]
     val parseData = Misc
       .getRequiredResource(
         "/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat"

@@ -15,89 +15,71 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.japi.io
+package org.apache.daffodil.api;
 
-import java.io.InputStream
-import java.nio.ByteBuffer
+import java.io.Closeable;
+import java.io.IOException;
 
-import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataInputStream }
 
 /**
  * Provides Daffodil with byte data from an InputStream, ByteBuffer, or byte
  * Array.
- *
+ * <p>
  * Note that the InputStream variant has potential overhead due to streaming capabilities and
  * support for files greater than 2GB. In some cases, better performance might come from using
  * the byte array or ByteBuffer variants instead. For example, if your data is already in a byte
  * array, one should use the Array[Byte] or ByteBuffer variants instead of wrapping it in a
  * ByteArrayInputStream. As another example, instead of using a FileInputStream like this:
- *
- * {{{
+ * <p>
+ * {@code
  * Path path = Paths.get(file);
  * FileInputStream fis = Files.newInputStream(path);
  * InputSourceDataInputStream input = InputSourceDataInputStream(fis);
- * }}}
- *
+ * }
+ * <p>
  * You might consider mapping the file to a MappedByteBuffer like below, keeping in mind that
  * MappedByteBuffers have size limitations and potentially different performance characteristics
  * depending on the file size and system--it maybe not always be faster than above.
- *
- * {{{
+ * <p>
+ * {@code
  * Path path = Paths.get(file);
  * long size = Files.size(path);
  * FileChannel fc = FileChannel.open(path, StandardOpenOption.READ);
  * ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size);
  * fc.close();
  * InputSourceDataInputStream input = new InputSourceDataInputStream(bb);
- * }}}
+ * }
  */
-class InputSourceDataInputStream private[japi] (
-  private[japi] val dis: SInputSourceDataInputStream
-) extends java.io.Closeable {
-
-  /**
-   * Create an InputSourceDataInputStream from a java.io.InputStream
-   */
-  def this(is: InputStream) = this(SInputSourceDataInputStream(is))
-
-  /**
-   * Create an InputSourceDataInputStream from a java.nio.ByteBuffer
-   */
-  def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb))
-
-  /**
-   * Create an InputSourceDataInputStream from a byte array
-   */
-  def this(arr: Array[Byte]) = this(SInputSourceDataInputStream(arr))
-
+public abstract class InputSourceDataInputStream implements Closeable {
   /**
    * Returns true if the input stream has at least 1 bit of data.
-   *
+   * <p>
    * Does not advance the position.
-   *
+   * <p>
    * Returns true immediately if the input stream has available data that
    * has not yet been consumed.
-   *
+   * <p>
    * On a network input stream, this may block to determine if the stream
    * contains data or is at end-of-data.
-   *
+   * <p>
    * This is used when parsing multiple elements from a stream to see if there
    * is data or not before calling parse().
-   *
+   * <p>
    * It may also be used after a parse() operation that is intended to consume
    * the entire data stream (such as for a file) to determine if all data has
    * been consumed or some data is left-over.
    */
-  def hasData(): Boolean = dis.isDefinedForLength(1)
+  public abstract boolean hasData();
 
   /**
    * Closes the underlying resource.
-   *
+   * <p>
    * This method is used to close the underlying resource associated with the current instance.
    * It is typically used to release any system resources that have been acquired during
    * the lifespan of the instance.
-   *
+   * <p>
    * throws IOException if an I/O error occurs during the close operation.
    */
-  def close(): Unit = dis.close()
+  public abstract void close() throws IOException;
+
 }

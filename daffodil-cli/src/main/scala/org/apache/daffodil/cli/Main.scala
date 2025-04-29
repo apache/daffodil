@@ -43,6 +43,11 @@ import scala.concurrent.duration.Duration
 import scala.util.Using
 import scala.util.matching.Regex
 
+import org.apache.daffodil.api.validation.Validator
+import org.apache.daffodil.api.validation.ValidatorsFactory
+import org.apache.daffodil.api.{ CodeGenerator => JCodeGenerator }
+import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ WithDiagnostics => JWithDiagnostics }
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.compiler.InvalidParserException
@@ -50,18 +55,16 @@ import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.iapi.DaffodilConfig
-import org.apache.daffodil.lib.iapi.DaffodilConfigException
-import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.TDMLImplementation
-import org.apache.daffodil.lib.iapi.URISchemaSource
-import org.apache.daffodil.lib.iapi.ValidationMode
-import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.NotYetImplementedException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.externalvars.BindingException
+import org.apache.daffodil.lib.iapi.DaffodilConfig
+import org.apache.daffodil.lib.iapi.DaffodilConfigException
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.TDMLImplementation
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
@@ -70,11 +73,12 @@ import org.apache.daffodil.lib.validation.Validators
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.debugger.DebuggerExitException
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.iapi.DFDL.CodeGenerator
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -161,20 +165,27 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       override def argFormat(name: String): String = "[" + name + "]"
     }
 
-  implicit def validateConverter: ValueConverter[ValidationMode.Type] =
-    singleArgConverter[ValidationMode.Type]((s: String) => {
+  def validateConverter(schema: ScallopOption[URISchemaSource]): ValueConverter[Validator] =
+    singleArgConverter[Validator]((s: String) => {
       import ValidatorPatterns._
       s match {
-        case "on" => ValidationMode.Full
-        case "limited" => ValidationMode.Limited
-        case "off" => ValidationMode.Off
+        case "on" => {
+          if (schema.toOption.isDefined) {
+            ValidatorsFactory.getXercesValidator(schema.toOption.get.uri)
+          } else {
+            null
+          }
+        }
+        case "limited" => ValidatorsFactory.getLimitedValidator
+        case "off" => ValidatorsFactory.getNoValidator
         case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
           val config =
             if (arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg))
             else ConfigFactory.parseString(s"$name=$arg")
-          ValidationMode.Custom(Validators.get(name).make(config))
+          Validators.get(name).make(config)
+
         case NoArgsPattern(name) if Validators.isRegistered(name) =>
-          ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
+          Validators.get(name).make(ConfigFactory.empty)
         case _ =>
           throw new Exception(
             "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
@@ -405,12 +416,12 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
+    val validate: ScallopOption[Validator] = opt[Validator](
       short = 'V',
-      default = Some(ValidationMode.Off),
+      default = Some(ValidatorsFactory.getNoValidator),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
-    )
+    )(validateConverter(schema))
     val debug = opt[Option[String]](
       argName = "file",
       descr =
@@ -445,7 +456,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     }
 
     validateOpt(parser, validate) {
-      case (Some(_), Some(ValidationMode.Full)) =>
+      case (Some(_), Some(null)) =>
         Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(())
     }
@@ -532,12 +543,12 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
+    val validate: ScallopOption[Validator] = opt[Validator](
       short = 'V',
-      default = Some(ValidationMode.Off),
+      default = Some(ValidatorsFactory.getNoValidator),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
-    )
+    )(validateConverter(schema))
     val debug = opt[Option[String]](
       argName = "file",
       descr =
@@ -764,12 +775,12 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       default = Some(false),
       descr = "Perform unparse instead of parse for performance test"
     )
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
+    val validate: ScallopOption[Validator] = opt[Validator](
       short = 'V',
-      default = Some(ValidationMode.Off),
+      default = Some(ValidatorsFactory.getNoValidator),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
-    )
+    )(validateConverter(schema))
 
     val infile = trailArg[String](
       required = true,
@@ -998,7 +1009,7 @@ class Main(
     bindingsWithUpdates
   }
 
-  def displayDiagnostics(pr: WithDiagnostics): Unit = {
+  def displayDiagnostics(pr: JWithDiagnostics): Unit = {
     pr.getDiagnostics.foreach { d =>
       if (d.isError) {
         Logger.log.error(d.toString())
@@ -1030,7 +1041,7 @@ class Main(
   def createProcessorFromParser(
     savedParser: File,
     path: Option[String],
-    mode: ValidationMode.Type
+    validator: Validator
   ) = {
     try {
       val compiler = Compiler()
@@ -1044,7 +1055,7 @@ class Main(
           Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
           Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
         }
-        Some(processor.withValidationMode(mode))
+        Some(processor.withValidator(validator))
       } else {
         None
       }
@@ -1057,10 +1068,10 @@ class Main(
   }
 
   def withDebugOrTrace(
-    proc: DFDL.DataProcessor,
+    proc: JDataProcessor,
     traceArg: ScallopOption[Boolean],
     debugArg: ScallopOption[Option[String]]
-  ): DFDL.DataProcessor = {
+  ): JDataProcessor = {
     (traceArg() || debugArg.isDefined) match {
       case true => {
         val runner =
@@ -1096,8 +1107,8 @@ class Main(
     rootNS: Option[RefQName],
     path: Option[String],
     tunablesMap: Map[String, String],
-    mode: ValidationMode.Type
-  ): Option[DFDL.DataProcessor] = {
+    validator: Validator
+  ): Option[JDataProcessor] = {
     val compiler = {
       val c = Compiler().withTunables(tunablesMap)
       rootNS match {
@@ -1117,14 +1128,17 @@ class Main(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
         if (!processorFactory.isError) {
-          val processor = processorFactory.onPath(path.getOrElse("/")).withValidationMode(mode)
+          val processor = processorFactory
+            .onPath(path.getOrElse("/"))
+            .withValidator(validator)
+            .asInstanceOf[DataProcessor]
           if (processor.isError) {
             displayDiagnostics(processor)
             None
           } else {
             displayDiagnostics(processor)
             Logger.log.whenDebugEnabled {
-              val processorImpl = processor.asInstanceOf[DataProcessor]
+              val processorImpl = processor
               Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
               Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
             }
@@ -1144,7 +1158,7 @@ class Main(
     rootNS: Option[RefQName],
     tunables: Map[String, String],
     language: String
-  ): Option[DFDL.CodeGenerator] = {
+  ): Option[JCodeGenerator] = {
     val compiler = {
       val c = Compiler().withTunables(tunables)
       rootNS match {
@@ -1158,7 +1172,7 @@ class Main(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
         if (!processorFactory.isError) {
-          val generator = processorFactory.forLanguage(language)
+          val generator = processorFactory.forLanguage(language).asInstanceOf[CodeGenerator]
           displayDiagnostics(generator)
           Some(generator)
         } else {
@@ -1199,7 +1213,7 @@ class Main(
 
         val optDafConfig = parseOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
-        val processor: Option[DFDL.DataProcessor] = {
+        val processor: Option[JDataProcessor] = {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.toOption, validate)
           } else {
@@ -1213,9 +1227,10 @@ class Main(
               validate
             )
           }
-        }.map {
-          _.withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig))
-        }.map { _.withValidationMode(validate) }
+        }.map { p =>
+          p.asInstanceOf[DFDL.DataProcessor]
+            .withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig))
+        }.map { _.withValidator(validate) }
           .map { withDebugOrTrace(_, parseOpts.trace, parseOpts.debug) }
 
         val rc = processor match {
@@ -1405,9 +1420,10 @@ class Main(
               validate
             )
           }
-        }.map {
-          _.withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig))
-        }.map { _.withValidationMode(validate) }
+        }.map { p =>
+          p.asInstanceOf[DFDL.DataProcessor]
+            .withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig))
+        }.map { _.withValidator(validate) }
 
         val rc: ExitCode.Value = processor match {
           case None => ExitCode.UnableToCreateProcessor
@@ -1554,9 +1570,10 @@ class Main(
               validate
             )
           }
-        }.map {
-          _.withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig))
-        }.map { _.withValidationMode(validate) }
+        }.map { p =>
+          p.asInstanceOf[DFDL.DataProcessor]
+            .withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig))
+        }.map { _.withValidator(validate) }
           .map { withDebugOrTrace(_, unparseOpts.trace, unparseOpts.debug) }
 
         val output = unparseOpts.output.toOption match {
@@ -1639,7 +1656,7 @@ class Main(
       case Some(conf.save) => {
         val saveOpts = conf.save
 
-        val validate = ValidationMode.Off
+        val validate = null
         val optDafConfig = saveOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
         val tunables =
@@ -1850,7 +1867,7 @@ class Main(
         val rc = generator match {
           case Some(generator) => {
             Timer.getResult("generating", generator.generateCode(outputDir))
-            displayDiagnostics(generator)
+            displayDiagnostics(generator.asInstanceOf[CodeGenerator])
             if (generator.isError) ExitCode.GenerateCodeError else ExitCode.Success
           }
           case None => ExitCode.GenerateCodeError
@@ -2074,7 +2091,6 @@ class Main(
       }
     ret
   }
-
 }
 
 class EXIErrorHandler extends org.xml.sax.ErrorHandler with javax.xml.transform.ErrorListener {

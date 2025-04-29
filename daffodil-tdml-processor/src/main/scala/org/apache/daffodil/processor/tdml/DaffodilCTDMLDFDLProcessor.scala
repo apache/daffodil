@@ -23,13 +23,13 @@ import java.io.OutputStream
 import scala.xml.Node
 import scala.xml.XML
 
+import org.apache.daffodil.api.validation.{ Validator => JValidator }
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.TDMLImplementation
-import org.apache.daffodil.lib.iapi.ValidationMode
-import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
@@ -125,7 +125,7 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   override def withDebugging(onOff: Boolean): R = this
   override def withTracing(onOff: Boolean): R = this
   override def withDebugger(db: AnyRef): R = this
-  override def withValidationMode(validationMode: ValidationMode.Type): R = this
+  override def withValidator(validator: JValidator): R = this
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R = this
 
   // Parses the input stream to an infoset and returns a TDMLParseResult

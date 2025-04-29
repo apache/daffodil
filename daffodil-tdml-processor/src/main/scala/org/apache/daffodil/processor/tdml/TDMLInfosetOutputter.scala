@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import scala.xml.Node
 
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.runtime1.infoset.JDOMInfosetInputter
 import org.apache.daffodil.runtime1.infoset.JDOMInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.JsonInfosetInputter
@@ -111,7 +111,7 @@ object TDMLInfosetOutputterAll {
   }
 }
 
-trait TDMLInfosetOutputter extends InfosetOutputter {
+trait TDMLInfosetOutputter extends JInfosetOutputter {
 
   def xmlStream: ByteArrayOutputStream
 

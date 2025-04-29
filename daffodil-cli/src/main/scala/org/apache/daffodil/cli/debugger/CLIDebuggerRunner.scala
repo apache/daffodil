@@ -53,6 +53,12 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
 
   var reader: Option[LineReader] = None
 
+  def init(): Unit = {
+    throw new IllegalArgumentException(
+      "Must pass in InteractiveDebugger to the init function for CLIDebuggerRunner"
+    )
+  }
+
   def init(id: InteractiveDebugger): Unit = {
     // if the in/out parameters aren't the normal stdin/stdout, it's likely
     // either some sort of integration test or something where a DumbTerminal

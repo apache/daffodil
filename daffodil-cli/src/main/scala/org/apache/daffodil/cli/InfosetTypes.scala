@@ -29,17 +29,17 @@ import javax.xml.transform.stream.StreamResult
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.SAXParser
 
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
+import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
+import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ ParseResult => JParseResult }
+import org.apache.daffodil.api.{ UnparseResult => JUnparseResult }
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseErrorSAXException
-import org.apache.daffodil.runtime1.iapi.DFDL.DataProcessor
-import org.apache.daffodil.runtime1.iapi.DFDL.ParseResult
-import org.apache.daffodil.runtime1.iapi.DFDL.UnparseResult
-import org.apache.daffodil.runtime1.infoset.InfosetInputter
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.infoset.JDOMInfosetInputter
 import org.apache.daffodil.runtime1.infoset.JDOMInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.JsonInfosetInputter
@@ -100,7 +100,7 @@ object InfosetType extends Enumeration {
    */
   def getInfosetHandler(
     infosetType: InfosetType.Type,
-    dataProcessor: DFDL.DataProcessor,
+    dataProcessor: JDataProcessor,
     schemaUri: Option[URI],
     forPerformance: Boolean
   ): InfosetHandler = {
@@ -190,20 +190,20 @@ sealed trait InfosetHandler {
    * @param infoset Infoset representation returned by dataToInfoset() functions
    * @param output Output channel to write the unparse data to
    */
-  def unparse(infoset: AnyRef, output: DFDL.Output): UnparseResult
+  def unparse(infoset: AnyRef, output: DFDL.Output): JUnparseResult
 
   /**
    * DataProcessor to be used for parse/unparse calls
    */
-  protected def dataProcessor: DataProcessor
+  protected def dataProcessor: JDataProcessor
 
   /**
    * Helper function to parse data using the Daffodil InfosetOutputter API
    */
   final protected def parseWithInfosetOutputter(
     input: InputSourceDataInputStream,
-    output: InfosetOutputter
-  ): ParseResult = {
+    output: JInfosetOutputter
+  ): JParseResult = {
     output.setBlobAttributes(Main.blobDir, null, Main.blobSuffix)
     val pr = dataProcessor.parse(input, output)
     pr
@@ -213,9 +213,9 @@ sealed trait InfosetHandler {
    * Helper function to unparse data using the Daffodil InfosetInputter API
    */
   final protected def unparseWithInfosetInputter(
-    input: InfosetInputter,
+    input: JInfosetInputter,
     output: DFDL.Output
-  ): UnparseResult = {
+  ): JUnparseResult = {
     val ur = dataProcessor.unparse(input, output)
     ur
   }
@@ -226,7 +226,7 @@ sealed trait InfosetHandler {
   final protected def parseWithSax(
     input: InputSourceDataInputStream,
     contentHandler: ContentHandler
-  ): ParseResult = {
+  ): JParseResult = {
     val xmlReader = dataProcessor.newXMLReaderInstance
     // SAX_NAMESPACE_PREFIXES_FEATURE is needed to preserve nil attributes with EXI
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
@@ -235,7 +235,7 @@ sealed trait InfosetHandler {
     xmlReader.setContentHandler(contentHandler)
     xmlReader.parse(input)
     val pr =
-      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[JParseResult]
     pr
   }
 
@@ -246,7 +246,7 @@ sealed trait InfosetHandler {
     xmlReader: XMLReader,
     input: InputStream,
     output: DFDL.Output
-  ): UnparseResult = {
+  ): JUnparseResult = {
     val contentHandler = dataProcessor.newContentHandlerInstance(output)
     xmlReader.setContentHandler(contentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
@@ -276,14 +276,14 @@ sealed trait InfosetHandler {
  * and write it to a given OutputStream. Note that this write() function may
  * not ever be called and is guaranteed to occur outside of a performance loop.
  */
-sealed class InfosetParseResult(val parseResult: ParseResult) {
+sealed class InfosetParseResult(val parseResult: JParseResult) {
   def write(os: OutputStream): Unit = {}
 }
 
 /**
  * InfosetType.XML
  */
-case class XMLTextInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
+case class XMLTextInfosetHandler(dataProcessor: JDataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new XMLTextInfosetOutputter(os, pretty = true)
@@ -291,7 +291,7 @@ case class XMLTextInfosetHandler(dataProcessor: DataProcessor) extends InfosetHa
     new InfosetParseResult(pr)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val is = data match {
       case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
       case is: InputStream => is
@@ -309,7 +309,7 @@ case class XMLTextInfosetHandler(dataProcessor: DataProcessor) extends InfosetHa
 /**
  * InfosetType.JSON
  */
-case class JsonInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
+case class JsonInfosetHandler(dataProcessor: JDataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new JsonInfosetOutputter(os, pretty = true)
@@ -317,7 +317,7 @@ case class JsonInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandl
     new InfosetParseResult(pr)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val is = data match {
       case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
       case is: InputStream => is
@@ -335,7 +335,7 @@ case class JsonInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandl
 /**
  * InfosetType.JDOM
  */
-case class JDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
+case class JDOMInfosetHandler(dataProcessor: JDataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new JDOMInfosetOutputter()
@@ -343,7 +343,7 @@ case class JDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandl
     new JDOMInfosetParseResult(pr, output)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val doc = data.asInstanceOf[org.jdom2.Document]
     val input = new JDOMInfosetInputter(doc)
     val ur = unparseWithInfosetInputter(input, output)
@@ -365,7 +365,7 @@ case class JDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandl
   }
 }
 
-class JDOMInfosetParseResult(parseResult: ParseResult, output: JDOMInfosetOutputter)
+class JDOMInfosetParseResult(parseResult: JParseResult, output: JDOMInfosetOutputter)
   extends InfosetParseResult(parseResult) {
 
   override def write(os: OutputStream): Unit = {
@@ -376,7 +376,7 @@ class JDOMInfosetParseResult(parseResult: ParseResult, output: JDOMInfosetOutput
 /**
  * InfosetType.SCALA_XML
  */
-case class ScalaXMLInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
+case class ScalaXMLInfosetHandler(dataProcessor: JDataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new ScalaXMLInfosetOutputter()
@@ -384,7 +384,7 @@ case class ScalaXMLInfosetHandler(dataProcessor: DataProcessor) extends InfosetH
     new ScalaXMLInfosetParseResult(pr, output)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val node = data.asInstanceOf[scala.xml.Node]
     val input = new ScalaXMLInfosetInputter(node)
     val ur = unparseWithInfosetInputter(input, output)
@@ -405,7 +405,7 @@ case class ScalaXMLInfosetHandler(dataProcessor: DataProcessor) extends InfosetH
   }
 }
 
-class ScalaXMLInfosetParseResult(parseResult: ParseResult, output: ScalaXMLInfosetOutputter)
+class ScalaXMLInfosetParseResult(parseResult: JParseResult, output: ScalaXMLInfosetOutputter)
   extends InfosetParseResult(parseResult) {
 
   override def write(os: OutputStream): Unit = {
@@ -418,7 +418,7 @@ class ScalaXMLInfosetParseResult(parseResult: ParseResult, output: ScalaXMLInfos
 /**
  * InfosetType.W3CDOM
  */
-case class W3CDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
+case class W3CDOMInfosetHandler(dataProcessor: JDataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new W3CDOMInfosetOutputter()
@@ -426,7 +426,7 @@ case class W3CDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHan
     new W3CDOMInfosetParseResult(pr, output)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val doc = data.asInstanceOf[ThreadLocal[org.w3c.dom.Document]].get
     val input = new W3CDOMInfosetInputter(doc)
     val ur = unparseWithInfosetInputter(input, output)
@@ -454,7 +454,7 @@ case class W3CDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHan
   def dataToInfoset(stream: InputStream): AnyRef = dataToInfoset(IOUtils.toByteArray(stream))
 }
 
-class W3CDOMInfosetParseResult(parseResult: ParseResult, output: W3CDOMInfosetOutputter)
+class W3CDOMInfosetParseResult(parseResult: JParseResult, output: W3CDOMInfosetOutputter)
   extends InfosetParseResult(parseResult) {
 
   override def write(os: OutputStream): Unit = {
@@ -469,7 +469,7 @@ class W3CDOMInfosetParseResult(parseResult: ParseResult, output: W3CDOMInfosetOu
 /**
  * InfosetType.NULL
  */
-case class NULLInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
+case class NULLInfosetHandler(dataProcessor: JDataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new NullInfosetOutputter()
@@ -477,7 +477,7 @@ case class NULLInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandl
     new InfosetParseResult(pr)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val events = data.asInstanceOf[Array[NullInfosetInputter.Event]]
     val input = new NullInfosetInputter(events)
     val ur = unparseWithInfosetInputter(input, output)
@@ -495,7 +495,7 @@ case class NULLInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandl
 /**
  * InfosetType.SAX
  */
-case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boolean)
+case class SAXInfosetHandler(dataProcessor: JDataProcessor, forPerformance: Boolean)
   extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
@@ -510,7 +510,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     new InfosetParseResult(pr)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val ur =
       if (forPerformance) {
         val xmlReader = new ReplayingXmlReader(data.asInstanceOf[Array[SaxEvent]])
@@ -676,13 +676,13 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
 object EXIInfosetHandler {
 
   /** non-schema aware EXI **/
-  def apply(dataProcessor: DataProcessor): InfosetHandler = {
+  def apply(dataProcessor: JDataProcessor): InfosetHandler = {
     val exiFactory = createEXIFactory(None)
     EXIInfosetHandler(dataProcessor, exiFactory)
   }
 
   /** schema aware EXI **/
-  def apply(dataProcessor: DataProcessor, schemaUri: URI): InfosetHandler = {
+  def apply(dataProcessor: JDataProcessor, schemaUri: URI): InfosetHandler = {
     val exiFactory = createEXIFactory(Some(schemaUri))
     EXIInfosetHandler(dataProcessor, exiFactory)
   }
@@ -699,7 +699,7 @@ object EXIInfosetHandler {
   }
 }
 
-case class EXIInfosetHandler(dataProcessor: DataProcessor, exiFactory: EXIFactory)
+case class EXIInfosetHandler(dataProcessor: JDataProcessor, exiFactory: EXIFactory)
   extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
@@ -711,7 +711,7 @@ case class EXIInfosetHandler(dataProcessor: DataProcessor, exiFactory: EXIFactor
     new InfosetParseResult(pr)
   }
 
-  def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
+  def unparse(data: AnyRef, output: DFDL.Output): JUnparseResult = {
     val input = data match {
       case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
       case is: InputStream => is

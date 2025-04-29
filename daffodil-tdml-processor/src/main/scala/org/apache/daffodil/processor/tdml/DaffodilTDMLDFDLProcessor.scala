@@ -28,25 +28,30 @@ import java.nio.file.Paths
 import scala.util.Using
 import scala.xml.Node
 
+import org.apache.daffodil.api.validation.{ Validator => JValidator }
+import org.apache.daffodil.api.{ DataLocation => JDataLocation }
+import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api.{ ParseResult => JParseResult }
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
-import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
-import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseErrorSAXException
-import org.apache.daffodil.runtime1.iapi._
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
+import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseContentHandler
+import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.runtime1.iapi._
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
-import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.UnparseResult
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.tdml.TDMLException
@@ -118,7 +123,7 @@ final class TDMLDFDLProcessorFactory private (
         } else p
       }
       val diags = p.getDiagnostics
-      Right((diags, new DaffodilTDMLDFDLProcessor(dp)))
+      Right((diags, new DaffodilTDMLDFDLProcessor(dp.asInstanceOf[DFDL.DataProcessor])))
     }
   }
 
@@ -153,20 +158,20 @@ final class TDMLDFDLProcessorFactory private (
       val dp = compiler.reload(schemaSource)
       val diags = dp.getDiagnostics
       Assert.invariant(diags.forall { !_.isError })
-      Right((diags, new DaffodilTDMLDFDLProcessor(dp)))
+      Right((diags, new DaffodilTDMLDFDLProcessor(dp.asInstanceOf[DFDL.DataProcessor])))
     }
   }
 
 }
 
-class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
+class DaffodilTDMLDFDLProcessor private (private var dp: JDataProcessor)
   extends TDMLDFDLProcessor {
 
   override type R = DaffodilTDMLDFDLProcessor
 
-  def this(ddp: DFDL.DataProcessor) = this(ddp.asInstanceOf[DataProcessor])
+  def this(ddp: DFDL.DataProcessor) = this(ddp.asInstanceOf[JDataProcessor])
 
-  private def copy(dp: DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp)
+  private def copy(dp: JDataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp)
 
   private lazy val builtInTracer =
     new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
@@ -198,15 +203,17 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     copy(dp = dp.withDebugger(d))
   }
 
-  override def withValidationMode(
-    validationMode: ValidationMode.Type
+  override def withValidator(
+    validator: JValidator
   ): DaffodilTDMLDFDLProcessor =
-    copy(dp = dp.withValidationMode(validationMode))
+    copy(dp = dp.withValidator(validator))
 
   override def withExternalDFDLVariables(
     externalVarBindings: Seq[Binding]
-  ): DaffodilTDMLDFDLProcessor =
-    copy(dp = dp.withExternalVariables(externalVarBindings))
+  ): DaffodilTDMLDFDLProcessor = {
+    val map = externalVarBindings.map { b => b.varQName.toString -> b.varValue }.toMap
+    copy(dp = dp.withExternalVariables(map))
+  }
 
   override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
     val (dpInputStream, optSaxInputStream) = if (tdmlApiInfosetsEnv == "all") {
@@ -334,7 +341,9 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
       val saxInputStream = optSaxInputStream.get
       val saxOutputStream = new ByteArrayOutputStream
       val saxOutputChannel = java.nio.channels.Channels.newChannel(saxOutputStream)
-      val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
+      val unparseContentHandler = dp
+        .newContentHandlerInstance(saxOutputChannel)
+        .asInstanceOf[DaffodilUnparseContentHandler]
       unparseContentHandler.enableResolutionOfRelativeInfosetBlobURIs()
       val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
       xmlReader.setContentHandler(unparseContentHandler)
@@ -423,7 +432,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   }
 }
 
-final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInfosetOutputter)
+final class DaffodilTDMLParseResult(actual: JParseResult, outputter: TDMLInfosetOutputter)
   extends TDMLParseResult {
 
   override def getResult: Node = outputter.getResult
@@ -436,9 +445,9 @@ final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInf
 
   override def isValidationError: Boolean = actual.isValidationError
 
-  override def getDiagnostics: Seq[Diagnostic] = actual.getDiagnostics
+  override def getDiagnostics: Seq[JDiagnostic] = actual.getDiagnostics
 
-  override def currentLocation: DataLocation = actual.resultState.currentLocation
+  override def currentLocation: JDataLocation = actual.resultState.currentLocation
 
   override def addDiagnostic(diag: Diagnostic): Unit = actual.addDiagnostic(diag)
 
@@ -462,7 +471,7 @@ final class DaffodilTDMLUnparseResult(
 
   override def isProcessingError: Boolean = actual.isProcessingError
 
-  override def getDiagnostics: Seq[Diagnostic] = actual.getDiagnostics
+  override def getDiagnostics: Seq[JDiagnostic] = actual.getDiagnostics
 
   override def bitPos0b: Long = ustate.bitPos0b
 }

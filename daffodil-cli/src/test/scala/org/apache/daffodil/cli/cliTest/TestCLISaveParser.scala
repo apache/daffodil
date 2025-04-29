@@ -321,7 +321,7 @@ class TestCLISaveParser {
    */
   @Test def test_CLI_Saving_SaveParser_error(): Unit = {
     val schema = path(
-      "daffodil-sapi/src/test/resources/test/sapi/mySchema6.dfdl.xsd"
+      "daffodil-runtime1/src/test/resources/test/api/mySchema6.dfdl.xsd"
     )
 
     withTempFile { parser =>

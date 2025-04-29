@@ -19,14 +19,15 @@ package org.apache.daffodil.tdml.processor
 
 import java.nio.file.Path
 
-import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
-import org.apache.daffodil.lib.iapi.DataLocation
-import org.apache.daffodil.lib.iapi.Diagnostic
-import org.apache.daffodil.lib.iapi.ValidationMode
+import org.apache.daffodil.api.validation.{ Validator => JValidator }
+import org.apache.daffodil.api.{ DataLocation => JDataLocation }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.Diagnostic
 
 object TDML {
-  type CompileResult = Either[Seq[Diagnostic], (Seq[Diagnostic], TDMLDFDLProcessor)]
+  type CompileResult = Either[Seq[JDiagnostic], (Seq[JDiagnostic], TDMLDFDLProcessor)]
 }
 
 /**
@@ -77,7 +78,7 @@ trait TDMLDFDLProcessor {
 
   def withDebugger(db: AnyRef): R
 
-  def withValidationMode(validationMode: ValidationMode.Type): R
+  def withValidator(validator: JValidator): R
 
   def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
 
@@ -91,7 +92,7 @@ trait TDMLDFDLProcessor {
 trait TDMLResult {
   def isValidationError: Boolean
   def isProcessingError: Boolean
-  def getDiagnostics: Seq[Diagnostic]
+  def getDiagnostics: Seq[JDiagnostic]
 
   /**
    * Called once the TDMLRunner has finished analyzing the parse/unparse
@@ -105,7 +106,7 @@ trait TDMLParseResult extends TDMLResult {
   def addDiagnostic(failure: Diagnostic): Unit
   def getResult: scala.xml.Node
   def getBlobPaths: Seq[Path] = Seq.empty
-  def currentLocation: DataLocation
+  def currentLocation: JDataLocation
 }
 
 trait TDMLUnparseResult extends TDMLResult {
