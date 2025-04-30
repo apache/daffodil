@@ -155,7 +155,7 @@ class TestRuntimeProperties {
     val ex = intercept[Exception] {
       TestUtils.compileSchema(testSchemaBad1)
     }
-    val msg = ex.getMessage()
+    val msg = ex.toString()
 
     assertTrue(msg.contains("Schema Definition Error"))
     assertTrue(msg.contains("dfdlx:runtimeProperties"))
@@ -179,7 +179,7 @@ class TestRuntimeProperties {
     val ex = intercept[Exception] {
       TestUtils.compileSchema(testSchemaBad2)
     }
-    val msg = ex.getMessage()
+    val msg = ex.toString()
 
     assertTrue(msg.contains("Schema Definition Error"))
     assertTrue(msg.contains("dfdlx:runtimeProperties"))

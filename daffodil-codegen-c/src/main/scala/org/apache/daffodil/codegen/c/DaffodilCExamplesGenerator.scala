@@ -34,11 +34,11 @@ object DaffodilCExamplesGenerator {
   ): Unit = {
     // Generate example code from the sample schema
     val pf = Compiler().compileFile(schemaFile.toIO, optRootName)
-    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!pf.isError, pf.getDiagnostics.map(_.toString()).mkString("\n"))
     val cg = pf.forLanguage("c")
     val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
     val codeDir = cg.generateCode(tempDir.toString)
-    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(!cg.isError, cg.getDiagnostics.map(_.toString()).mkString("\n"))
 
     // Replace the example generated files with the newly generated files
     val generatedCodeHeader = codeDir / "libruntime" / "generated_code.h"

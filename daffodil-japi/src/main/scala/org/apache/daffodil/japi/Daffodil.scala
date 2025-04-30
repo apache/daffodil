@@ -348,12 +348,27 @@ abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) extends Seri
 class Diagnostic private[japi] (d: SDiagnostic) {
 
   /**
-   * Get the diagnostic message
+   * Get the diagnostic message.
+   *
+   * This does not include mode name, schema context, or data location information
    *
    * @return diagnostic message in string form
    */
   def getMessage(): String = d.getMessage()
 
+  /**
+   * Get the diagnostic mode name
+   *
+   * @return diagnostic mode name in string form
+   */
+  def getModeName(): String = d.getModeName()
+
+  /**
+   * Get a string containing the mode name, message, schema location, and data location combined
+   * into a single string
+   *
+   * @return all diagnostic information as a string
+   */
   override def toString() = d.toString
 
   /**

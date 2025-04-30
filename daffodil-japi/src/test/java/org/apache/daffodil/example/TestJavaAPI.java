@@ -259,7 +259,7 @@ public class TestJavaAPI {
             java.util.List<Diagnostic> diags = res.getDiagnostics();
             assertEquals(1, diags.size());
             Diagnostic d = diags.get(0);
-            // System.err.println(d.getMessage());
+            assertEquals("Parse Error", d.getModeName());
             assertTrue(d.getMessage().contains("int"));
             assertTrue(d.getMessage().contains("Not an int"));
             assertTrue(d.getDataLocations().toString().contains("10"));

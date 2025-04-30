@@ -125,14 +125,13 @@ abstract class Diagnostic protected (
    */
   override def getMessage(): String = message
 
-  override def toString() = getMessage
+  override def toString() =
+    getModeName() + ": " + getMessage + schemaContextString + dataLocationString
 
   /**
    * Determine if a diagnostic object represents an error or something less serious.
    */
   def isError: Boolean
-
-  protected def componentText: String = ""
 
   /**
    * Define as "Parse", "Unparse", "Schema Definition", "Configuration".
@@ -141,8 +140,10 @@ abstract class Diagnostic protected (
    */
   protected def modeName: String
 
-  private def errorOrWarning =
-    if (isError) "Error" else "Warning"
+  def getModeName(): String = {
+    val errorOrWarning = if (isError) "Error" else "Warning"
+    modeName + " " + errorOrWarning
+  }
 
   /**
    * Get data location information relevant to this diagnostic object.
@@ -187,44 +188,29 @@ abstract class Diagnostic protected (
     if (dataContext.isEmpty) ""
     else
       "\nData location was preceding %s".format(dataContext.value)
-  //
-  // Right here is where we would lookup the symbolic error kind id, and
-  // choose a locale-based message string.
-  //
-  // For now, we'll just do an automatic English message.
-  //
-  private def msgString: String = {
-    Assert.invariant(maybeFormatString.isDefined)
-    val m =
-      if (args.size > 0) {
-        try {
-          maybeFormatString.get.format(args: _*)
-        } catch {
-          case e: IllegalArgumentException =>
-            Assert.abort(
-              e.getMessage() + """\nFormat string "%s" did not accept these arguments: %s."""
-                .format(maybeFormatString.get, args.mkString(", "))
-            )
-        }
-      } else maybeFormatString.get
-    m
-  }
-
-  private def msgCausedBy: String = {
-    Assert.invariant(maybeCause.isDefined)
-    maybeCause.get match {
-      case d: Diagnostic => d.getSomeMessage.get
-      case th => Misc.getSomeMessage(th).get
-    }
-  }
 
   private lazy val message = {
-    val res = modeName + " " + errorOrWarning + ": " +
-      (if (maybeCause.isDefined) msgCausedBy else msgString) +
-      componentText +
-      schemaContextString +
-      dataLocationString
-    res
+    if (getCause != null) {
+      getCause match {
+        case d: Diagnostic => d.getModeName() + ": " + d.getMessage()
+        case th => Misc.getSomeMessage(th).get
+      }
+    } else {
+      Assert.invariant(maybeFormatString.isDefined)
+      val m =
+        if (args.size > 0) {
+          try {
+            maybeFormatString.get.format(args: _*)
+          } catch {
+            case e: IllegalArgumentException =>
+              Assert.abort(
+                e.getMessage() + """\nFormat string "%s" did not accept these arguments: %s."""
+                  .format(maybeFormatString.get, args.mkString(", "))
+              )
+          }
+        } else maybeFormatString.get
+      m
+    }
   }
 }
 

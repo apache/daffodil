@@ -311,8 +311,8 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
           if (!actual.isError && !errorHandler.isError) {
             verifySameParseOutput(outputter.xmlStream, saxOutputStream)
           }
-          val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
-          val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
+          val dpParseDiag = actual.getDiagnostics.map(_.toString())
+          val saxParseDiag = errorHandler.getDiagnostics.map(_.toString())
           verifySameDiagnostics(dpParseDiag, saxParseDiag)
         }
       }
@@ -364,8 +364,8 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
           VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
         }
       }
-      val dpUnparseDiag = actualDP.getDiagnostics.map(_.getMessage())
-      val saxUnparseDiag = actualSAX.getDiagnostics.map(_.getMessage())
+      val dpUnparseDiag = actualDP.getDiagnostics.map(_.toString())
+      val saxUnparseDiag = actualSAX.getDiagnostics.map(_.toString())
       verifySameDiagnostics(dpUnparseDiag, saxUnparseDiag)
     }
 

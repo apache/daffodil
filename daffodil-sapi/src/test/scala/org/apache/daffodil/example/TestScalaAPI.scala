@@ -259,6 +259,7 @@ class TestScalaAPI {
       val diags = res.getDiagnostics
       assertEquals(1, diags.size)
       val d = diags(0)
+      assertEquals("Parse Error", d.getModeName())
       assertTrue(d.getMessage().contains("int"))
       assertTrue(d.getMessage().contains("Not an int"))
       assertTrue(d.getDataLocations.toString().contains("10"))

@@ -124,9 +124,19 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         case e: java.lang.IllegalArgumentException => false
         case e: FNErrorException => false
         case e: SchemaDefinitionDiagnosticBase =>
-          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+          // include the mode name of the original diagnostic for a more clear diagnostic
+          throw new SchemaDefinitionError(
+            Some(sfl),
+            None,
+            e.getModeName() + ": " + e.getMessage()
+          )
         case e: ProcessingError =>
-          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+          // include the mode name of the original diagnostic for a more clear diagnostic
+          throw new SchemaDefinitionError(
+            Some(sfl),
+            None,
+            e.getModeName() + ": " + e.getMessage()
+          )
       }
     val res =
       if (isConstant) dstate.currentValue else DataValue.NoValue
