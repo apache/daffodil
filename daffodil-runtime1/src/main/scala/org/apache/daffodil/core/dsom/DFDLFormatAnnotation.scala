@@ -20,8 +20,8 @@ package org.apache.daffodil.core.dsom
 import scala.collection.immutable.ListMap
 import scala.xml.Node
 
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.RefQName

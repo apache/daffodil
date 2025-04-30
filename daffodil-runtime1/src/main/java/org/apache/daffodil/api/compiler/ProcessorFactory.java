@@ -35,10 +35,10 @@ public interface ProcessorFactory extends WithDiagnostics {
   ProcessorFactory withDistinguishedRootNode(String name, String namespace);
 
   /**
-   * Create a {@link DataProcessor}
+   * Create a {@link org.apache.daffodil.api.DataProcessor}
    *
    * @param path path to an element to use as the parsing root, relative to the distinguished root node. Currently, must be set to "/"
-   * @return {@link DataProcessor} used to parse data. Must check {@code DataProcessor.isError} before using it.
+   * @return {@link org.apache.daffodil.api.DataProcessor} used to parse data. Must check {@code DataProcessor.isError} before using it.
    */
   DataProcessor onPath(String path);
 }

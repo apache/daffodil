@@ -28,8 +28,6 @@ import java.math.RoundingMode
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 
-import org.apache.daffodil.lib.iapi.DataLocation
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.calendar.DFDLDate
 import org.apache.daffodil.lib.calendar.DFDLDateTime
@@ -37,6 +35,8 @@ import org.apache.daffodil.lib.calendar.DFDLTime
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One

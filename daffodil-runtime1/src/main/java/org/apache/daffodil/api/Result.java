@@ -19,6 +19,9 @@ package org.apache.daffodil.api;
 
 import scala.collection.immutable.Seq;
 
+/**
+ * Interface for Parse and Unparse results
+ */
 public interface Result {
   State resultState();
 

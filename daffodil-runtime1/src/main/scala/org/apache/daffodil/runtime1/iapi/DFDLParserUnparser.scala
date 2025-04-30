@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.iapi
 
 import java.io.File
 
+import org.apache.daffodil.api.MetadataHandler
 import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
 import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
 import org.apache.daffodil.api.exceptions.{
@@ -123,7 +124,7 @@ object DFDL {
      */
 
     /**
-     * Compilation returns a [[JProcessorFactory]], which must be interrogated for diagnostics
+     * Compilation returns a [[org.apache.daffodil.api.compiler.ProcessorFactory]], which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
     def compileSource(
@@ -142,7 +143,7 @@ object DFDL {
   trait ProcessorFactory extends WithDiagnostics with JProcessorFactory {
 
     /**
-     * Returns a [[CodeGenerator]] to generate code from a DFDL schema to parse or unparse data
+     * Returns a [[org.apache.daffodil.api.CodeGenerator]] to generate code from a DFDL schema to parse or unparse data
      * @param language source language for generated code (you can use only "c" at this time)
      */
     def forLanguage(language: String): JCodeGenerator

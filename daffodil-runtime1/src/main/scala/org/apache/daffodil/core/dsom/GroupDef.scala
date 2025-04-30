@@ -22,8 +22,8 @@ import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.Text
 
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.WarnID
 
 object GlobalGroupDef {
 

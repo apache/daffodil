@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.processors
 
+import org.apache.daffodil.api.MetadataHandler
+import org.apache.daffodil.api.SequenceMetadata
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.iapi.MetadataHandler
-import org.apache.daffodil.runtime1.iapi.SequenceMetadata
 
 /**
  * Walks the schema, but not the DSOM schema, it walks the RuntimeData objects that

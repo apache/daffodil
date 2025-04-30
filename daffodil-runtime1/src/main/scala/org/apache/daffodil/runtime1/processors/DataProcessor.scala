@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
+import org.apache.daffodil.api.MetadataHandler
 import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
 import org.apache.daffodil.api.validation.{ ValidationException => JValidationException }
 import org.apache.daffodil.api.validation.{ ValidationFailure => JValidationFailure }
@@ -40,20 +41,18 @@ import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
 import org.apache.daffodil.lib.validation.XercesValidator
-import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()
 }
+import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.Validator
 import org.apache.daffodil.lib.iapi.WithDiagnostics
-import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.iapi.DFDL
 object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning()
 }

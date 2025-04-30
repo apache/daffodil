@@ -23,7 +23,7 @@ package org.apache.daffodil.api;
  */
 public interface ParseResult extends Result, WithDiagnostics {
   /**
-   * Get the {@link DataLocation} where the parse completed
+   * Get the {@link org.apache.daffodil.api.DataLocation} where the parse completed
    *
    * @return the data location where the parse completed
    */

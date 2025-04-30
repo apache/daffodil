@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.api.infoset;
 
-import org.apache.daffodil.runtime1.iapi.InfosetArray;
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement;
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement;
+import org.apache.daffodil.api.InfosetArray;
+import org.apache.daffodil.api.InfosetComplexElement;
+import org.apache.daffodil.api.InfosetSimpleElement;
 
 /**
  * Abstract class used to determine how the infoset representation should be

@@ -27,6 +27,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml._
 
+import org.apache.daffodil.api.MetadataHandler
 import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
 import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
 import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
@@ -46,7 +47,6 @@ import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.debugger._
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.iapi.MetadataHandler
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor

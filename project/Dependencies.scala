@@ -67,12 +67,4 @@ object Dependencies {
   lazy val exi = Seq(
     "com.siemens.ct.exi" % "exificient" % "1.0.7"
   )
-
-  lazy val genjavadocVersion = {
-    // Scala Steward may try to update this version to include the Scala version,
-    // for example 0.18_2.12.15. This is incorrect because the unidoc plugin uses
-    // crossVersion to figure out the Scala version. This should be set to just the
-    // version of the genjavadoc plugin, without the Scala version.
-    unidocGenjavadocVersion := "0.19"
-  }
 }

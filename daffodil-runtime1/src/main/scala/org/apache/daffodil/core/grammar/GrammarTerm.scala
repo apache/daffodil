@@ -22,8 +22,8 @@ import org.apache.daffodil.core.compiler.ParserOrUnparser
 import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.core.runtime1.GramRuntime1Mixin
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.runtime1.BasicComponent
 

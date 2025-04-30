@@ -71,7 +71,7 @@ object Rat {
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/test_DFDL-714.txt"),
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt"),
     file("daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/data"),
-    file("daffodil-io/src/test/resources/iso8859.doc.dat"),
+    file("daffodil-runtime1/src/test/resources/iso8859.doc.dat"),
     file("daffodil-runtime1/src/test/resources/test/api/01very_simple.txt"),
     file("daffodil-runtime1/src/test/resources/test/api/myData.dat"),
     file("daffodil-runtime1/src/test/resources/test/api/myData2.dat"),

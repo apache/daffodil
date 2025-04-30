@@ -28,8 +28,8 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder

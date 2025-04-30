@@ -25,8 +25,8 @@ import org.apache.daffodil.core.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.core.grammar.primitives._
 import org.apache.daffodil.core.runtime1.ElementBaseRuntime1Mixin
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.gen._

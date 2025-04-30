@@ -23,11 +23,11 @@ import scala.xml.Node
 import org.apache.daffodil.core.compiler.RootSpec
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.SchemaSetGrammarMixin
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.TransitiveClosure

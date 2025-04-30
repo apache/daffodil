@@ -29,7 +29,6 @@ import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.validation.Validator;
 import org.apache.daffodil.core.dsom.ExpressionCompilers$;
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger;
-import org.apache.daffodil.runtime1.iapi.MetadataHandler;
 import scala.collection.immutable.Map;
 import scala.jdk.javaapi.CollectionConverters;
 
@@ -91,13 +90,13 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    * Obtain a new {@link DataProcessor} with external variables read from a Daffodil configuration file
    *
    * @param extVars file to read DFDL variables from.
-   * @throws ExternalVariableException if an error occurs while setting an external variable
+   * @throws org.apache.daffodil.api.exceptions.ExternalVariableException if an error occurs while setting an external variable
    * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    */
   DataProcessor withExternalVariables(File extVars) throws ExternalVariableException;
 
   /**
-   * Obtain a new {@link DataProcessor} with multiple DFDL variables set.
+   * Obtain a new {@link org.apache.daffodil.api.DataProcessor} with multiple DFDL variables set.
    *
    * @param extVars a map of key/value pairs, where the key is the variable
    *                name, and the value is the value of the variable. The key
@@ -105,7 +104,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    *                define a namespace for the variable. If preceded with "{}",
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
-   * @throws ExternalVariableException if an error occurs while setting an external variable
+   * @throws org.apache.daffodil.api.exceptions.ExternalVariableException if an error occurs while setting an external variable
    */
   default DataProcessor withExternalVariables(java.util.Map<String, String> extVars) throws ExternalVariableException {
     return withExternalVariables(scala.collection.immutable.Map.from(CollectionConverters.asScala(extVars)));
@@ -120,7 +119,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    *                define a namespace for the variable. If preceded with "{}",
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
-   * @throws ExternalVariableException if an error occurs while setting an external variable
+   * @throws org.apache.daffodil.api.exceptions.ExternalVariableException if an error occurs while setting an external variable
    */
   DataProcessor withExternalVariables(Map<String, String> extVars) throws ExternalVariableException;
 

@@ -21,23 +21,23 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Using
 import scala.xml.Elem
 
+import org.apache.daffodil.api.ChoiceMetadata
+import org.apache.daffodil.api.ComplexElementMetadata
+import org.apache.daffodil.api.ElementMetadata
+import org.apache.daffodil.api.InfosetArray
+import org.apache.daffodil.api.InfosetComplexElement
+import org.apache.daffodil.api.InfosetElement
+import org.apache.daffodil.api.InfosetItem
+import org.apache.daffodil.api.InfosetSimpleElement
+import org.apache.daffodil.api.Metadata
+import org.apache.daffodil.api.MetadataHandler
+import org.apache.daffodil.api.SequenceMetadata
+import org.apache.daffodil.api.SimpleElementMetadata
 import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util._
-import org.apache.daffodil.runtime1.iapi.ChoiceMetadata
-import org.apache.daffodil.runtime1.iapi.ComplexElementMetadata
 import org.apache.daffodil.runtime1.iapi.DFDL.ParseResult
-import org.apache.daffodil.runtime1.iapi.ElementMetadata
-import org.apache.daffodil.runtime1.iapi.InfosetArray
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
-import org.apache.daffodil.runtime1.iapi.InfosetElement
-import org.apache.daffodil.runtime1.iapi.InfosetItem
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
-import org.apache.daffodil.runtime1.iapi.Metadata
-import org.apache.daffodil.runtime1.iapi.MetadataHandler
-import org.apache.daffodil.runtime1.iapi.SequenceMetadata
-import org.apache.daffodil.runtime1.iapi.SimpleElementMetadata
 import org.apache.daffodil.runtime1.processors.DataProcessor
 
 import org.junit.Assert.assertEquals

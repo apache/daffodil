@@ -153,6 +153,8 @@ abstract class Diagnostic protected (
    * Get data location information relevant to this diagnostic object.
    *
    * For example, this might be a file name, and position within the file.
+   *
+   * @return [[org.apache.daffodil.lib.iapi.DataLocation]]
    */
   def getDataLocations: Seq[DataLocation] = dataContext.toSeq
 
@@ -160,6 +162,8 @@ abstract class Diagnostic protected (
    * Get schema location information relevant to this diagnostic object.
    *
    * For example, this might be a file name of a schema, and position within the schema file.
+   *
+   * @return [[org.apache.daffodil.lib.iapi.LocationInSchemaFile]]
    */
   def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = schemaContext.toSeq
 

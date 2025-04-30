@@ -22,8 +22,8 @@ import java.util.UUID
 
 import org.apache.daffodil.core.dsom.walker.TermView
 import org.apache.daffodil.core.grammar.TermGrammarMixin
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy

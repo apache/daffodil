@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
+import org.apache.daffodil.api.InfosetElement
 import org.apache.daffodil.io.DataStreamCommon
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.LocalBufferMixin
@@ -29,13 +30,13 @@ import org.apache.daffodil.io.processors.charset.CoderInfo
 import org.apache.daffodil.io.processors.charset.DecoderInfo
 import org.apache.daffodil.io.processors.charset.EncoderDecoderMixin
 import org.apache.daffodil.io.processors.charset.EncoderInfo
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.WarnID
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
@@ -47,14 +48,13 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.iapi.InfosetElement
 import org.apache.daffodil.runtime1.dpath.DState
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionWarning
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionErrorFromWarning
 import org.apache.daffodil.runtime1.dsom.ValidationError
+import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.dfa.Registers

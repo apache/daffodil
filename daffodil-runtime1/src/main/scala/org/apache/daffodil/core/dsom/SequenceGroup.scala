@@ -23,8 +23,8 @@ import scala.xml.Node
 import org.apache.daffodil.core.dsom.walker.SequenceView
 import org.apache.daffodil.core.grammar.SequenceGrammarMixin
 import org.apache.daffodil.core.runtime1.ChoiceBranchImpliedSequenceRuntime1Mixin
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult

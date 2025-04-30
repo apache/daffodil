@@ -117,6 +117,7 @@ public class Infoset {
 
   /**
    * {@link InfosetInputter} to read an infoset represented as XML from a java.io.InputStream
+   * <p>
    * Read in an infoset in the form of XML text from a java.io.InputStream
    *
    * @param is the java.io.InputStream to read the XML text from
@@ -127,6 +128,7 @@ public class Infoset {
 
   /**
    * {@link InfosetInputter} to read an infoset represented as JSON from a java.io.InputStream
+   * <p>
    * Read in an infoset in the form of json text from a java.io.InputStream
    *
    * @param is the java.io.InputStream to read the json text from

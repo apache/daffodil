@@ -22,10 +22,10 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import scala.util.{ Failure, Success }
 import scala.xml.NamespaceBinding
 
-import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHost
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.lib.util.Numbers

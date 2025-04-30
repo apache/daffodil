@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.api.DFDLPrimType
+import org.apache.daffodil.api.InfosetArray
+import org.apache.daffodil.api.InfosetComplexElement
+import org.apache.daffodil.api.InfosetElement
+import org.apache.daffodil.api.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.{ JDOMInfosetOutputter => JJDOMInfosetOutputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.iapi.DFDLPrimType
-import org.apache.daffodil.runtime1.iapi.InfosetArray
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
-import org.apache.daffodil.runtime1.iapi.InfosetElement
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 class JDOMInfosetOutputter extends JJDOMInfosetOutputter {
 

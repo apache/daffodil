@@ -20,14 +20,14 @@ package org.apache.daffodil.sexample
 import java.lang.{ Boolean => JBoolean }
 import scala.collection.mutable.ArrayBuffer
 
+import org.apache.daffodil.api.InfosetArray
+import org.apache.daffodil.api.InfosetComplexElement
+import org.apache.daffodil.api.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
 import org.apache.daffodil.api.infoset.InfosetInputter
 import org.apache.daffodil.api.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.iapi.InfosetArray
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 case class TestInfosetEvent(
   eventType: InfosetInputterEventType,

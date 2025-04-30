@@ -19,10 +19,10 @@ package org.apache.daffodil.runtime1.processors
 
 import scala.jdk.CollectionConverters._
 
-import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._

@@ -19,14 +19,14 @@ package org.apache.daffodil.runtime1.infoset
 
 import scala.xml.NamespaceBinding
 
+import org.apache.daffodil.api.DFDLPrimType
+import org.apache.daffodil.api.InfosetArray
+import org.apache.daffodil.api.InfosetComplexElement
+import org.apache.daffodil.api.InfosetElement
+import org.apache.daffodil.api.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.iapi.DFDLPrimType
-import org.apache.daffodil.runtime1.iapi.InfosetArray
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
-import org.apache.daffodil.runtime1.iapi.InfosetElement
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 import org.xml.sax.ContentHandler
 import org.xml.sax.helpers.AttributesImpl

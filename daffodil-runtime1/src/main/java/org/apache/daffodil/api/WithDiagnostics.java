@@ -39,9 +39,9 @@ public interface WithDiagnostics extends Serializable {
   boolean isError();
 
   /**
-   * Get the list of {@link Diagnostic}'s created during the construction of the parent object
+   * Get the list of {@link org.apache.daffodil.api.Diagnostic}'s created during the construction of the parent object
    *
-   * @return list of {@link Diagnostic}'s. May contain errors or warnings, and so may be non-empty even if {@code WithDiagnostics.isError} is false.
+   * @return list of {@link org.apache.daffodil.api.Diagnostic}'s. May contain errors or warnings, and so may be non-empty even if {@code WithDiagnostics.isError} is false.
    */
   Seq<Diagnostic> getDiagnostics();
 }

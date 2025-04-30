@@ -23,6 +23,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import scala.collection.mutable.ArrayBuffer
 
+import org.apache.daffodil.api.InfosetDocument
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Abort
@@ -43,7 +44,6 @@ import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Pool
 import org.apache.daffodil.lib.util.Poolable
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.iapi.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DIComplexState
 import org.apache.daffodil.runtime1.infoset.DIElement

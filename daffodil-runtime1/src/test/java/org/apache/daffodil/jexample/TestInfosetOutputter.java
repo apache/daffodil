@@ -20,9 +20,9 @@ package org.apache.daffodil.jexample;
 import java.util.ArrayList;
 
 import org.apache.daffodil.api.infoset.InfosetOutputter;
-import org.apache.daffodil.runtime1.iapi.InfosetArray;
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement;
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement;
+import org.apache.daffodil.api.InfosetArray;
+import org.apache.daffodil.api.InfosetComplexElement;
+import org.apache.daffodil.api.InfosetSimpleElement;
 
 import static org.junit.Assert.assertEquals;
 

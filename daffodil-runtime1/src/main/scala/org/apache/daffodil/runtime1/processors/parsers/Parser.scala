@@ -19,10 +19,10 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.iapi.DataLocation
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.{ MaybeULong, Misc }
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError

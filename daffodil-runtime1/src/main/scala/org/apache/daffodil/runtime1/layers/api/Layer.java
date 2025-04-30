@@ -238,7 +238,7 @@ import java.util.List;
  * These extend the {@code java.io.InputStream} and {@code java.io.OutputStream} base classes to actually handle the
  * data.
  * <p>
- * Every layer must implement the {@link #wrapLayerInput} and {@link #wrapLayerOutput}
+ * Every layer must implement the {@code wrapLayerInput} and {@code wrapLayerOutput}
  * methods, which provide the input decoder and output encoder instances to the Daffodil layer framework.
  * When parsing/unparsing, the derived Layer class itself is concerned with setup and tear-down of the
  * layer's input decoder and output encoder, with providing access to/from DFDL variables,
@@ -265,9 +265,10 @@ public abstract class Layer implements SimpleNamedLoadableService {
 
   private LayerRuntime layerRuntime;
 
-  /** Constructs a new Layer object with the given layer name and namespace URI.
+  /**
+   * Constructs a new Layer object with the given layer name and namespace URI.
    *
-   * @param localName      the local NCName of the layer. Must be usable as a Java identifier.
+   * @param localName       the local NCName of the layer. Must be usable as a Java identifier.
    * @param targetNamespace the namespace URI of the layer. Must obey URI syntax.
    * @throws IllegalArgumentException if arguments are null or do not obey required syntax.
    */
@@ -280,23 +281,36 @@ public abstract class Layer implements SimpleNamedLoadableService {
     this.targetNamespace = targetNamespace;
   }
 
-  /** For framework use.
+  /**
+   * For framework use.
    * <p>
    * This method and the string it returns are required by the SPI loader.
+   *
    * @return A unique indentifier for the kind of layer. Contains both local and namespace components of the layer's complete name.
    */
-  public final String name() { return LayerUtils.spiName(localName, targetNamespace); }
+  public final String name() {
+    return LayerUtils.spiName(localName, targetNamespace);
+  }
 
-  /** For framework use. */
-  public final String localName() { return this.localName; }
+  /**
+   * For framework use.
+   */
+  public final String localName() {
+    return this.localName;
+  }
 
-  /** For framework use. */
-  public final String namespace() { return this.targetNamespace; }
+  /**
+   * For framework use.
+   */
+  public final String namespace() {
+    return this.targetNamespace;
+  }
 
   /**
    * For framework use.
    * <p>
    * Called by the execution framework to give the context for reporting errors.
+   *
    * @param lr runtime data structure used by the framework
    */
   public final void setLayerRuntime(LayerRuntime lr) {
@@ -308,7 +322,9 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * <p>
    * Called by the execution framework to obtain the context for reporting errors.
    */
-  public final LayerRuntime getLayerRuntime() { return layerRuntime; }
+  public final LayerRuntime getLayerRuntime() {
+    return layerRuntime;
+  }
 
   /**
    * Use to report a processing error.
@@ -317,9 +333,12 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * can often recover from the error.
    * <p>
    * When unparsing a processing error is fatal.
+   *
    * @param msg describes the error
    */
-  public void processingError(String msg) { layerRuntime.processingError(msg); }
+  public void processingError(String msg) {
+    layerRuntime.processingError(msg);
+  }
 
   /**
    * Use to report a processing error.
@@ -328,9 +347,13 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * can often recover from the error.
    * <p>
    * When unparsing a processing error is fatal.
+   *
    * @param cause a throwable object that describes the error
    */
-  public void processingError(Throwable cause) { layerRuntime.processingError(cause); }
+  public void processingError(Throwable cause) {
+    layerRuntime.processingError(cause);
+  }
+
   /**
    * Use to report a runtime schema definition error.
    * <p>
@@ -345,9 +368,12 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * Runtime Schema Definition Error is the right error to invoke.
    * <p>
    * This error type is always fatal whether parsing or unparsing.
+   *
    * @param msg describes the error
    */
-  public void runtimeSchemaDefinitionError(String msg) { layerRuntime.runtimeSchemaDefinitionError(msg); }
+  public void runtimeSchemaDefinitionError(String msg) {
+    layerRuntime.runtimeSchemaDefinitionError(msg);
+  }
 
   /**
    * Use to report a runtime schema definition error.
@@ -357,11 +383,14 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * the way the layer is configured.
    * <p>
    * This error type is always fatal whether parsing or unparsing.
-   * See {@link #runtimeSchemaDefinitionError(String) } for discussion of situations where
-   *  a Runtime Schema Definition Error is appropriate.
+   * See {@code runtimeSchemaDefinitionError(String) } for discussion of situations where
+   * a Runtime Schema Definition Error is appropriate.
+   *
    * @param cause a throwable object that describes the error
    */
-  public void runtimeSchemaDefinitionError(Throwable cause) { layerRuntime.runtimeSchemaDefinitionError(cause); }
+  public void runtimeSchemaDefinitionError(Throwable cause) {
+    layerRuntime.runtimeSchemaDefinitionError(cause);
+  }
 
   /**
    * Wraps a layer <i>input decoder</i> around an input stream.
@@ -376,11 +405,12 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * <p>
    * To have the Daffodil layer framework convert uncaught exceptions
    * thrown by the input decoder into processing errors automatically,
-   * call the {@link #setProcessingErrorException(Class)}.
-   * Other kinds of input decoder processing errors can be signaled by calling the {@link #processingError(String)} or
-   * {@link #processingError(Throwable)} methods.
-   * Input decoder schema definition errors are more rare, but if needed the {@link #runtimeSchemaDefinitionError(String)} or
-   * {@link #runtimeSchemaDefinitionError(Throwable)} methods may be called.
+   * call the {@code setProcessingErrorException(Class)}.
+   * Other kinds of input decoder processing errors can be signaled by calling the {@code processingError(String)} or
+   * {@code processingError(Throwable)} methods.
+   * Input decoder schema definition errors are more rare, but if needed the {@code runtimeSchemaDefinitionError(String)} or
+   * {@code runtimeSchemaDefinitionError(Throwable)} methods may be called.
+   *
    * @param jis The input stream to be wrapped.
    * @return An input stream with the layer's input decoder wrapped around it.
    */
@@ -400,11 +430,12 @@ public abstract class Layer implements SimpleNamedLoadableService {
    * <p>
    * To have the Daffodil layer framework convert uncaught exceptions
    * thrown by the output encoder into processing errors automatically,
-   * call the {@link #setProcessingErrorException(Class)}.
-   * Other kinds of output encoder processing errors can be signaled by calling the {@link #processingError(String)} or
-   * {@link #processingError(Throwable)} methods.
-   * Output encoder schema definition errors are more rare, but if needed the {@link #runtimeSchemaDefinitionError(String)} or
-   * {@link #runtimeSchemaDefinitionError(Throwable)} methods may be called.
+   * call the {@code setProcessingErrorException(Class)}.
+   * Other kinds of output encoder processing errors can be signaled by calling the {@code processingError(String)} or
+   * {@code processingError(Throwable)} methods.
+   * Output encoder schema definition errors are more rare, but if needed the {@code runtimeSchemaDefinitionError(String)} or
+   * {@code runtimeSchemaDefinitionError(Throwable)} methods may be called.
+   *
    * @param jos The output stream to be wrapped.
    * @return An output stream with the layer wrapped around it.
    */

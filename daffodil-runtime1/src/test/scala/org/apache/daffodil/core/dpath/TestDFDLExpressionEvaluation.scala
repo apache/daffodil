@@ -31,10 +31,11 @@ import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 
 import org.junit.Assert._
 import org.junit.Test; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
+
+import org.apache.daffodil.api.InfosetDocument
 import org.apache.daffodil.core.infoset.TestInfoset
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.runtime1.iapi.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.NullInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.parsers.PState

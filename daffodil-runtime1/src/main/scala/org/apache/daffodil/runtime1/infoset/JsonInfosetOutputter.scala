@@ -19,14 +19,14 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.nio.charset.StandardCharsets
 
+import org.apache.daffodil.api.DFDLPrimType
+import org.apache.daffodil.api.InfosetArray
+import org.apache.daffodil.api.InfosetComplexElement
+import org.apache.daffodil.api.InfosetElement
+import org.apache.daffodil.api.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
-import org.apache.daffodil.runtime1.iapi.DFDLPrimType
-import org.apache.daffodil.runtime1.iapi.InfosetArray
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
-import org.apache.daffodil.runtime1.iapi.InfosetElement
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 

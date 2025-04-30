@@ -17,18 +17,6 @@
 
 package org.apache.daffodil.lib.xml
 
-import org.apache.commons.io.IOUtils
-import org.apache.daffodil.lib.calendar.DFDLDateConversion
-import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
-import org.apache.daffodil.lib.calendar.DFDLTimeConversion
-import org.apache.daffodil.lib.exceptions._
-import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
-import org.apache.daffodil.lib.iapi.URISchemaSource
-import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Misc
-import org.xml.sax.XMLReader
-
 import java.io.File
 import java.io.IOException
 import java.net.URI
@@ -44,6 +32,19 @@ import scala.collection.mutable.ArrayBuilder
 import scala.math.abs
 import scala.util.matching.Regex
 import scala.xml._
+
+import org.apache.daffodil.lib.calendar.DFDLDateConversion
+import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
+import org.apache.daffodil.lib.calendar.DFDLTimeConversion
+import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Misc
+
+import org.apache.commons.io.IOUtils
+import org.xml.sax.XMLReader
 
 /**
  * Utilities for handling XML

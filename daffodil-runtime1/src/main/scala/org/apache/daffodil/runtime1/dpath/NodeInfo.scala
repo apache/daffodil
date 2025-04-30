@@ -31,6 +31,7 @@ import java.math.{ BigInteger => JBigInt }
 import java.net.URI
 import java.net.URISyntaxException
 
+import org.apache.daffodil.api.DFDLPrimType
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
@@ -45,7 +46,6 @@ import org.apache.daffodil.lib.xml.NoNamespace
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.iapi.DFDLPrimType
 import org.apache.daffodil.runtime1.dsom.walker._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt

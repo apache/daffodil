@@ -20,8 +20,8 @@ package org.apache.daffodil.core.grammar.primitives
 import java.util.regex.Pattern
 import java.util.regex.PatternSyntaxException
 
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.util.Misc
 
 /**

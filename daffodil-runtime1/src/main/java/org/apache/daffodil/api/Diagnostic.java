@@ -20,6 +20,10 @@ package org.apache.daffodil.api;
 import scala.Option;
 import scala.collection.immutable.Seq;
 
+
+/**
+ * Class containing diagnostic information
+ */
 public abstract class Diagnostic extends Exception {
 
   public Diagnostic(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

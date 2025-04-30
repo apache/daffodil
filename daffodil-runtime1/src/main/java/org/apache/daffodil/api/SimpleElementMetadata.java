@@ -14,33 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.runtime1.iapi;
+package org.apache.daffodil.api;
 
 /**
- * An enumeration of all DFDL's simple types.
- * <p>
- * Intended to be easily used from Java code calling Daffodil APIs.
+ * Access to metadata values exclusive to elements of simple type.
  */
-public enum DFDLPrimType {
-
-    String,
-    Int,
-    Byte,
-    Short,
-    Long,
-    Integer,
-    Decimal,
-    UnsignedInt,
-    UnsignedByte,
-    UnsignedShort,
-    UnsignedLong,
-    NonNegativeInteger,
-    Double,
-    Float,
-    HexBinary,
-    AnyURI,
-    Boolean,
-    DateTime,
-    Date,
-    Time
+public interface SimpleElementMetadata extends ElementMetadata {
+  /**
+   * Primitive Type enum usable from Java
+   *
+   * @return DFDLPrimType
+   */
+  DFDLPrimType dfdlType();
 }

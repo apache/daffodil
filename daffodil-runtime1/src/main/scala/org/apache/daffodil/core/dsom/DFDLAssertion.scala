@@ -26,8 +26,8 @@ import org.apache.daffodil.core.grammar.primitives.AssertBooleanPrim
 import org.apache.daffodil.core.grammar.primitives.AssertPatternPrim
 import org.apache.daffodil.core.grammar.primitives.DiscriminatorBooleanPrim
 import org.apache.daffodil.core.grammar.primitives.DiscriminatorPatternPrim
-import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 

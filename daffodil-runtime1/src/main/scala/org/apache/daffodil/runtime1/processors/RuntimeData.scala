@@ -23,6 +23,15 @@ import java.lang.{ Long => JLong }
 import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
+import org.apache.daffodil.api.ChoiceMetadata
+import org.apache.daffodil.api.ComplexElementMetadata
+import org.apache.daffodil.api.DFDLPrimType
+import org.apache.daffodil.api.ElementMetadata
+import org.apache.daffodil.api.Metadata
+import org.apache.daffodil.api.ModelGroupMetadata
+import org.apache.daffodil.api.SequenceMetadata
+import org.apache.daffodil.api.SimpleElementMetadata
+import org.apache.daffodil.api.TermMetadata
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
@@ -52,15 +61,6 @@ import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
 import org.apache.daffodil.runtime1.dsom.FacetTypes
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
-import org.apache.daffodil.runtime1.iapi.ChoiceMetadata
-import org.apache.daffodil.runtime1.iapi.ComplexElementMetadata
-import org.apache.daffodil.runtime1.iapi.DFDLPrimType
-import org.apache.daffodil.runtime1.iapi.ElementMetadata
-import org.apache.daffodil.runtime1.iapi.Metadata
-import org.apache.daffodil.runtime1.iapi.ModelGroupMetadata
-import org.apache.daffodil.runtime1.iapi.SequenceMetadata
-import org.apache.daffodil.runtime1.iapi.SimpleElementMetadata
-import org.apache.daffodil.runtime1.iapi.TermMetadata
 import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 

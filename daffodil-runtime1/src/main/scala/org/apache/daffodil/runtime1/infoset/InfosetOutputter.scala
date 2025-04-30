@@ -18,11 +18,11 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.nio.file.Path
 
+import org.apache.daffodil.api.InfosetArray
+import org.apache.daffodil.api.InfosetComplexElement
+import org.apache.daffodil.api.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.{ BlobMethods => JBlobMethods }
 import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
-import org.apache.daffodil.runtime1.iapi.InfosetArray
-import org.apache.daffodil.runtime1.iapi.InfosetComplexElement
-import org.apache.daffodil.runtime1.iapi.InfosetSimpleElement
 
 /**
  * Defines the interface for InfosetOutputters.

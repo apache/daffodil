@@ -38,8 +38,8 @@ public interface ValidatorFactory extends SimpleNamedLoadableService {
    * The factory method to generate the Validator instance
    *
    * @param config com.typesafe.config.Config to pass to validator instance
-   * @return {@link Validator} instance ready to execute
-   * @throws ValidatorInitializationException when initialization fails
+   * @return {@link org.apache.daffodil.api.validation.Validator} instance ready to execute
+   * @throws org.apache.daffodil.api.validation.ValidatorInitializationException when initialization fails
    */
   Validator make(Config config) throws ValidatorInitializationException;
 }

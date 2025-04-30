@@ -21,10 +21,10 @@ import java.lang.{ Number => JNumber }
 import scala.collection.immutable.ArraySeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
-import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase

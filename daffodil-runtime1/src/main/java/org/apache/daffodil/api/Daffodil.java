@@ -25,6 +25,11 @@ public class Daffodil {
   private Daffodil() {
   }
 
+  /**
+   * Create a new object used to compiled DFDL schemas
+   *
+   * @return new object to compile DFDL schemas
+   */
   public static Compiler compiler() {
     return org.apache.daffodil.core.compiler.Compiler.apply(true);
   }

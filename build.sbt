@@ -28,7 +28,7 @@ lazy val genTunablesDoc = taskKey[Seq[File]]("Generate tunables doc from dafext.
 
 lazy val daffodil = project
   .in(file("."))
-  .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
+  .enablePlugins(ScalaUnidocPlugin)
   .aggregate(
     cli,
     codeGenC,
@@ -69,8 +69,6 @@ lazy val slf4jLogger = Project("daffodil-slf4j-logger", file("daffodil-slf4j-log
   .settings(libraryDependencies ++= Dependencies.slf4jAPI)
 
 lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
-  .enablePlugins(GenJavadocPlugin)
-  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(
     udf,
     macroLib % "compile-internal, test-internal",
@@ -420,14 +418,6 @@ def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source 
     // I tried to include all of runtime1/api, and exclude those files, but could not
     // get that to work, so now we include individually each file that is part of the
     // published runtime1 API
-    //
-    // NOTE: Commented out for now. genjavadoc doesn't handle the traits in
-    // these files, so for now these are undocumented.
-    //
-    // FIXME: DAFFODIL-2902
-    //    str.contains(oad + "/runtime1/iapi/DFDLPrimType") ||
-    //    str.contains(oad + "/runtime1/iapi/Infoset") ||
-    //    str.contains(oad + "/runtime1/iapi/Metadata")
   }
   val res = included
   res
@@ -435,28 +425,21 @@ def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source 
 
 lazy val unidocSettings =
   Seq(
+    ScalaUnidoc / unidoc / unidocAllClasspaths := Seq(
+      (udf / Compile / fullClasspath).value,
+      (runtime1 / Compile / fullClasspath).value,
+      (Compile / fullClasspath).value
+    ),
     ScalaUnidoc / unidoc / unidocProjectFilter :=
       inProjects(udf, runtime1),
     ScalaUnidoc / unidoc / scalacOptions := Seq(
       "-doc-title",
-      "Apache Daffodil " + version.value + " Scala API",
+      "Apache Daffodil " + version.value + " Java API",
       "-doc-root-content",
       (runtime1 / baseDirectory).value + "/root-doc.txt"
     ),
     ScalaUnidoc / unidoc / unidocAllSources :=
-      (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter),
-    JavaUnidoc / unidoc / unidocProjectFilter :=
-      inProjects(udf, runtime1),
-    JavaUnidoc / unidoc / javacOptions := Seq(
-      "-windowtitle",
-      "Apache Daffodil " + version.value + " Java API",
-      "-doctitle",
-      "<h1>Apache Daffodil " + version.value + " Java API</h1>",
-      "-notimestamp",
-      "-quiet"
-    ),
-    JavaUnidoc / unidoc / unidocAllSources :=
-      (JavaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)
+      (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)
   )
 
 lazy val genTunablesDocSettings = Seq(

@@ -28,11 +28,11 @@ import java.lang.{
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
 
-import org.apache.daffodil.lib.iapi.DataLocation
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.equality.EqualitySuppressUnusedImportWarning
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
