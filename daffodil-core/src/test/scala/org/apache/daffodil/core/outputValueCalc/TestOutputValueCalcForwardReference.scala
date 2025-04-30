@@ -118,7 +118,7 @@ class TestOutputValueCalcForwardReference {
       fail("Expected SuspendedExpressionsDeadlockException")
     } catch {
       case e: Exception => {
-        val msg = e.getMessage().toLowerCase()
+        val msg = e.toString().toLowerCase()
         assertTrue(msg.contains("deadlocked"))
         assertTrue(msg.contains("runtime schema definition error"))
       }

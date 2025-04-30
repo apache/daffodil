@@ -1231,7 +1231,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (actual.isProcessingError) {
       // Means there was an error, not just warnings.
       if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
-      val diags = actual.getDiagnostics.map(_.getMessage()).mkString("\n")
+      val diags = actual.getDiagnostics.map(_.toString()).mkString("\n")
       throw TDMLException(diags, implString)
     } else {
       // If we think we've succeeded, verify there are no errors
@@ -1686,7 +1686,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         // Means there was an error, not just warnings.
         val diagObjs = parseActual.getDiagnostics
         if (diagObjs.length == 1) throw diagObjs.head
-        val diags = parseActual.getDiagnostics.map(_.getMessage()).mkString("\n")
+        val diags = parseActual.getDiagnostics.map(_.toString()).mkString("\n")
         throw TDMLException(diags, implString)
       }
       val loc: DataLocation = parseActual.currentLocation

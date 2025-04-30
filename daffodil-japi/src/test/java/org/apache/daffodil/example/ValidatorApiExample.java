@@ -79,7 +79,7 @@ public class ValidatorApiExample {
         java.io.File schemaFile = getResource("/test/japi/alwaysInvalid.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         for (Diagnostic d: pf.getDiagnostics()) {
-            System.err.println(d.getMessage());
+            System.err.println(d.toString());
         }
         DataProcessor dp = pf.onPath("/").withValidationMode(ValidationMode.Full);
 
@@ -92,8 +92,8 @@ public class ValidatorApiExample {
 
             for (Diagnostic d : res.getDiagnostics()) {
                 // doublecheck - all the errors are validation errors.
-                // System.err.println(d.getMessage());
-                assertTrue(d.getMessage().contains("Validation Error"));
+                // System.err.println(d.toString());
+                assertTrue(d.toString().contains("Validation Error"));
             }
             assertTrue(res.isError());
             // XMLOutputter xout = new XMLOutputter();

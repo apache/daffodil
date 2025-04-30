@@ -1001,9 +1001,9 @@ class Main(
   def displayDiagnostics(pr: WithDiagnostics): Unit = {
     pr.getDiagnostics.foreach { d =>
       if (d.isError) {
-        Logger.log.error(d.getMessage())
+        Logger.log.error(d.toString())
       } else {
-        Logger.log.warn(d.getMessage())
+        Logger.log.warn(d.toString())
       }
     }
   }

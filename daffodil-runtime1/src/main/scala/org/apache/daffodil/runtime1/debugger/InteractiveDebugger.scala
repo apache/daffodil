@@ -200,7 +200,7 @@ class InteractiveDebugger(
 
       if (state.processorStatus ne Success) {
         debugPrintln("failure:")
-        debugPrintln("%s".format(state.diagnostics.head.getMessage()), "  ")
+        debugPrintln("%s".format(state.diagnostics.head.toString()), "  ")
       }
 
       if (debugState == DebugState.Trace) {
@@ -360,7 +360,7 @@ class InteractiveDebugger(
       case u: UnsuppressableException => throw u
       case e: Throwable => {
         debugPrintln(
-          "caught throwable " + Misc.getNameFromClass(e) + ": " + Misc.getSomeMessage(e).get
+          "caught throwable " + e.toString
         )
         state.setSuccess()
         false
@@ -1143,7 +1143,7 @@ class InteractiveDebugger(
             if (!newDiags.isEmpty) {
               val ex = new ErrorsNotYetRecorded(newDiags)
               throw new DebugException(
-                "expression evaluation failed: %s".format(Misc.getSomeMessage(ex).get)
+                "expression evaluation failed: %s".format(ex.toString)
               )
             }
           }
@@ -1170,7 +1170,7 @@ class InteractiveDebugger(
           case e: Throwable => {
             val ex = e // just so we can see it in the debugger.
             throw new DebugException(
-              "expression evaluation failed: %s".format(Misc.getSomeMessage(ex).get)
+              "expression evaluation failed: %s".format(ex.toString)
             )
           }
         }

@@ -58,16 +58,8 @@ final class CharsetNotByteAlignedError(
 class AssertionFailed(
   rd: SchemaFileLocation,
   state: PState,
-  msg: String,
-  details: Maybe[String] = Nope
-) extends ParseError(One(rd), One(state.currentLocation), "Assertion failed: %s", msg) {
-  override def componentText: String = {
-
-    if (details.isDefined) "\nDetails: " + details.get
-    else ""
-
-  }
-}
+  msg: String
+) extends ParseError(One(rd), One(state.currentLocation), "Assertion failed: %s", msg)
 
 class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
   extends ParseError(

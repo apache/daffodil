@@ -142,7 +142,7 @@ class TestPolymorphicUpwardRelativeExpressions {
     val e = intercept[Exception] {
       TestUtils.testString(testSchema, "e2;1961-02-01;6;", areTracing = false)
     }
-    val msg = e.getMessage()
+    val msg = e.toString()
     val hasSDE = msg.contains("Schema Definition Error")
     val hasPolyInt = msg.contains("../../poly eq 5 with xs:int")
     val hasPolyDate = msg.contains("../../poly eq 5 with xs:date")

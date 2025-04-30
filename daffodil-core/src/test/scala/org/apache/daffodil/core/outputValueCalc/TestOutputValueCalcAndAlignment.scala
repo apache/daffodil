@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.outputValueCalc
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -142,7 +141,7 @@ class TestOutputValueCalcAndAlignment {
       // Some test utilities, given multiple diagnostics from a run, will just
       // concatenate their messages, and throw a vanilla Exception object.
       case e: Exception => {
-        val msg = Misc.getSomeMessage(e).get.toLowerCase
+        val msg = e.toString.toLowerCase
         if (!msg.contains("Schema Definition Error".toLowerCase))
           fail(msg + " did not contain Schema Definition Error")
 
