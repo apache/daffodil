@@ -34,7 +34,7 @@ lazy val daffodil = project
     codeGenC,
     macroLib,
     propgen,
-    runtime1,
+    core,
     schematron,
     slf4jLogger,
     tdmlJunit,
@@ -68,7 +68,7 @@ lazy val slf4jLogger = Project("daffodil-slf4j-logger", file("daffodil-slf4j-log
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.slf4jAPI)
 
-lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
+lazy val core = Project("daffodil-core", file("daffodil-core"))
   .dependsOn(
     udf,
     macroLib % "compile-internal, test-internal",
@@ -80,8 +80,8 @@ val codeGenCLib = Library("libruntime.a")
 lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
   .enablePlugins(CcPlugin)
   .dependsOn(
-    runtime1,
-    runtime1 % "test->test",
+    core,
+    core % "test->test",
     slf4jLogger % "test"
   )
   .settings(commonSettings)
@@ -106,14 +106,14 @@ lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
 lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
   .dependsOn(
     macroLib % "compile-internal",
-    runtime1,
-    runtime1 % "test->test",
+    core,
+    core % "test->test",
     slf4jLogger % "test"
   )
   .settings(commonSettings)
 
 lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
-  .dependsOn(tdmlLib, codeGenC, runtime1, slf4jLogger)
+  .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)
   .settings(commonSettings)
 
 lazy val tdmlJunit = Project("daffodil-tdml-junit", file("daffodil-tdml-junit"))
@@ -125,7 +125,7 @@ lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
   .dependsOn(
     tdmlProc,
     codeGenC,
-    runtime1,
+    core,
     schematron % Runtime,
     slf4jLogger
   ) // causes codegen-c to be pulled into the helper zip/tar
@@ -138,7 +138,7 @@ lazy val udf = Project("daffodil-udf", file("daffodil-udf"))
   .settings(commonSettings)
 
 lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron"))
-  .dependsOn(runtime1, runtime1 % Test, slf4jLogger % "test")
+  .dependsOn(core, core % Test, slf4jLogger % "test")
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.schematron)
 
@@ -427,16 +427,16 @@ lazy val unidocSettings =
   Seq(
     ScalaUnidoc / unidoc / unidocAllClasspaths := Seq(
       (udf / Compile / fullClasspath).value,
-      (runtime1 / Compile / fullClasspath).value,
+      (core / Compile / fullClasspath).value,
       (Compile / fullClasspath).value
     ),
     ScalaUnidoc / unidoc / unidocProjectFilter :=
-      inProjects(udf, runtime1),
+      inProjects(udf, core),
     ScalaUnidoc / unidoc / scalacOptions := Seq(
       "-doc-title",
       "Apache Daffodil " + version.value + " Java API",
       "-doc-root-content",
-      (runtime1 / baseDirectory).value + "/root-doc.txt"
+      (core / baseDirectory).value + "/root-doc.txt"
     ),
     ScalaUnidoc / unidoc / unidocAllSources :=
       (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)

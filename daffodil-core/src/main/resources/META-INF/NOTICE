@@ -23,4 +23,4 @@ This product includes derived works from Scala
   The derived work is adapted from scala/src/library/scala/Symbol.scala:
     https://github.com/scala/scala/blob/904e3a5d2b9616b9c533d77d0c51652b138e8659/src/library/scala/Symbol.scala
   and can be found in:
-    daffodil-runtime1/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
+    daffodil-core/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala

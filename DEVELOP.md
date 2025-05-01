@@ -227,7 +227,7 @@ daffodil/
 ├── daffodil-codegen-c/         - Contains Daffodil's C code generator
 ├── daffodil-macro-lib/         - Defines Daffodil's Scala 2.x macros
 ├── daffodil-propgen/           - Contains generators to generate more source code
-├── daffodil-runtime1/          - Contains Daffodil's input/output/charsets, Scala parser, schema compiler, utilities, layers, unparsers and the API
+├── daffodil-core/          - Contains Daffodil's input/output/charsets, Scala parser, schema compiler, utilities, layers, unparsers and the API
 ├── daffodil-schematron/
 │   ├── README.md               - Explains how to validate with Schematron rules
 │   └── src/                    - Contains Daffodil's Schematron validator
@@ -270,15 +270,16 @@ way for a Java or Scala application to use Daffodil is to get
 Daffodil's Java API from Maven or get Daffodil's Scala API from sbt:
 
 ```xml
+
 <dependency>
   <groupId>org.apache.daffodil</groupId>
-  <artifactId>daffodil-runtime1_3.3</artifactId>
+  <artifactId>daffodil-core_3.3</artifactId>
   <version>3.4.0</version>
 </dependency>
 ```
 
 ```sbt
-libraryDependencies += "org.apache.daffodil" %% "daffodil-runtime1" % "4.0.0"
+libraryDependencies += "org.apache.daffodil" %% "daffodil-core" % "4.0.0"
 ```
 
 When you use Daffodil's C code generator to generate C code from a
