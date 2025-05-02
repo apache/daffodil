@@ -17,12 +17,15 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.api.{ DataLocation => JDataLocation }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api.{ LocationInSchemaFile => JLocationInSchemaFile }
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
-import org.apache.daffodil.lib.iapi.LocationInSchemaFile
 import org.apache.daffodil.lib.iapi.ThinDiagnostic
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
@@ -61,7 +64,7 @@ class AssertionFailed(
   msg: String
 ) extends ParseError(One(rd), One(state.currentLocation), "Assertion failed: %s", msg)
 
-class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
+class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[JDiagnostic])
   extends ParseError(
     One(rd),
     One(state.currentLocation),
@@ -77,11 +80,12 @@ class EntireChoiceFailed(rd: SchemaFileLocation, state: PState, diags: Seq[Diagn
     diags
   ) {
 
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap {
-    _.getLocationsInSchemaFiles
-  }
+  override def getLocationsInSchemaFiles: java.util.List[JLocationInSchemaFile] =
+    diags.flatMap {
+      _.getLocationsInSchemaFiles
+    }
 
-  override def getDataLocations: Seq[DataLocation] = {
+  override def getDataLocations: java.util.List[JDataLocation] = {
     // all should have the same starting location if they are alternatives.
     val dataLocs = diags.flatMap { _.getDataLocations }
     // TBD: what is the idiom for "insert a equals sign between all the elements of the list...??"
@@ -103,7 +107,7 @@ class ChoiceDispatchNoMatch(rd: SchemaFileLocation, state: PState, val key: Stri
     key
   )
 
-class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
+class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[JDiagnostic])
   extends ParseError(
     One(rd),
     One(state.currentLocation),

@@ -263,18 +263,18 @@ apache-daffodil-3.4.0-bin/
 └── lib/             - Contains Daffodil jars and third party jars
 ```
 
-When an application uses Daffodil's Java or Scala API, it will need to
+When an application uses Daffodil's API, it will need to
 put fewer Daffodil jars and third-party dependency jars on its
 classpath (omitting the jars needed only by Daffodil's CLI). The best
 way for a Java or Scala application to use Daffodil is to get
-Daffodil's Java API from Maven or get Daffodil's Scala API from sbt:
+Daffodil's API from Maven or sbt:
 
 ```xml
 
 <dependency>
   <groupId>org.apache.daffodil</groupId>
   <artifactId>daffodil-core_3.3</artifactId>
-  <version>3.4.0</version>
+  <version>4.0.0</version>
 </dependency>
 ```
 
@@ -354,8 +354,7 @@ links to every website page (sorted in alphabetical order).
 - [Community][]
 - [Configuration][]
 - [DFDL Extensions][]
-- [Daffodil Java API][]
-- [Daffodil Scala API][]
+- [Daffodil API][]
 - [Daffodil and the DFDL Infoset][]
 - [DaffodilC ToDos][]
 - [Data Format Description Language v1.0 Specification][]
@@ -560,9 +559,7 @@ the current test coverage report on Codecov:
 
 [DFDL Extensions]: https://daffodil.apache.org/dfdl-extensions/
 
-[Daffodil Java API]: https://daffodil.apache.org/docs/latest/javadoc/
-
-[Daffodil Scala API]: https://daffodil.apache.org/docs/latest/scaladoc/
+[Daffodil API]: https://daffodil.apache.org/docs/latest/javadoc/
 
 [Daffodil and the DFDL Infoset]: https://daffodil.apache.org/infoset/
 

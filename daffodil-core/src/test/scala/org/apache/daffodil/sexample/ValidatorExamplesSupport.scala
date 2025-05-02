@@ -31,6 +31,7 @@ import org.apache.daffodil.api.validation.ValidationResult
 import org.apache.daffodil.api.validation.ValidationWarning
 import org.apache.daffodil.api.validation.Validator
 import org.apache.daffodil.api.validation.ValidatorFactory
+import org.apache.daffodil.lib.Implicits._
 
 import com.typesafe.config.Config
 

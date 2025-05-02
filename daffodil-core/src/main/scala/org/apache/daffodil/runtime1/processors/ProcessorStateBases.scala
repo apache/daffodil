@@ -21,6 +21,7 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 
 import org.apache.daffodil.api.InfosetElement
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.io.DataStreamCommon
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.LocalBufferMixin
@@ -30,6 +31,7 @@ import org.apache.daffodil.io.processors.charset.CoderInfo
 import org.apache.daffodil.io.processors.charset.DecoderInfo
 import org.apache.daffodil.io.processors.charset.EncoderDecoderMixin
 import org.apache.daffodil.io.processors.charset.EncoderInfo
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
@@ -48,6 +50,7 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.DState
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
@@ -139,7 +142,7 @@ trait HasTunable {
  */
 abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
-  var diagnostics: List[Diagnostic],
+  var diagnostics: java.util.List[JDiagnostic],
   var dataProc: Maybe[DataProcessor],
   val tunable: DaffodilTunables
 ) extends DFDL.State
@@ -153,7 +156,7 @@ abstract class ParseOrUnparseState protected (
 
   def this(
     vmap: VariableMap,
-    diags: List[Diagnostic],
+    diags: java.util.List[JDiagnostic],
     dataProc: Maybe[DataProcessor],
     tunable: DaffodilTunables
   ) =
@@ -413,11 +416,11 @@ abstract class ParseOrUnparseState protected (
   final def isSuccess = processorStatus.isSuccess
   final def isFailure = processorStatus.isFailure
 
-  final def setFailed(failureDiagnostic: Diagnostic): Unit = {
+  final def setFailed(failureDiagnostic: JDiagnostic): Unit = {
     // threadCheck()
     if (!diagnostics.contains(failureDiagnostic)) {
       _processorStatus = new Failure(failureDiagnostic)
-      diagnostics = failureDiagnostic :: diagnostics
+      diagnostics = Misc.prependItemToJavaList(failureDiagnostic, diagnostics)
     } else {
       Assert.invariant(processorStatus ne Success)
     }
@@ -427,13 +430,13 @@ abstract class ParseOrUnparseState protected (
     val ctxt = getContext()
     val vde = new ValidationError(ctxt.schemaFileLocation, this, msg, args: _*)
     _validationStatus = false
-    diagnostics = vde :: diagnostics
+    diagnostics = Misc.prependItemToJavaList(vde, diagnostics)
   }
 
   final def validationErrorNoContext(cause: Throwable): Unit = {
     val vde = new ValidationError(this, cause)
     _validationStatus = false
-    diagnostics = vde :: diagnostics
+    diagnostics = Misc.prependItemToJavaList(vde, diagnostics)
   }
 
   /**
@@ -563,7 +566,7 @@ abstract class ParseOrUnparseState protected (
   final def SDEButContinue(str: String, args: Any*) = {
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
-    diagnostics = rsde :: diagnostics
+    diagnostics = Misc.prependItemToJavaList(rsde, diagnostics)
   }
 
   final def SDW(warnID: WarnID, str: String, args: Any*) = {
@@ -579,7 +582,7 @@ abstract class ParseOrUnparseState protected (
         val sde = new SchemaDefinitionErrorFromWarning(rsdw)
         ctxt.toss(sde)
       } else {
-        diagnostics = rsdw :: diagnostics
+        diagnostics = Misc.prependItemToJavaList(rsdw, diagnostics)
       }
     }
   }

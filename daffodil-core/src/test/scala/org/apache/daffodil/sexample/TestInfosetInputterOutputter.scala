@@ -18,6 +18,7 @@
 package org.apache.daffodil.sexample
 
 import java.lang.{ Boolean => JBoolean }
+import java.util.Optional
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.api.InfosetArray
@@ -27,6 +28,7 @@ import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
 import org.apache.daffodil.api.infoset.InfosetInputter
 import org.apache.daffodil.api.infoset.InfosetOutputter
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 case class TestInfosetEvent(
@@ -75,7 +77,7 @@ case class TestInfosetInputter(events: TestInfosetEvent*) extends InfosetInputte
   override def getLocalName(): String = events(curEventIndex).localName
   override def getNamespaceURI(): String = events(curEventIndex).namespaceURI
   override def getSimpleText(primType: NodeInfo.Kind) = events(curEventIndex).simpleText
-  override def isNilled(): Option[JBoolean] = events(curEventIndex).isNilled
+  override def isNilled(): Optional[JBoolean] = events(curEventIndex).isNilled
 
   override def hasNext(): Boolean = curEventIndex + 1 < events.length
   override def next(): Unit = curEventIndex += 1

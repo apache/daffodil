@@ -19,9 +19,11 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.lang.{ Boolean => JBoolean }
 import java.util.Iterator
+import java.util.Optional
 
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -108,7 +110,7 @@ class JDOMInfosetInputter(doc: Document) extends JInfosetInputter {
     text
   }
 
-  override def isNilled(): Option[JBoolean] = {
+  override def isNilled(): Optional[JBoolean] = {
     val elem = stack.top._1
     val nilAttrValue = elem.getAttributeValue("nil", JDOMInfosetInputter.JDOM_XSI_NAMESPACE)
     val res: Option[JBoolean] =

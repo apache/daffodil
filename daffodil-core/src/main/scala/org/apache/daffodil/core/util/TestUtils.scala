@@ -30,8 +30,10 @@ import scala.xml._
 import org.apache.daffodil.api.MetadataHandler
 import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
 import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
+import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.api.validation.ValidatorsFactory
+import org.apache.daffodil.api.validation.{ Validator => JValidator }
 import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
 import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
@@ -247,7 +249,7 @@ object TestUtils {
       val dp = pf.onPath("/")
       dp.save(output)
       if (dp.isError)
-        throwDiagnostics(dp.getDiagnostics.asInstanceOf[Seq[Diagnostic]] ++ pf.getDiagnostics)
+        throwDiagnostics(dp.getDiagnostics ++ pf.getDiagnostics)
       (pf, dp)
     }
   }
@@ -311,9 +313,6 @@ class Fakes private () {
   lazy val fakeGroupRefFactory = GroupRefFactory(fs1.xml, fs1, 1, false)
 
   private class FakeDataProcessor extends DFDL.DataProcessor {
-    import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
-    import org.apache.daffodil.api.validation.{ Validator => JValidator }
-
     override def save(output: DFDL.Output): Unit = {}
     override def parse(
       input: JInputSourceDataInputStream,
@@ -321,7 +320,7 @@ class Fakes private () {
     ): DFDL.ParseResult = null
     override def unparse(inputter: JInfosetInputter, output: DFDL.Output): DFDL.UnparseResult =
       null
-    override def getDiagnostics: Seq[Diagnostic] = Seq.empty
+    override def getDiagnostics: java.util.List[JDiagnostic] = Seq.empty
     override def isError: Boolean = false
 
     override def tunables: DaffodilTunables = DaffodilTunables()
@@ -330,7 +329,9 @@ class Fakes private () {
 
     override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = this
     override def withExternalVariables(extVars: java.io.File): DFDL.DataProcessor = this
-    override def withExternalVariables(extVars: Map[String, String]): DFDL.DataProcessor = this
+    override def withExternalVariables(
+      extVars: java.util.Map[String, String]
+    ): DFDL.DataProcessor = this
     override def withTunable(tunable: String, value: String): DFDL.DataProcessor = this
     override def withTunables(tunables: Map[String, String]): DFDL.DataProcessor = this
     override def withValidator(validator: JValidator): DFDL.DataProcessor = this
@@ -352,7 +353,7 @@ class Fakes private () {
  * Testing class for streaming message parse behavior
  */
 object StreamParser {
-  case class CompileFailure(diags: Seq[Diagnostic]) extends MultiException(diags)
+  case class CompileFailure(diags: Seq[JDiagnostic]) extends MultiException(diags)
 
   /**
    * Result object for parse calls. Just a tuple.
@@ -418,13 +419,13 @@ class StreamParser private (val schema: Node) {
     // .withDebugging(true)
     if (dataproc.isError)
       throw new StreamParser.CompileFailure(
-        dataproc.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
+        dataproc.getDiagnostics
       )
     dataproc
   }
 
-  lazy val compilationWarnings: Seq[Diagnostic] =
-    pf.getDiagnostics ++ dp.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
+  lazy val compilationWarnings: Seq[JDiagnostic] =
+    pf.getDiagnostics ++: dp.getDiagnostics
 
   def setInputStream(inputStream: InputStream): Unit = {
     dis = InputSourceDataInputStream(inputStream)

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.api;
 
-import scala.Option;
-import scala.collection.immutable.Seq;
 
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Class containing diagnostic information
@@ -44,7 +44,7 @@ public abstract class Diagnostic extends Exception {
    *
    * @return list of [[DataLocation]]'s related to this diagnostic
    */
-  public abstract Seq<DataLocation> getDataLocations();
+  public abstract List<DataLocation> getDataLocations();
 
   /**
    * Get schema location information relevant to this diagnostic object.
@@ -53,7 +53,7 @@ public abstract class Diagnostic extends Exception {
    *
    * @return list of [[LocationInSchemaFile]]'s related to this diagnostic.
    */
-  public abstract Seq<LocationInSchemaFile> getLocationsInSchemaFiles();
+  public abstract List<LocationInSchemaFile> getLocationsInSchemaFiles();
 
   /**
    * Determine if a diagnostic object represents an error or something less serious.
@@ -70,12 +70,12 @@ public abstract class Diagnostic extends Exception {
    *
    * @return the exception that caused the diagnostic
    */
-  public abstract Option<Throwable> getSomeCause();
+  public abstract Optional<Throwable> getSomeCause();
 
   /**
    * Get the message that caused this diagnostic
    *
    * @return the message that caused the diagnostic
    */
-  public abstract Option<String> getSomeMessage();
+  public abstract Optional<String> getSomeMessage();
 }

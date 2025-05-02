@@ -36,6 +36,7 @@ import org.apache.daffodil.api.{ ParseResult => JParseResult }
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi._
@@ -496,7 +497,7 @@ class DaffodilTDMLSAXErrorHandler extends ErrorHandler with WithDiagnostics {
     error(exception)
   }
 
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[JDiagnostic] = diagnostics
 
   override def isError: Boolean = errorStatus
 }

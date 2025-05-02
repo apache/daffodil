@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 

@@ -20,6 +20,7 @@ package org.apache.daffodil.processor.tdml
 import java.lang.{ Boolean => JBoolean }
 import java.net.URI
 import java.net.URISyntaxException
+import java.util.Optional
 import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -133,7 +134,7 @@ class TDMLInfosetInputter(
     }
   }
 
-  override def isNilled(): Option[JBoolean] = {
+  override def isNilled(): Optional[JBoolean] = {
     val res = scalaInputter.isNilled()
     if (!others.forall(_.isNilled() == res))
       throw TDMLException("isNilled does not match", Some(implString))

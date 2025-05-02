@@ -24,6 +24,7 @@ import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.codegen.c.generators.AlignmentFillCodeGenerator
 import org.apache.daffodil.codegen.c.generators.AssertStatementGenerateCode
 import org.apache.daffodil.codegen.c.generators.BinaryBooleanCodeGenerator
@@ -60,6 +61,7 @@ import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthPrefixed
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
@@ -239,7 +241,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
   }
 
   // Implements the WithDiagnostics trait
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[JDiagnostic] = diagnostics
   override def isError: Boolean = errorStatus
 }
 

@@ -17,11 +17,9 @@
 
 package org.apache.daffodil.api.validation;
 
-import scala.collection.immutable.Seq;
-import scala.jdk.javaapi.CollectionConverters;
-
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Results of a validation execution
@@ -37,9 +35,9 @@ public class ValidationResult {
     this.errors = Collections.emptyList();
   }
 
-  public ValidationResult(Seq<ValidationWarning> warnings, Seq<ValidationFailure> errors) {
-    this.warnings = CollectionConverters.asJava(warnings);
-    this.errors = CollectionConverters.asJava(errors);
+  public ValidationResult(List<ValidationWarning> warnings, List<ValidationFailure> errors) {
+    this.warnings = warnings;
+    this.errors = errors;
   }
 
   public Collection<ValidationWarning> getWarnings() {

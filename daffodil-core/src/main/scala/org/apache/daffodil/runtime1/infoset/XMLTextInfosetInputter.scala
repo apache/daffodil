@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.infoset
 import java.io.StringWriter
 import java.lang.{ Boolean => JBoolean }
 import java.nio.charset.StandardCharsets
+import java.util.Optional
 import javax.xml.XMLConstants
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants._
@@ -32,6 +33,7 @@ import scala.jdk.CollectionConverters._
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
 import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -345,7 +347,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends JInfosetInputte
     txt
   }
 
-  override def isNilled(): Option[JBoolean] = {
+  override def isNilled(): Optional[JBoolean] = {
     Assert.invariant(xsr.getEventType() == START_ELEMENT)
     // this should use a fast hash lookup
     val nilAttrValue = xsr.getAttributeValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil")

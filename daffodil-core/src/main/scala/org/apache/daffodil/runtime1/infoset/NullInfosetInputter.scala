@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.io.InputStream
 import java.lang.{ Boolean => JBoolean }
+import java.util.Optional
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.Elem
 import scala.xml.SAXParser
@@ -28,6 +29,7 @@ import scala.xml.XML
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
 import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -109,7 +111,7 @@ class NullInfosetInputter(events: Array[NullInfosetInputter.Event]) extends JInf
   def getLocalName(): String = curEvent.localName
   def getNamespaceURI(): String = curEvent.namespaceURI
   def getSimpleText(primType: NodeInfo.Kind): String = curEvent.simpleText
-  def isNilled(): Option[JBoolean] = curEvent.isNilled
+  def isNilled(): Optional[JBoolean] = curEvent.isNilled
 
   def hasNext(): Boolean = curIndex + 1 < events.length
   def next(): Unit = {

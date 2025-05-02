@@ -134,7 +134,7 @@ final class InfosetOutputter(actualOutputter: JInfosetOutputter) extends BlobMet
   @throws[Exception]
   def endArray(array: InfosetArray): Unit = actualOutputter.endArray(array)
 
-  override def getBlobPaths: Seq[Path] = actualOutputter.getBlobPaths
+  override def getBlobPaths: java.util.List[Path] = actualOutputter.getBlobPaths
 
   override def getBlobPrefix: String = actualOutputter.getBlobPrefix
 

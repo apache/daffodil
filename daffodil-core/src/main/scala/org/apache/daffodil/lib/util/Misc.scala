@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.Using
@@ -448,6 +449,13 @@ object Misc {
     val inputStream = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(inputStream);
     rbc
+  }
+
+  def prependItemToJavaList[T](item: T, jlist: util.List[T]): util.List[T] = {
+    val jl = new util.ArrayList[T]()
+    jl.add(item)
+    jl.addAll(jlist)
+    jl
   }
 
   /**

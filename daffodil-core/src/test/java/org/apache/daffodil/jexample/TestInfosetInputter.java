@@ -20,7 +20,8 @@ package org.apache.daffodil.jexample;
 import org.apache.daffodil.api.infoset.Infoset;
 import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.runtime1.dpath.NodeInfo;
-import scala.Option;
+
+import java.util.Optional;
 
 
 public class TestInfosetInputter extends InfosetInputter {
@@ -54,11 +55,9 @@ public class TestInfosetInputter extends InfosetInputter {
   }
 
   @Override
-  public Option<Boolean> isNilled() {
+  public Optional<Boolean> isNilled() {
     Boolean isNilled = events[curEventIndex].isNilled;
-    if (isNilled == null) {
-      return Option.apply(null);
-    } else return Option.apply(isNilled);
+    return Optional.ofNullable(isNilled);
   }
 
   @Override

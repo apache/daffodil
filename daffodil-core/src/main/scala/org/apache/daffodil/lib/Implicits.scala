@@ -18,6 +18,9 @@
 package org.apache.daffodil.lib
 
 import java.io.{ BufferedInputStream, ByteArrayInputStream }
+import java.util.Optional
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 import scala.language.implicitConversions
 
 import org.apache.daffodil.lib.exceptions.Assert
@@ -43,6 +46,29 @@ object Implicits {
     bais: ByteArrayInputStream
   ): BufferedInputStream =
     new BufferedInputStream(bais)
+
+  implicit def JListToSeq[T](l: java.util.List[T]): Seq[T] = {
+    l.asScala.toSeq
+  }
+  implicit def SeqToJList[T](s: Seq[T]): java.util.List[T] = {
+    s.asJava
+  }
+
+  implicit def OptionalToOption[T](j: Optional[T]): Option[T] = {
+    j.toScala
+  }
+
+  implicit def OptionToOptional[T](s: Option[T]): Optional[T] = {
+    s.toJava
+  }
+
+  implicit def JMapToSMap[K, V](j: java.util.Map[K, V]): Map[K, V] = {
+    j.asScala.toMap
+  }
+
+  implicit def SMapToJMap[K, V](s: Map[K, V]): java.util.Map[K, V] = {
+    s.asJava
+  }
 
   // TODO: move these to TestUtils object in daffodil-lib-unittest
   // add test->test dependency on that

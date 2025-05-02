@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.api;
 
-import scala.collection.immutable.Seq;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Interface that adds diagnostic information to classes that extend it.
@@ -43,5 +43,5 @@ public interface WithDiagnostics extends Serializable {
    *
    * @return list of {@link org.apache.daffodil.api.Diagnostic}'s. May contain errors or warnings, and so may be non-empty even if {@code WithDiagnostics.isError} is false.
    */
-  Seq<Diagnostic> getDiagnostics();
+  List<Diagnostic> getDiagnostics();
 }

@@ -22,7 +22,6 @@ import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
-import scala.Array;
 
 /**
  * Accepts SAX callback events from any SAX XMLReader for unparsing
@@ -48,9 +47,9 @@ public interface DaffodilUnparseContentHandler extends ContentHandler {
 
   void endElement(String uri, String localName, String qName) throws DaffodilUnparseErrorSAXException, DaffodilUnhandledSAXException;
 
-  void characters(Array<scala.Char> ch, int start, int length);
+  void characters(char[] ch, int start, int length);
 
-  void ignorableWhitespace(Array<scala.Char> ch, int start, int length);
+  void ignorableWhitespace(char[] ch, int start, int length);
 
   void processingInstruction(String target, String data);
 

@@ -31,7 +31,6 @@ import org.apache.daffodil.api.validation.ValidatorsFactory;
 import org.apache.daffodil.jexample.validation.FailingValidator;
 import org.apache.daffodil.jexample.validation.PassingValidator;
 import org.junit.Test;
-import scala.jdk.javaapi.CollectionConverters;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -85,7 +84,7 @@ public class ValidatorApiExample {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/alwaysInvalid.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
-    for (Diagnostic d : CollectionConverters.asJava(pf.getDiagnostics())) {
+    for (Diagnostic d : pf.getDiagnostics()) {
       System.err.println(d.getMessage());
     }
     DataProcessor dp1 = pf.onPath("/");
@@ -98,7 +97,7 @@ public class ValidatorApiExample {
 
       assertTrue(res.isValidationError());
 
-      for (Diagnostic d : CollectionConverters.asJava(res.getDiagnostics())) {
+      for (Diagnostic d : res.getDiagnostics()) {
         // doublecheck - all the errors are validation errors.
         // System.err.println(d.getMessage());
         assertTrue(d.getMessage().contains("Validation Error"));

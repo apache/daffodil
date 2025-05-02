@@ -45,6 +45,7 @@ import org.apache.daffodil.api.{ Result => JResult }
 import org.apache.daffodil.api.{ State => JState }
 import org.apache.daffodil.api.{ UnparseResult => JUnparseResult }
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi._
 import org.apache.daffodil.runtime1.processors.Failure
@@ -164,7 +165,7 @@ object DFDL {
      */
     def withTunable(name: String, value: String): DataProcessor
     def withTunables(tunables: Map[String, String]): DataProcessor
-    def withExternalVariables(extVars: Map[String, String]): DataProcessor
+    def withExternalVariables(extVars: java.util.Map[String, String]): DataProcessor
     def withExternalVariables(extVars: File): DataProcessor
     def withExternalVariables(extVars: Seq[Binding]): DataProcessor
 //    def withDebugger(dbg: AnyRef): DataProcessor
@@ -268,14 +269,14 @@ object DFDL {
   abstract class Result extends JResult {
     var diagnostics: Seq[JDiagnostic] = Nil
 
-    private def resultStatusDiagnostics: Seq[Diagnostic] = {
+    private def resultStatusDiagnostics: Seq[JDiagnostic] = {
       resultState.processorStatus match {
         case Failure(c) => List(c)
         case Success => Nil
       }
     }
 
-    override def getDiagnostics: Seq[JDiagnostic] = {
+    override def getDiagnostics: java.util.List[JDiagnostic] = {
       (diagnostics.toSet ++ resultState.diagnostics.toSet ++ resultStatusDiagnostics.toSet).toSeq
     }
 

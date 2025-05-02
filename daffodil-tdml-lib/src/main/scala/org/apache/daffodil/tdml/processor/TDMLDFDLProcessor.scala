@@ -27,7 +27,8 @@ import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.Diagnostic
 
 object TDML {
-  type CompileResult = Either[Seq[JDiagnostic], (Seq[JDiagnostic], TDMLDFDLProcessor)]
+  type CompileResult =
+    Either[java.util.List[JDiagnostic], (java.util.List[JDiagnostic], TDMLDFDLProcessor)]
 }
 
 /**

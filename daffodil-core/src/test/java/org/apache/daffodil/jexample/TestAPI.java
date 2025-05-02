@@ -63,7 +63,6 @@ import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle;
 import org.apache.daffodil.api.InputSourceDataInputStream;
-import scala.jdk.javaapi.CollectionConverters;
 
 import org.apache.commons.io.FileUtils;
 import org.jdom2.output.Format;
@@ -272,14 +271,14 @@ public class TestAPI {
       // so that Java doesn't have to know about Nope/Maybe, need to figure
       // out better api that is Java compatible
       assertTrue(res.isError());
-      java.util.List<Diagnostic> diags = CollectionConverters.asJava(res.getDiagnostics());
+      java.util.List<Diagnostic> diags = res.getDiagnostics();
       assertEquals(1, diags.size());
       Diagnostic d = diags.get(0);
       // System.err.println(d.getMessage());
       assertTrue(d.getMessage().contains("int"));
       assertTrue(d.getMessage().contains("Not an int"));
       assertTrue(d.getDataLocations().toString().contains("10"));
-      java.util.List<LocationInSchemaFile> locs = CollectionConverters.asJava(d.getLocationsInSchemaFiles());
+      java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
       assertEquals(1, locs.size());
       LocationInSchemaFile loc = locs.get(0);
       assertTrue(loc.asString().contains("mySchema1.dfdl.xsd"));
@@ -434,7 +433,7 @@ public class TestAPI {
     java.io.File schemaFile = new java.io.File("/test/api/notHere1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     assertTrue(pf.isError());
-    List<Diagnostic> diags = CollectionConverters.asJava(pf.getDiagnostics());
+    List<Diagnostic> diags = pf.getDiagnostics();
     boolean found1 = false;
     for (Diagnostic d : diags) {
       if (d.getMessage().contains("notHere1")) {
@@ -752,7 +751,7 @@ public class TestAPI {
     boolean err = res.isError();
     assertTrue(err);
 
-    java.util.List<Diagnostic> diags = CollectionConverters.asJava(res.getDiagnostics());
+    java.util.List<Diagnostic> diags = res.getDiagnostics();
     assertEquals(1, diags.size());
     Diagnostic d = diags.get(0);
     assertTrue(d.getMessage().contains("wrong"));
@@ -778,7 +777,7 @@ public class TestAPI {
       assertFalse(res.isProcessingError());
       assertTrue(res.isValidationError());
 
-      java.util.List<Diagnostic> diags = CollectionConverters.asJava(res.getDiagnostics());
+      java.util.List<Diagnostic> diags = res.getDiagnostics();
       assertEquals(1, diags.size());
       Diagnostic d = diags.get(0);
       assertTrue(d.getMessage().contains("maxInclusive"));
@@ -807,7 +806,7 @@ public class TestAPI {
       long actualLength = res.location().bytePos1b() - 1;
       assertEquals(file.length(), actualLength);
 
-      java.util.List<Diagnostic> diags = CollectionConverters.asJava(res.getDiagnostics());
+      java.util.List<Diagnostic> diags = res.getDiagnostics();
       assertEquals(2, diags.size());
       Diagnostic d0 = diags.get(0);
       Diagnostic d1 = diags.get(1);
@@ -1004,7 +1003,7 @@ public class TestAPI {
       assertTrue(d.getMessage().contains("int"));
       assertTrue(d.getMessage().contains("Not an int"));
       assertTrue(d.getDataLocations().toString().contains("10"));
-      java.util.List<LocationInSchemaFile> locs = CollectionConverters.asJava(d.getLocationsInSchemaFiles());
+      java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
       assertEquals(1, locs.size());
       LocationInSchemaFile loc = locs.get(0);
       assertTrue(loc.asString().contains("mySchema1.dfdl.xsd"));
@@ -1087,7 +1086,7 @@ public class TestAPI {
     boolean err = res.isError();
     assertTrue(err);
 
-    java.util.List<Diagnostic> diags = CollectionConverters.asJava(res.getDiagnostics());
+    java.util.List<Diagnostic> diags = res.getDiagnostics();
     assertEquals(1, diags.size());
     Diagnostic d = diags.get(0);
     assertTrue(d.getMessage().contains("wrong"));
@@ -1373,7 +1372,7 @@ public class TestAPI {
       output.setBlobAttributes(blobDir, "pre-", ".suf");
 
       ParseResult res = dp.parse(input, output);
-      List<Path> blobPaths = CollectionConverters.asJava(output.getBlobPaths());
+      List<Path> blobPaths = output.getBlobPaths();
 
       try {
         assertFalse(res.isError());
@@ -1434,7 +1433,7 @@ public class TestAPI {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = new java.io.File("/test/api/notHere1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
-    List<Diagnostic> diags = CollectionConverters.asJava(pf.getDiagnostics());
+    List<Diagnostic> diags = pf.getDiagnostics();
     boolean found1 = false;
     for (Diagnostic d : diags) {
       if (d.getMessage().contains("notHere1")) {
@@ -1459,8 +1458,8 @@ public class TestAPI {
       ParseResult res = dp.parse(dis, outputter);
       assertTrue(res.isError());
 
-      Diagnostic d = CollectionConverters.asJava(res.getDiagnostics()).get(0);
-      LocationInSchemaFile loc = CollectionConverters.asJava(d.getLocationsInSchemaFiles()).get(0);
+      Diagnostic d = res.getDiagnostics().get(0);
+      LocationInSchemaFile loc = d.getLocationsInSchemaFiles().get(0);
       assertTrue(loc.asString().replace("\\", "/").contains("in " + name));
     }
   }
@@ -1480,8 +1479,8 @@ public class TestAPI {
       ParseResult res = dp.parse(dis, outputter);
       assertTrue(res.isError());
 
-      Diagnostic d = CollectionConverters.asJava(res.getDiagnostics()).get(0);
-      LocationInSchemaFile loc = CollectionConverters.asJava(d.getLocationsInSchemaFiles()).get(0);
+      Diagnostic d = res.getDiagnostics().get(0);
+      LocationInSchemaFile loc = d.getLocationsInSchemaFiles().get(0);
       assertTrue(loc.asString().replace("\\", "/").contains("in " + uri.getPath()));
     }
   }
@@ -1552,7 +1551,7 @@ public class TestAPI {
     java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos2);
     UnparseResult res = dp.unparse(inputter, wbc);
     assertTrue(res.isError());
-    java.util.List<Diagnostic> diags = CollectionConverters.asJava(res.getDiagnostics());
+    java.util.List<Diagnostic> diags = res.getDiagnostics();
     assertEquals(1, diags.size());
     assertTrue(diags.get(0).toString().contains("Illegal content for simple element"));
     assertTrue(diags.get(0).toString().contains("Unexpected array or object"));

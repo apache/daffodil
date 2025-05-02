@@ -43,6 +43,7 @@ import org.apache.daffodil.api.exceptions.InvalidUsageException
 import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
 import org.apache.daffodil.api.validation.ValidatorsFactory
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 

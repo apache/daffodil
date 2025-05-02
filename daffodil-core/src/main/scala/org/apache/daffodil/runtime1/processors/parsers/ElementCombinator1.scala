@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
@@ -142,7 +143,7 @@ abstract class ElementParserBase(
 
       Assert.invariant(pstate.hasInfoset)
 
-      var setVarFailureDiags: Seq[Diagnostic] = Nil
+      var setVarFailureDiags: Seq[JDiagnostic] = Nil
 
       if (pstate.processorStatus eq Success) {
         var i: Int = 0

@@ -16,7 +16,6 @@
  */
 
 package org.apache.daffodil.runtime1.infoset
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -30,6 +29,7 @@ import javax.xml.validation.SchemaFactory
 import org.apache.daffodil.api.validation.ValidatorsFactory
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Misc

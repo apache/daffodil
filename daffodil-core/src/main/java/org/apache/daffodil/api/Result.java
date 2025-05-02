@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.api;
 
-import scala.collection.immutable.Seq;
+import java.util.List;
 
 /**
  * Interface for Parse and Unparse results
@@ -25,9 +25,9 @@ import scala.collection.immutable.Seq;
 public interface Result {
   State resultState();
 
-  Seq<Diagnostic> diagnostics = null;
+  List<Diagnostic> diagnostics = null;
 
-  Seq<Diagnostic> getDiagnostics();
+  List<Diagnostic> getDiagnostics();
 
   void addDiagnostic(Diagnostic diagnostic);
 

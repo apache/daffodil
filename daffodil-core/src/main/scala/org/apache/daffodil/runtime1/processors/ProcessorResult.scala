@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.lib.util.Misc
 
 /**
@@ -32,7 +32,7 @@ case object Success extends ProcessorResult {
   override def isSuccess = true
 }
 
-case class Failure(cause: Diagnostic) extends ProcessorResult {
+case class Failure(cause: JDiagnostic) extends ProcessorResult {
   override def isSuccess = false
   lazy val msg = Misc.getSomeMessage(cause).get
   override def toString = "Failure(" + msg + ")"

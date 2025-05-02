@@ -49,6 +49,7 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.cookers.EntityReplacer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
@@ -56,7 +57,6 @@ import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.DaffodilConfig
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.EmbeddedSchemaSource
 import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -1079,7 +1079,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(
-              diags.asInstanceOf[Seq[Diagnostic]],
+              diags,
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
@@ -1095,7 +1095,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               validator,
               roundTrip,
               implString,
-              diags.asInstanceOf[Seq[Diagnostic]]
+              diags
             )
           }
         }
@@ -1105,7 +1105,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(
-              diags.asInstanceOf[Seq[Diagnostic]],
+              diags,
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
@@ -1121,7 +1121,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedValidationErrors,
               validator,
               implString,
-              diags.asInstanceOf[Seq[Diagnostic]]
+              diags
             )
           }
         }
@@ -1142,7 +1142,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     validator: JValidator,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Seq[JDiagnostic]
   ): Unit = {
 
     try {
@@ -1270,7 +1270,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   private def verifyParseResults(
-    compileWarnings: Seq[Diagnostic],
+    compileWarnings: Seq[JDiagnostic],
     actual: TDMLParseResult,
     testInfoset: Infoset,
     implString: Option[String]
@@ -1370,7 +1370,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validator: JValidator,
     roundTripArg: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Seq[JDiagnostic]
   ): Unit = {
 
     val roundTrip =
@@ -1580,7 +1580,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optValidationErrors,
               roundTrip,
               implString,
-              diags.asInstanceOf[Seq[Diagnostic]]
+              diags
             )
           }
         }
@@ -1590,7 +1590,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(
-              diags.asInstanceOf[Seq[Diagnostic]],
+              diags,
               optErrors,
               optWarnings,
               optValidationErrors,
@@ -1604,7 +1604,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optWarnings,
               optValidationErrors,
               implString,
-              diags.asInstanceOf[Seq[Diagnostic]]
+              diags
             )
           }
         }
@@ -1624,7 +1624,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     roundTrip: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Seq[JDiagnostic]
   ): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
@@ -1733,7 +1733,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic]
+    compileWarnings: Seq[JDiagnostic]
   ): Unit = {
 
     try {

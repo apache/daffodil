@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 import java.math.{ BigInteger => JBigInt }
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.ProperlySerializableMap._

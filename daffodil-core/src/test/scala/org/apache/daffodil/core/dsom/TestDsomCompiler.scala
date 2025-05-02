@@ -28,7 +28,6 @@ import org.apache.daffodil.lib.Implicits._
 import org.junit.Assert._
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.compiler._
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.Found
@@ -100,7 +99,7 @@ class TestDsomCompiler {
     val compiler = Compiler().withCheckAllTopLevel(true)
     val sset = compiler.compileNode(sch).sset
     assertTrue(sset.isError)
-    val diagnostics = sset.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
+    val diagnostics = sset.getDiagnostics
     val msgs = diagnostics.map { _.getMessage() }
     val msg = msgs.mkString("\n")
     val hasErrorText = msg.contains("maxOccurs");

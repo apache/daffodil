@@ -19,6 +19,8 @@ package org.apache.daffodil.lib.oolag
 
 import scala.collection.mutable
 
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
@@ -445,7 +447,8 @@ object OOLAG {
     final def errors: Seq[Diagnostic] = oolagRoot.errors_.toSeq
     final def warnings: Seq[Diagnostic] = oolagRoot.warnings_.toSeq
 
-    override def getDiagnostics: Seq[Diagnostic] = diagnostics
+    override def getDiagnostics: java.util.List[JDiagnostic] =
+      diagnostics.asInstanceOf[Seq[JDiagnostic]]
 
     def warn(th: Diagnostic): Unit = {
       oolagRoot.oolagWarn(th)

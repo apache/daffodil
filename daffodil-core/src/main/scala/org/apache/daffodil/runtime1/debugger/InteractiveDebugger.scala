@@ -24,6 +24,7 @@ import org.apache.daffodil.api.InfosetElement
 import org.apache.daffodil.api.debugger.{
   InteractiveDebuggerRunner => JInteractiveDebuggerRunner
 }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.iapi.DaffodilTunables

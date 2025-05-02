@@ -26,6 +26,7 @@ import org.apache.daffodil.api.validation.{ ValidatorFactory => JValidatorFactor
 import org.apache.daffodil.api.validation.{
   ValidatorInitializationException => JValidatorInitializationException
 }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SimpleNamedLoadableService
 
 /**
@@ -57,7 +58,10 @@ object ValidationResult {
   val empty: JValidationResult = JValidationResult.empty
 
   def apply(w: Seq[ValidationWarning], e: Seq[ValidationFailure]): JValidationResult = {
-    new JValidationResult(w, e)
+    new JValidationResult(
+      w.asInstanceOf[Seq[JValidationWarning]],
+      e.asInstanceOf[Seq[JValidationFailure]]
+    )
   }
 }
 

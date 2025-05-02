@@ -22,6 +22,7 @@ package org.apache.daffodil.core.infoset
 import javax.xml.stream._
 
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils

@@ -25,18 +25,25 @@ import java.io.ObjectInputStream
 import java.io.StreamCorruptedException
 import java.net.URI
 import java.nio.channels.Channels
+import java.util
+import java.util.Optional
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 import scala.util.Try
 import scala.xml.Node
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
 import org.apache.daffodil.api.exceptions.{ InvalidParserException => JInvalidParserException }
 import org.apache.daffodil.api.{ CodeGenerator => JCodeGenerator }
 import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.DaffodilTunables
@@ -118,7 +125,7 @@ final class ProcessorFactory private (
     sset.diagnostics
   }
 
-  def getDiagnostics: Seq[Diagnostic] = diagnostics
+  def getDiagnostics: util.List[JDiagnostic] = diagnostics.asInstanceOf[Seq[JDiagnostic]]
 
   override def onPath(xpath: String): JDataProcessor = sset.onPath(xpath)
 
@@ -405,7 +412,7 @@ class Compiler private (
     compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir), optRootName, optRootNamespace)
   }
 
-  override def compileSource(
+  def compileSource(
     uri: URI,
     optRootName: Option[String],
     optRootNamespace: Option[String]
@@ -417,7 +424,7 @@ class Compiler private (
     )
   }
 
-  override def compileResource(
+  def compileResource(
     name: String,
     optRootName: Option[String],
     optRootNamespace: Option[String]
@@ -427,6 +434,27 @@ class Compiler private (
     compileSource(source, optRootName, optRootNamespace)
   }
 
+  override def compileFile(
+    schemaFile: File,
+    optRootName: Optional[String],
+    optRootNamespace: Optional[String]
+  ): JProcessorFactory = compileFile(schemaFile, optRootName.toScala, optRootNamespace.toScala)
+
+  override def compileSource(
+    uri: URI,
+    optRootName: Optional[String],
+    optRootNamespace: Optional[String]
+  ): JProcessorFactory = compileSource(uri, optRootName.toScala, optRootNamespace.toScala)
+
+  override def compileResource(
+    name: String,
+    optRootName: Optional[String],
+    optRootNamespace: Optional[String]
+  ): JProcessorFactory = compileResource(name, optRootName.toScala, optRootNamespace.toScala)
+
+  override def withTunables(tunables: util.Map[String, String]): api.Compiler = withTunables(
+    tunables.asScala.toMap
+  )
 }
 
 /**

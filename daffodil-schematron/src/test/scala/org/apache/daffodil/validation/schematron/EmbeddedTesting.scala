@@ -26,6 +26,7 @@ import org.apache.daffodil.api.DataProcessor
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.ParseResult
 import org.apache.daffodil.api.infoset.Infoset
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.validation.schematron.SchSource.Xsd
 

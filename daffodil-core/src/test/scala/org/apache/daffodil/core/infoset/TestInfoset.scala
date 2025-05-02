@@ -23,6 +23,7 @@ import org.apache.daffodil.api.InfosetArray
 import org.apache.daffodil.api.InfosetSimpleElement
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.dsom.{ ElementBase, Root }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util._

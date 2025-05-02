@@ -29,14 +29,13 @@ import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.validation.Validator;
 import org.apache.daffodil.core.dsom.ExpressionCompilers$;
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger;
-import scala.collection.immutable.Map;
-import scala.jdk.javaapi.CollectionConverters;
 
 
 import java.io.File;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.channels.WritableByteChannel;
+import java.util.Map;
 
 /**
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
@@ -94,21 +93,6 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
    */
   DataProcessor withExternalVariables(File extVars) throws ExternalVariableException;
-
-  /**
-   * Obtain a new {@link org.apache.daffodil.api.DataProcessor} with multiple DFDL variables set.
-   *
-   * @param extVars a map of key/value pairs, where the key is the variable
-   *                name, and the value is the value of the variable. The key
-   *                may be preceded by a string of the form "{namespace}" to
-   *                define a namespace for the variable. If preceded with "{}",
-   *                then no namespace is used. If not preceded by anything,
-   *                then Daffodil will figure out the namespace.
-   * @throws org.apache.daffodil.api.exceptions.ExternalVariableException if an error occurs while setting an external variable
-   */
-  default DataProcessor withExternalVariables(java.util.Map<String, String> extVars) throws ExternalVariableException {
-    return withExternalVariables(scala.collection.immutable.Map.from(CollectionConverters.asScala(extVars)));
-  }
 
   /**
    * Obtain a new {@link DataProcessor} with multiple DFDL variables set.

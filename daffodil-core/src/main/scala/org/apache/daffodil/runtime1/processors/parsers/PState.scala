@@ -21,9 +21,11 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Collections
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.api.InfosetDocument
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Abort
@@ -31,7 +33,6 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.DataLocation
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.MStack
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MStackOfInt
@@ -166,7 +167,7 @@ final class PState private (
   var dataInputStream: InputSourceDataInputStream,
   val walker: InfosetWalker,
   vmap: VariableMap,
-  diagnosticsArg: List[Diagnostic],
+  diagnosticsArg: java.util.List[JDiagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
@@ -604,7 +605,7 @@ object PState {
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
     var validationStatus: Boolean = _
-    var diagnostics: List[Diagnostic] = _
+    var diagnostics: java.util.List[JDiagnostic] = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
     var blobPaths: Seq[Path] = Seq.empty
     var context: RuntimeData = _
@@ -731,7 +732,7 @@ object PState {
      */
     val variables = dataProc.variableMap.copy()
 
-    val diagnostics = Nil
+    val diagnostics = Collections.emptyList[JDiagnostic]()
     val mutablePState = MPState()
     val tunables = dataProc.tunables
     val infosetWalker = InfosetWalker(

@@ -19,7 +19,6 @@ package org.apache.daffodil.api;
 
 
 import com.ibm.icu.util.Calendar;
-import scala.Array;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -94,7 +93,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * @return the value of this simple element of HexBinary type cast to `Array[Byte]`.
    * or throws `InfosetTypeException` if the element is not of type hexBinary.
    */
-  Array<scala.Byte> getHexBinary();
+  byte[] getHexBinary();
 
   /**
    * @return the value of this simple element of Boolean type cast to java.lang.Boolean.

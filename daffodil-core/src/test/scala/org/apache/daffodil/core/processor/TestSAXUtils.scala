@@ -24,6 +24,7 @@ import java.nio.file.Paths
 import scala.xml.Elem
 
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils

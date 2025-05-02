@@ -17,10 +17,9 @@
 
 package org.apache.daffodil.api.infoset;
 
-import scala.collection.immutable.Seq;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * An available basic implementation of the BLOB methods.
@@ -32,7 +31,7 @@ public abstract class BlobMethods {
   private Path blobDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
   private String blobPrefix = "daffodil-";
   private String blobSuffix = ".blob";
-  private Seq<Path> blobPaths;
+  private List<Path> blobPaths;
 
   /**
    * Set the attributes for how to create blob files.
@@ -66,11 +65,11 @@ public abstract class BlobMethods {
    * <p>
    * This is the same as what would be found by iterating over the infoset.
    */
-  public Seq<Path> getBlobPaths() {
+  public List<Path> getBlobPaths() {
     return blobPaths;
   }
 
-  public void setBlobPaths(Seq<Path> blobPaths) {
+  public void setBlobPaths(List<Path> blobPaths) {
     this.blobPaths = blobPaths;
   }
 }

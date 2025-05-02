@@ -17,10 +17,13 @@
 
 package org.apache.daffodil.lib.iapi
 
+import java.util.Optional
+
 import org.apache.daffodil.api.{ DataLocation => JDataLocation }
 import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.api.{ LocationInSchemaFile => JLocationInSchemaFile }
 import org.apache.daffodil.api.{ WithDiagnostics => JWithDiagnostics }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.util.Maybe
@@ -156,7 +159,8 @@ abstract class Diagnostic protected (
    *
    * @return [[org.apache.daffodil.lib.iapi.DataLocation]]
    */
-  def getDataLocations: Seq[DataLocation] = dataContext.toSeq
+  def getDataLocations: java.util.List[JDataLocation] =
+    dataContext.toSeq.asInstanceOf[Seq[JDataLocation]]
 
   /**
    * Get schema location information relevant to this diagnostic object.
@@ -165,14 +169,15 @@ abstract class Diagnostic protected (
    *
    * @return [[org.apache.daffodil.lib.iapi.LocationInSchemaFile]]
    */
-  def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = schemaContext.toSeq
+  def getLocationsInSchemaFiles: java.util.List[JLocationInSchemaFile] =
+    schemaContext.toSeq.asInstanceOf[Seq[JLocationInSchemaFile]]
 
   /**
    * Positively get these things. No returning 'null' and making caller figure out
    * whether to look for cause object.
    */
-  final def getSomeCause: Some[Throwable] = Misc.getSomeCause(this)
-  final def getSomeMessage: Some[String] = Misc.getSomeMessage(this)
+  final def getSomeCause: Optional[Throwable] = Misc.getSomeCause(this)
+  final def getSomeMessage: Optional[String] = Misc.getSomeMessage(this)
 
   private def schemaLocationsString = {
     val strings = getLocationsInSchemaFiles.map { _.locationDescription }

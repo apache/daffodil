@@ -20,11 +20,13 @@ package org.apache.daffodil.runtime1.infoset
 import java.lang.{ Boolean => JBoolean }
 import java.net.URI
 import java.net.URISyntaxException
+import java.util.Optional
 
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
 import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Coroutine
 import org.apache.daffodil.lib.util.Maybe
@@ -104,7 +106,7 @@ class SAXInfosetInputter(
     }
   }
 
-  override def isNilled(): Option[JBoolean] = {
+  override def isNilled(): Optional[JBoolean] = {
     val _isNilled: Option[JBoolean] = if (currentEvent.nilValue.isDefined) {
       val nilValue = currentEvent.nilValue.get
       if (nilValue == "true" || nilValue == "1") {

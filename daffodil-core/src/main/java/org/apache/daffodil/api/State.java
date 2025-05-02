@@ -18,7 +18,8 @@
 package org.apache.daffodil.api;
 
 import org.apache.daffodil.runtime1.processors.ProcessorResult;
-import scala.collection.immutable.Seq;
+
+import java.util.List;
 
 /**
  * Interface for Parse and Unparse states
@@ -28,7 +29,7 @@ public interface State {
 
   boolean validationStatus();
 
-  Seq<Diagnostic> diagnostics();
+  List<Diagnostic> diagnostics();
 
   DataLocation currentLocation();
 }

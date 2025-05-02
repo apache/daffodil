@@ -35,6 +35,7 @@ import org.apache.daffodil.api.validation.{ ValidationFailure => JValidationFail
 import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
 import org.apache.daffodil.api.validation.{ Validator => JValidator }
 import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.DataLocation
@@ -240,7 +241,7 @@ class DataProcessor(
     copy(areDebugging = flag, tunables = newTunables)
   }
 
-  def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
+  def withExternalVariables(extVars: java.util.Map[String, String]): DataProcessor = {
     val bindings = ExternalVariablesLoader.mapToBindings(extVars)
     val newVariableMap =
       ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
@@ -272,7 +273,7 @@ class DataProcessor(
 
   override def isError = false
 
-  override def getDiagnostics = diagnostics
+  override def getDiagnostics = diagnostics.asInstanceOf[Seq[JDiagnostic]]
 
   override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = {
     val xrdr = new DaffodilParseXMLReader(this)

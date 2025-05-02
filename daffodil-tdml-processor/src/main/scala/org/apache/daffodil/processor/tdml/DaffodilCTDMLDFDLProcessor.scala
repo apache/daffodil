@@ -24,6 +24,7 @@ import scala.xml.Node
 import scala.xml.XML
 
 import org.apache.daffodil.api.validation.{ Validator => JValidator }
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
@@ -228,7 +229,7 @@ final class DaffodilCTDMLParseResult(
   messages: String = ""
 ) extends TDMLParseResult {
 
-  private var diagnostics: Seq[Diagnostic] = processorResult match {
+  private var diagnostics: Seq[JDiagnostic] = processorResult match {
     case Success =>
       if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
     case Failure(cause) => List(cause)
@@ -255,7 +256,7 @@ final class DaffodilCTDMLParseResult(
   override def currentLocation: DataLocation = DaffodilCTDMLDataLocation(finalBitPos0b)
   override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: Seq[JDiagnostic] = diagnostics
 }
 
 /**
@@ -290,7 +291,7 @@ final class DaffodilCTDMLUnparseResult(
   messages: String = ""
 ) extends TDMLUnparseResult {
 
-  private val diagnostics: Seq[Diagnostic] = processorResult match {
+  private val diagnostics: Seq[JDiagnostic] = processorResult match {
     case Success =>
       if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
     case Failure(cause) => List(cause)
@@ -301,5 +302,5 @@ final class DaffodilCTDMLUnparseResult(
   override def encodingName: String = "" // encoding needed only if scannable
   override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: Seq[JDiagnostic] = diagnostics
 }

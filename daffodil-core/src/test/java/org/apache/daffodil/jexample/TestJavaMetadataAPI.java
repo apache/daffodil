@@ -29,7 +29,6 @@ import org.apache.daffodil.api.MetadataHandler;
 import org.apache.daffodil.api.SequenceMetadata;
 import org.apache.daffodil.api.SimpleElementMetadata;
 import org.junit.Test;
-import scala.jdk.javaapi.CollectionConverters;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,7 +104,7 @@ public class TestJavaMetadataAPI {
     File schemaFile = getResource("/test/api/metadataTestSchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     if (pf.isError()) {
-      String diags = CollectionConverters.asJava(pf.getDiagnostics())
+      String diags = pf.getDiagnostics()
           .stream()
           .map(Diagnostic::getMessage)
           .collect(Collectors.joining(System.lineSeparator()));

@@ -24,7 +24,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.DTDHandler;
-import scala.Array;
 
 import java.io.InputStream;
 
@@ -181,6 +180,6 @@ public interface DaffodilParseXMLReader extends XMLReader {
    *
    * @param arr data to be parsed
    */
-  void parse(Array<scala.Byte> arr);
+  void parse(byte[] arr);
 }
 

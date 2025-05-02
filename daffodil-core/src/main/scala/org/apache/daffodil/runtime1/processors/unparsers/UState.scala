@@ -20,7 +20,9 @@ package org.apache.daffodil.runtime1.processors.unparsers
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
+import java.util.Collections
 
+import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.StringDataInputStreamForUnparse
 import org.apache.daffodil.io.processors.charset.BitsCharset
@@ -32,7 +34,6 @@ import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.DataLocation
-import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.Cursor
 import org.apache.daffodil.lib.util.LocalStack
 import org.apache.daffodil.lib.util.MStackOf
@@ -41,6 +42,7 @@ import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.UnparserBlocking
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.infoset.DIArray
@@ -71,7 +73,7 @@ object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
 abstract class UState(
   vbox: VariableBox,
-  diagnosticsArg: List[Diagnostic],
+  diagnosticsArg: java.util.List[JDiagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
   areDebugging: Boolean
@@ -220,7 +222,7 @@ abstract class UState(
   }
 
   def addUnparseError(ue: UnparseError): Unit = {
-    diagnostics = ue :: diagnostics
+    diagnostics = Misc.prependItemToJavaList(ue, diagnostics)
     _processorStatus = new Failure(ue)
   }
 
@@ -506,7 +508,7 @@ final class UStateMain private (
   private val inputter: InfosetInputter,
   outStream: java.io.OutputStream,
   vbox: VariableBox,
-  diagnosticsArg: List[Diagnostic],
+  diagnosticsArg: java.util.List[JDiagnostic],
   dataProcArg: DataProcessor,
   tunable: DaffodilTunables,
   areDebugging: Boolean
@@ -518,7 +520,7 @@ final class UStateMain private (
     inputter: InfosetInputter,
     outputStream: java.io.OutputStream,
     vmap: VariableMap,
-    diagnosticsArg: List[Diagnostic],
+    diagnosticsArg: java.util.List[JDiagnostic],
     dataProcArg: DataProcessor,
     tunable: DaffodilTunables,
     areDebugging: Boolean
@@ -760,7 +762,7 @@ object UState {
      */
     val variables = dataProc.variableMap.copy()
 
-    val diagnostics = Nil
+    val diagnostics = Collections.emptyList[JDiagnostic]()
     val newState = new UStateMain(
       inputter,
       outStream,

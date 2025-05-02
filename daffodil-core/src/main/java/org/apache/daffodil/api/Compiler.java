@@ -19,13 +19,13 @@ package org.apache.daffodil.api;
 
 import org.apache.daffodil.api.compiler.ProcessorFactory;
 import org.apache.daffodil.api.exceptions.InvalidParserException;
-import scala.Option;
-import scala.collection.immutable.Map;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Compile DFDL schemas into {@link org.apache.daffodil.api.compiler.ProcessorFactory}'s or
@@ -44,7 +44,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile) throws IOException {
-    return compileFile(schemaFile, Option.empty(), Option.empty());
+    return compileFile(schemaFile, Optional.empty(), Optional.empty());
   }
 
   /**
@@ -58,7 +58,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile, String rootName) throws IOException {
-    return compileFile(schemaFile, Option.apply(rootName), Option.empty());
+    return compileFile(schemaFile, Optional.ofNullable(rootName), Optional.empty());
   }
 
   /**
@@ -72,8 +72,8 @@ public interface Compiler {
    *                    Defaults to None.
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
-  default ProcessorFactory compileFile(File schemaFile, Option<String> optRootName) throws IOException {
-    return compileFile(schemaFile, optRootName, Option.empty());
+  default ProcessorFactory compileFile(File schemaFile, Optional<String> optRootName) throws IOException {
+    return compileFile(schemaFile, optRootName, Optional.empty());
   }
 
   /**
@@ -90,7 +90,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile, String rootName, String rootNamespace) throws IOException {
-    return compileFile(schemaFile, Option.apply(rootName), Option.apply(rootNamespace));
+    return compileFile(schemaFile, Optional.ofNullable(rootName), Optional.ofNullable(rootNamespace));
   }
 
   /**
@@ -106,7 +106,7 @@ public interface Compiler {
    *                         unambiguous. Pass Some("") (empty string) for No Namespace. Defaults to None.
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
-  ProcessorFactory compileFile(File schemaFile, Option<String> optRootName, Option<String> optRootNamespace) throws IOException;
+  ProcessorFactory compileFile(File schemaFile, Optional<String> optRootName, Optional<String> optRootNamespace) throws IOException;
 
   /**
    * Compile DFDL schema source into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
@@ -115,7 +115,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri) throws IOException {
-    return compileSource(uri, Option.empty(), Option.empty());
+    return compileSource(uri, Optional.empty(), Optional.empty());
   }
 
   /**
@@ -126,7 +126,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri, String rootName) throws IOException {
-    return compileSource(uri, Option.apply(rootName), Option.empty());
+    return compileSource(uri, Optional.ofNullable(rootName), Optional.empty());
   }
 
   /**
@@ -137,8 +137,8 @@ public interface Compiler {
    *                    element of schema. Defaults to None.
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
-  default ProcessorFactory compileSource(URI uri, Option<String> optRootName) throws IOException {
-    return compileSource(uri, optRootName, Option.empty());
+  default ProcessorFactory compileSource(URI uri, Optional<String> optRootName) throws IOException {
+    return compileSource(uri, optRootName, Optional.empty());
   }
 
   /**
@@ -151,7 +151,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri, String rootName, String rootNamespace) throws IOException {
-    return compileSource(uri, Option.apply(rootName), Option.apply(rootNamespace));
+    return compileSource(uri, Optional.ofNullable(rootName), Optional.ofNullable(rootNamespace));
   }
 
   /**
@@ -165,7 +165,7 @@ public interface Compiler {
    *                         Defaults to None.
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
-  ProcessorFactory compileSource(URI uri, Option<String> optRootName, Option<String> optRootNamespace) throws IOException;
+  ProcessorFactory compileSource(URI uri, Optional<String> optRootName, Optional<String> optRootNamespace) throws IOException;
 
   /**
    * Compile DFDL resource name into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
@@ -174,7 +174,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileResource(String name) throws IOException {
-    return compileResource(name, Option.empty(), Option.empty());
+    return compileResource(name, Optional.empty(), Optional.empty());
   }
 
   /**
@@ -188,7 +188,7 @@ public interface Compiler {
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileResource(String name, String rootName, String rootNamespace) throws IOException {
-    return compileResource(name, Option.apply(rootName), Option.apply(rootNamespace));
+    return compileResource(name, Optional.ofNullable(rootName), Optional.ofNullable(rootNamespace));
   }
 
   /**
@@ -202,7 +202,7 @@ public interface Compiler {
    *                         Defaults to None.
    * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
-  ProcessorFactory compileResource(String name, Option<String> optRootName, Option<String> optRootNamespace) throws IOException;
+  ProcessorFactory compileResource(String name, Optional<String> optRootName, Optional<String> optRootNamespace) throws IOException;
 
   /**
    * Reload a saved parser from a file
