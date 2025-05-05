@@ -21,10 +21,10 @@ import java.io.StringReader
 import java.nio.charset.StandardCharsets
 import javax.xml.stream.XMLStreamConstants._
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.InfosetArray
 import org.apache.daffodil.api.InfosetComplexElement
 import org.apache.daffodil.api.InfosetSimpleElement
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -45,7 +45,7 @@ class XMLTextInfosetOutputter private (
   pretty: Boolean,
   xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
   minimal: Boolean
-) extends JInfosetOutputter
+) extends api.infoset.InfosetOutputter
   with Indentable {
 
   def this(

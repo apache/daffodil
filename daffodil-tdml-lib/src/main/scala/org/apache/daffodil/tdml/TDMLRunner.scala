@@ -38,10 +38,7 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 
-import org.apache.daffodil.api.validation.ValidatorsFactory
-import org.apache.daffodil.api.validation.{ Validator => JValidator }
-import org.apache.daffodil.api.{ DataLocation => JDataLocation }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
@@ -588,7 +585,8 @@ class DFDLTestSuite private[tdml] (
     val compileResult = cache.getCompileResult(
       impl,
       key,
-      ValidatorsFactory.fromValidationMode(defaultValidationMode, suppliedSchema.uriForLoading)
+      api.validation.ValidatorsFactory
+        .fromValidationMode(defaultValidationMode, suppliedSchema.uriForLoading)
     )
     compileResult
   }
@@ -766,8 +764,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     case "" => defaultValidationMode
     case mode => mode
   }
-  lazy val validator: JValidator =
-    ValidatorsFactory.fromValidationMode(validationMode, getSuppliedSchema().uriForLoading)
+  lazy val validator: api.validation.Validator =
+    api.validation.ValidatorsFactory
+      .fromValidationMode(validationMode, getSuppliedSchema().uriForLoading)
 
   protected def runProcessor(
     compileResult: TDML.CompileResult,
@@ -1000,7 +999,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   }
 
   protected def checkDiagnosticMessages(
-    diagnostics: Seq[JDiagnostic],
+    diagnostics: Seq[api.Diagnostic],
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
@@ -1140,9 +1139,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validator: JValidator,
+    validator: api.validation.Validator,
     implString: Option[String],
-    compileWarnings: Seq[JDiagnostic]
+    compileWarnings: Seq[api.Diagnostic]
   ): Unit = {
 
     try {
@@ -1173,7 +1172,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           // didn't get an error.
           // If we're not at the end of data, synthesize an error for left-over-data
           //
-          val loc: JDataLocation = actual.currentLocation
+          val loc: api.DataLocation = actual.currentLocation
 
           if (loc.bitPos1b >= 0 && loc.bitPos1b <= lengthLimitInBits) {
             val leftOverMsg =
@@ -1254,7 +1253,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     implString: Option[String]
   ) = {
-    val loc: JDataLocation = actual.currentLocation
+    val loc: api.DataLocation = actual.currentLocation
 
     val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < lengthLimitInBits) {
       val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
@@ -1270,7 +1269,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   private def verifyParseResults(
-    compileWarnings: Seq[JDiagnostic],
+    compileWarnings: Seq[api.Diagnostic],
     actual: TDMLParseResult,
     testInfoset: Infoset,
     implString: Option[String]
@@ -1367,10 +1366,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validator: JValidator,
+    validator: api.validation.Validator,
     roundTripArg: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[JDiagnostic]
+    compileWarnings: Seq[api.Diagnostic]
   ): Unit = {
 
     val roundTrip =
@@ -1624,7 +1623,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     roundTrip: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[JDiagnostic]
+    compileWarnings: Seq[api.Diagnostic]
   ): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
@@ -1693,7 +1692,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val diags = parseActual.getDiagnostics.map(_.toString()).mkString("\n")
         throw TDMLException(diags, implString)
       }
-      val loc: JDataLocation = parseActual.currentLocation
+      val loc: api.DataLocation = parseActual.currentLocation
 
       val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < testDataLength) {
         //
@@ -1733,7 +1732,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
     implString: Option[String],
-    compileWarnings: Seq[JDiagnostic]
+    compileWarnings: Seq[api.Diagnostic]
   ): Unit = {
 
     try {
@@ -1867,7 +1866,7 @@ object VerifyTestCase {
    * @param implString                                Implementation string
    */
   def verifyDiagnosticsFound(
-    actualDiagsFiltered: Seq[JDiagnostic],
+    actualDiagsFiltered: Seq[api.Diagnostic],
     expectedDiags: Option[Seq[ErrorWarningBase]],
     ignoreUnexpectedDiags: Boolean,
     diagnosticType: DiagnosticType,
@@ -3084,7 +3083,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
     key: TDMLCompileResultCacheKey,
-    defaultValidator: JValidator
+    defaultValidator: api.validation.Validator
   ): TDML.CompileResult = this.synchronized {
 
     if (entryExpireDurationSeconds.isDefined) {

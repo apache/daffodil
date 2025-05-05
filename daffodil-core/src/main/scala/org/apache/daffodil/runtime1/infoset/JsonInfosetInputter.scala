@@ -20,8 +20,8 @@ package org.apache.daffodil.runtime1.infoset
 import java.lang.{ Boolean => JBoolean }
 import java.util.Optional
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
@@ -36,7 +36,7 @@ object JsonInfosetInputter {
   lazy val jsonFactory = new JsonFactory()
 }
 
-class JsonInfosetInputter(input: java.io.InputStream) extends JInfosetInputter {
+class JsonInfosetInputter(input: java.io.InputStream) extends api.infoset.InfosetInputter {
 
   private lazy val jsp = {
     val j = JsonInfosetInputter.jsonFactory.createParser(input)

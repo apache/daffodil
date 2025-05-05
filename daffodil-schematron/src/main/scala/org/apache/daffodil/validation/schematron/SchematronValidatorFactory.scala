@@ -23,7 +23,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
-import org.apache.daffodil.api.validation.{ ValidatorFactory => JValidatorFactory }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.iapi.Validator
 import org.apache.daffodil.lib.iapi.ValidatorInitializationException
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
@@ -84,7 +84,7 @@ object SchematronValidatorFactory {
   }
 }
 
-final class SchematronValidatorFactory extends JValidatorFactory {
+final class SchematronValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = SchematronValidator.name
   def make(config: Config): Validator = SchematronValidatorFactory.makeValidator(config)
 }

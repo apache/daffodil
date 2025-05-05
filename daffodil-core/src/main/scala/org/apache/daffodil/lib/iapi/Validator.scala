@@ -17,15 +17,7 @@
 
 package org.apache.daffodil.lib.iapi
 
-import org.apache.daffodil.api.validation.{ ValidationException => JValidationException }
-import org.apache.daffodil.api.validation.{ ValidationFailure => JValidationFailure }
-import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
-import org.apache.daffodil.api.validation.{ ValidationWarning => JValidationWarning }
-import org.apache.daffodil.api.validation.{ Validator => JValidator }
-import org.apache.daffodil.api.validation.{ ValidatorFactory => JValidatorFactory }
-import org.apache.daffodil.api.validation.{
-  ValidatorInitializationException => JValidatorInitializationException
-}
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SimpleNamedLoadableService
 
@@ -36,31 +28,34 @@ import org.apache.daffodil.lib.util.SimpleNamedLoadableService
  *
  * @see [[org.apache.daffodil.lib.validation.XercesValidator]] for example of using ThreadLocal for thread safety
  */
-trait Validator extends JValidator
+trait Validator extends api.validation.Validator
 
 /**
  * Implement this trait and register with SPI to provide runtime discovery of custom Validator implementations
  *
  * The factory implementations are expected to be thread safe
  */
-trait ValidatorFactory extends JValidatorFactory with SimpleNamedLoadableService
+trait ValidatorFactory extends api.validation.ValidatorFactory with SimpleNamedLoadableService
 
 /**
  * Results of a validation execution
  */
-trait ValidationResult extends JValidationResult
+trait ValidationResult extends api.validation.ValidationResult
 
 object ValidationResult {
 
   /**
    * an empty [[org.apache.daffodil.lib.iapi.ValidationResult]]
    */
-  val empty: JValidationResult = JValidationResult.empty
+  val empty: api.validation.ValidationResult = api.validation.ValidationResult.empty
 
-  def apply(w: Seq[ValidationWarning], e: Seq[ValidationFailure]): JValidationResult = {
-    new JValidationResult(
-      w.asInstanceOf[Seq[JValidationWarning]],
-      e.asInstanceOf[Seq[JValidationFailure]]
+  def apply(
+    w: Seq[ValidationWarning],
+    e: Seq[ValidationFailure]
+  ): api.validation.ValidationResult = {
+    new api.validation.ValidationResult(
+      w.asInstanceOf[Seq[api.validation.ValidationWarning]],
+      e.asInstanceOf[Seq[api.validation.ValidationFailure]]
     )
   }
 }
@@ -68,21 +63,21 @@ object ValidationResult {
 /**
  * Represents a non-fatal validation notification
  */
-trait ValidationWarning extends JValidationWarning
+trait ValidationWarning extends api.validation.ValidationWarning
 
 /**
  * Represents a fatal validation notification
  */
-trait ValidationFailure extends JValidationFailure
+trait ValidationFailure extends api.validation.ValidationFailure
 
 /**
  * Represents a ValidationFailure that is backed by a Throwable
  */
-trait ValidationException extends ValidationFailure with JValidationException
+trait ValidationException extends ValidationFailure with api.validation.ValidationException
 
 /**
  * Thrown when a validator fails to initialize
  * @param message used in the underlying Exception
  */
 final case class ValidatorInitializationException(message: String)
-  extends JValidatorInitializationException(message)
+  extends api.validation.ValidatorInitializationException(message)

@@ -26,9 +26,9 @@ import scala.xml.SAXParser
 import scala.xml.Text
 import scala.xml.XML
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -100,7 +100,8 @@ object NullInfosetInputter {
  * prior to any performance testing and outside any critical sections, and
  * passed into a new NullInfosetInputter for unparsing.
  */
-class NullInfosetInputter(events: Array[NullInfosetInputter.Event]) extends JInfosetInputter {
+class NullInfosetInputter(events: Array[NullInfosetInputter.Event])
+  extends api.infoset.InfosetInputter {
 
   private var curIndex = 0
   private var curEvent: NullInfosetInputter.Event = events(0)

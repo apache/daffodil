@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.validation
 
-import org.apache.daffodil.api.validation.{ ValidatorFactory => JValidatorFactory }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
 
 /**
@@ -26,8 +26,10 @@ import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
  * Registered instances provide a unique name for lookup.
  */
 object Validators {
-  private lazy val impls: Map[String, JValidatorFactory] = {
-    SimpleNamedServiceLoader.loadClass[JValidatorFactory](classOf[JValidatorFactory])
+  private lazy val impls: Map[String, api.validation.ValidatorFactory] = {
+    SimpleNamedServiceLoader.loadClass[api.validation.ValidatorFactory](
+      classOf[api.validation.ValidatorFactory]
+    )
   }
 
   /**
@@ -38,7 +40,7 @@ object Validators {
    * @return [[org.apache.daffodil.api.validation.ValidatorFactory]] the factory instance
    */
   @throws(classOf[ValidatorNotRegisteredException])
-  def get(name: String): JValidatorFactory =
+  def get(name: String): api.validation.ValidatorFactory =
     impls.getOrElse(name, throw ValidatorNotRegisteredException(name))
 
   /**
@@ -47,7 +49,7 @@ object Validators {
    * @param name registered name of the validator factory
    * @return [[org.apache.daffodil.api.validation.ValidatorFactory]] optional factory instance
    */
-  def find(name: String): Option[JValidatorFactory] = impls.get(name)
+  def find(name: String): Option[api.validation.ValidatorFactory] = impls.get(name)
 
   /**
    * Check for registration of named factory
@@ -62,4 +64,4 @@ object Validators {
  * @param name the requested validator factory name
  */
 case class ValidatorNotRegisteredException(name: String)
-  extends Exception(s"No JValidatorFactory is registered as $name")
+  extends Exception(s"No api.validation.ValidatorFactory is registered as $name")

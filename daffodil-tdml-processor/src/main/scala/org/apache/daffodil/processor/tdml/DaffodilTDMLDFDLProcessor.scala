@@ -28,11 +28,7 @@ import java.nio.file.Paths
 import scala.util.Using
 import scala.xml.Node
 
-import org.apache.daffodil.api.validation.{ Validator => JValidator }
-import org.apache.daffodil.api.{ DataLocation => JDataLocation }
-import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
-import org.apache.daffodil.api.{ ParseResult => JParseResult }
+import org.apache.daffodil.api
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -165,14 +161,14 @@ final class TDMLDFDLProcessorFactory private (
 
 }
 
-class DaffodilTDMLDFDLProcessor private (private var dp: JDataProcessor)
+class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
   extends TDMLDFDLProcessor {
 
   override type R = DaffodilTDMLDFDLProcessor
 
-  def this(ddp: DFDL.DataProcessor) = this(ddp.asInstanceOf[JDataProcessor])
+  def this(ddp: DFDL.DataProcessor) = this(ddp.asInstanceOf[api.DataProcessor])
 
-  private def copy(dp: JDataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp)
+  private def copy(dp: api.DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp)
 
   private lazy val builtInTracer =
     new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
@@ -205,7 +201,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: JDataProcessor)
   }
 
   override def withValidator(
-    validator: JValidator
+    validator: api.validation.Validator
   ): DaffodilTDMLDFDLProcessor =
     copy(dp = dp.withValidator(validator))
 
@@ -433,7 +429,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: JDataProcessor)
   }
 }
 
-final class DaffodilTDMLParseResult(actual: JParseResult, outputter: TDMLInfosetOutputter)
+final class DaffodilTDMLParseResult(actual: api.ParseResult, outputter: TDMLInfosetOutputter)
   extends TDMLParseResult {
 
   override def getResult: Node = outputter.getResult
@@ -446,9 +442,9 @@ final class DaffodilTDMLParseResult(actual: JParseResult, outputter: TDMLInfoset
 
   override def isValidationError: Boolean = actual.isValidationError
 
-  override def getDiagnostics: Seq[JDiagnostic] = actual.getDiagnostics
+  override def getDiagnostics: Seq[api.Diagnostic] = actual.getDiagnostics
 
-  override def currentLocation: JDataLocation = actual.resultState.currentLocation
+  override def currentLocation: api.DataLocation = actual.resultState.currentLocation
 
   override def addDiagnostic(diag: Diagnostic): Unit = actual.addDiagnostic(diag)
 
@@ -472,7 +468,7 @@ final class DaffodilTDMLUnparseResult(
 
   override def isProcessingError: Boolean = actual.isProcessingError
 
-  override def getDiagnostics: Seq[JDiagnostic] = actual.getDiagnostics
+  override def getDiagnostics: Seq[api.Diagnostic] = actual.getDiagnostics
 
   override def bitPos0b: Long = ustate.bitPos0b
 }
@@ -497,7 +493,7 @@ class DaffodilTDMLSAXErrorHandler extends ErrorHandler with WithDiagnostics {
     error(exception)
   }
 
-  override def getDiagnostics: java.util.List[JDiagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
 
   override def isError: Boolean = errorStatus
 }

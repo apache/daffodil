@@ -36,11 +36,6 @@ import scala.util.Try
 import scala.xml.Node
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
-import org.apache.daffodil.api.exceptions.{ InvalidParserException => JInvalidParserException }
-import org.apache.daffodil.api.{ CodeGenerator => JCodeGenerator }
-import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.lib.Implicits._
@@ -95,7 +90,7 @@ final class ProcessorFactory private (
       tunables
     )
 
-  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): JProcessorFactory =
+  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): api.compiler.ProcessorFactory =
     new ProcessorFactory(
       optRootSpec,
       schemaSource,
@@ -125,11 +120,11 @@ final class ProcessorFactory private (
     sset.diagnostics
   }
 
-  def getDiagnostics: util.List[JDiagnostic] = diagnostics.asInstanceOf[Seq[JDiagnostic]]
+  def getDiagnostics: util.List[api.Diagnostic] = diagnostics.asInstanceOf[Seq[api.Diagnostic]]
 
-  override def onPath(xpath: String): JDataProcessor = sset.onPath(xpath)
+  override def onPath(xpath: String): api.DataProcessor = sset.onPath(xpath)
 
-  def forLanguage(language: String): JCodeGenerator = {
+  def forLanguage(language: String): api.CodeGenerator = {
     checkNotError()
 
     // Do a poor man's pluggable code generator implementation - we can replace
@@ -146,7 +141,7 @@ final class ProcessorFactory private (
     val clazz = Try(Class.forName(className))
     val constructor = clazz.map { _.getDeclaredConstructor(sset.root.getClass) }
     val tryInstance = constructor.map {
-      _.newInstance(sset.root).asInstanceOf[JCodeGenerator]
+      _.newInstance(sset.root).asInstanceOf[api.CodeGenerator]
     }
     val codeGenerator = tryInstance.recover { case ex =>
       throw new InvalidParserException(s"Error creating $className", ex)
@@ -157,14 +152,17 @@ final class ProcessorFactory private (
 
   override lazy val isError: Boolean = sset.isError
 
-  def withDistinguishedRootNode(name: String, namespace: String): JProcessorFactory = {
+  def withDistinguishedRootNode(
+    name: String,
+    namespace: String
+  ): api.compiler.ProcessorFactory = {
     Assert.usage(name ne null)
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
   }
 }
 
 class InvalidParserException(msg: String, cause: Throwable = null)
-  extends JInvalidParserException(msg, cause)
+  extends api.exceptions.InvalidParserException(msg, cause)
 
 class Compiler private (
   val validateDFDLSchemas: Boolean,
@@ -229,15 +227,15 @@ class Compiler private (
   def withCheckAllTopLevel(flag: Boolean): Compiler =
     copy(checkAllTopLevel = flag)
 
-  def reload(savedParser: File): JDataProcessor = reload(new FileInputStream(savedParser))
+  def reload(savedParser: File): api.DataProcessor = reload(new FileInputStream(savedParser))
 
-  def reload(savedParser: java.nio.channels.ReadableByteChannel): JDataProcessor =
+  def reload(savedParser: java.nio.channels.ReadableByteChannel): api.DataProcessor =
     reload(Channels.newInputStream(savedParser))
 
-  def reload(schemaSource: DaffodilSchemaSource): JDataProcessor =
+  def reload(schemaSource: DaffodilSchemaSource): api.DataProcessor =
     reload(schemaSource.uriForLoading)
 
-  def reload(uri: URI): JDataProcessor = reload(uri.toURL.openStream())
+  def reload(uri: URI): api.DataProcessor = reload(uri.toURL.openStream())
 
   def reload(is: java.io.InputStream): DataProcessor = {
     try {
@@ -416,7 +414,7 @@ class Compiler private (
     uri: URI,
     optRootName: Option[String],
     optRootNamespace: Option[String]
-  ): JProcessorFactory = {
+  ): api.compiler.ProcessorFactory = {
     compileSource(
       URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
       optRootName,
@@ -428,7 +426,7 @@ class Compiler private (
     name: String,
     optRootName: Option[String],
     optRootNamespace: Option[String]
-  ): JProcessorFactory = {
+  ): api.compiler.ProcessorFactory = {
     val uri = Misc.getRequiredResource(name)
     val source = URISchemaSource(new File(name), uri)
     compileSource(source, optRootName, optRootNamespace)
@@ -438,19 +436,22 @@ class Compiler private (
     schemaFile: File,
     optRootName: Optional[String],
     optRootNamespace: Optional[String]
-  ): JProcessorFactory = compileFile(schemaFile, optRootName.toScala, optRootNamespace.toScala)
+  ): api.compiler.ProcessorFactory =
+    compileFile(schemaFile, optRootName.toScala, optRootNamespace.toScala)
 
   override def compileSource(
     uri: URI,
     optRootName: Optional[String],
     optRootNamespace: Optional[String]
-  ): JProcessorFactory = compileSource(uri, optRootName.toScala, optRootNamespace.toScala)
+  ): api.compiler.ProcessorFactory =
+    compileSource(uri, optRootName.toScala, optRootNamespace.toScala)
 
   override def compileResource(
     name: String,
     optRootName: Optional[String],
     optRootNamespace: Optional[String]
-  ): JProcessorFactory = compileResource(name, optRootName.toScala, optRootNamespace.toScala)
+  ): api.compiler.ProcessorFactory =
+    compileResource(name, optRootName.toScala, optRootNamespace.toScala)
 
   override def withTunables(tunables: util.Map[String, String]): api.Compiler = withTunables(
     tunables.asScala.toMap

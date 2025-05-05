@@ -19,10 +19,7 @@ package org.apache.daffodil.lib.iapi
 
 import java.util.Optional
 
-import org.apache.daffodil.api.{ DataLocation => JDataLocation }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
-import org.apache.daffodil.api.{ LocationInSchemaFile => JLocationInSchemaFile }
-import org.apache.daffodil.api.{ WithDiagnostics => JWithDiagnostics }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
@@ -63,7 +60,7 @@ abstract class Diagnostic protected (
   private val maybeCause: Maybe[Throwable],
   private val maybeFormatString: Maybe[String],
   private val args: Any*
-) extends JDiagnostic(
+) extends api.Diagnostic(
     maybeFormatString.orNull,
     maybeCause.orNull,
     isThick,
@@ -159,8 +156,8 @@ abstract class Diagnostic protected (
    *
    * @return [[org.apache.daffodil.lib.iapi.DataLocation]]
    */
-  def getDataLocations: java.util.List[JDataLocation] =
-    dataContext.toSeq.asInstanceOf[Seq[JDataLocation]]
+  def getDataLocations: java.util.List[api.DataLocation] =
+    dataContext.toSeq.asInstanceOf[Seq[api.DataLocation]]
 
   /**
    * Get schema location information relevant to this diagnostic object.
@@ -169,8 +166,8 @@ abstract class Diagnostic protected (
    *
    * @return [[org.apache.daffodil.lib.iapi.LocationInSchemaFile]]
    */
-  def getLocationsInSchemaFiles: java.util.List[JLocationInSchemaFile] =
-    schemaContext.toSeq.asInstanceOf[Seq[JLocationInSchemaFile]]
+  def getLocationsInSchemaFiles: java.util.List[api.LocationInSchemaFile] =
+    schemaContext.toSeq.asInstanceOf[Seq[api.LocationInSchemaFile]]
 
   /**
    * Positively get these things. No returning 'null' and making caller figure out
@@ -230,12 +227,12 @@ abstract class Diagnostic protected (
 /**
  * Relevant data location for a diagnostic message. E.g., file and line number.
  */
-trait DataLocation extends JDataLocation
+trait DataLocation extends api.DataLocation
 
 /**
  * Relevant schema location for a diagnostic message. E.g., file and line number.
  */
-trait LocationInSchemaFile extends JLocationInSchemaFile {
+trait LocationInSchemaFile extends api.LocationInSchemaFile {
   override def toString: String = {
     asString()
   }
@@ -244,7 +241,7 @@ trait LocationInSchemaFile extends JLocationInSchemaFile {
 /**
  * Mix into classes that can carry diagnostic information as part of their structure.
  */
-trait WithDiagnostics extends JWithDiagnostics {
+trait WithDiagnostics extends api.WithDiagnostics {
 
   /**
    * Helper method to check that isError is false, if not it throws

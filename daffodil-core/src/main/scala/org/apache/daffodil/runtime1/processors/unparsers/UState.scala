@@ -22,7 +22,7 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.util.Collections
 
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.StringDataInputStreamForUnparse
 import org.apache.daffodil.io.processors.charset.BitsCharset
@@ -73,7 +73,7 @@ object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
 abstract class UState(
   vbox: VariableBox,
-  diagnosticsArg: java.util.List[JDiagnostic],
+  diagnosticsArg: java.util.List[api.Diagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
   areDebugging: Boolean
@@ -508,7 +508,7 @@ final class UStateMain private (
   private val inputter: InfosetInputter,
   outStream: java.io.OutputStream,
   vbox: VariableBox,
-  diagnosticsArg: java.util.List[JDiagnostic],
+  diagnosticsArg: java.util.List[api.Diagnostic],
   dataProcArg: DataProcessor,
   tunable: DaffodilTunables,
   areDebugging: Boolean
@@ -520,7 +520,7 @@ final class UStateMain private (
     inputter: InfosetInputter,
     outputStream: java.io.OutputStream,
     vmap: VariableMap,
-    diagnosticsArg: java.util.List[JDiagnostic],
+    diagnosticsArg: java.util.List[api.Diagnostic],
     dataProcArg: DataProcessor,
     tunable: DaffodilTunables,
     areDebugging: Boolean
@@ -762,7 +762,7 @@ object UState {
      */
     val variables = dataProc.variableMap.copy()
 
-    val diagnostics = Collections.emptyList[JDiagnostic]()
+    val diagnostics = Collections.emptyList[api.Diagnostic]()
     val newState = new UStateMain(
       inputter,
       outStream,

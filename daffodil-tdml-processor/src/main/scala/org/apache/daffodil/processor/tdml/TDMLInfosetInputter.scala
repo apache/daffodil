@@ -23,8 +23,8 @@ import java.net.URISyntaxException
 import java.util.Optional
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -35,8 +35,8 @@ import org.apache.daffodil.tdml.TDMLException
 
 class TDMLInfosetInputter(
   val scalaInputter: ScalaXMLInfosetInputter,
-  others: Seq[JInfosetInputter]
-) extends JInfosetInputter {
+  others: Seq[api.infoset.InfosetInputter]
+) extends api.infoset.InfosetInputter {
 
   private def implString: String = "daffodil"
 

@@ -19,31 +19,7 @@ package org.apache.daffodil.runtime1.iapi
 
 import java.io.File
 
-import org.apache.daffodil.api.MetadataHandler
-import org.apache.daffodil.api.compiler.{ ProcessorFactory => JProcessorFactory }
-import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
-import org.apache.daffodil.api.exceptions.{
-  DaffodilUnhandledSAXException => JDaffodilUnhandledSAXException
-}
-import org.apache.daffodil.api.exceptions.{
-  DaffodilUnparseErrorSAXException => JDaffodilUnparseErrorSAXException
-}
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
-import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
-import org.apache.daffodil.api.{ CodeGenerator => JCodeGenerator }
-import org.apache.daffodil.api.{ Compiler => JCompiler }
-import org.apache.daffodil.api.{ DaffodilParseXMLReader => JDaffodilParseXMLReader }
-import org.apache.daffodil.api.{
-  DaffodilUnparseContentHandler => JDaffodilUnparseContentHandler
-}
-import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
-import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
-import org.apache.daffodil.api.{ ParseResult => JParseResult }
-import org.apache.daffodil.api.{ Result => JResult }
-import org.apache.daffodil.api.{ State => JState }
-import org.apache.daffodil.api.{ UnparseResult => JUnparseResult }
+import org.apache.daffodil.api
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.externalvars.Binding
@@ -84,7 +60,7 @@ object DFDL {
 
   type Output = java.nio.channels.WritableByteChannel // binary output stream/buffer
 
-  trait Compiler extends JCompiler {
+  trait Compiler extends api.Compiler {
 
     /**
      * User must establish error handlers, setup features appropriately before using the data access objects.
@@ -132,31 +108,31 @@ object DFDL {
       schemaSource: DaffodilSchemaSource,
       optRootNodeName: Option[String] = None,
       optRootNodeNamespace: Option[String] = None
-    ): JProcessorFactory
+    ): api.compiler.ProcessorFactory
 
-    def reload(savedParser: File): JDataProcessor
+    def reload(savedParser: File): api.DataProcessor
   }
 
   /**
    * The point of [[ProcessorFactory]] is to allow compilation of the path expression
    * and/or generation of source code to process data matching the compiled schema
    */
-  trait ProcessorFactory extends WithDiagnostics with JProcessorFactory {
+  trait ProcessorFactory extends WithDiagnostics with api.compiler.ProcessorFactory {
 
     /**
      * Returns a [[org.apache.daffodil.api.CodeGenerator]] to generate code from a DFDL schema to parse or unparse data
      * @param language source language for generated code (you can use only "c" at this time)
      */
-    def forLanguage(language: String): JCodeGenerator
+    def forLanguage(language: String): api.CodeGenerator
   }
 
   /**
    * Source code generation and compilation is performed with a language-specific [[CodeGenerator]],
    * which must be interrogated for diagnostics to see if each call was successful or not.
    */
-  trait CodeGenerator extends JCodeGenerator with WithDiagnostics
+  trait CodeGenerator extends api.CodeGenerator with WithDiagnostics
 
-  trait DataProcessor extends JDataProcessor with WithDiagnostics {
+  trait DataProcessor extends api.DataProcessor with WithDiagnostics {
 
     /**
      * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
@@ -173,7 +149,7 @@ object DFDL {
 
     def save(output: DFDL.Output): Unit
 
-    def walkMetadata(handler: MetadataHandler): Unit
+    def walkMetadata(handler: api.MetadataHandler): Unit
     def tunables: DaffodilTunables
     def variableMap: VariableMap
 
@@ -190,14 +166,17 @@ object DFDL {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
-    def unparse(input: JInfosetInputter, output: DFDL.Output): UnparseResult
+    def unparse(input: api.infoset.InfosetInputter, output: DFDL.Output): UnparseResult
 
     /**
      * Returns an object which contains the result, and/or diagnostic information.
      */
-    def parse(input: JInputSourceDataInputStream, output: JInfosetOutputter): ParseResult
+    def parse(
+      input: api.InputSourceDataInputStream,
+      output: api.infoset.InfosetOutputter
+    ): ParseResult
 
-    def withDebugger(dbg: JDebugger): DataProcessor
+    def withDebugger(dbg: api.debugger.Debugger): DataProcessor
   }
 
   /**
@@ -205,11 +184,11 @@ object DFDL {
    * data that Daffodil usually expects. Used to parse data to a infoset represent as
    * SAX events
    */
-  trait DaffodilParseXMLReader extends JDaffodilParseXMLReader {
+  trait DaffodilParseXMLReader extends api.DaffodilParseXMLReader {
     def parse(is: java.io.InputStream): Unit
     def parse(in: InputSourceDataInputStream): Unit
     def parse(ab: Array[Byte]): Unit
-    def parse(in: JInputSourceDataInputStream): Unit = {
+    def parse(in: api.InputSourceDataInputStream): Unit = {
       parse(in.asInstanceOf[InputSourceDataInputStream])
     }
   }
@@ -219,7 +198,7 @@ object DFDL {
    * UnparseResult. Used to unparse and infoset represented as SAX events from an
    * XMLReader to data.
    */
-  trait DaffodilUnparseContentHandler extends JDaffodilUnparseContentHandler {
+  trait DaffodilUnparseContentHandler extends api.DaffodilUnparseContentHandler {
     def getUnparseResult: UnparseResult
     def enableResolutionOfRelativeInfosetBlobURIs(): Unit
   }
@@ -230,25 +209,27 @@ object DFDL {
    * can be used to get the result and any diagnostics.
    */
   class DaffodilUnparseErrorSAXException(unparseResult: UnparseResult)
-    extends JDaffodilUnparseErrorSAXException(unparseResult.getDiagnostics.mkString("\n"))
+    extends api.exceptions.DaffodilUnparseErrorSAXException(
+      unparseResult.getDiagnostics.mkString("\n")
+    )
 
   /**
    * Thrown by the DaffodilUnparseConentHandler when an unexpected error
    * occurs, this usually represents a bug in Daffodil
    */
   class DaffodilUnhandledSAXException(description: String, cause: Exception)
-    extends JDaffodilUnhandledSAXException(description, cause) {
+    extends api.exceptions.DaffodilUnhandledSAXException(description, cause) {
     def this(msg: String) = this(msg, null)
 
     def this(cause: Exception) = this(null, cause)
   }
 
-  trait ParseResult extends Result with WithDiagnostics with JParseResult {
+  trait ParseResult extends Result with WithDiagnostics with api.ParseResult {
     def resultState: State
-    val validationResult: Option[JValidationResult]
+    val validationResult: Option[api.validation.ValidationResult]
   }
 
-  trait UnparseResult extends Result with JUnparseResult with WithDiagnostics {
+  trait UnparseResult extends Result with api.UnparseResult with WithDiagnostics {
 
     /**
      * Data is 'scannable' if it consists entirely of textual data, and that data
@@ -261,26 +242,26 @@ object DFDL {
   /**
    * Interface for Parse and Unparse states
    */
-  trait State extends JState
+  trait State extends api.State
 
   /**
    * Interface for Parse and Unparse results
    */
-  abstract class Result extends JResult {
-    var diagnostics: Seq[JDiagnostic] = Nil
+  abstract class Result extends api.Result {
+    var diagnostics: Seq[api.Diagnostic] = Nil
 
-    private def resultStatusDiagnostics: Seq[JDiagnostic] = {
+    private def resultStatusDiagnostics: Seq[api.Diagnostic] = {
       resultState.processorStatus match {
         case Failure(c) => List(c)
         case Success => Nil
       }
     }
 
-    override def getDiagnostics: java.util.List[JDiagnostic] = {
+    override def getDiagnostics: java.util.List[api.Diagnostic] = {
       (diagnostics.toSet ++ resultState.diagnostics.toSet ++ resultStatusDiagnostics.toSet).toSeq
     }
 
-    override def addDiagnostic(d: JDiagnostic): Unit = {
+    override def addDiagnostic(d: api.Diagnostic): Unit = {
       diagnostics = d +: diagnostics
     }
 

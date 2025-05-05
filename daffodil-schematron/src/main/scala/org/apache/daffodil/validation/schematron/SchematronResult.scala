@@ -20,8 +20,7 @@ package org.apache.daffodil.validation.schematron
 import java.util
 import scala.jdk.CollectionConverters._
 
-import org.apache.daffodil.api.validation.{ ValidationFailure => JValidationFailure }
-import org.apache.daffodil.api.validation.{ ValidationWarning => JValidationWarning }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.iapi.ValidationResult
 
 /**
@@ -32,19 +31,19 @@ import org.apache.daffodil.lib.iapi.ValidationResult
  * @param svrl     Full SVRL output
  */
 case class SchematronResult(
-  warnings: util.Collection[JValidationWarning],
-  errors: util.Collection[JValidationFailure],
+  warnings: util.Collection[api.validation.ValidationWarning],
+  errors: util.Collection[api.validation.ValidationFailure],
   svrl: String
 ) extends ValidationResult {
-  override def getWarnings: util.Collection[JValidationWarning] = warnings
+  override def getWarnings: util.Collection[api.validation.ValidationWarning] = warnings
 
-  override def getErrors: util.Collection[JValidationFailure] = errors
+  override def getErrors: util.Collection[api.validation.ValidationFailure] = errors
 }
 
 object SchematronResult {
   def apply(
-    w: Seq[JValidationWarning],
-    e: Seq[JValidationFailure],
+    w: Seq[api.validation.ValidationWarning],
+    e: Seq[api.validation.ValidationFailure],
     svrl: String
   ): SchematronResult =
     SchematronResult(w.asJavaCollection, e.asJavaCollection, svrl)

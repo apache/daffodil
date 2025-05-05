@@ -24,8 +24,7 @@ import java.nio.file.Path
 import java.util.Collections
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.daffodil.api.InfosetDocument
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Abort
@@ -167,7 +166,7 @@ final class PState private (
   var dataInputStream: InputSourceDataInputStream,
   val walker: InfosetWalker,
   vmap: VariableMap,
-  diagnosticsArg: java.util.List[JDiagnostic],
+  diagnosticsArg: java.util.List[api.Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
@@ -306,7 +305,7 @@ final class PState private (
     }
     res
   }
-  def parentDocument = infoset.asInstanceOf[InfosetDocument]
+  def parentDocument = infoset.asInstanceOf[api.InfosetDocument]
 
   def setEndBitLimit(bitLimit0b: Long): Unit = {
     dataInputStream.setBitLimit0b(MaybeULong(bitLimit0b))
@@ -605,7 +604,7 @@ object PState {
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
     var validationStatus: Boolean = _
-    var diagnostics: java.util.List[JDiagnostic] = _
+    var diagnostics: java.util.List[api.Diagnostic] = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
     var blobPaths: Seq[Path] = Seq.empty
     var context: RuntimeData = _
@@ -705,7 +704,7 @@ object PState {
     val tunables = dataProc.tunables
     val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
     createInitialPState(
-      doc.asInstanceOf[InfosetDocument],
+      doc.asInstanceOf[api.InfosetDocument],
       root,
       dis,
       output,
@@ -718,7 +717,7 @@ object PState {
    * For testing, we can pass in the Infoset pre-constructed.
    */
   def createInitialPState(
-    doc: InfosetDocument,
+    doc: api.InfosetDocument,
     root: ElementRuntimeData,
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
@@ -732,7 +731,7 @@ object PState {
      */
     val variables = dataProc.variableMap.copy()
 
-    val diagnostics = Collections.emptyList[JDiagnostic]()
+    val diagnostics = Collections.emptyList[api.Diagnostic]()
     val mutablePState = MPState()
     val tunables = dataProc.tunables
     val infosetWalker = InfosetWalker(

@@ -28,15 +28,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
-import org.apache.daffodil.api.MetadataHandler
-import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
-import org.apache.daffodil.api.validation.{ ValidationException => JValidationException }
-import org.apache.daffodil.api.validation.{ ValidationFailure => JValidationFailure }
-import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
-import org.apache.daffodil.api.validation.{ Validator => JValidator }
-import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
-import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
@@ -57,9 +49,6 @@ import org.apache.daffodil.runtime1.iapi.DFDL
 object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning()
 }
-import org.apache.daffodil.api.exceptions.{ InvalidUsageException => JInvalidUsageException }
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.io.BitOrderChangeException
 import org.apache.daffodil.io.FileIOException
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -94,7 +83,7 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
 }
 
 class InvalidUsageException(msg: String, cause: Throwable = null)
-  extends JInvalidUsageException(msg, cause)
+  extends api.exceptions.InvalidUsageException(msg, cause)
 
 object DataProcessor {
 
@@ -125,7 +114,7 @@ object DataProcessor {
       )
     }
 
-    override def withValidator(validator: JValidator): JDataProcessor = {
+    override def withValidator(validator: api.validation.Validator): api.DataProcessor = {
       if (validator.isInstanceOf[XercesValidator]) {
         throw new InvalidUsageException(
           "'Full' validation not allowed when using a restored parser."
@@ -147,9 +136,9 @@ class DataProcessor(
   val variableMap: VariableMap,
   // The Validator API requires this to be thread-safe so this is safe to share among different
   // DataProcessors
-  val validator: JValidator = null,
+  val validator: api.validation.Validator = null,
   protected val areDebugging: Boolean = false,
-  protected val optDebugger: Option[JDebugger] = None,
+  protected val optDebugger: Option[api.debugger.Debugger] = None,
   protected val diagnostics: Seq[Diagnostic] = Seq.empty
 ) extends DFDL.DataProcessor
   with Serializable
@@ -182,9 +171,9 @@ class DataProcessor(
     ssrd: SchemaSetRuntimeData = ssrd,
     tunables: DaffodilTunables = tunables,
     variableMap: VariableMap = variableMap.copy(),
-    validator: JValidator = validator,
+    validator: api.validation.Validator = validator,
     areDebugging: Boolean = areDebugging,
-    optDebugger: Option[JDebugger] = optDebugger,
+    optDebugger: Option[api.debugger.Debugger] = optDebugger,
     diagnostics: Seq[Diagnostic] = diagnostics
   ) = new DataProcessor(
     ssrd,
@@ -221,9 +210,8 @@ class DataProcessor(
     )
   }
 
-  override def withValidator(validator: JValidator) = {
-    import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
-    copy(validator = validator).asInstanceOf[JDataProcessor]
+  override def withValidator(validator: api.validation.Validator) = {
+    copy(validator = validator).asInstanceOf[api.DataProcessor]
   }
 
   def debugger = {
@@ -231,7 +219,7 @@ class DataProcessor(
     optDebugger.get
   }
 
-  override def withDebugger(dbg: JDebugger): DataProcessor = {
+  override def withDebugger(dbg: api.debugger.Debugger): DataProcessor = {
     val optDbg = if (dbg eq null) None else Some(dbg)
     copy(areDebugging = optDbg.isDefined, optDebugger = optDbg)
   }
@@ -273,7 +261,7 @@ class DataProcessor(
 
   override def isError = false
 
-  override def getDiagnostics = diagnostics.asInstanceOf[Seq[JDiagnostic]]
+  override def getDiagnostics = diagnostics.asInstanceOf[Seq[api.Diagnostic]]
 
   override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = {
     val xrdr = new DaffodilParseXMLReader(this)
@@ -337,7 +325,7 @@ class DataProcessor(
     oos.close()
   }
 
-  def walkMetadata(handler: MetadataHandler): Unit = {
+  def walkMetadata(handler: api.MetadataHandler): Unit = {
     val walker = new MetadataWalker(this)
     walker.walk(handler)
   }
@@ -346,7 +334,10 @@ class DataProcessor(
    * Here begins the parser runtime. Compiler-oriented mechanisms (OOLAG etc.) aren't used in the
    * runtime. Instead we deal with success and failure statuses.
    */
-  def parse(input: InputSourceDataInputStream, output: JInfosetOutputter): DFDL.ParseResult = {
+  def parse(
+    input: InputSourceDataInputStream,
+    output: api.infoset.InfosetOutputter
+  ): DFDL.ParseResult = {
     checkNotError()
     // If full validation is enabled, tee all the infoset events to a second
     // infoset outputter that writes the infoset to a byte array, and then
@@ -394,9 +385,9 @@ class DataProcessor(
         val res = validator.validateXML(bis)
         res.getWarnings.forEach { w => state.validationError(w.getMessage) }
         res.getErrors.forEach {
-          case e: JValidationException =>
+          case e: api.validation.ValidationException =>
             state.validationErrorNoContext(e.getCause)
-          case f: JValidationFailure =>
+          case f: api.validation.ValidationFailure =>
             state.validationError(f.getMessage)
         }
         res
@@ -514,13 +505,16 @@ class DataProcessor(
 
   }
 
-  def unparse(actualInputter: JInfosetInputter, output: DFDL.Output): UnparseResult = {
+  def unparse(
+    actualInputter: api.infoset.InfosetInputter,
+    output: DFDL.Output
+  ): UnparseResult = {
     checkNotError()
     val outStream = java.nio.channels.Channels.newOutputStream(output)
     unparse(actualInputter, outStream)
   }
 
-  def unparse(actualInputter: JInfosetInputter, outStream: java.io.OutputStream) = {
+  def unparse(actualInputter: api.infoset.InfosetInputter, outStream: java.io.OutputStream) = {
     val inputter = new InfosetInputter(actualInputter)
     inputter.initialize(ssrd.elementRuntimeData, tunables)
     val unparserState =
@@ -660,8 +654,8 @@ class DataProcessor(
   }
 
   override def parse(
-    input: JInputSourceDataInputStream,
-    output: JInfosetOutputter
+    input: api.InputSourceDataInputStream,
+    output: api.infoset.InfosetOutputter
   ): DFDL.ParseResult = {
     parse(input.asInstanceOf[InputSourceDataInputStream], output)
   }
@@ -669,7 +663,7 @@ class DataProcessor(
 
 class ParseResult(
   override val resultState: PState,
-  val validationResult: Option[JValidationResult]
+  val validationResult: Option[api.validation.ValidationResult]
 ) extends DFDL.ParseResult
   with WithDiagnosticsImpl {
   override def location(): DataLocation = resultState.currentLocation

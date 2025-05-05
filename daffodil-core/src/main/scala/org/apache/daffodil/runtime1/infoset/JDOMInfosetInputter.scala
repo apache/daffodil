@@ -21,8 +21,8 @@ import java.lang.{ Boolean => JBoolean }
 import java.util.Iterator
 import java.util.Optional
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -41,7 +41,7 @@ object JDOMInfosetInputter {
   protected val JDOM_XSI_NAMESPACE = Namespace.getNamespace(XMLUtils.XSI_NAMESPACE)
 }
 
-class JDOMInfosetInputter(doc: Document) extends JInfosetInputter {
+class JDOMInfosetInputter(doc: Document) extends api.infoset.InfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each

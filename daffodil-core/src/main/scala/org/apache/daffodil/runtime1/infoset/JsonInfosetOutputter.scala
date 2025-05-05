@@ -19,19 +19,19 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.nio.charset.StandardCharsets
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.DFDLPrimType
 import org.apache.daffodil.api.InfosetArray
 import org.apache.daffodil.api.InfosetComplexElement
 import org.apache.daffodil.api.InfosetElement
 import org.apache.daffodil.api.InfosetSimpleElement
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 
 class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Boolean)
-  extends JInfosetOutputter
+  extends api.infoset.InfosetOutputter
   with Indentable {
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {

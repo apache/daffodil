@@ -21,6 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Using
 import scala.xml.Elem
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.ChoiceMetadata
 import org.apache.daffodil.api.ComplexElementMetadata
 import org.apache.daffodil.api.ElementMetadata
@@ -33,7 +34,6 @@ import org.apache.daffodil.api.Metadata
 import org.apache.daffodil.api.MetadataHandler
 import org.apache.daffodil.api.SequenceMetadata
 import org.apache.daffodil.api.SimpleElementMetadata
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util._
@@ -53,7 +53,7 @@ class TestMetadataWalking {
     dp
   }
 
-  def parseAndWalkData(dp: DataProcessor, infosetOutputter: JInfosetOutputter)(
+  def parseAndWalkData(dp: DataProcessor, infosetOutputter: api.infoset.InfosetOutputter)(
     data: Array[Byte]
   ): ParseResult = {
     Using.resource(InputSourceDataInputStream(data)) { isdis =>
@@ -87,7 +87,7 @@ class TestMetadataWalking {
     override def endChoiceMetadata(m: ChoiceMetadata): Unit = buf += m
   }
 
-  class GatherData extends JInfosetOutputter {
+  class GatherData extends api.infoset.InfosetOutputter {
 
     private val buf = new ArrayBuffer[InfosetItem]
 

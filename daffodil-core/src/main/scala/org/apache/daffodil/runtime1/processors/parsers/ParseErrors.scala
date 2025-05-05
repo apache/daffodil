@@ -17,9 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.api.{ DataLocation => JDataLocation }
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
-import org.apache.daffodil.api.{ LocationInSchemaFile => JLocationInSchemaFile }
+import org.apache.daffodil.api
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
@@ -64,7 +62,7 @@ class AssertionFailed(
   msg: String
 ) extends ParseError(One(rd), One(state.currentLocation), "Assertion failed: %s", msg)
 
-class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[JDiagnostic])
+class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[api.Diagnostic])
   extends ParseError(
     One(rd),
     One(state.currentLocation),
@@ -80,12 +78,12 @@ class EntireChoiceFailed(rd: SchemaFileLocation, state: PState, diags: Seq[Diagn
     diags
   ) {
 
-  override def getLocationsInSchemaFiles: java.util.List[JLocationInSchemaFile] =
+  override def getLocationsInSchemaFiles: java.util.List[api.LocationInSchemaFile] =
     diags.flatMap {
       _.getLocationsInSchemaFiles
     }
 
-  override def getDataLocations: java.util.List[JDataLocation] = {
+  override def getDataLocations: java.util.List[api.DataLocation] = {
     // all should have the same starting location if they are alternatives.
     val dataLocs = diags.flatMap { _.getDataLocations }
     // TBD: what is the idiom for "insert a equals sign between all the elements of the list...??"
@@ -107,8 +105,11 @@ class ChoiceDispatchNoMatch(rd: SchemaFileLocation, state: PState, val key: Stri
     key
   )
 
-class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[JDiagnostic])
-  extends ParseError(
+class ChoiceDispatchFailed(
+  rd: SchemaFileLocation,
+  state: PState,
+  val errors: Seq[api.Diagnostic]
+) extends ParseError(
     One(rd),
     One(state.currentLocation),
     "Choice dispatch branch failed: %s",

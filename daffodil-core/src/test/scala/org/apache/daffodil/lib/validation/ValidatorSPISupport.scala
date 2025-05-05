@@ -19,8 +19,7 @@ package org.apache.daffodil.lib.validation
 
 import java.io.InputStream
 
-import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
-import org.apache.daffodil.api.validation.{ ValidatorFactory => JValidatorFactory }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.iapi.ValidationFailure
 import org.apache.daffodil.lib.iapi.ValidationResult
 import org.apache.daffodil.lib.iapi.ValidationWarning
@@ -28,7 +27,7 @@ import org.apache.daffodil.lib.iapi.Validator
 
 import com.typesafe.config.Config
 
-class PassingValidatorFactory extends JValidatorFactory {
+class PassingValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = PassingValidator.name
   def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty, Seq.empty)
 }
@@ -36,7 +35,7 @@ object PassingValidator {
   val name = "passing-validator"
 }
 
-class FailingValidatorFactory extends JValidatorFactory {
+class FailingValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = FailingValidator.name
   def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty, Seq(ValFail("boom")))
 }
@@ -46,7 +45,8 @@ object FailingValidator {
 
 class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure])
   extends Validator {
-  def validateXML(document: InputStream): JValidationResult = ValidationResult(w, f)
+  def validateXML(document: InputStream): api.validation.ValidationResult =
+    ValidationResult(w, f)
 }
 
 case class ValFail(getMessage: String) extends ValidationFailure

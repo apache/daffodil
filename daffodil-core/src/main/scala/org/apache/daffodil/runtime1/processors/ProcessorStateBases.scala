@@ -20,8 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import org.apache.daffodil.api.InfosetElement
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api
 import org.apache.daffodil.io.DataStreamCommon
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.LocalBufferMixin
@@ -142,7 +141,7 @@ trait HasTunable {
  */
 abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
-  var diagnostics: java.util.List[JDiagnostic],
+  var diagnostics: java.util.List[api.Diagnostic],
   var dataProc: Maybe[DataProcessor],
   val tunable: DaffodilTunables
 ) extends DFDL.State
@@ -156,7 +155,7 @@ abstract class ParseOrUnparseState protected (
 
   def this(
     vmap: VariableMap,
-    diags: java.util.List[JDiagnostic],
+    diags: java.util.List[api.Diagnostic],
     dataProc: Maybe[DataProcessor],
     tunable: DaffodilTunables
   ) =
@@ -416,7 +415,7 @@ abstract class ParseOrUnparseState protected (
   final def isSuccess = processorStatus.isSuccess
   final def isFailure = processorStatus.isFailure
 
-  final def setFailed(failureDiagnostic: JDiagnostic): Unit = {
+  final def setFailed(failureDiagnostic: api.Diagnostic): Unit = {
     // threadCheck()
     if (!diagnostics.contains(failureDiagnostic)) {
       _processorStatus = new Failure(failureDiagnostic)
@@ -530,7 +529,7 @@ abstract class ParseOrUnparseState protected (
       Nope
   }
 
-  def thisElement: InfosetElement
+  def thisElement: api.InfosetElement
 
   final def getContext(): ElementRuntimeData = {
     // threadCheck()

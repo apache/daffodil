@@ -30,9 +30,9 @@ import javax.xml.stream.XMLStreamWriter
 import javax.xml.stream.util.XMLEventAllocator
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
@@ -190,7 +190,7 @@ object XMLTextInfoset {
   }
 }
 
-class XMLTextInfosetInputter(input: java.io.InputStream) extends JInfosetInputter {
+class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.InfosetInputter {
 
   /**
    * evAlloc is only to be used for diagnostic messages. It lets us easily

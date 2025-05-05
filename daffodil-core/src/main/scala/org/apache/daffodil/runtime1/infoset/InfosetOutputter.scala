@@ -18,11 +18,10 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.nio.file.Path
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.InfosetArray
 import org.apache.daffodil.api.InfosetComplexElement
 import org.apache.daffodil.api.InfosetSimpleElement
-import org.apache.daffodil.api.infoset.{ BlobMethods => JBlobMethods }
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 
 /**
  * Defines the interface for InfosetOutputters.
@@ -38,7 +37,8 @@ import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
  * by implementations. This does mean some exceptions that you might normally
  * expect to bubble up and will not, and will instead be turned into an SDE.
  */
-final class InfosetOutputter(actualOutputter: JInfosetOutputter) extends BlobMethodsMixin {
+final class InfosetOutputter(actualOutputter: api.infoset.InfosetOutputter)
+  extends BlobMethodsMixin {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
@@ -150,4 +150,4 @@ final class InfosetOutputter(actualOutputter: JInfosetOutputter) extends BlobMet
  *
  * FIXME: Scaladoc
  */
-trait BlobMethodsMixin extends JBlobMethods
+trait BlobMethodsMixin extends api.infoset.BlobMethods

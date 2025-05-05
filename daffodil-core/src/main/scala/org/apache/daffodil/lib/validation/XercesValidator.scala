@@ -23,8 +23,7 @@ import javax.xml.transform.stream.StreamSource
 import scala.jdk.CollectionConverters._
 import scala.xml.SAXException
 
-import org.apache.daffodil.api.validation.{ ValidationResult => JValidationResult }
-import org.apache.daffodil.api.validation.{ ValidatorFactory => JValidatorFactory }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.iapi.ValidationException
 import org.apache.daffodil.lib.iapi.ValidationFailure
 import org.apache.daffodil.lib.iapi.ValidationResult
@@ -47,7 +46,7 @@ import org.xml.sax.SAXParseException
  * Configuration requirements:
  *   - xerces: List[String] -  schema file names
  */
-class XercesValidatorFactory extends JValidatorFactory {
+class XercesValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = XercesValidator.name
   def make(config: Config): Validator = XercesValidatorFactory.makeValidator(config)
 }
@@ -85,10 +84,13 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source]) extends Va
       initializeValidator(schema.newValidator, resolver)
   }
 
-  def validateXML(document: java.io.InputStream): JValidationResult =
+  def validateXML(document: java.io.InputStream): api.validation.ValidationResult =
     validateXML(document, new XercesErrorHandler)
 
-  def validateXML(document: java.io.InputStream, eh: ErrorHandler): JValidationResult = {
+  def validateXML(
+    document: java.io.InputStream,
+    eh: ErrorHandler
+  ): api.validation.ValidationResult = {
 
     val documentSource = new StreamSource(document)
 

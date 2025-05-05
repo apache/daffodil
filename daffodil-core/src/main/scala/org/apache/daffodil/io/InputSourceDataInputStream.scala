@@ -23,7 +23,7 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import org.apache.daffodil.api.{ InputSourceDataInputStream => JInputSourceDataInputStream }
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
@@ -95,7 +95,7 @@ private[io] class MarkPool() extends Pool[MarkState] {
  * Underlying representation is an InputSource containing all input data.
  */
 final class InputSourceDataInputStream private (val inputSource: InputSource)
-  extends JInputSourceDataInputStream
+  extends api.InputSourceDataInputStream
   with DataInputStreamImplMixin
   with java.io.Closeable {
 

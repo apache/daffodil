@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.InfosetArray
 import org.apache.daffodil.api.InfosetComplexElement
 import org.apache.daffodil.api.InfosetSimpleElement
-import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
 
 /**
  * Receive infoset events and forward them to one or more InfosetOutputters. A
@@ -31,7 +31,8 @@ import org.apache.daffodil.api.infoset.{ InfosetOutputter => JInfosetOutputter }
  *
  *    InfosetOutputters to send all events
  */
-class TeeInfosetOutputter(outputters: JInfosetOutputter*) extends JInfosetOutputter {
+class TeeInfosetOutputter(outputters: api.infoset.InfosetOutputter*)
+  extends api.infoset.InfosetOutputter {
 
   override def reset(): Unit = {
     outputters.foreach { _.reset() }

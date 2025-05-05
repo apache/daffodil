@@ -22,10 +22,9 @@ import java.net.URI
 import java.net.URISyntaxException
 import java.util.Optional
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
-import org.apache.daffodil.api.{ DataProcessor => JDataProcessor }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Coroutine
@@ -56,10 +55,10 @@ import org.apache.daffodil.runtime1.processors.DaffodilUnparseContentHandlerImpl
  */
 class SAXInfosetInputter(
   unparseContentHandler: DaffodilUnparseContentHandlerImpl,
-  dp: JDataProcessor,
+  dp: api.DataProcessor,
   output: DFDL.Output,
   resolveRelativeInfosetBlobURIs: Boolean
-) extends JInfosetInputter
+) extends api.infoset.InfosetInputter
   with Coroutine[Array[SAXInfosetEvent]] {
 
   /**

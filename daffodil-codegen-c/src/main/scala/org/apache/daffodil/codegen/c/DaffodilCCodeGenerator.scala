@@ -24,7 +24,7 @@ import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
-import org.apache.daffodil.api.{ Diagnostic => JDiagnostic }
+import org.apache.daffodil.api
 import org.apache.daffodil.codegen.c.generators.AlignmentFillCodeGenerator
 import org.apache.daffodil.codegen.c.generators.AssertStatementGenerateCode
 import org.apache.daffodil.codegen.c.generators.BinaryBooleanCodeGenerator
@@ -241,7 +241,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
   }
 
   // Implements the WithDiagnostics trait
-  override def getDiagnostics: java.util.List[JDiagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
   override def isError: Boolean = errorStatus
 }
 

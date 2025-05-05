@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.{ InfosetInputter => JInfosetInputter }
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilTunables
@@ -65,7 +65,7 @@ class InfosetError(kind: String, args: String*)
  * This is necessary so that the infoset inputter can resolve element
  * name + namespace into the proper ERD based on the proper dynamic context.
  */
-final class InfosetInputter(actualInputter: JInfosetInputter)
+final class InfosetInputter(actualInputter: api.infoset.InfosetInputter)
   extends CursorImplMixin[InfosetAccessor]
   with NextElementResolver {
 
