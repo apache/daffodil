@@ -50,7 +50,7 @@ import java.io.IOException;
  * InputSourceDataInputStream input = new InputSourceDataInputStream(bb);
  * }
  */
-public abstract class InputSourceDataInputStream implements Closeable {
+public interface InputSourceDataInputStream extends Closeable {
   /**
    * Returns true if the input stream has at least 1 bit of data.
    * <p>
@@ -69,7 +69,7 @@ public abstract class InputSourceDataInputStream implements Closeable {
    * the entire data stream (such as for a file) to determine if all data has
    * been consumed or some data is left-over.
    */
-  public abstract boolean hasData();
+  boolean hasData();
 
   /**
    * Closes the underlying resource.
@@ -80,6 +80,6 @@ public abstract class InputSourceDataInputStream implements Closeable {
    * <p>
    * throws IOException if an I/O error occurs during the close operation.
    */
-  public abstract void close() throws IOException;
+  void close() throws IOException;
 
 }

@@ -17,22 +17,18 @@
 
 package org.apache.daffodil.api.validation;
 
-import com.typesafe.config.Config;
 import org.apache.daffodil.lib.validation.DaffodilLimitedValidator$;
 import org.apache.daffodil.lib.validation.NoValidator$;
 import org.apache.daffodil.lib.validation.XercesValidatorFactory;
 
-import scala.collection.immutable.Seq;
 
 import java.net.URI;
-import java.util.Collections;
 
+/**
+ * Factory for creating validators
+ */
 public class ValidatorsFactory {
   private ValidatorsFactory() {
-  }
-
-  public static Validator getNoValidator() {
-    return NoValidator$.MODULE$;
   }
 
   public static Validator getLimitedValidator() {
@@ -40,8 +36,7 @@ public class ValidatorsFactory {
   }
 
   public static Validator getXercesValidator(String mainSchemaForFullValidation) {
-    Config config = XercesValidatorFactory.makeConfig(Seq.from(scala.jdk.javaapi.CollectionConverters.asScala(Collections.singletonList(mainSchemaForFullValidation))));
-    return XercesValidatorFactory.makeValidator(config);
+    return XercesValidatorFactory.makeValidator(mainSchemaForFullValidation);
   }
 
   public static Validator getXercesValidator(URI uri) {
@@ -61,9 +56,11 @@ public class ValidatorsFactory {
       case "limited":
         v = getLimitedValidator();
         break;
-      default:
-        v = null;
+      case "off":
+        v = NoValidator$.MODULE$;
         break;
+      default:
+        throw new IllegalArgumentException("Unsupported validation mode supplied: " + m);
     }
     return v;
   }

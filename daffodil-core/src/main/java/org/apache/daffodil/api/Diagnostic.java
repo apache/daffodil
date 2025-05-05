@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Class containing diagnostic information
+ * Class containing diagnostic information. This does not need to
+ * be implemented by the user.
  */
 public abstract class Diagnostic extends Exception {
 

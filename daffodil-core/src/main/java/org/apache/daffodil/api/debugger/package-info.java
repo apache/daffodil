@@ -21,10 +21,10 @@
  * <h2>Overview</h2>
  * <p>
  * Daffodil comes with one prebuilt debugger, the {@link
- * org.apache.daffodil.api.debugger.TraceDebuggerRunner}, which outputs
+ * org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner}, which outputs
  * verbose information during the parsing processes, which can be used to aid
  * in debugging a DFDL schema. For example, the {@link
- * org.apache.daffodil.api.debugger.TraceDebuggerRunner} can be use like so:
+ * org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner} can be use like so:
  *
  * <pre>
  * {@code

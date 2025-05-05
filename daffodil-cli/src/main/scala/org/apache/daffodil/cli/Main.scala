@@ -66,6 +66,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Timer
+import org.apache.daffodil.lib.validation.NoValidator
 import org.apache.daffodil.lib.validation.Validators
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
@@ -176,7 +177,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
           }
         }
         case "limited" => api.validation.ValidatorsFactory.getLimitedValidator
-        case "off" => api.validation.ValidatorsFactory.getNoValidator
+        case "off" => NoValidator
         case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
           val config =
             if (arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg))
@@ -417,7 +418,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     )
     val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
-      default = Some(api.validation.ValidatorsFactory.getNoValidator),
+      default = Some(NoValidator),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )(validateConverter(schema))
@@ -544,7 +545,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     )
     val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
-      default = Some(api.validation.ValidatorsFactory.getNoValidator),
+      default = Some(NoValidator),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )(validateConverter(schema))
@@ -776,7 +777,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     )
     val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
-      default = Some(api.validation.ValidatorsFactory.getNoValidator),
+      default = Some(NoValidator),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )(validateConverter(schema))

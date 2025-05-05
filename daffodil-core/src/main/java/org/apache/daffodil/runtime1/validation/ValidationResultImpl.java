@@ -15,39 +15,48 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.jexample.validation;
+package org.apache.daffodil.runtime1.validation;
 
 import org.apache.daffodil.api.validation.ValidationFailure;
 import org.apache.daffodil.api.validation.ValidationResult;
 import org.apache.daffodil.api.validation.ValidationWarning;
-import org.apache.daffodil.api.validation.Validator;
-import org.apache.daffodil.runtime1.validation.ValidationResultImpl;
 
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
-public class PassingValidator implements Validator {
-  public static final String name = "passing-japi-validator";
+/**
+ * Results of a validation execution
+ */
+public class ValidationResultImpl implements ValidationResult {
+  private Collection<ValidationWarning> warnings;
+  private Collection<ValidationFailure> errors;
 
-  @Override
-  public ValidationResult validateXML(InputStream document) {
-    return new Result();
+  public static final ValidationResultImpl empty = new ValidationResultImpl();
+
+  public ValidationResultImpl() {
+    this.warnings = Collections.emptyList();
+    this.errors = Collections.emptyList();
   }
 
-  public static class Result extends ValidationResultImpl {
-    public int magicNumberIs() {
-      return 42;
-    }
+  public ValidationResultImpl(List<ValidationWarning> warnings, List<ValidationFailure> errors) {
+    this.warnings = warnings;
+    this.errors = errors;
+  }
 
-    @Override
-    public Collection<ValidationWarning> getWarnings() {
-      return Collections.emptyList();
-    }
+  public Collection<ValidationWarning> getWarnings() {
+    return warnings;
+  }
 
-    @Override
-    public Collection<ValidationFailure> getErrors() {
-      return Collections.emptyList();
-    }
+  public void setWarnings(Collection<ValidationWarning> warnings) {
+    this.warnings = warnings;
+  }
+
+  public Collection<ValidationFailure> getErrors() {
+    return errors;
+  }
+
+  public void setErrors(Collection<ValidationFailure> errors) {
+    this.errors = errors;
   }
 }

@@ -45,6 +45,7 @@ import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
 import org.apache.daffodil.api.validation.ValidatorsFactory
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.UsageException
+import org.apache.daffodil.lib.validation.NoValidator
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 
 import org.apache.commons.io.FileUtils
@@ -152,7 +153,7 @@ class TestAPI {
     val dp = reserializeDataProcessor(dp1)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(ValidatorsFactory.getNoValidator)
+      .withValidator(NoValidator)
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -202,7 +203,7 @@ class TestAPI {
       .reload(savedParser)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(ValidatorsFactory.getNoValidator)
+      .withValidator(NoValidator)
     val file = getResource("/test/api/myData.dat")
     // This test uses a byte array here, just so as to be sure to exercise
     // the constructor for creating an InputSourceDataInputStream from a byte array
@@ -609,7 +610,7 @@ class TestAPI {
     val dp = reserializeDataProcessor(dp1)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(ValidatorsFactory.getNoValidator)
+      .withValidator(NoValidator)
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -642,7 +643,7 @@ class TestAPI {
       .withExternalVariables(extVarsFile)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(ValidatorsFactory.getNoValidator)
+      .withValidator(NoValidator)
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -674,7 +675,7 @@ class TestAPI {
       .withExternalVariables(extVarFile)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(ValidatorsFactory.getNoValidator)
+      .withValidator(NoValidator)
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)

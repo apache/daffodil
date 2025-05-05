@@ -21,6 +21,7 @@ import org.apache.daffodil.api.validation.ValidationFailure;
 import org.apache.daffodil.api.validation.ValidationResult;
 import org.apache.daffodil.api.validation.ValidationWarning;
 import org.apache.daffodil.api.validation.Validator;
+import org.apache.daffodil.runtime1.validation.ValidationResultImpl;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -31,7 +32,7 @@ public class FailingValidator implements Validator {
 
   @Override
   public ValidationResult validateXML(InputStream document) {
-    return new ValidationResult() {
+    return new ValidationResultImpl() {
       @Override
       public Collection<ValidationWarning> getWarnings() {
         return Collections.emptyList();

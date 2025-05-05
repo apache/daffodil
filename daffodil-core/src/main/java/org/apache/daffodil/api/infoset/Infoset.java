@@ -50,7 +50,7 @@ public class Infoset {
    *               insert indentation and newlines where it will not affect the
    *               content of the XML.
    */
-  public static InfosetOutputter getXMLTextInfosetOutputter(OutputStream os, boolean pretty) throws Exception {
+  public static InfosetOutputter getXMLTextInfosetOutputter(OutputStream os, boolean pretty) {
     return new XMLTextInfosetOutputter(os, pretty, XMLTextEscapeStyle.styleToScala(XMLTextEscapeStyle.Standard), false);
   }
 
@@ -67,7 +67,7 @@ public class Infoset {
    *                           xs:string in CDATA tags in order to preserve
    *                           whitespace.
    */
-  public static InfosetOutputter getXMLTextInfosetOutputter(OutputStream os, boolean pretty, XMLTextEscapeStyle xmlTextEscapeStyle) throws Exception {
+  public static InfosetOutputter getXMLTextInfosetOutputter(OutputStream os, boolean pretty, XMLTextEscapeStyle xmlTextEscapeStyle) {
     return new XMLTextInfosetOutputter(os, pretty, XMLTextEscapeStyle.styleToScala(xmlTextEscapeStyle), false);
   }
 

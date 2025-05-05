@@ -24,16 +24,16 @@ import scala.util.Try
 import scala.xml.Elem
 import scala.xml.XML
 
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.iapi.ValidationException
 import org.apache.daffodil.lib.iapi.ValidationFailure
-import org.apache.daffodil.lib.iapi.ValidationResult
 import org.apache.daffodil.lib.iapi.Validator
 
 /**
  * Daffodil Validator implementation for ISO schematron
  */
 final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) extends Validator {
-  def validateXML(document: InputStream): ValidationResult = {
+  def validateXML(document: InputStream): api.validation.ValidationResult = {
     val svrl = XML.loadString(engine.validate(document))
     val valErr: Seq[ValidationFailure] =
       for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {

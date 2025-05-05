@@ -21,7 +21,7 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.api
-import org.apache.daffodil.lib.iapi.ValidationResult
+import org.apache.daffodil.runtime1.validation.ValidationResultImpl
 
 /**
  * Captures the output of Schematron validation as a Daffodil ValidationResult
@@ -34,7 +34,7 @@ case class SchematronResult(
   warnings: util.Collection[api.validation.ValidationWarning],
   errors: util.Collection[api.validation.ValidationFailure],
   svrl: String
-) extends ValidationResult {
+) extends ValidationResultImpl {
   override def getWarnings: util.Collection[api.validation.ValidationWarning] = warnings
 
   override def getErrors: util.Collection[api.validation.ValidationFailure] = errors

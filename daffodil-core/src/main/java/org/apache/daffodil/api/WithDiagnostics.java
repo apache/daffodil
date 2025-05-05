@@ -18,7 +18,6 @@
 package org.apache.daffodil.api;
 
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -30,7 +29,7 @@ import java.util.List;
  * functions in {@link WithDiagnostics}, is invalid and will result in an
  * Exception.
  */
-public interface WithDiagnostics extends Serializable {
+public interface WithDiagnostics {
   /**
    * Determine if any errors occurred in the creation of the parent object.
    *

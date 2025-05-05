@@ -47,7 +47,7 @@ public class ValidatorApiExample {
   }
 
   @Test
-  public void testPassing() throws IOException, ClassNotFoundException, InvalidUsageException {
+  public void testPassing() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema5.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -63,7 +63,7 @@ public class ValidatorApiExample {
   }
 
   @Test
-  public void testFailing() throws IOException, ClassNotFoundException, InvalidUsageException {
+  public void testFailing() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -80,7 +80,7 @@ public class ValidatorApiExample {
   }
 
   @Test // Verifies that Daffodil-2456 is a false report. Not a bug.
-  public void testInvalidNoInfoset() throws IOException, ClassNotFoundException, InvalidUsageException {
+  public void testInvalidNoInfoset() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/alwaysInvalid.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);

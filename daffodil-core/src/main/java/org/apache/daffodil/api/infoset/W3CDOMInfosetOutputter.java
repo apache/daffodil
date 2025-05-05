@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.api.infoset;
 
-import org.w3c.dom.Document;
-
 public abstract class W3CDOMInfosetOutputter extends InfosetOutputter {
 
   /**
@@ -26,5 +24,5 @@ public abstract class W3CDOMInfosetOutputter extends InfosetOutputter {
    * <p>
    * This function should only be called if {@code ParseResult.isError()} returns false
    */
-  public abstract Document getResult();
+  public abstract org.w3c.dom.Document getResult();
 }

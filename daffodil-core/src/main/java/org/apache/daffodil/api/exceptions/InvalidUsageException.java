@@ -20,7 +20,7 @@ package org.apache.daffodil.api.exceptions;
 /**
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
-public abstract class InvalidUsageException extends Exception {
+public abstract class InvalidUsageException extends IllegalStateException {
   public InvalidUsageException(String message) {
     super(message);
   }

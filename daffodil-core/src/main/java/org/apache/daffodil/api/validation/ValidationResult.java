@@ -24,35 +24,12 @@ import java.util.List;
 /**
  * Results of a validation execution
  */
-public class ValidationResult {
-  private Collection<ValidationWarning> warnings;
-  private Collection<ValidationFailure> errors;
+public interface ValidationResult {
+  public Collection<ValidationWarning> getWarnings();
 
-  public static final ValidationResult empty = new ValidationResult();
+  public void setWarnings(Collection<ValidationWarning> warnings);
 
-  public ValidationResult() {
-    this.warnings = Collections.emptyList();
-    this.errors = Collections.emptyList();
-  }
+  public Collection<ValidationFailure> getErrors();
 
-  public ValidationResult(List<ValidationWarning> warnings, List<ValidationFailure> errors) {
-    this.warnings = warnings;
-    this.errors = errors;
-  }
-
-  public Collection<ValidationWarning> getWarnings() {
-    return warnings;
-  }
-
-  public void setWarnings(Collection<ValidationWarning> warnings) {
-    this.warnings = warnings;
-  }
-
-  public Collection<ValidationFailure> getErrors() {
-    return errors;
-  }
-
-  public void setErrors(Collection<ValidationFailure> errors) {
-    this.errors = errors;
-  }
+  public void setErrors(Collection<ValidationFailure> errors);
 }

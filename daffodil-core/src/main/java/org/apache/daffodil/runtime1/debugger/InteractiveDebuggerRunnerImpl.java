@@ -15,15 +15,36 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api.infoset;
+package org.apache.daffodil.runtime1.debugger;
 
+import org.apache.daffodil.api.debugger.DebuggerRunner;
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner;
 
-public abstract class ScalaXMLInfosetOutputter extends InfosetOutputter {
+public class InteractiveDebuggerRunnerImpl implements InteractiveDebuggerRunner {
+  DebuggerRunner dr;
 
-  /**
-   * Get the scala.xml.Node representing the infoset created during a parse
-   * <p>
-   * This function should only be called if {@code ParseResult.isError()} returns false
-   */
-  public abstract scala.xml.Node getResult();
+  public InteractiveDebuggerRunnerImpl(DebuggerRunner dr) {
+    this.dr = dr;
+  }
+
+  public void init(InteractiveDebugger id) {
+    dr.init();
+  }
+
+  @Override
+  public void init() {
+    dr.init();
+  }
+
+  public String getCommand() {
+    return dr.getCommand();
+  }
+
+  public void lineOutput(String line) {
+    dr.lineOutput(line);
+  }
+
+  public void fini() {
+    dr.fini();
+  }
 }

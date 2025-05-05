@@ -93,7 +93,7 @@ class W3CDOMInfosetOutputter extends JW3CDOMInfosetOutputter {
   override def startArray(ar: InfosetArray): Unit = {}
   def endArray(ar: InfosetArray): Unit = {}
 
-  def getResult(): Document = {
+  def getResult(): org.w3c.dom.Document = {
     Assert.usage(
       result.isDefined,
       "No result to get. Must check isError parse result before calling getResult"

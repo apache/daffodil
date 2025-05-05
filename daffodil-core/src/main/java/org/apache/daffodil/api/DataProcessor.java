@@ -20,10 +20,9 @@ package org.apache.daffodil.api;
 import org.apache.daffodil.api.debugger.Debugger;
 import org.apache.daffodil.api.debugger.DebuggerRunner;
 import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner;
-import org.apache.daffodil.api.debugger.JavaInteractiveDebuggerRunner;
-import org.apache.daffodil.api.debugger.TraceDebuggerRunner;
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory;
+import org.apache.daffodil.runtime1.debugger.InteractiveTraceDebuggerRunner;
 import org.apache.daffodil.api.exceptions.ExternalVariableException;
-import org.apache.daffodil.api.exceptions.InvalidUsageException;
 import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.validation.Validator;
@@ -62,10 +61,10 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
   default DataProcessor withDebuggerRunner(DebuggerRunner dr) {
     Debugger dbg = null;
     InteractiveDebuggerRunner runner;
-    if (dr instanceof TraceDebuggerRunner) {
+    if (dr instanceof InteractiveTraceDebuggerRunner) {
       runner = new org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner(System.out);
     } else if (dr != null) {
-      runner = new JavaInteractiveDebuggerRunner(dr);
+      runner = InteractiveDebuggerRunnerFactory.get(dr);
     } else {
       runner = null;
     }
@@ -83,7 +82,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    */
   DataProcessor withDebugger(Debugger dbg);
 
-  DataProcessor withValidator(Validator validator) throws InvalidUsageException;
+  DataProcessor withValidator(Validator validator);
 
   /**
    * Obtain a new {@link DataProcessor} with external variables read from a Daffodil configuration file

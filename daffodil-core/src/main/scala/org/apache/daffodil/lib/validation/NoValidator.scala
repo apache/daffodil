@@ -21,7 +21,8 @@ import java.io.InputStream
 
 import org.apache.daffodil.api.validation.ValidationResult
 import org.apache.daffodil.api.validation.Validator
+import org.apache.daffodil.runtime1.validation.ValidationResultImpl
 
 object NoValidator extends Validator {
-  override def validateXML(document: InputStream): ValidationResult = ValidationResult.empty
+  override def validateXML(document: InputStream): ValidationResult = ValidationResultImpl.empty
 }

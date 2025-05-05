@@ -20,6 +20,7 @@ package org.apache.daffodil.lib.iapi
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SimpleNamedLoadableService
+import org.apache.daffodil.runtime1.validation.ValidationResultImpl
 
 /**
  * Implement this trait to provide custom validation logic
@@ -47,13 +48,13 @@ object ValidationResult {
   /**
    * an empty [[org.apache.daffodil.lib.iapi.ValidationResult]]
    */
-  val empty: api.validation.ValidationResult = api.validation.ValidationResult.empty
+  val empty: api.validation.ValidationResult = ValidationResultImpl.empty
 
   def apply(
     w: Seq[ValidationWarning],
     e: Seq[ValidationFailure]
   ): api.validation.ValidationResult = {
-    new api.validation.ValidationResult(
+    new ValidationResultImpl(
       w.asInstanceOf[Seq[api.validation.ValidationWarning]],
       e.asInstanceOf[Seq[api.validation.ValidationFailure]]
     )

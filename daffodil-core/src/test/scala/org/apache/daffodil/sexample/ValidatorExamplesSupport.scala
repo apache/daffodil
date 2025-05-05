@@ -32,6 +32,7 @@ import org.apache.daffodil.api.validation.ValidationWarning
 import org.apache.daffodil.api.validation.Validator
 import org.apache.daffodil.api.validation.ValidatorFactory
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.runtime1.validation.ValidationResultImpl
 
 import com.typesafe.config.Config
 
@@ -57,7 +58,7 @@ abstract class ValidatorExamplesSupport {
 
 class CustomValidator extends Validator {
   def validateXML(document: InputStream): ValidationResult =
-    ValidationResult.empty
+    ValidationResultImpl.empty
 }
 
 class CustomValidatorFactory extends ValidatorFactory {
@@ -67,7 +68,7 @@ class CustomValidatorFactory extends ValidatorFactory {
 
 class AlwaysValidator(w: Seq[ValidationWarning], e: Seq[ValidationFailure]) extends Validator {
   def validateXML(document: InputStream): ValidationResult =
-    new ValidationResult(w, e)
+    new ValidationResultImpl(w, e)
 }
 
 object Boom extends ValidationFailure {
@@ -75,8 +76,8 @@ object Boom extends ValidationFailure {
 }
 
 object Always {
-  def fails: Validator = (_: InputStream) => new ValidationResult(Seq.empty, Seq(Boom))
-  def passes: Validator = (_: InputStream) => ValidationResult.empty
+  def fails: Validator = (_: InputStream) => new ValidationResultImpl(Seq.empty, Seq(Boom))
+  def passes: Validator = (_: InputStream) => ValidationResultImpl.empty
 }
 
 class PassingValidatorFactory extends ValidatorFactory {
@@ -97,7 +98,7 @@ object FailingValidator {
 
 class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure])
   extends Validator {
-  def validateXML(document: InputStream): ValidationResult = new ValidationResult(w, f)
+  def validateXML(document: InputStream): ValidationResult = new ValidationResultImpl(w, f)
 }
 
 case class ValFail(getMessage: String) extends ValidationFailure

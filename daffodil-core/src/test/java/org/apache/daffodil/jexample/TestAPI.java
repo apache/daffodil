@@ -759,7 +759,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI16() throws IOException, InvalidUsageException, ClassNotFoundException {
+  public void testJavaAPI16() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
@@ -787,7 +787,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI17() throws IOException, InvalidUsageException, ClassNotFoundException {
+  public void testJavaAPI17() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
@@ -1278,7 +1278,7 @@ public class TestAPI {
     ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
     try {
       InfosetOutputter outputter = Infoset.getXMLTextInfosetOutputter(xmlBos, true, null);
-    } catch (Exception e) {
+    } catch (IllegalArgumentException e) {
       String msg = e.getMessage().toLowerCase();
       assertTrue(msg.contains("unrecognized"));
       assertTrue(msg.contains("null"));
@@ -1465,7 +1465,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICompileSource1() throws IOException, URISyntaxException, InvalidUsageException {
+  public void testJavaAPICompileSource1() throws IOException, URISyntaxException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     URI uri = new URI("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileSource(uri);

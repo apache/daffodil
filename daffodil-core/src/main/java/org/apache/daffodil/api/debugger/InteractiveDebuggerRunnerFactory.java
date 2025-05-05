@@ -17,33 +17,14 @@
 
 package org.apache.daffodil.api.debugger;
 
-import org.apache.daffodil.runtime1.debugger.InteractiveDebugger;
+import org.apache.daffodil.runtime1.debugger.InteractiveDebuggerRunnerImpl;
 
-public class JavaInteractiveDebuggerRunner implements InteractiveDebuggerRunner {
-  DebuggerRunner dr;
+public class InteractiveDebuggerRunnerFactory {
 
-  public JavaInteractiveDebuggerRunner(DebuggerRunner dr) {
-    this.dr = dr;
+  private InteractiveDebuggerRunnerFactory() {
   }
 
-  public void init(InteractiveDebugger id) {
-    dr.init();
-  }
-
-  @Override
-  public void init() {
-    dr.init();
-  }
-
-  public String getCommand() {
-    return dr.getCommand();
-  }
-
-  public void lineOutput(String line) {
-    dr.lineOutput(line);
-  }
-
-  public void fini() {
-    dr.fini();
+  public static InteractiveDebuggerRunner get(DebuggerRunner dr) {
+    return new InteractiveDebuggerRunnerImpl(dr);
   }
 }

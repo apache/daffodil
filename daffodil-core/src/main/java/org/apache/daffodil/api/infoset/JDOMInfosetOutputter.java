@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.api.infoset;
 
-import org.jdom2.Document;
 
 public abstract class JDOMInfosetOutputter extends InfosetOutputter {
 
@@ -26,5 +25,5 @@ public abstract class JDOMInfosetOutputter extends InfosetOutputter {
    * <p>
    * This function should only be called if {@code ParseResult.isError()} returns false
    */
-  public abstract Document getResult();
+  public abstract org.jdom2.Document getResult();
 }

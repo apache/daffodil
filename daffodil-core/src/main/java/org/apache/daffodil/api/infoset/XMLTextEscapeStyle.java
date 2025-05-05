@@ -37,14 +37,14 @@ public enum XMLTextEscapeStyle {
    */
   CDATA;
 
-  static Enumeration.Value styleToScala(XMLTextEscapeStyle style) throws Exception {
+  static Enumeration.Value styleToScala(XMLTextEscapeStyle style) {
     Enumeration.Value sXMLTextEscapeStyle = null;
     if (style == XMLTextEscapeStyle.Standard) {
       sXMLTextEscapeStyle = org.apache.daffodil.runtime1.infoset.XMLTextEscapeStyle.Standard();
     } else if (style == XMLTextEscapeStyle.CDATA) {
       sXMLTextEscapeStyle = org.apache.daffodil.runtime1.infoset.XMLTextEscapeStyle.CDATA();
     } else {
-      throw new Exception(
+      throw new IllegalArgumentException(
           String.format("Unrecognized value: %s for parameter: xmlTextEscapeStyle. Must be 'Standard' or 'CDATA'.", style));
     }
     return sXMLTextEscapeStyle;

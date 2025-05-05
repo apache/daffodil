@@ -52,6 +52,11 @@ class XercesValidatorFactory extends api.validation.ValidatorFactory {
 }
 
 object XercesValidatorFactory {
+  def makeValidator(uriString: String): Validator = {
+    val config = XercesValidatorFactory.makeConfig(Seq(uriString))
+    makeValidator(config)
+  }
+
   def makeValidator(config: Config): Validator = {
     val schemaFiles =
       if (config.hasPath(XercesValidator.name))
