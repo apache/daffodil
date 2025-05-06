@@ -34,15 +34,14 @@ import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
 import org.apache.daffodil.lib.validation.XercesValidator
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.layers.LayerFatalException
+import org.apache.daffodil.runtime1.validation.ValidationException
 
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()
 }
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.iapi.Validator
 import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.iapi.DFDL
@@ -204,12 +203,6 @@ class DataProcessor(
    */
   override def clone(): DataProcessor = copy()
 
-  def withValidator(validator: Validator): DataProcessor = {
-    copy(
-      validator = validator
-    )
-  }
-
   override def withValidator(validator: api.validation.Validator) = {
     copy(validator = validator).asInstanceOf[api.DataProcessor]
   }
@@ -348,10 +341,10 @@ class DataProcessor(
     // events are created rather than writing the entire infoset in memory and
     // then validating at the end of the parse. See DAFFODIL-2386
     //
-    val (outputter: InfosetOutputter, maybeValidationBytes) = {
+    val (outputter: api.infoset.InfosetOutputter, maybeValidationBytes) = {
       validator match {
         case DaffodilLimitedValidator | null =>
-          (new InfosetOutputter(output), Nope)
+          (output, Nope)
         case _ =>
           val bos = new java.io.ByteArrayOutputStream()
           val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
@@ -359,11 +352,11 @@ class DataProcessor(
           // copy the blob attributes from the users outputter to the tee infoset outputter
           // since Daffodil will now use that to get blob attributes
           teeOutputter.setBlobAttributes(
-            output.getBlobDirectory(),
-            output.getBlobPrefix(),
-            output.getBlobSuffix()
+            output.getBlobDirectory,
+            output.getBlobPrefix,
+            output.getBlobSuffix
           )
-          (new InfosetOutputter(teeOutputter), One(bos))
+          (teeOutputter, One(bos))
       }
     }
 
@@ -385,7 +378,7 @@ class DataProcessor(
         val res = validator.validateXML(bis)
         res.getWarnings.forEach { w => state.validationError(w.getMessage) }
         res.getErrors.forEach {
-          case e: api.validation.ValidationException =>
+          case e: ValidationException =>
             state.validationErrorNoContext(e.getCause)
           case f: api.validation.ValidationFailure =>
             state.validationError(f.getMessage)

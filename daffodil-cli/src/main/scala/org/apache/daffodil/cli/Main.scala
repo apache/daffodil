@@ -76,7 +76,6 @@ import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.iapi.DFDL.CodeGenerator
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -1172,7 +1171,7 @@ class Main(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
         if (!processorFactory.isError) {
-          val generator = processorFactory.forLanguage(language).asInstanceOf[CodeGenerator]
+          val generator = processorFactory.forLanguage(language)
           displayDiagnostics(generator)
           Some(generator)
         } else {
@@ -1867,7 +1866,7 @@ class Main(
         val rc = generator match {
           case Some(generator) => {
             Timer.getResult("generating", generator.generateCode(outputDir))
-            displayDiagnostics(generator.asInstanceOf[CodeGenerator])
+            displayDiagnostics(generator)
             if (generator.isError) ExitCode.GenerateCodeError else ExitCode.Success
           }
           case None => ExitCode.GenerateCodeError

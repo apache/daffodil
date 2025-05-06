@@ -20,16 +20,14 @@ package org.apache.daffodil.lib.validation
 import java.io.InputStream
 
 import org.apache.daffodil.api
-import org.apache.daffodil.lib.iapi.ValidationFailure
 import org.apache.daffodil.lib.iapi.ValidationResult
-import org.apache.daffodil.lib.iapi.ValidationWarning
-import org.apache.daffodil.lib.iapi.Validator
 
 import com.typesafe.config.Config
 
 class PassingValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = PassingValidator.name
-  def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty, Seq.empty)
+  def make(config: Config): api.validation.Validator =
+    new TestingValidatorSPI(Seq.empty, Seq.empty)
 }
 object PassingValidator {
   val name = "passing-validator"
@@ -37,16 +35,19 @@ object PassingValidator {
 
 class FailingValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = FailingValidator.name
-  def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty, Seq(ValFail("boom")))
+  def make(config: Config): api.validation.Validator =
+    new TestingValidatorSPI(Seq.empty, Seq(ValFail("boom")))
 }
 object FailingValidator {
   val name = "failing-validator"
 }
 
-class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure])
-  extends Validator {
+class TestingValidatorSPI(
+  w: Seq[api.validation.ValidationWarning],
+  f: Seq[api.validation.ValidationFailure]
+) extends api.validation.Validator {
   def validateXML(document: InputStream): api.validation.ValidationResult =
     ValidationResult(w, f)
 }
 
-case class ValFail(getMessage: String) extends ValidationFailure
+case class ValFail(getMessage: String) extends api.validation.ValidationFailure

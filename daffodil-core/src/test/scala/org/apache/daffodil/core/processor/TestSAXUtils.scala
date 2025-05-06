@@ -23,6 +23,7 @@ import java.io.OutputStreamWriter
 import java.nio.file.Paths
 import scala.xml.Elem
 
+import org.apache.daffodil.api
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -335,7 +336,7 @@ object TestSAXUtils {
     namespacePrefixes: Boolean
   ): ByteArrayOutputStream = {
     val (
-      xmlReader: DFDL.DaffodilParseXMLReader,
+      xmlReader: api.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
       inArray: Array[Byte]
     ) = setupTraceSAXParserTest(dp, data, pretty = true)
@@ -351,7 +352,7 @@ object TestSAXUtils {
     dp: DFDL.DataProcessor,
     data: String,
     pretty: Boolean = false
-  ): (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
+  ): (api.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
     val xmlReader = dp.newXMLReaderInstance
     val baos = new ByteArrayOutputStream()
     val parseContentHandler = new DaffodilParseOutputStreamContentHandler(baos, pretty = pretty)
@@ -366,7 +367,7 @@ object TestSAXUtils {
     dp: DFDL.DataProcessor,
     data: String,
     pretty: Boolean = false
-  ): (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
+  ): (api.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
     val xmlReader = dp.newXMLReaderInstance
     val baos = new ByteArrayOutputStream()
     val parseContentHandler = new TestContentHandler(baos)

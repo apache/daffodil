@@ -19,12 +19,11 @@ package org.apache.daffodil.lib.validation
 
 import java.io.InputStream
 
-import org.apache.daffodil.api.validation.ValidationResult
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.iapi.Validator
 
-object DaffodilLimitedValidator extends Validator {
-  override def validateXML(document: InputStream): ValidationResult = {
+object DaffodilLimitedValidator extends api.validation.Validator {
+  override def validateXML(document: InputStream): api.validation.ValidationResult = {
     Assert.usageError("ValidateXML must not be called on the DaffodilLimitedValidator")
   }
 }

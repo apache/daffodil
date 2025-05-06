@@ -358,7 +358,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
         // do nothing as unparseResult and its diagnostics will be handled below
       }
 
-      val actualSAX = unparseContentHandler.getUnparseResult
+      val actualSAX = unparseContentHandler.getUnparseResult.asInstanceOf[UnparseResult]
       saxOutputChannel.close()
       if (!actualDP.isError && !actualSAX.isError) {
         val dpis = new ByteArrayInputStream(

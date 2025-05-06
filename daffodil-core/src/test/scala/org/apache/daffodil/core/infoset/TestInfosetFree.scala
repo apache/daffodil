@@ -94,7 +94,7 @@ object TestInfosetFree {
 
       val infosetWalker = InfosetWalker(
         doc,
-        new InfosetOutputter(detailedOutputter),
+        detailedOutputter,
         walkHidden = true, // let's ensure any hidden elements are free
         ignoreBlocks = true, // there should be no blocks, but ignore them just to be sure
         releaseUnneededInfoset = false

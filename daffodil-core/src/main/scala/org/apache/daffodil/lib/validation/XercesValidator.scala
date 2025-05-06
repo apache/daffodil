@@ -24,14 +24,11 @@ import scala.jdk.CollectionConverters._
 import scala.xml.SAXException
 
 import org.apache.daffodil.api
-import org.apache.daffodil.lib.iapi.ValidationException
-import org.apache.daffodil.lib.iapi.ValidationFailure
 import org.apache.daffodil.lib.iapi.ValidationResult
-import org.apache.daffodil.lib.iapi.ValidationWarning
-import org.apache.daffodil.lib.iapi.Validator
 import org.apache.daffodil.lib.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.validation.ValidationException
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -48,16 +45,17 @@ import org.xml.sax.SAXParseException
  */
 class XercesValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = XercesValidator.name
-  def make(config: Config): Validator = XercesValidatorFactory.makeValidator(config)
+  def make(config: Config): api.validation.Validator =
+    XercesValidatorFactory.makeValidator(config)
 }
 
 object XercesValidatorFactory {
-  def makeValidator(uriString: String): Validator = {
+  def makeValidator(uriString: String): api.validation.Validator = {
     val config = XercesValidatorFactory.makeConfig(Seq(uriString))
     makeValidator(config)
   }
 
-  def makeValidator(config: Config): Validator = {
+  def makeValidator(config: Config): api.validation.Validator = {
     val schemaFiles =
       if (config.hasPath(XercesValidator.name))
         config.getStringList(XercesValidator.name).asScala
@@ -76,7 +74,8 @@ object XercesValidatorFactory {
  * to do a validation pass on the TDML expected Infoset w.r.t. the model and to
  * do a validation pass on the actual result w.r.t. the model as an XML document.
  */
-class XercesValidator(schemaSources: Seq[javax.xml.transform.Source]) extends Validator {
+class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
+  extends api.validation.Validator {
 
   private val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
   private val resolver = DFDLCatalogResolver.get
@@ -159,11 +158,11 @@ object XercesValidator {
 }
 
 private class XercesErrorHandler extends ErrorHandler {
-  private var e = List.empty[ValidationFailure]
-  private var w = List.empty[ValidationWarning]
+  private var e = List.empty[api.validation.ValidationFailure]
+  private var w = List.empty[api.validation.ValidationWarning]
 
-  def errors: Seq[ValidationFailure] = e
-  def warnings: Seq[ValidationWarning] = w
+  def errors: Seq[api.validation.ValidationFailure] = e
+  def warnings: Seq[api.validation.ValidationWarning] = w
 
   override def warning(spe: SAXParseException): Unit = w :+= SaxValidationWarning(spe)
   override def error(spe: SAXParseException): Unit = e :+= SaxValidationError(spe)
@@ -175,9 +174,9 @@ sealed abstract class SaxValidationResult(e: SAXException)
   with ValidationException
 case class SaxValidationError(e: SAXException)
   extends SaxValidationResult(e)
-  with ValidationFailure
+  with api.validation.ValidationFailure
   with ValidationException
 case class SaxValidationWarning(e: SAXException)
   extends SaxValidationResult(e)
-  with ValidationWarning
+  with api.validation.ValidationWarning
   with ValidationException

@@ -51,7 +51,6 @@ import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DISimpleState
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.Infoset
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.infoset.InfosetWalker
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -696,7 +695,7 @@ object PState {
   def createInitialPState(
     root: ElementRuntimeData,
     dis: InputSourceDataInputStream,
-    output: InfosetOutputter,
+    output: api.infoset.InfosetOutputter,
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean
   ): PState = {
@@ -720,7 +719,7 @@ object PState {
     doc: api.InfosetDocument,
     root: ElementRuntimeData,
     dis: InputSourceDataInputStream,
-    output: InfosetOutputter,
+    output: api.infoset.InfosetOutputter,
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean
   ): PState = {
@@ -767,7 +766,7 @@ object PState {
   def createInitialPState(
     root: ElementRuntimeData,
     data: String,
-    output: InfosetOutputter,
+    output: api.infoset.InfosetOutputter,
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean
   ): PState = {
@@ -781,7 +780,7 @@ object PState {
   def createInitialPState(
     root: ElementRuntimeData,
     input: java.nio.channels.ReadableByteChannel,
-    output: InfosetOutputter,
+    output: api.infoset.InfosetOutputter,
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean
   ): PState = {

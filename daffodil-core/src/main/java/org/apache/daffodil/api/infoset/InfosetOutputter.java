@@ -23,19 +23,33 @@ import org.apache.daffodil.api.InfosetSimpleElement;
 
 /**
  * Abstract class used to determine how the infoset representation should be
- * output from a call to {@code DataProcessor.parse(input:org\.apache\.daffodil* DataProcessor.parse)}. The Daffodil core will call
+ * output from a call to {@code DataProcessor.parse(input:org\.apache\.daffodil* DataProcessor.parse)}.
+ * The Daffodil core will call
  * the various methods of this class in an order appropriate to create an
  * infoset representation.
  * <p>
  * Classes that extend InfosetOutputter are not guaranteed to be thread-safe.
+ * <p>
+ * Note that these functions all throw the generic java.lang.Exception to
+ * indicate error. Part of the reason to do this instead of a custom exception
+ * (e.g. InfosetOutputterException) is to simplify implementations. If an
+ * implementation already throws an exception when there is an error, there is
+ * no need to catch it and wrap it in a Daffodil specific exception. This is
+ * especially true considering Daffodil will just unwrap the exception and
+ * convert it to a SDE. Additionally, because Scala does not have checked
+ * exceptions, it can be difficult to ensure all expected exceptions are caught
+ * by implementations. This does mean some exceptions that you might normally
+ * expect to bubble up and will not, and will instead be turned into an SDE.
  **/
 public abstract class InfosetOutputter extends BlobMethods {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
-   * inbetween calls to the parse method.
+   * in between calls to the parse method.
+   * <p>
+   * call to reuse these. When first constructed, no reset call is necessary.
    */
-  public abstract void reset(); // call to reuse these. When first constructed no reset call is necessary.
+  public abstract void reset();
 
   /**
    * Called by Daffodil internals to signify the beginning of the infoset.

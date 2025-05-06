@@ -25,11 +25,11 @@ import java.util.List;
  * Results of a validation execution
  */
 public interface ValidationResult {
-  public Collection<ValidationWarning> getWarnings();
+  Collection<ValidationWarning> getWarnings();
 
-  public void setWarnings(Collection<ValidationWarning> warnings);
+  void setWarnings(Collection<ValidationWarning> warnings);
 
-  public Collection<ValidationFailure> getErrors();
+  Collection<ValidationFailure> getErrors();
 
-  public void setErrors(Collection<ValidationFailure> errors);
+  void setErrors(Collection<ValidationFailure> errors);
 }

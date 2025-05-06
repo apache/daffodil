@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.validation.schematron
 
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.lib.iapi.ValidatorInitializationException
 
 import com.typesafe.config.ConfigFactory
 import org.junit.Test
@@ -31,7 +31,7 @@ class TestValidatorFactory {
   }
 
   @Test def testSchNotFound(): Unit = {
-    intercept[ValidatorInitializationException] {
+    intercept[api.validation.ValidatorInitializationException] {
       SchematronValidatorFactory.makeValidator(
         ConfigFactory.parseString("schematron = sch/schematron-xxx.sch")
       )

@@ -69,7 +69,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
-import org.apache.daffodil.runtime1.iapi.DFDL
 
 /**
  * Generates C source files from a DFDL schema.  Implements
@@ -80,7 +79,7 @@ import org.apache.daffodil.runtime1.iapi.DFDL
  *
  * @param root Passes DFDL schema from which to generate code
  */
-class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
+class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
   // Note this class is not thread-safe due to mutable state needed to
   // implement WithDiagnostics trait
   private var diagnostics: Seq[Diagnostic] = Nil

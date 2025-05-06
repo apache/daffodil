@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.util.MStackOf
@@ -72,7 +73,7 @@ object InfosetWalker {
    */
   def apply(
     root: DIElement,
-    outputter: InfosetOutputter,
+    outputter: api.infoset.InfosetOutputter,
     walkHidden: Boolean,
     ignoreBlocks: Boolean,
     releaseUnneededInfoset: Boolean,
@@ -175,7 +176,7 @@ object InfosetWalker {
 class InfosetWalker private (
   startingContainerNode: DINode,
   startingContainerIndex: Int,
-  val outputter: InfosetOutputter,
+  val outputter: api.infoset.InfosetOutputter,
   walkHidden: Boolean,
   ignoreBlocks: Boolean,
   releaseUnneededInfoset: Boolean,

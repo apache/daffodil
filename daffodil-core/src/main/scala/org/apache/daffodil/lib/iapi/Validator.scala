@@ -19,66 +19,19 @@ package org.apache.daffodil.lib.iapi
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.util.SimpleNamedLoadableService
 import org.apache.daffodil.runtime1.validation.ValidationResultImpl
-
-/**
- * Implement this trait to provide custom validation logic
- *
- * The Validator implementations are expected to be thread safe
- *
- * @see [[org.apache.daffodil.lib.validation.XercesValidator]] for example of using ThreadLocal for thread safety
- */
-trait Validator extends api.validation.Validator
-
-/**
- * Implement this trait and register with SPI to provide runtime discovery of custom Validator implementations
- *
- * The factory implementations are expected to be thread safe
- */
-trait ValidatorFactory extends api.validation.ValidatorFactory with SimpleNamedLoadableService
-
-/**
- * Results of a validation execution
- */
-trait ValidationResult extends api.validation.ValidationResult
 
 object ValidationResult {
 
   /**
-   * an empty [[org.apache.daffodil.lib.iapi.ValidationResult]]
+   * an empty [[org.apache.daffodil.api.validation.ValidationResult]]
    */
   val empty: api.validation.ValidationResult = ValidationResultImpl.empty
 
   def apply(
-    w: Seq[ValidationWarning],
-    e: Seq[ValidationFailure]
+    w: Seq[api.validation.ValidationWarning],
+    e: Seq[api.validation.ValidationFailure]
   ): api.validation.ValidationResult = {
-    new ValidationResultImpl(
-      w.asInstanceOf[Seq[api.validation.ValidationWarning]],
-      e.asInstanceOf[Seq[api.validation.ValidationFailure]]
-    )
+    new ValidationResultImpl(w, e)
   }
 }
-
-/**
- * Represents a non-fatal validation notification
- */
-trait ValidationWarning extends api.validation.ValidationWarning
-
-/**
- * Represents a fatal validation notification
- */
-trait ValidationFailure extends api.validation.ValidationFailure
-
-/**
- * Represents a ValidationFailure that is backed by a Throwable
- */
-trait ValidationException extends ValidationFailure with api.validation.ValidationException
-
-/**
- * Thrown when a validator fails to initialize
- * @param message used in the underlying Exception
- */
-final case class ValidatorInitializationException(message: String)
-  extends api.validation.ValidatorInitializationException(message)

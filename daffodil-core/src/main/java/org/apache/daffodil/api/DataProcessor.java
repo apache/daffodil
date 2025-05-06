@@ -124,12 +124,12 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
   void walkMetadata(MetadataHandler handler);
 
   /**
-   * Obtain a new {@link DaffodilParseXMLReader} from the current {@link DataProcessor}.
+   * Obtain a new {@link DaffodilParseXMLReader} from the current {@link DataProcessor} for SAX Parsing.
    */
   DaffodilParseXMLReader newXMLReaderInstance();
 
   /**
-   * Obtain a new {@link DaffodilUnparseContentHandler} from the current {@link DataProcessor}.
+   * Obtain a new {@link DaffodilUnparseContentHandler} from the current {@link DataProcessor} for SAX Unparsing.
    */
   DaffodilUnparseContentHandler newContentHandlerInstance(WritableByteChannel output);
 
@@ -143,7 +143,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
   ParseResult parse(InputSourceDataInputStream input, InfosetOutputter output);
 
   /**
-   * Unparse an InfosetInputter
+   * Unparse (i.e serializes) data from an InfosetInputter to the output
    *
    * @param input  the infoset inputter to use for unparsing
    * @param output the byte channel to write the data to

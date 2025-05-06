@@ -27,7 +27,6 @@ import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 
 import org.junit.Assert._
 import org.junit.Test; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
@@ -76,7 +75,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
           doc,
           erd,
           dis,
-          new InfosetOutputter(outputter),
+          outputter,
           dp,
           areDebugging = false
         )

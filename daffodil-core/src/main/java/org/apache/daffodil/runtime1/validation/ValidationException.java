@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api.validation;
+package org.apache.daffodil.runtime1.validation;
+
+import org.apache.daffodil.api.validation.ValidationFailure;
 
 public interface ValidationException extends ValidationFailure {
   /**

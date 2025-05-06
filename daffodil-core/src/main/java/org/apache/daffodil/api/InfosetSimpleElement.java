@@ -62,37 +62,37 @@ public interface InfosetSimpleElement extends InfosetElement {
 
   /**
    * @return Casts the value of this simple element as a java.math.BigDecimal
-   * or {@throws InfosetTypeException} if the element is not of type decimal.
+   * or @throws InfosetTypeException if the element is not of type decimal.
    */
   BigDecimal getDecimal();
 
   /**
    * @return the value of this simple element cast as a `com.ibm.icu.util.Calendar`.
-   * or {@throws InfosetTypeException} if the element is not of type date.
+   * or @throws InfosetTypeException if the element is not of type date.
    */
   Calendar getDate();
 
   /**
    * @return the value of this simple element as a `com.ibm.icu.util.Calendar`.
-   * or {@throws InfosetTypeException} if the element is not of type time.
+   * or @throws InfosetTypeException if the element is not of type time.
    */
   Calendar getTime();
 
   /**
    * @return the value of this simple element cast to `com.ibm.icu.util.Calendar`.
-   * or {@throws InfosetTypeException} if the element is not of type dateTime.
+   * or @throws InfosetTypeException if the element is not of type dateTime.
    */
   Calendar getDateTime();
 
   /**
    * @return the value of this simple element of HexBinary type cast to `Array[Byte]`.
-   * or {@throws InfosetTypeException} if the element is not of type hexBinary.
+   * or @throws InfosetTypeException if the element is not of type hexBinary.
    */
   byte[] getHexBinary();
 
   /**
    * @return the value of this simple element of Boolean type cast to java.lang.Boolean.
-   * or {@throws InfosetTypeException} if the element is not of type boolean.
+   * or @throws InfosetTypeException if the element is not of type boolean.
    */
   Boolean getBoolean();
 
@@ -104,7 +104,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * must be used for the DFDL unsignedLong type.
    *
    * @return the value of this simple element converted to java.lang.Long.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Long getLong();
 
@@ -120,7 +120,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * type is an unbounded magnitude integer (aka BigInteger).
    *
    * @return the value of this simple element converted to java.lang.Integer.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Integer getInt();
 
@@ -132,7 +132,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * must be used for the DFDL unsignedShorttype.
    *
    * @return the value of this simple element converted to java.lang.Short.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Short getShort();
 
@@ -144,7 +144,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * must be used for the DFDL unsignedBytetype.
    *
    * @return the value of this simple element converted to java.lang.Short.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Byte getByte();
 
@@ -156,7 +156,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * of representing unsigned integer values greater than java.lang.Integer.MAX_VALUE.
    *
    * @return the value of this simple element converted to java.lang.Long.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Long getUnsignedInt();
 
@@ -168,7 +168,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * of representing unsigned integer values greater than java.lang.Short.MAX_VALUE.
    *
    * @return the value of this simple element converted to java.lang.Int.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Integer getUnsignedShort();
 
@@ -180,7 +180,7 @@ public interface InfosetSimpleElement extends InfosetElement {
    * of representing unsigned integer values greater than java.lang.Byte.MAX_VALUE.
    *
    * @return the value of this simple element converted to java.lang.Int.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   Short getUnsignedByte();
 
@@ -192,19 +192,19 @@ public interface InfosetSimpleElement extends InfosetElement {
    * of representing unsigned integer values greater than java.lang.Long.MAX_VALUE.
    *
    * @return the value of this simple element converted to java.lang.BigInteger.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   BigInteger getUnsignedLong();
 
   /**
    * @return the value of this simple element of Double type cast to java.lang.Double.
-   * or {@throws InfosetTypeException} if the element in not of type double.
+   * or @throws InfosetTypeException if the element in not of type double.
    */
   Double getDouble();
 
   /**
    * @return the value of this simple element of Float type cast to java.lang.Float.
-   * or {@throws InfosetTypeException} if the element is not of type float.
+   * or @throws InfosetTypeException if the element is not of type float.
    */
   Float getFloat();
 
@@ -215,25 +215,25 @@ public interface InfosetSimpleElement extends InfosetElement {
    * a java.lang.int, which is limited to only signed 32-bits of magnitude.
    *
    * @return the value of this simple element of Integer type cast to java.math.BigInteger.
-   * or {@throws InfosetTypeException} if the element is not of type integer.
+   * or @throws InfosetTypeException if the element is not of type integer.
    */
   BigInteger getInteger();
 
   /**
    * @return the value of this simple element of NonNegativeInteger type cast to java.math.BigInteger.
-   * or {@throws InfosetTypeException} if the element value is not convertible to the result type.
+   * or @throws InfosetTypeException if the element value is not convertible to the result type.
    */
   BigInteger getNonNegativeInteger();
 
   /**
    * @return the value of this simple element of String type cast to java.lang.String.
-   * or {@throws InfosetTypeException} if the element value is not of String type.
+   * or @throws InfosetTypeException if the element value is not of String type.
    */
   String getString();
 
   /**
    * @return the value of this simple element of URI type cast to java.net.URI.
-   * or {@throws InfosetTypeException} if the element value is not of URI type.
+   * or @throws InfosetTypeException if the element value is not of URI type.
    */
   URI getURI();
 }

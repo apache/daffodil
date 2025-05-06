@@ -475,7 +475,7 @@ class InteractiveDebugger(
     val xml = new XMLTextInfosetOutputter(bos, pretty = true, minimal = true)
     val iw = InfosetWalker(
       ie.asInstanceOf[DIElement],
-      new InfosetOutputter(xml),
+      xml,
       walkHidden = !DebuggerConfig.removeHidden,
       ignoreBlocks = true,
       releaseUnneededInfoset = false

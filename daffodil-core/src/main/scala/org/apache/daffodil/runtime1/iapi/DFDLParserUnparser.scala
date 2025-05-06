@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.iapi
 
-import java.io.File
-
 import org.apache.daffodil.api
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
@@ -109,8 +107,6 @@ object DFDL {
       optRootNodeName: Option[String] = None,
       optRootNodeNamespace: Option[String] = None
     ): api.compiler.ProcessorFactory
-
-    def reload(savedParser: File): api.DataProcessor
   }
 
   /**
@@ -126,12 +122,6 @@ object DFDL {
     def forLanguage(language: String): api.CodeGenerator
   }
 
-  /**
-   * Source code generation and compilation is performed with a language-specific [[CodeGenerator]],
-   * which must be interrogated for diagnostics to see if each call was successful or not.
-   */
-  trait CodeGenerator extends api.CodeGenerator with WithDiagnostics
-
   trait DataProcessor extends api.DataProcessor with WithDiagnostics {
 
     /**
@@ -141,42 +131,9 @@ object DFDL {
      */
     def withTunable(name: String, value: String): DataProcessor
     def withTunables(tunables: Map[String, String]): DataProcessor
-    def withExternalVariables(extVars: java.util.Map[String, String]): DataProcessor
-    def withExternalVariables(extVars: File): DataProcessor
     def withExternalVariables(extVars: Seq[Binding]): DataProcessor
-//    def withDebugger(dbg: AnyRef): DataProcessor
-    def withDebugging(flag: Boolean): DataProcessor
-
-    def save(output: DFDL.Output): Unit
-
-    def walkMetadata(handler: api.MetadataHandler): Unit
     def tunables: DaffodilTunables
     def variableMap: VariableMap
-
-    /**
-     * Creates a new instance of XMLReader for SAX Parsing
-     */
-    def newXMLReaderInstance: DaffodilParseXMLReader
-
-    /**
-     * Creates a new instance of DaffodilUnparseContentHandler for SAX Unparsing
-     */
-    def newContentHandlerInstance(output: DFDL.Output): DaffodilUnparseContentHandler
-
-    /**
-     * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
-     */
-    def unparse(input: api.infoset.InfosetInputter, output: DFDL.Output): UnparseResult
-
-    /**
-     * Returns an object which contains the result, and/or diagnostic information.
-     */
-    def parse(
-      input: api.InputSourceDataInputStream,
-      output: api.infoset.InfosetOutputter
-    ): ParseResult
-
-    def withDebugger(dbg: api.debugger.Debugger): DataProcessor
   }
 
   /**
@@ -185,9 +142,7 @@ object DFDL {
    * SAX events
    */
   trait DaffodilParseXMLReader extends api.DaffodilParseXMLReader {
-    def parse(is: java.io.InputStream): Unit
     def parse(in: InputSourceDataInputStream): Unit
-    def parse(ab: Array[Byte]): Unit
     def parse(in: api.InputSourceDataInputStream): Unit = {
       parse(in.asInstanceOf[InputSourceDataInputStream])
     }
@@ -199,7 +154,6 @@ object DFDL {
    * XMLReader to data.
    */
   trait DaffodilUnparseContentHandler extends api.DaffodilUnparseContentHandler {
-    def getUnparseResult: UnparseResult
     def enableResolutionOfRelativeInfosetBlobURIs(): Unit
   }
 
@@ -225,7 +179,6 @@ object DFDL {
   }
 
   trait ParseResult extends Result with WithDiagnostics with api.ParseResult {
-    def resultState: State
     val validationResult: Option[api.validation.ValidationResult]
   }
 
