@@ -23,13 +23,13 @@ import java.io.OutputStream
 import scala.xml.Node
 import scala.xml.XML
 
+import org.apache.daffodil.api
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.api.DaffodilSchemaSource
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
+import org.apache.daffodil.lib.iapi.DataLocation
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
@@ -125,7 +125,7 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   override def withDebugging(onOff: Boolean): R = this
   override def withTracing(onOff: Boolean): R = this
   override def withDebugger(db: AnyRef): R = this
-  override def withValidationMode(validationMode: ValidationMode.Type): R = this
+  override def withValidator(validator: api.validation.Validator): R = this
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R = this
 
   // Parses the input stream to an infoset and returns a TDMLParseResult
@@ -228,7 +228,7 @@ final class DaffodilCTDMLParseResult(
   messages: String = ""
 ) extends TDMLParseResult {
 
-  private var diagnostics: Seq[Diagnostic] = processorResult match {
+  private var diagnostics: Seq[api.Diagnostic] = processorResult match {
     case Success =>
       if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
     case Failure(cause) => List(cause)
@@ -255,7 +255,7 @@ final class DaffodilCTDMLParseResult(
   override def currentLocation: DataLocation = DaffodilCTDMLDataLocation(finalBitPos0b)
   override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: Seq[api.Diagnostic] = diagnostics
 }
 
 /**
@@ -290,7 +290,7 @@ final class DaffodilCTDMLUnparseResult(
   messages: String = ""
 ) extends TDMLUnparseResult {
 
-  private val diagnostics: Seq[Diagnostic] = processorResult match {
+  private val diagnostics: Seq[api.Diagnostic] = processorResult match {
     case Success =>
       if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
     case Failure(cause) => List(cause)
@@ -301,5 +301,5 @@ final class DaffodilCTDMLUnparseResult(
   override def encodingName: String = "" // encoding needed only if scannable
   override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: Seq[api.Diagnostic] = diagnostics
 }

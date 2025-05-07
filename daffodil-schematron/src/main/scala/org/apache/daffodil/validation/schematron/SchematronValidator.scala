@@ -24,18 +24,17 @@ import scala.util.Try
 import scala.xml.Elem
 import scala.xml.XML
 
-import org.apache.daffodil.lib.api.ValidationException
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.api
+import org.apache.daffodil.runtime1.validation.ValidationException
 
 /**
  * Daffodil Validator implementation for ISO schematron
  */
-final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) extends Validator {
-  def validateXML(document: InputStream): ValidationResult = {
+final class SchematronValidator(engine: Schematron, svrlPath: Option[Path])
+  extends api.validation.Validator {
+  def validateXML(document: InputStream): api.validation.ValidationResult = {
     val svrl = XML.loadString(engine.validate(document))
-    val valErr: Seq[ValidationFailure] =
+    val valErr: Seq[api.validation.ValidationFailure] =
       for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
         SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
       }
@@ -68,7 +67,8 @@ object SchematronValidator {
  * @param text the failed constraint text
  * @param location the failed constraint location
  */
-case class SchematronValidationError(text: String, location: String) extends ValidationFailure {
+case class SchematronValidationError(text: String, location: String)
+  extends api.validation.ValidationFailure {
   def getMessage: String = text
 }
 

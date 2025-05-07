@@ -16,6 +16,7 @@
  */
 
 package org.apache.daffodil.core.grammar
+
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 

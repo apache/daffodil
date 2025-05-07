@@ -21,7 +21,7 @@ import java.io.File
 import scala.util.Using
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.xml._
 
 import org.junit.Assert._

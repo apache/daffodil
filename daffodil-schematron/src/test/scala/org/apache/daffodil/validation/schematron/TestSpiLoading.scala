@@ -34,7 +34,7 @@ class TestSpiLoading {
     val xml = Source.fromResource("xml/article-2.xml").mkString
 
     val result = v.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.errors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.errors.size() == 2)
+    result.getErrors.forEach(e => println(s"Fail: ${e.getMessage}"))
+    assert(result.getErrors.size() == 2)
   }
 }

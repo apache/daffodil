@@ -22,6 +22,7 @@ package org.apache.daffodil.core.infoset
 import javax.xml.stream._
 
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
@@ -51,7 +52,7 @@ class TestInfosetInputter1 {
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
-    val ic = new XMLTextInfosetInputter(is)
+    val ic = new InfosetInputter(new XMLTextInfosetInputter(is))
     ic.initialize(rootERD, u.tunables)
     ic
   }
