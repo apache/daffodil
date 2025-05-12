@@ -199,14 +199,16 @@ trait SchemaComponent
         case ct: ComplexTypeBase => "ct"
         case st: SimpleTypeDefBase => "st=" + st.namedQName.toQNameString
         case cgr: ChoiceGroupRef =>
-          "cgr" + (if (cgr.isHidden) "h" else "") + (if (cgr.position > 1) cgr.position
-                                                     else
-                                                       "") + "=" + cgr.groupDef.namedQName.toQNameString
+          "cgr" + (if (cgr.isHidden) "h"
+                   else "") + (if (cgr.position > 1) cgr.position
+                               else
+                                 "") + "=" + cgr.groupDef.namedQName.toQNameString
         case cgd: GlobalChoiceGroupDef => "cgd=" + cgd.namedQName.toQNameString
         case sgr: SequenceGroupRef =>
-          "sgr" + (if (sgr.isHidden) "h" else "") + (if (sgr.position > 1) sgr.position
-                                                     else
-                                                       "") + "=" + sgr.groupDef.namedQName.toQNameString
+          "sgr" + (if (sgr.isHidden) "h"
+                   else "") + (if (sgr.position > 1) sgr.position
+                               else
+                                 "") + "=" + sgr.groupDef.namedQName.toQNameString
         case sgd: GlobalSequenceGroupDef => "sgd=" + sgd.namedQName.toQNameString
         case cg: Choice => "c" + (if (cg.position > 1) cg.position else "")
         case sg: LocalSequence => "s" + (if (sg.position > 1) sg.position else "")
