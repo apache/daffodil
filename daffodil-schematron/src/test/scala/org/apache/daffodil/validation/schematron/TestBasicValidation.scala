@@ -20,6 +20,7 @@ package org.apache.daffodil.validation.schematron
 import java.io.ByteArrayInputStream
 import scala.io.Source
 
+import org.apache.daffodil.api
 import org.apache.daffodil.validation.schematron.SchSource.Sch
 
 import net.sf.saxon.TransformerFactoryImpl
@@ -42,9 +43,10 @@ class TestBasicValidation {
         schFile,
         Sch
       )
+    val validationHandler = new TestingValidationHandler
 
-    val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
-    assert(result.getErrors.isEmpty)
+    p.validateXML(new ByteArrayInputStream(xml.getBytes), validationHandler)
+    assert(validationHandler.errors.isEmpty)
   }
 
   @Test def testInvalidXML(): Unit = {
@@ -57,10 +59,10 @@ class TestBasicValidation {
         schFile,
         Sch
       )
-
-    val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.getErrors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.getErrors.size() == 2)
+    val validationHandler = new TestingValidationHandler
+    p.validateXML(new ByteArrayInputStream(xml.getBytes), validationHandler)
+    validationHandler.errors.foreach(e => println(s"Fail: ${e}"))
+    assert(validationHandler.errors.length == 2)
   }
 
   @Test def testInvalidXML2(): Unit = {
@@ -73,10 +75,10 @@ class TestBasicValidation {
         schFile,
         Sch
       )
-
-    val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.getErrors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.getErrors.size() == 1)
+    val validationHandler = new TestingValidationHandler
+    p.validateXML(new ByteArrayInputStream(xml.getBytes), validationHandler)
+    validationHandler.errors.foreach(e => println(s"Fail: ${e}"))
+    assert(validationHandler.errors.length == 1)
   }
 
   @Test def testInstantiateAnInstanceOfTemplates(): Unit = {
@@ -86,4 +88,12 @@ class TestBasicValidation {
     val rules = Transforms.from(sch, schFile, Sch, factory)
     assertNotNull(rules)
   }
+}
+
+class TestingValidationHandler extends api.validation.ValidationHandler {
+  var errors = Seq.empty[String]
+  var warnings = Seq.empty[String]
+  def validationError(msg: String, args: Object*): Unit = errors = errors :+ msg
+  def validationWarning(msg: String): Unit = warnings = warnings :+ msg
+  override def validationErrorNoContext(cause: Throwable): Unit = errors :+ cause.getMessage
 }

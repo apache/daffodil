@@ -21,14 +21,11 @@ import java.net.URI
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import scala.jdk.CollectionConverters._
-import scala.xml.SAXException
 
 import org.apache.daffodil.api
-import org.apache.daffodil.lib.iapi.ValidationResult
 import org.apache.daffodil.lib.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.validation.ValidationException
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -88,13 +85,16 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
       initializeValidator(schema.newValidator, resolver)
   }
 
-  def validateXML(document: java.io.InputStream): api.validation.ValidationResult =
-    validateXML(document, new XercesErrorHandler)
+  def validateXML(
+    document: java.io.InputStream,
+    validationHandler: api.validation.ValidationHandler
+  ): Unit =
+    validateXML(document, new XercesErrorHandler(validationHandler))
 
   def validateXML(
     document: java.io.InputStream,
     eh: ErrorHandler
-  ): api.validation.ValidationResult = {
+  ): Unit = {
 
     val documentSource = new StreamSource(document)
 
@@ -111,18 +111,6 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
       // resolve the schemaLocation of an include/import.
       // Regular Xerces doesn't report this as an error.
       case spe: SAXParseException => eh.error(spe)
-    }
-
-    eh match {
-      case xeh: XercesErrorHandler => ValidationResult(xeh.warnings, xeh.errors)
-      case _ => {
-        // When the validator is called by DaffodilXMLLoader, the
-        // error handler is not the standard Xerces one, but one that
-        // is supplied by the loader. We don't need the validation result
-        // in that case, because the diagnostics have already been gathered
-        // by callback to the error handler, so we don't construct a ValidationResult.
-        ValidationResult.empty
-      }
     }
   }
 
@@ -157,26 +145,12 @@ object XercesValidator {
     fromURIs(schemaFileNames.map { new URI(_) })
 }
 
-private class XercesErrorHandler extends ErrorHandler {
-  private var e = List.empty[api.validation.ValidationFailure]
-  private var w = List.empty[api.validation.ValidationWarning]
-
-  def errors: Seq[api.validation.ValidationFailure] = e
-  def warnings: Seq[api.validation.ValidationWarning] = w
-
-  override def warning(spe: SAXParseException): Unit = w :+= SaxValidationWarning(spe)
-  override def error(spe: SAXParseException): Unit = e :+= SaxValidationError(spe)
-  override def fatalError(spe: SAXParseException): Unit = e :+= SaxValidationError(spe)
+private class XercesErrorHandler(validationHandler: api.validation.ValidationHandler)
+  extends ErrorHandler {
+  override def warning(spe: SAXParseException): Unit =
+    validationHandler.validationErrorNoContext(spe)
+  override def error(spe: SAXParseException): Unit =
+    validationHandler.validationErrorNoContext(spe)
+  override def fatalError(spe: SAXParseException): Unit =
+    validationHandler.validationErrorNoContext(spe)
 }
-
-sealed abstract class SaxValidationResult(e: SAXException)
-  extends Exception(e)
-  with ValidationException
-case class SaxValidationError(e: SAXException)
-  extends SaxValidationResult(e)
-  with api.validation.ValidationFailure
-  with ValidationException
-case class SaxValidationWarning(e: SAXException)
-  extends SaxValidationResult(e)
-  with api.validation.ValidationWarning
-  with ValidationException

@@ -17,31 +17,16 @@
 
 package org.apache.daffodil.jexample.validation;
 
-import org.apache.daffodil.api.validation.ValidationFailure;
-import org.apache.daffodil.api.validation.ValidationResult;
-import org.apache.daffodil.api.validation.ValidationWarning;
+import org.apache.daffodil.api.validation.ValidationHandler;
 import org.apache.daffodil.api.validation.Validator;
-import org.apache.daffodil.runtime1.validation.ValidationResultImpl;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
 
 public class FailingValidator implements Validator {
   public static final String name = "failing-japi-validator";
 
   @Override
-  public ValidationResult validateXML(InputStream document) {
-    return new ValidationResultImpl() {
-      @Override
-      public Collection<ValidationWarning> getWarnings() {
-        return Collections.emptyList();
-      }
-
-      @Override
-      public Collection<ValidationFailure> getErrors() {
-        return Collections.singletonList(() -> "boom");
-      }
-    };
+  public void validateXML(InputStream document, ValidationHandler validationHandler) {
+    validationHandler.validationError("boom");
   }
 }

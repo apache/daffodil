@@ -144,7 +144,8 @@ abstract class ParseOrUnparseState protected (
   var diagnostics: java.util.List[api.Diagnostic],
   var dataProc: Maybe[DataProcessor],
   val tunable: DaffodilTunables
-) extends DFDL.State
+) extends api.validation.ValidationHandler
+  with DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -432,7 +433,7 @@ abstract class ParseOrUnparseState protected (
     diagnostics = Misc.prependItemToJavaList(vde, diagnostics)
   }
 
-  final def validationErrorNoContext(cause: Throwable): Unit = {
+  final override def validationErrorNoContext(cause: Throwable): Unit = {
     val vde = new ValidationError(this, cause)
     _validationStatus = false
     diagnostics = Misc.prependItemToJavaList(vde, diagnostics)

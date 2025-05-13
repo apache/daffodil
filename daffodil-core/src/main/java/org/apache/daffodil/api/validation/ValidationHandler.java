@@ -14,24 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.daffodil.api.validation;
 
-package org.apache.daffodil.lib.iapi
+public interface ValidationHandler {
 
-import org.apache.daffodil.api
-import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.runtime1.validation.ValidationResultImpl
+  void validationError(String msg, Object... args);
 
-object ValidationResult {
-
-  /**
-   * an empty [[org.apache.daffodil.api.validation.ValidationResult]]
-   */
-  val empty: api.validation.ValidationResult = ValidationResultImpl.empty
-
-  def apply(
-    w: Seq[api.validation.ValidationWarning],
-    e: Seq[api.validation.ValidationFailure]
-  ): api.validation.ValidationResult = {
-    new ValidationResultImpl(w, e)
-  }
+  void validationErrorNoContext(Throwable cause);
 }

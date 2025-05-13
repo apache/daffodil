@@ -32,9 +32,9 @@ class TestSpiLoading {
         |schematron = sch/schematron-2.sch
         |""".stripMargin))
     val xml = Source.fromResource("xml/article-2.xml").mkString
-
-    val result = v.validateXML(new ByteArrayInputStream(xml.getBytes))
-    result.getErrors.forEach(e => println(s"Fail: ${e.getMessage}"))
-    assert(result.getErrors.size() == 2)
+    val validationHandler = new TestingValidationHandler
+    v.validateXML(new ByteArrayInputStream(xml.getBytes), validationHandler)
+    validationHandler.errors.foreach(e => println(s"Fail: ${e}"))
+    assert(validationHandler.errors.length == 2)
   }
 }

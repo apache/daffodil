@@ -25,31 +25,31 @@ import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.api
-import org.apache.daffodil.runtime1.validation.ValidationException
 
 /**
  * Daffodil Validator implementation for ISO schematron
  */
-final class SchematronValidator(engine: Schematron, svrlPath: Option[Path])
-  extends api.validation.Validator {
-  def validateXML(document: InputStream): api.validation.ValidationResult = {
+final class SchematronValidator(
+  engine: Schematron,
+  svrlPath: Option[Path]
+) extends api.validation.Validator {
+  def validateXML(
+    document: InputStream,
+    handler: api.validation.ValidationHandler
+  ): Unit = {
     val svrl = XML.loadString(engine.validate(document))
-    val valErr: Seq[api.validation.ValidationFailure] =
-      for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
-        SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
-      }
+    for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
+      handler.validationError(msg.text.trim, { f \\ "@location" }.text)
+    }
 
     val svrlString = svrl.mkString
-    val svrlOutputFailure = svrlPath.flatMap { path =>
+    svrlPath.foreach { path =>
       Try {
         val os = new FileOutputStream(path.toFile)
         os.write(svrlString.getBytes)
         os.close()
-      }.failed.map(SvrlOutputException(_)).toOption
+      }.failed.foreach(handler.validationErrorNoContext)
     }
-
-    val err = svrlOutputFailure.fold(valErr)(f => valErr :+ f)
-    SchematronResult(Seq.empty, err, svrlString)
   }
 }
 
@@ -61,19 +61,3 @@ object SchematronValidator {
     val svrlOutputFile = s"$name.svrl.file"
   }
 }
-
-/**
- * Represents an error reported by the Schematron validation
- * @param text the failed constraint text
- * @param location the failed constraint location
- */
-case class SchematronValidationError(text: String, location: String)
-  extends api.validation.ValidationFailure {
-  def getMessage: String = text
-}
-
-/**
- * Thrown when raw SVRL output is requested but cannot be written
- * @param e the cause
- */
-final case class SvrlOutputException(e: Throwable) extends Exception(e) with ValidationException

@@ -35,7 +35,6 @@ import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
 import org.apache.daffodil.lib.validation.XercesValidator
 import org.apache.daffodil.runtime1.layers.LayerFatalException
-import org.apache.daffodil.runtime1.validation.ValidationException
 
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()
@@ -373,21 +372,13 @@ class DataProcessor(
 
     val pr = if (state.processorStatus == Success) {
       // validate infoset, errors are added to the PState diagnostics
-      val vr = maybeValidationBytes.toOption.map { bytes =>
+      maybeValidationBytes.toOption.foreach { bytes =>
         val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
-        val res = validator.validateXML(bis)
-        res.getWarnings.forEach { w => state.validationError(w.getMessage) }
-        res.getErrors.forEach {
-          case e: ValidationException =>
-            state.validationErrorNoContext(e.getCause)
-          case f: api.validation.ValidationFailure =>
-            state.validationError(f.getMessage)
-        }
-        res
+        validator.validateXML(bis, state)
       }
       // copy the blob paths we created to the users infoset outputter
       output.setBlobPaths(state.blobPaths)
-      new ParseResult(state, vr)
+      new ParseResult(state)
     } else {
       // failed, so delete all blobs that were created
       state.blobPaths.foreach { path =>
@@ -395,7 +386,7 @@ class DataProcessor(
       }
       // ensure the blob paths on the users infoset outputter are empty in case of reuse
       output.setBlobPaths(Seq.empty)
-      new ParseResult(state, None)
+      new ParseResult(state)
     }
     val s = state
     val dp = s.dataProc
@@ -655,8 +646,7 @@ class DataProcessor(
 }
 
 class ParseResult(
-  override val resultState: PState,
-  val validationResult: Option[api.validation.ValidationResult]
+  override val resultState: PState
 ) extends DFDL.ParseResult
   with WithDiagnosticsImpl {
   override def location(): DataLocation = resultState.currentLocation

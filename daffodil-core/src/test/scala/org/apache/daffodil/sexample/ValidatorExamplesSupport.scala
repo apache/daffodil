@@ -26,13 +26,9 @@ import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.DataProcessor
 import org.apache.daffodil.api.InputSourceDataInputStream
 import org.apache.daffodil.api.infoset.Infoset
-import org.apache.daffodil.api.validation.ValidationFailure
-import org.apache.daffodil.api.validation.ValidationResult
-import org.apache.daffodil.api.validation.ValidationWarning
+import org.apache.daffodil.api.validation.ValidationHandler
 import org.apache.daffodil.api.validation.Validator
 import org.apache.daffodil.api.validation.ValidatorFactory
-import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.runtime1.validation.ValidationResultImpl
 
 import com.typesafe.config.Config
 
@@ -57,8 +53,9 @@ abstract class ValidatorExamplesSupport {
 }
 
 class CustomValidator extends Validator {
-  def validateXML(document: InputStream): ValidationResult =
-    ValidationResultImpl.empty
+  def validateXML(document: InputStream, vh: ValidationHandler): Unit = {
+    // do nothing
+  }
 }
 
 class CustomValidatorFactory extends ValidatorFactory {
@@ -66,23 +63,24 @@ class CustomValidatorFactory extends ValidatorFactory {
   def make(config: Config): Validator = new CustomValidator
 }
 
-class AlwaysValidator(w: Seq[ValidationWarning], e: Seq[ValidationFailure]) extends Validator {
-  def validateXML(document: InputStream): ValidationResult =
-    new ValidationResultImpl(w, e)
-}
-
-object Boom extends ValidationFailure {
-  def getMessage: String = "boom"
+class AlwaysValidator(s: Seq[String]) extends Validator {
+  def validateXML(
+    document: InputStream,
+    validationHandler: ValidationHandler
+  ): Unit =
+    s.foreach(validationHandler.validationError(_))
 }
 
 object Always {
-  def fails: Validator = (_: InputStream) => new ValidationResultImpl(Seq.empty, Seq(Boom))
-  def passes: Validator = (_: InputStream) => ValidationResultImpl.empty
+  def fails: Validator = (_: InputStream, vh: ValidationHandler) => vh.validationError("boom")
+  def passes: Validator = (_: InputStream, vh: ValidationHandler) => {
+    // do nothing
+  }
 }
 
 class PassingValidatorFactory extends ValidatorFactory {
   def name(): String = PassingValidator.name
-  def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty, Seq.empty)
+  def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty)
 }
 object PassingValidator {
   val name = "passing-sapi-validator"
@@ -90,15 +88,13 @@ object PassingValidator {
 
 class FailingValidatorFactory extends ValidatorFactory {
   def name(): String = FailingValidator.name
-  def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty, Seq(ValFail("boom")))
+  def make(config: Config): Validator = new TestingValidatorSPI(Seq("boom"))
 }
 object FailingValidator {
   val name = "failing-sapi-validator"
 }
 
-class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure])
-  extends Validator {
-  def validateXML(document: InputStream): ValidationResult = new ValidationResultImpl(w, f)
+class TestingValidatorSPI(s: Seq[String]) extends Validator {
+  def validateXML(document: InputStream, vh: ValidationHandler): Unit =
+    s.foreach(vh.validationError(_))
 }
-
-case class ValFail(getMessage: String) extends ValidationFailure

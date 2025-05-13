@@ -178,9 +178,7 @@ object DFDL {
     def this(cause: Exception) = this(null, cause)
   }
 
-  trait ParseResult extends Result with WithDiagnostics with api.ParseResult {
-    val validationResult: Option[api.validation.ValidationResult]
-  }
+  trait ParseResult extends Result with WithDiagnostics with api.ParseResult
 
   trait UnparseResult extends Result with api.UnparseResult with WithDiagnostics {
 

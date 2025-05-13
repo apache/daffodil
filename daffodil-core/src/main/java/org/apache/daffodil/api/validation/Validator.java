@@ -27,5 +27,5 @@ import java.io.InputStream;
  * See {@link org.apache.daffodil.lib.validation.XercesValidator} for example of using ThreadLocal for thread safety
  */
 public interface Validator {
-  ValidationResult validateXML(InputStream document);
+  void validateXML(InputStream document, ValidationHandler handler);
 }

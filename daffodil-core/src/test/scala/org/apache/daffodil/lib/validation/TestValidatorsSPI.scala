@@ -51,20 +51,22 @@ class TestValidatorsSPI {
   @Test def testPassingValidator(): Unit = {
     val f = Validators.get(PassingValidator.name)
     val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
-    val r = v.validateXML(infoset)
+    val validationHandler = new TestingValidationHandler
+    v.validateXML(infoset, validationHandler)
 
-    assertTrue(r.getWarnings.isEmpty)
-    assertTrue(r.getErrors.isEmpty)
+    assertTrue(validationHandler.warnings.isEmpty)
+    assertTrue(validationHandler.errors.isEmpty)
   }
 
   @Test def testFailingValidator(): Unit = {
     val f = Validators.get(FailingValidator.name)
     val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
-    val r = v.validateXML(infoset)
+    val validationHandler = new TestingValidationHandler
+    v.validateXML(infoset, validationHandler)
 
-    assertTrue(r.getWarnings.isEmpty)
-    assertFalse(r.getErrors.isEmpty)
+    assertTrue(validationHandler.warnings.isEmpty)
+    assertFalse(validationHandler.errors.isEmpty)
 
-    assertEquals(r.getErrors.iterator().next().getMessage, "boom")
+    assertEquals(validationHandler.errors.head, "boom")
   }
 }

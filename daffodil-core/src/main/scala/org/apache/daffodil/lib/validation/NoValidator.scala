@@ -19,10 +19,14 @@ package org.apache.daffodil.lib.validation
 
 import java.io.InputStream
 
-import org.apache.daffodil.api.validation.ValidationResult
+import org.apache.daffodil.api.validation.ValidationHandler
 import org.apache.daffodil.api.validation.Validator
-import org.apache.daffodil.runtime1.validation.ValidationResultImpl
 
 object NoValidator extends Validator {
-  override def validateXML(document: InputStream): ValidationResult = ValidationResultImpl.empty
+  override def validateXML(
+    document: InputStream,
+    validationHandler: ValidationHandler
+  ): Unit = {
+    // do nothing
+  }
 }

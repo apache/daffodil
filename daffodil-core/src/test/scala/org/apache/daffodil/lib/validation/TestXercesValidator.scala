@@ -27,9 +27,10 @@ class TestXercesValidator {
   @Test def testFromSPI(): Unit = {
     val f = Validators.get(XercesValidator.name)
     val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
-    val r = v.validateXML(infoset)
+    val validationHandler = new TestingValidationHandler
+    v.validateXML(infoset, validationHandler)
 
-    assertTrue(r.getWarnings.isEmpty)
-    assertTrue(r.getErrors.isEmpty)
+    assertTrue(validationHandler.warnings.isEmpty)
+    assertTrue(validationHandler.errors.isEmpty)
   }
 }
