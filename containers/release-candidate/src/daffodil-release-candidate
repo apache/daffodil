@@ -231,16 +231,7 @@ svn checkout https://dist.apache.org/repos/dist/dev/daffodil/$PROJECT_DIST_DIR $
 
 pushd $REPO_ROOT/$DAFFODIL_CODE_REPO &> /dev/null
 
-case $PROJECT_REPO in
-  "daffodil" | "daffodil-sbt")
-    VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
-    SCALA_BINARY_VERSION=$(grep 'scalaVersion :=' build.sbt | cut -d\" -f2 | cut -d. -f1,2)
-    ;;
-  "daffodil-vscode")
-    VERSION=$(grep '"version"' package.json | cut -d\" -f4)
-    ;;
-esac
-
+VERSION=$(cat VERSION)
 if [[ $VERSION == *SNAPSHOT* ]]; then
   echo -e "\n!!! $PROJECT_NAME version ($VERSION) should not contain SNAPSHOT for a release !!!\n";
   if [ "$DRY_RUN" = true ]; then
@@ -316,7 +307,7 @@ case $PROJECT_REPO in
     rm -rf $DAFFODIL_DOCS_DIR
     mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
     cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
-    cp -R target/scala-$SCALA_BINARY_VERSION/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
+    cp -R target/scala-*/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
     cp target/tunables.md $DAFFODIL_SITE_DIR/site/
 
     echo "Installing Site Tutorials..."
