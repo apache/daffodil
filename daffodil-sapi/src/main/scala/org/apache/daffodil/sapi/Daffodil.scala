@@ -314,13 +314,23 @@ abstract class WithDiagnostics private[sapi] (wd: SWithDiagnostics) extends Seri
 class Diagnostic private[sapi] (d: SDiagnostic) {
 
   /**
-   * Get the diagnostic message.
+   * Get all diagnostic information, including mode name, schema context, and data location
    *
-   * This does not include the mode name, schema context, or data location information
+   * Future versions of Daffodil will change getMessage to return only the message portion of a
+   * diagnostic, matching the behavior of getMessageOnly--users should call toString() instead.
    *
    * @return diagnostic message in string form
    */
-  def getMessage(): String = d.getMessage()
+  def getMessage(): String = d.toString()
+
+  /**
+   * Get only the message part of a diagnostic.
+   *
+   * This does not include mode name, schema context, or data location information
+   *
+   * @return diagnostic message in string form
+   */
+  def getMessageOnly(): String = d.getMessage()
 
   /**
    * Get the diagnostic mode name
