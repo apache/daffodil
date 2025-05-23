@@ -19,15 +19,19 @@ package org.apache.daffodil.core.util
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.net.URI
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
+import java.nio.charset.Charset
+import java.nio.file.Files
+import java.util.Properties
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml._
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.ProcessorFactory
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -44,6 +48,8 @@ import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.VariableMap
 
+import org.apache.commons.io.FileUtils
+
 object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
 
 /*
@@ -52,6 +58,7 @@ object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
  * These are utilities to support unit testing schemas
  */
 object TestUtils {
+  val validators = Validators.getInstance()
 
   def assertEquals[T](expected: T, actual: T) =
     if (expected != actual) throw new AssertionError("assertEquals failed.")
@@ -195,7 +202,7 @@ object TestUtils {
         dp.withDebugger(builtInTracer).withDebugging(true)
       } else dp
 
-    val p = p1.withValidator(api.validation.ValidatorsFactory.getLimitedValidator)
+    val p = p1.withValidator(TestUtils.validators.get("limited").make(new Properties))
 
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(is)
@@ -232,7 +239,7 @@ object TestUtils {
     compiler: Compiler,
     schemaSource: URISchemaSource,
     output: WritableByteChannel
-  ): Try[(api.compiler.ProcessorFactory, api.DataProcessor)] = {
+  ): Try[(ProcessorFactory, api.DataProcessor)] = {
     Try {
       val pf = compiler.compileSource(schemaSource)
       if (pf.isError) throwDiagnostics(pf.getDiagnostics)
@@ -335,8 +342,6 @@ class Fakes private () {
     override def newContentHandlerInstance(
       output: DFDL.Output
     ): DFDL.DaffodilUnparseContentHandler = null
-
-    override def getMainSchemaURIForFullValidation: URI = null
   }
   lazy val fakeDP: DFDL.DataProcessor = new FakeDataProcessor
 
@@ -404,11 +409,15 @@ class StreamParser private (val schema: Node) {
     if (pf.isError) throw new StreamParser.CompileFailure(pf.getDiagnostics)
     val dataproc1 = pf
       .onPath("/")
+    val props = new Properties()
+    val schemaTempFile = Files.createTempFile("streamparser", ".test")
+    FileUtils.write(schemaTempFile.toFile, schema.toString(), Charset.defaultCharset())
+    val p = s"${api.validation.Validator.rootSchemaKey}=${schemaTempFile.toUri.toString}"
+    val is = new ByteArrayInputStream(p.getBytes())
+    props.load(is)
     val dataproc = dataproc1
       .withValidator(
-        api.validation.ValidatorsFactory.getXercesValidator(
-          dataproc1.getMainSchemaURIForFullValidation
-        )
+        TestUtils.validators.get("xerces").make(props)
       )
     // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
     // .withDebugging(true)

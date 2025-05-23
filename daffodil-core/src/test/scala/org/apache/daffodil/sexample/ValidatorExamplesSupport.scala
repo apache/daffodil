@@ -20,6 +20,7 @@ package org.apache.daffodil.sexample
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
+import java.util.Properties
 import scala.util.Using
 
 import org.apache.daffodil.api.Daffodil
@@ -29,8 +30,6 @@ import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.validation.ValidationHandler
 import org.apache.daffodil.api.validation.Validator
 import org.apache.daffodil.api.validation.ValidatorFactory
-
-import com.typesafe.config.Config
 
 abstract class ValidatorExamplesSupport {
   private def fileFromResource(path: String): File = new File(getClass.getResource(path).toURI)
@@ -60,7 +59,7 @@ class CustomValidator extends Validator {
 
 class CustomValidatorFactory extends ValidatorFactory {
   def name(): String = "sapi-custom"
-  def make(config: Config): Validator = new CustomValidator
+  def make(config: Properties): Validator = new CustomValidator
 }
 
 class AlwaysValidator(s: Seq[String]) extends Validator {
@@ -80,7 +79,7 @@ object Always {
 
 class PassingValidatorFactory extends ValidatorFactory {
   def name(): String = PassingValidator.name
-  def make(config: Config): Validator = new TestingValidatorSPI(Seq.empty)
+  def make(config: Properties): Validator = new TestingValidatorSPI(Seq.empty)
 }
 object PassingValidator {
   val name = "passing-sapi-validator"
@@ -88,7 +87,7 @@ object PassingValidator {
 
 class FailingValidatorFactory extends ValidatorFactory {
   def name(): String = FailingValidator.name
-  def make(config: Config): Validator = new TestingValidatorSPI(Seq("boom"))
+  def make(config: Properties): Validator = new TestingValidatorSPI(Seq("boom"))
 }
 object FailingValidator {
   val name = "failing-sapi-validator"

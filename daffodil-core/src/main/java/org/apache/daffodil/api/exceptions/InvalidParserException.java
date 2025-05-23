@@ -22,7 +22,7 @@ package org.apache.daffodil.api.exceptions;
  * that is invalid (not a parser file, corrupt, etc.) or
  * is not in the GZIP format.
  */
-public abstract class InvalidParserException extends Exception {
+public class InvalidParserException extends Exception {
   public InvalidParserException(String msg) {
     super(msg);
   }

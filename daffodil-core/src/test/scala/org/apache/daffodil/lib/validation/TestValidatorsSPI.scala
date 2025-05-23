@@ -17,6 +17,10 @@
 
 package org.apache.daffodil.lib.validation
 
+import org.apache.daffodil.api.validation.ValidatorNotRegisteredException
+import org.apache.daffodil.api.validation.Validators
+import org.apache.daffodil.lib.Implicits._
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThrows
@@ -26,31 +30,32 @@ import org.junit.Test
 class TestValidatorsSPI {
   val schema = getClass.getResource("/test/validation/testSchema1.dfdl.xsd").toURI.toString
   val infoset = getClass.getResourceAsStream("/test/validation/testData1Infoset.xml")
+  private final val validators = Validators.getInstance();
 
   @Test def testValidatorGetNotFoundThrows(): Unit = {
-    assertThrows(classOf[ValidatorNotRegisteredException], () => Validators.get("dont exist"))
+    assertThrows(classOf[ValidatorNotRegisteredException], () => validators.get("dont exist"))
   }
 
   @Test def testValidatorFindNotFoundNone(): Unit = {
-    assertTrue(Validators.find("dont exist").isEmpty)
+    assertTrue(validators.find("dont exist").isEmpty)
   }
 
   @Test def testValidatorNonExists(): Unit = {
-    assertFalse(Validators.isRegistered("dont exist"))
+    assertFalse(validators.isRegistered("dont exist"))
   }
 
   @Test def testDefaultIsRegistered(): Unit = {
     val defaultName = XercesValidator.name
-    val defaultF = Validators.get(defaultName)
+    val defaultF = validators.get(defaultName)
 
     assertEquals(defaultName, defaultF.name())
-    assertTrue(Validators.find(defaultName).nonEmpty)
-    assertTrue(Validators.isRegistered(defaultName))
+    assertTrue(validators.find(defaultName).nonEmpty)
+    assertTrue(validators.isRegistered(defaultName))
   }
 
   @Test def testPassingValidator(): Unit = {
-    val f = Validators.get(PassingValidator.name)
-    val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
+    val f = validators.get(PassingValidator.name)
+    val v = f.make(XercesValidatorFactory.makeConfig(schema))
     val validationHandler = new TestingValidationHandler
     v.validateXML(infoset, validationHandler)
 
@@ -59,8 +64,8 @@ class TestValidatorsSPI {
   }
 
   @Test def testFailingValidator(): Unit = {
-    val f = Validators.get(FailingValidator.name)
-    val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
+    val f = validators.get(FailingValidator.name)
+    val v = f.make(XercesValidatorFactory.makeConfig(schema))
     val validationHandler = new TestingValidationHandler
     v.validateXML(infoset, validationHandler)
 

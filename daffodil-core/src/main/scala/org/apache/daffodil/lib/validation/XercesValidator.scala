@@ -18,18 +18,17 @@
 package org.apache.daffodil.lib.validation
 
 import java.net.URI
+import java.nio.file.Paths
+import java.util.Properties
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
-import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.api
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValueFactory
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
 
@@ -38,31 +37,34 @@ import org.xml.sax.SAXParseException
  *
  * SPI service name: xerces
  * Configuration requirements:
- *   - xerces: List[String] -  schema file names
+ *   - daffodil.rootSchema=schema_file_uri_string
  */
 class XercesValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = XercesValidator.name
-  def make(config: Config): api.validation.Validator =
+
+  def make(config: Properties): api.validation.Validator =
     XercesValidatorFactory.makeValidator(config)
 }
 
 object XercesValidatorFactory {
   def makeValidator(uriString: String): api.validation.Validator = {
-    val config = XercesValidatorFactory.makeConfig(Seq(uriString))
+    val config = XercesValidatorFactory.makeConfig(uriString)
     makeValidator(config)
   }
 
-  def makeValidator(config: Config): api.validation.Validator = {
-    val schemaFiles =
-      if (config.hasPath(XercesValidator.name))
-        config.getStringList(XercesValidator.name).asScala
-      else Seq.empty
-    XercesValidator.fromFiles(schemaFiles.toSeq)
+  def makeValidator(config: Properties): api.validation.Validator = {
+    val schemaPath = config.getProperty(XercesValidator.name)
+    val schemaFile =
+      if (schemaPath != null) schemaPath
+      else config.getProperty(XercesValidator.ConfigKeys.rootSchema)
+    if (Misc.isNullOrBlank(schemaFile)) null
+    else XercesValidator.fromFile(schemaFile)
   }
 
-  def makeConfig(uris: Seq[String]): Config = {
-    val v = ConfigValueFactory.fromIterable(uris.asJava)
-    ConfigFactory.parseMap(Map(XercesValidator.name -> v).asJava)
+  def makeConfig(uri: String): Properties = {
+    val config = new Properties()
+    config.setProperty(XercesValidator.ConfigKeys.rootSchema, uri)
+    config
   }
 }
 
@@ -71,14 +73,14 @@ object XercesValidatorFactory {
  * to do a validation pass on the TDML expected Infoset w.r.t. the model and to
  * do a validation pass on the actual result w.r.t. the model as an XML document.
  */
-class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
+class XercesValidator(schemaSource: javax.xml.transform.Source)
   extends api.validation.Validator {
 
   private val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
   private val resolver = DFDLCatalogResolver.get
   factory.setResourceResolver(resolver)
 
-  private val schema = factory.newSchema(schemaSources.toArray)
+  private val schema = factory.newSchema(schemaSource)
 
   private val validator = new ThreadLocal[XercesValidatorImpl] {
     override def initialValue(): XercesValidatorImpl =
@@ -132,17 +134,27 @@ object XercesValidator {
   private type XercesValidatorImpl = javax.xml.validation.Validator
   val name = "xerces"
 
-  def fromURIs(schemaURIs: Seq[URI]) = new XercesValidator(schemaURIs.map { uri =>
-    val is = uri.toURL.openStream()
+  def fromURI(schemaURI: URI) = new XercesValidator({
+    val is = schemaURI.toURL.openStream()
     val stream = new StreamSource(is)
     stream.setSystemId(
-      uri.toString
+      schemaURI.toString
     ) // must set this so that relative URIs will be created for import/include files.
     stream
   })
 
-  def fromFiles(schemaFileNames: Seq[String]) =
-    fromURIs(schemaFileNames.map { new URI(_) })
+  def fromFile(schemaFileName: String) = {
+    val uri = new URI(schemaFileName)
+    if (uri.isAbsolute) {
+      fromURI(uri)
+    } else {
+      fromURI(Paths.get(schemaFileName).toUri)
+    }
+  }
+
+  object ConfigKeys {
+    val rootSchema = api.validation.Validator.rootSchemaKey
+  }
 }
 
 private class XercesErrorHandler(validationHandler: api.validation.ValidationHandler)

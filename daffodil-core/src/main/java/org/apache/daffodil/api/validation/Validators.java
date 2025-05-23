@@ -15,53 +15,61 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.lib.validation
+package org.apache.daffodil.api.validation;
 
-import org.apache.daffodil.api
-import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
+import org.apache.daffodil.util.SimpleNamedServiceLoader;
+
+import java.util.Optional;
 
 /**
  * Access SPI registered [[org.apache.daffodil.api.validation.ValidatorFactory]] instances.
- *
+ * <p>
  * Registered instances provide a unique name for lookup.
  */
-object Validators {
-  private lazy val impls: Map[String, api.validation.ValidatorFactory] = {
-    SimpleNamedServiceLoader.loadClass[api.validation.ValidatorFactory](
-      classOf[api.validation.ValidatorFactory]
-    )
+public class Validators {
+  private static final Validators INSTANCE = new Validators();
+  private final java.util.Map<String, ValidatorFactory> impls =
+      SimpleNamedServiceLoader.loadClass(ValidatorFactory.class);
+
+  private Validators() {
+  } // private constructor
+
+  public static Validators getInstance() {
+    return INSTANCE;
   }
 
   /**
    * Get the factory by name or throw
- *
+   *
    * @param name registered name of the validator factory
+   * @return {@link org.apache.daffodil.api.validation.ValidatorFactory} the factory instance
    * @throws ValidatorNotRegisteredException when factory is not found in the registered services
-   * @return [[org.apache.daffodil.api.validation.ValidatorFactory]] the factory instance
    */
-  @throws(classOf[ValidatorNotRegisteredException])
-  def get(name: String): api.validation.ValidatorFactory =
-    impls.getOrElse(name, throw ValidatorNotRegisteredException(name))
+  public ValidatorFactory get(String name) throws ValidatorNotRegisteredException {
+    if (isRegistered(name)) {
+      return impls.get(name);
+    } else {
+      throw new ValidatorNotRegisteredException(name);
+    }
+  }
 
   /**
    * Optionally find the factory
- *
+   *
    * @param name registered name of the validator factory
    * @return [[org.apache.daffodil.api.validation.ValidatorFactory]] optional factory instance
    */
-  def find(name: String): Option[api.validation.ValidatorFactory] = impls.get(name)
+  public Optional<ValidatorFactory> find(String name) {
+    return Optional.ofNullable(impls.get(name));
+  }
 
   /**
    * Check for registration of named factory
+   *
    * @param name registered name of the validator factory
    * @return is factory registered
    */
-  def isRegistered(name: String): Boolean = impls.contains(name)
+  public boolean isRegistered(String name) {
+    return impls.containsKey(name);
+  }
 }
-
-/**
- * Thrown when the by-name lookup of a validator fails
- * @param name the requested validator factory name
- */
-case class ValidatorNotRegisteredException(name: String)
-  extends Exception(s"No api.validation.ValidatorFactory is registered as $name")

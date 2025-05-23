@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.api;
 
-import org.apache.daffodil.api.compiler.ProcessorFactory;
 import org.apache.daffodil.api.exceptions.InvalidParserException;
 
 import java.io.File;
@@ -28,179 +27,179 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Compile DFDL schemas into {@link org.apache.daffodil.api.compiler.ProcessorFactory}'s or
+ * Compile DFDL schemas into {@link ProcessorFactory}'s or
  * reload saved parsers into {@link org.apache.daffodil.api.DataProcessor}'s.
  * <p>
  * Do not use the Compiler constructor to create a Compiler. Instead, use {@code Daffodil#compiler()}.
  */
 public interface Compiler {
   /**
-   * Compile DFDL schema file into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema file into a {@link ProcessorFactory}
    * <p>
    * To allow jar-file packaging, (where schema files might be part of a jar),
    * it is recommended to use {@code Compiler.compileSource} instead.
    *
-   * @param schemaFile DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @param schemaFile DFDL schema file used to create a {@link ProcessorFactory}.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile) throws IOException {
     return compileFile(schemaFile, Optional.empty(), Optional.empty());
   }
 
   /**
-   * Compile DFDL schema file into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema file into a {@link ProcessorFactory}
    * <p>
    * To allow jar-file packaging, (where schema files might be part of a jar),
    * it is recommended to use {@code Compiler.compileSource} instead.
    *
-   * @param schemaFile DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
+   * @param schemaFile DFDL schema file used to create a {@link ProcessorFactory}.
    * @param rootName   name of root element, or null to choose automatically from first element of schema.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile, String rootName) throws IOException {
     return compileFile(schemaFile, Optional.ofNullable(rootName), Optional.empty());
   }
 
   /**
-   * Compile DFDL schema file into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema file into a {@link ProcessorFactory}
    * <p>
    * To allow jar-file packaging, (where schema files might be part of a jar),
    * it is recommended to use {@code Compiler.compileSource} instead.
    *
-   * @param schemaFile  DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @param optRootName Option for name of root element, or None to choose automatically from first element of schema.
-   *                    Defaults to None.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @param schemaFile  DFDL schema file used to create a {@link ProcessorFactory}.
+   * @param optRootName Optional for name of root element, or Optional.empty() to choose automatically from first element of schema.
+   *                    Defaults to Optional.empty().
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile, Optional<String> optRootName) throws IOException {
     return compileFile(schemaFile, optRootName, Optional.empty());
   }
 
   /**
-   * Compile DFDL schema file into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema file into a {@link ProcessorFactory}
    * <p>
    * To allow jar-file packaging, (where schema files might be part of a jar),
    * it is recommended to use {@code Compiler.compileSource} instead.
    *
-   * @param schemaFile    DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
+   * @param schemaFile    DFDL schema file used to create a {@link ProcessorFactory}.
    * @param rootName      name of root element, or null to choose automatically from first element
    *                      of schema.
    * @param rootNamespace String of namespace of the root element, or null to infer automatically
    *                      when unambiguous. Pass "" (empty string) for No Namespace.*
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileFile(File schemaFile, String rootName, String rootNamespace) throws IOException {
     return compileFile(schemaFile, Optional.ofNullable(rootName), Optional.ofNullable(rootNamespace));
   }
 
   /**
-   * Compile DFDL schema file into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema file into a {@link ProcessorFactory}
    * <p>
    * To allow jar-file packaging, (where schema files might be part of a jar),
    * it is recommended to use {@code Compiler.compileSource} instead.
    *
-   * @param schemaFile       DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @param optRootName      Option for name of root element, or None to choose automatically from first element of schema.
-   *                         Defaults to None.
-   * @param optRootNamespace Option for string of namespace of the root element, or None to infer automatically when
-   *                         unambiguous. Pass Some("") (empty string) for No Namespace. Defaults to None.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @param schemaFile       DFDL schema file used to create a {@link ProcessorFactory}.
+   * @param optRootName      Optional for name of root element, or Optional.empty() to choose automatically from first element of schema.
+   *                         Defaults to Optional.empty().
+   * @param optRootNamespace Optional for string of namespace of the root element, or Optional.empty() to infer automatically when
+   *                         unambiguous. Pass Some("") (empty string) for No Namespace. Defaults to Optional.empty().
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   ProcessorFactory compileFile(File schemaFile, Optional<String> optRootName, Optional<String> optRootNamespace) throws IOException;
 
   /**
-   * Compile DFDL schema source into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema source into a {@link ProcessorFactory}
    *
-   * @param uri URI of DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @param uri URI of DFDL schema file used to create a {@link ProcessorFactory}.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri) throws IOException {
     return compileSource(uri, Optional.empty(), Optional.empty());
   }
 
   /**
-   * Compile DFDL schema source into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema source into a {@link ProcessorFactory}
    *
-   * @param uri      URI of DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
+   * @param uri      URI of DFDL schema file used to create a {@link ProcessorFactory}.
    * @param rootName name of root element, or null to choose automatically from first element of schema.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri, String rootName) throws IOException {
     return compileSource(uri, Optional.ofNullable(rootName), Optional.empty());
   }
 
   /**
-   * Compile DFDL schema source into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema source into a {@link ProcessorFactory}
    *
-   * @param uri         URI of DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @param optRootName Option for name of root element, or None to choose automatically from first
-   *                    element of schema. Defaults to None.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @param uri         URI of DFDL schema file used to create a {@link ProcessorFactory}.
+   * @param optRootName Optional for name of root element, or Optional.empty() to choose automatically from first
+   *                    element of schema. Defaults to Optional.empty().
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri, Optional<String> optRootName) throws IOException {
     return compileSource(uri, optRootName, Optional.empty());
   }
 
   /**
-   * Compile DFDL schema source into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema source into a {@link ProcessorFactory}
    *
-   * @param uri           URI of DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
+   * @param uri           URI of DFDL schema file used to create a {@link ProcessorFactory}.
    * @param rootName      name of root element, or null to choose automatically from first element of schema.
    * @param rootNamespace String of namespace of the root element, or null to infer automatically
    *                      when unambiguous. Pass "" (empty string) for No Namespace.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileSource(URI uri, String rootName, String rootNamespace) throws IOException {
     return compileSource(uri, Optional.ofNullable(rootName), Optional.ofNullable(rootNamespace));
   }
 
   /**
-   * Compile DFDL schema source into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL schema source into a {@link ProcessorFactory}
    *
-   * @param uri              URI of DFDL schema file used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @param optRootName      Option for name of root element, or None to choose automatically from first
-   *                         element of schema. Defaults to None.
-   * @param optRootNamespace Option for string of namespace of the root element, or None to infer
+   * @param uri              URI of DFDL schema file used to create a {@link ProcessorFactory}.
+   * @param optRootName      Optional for name of root element, or Optional.empty() to choose automatically from first
+   *                         element of schema. Defaults to Optional.empty().
+   * @param optRootNamespace Optional for string of namespace of the root element, or Optional.empty() to infer
    *                         automatically when unambiguous. Pass Some("") (empty string) for No Namespace.
-   *                         Defaults to None.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   *                         Defaults to Optional.empty().
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   ProcessorFactory compileSource(URI uri, Optional<String> optRootName, Optional<String> optRootNamespace) throws IOException;
 
   /**
-   * Compile DFDL resource name into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL resource name into a {@link ProcessorFactory}
    *
-   * @param name Resource name of a DFDL schema used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @param name Resource name of a DFDL schema used to create a {@link ProcessorFactory}.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileResource(String name) throws IOException {
     return compileResource(name, Optional.empty(), Optional.empty());
   }
 
   /**
-   * Compile DFDL resource name into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL resource name into a {@link ProcessorFactory}
    *
-   * @param name          Resource name of a DFDL schema used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
+   * @param name          Resource name of a DFDL schema used to create a {@link ProcessorFactory}.
    * @param rootName      name of root element, or null to choose automatically from first element
    *                      of schema.
    * @param rootNamespace String of namespace of the root element, or null to infer automatically
    *                      when unambiguous. Pass "" (empty string) for No Namespace.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   default ProcessorFactory compileResource(String name, String rootName, String rootNamespace) throws IOException {
     return compileResource(name, Optional.ofNullable(rootName), Optional.ofNullable(rootNamespace));
   }
 
   /**
-   * Compile DFDL resource name into a {@link org.apache.daffodil.api.compiler.ProcessorFactory}
+   * Compile DFDL resource name into a {@link ProcessorFactory}
    *
-   * @param name             Resource name of a DFDL schema used to create a {@link org.apache.daffodil.api.compiler.ProcessorFactory}.
-   * @param optRootName      Option for name of root element, or None to choose automatically from first
-   *                         element of schema. Defaults to None.
-   * @param optRootNamespace Option for string of namespace of the root element, or None to infer
+   * @param name             Resource name of a DFDL schema used to create a {@link ProcessorFactory}.
+   * @param optRootName      Optional for name of root element, or Optional.empty() to choose automatically from first
+   *                         element of schema. Defaults to Optional.empty().
+   * @param optRootNamespace Optional for string of namespace of the root element, or Optional.empty() to infer
    *                         automatically when unambiguous. Pass Some("") (empty string) for No Namespace.
-   *                         Defaults to None.
-   * @return {@link org.apache.daffodil.api.compiler.ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
+   *                         Defaults to Optional.empty().
+   * @return {@link ProcessorFactory} used to create {@link org.apache.daffodil.api.DataProcessor}(s). Must check {@code ProcessorFactory.isError} before using it.
    */
   ProcessorFactory compileResource(String name, Optional<String> optRootName, Optional<String> optRootNamespace) throws IOException;
 

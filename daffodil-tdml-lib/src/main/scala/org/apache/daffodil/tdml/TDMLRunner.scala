@@ -28,6 +28,7 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
+import java.util.Properties
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Try
@@ -39,6 +40,8 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.validation.Validator
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
@@ -192,6 +195,7 @@ class DFDLTestSuite private[tdml] (
   val defaultIgnoreUnexpectedValidationErrorsDefault: Boolean
 ) {
 
+  val validators: Validators = Validators.getInstance()
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
   aNodeFileOrURISchemaSource match {
@@ -409,7 +413,10 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
-  lazy val defaultValidationMode = defaultValidation
+  lazy val defaultValidatorName = defaultValidation match {
+    case "on" => "xerces"
+    case m => m
+  }
 
   lazy val defaultConfig = {
     val str = (ts \ "@defaultConfig").text
@@ -582,11 +589,16 @@ class DFDLTestSuite private[tdml] (
         GlobalTDMLCompileResultCache.cache
       }
 
+    val props = new Properties()
+    val bais = new ByteArrayInputStream(
+      s"${Validator.rootSchemaKey}=${suppliedSchema.uriForLoading}".getBytes
+    )
+    props.load(bais)
+
     val compileResult = cache.getCompileResult(
       impl,
       key,
-      api.validation.ValidatorsFactory
-        .fromValidationMode(defaultValidationMode, suppliedSchema.uriForLoading)
+      validators.get(defaultValidatorName).make(props)
     )
     compileResult
   }
@@ -626,7 +638,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   protected final var processor: TDMLDFDLProcessor = null
 
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
-  lazy val defaultValidationMode: String = parent.defaultValidationMode
+  lazy val defaultValidatorName: String = parent.defaultValidatorName
   lazy val defaultIgnoreUnexpectedWarnings: Boolean = parent.defaultIgnoreUnexpectedWarnings
   lazy val defaultIgnoreUnexpectedValidationErrors: Boolean =
     parent.defaultIgnoreUnexpectedValidationErrors
@@ -760,13 +772,23 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     case "false" => false
     case _ => false
   }
-  lazy val validationMode: String = (testCaseXML \ "@validation").text match {
-    case "" => defaultValidationMode
+  lazy val validatorName: String = (testCaseXML \ "@validation").text match {
+    case "" => defaultValidatorName
+    case "on" => "xerces"
     case mode => mode
   }
   lazy val validator: api.validation.Validator =
-    api.validation.ValidatorsFactory
-      .fromValidationMode(validationMode, getSuppliedSchema().uriForLoading)
+    Validators
+      .getInstance()
+      .get(validatorName)
+      .make({
+        val props = new Properties()
+        val bais = new ByteArrayInputStream(
+          s"${Validator.rootSchemaKey}=${getSuppliedSchema().uriForLoading}".getBytes
+        )
+        props.load(bais)
+        props
+      })
 
   protected def runProcessor(
     compileResult: TDML.CompileResult,
@@ -775,7 +797,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     errors: Option[Seq[ExpectedErrors]],
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: String,
+    validatorName: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ): Unit
@@ -940,8 +962,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
 
       val useSerializedProcessor =
-        if (validationMode == "on") false
-        else if (defaultValidationMode == "on") false
+        if (validatorName == "xerces") false
+        else if (defaultValidatorName == "xerces") false
         else if (optExpectedWarnings.isDefined) false
         else true
 
@@ -980,7 +1002,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           optExpectedErrors,
           optExpectedWarnings,
           optExpectedValidationErrors,
-          validationMode,
+          validatorName,
           roundTrip,
           implString
         )
@@ -1060,7 +1082,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedErrors: Option[Seq[ExpectedErrors]],
     optExpectedWarnings: Option[Seq[ExpectedWarnings]],
     optExpectedValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: String,
+    validatorName: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -1562,7 +1584,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validationMode: String,
+    validatorName: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {

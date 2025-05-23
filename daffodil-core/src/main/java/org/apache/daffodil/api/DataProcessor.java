@@ -40,9 +40,6 @@ import java.util.Map;
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
 public interface DataProcessor extends WithDiagnostics, Serializable {
-
-  URI getMainSchemaURIForFullValidation();
-
   /**
    * Obtain a new {@link DataProcessor} instance with debugging enabled or disabled.
    * <p>

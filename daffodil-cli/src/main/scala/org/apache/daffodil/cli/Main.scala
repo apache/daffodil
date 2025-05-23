@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.cli
 
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -29,6 +30,7 @@ import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import java.util.Properties
 import java.util.Scanner
 import java.util.concurrent.Executors
 import javax.xml.parsers.SAXParserFactory
@@ -44,9 +46,11 @@ import scala.util.Using
 import scala.util.matching.Regex
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.exceptions.InvalidParserException
+import org.apache.daffodil.api.validation.Validator
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.core.compiler.InvalidParserException
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
@@ -67,7 +71,6 @@ import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Timer
 import org.apache.daffodil.lib.validation.NoValidator
-import org.apache.daffodil.lib.validation.Validators
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -90,7 +93,6 @@ import com.siemens.ct.exi.core.EXIFactory
 import com.siemens.ct.exi.core.exceptions.EXIException
 import com.siemens.ct.exi.main.api.sax.EXIResult
 import com.siemens.ct.exi.main.api.sax.EXISource
-import com.typesafe.config.ConfigFactory
 import org.apache.commons.io.output.NullOutputStream
 import org.rogach.scallop
 import org.rogach.scallop.ArgType
@@ -105,6 +107,7 @@ class ScallopExitException(val exitCode: Int) extends Exception
 
 class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream)
   extends scallop.ScallopConf(arguments) {
+  lazy val validators: Validators = api.validation.Validators.getInstance()
 
   /**
    * This is used when the flag is optional and so is its
@@ -167,27 +170,29 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   ): ValueConverter[api.validation.Validator] =
     singleArgConverter[api.validation.Validator]((s: String) => {
       import ValidatorPatterns._
+      val defaults = new Properties()
+      val rootSchema = schema.toOption match {
+        case Some(sch) => sch.uri.getPath
+        case _ => ""
+      }
+      defaults.setProperty(Validator.rootSchemaKey, rootSchema)
+      val props = new Properties(defaults)
       s match {
-        case "on" => {
-          if (schema.toOption.isDefined) {
-            api.validation.ValidatorsFactory.getXercesValidator(schema.toOption.get.uri)
+        case DefaultArgPattern(name, arg) if validators.isRegistered(name) =>
+          if (Seq(".conf", ".properties").exists(arg.endsWith)) {
+            val is = new FileInputStream(arg)
+            props.load(is)
           } else {
-            null
+            val p = s"$name=$arg"
+            val bai = new ByteArrayInputStream(p.getBytes)
+            props.load(bai)
           }
-        }
-        case "limited" => api.validation.ValidatorsFactory.getLimitedValidator
-        case "off" => NoValidator
-        case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
-          val config =
-            if (arg.endsWith(".conf")) ConfigFactory.parseFile(new File(arg))
-            else ConfigFactory.parseString(s"$name=$arg")
-          Validators.get(name).make(config)
-
-        case NoArgsPattern(name) if Validators.isRegistered(name) =>
-          Validators.get(name).make(ConfigFactory.empty)
+          validators.get(name).make(props)
+        case NoArgsPattern(name) if validators.isRegistered(name) =>
+          validators.get(name).make(defaults)
         case _ =>
           throw new Exception(
-            "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
+            "Unrecognized Validator name %s.  Must be 'xerces', 'limited', 'off', or name of spi validator."
               .format(s)
           )
       }
@@ -418,8 +423,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
       default = Some(NoValidator),
-      argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+      argName = "validator_name",
+      descr =
+        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
+          "is an optional schema to validate against, a key/value configuration file or a schematron" +
+          " string in the case of schematron validator plugin."
     )(validateConverter(schema))
     val debug = opt[Option[String]](
       argName = "file",
@@ -456,7 +464,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
     validateOpt(parser, validate) {
       case (Some(_), Some(null)) =>
-        Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
+        Left("The validation name must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(())
     }
 
@@ -545,8 +553,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
       default = Some(NoValidator),
-      argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+      argName = "validator_name",
+      descr =
+        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
+          "is an optional schema to validate against, a key/value configuration file or a schematron" +
+          " string in the case of schematron validator plugin."
     )(validateConverter(schema))
     val debug = opt[Option[String]](
       argName = "file",
@@ -777,8 +788,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
       short = 'V',
       default = Some(NoValidator),
-      argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+      argName = "validator_name",
+      descr =
+        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
+          "is an optional schema to validate against, a key/value configuration file or a schematron" +
+          " string in the case of schematron validator plugin."
     )(validateConverter(schema))
 
     val infile = trailArg[String](

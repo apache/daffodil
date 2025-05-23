@@ -14,20 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.daffodil.lib.util
 
-package org.apache.daffodil.api.validation;
-
-import java.io.InputStream;
-
-/**
- * Implement this trait to provide custom validation logic
- * <p>
- * The Validator implementations must be thread safe
- * <p>
- * See {@link org.apache.daffodil.lib.validation.XercesValidator} for example of using ThreadLocal for thread safety
- */
-public interface Validator {
-  String rootSchemaKey = "daffodil.rootSchema";
-
-  void validateXML(InputStream document, ValidationHandler handler);
-}
+trait SimpleNamedLoadableService { def name(): String }

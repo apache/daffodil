@@ -17,17 +17,13 @@
 
 package org.apache.daffodil.api.validation;
 
-import java.io.InputStream;
-
-/**
- * Implement this trait to provide custom validation logic
- * <p>
- * The Validator implementations must be thread safe
- * <p>
- * See {@link org.apache.daffodil.lib.validation.XercesValidator} for example of using ThreadLocal for thread safety
- */
-public interface Validator {
-  String rootSchemaKey = "daffodil.rootSchema";
-
-  void validateXML(InputStream document, ValidationHandler handler);
+public class ValidatorNotRegisteredException extends Exception {
+  /**
+   * Thrown when the by-name lookup of a validator fails
+   *
+   * @param name the requested validator factory name
+   */
+  ValidatorNotRegisteredException(String name) {
+    super("No api.validation.ValidatorFactory is registered as " + name);
+  }
 }

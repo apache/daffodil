@@ -16,7 +16,8 @@
  */
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.util.SimpleNamedServiceLoader
 
 /*
  * Finds all pluggable BitCharsets and makes them available to Daffodil after they have been

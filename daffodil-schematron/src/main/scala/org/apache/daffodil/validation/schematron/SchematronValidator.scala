@@ -25,6 +25,7 @@ import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.validation.Validator
 
 /**
  * Daffodil Validator implementation for ISO schematron
@@ -59,5 +60,6 @@ object SchematronValidator {
   object ConfigKeys {
     val schPath = s"$name.path"
     val svrlOutputFile = s"$name.svrl.file"
+    val rootSchema = Validator.rootSchemaKey
   }
 }

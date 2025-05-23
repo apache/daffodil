@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.processors
 import java.io.File
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.net.URI
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.channels.Channels
@@ -33,7 +32,7 @@ import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.DataLocation
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.validation.DaffodilLimitedValidator
-import org.apache.daffodil.lib.validation.XercesValidator
+import org.apache.daffodil.lib.validation.NoValidator
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 
 object INoWarn4 {
@@ -106,19 +105,14 @@ object DataProcessor {
     variableMap: VariableMap // must be explicitly reset by save method
   ) extends DataProcessor(ssrd, tunables, variableMap) {
 
-    override def getMainSchemaURIForFullValidation: URI = {
-      throw new InvalidUsageException(
-        "'Full' validation not allowed when using a restored parser."
-      )
-    }
-
     override def withValidator(validator: api.validation.Validator): api.DataProcessor = {
-      if (validator.isInstanceOf[XercesValidator]) {
+      if (validator == DaffodilLimitedValidator || validator == NoValidator) {
+        super.withValidator(validator)
+      } else {
         throw new InvalidUsageException(
-          "'Full' validation not allowed when using a restored parser."
+          "Only Limited/No validation allowed when using a restored parser."
         )
       }
-      super.withValidator(validator)
     }
   }
 
@@ -143,8 +137,6 @@ class DataProcessor(
   with MultipleEventHandler {
 
   import DataProcessor.SerializableDataProcessor
-
-  override def getMainSchemaURIForFullValidation: URI = ssrd.mainSchemaUriForFullValidation
 
   /**
    * In order to make this serializable, without serializing the unwanted current state of

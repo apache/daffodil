@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import java.net.URI
-
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
@@ -35,15 +33,7 @@ final class SchemaSetRuntimeData(
    */
   variables: VariableMap,
   allLayers: Seq[LayerRuntimeData],
-  @transient layerRuntimeCompilerArg: LayerRuntimeCompiler,
-  /**
-   * URI to the root schema, used only for compiling a validator for full validation--this
-   * should not be used for any other purposes. This is marked as transient so that if the
-   * DataProcessor is serialized this URI will not be serialized, which ensures the absolute URI
-   * does not cause issues with save processor reproducibility. Note that saved parsers cannot
-   * be used with full validation so this does not break anything.
-   */
-  @transient val mainSchemaUriForFullValidation: URI
+  @transient layerRuntimeCompilerArg: LayerRuntimeCompiler
 ) extends Serializable
   with ThrowsSDE {
 

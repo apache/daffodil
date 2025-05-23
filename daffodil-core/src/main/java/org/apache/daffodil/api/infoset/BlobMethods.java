@@ -42,21 +42,21 @@ public abstract class BlobMethods {
    * @param prefix the prefix string to be used in generating a blob file name
    * @param suffix the suffix string to be used in generating a blob file name
    */
-  public void setBlobAttributes(Path dir, String prefix, String suffix) {
+  final public void setBlobAttributes(Path dir, String prefix, String suffix) {
     blobDirectory = dir;
     blobPrefix = prefix;
     blobSuffix = suffix;
   }
 
-  public String getBlobPrefix() {
+  final public String getBlobPrefix() {
     return blobPrefix;
   }
 
-  public String getBlobSuffix() {
+  final public String getBlobSuffix() {
     return blobSuffix;
   }
 
-  public Path getBlobDirectory() {
+  final public Path getBlobDirectory() {
     return blobDirectory;
   }
 
@@ -65,11 +65,11 @@ public abstract class BlobMethods {
    * <p>
    * This is the same as what would be found by iterating over the infoset.
    */
-  public List<Path> getBlobPaths() {
+  final public List<Path> getBlobPaths() {
     return blobPaths;
   }
 
-  public void setBlobPaths(List<Path> blobPaths) {
+  final public void setBlobPaths(List<Path> blobPaths) {
     this.blobPaths = blobPaths;
   }
 }

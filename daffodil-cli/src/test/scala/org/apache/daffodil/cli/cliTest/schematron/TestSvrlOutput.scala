@@ -37,12 +37,12 @@ class TestSvrlOutput {
   private def makeConf(conf: Path, schematron: Path, svrl: Path): Unit = {
     Files.write(
       conf,
-      s"""schematron.path="${jsonEscape(schematron.toString)}"\n""".getBytes(UTF_8),
+      s"""schematron.path=${jsonEscape(schematron.toString)}\n""".getBytes(UTF_8),
       APPEND
     )
     Files.write(
       conf,
-      s"""schematron.svrl.file="${jsonEscape(svrl.toString)}"\n""".getBytes(UTF_8),
+      s"""schematron.svrl.file=${jsonEscape(svrl.toString)}\n""".getBytes(UTF_8),
       APPEND
     )
   }

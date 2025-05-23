@@ -36,6 +36,7 @@ import scala.util.Try
 import scala.xml.Node
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.exceptions.InvalidParserException
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.lib.Implicits._
@@ -90,7 +91,7 @@ final class ProcessorFactory private (
       tunables
     )
 
-  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): api.compiler.ProcessorFactory =
+  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): api.ProcessorFactory =
     new ProcessorFactory(
       optRootSpec,
       schemaSource,
@@ -155,14 +156,11 @@ final class ProcessorFactory private (
   def withDistinguishedRootNode(
     name: String,
     namespace: String
-  ): api.compiler.ProcessorFactory = {
+  ): api.ProcessorFactory = {
     Assert.usage(name ne null)
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
   }
 }
-
-class InvalidParserException(msg: String, cause: Throwable = null)
-  extends api.exceptions.InvalidParserException(msg, cause)
 
 class Compiler private (
   val validateDFDLSchemas: Boolean,
@@ -414,7 +412,7 @@ class Compiler private (
     uri: URI,
     optRootName: Option[String],
     optRootNamespace: Option[String]
-  ): api.compiler.ProcessorFactory = {
+  ): api.ProcessorFactory = {
     compileSource(
       URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
       optRootName,
@@ -426,7 +424,7 @@ class Compiler private (
     name: String,
     optRootName: Option[String],
     optRootNamespace: Option[String]
-  ): api.compiler.ProcessorFactory = {
+  ): api.ProcessorFactory = {
     val uri = Misc.getRequiredResource(name)
     val source = URISchemaSource(new File(name), uri)
     compileSource(source, optRootName, optRootNamespace)
@@ -436,21 +434,21 @@ class Compiler private (
     schemaFile: File,
     optRootName: Optional[String],
     optRootNamespace: Optional[String]
-  ): api.compiler.ProcessorFactory =
+  ): api.ProcessorFactory =
     compileFile(schemaFile, optRootName.toScala, optRootNamespace.toScala)
 
   override def compileSource(
     uri: URI,
     optRootName: Optional[String],
     optRootNamespace: Optional[String]
-  ): api.compiler.ProcessorFactory =
+  ): api.ProcessorFactory =
     compileSource(uri, optRootName.toScala, optRootNamespace.toScala)
 
   override def compileResource(
     name: String,
     optRootName: Optional[String],
     optRootNamespace: Optional[String]
-  ): api.compiler.ProcessorFactory =
+  ): api.ProcessorFactory =
     compileResource(name, optRootName.toScala, optRootNamespace.toScala)
 
   override def withTunables(tunables: util.Map[String, String]): api.Compiler = withTunables(

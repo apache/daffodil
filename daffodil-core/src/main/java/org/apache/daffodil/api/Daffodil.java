@@ -30,7 +30,7 @@ public class Daffodil {
    *
    * @return new object to compile DFDL schemas
    */
-  public static Compiler compiler() {
+  public static org.apache.daffodil.core.compiler.Compiler compiler() {
     return org.apache.daffodil.core.compiler.Compiler.apply(true);
   }
 }

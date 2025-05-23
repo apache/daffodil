@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.sexample
 
-import org.apache.daffodil.lib.validation.Validators
+import java.util.Properties
 
-import com.typesafe.config.ConfigFactory
+import org.apache.daffodil.api.validation.Validators
+
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -27,11 +28,12 @@ import org.junit.Test
 // there is no support for passing validators by name into the dp as of yet
 // so these tests simply load via spi a validator and pass it into the SAPI
 class ValidatorSpiExample extends ValidatorExamplesSupport {
+  private final val validators = Validators.getInstance()
   @Test
   def testAlwaysPass(): Unit =
     withSchema("/test/api/mySchema5.dfdl.xsd") { dp =>
       withInput("/test/api/myData5.dat") { input =>
-        val v = Validators.get(PassingValidator.name).make(ConfigFactory.empty)
+        val v = validators.get(PassingValidator.name).make(new Properties())
         val res = dp.withValidator(v).parse(input, `/dev/null`)
         assertFalse(res.isValidationError())
       }
@@ -41,7 +43,7 @@ class ValidatorSpiExample extends ValidatorExamplesSupport {
   def testAlwaysFail(): Unit =
     withSchema("/test/api/mySchema5.dfdl.xsd") { dp =>
       withInput("/test/api/myData5.dat") { input =>
-        val v = Validators.get(FailingValidator.name).make(ConfigFactory.empty)
+        val v = validators.get(FailingValidator.name).make(new Properties())
         val res = dp.withValidator(v).parse(input, `/dev/null`)
         assertTrue(res.isValidationError())
       }

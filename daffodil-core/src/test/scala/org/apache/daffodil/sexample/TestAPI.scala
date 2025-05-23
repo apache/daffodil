@@ -28,6 +28,7 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.Properties
 import javax.xml.XMLConstants
 import scala.collection.immutable.ArraySeq
 import scala.util.Using
@@ -42,7 +43,8 @@ import org.apache.daffodil.api.exceptions.ExternalVariableException
 import org.apache.daffodil.api.exceptions.InvalidUsageException
 import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
-import org.apache.daffodil.api.validation.ValidatorsFactory
+import org.apache.daffodil.api.validation.Validator
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.validation.NoValidator
@@ -77,7 +79,7 @@ object TestAPI {
 }
 
 class TestAPI {
-
+  val validators = Validators.getInstance()
   import TestAPI._
 
   lazy val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
@@ -725,16 +727,29 @@ class TestAPI {
 
     try {
       parser.withValidator(
-        ValidatorsFactory.getXercesValidator(schemaFile.toURI)
+        validators
+          .get("xerces")
+          .make({
+            makeConfig(schemaFile)
+          })
       )
       fail()
     } catch {
       case e: InvalidUsageException =>
         assertEquals(
-          "'Full' validation not allowed when using a restored parser.",
+          "Only Limited/No validation allowed when using a restored parser.",
           e.getMessage
         )
     }
+  }
+
+  private def makeConfig(schemaFile: File) = {
+    val props = new Properties()
+    val bais = new ByteArrayInputStream(
+      s"${Validator.rootSchemaKey}=${schemaFile.toURI.toString}".getBytes
+    )
+    props.load(bais)
+    props
   }
 
   @Test
@@ -775,7 +790,7 @@ class TestAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withValidator(ValidatorsFactory.getLimitedValidator)
+      .withValidator(validators.get("limited").make(new Properties()))
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
     Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
@@ -801,7 +816,7 @@ class TestAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = dp1.withValidator(
-      ValidatorsFactory.getXercesValidator(dp1.getMainSchemaURIForFullValidation)
+      validators.get("xerces").make(makeConfig(schemaFile))
     )
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -1314,7 +1329,7 @@ class TestAPI {
     val dp1 = pf.onPath("/")
     val dp = dp1
       .withValidator(
-        ValidatorsFactory.getXercesValidator(dp1.getMainSchemaURIForFullValidation)
+        validators.get("xerces").make(makeConfig(schemaFile))
       )
 
     val data = Array[Byte](0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04)
@@ -1422,9 +1437,8 @@ class TestAPI {
     val uri = new URI("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileSource(uri)
     val dp1 = pf.onPath("/")
-    val dp = dp1.withValidator(
-      ValidatorsFactory.getXercesValidator(dp1.getMainSchemaURIForFullValidation)
-    );
+    val dp =
+      dp1.withValidator(validators.get("xerces").make(makeConfig(getResource(uri.getPath))))
 
     val file = getResource("/test/api/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
@@ -1436,33 +1450,6 @@ class TestAPI {
       val d = res.getDiagnostics.head
       val loc = d.getLocationsInSchemaFiles.head
       assertTrue(loc.asString().replace("\\", "/").contains("in " + uri.getPath))
-    }
-  }
-
-  // intended to test the case where compileSource succeeds, but onPath
-  // can't find the file when it tries to resolve the schemaLocation
-  // takes care of coverage for this case
-  @Test
-  def testAPICompileSource2(): Unit = {
-    val c = Daffodil.compiler()
-    val tempFile = File.createTempFile("testAPI", ".schema")
-    val schemaFile = getResource("/test/api/mySchema2.dfdl.xsd")
-    FileUtils.copyFile(schemaFile, tempFile)
-    val pf = c.compileSource(tempFile.toURI)
-    try {
-      assertFalse(pf.isError())
-      // delete file needed by Xerces for full validation
-      tempFile.delete()
-      // should throw FileNotFoundException because onPath calls resolveSchemaLocation
-      // on the URI backed by the deleted file
-      pf.onPath("/")
-      // fail if exception was not thrown
-      fail()
-    } catch {
-      case e: Exception =>
-        assertTrue(e.getMessage.contains("Could not find file or resource"))
-    } finally {
-      if (tempFile.exists) tempFile.delete()
     }
   }
 

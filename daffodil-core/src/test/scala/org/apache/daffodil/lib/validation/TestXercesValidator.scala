@@ -17,16 +17,19 @@
 
 package org.apache.daffodil.lib.validation
 
+import org.apache.daffodil.api.validation.Validators
+
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TestXercesValidator {
   val schema = getClass.getResource("/test/validation/testSchema1.dfdl.xsd").toURI.toString
   val infoset = getClass.getResourceAsStream("/test/validation/testData1Infoset.xml")
+  private final val validators = Validators.getInstance()
 
   @Test def testFromSPI(): Unit = {
-    val f = Validators.get(XercesValidator.name)
-    val v = f.make(XercesValidatorFactory.makeConfig(Seq(schema)))
+    val f = validators.get(XercesValidator.name)
+    val v = f.make(XercesValidatorFactory.makeConfig(schema))
     val validationHandler = new TestingValidationHandler
     v.validateXML(infoset, validationHandler)
 

@@ -20,7 +20,7 @@ package org.apache.daffodil.jexample;
 import org.apache.daffodil.api.Daffodil;
 import org.apache.daffodil.api.DataProcessor;
 import org.apache.daffodil.api.Diagnostic;
-import org.apache.daffodil.api.compiler.ProcessorFactory;
+import org.apache.daffodil.api.ProcessorFactory;
 import org.apache.daffodil.api.ChoiceMetadata;
 import org.apache.daffodil.api.ComplexElementMetadata;
 import org.apache.daffodil.api.ElementMetadata;

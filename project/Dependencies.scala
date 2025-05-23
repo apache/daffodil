@@ -16,7 +16,6 @@
  */
 
 import sbt.*
-import sbtunidoc.GenJavadocPlugin.autoImport.unidocGenjavadocVersion
 
 object Dependencies {
 
@@ -30,7 +29,6 @@ object Dependencies {
     "xerces" % "xercesImpl" % "2.12.2",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.19.0",
-    "com.typesafe" % "config" % "1.4.3",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
   )
 

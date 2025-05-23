@@ -20,7 +20,7 @@ package org.apache.daffodil.jexample;
 import org.apache.daffodil.api.Daffodil;
 import org.apache.daffodil.api.DataProcessor;
 import org.apache.daffodil.api.ParseResult;
-import org.apache.daffodil.api.compiler.ProcessorFactory;
+import org.apache.daffodil.api.ProcessorFactory;
 import org.apache.daffodil.api.debugger.Debugger;
 import org.apache.daffodil.api.InputSourceDataInputStream;
 import org.apache.daffodil.runtime1.processors.parsers.PState;

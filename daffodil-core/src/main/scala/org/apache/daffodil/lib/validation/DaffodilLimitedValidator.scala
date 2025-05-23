@@ -18,9 +18,11 @@
 package org.apache.daffodil.lib.validation
 
 import java.io.InputStream
+import java.util.Properties
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.validation.ValidationHandler
+import org.apache.daffodil.api.validation.Validator
 import org.apache.daffodil.lib.exceptions.Assert
 
 object DaffodilLimitedValidator extends api.validation.Validator {
@@ -33,3 +35,16 @@ object DaffodilLimitedValidator extends api.validation.Validator {
 }
 
 class DaffodilLimitedValidator
+
+/**
+ * Configuration properties
+ * - none; empty Properties file or null is sufficient
+ */
+class DaffodilLimitedValidatorFactory extends api.validation.ValidatorFactory {
+
+  override def name(): String = "limited"
+
+  override def make(config: Properties = new Properties()): Validator = {
+    DaffodilLimitedValidator
+  }
+}

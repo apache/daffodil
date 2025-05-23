@@ -48,14 +48,16 @@ import org.apache.daffodil.api.DataProcessor;
 import org.apache.daffodil.api.Diagnostic;
 import org.apache.daffodil.api.LocationInSchemaFile;
 import org.apache.daffodil.api.ParseResult;
-import org.apache.daffodil.api.validation.ValidatorsFactory;
+import org.apache.daffodil.api.validation.Validator;
+import org.apache.daffodil.api.validation.ValidatorInitializationException;
+import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
+import org.apache.daffodil.api.validation.Validators;
 import org.apache.daffodil.japi.SAXErrorHandlerForAPITest;
 import org.apache.daffodil.api.UnparseResult;
-import org.apache.daffodil.api.compiler.ProcessorFactory;
+import org.apache.daffodil.api.ProcessorFactory;
 import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException;
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException;
 import org.apache.daffodil.api.exceptions.ExternalVariableException;
-import org.apache.daffodil.api.exceptions.InvalidParserException;
 import org.apache.daffodil.api.exceptions.InvalidUsageException;
 import org.apache.daffodil.api.infoset.Infoset;
 import org.apache.daffodil.api.infoset.InfosetInputter;
@@ -75,9 +77,11 @@ import org.xml.sax.XMLReader;
 import javax.xml.XMLConstants;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 
 public class TestAPI {
+  private final Validators validators = Validators.getInstance();
 
   /**
    * Best practices for XML loading are to turn off anything that could lead to
@@ -107,6 +111,14 @@ public class TestAPI {
     }
   }
 
+  private Properties makeConfig(File schemaFile) throws IOException {
+    Properties props = new Properties();
+    ByteArrayInputStream bais = new ByteArrayInputStream(
+        String.format("%s=%s", Validator.rootSchemaKey, schemaFile.toURI()).getBytes());
+    props.load(bais);
+    return props;
+  }
+
   /**
    * This is a test-only helper function used to serialize and deserialize a
    * DataProcessor to ensure all JAPI classes that need to extend
@@ -130,14 +142,14 @@ public class TestAPI {
     ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
     try {
       result = Daffodil.compiler().reload(Channels.newChannel(bais));
-    } catch (InvalidParserException e) {
+    } catch (Exception e) {
       fail("Unable to reload data processor");
     }
     return result;
   }
 
   @Test
-  public void testJavaAPI1() throws IOException, ClassNotFoundException {
+  public void testAPI1() throws IOException, ClassNotFoundException {
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -169,10 +181,10 @@ public class TestAPI {
     }
   }
 
-  // This is a duplicate of test testJavaAPI1 that serializes the parser
+  // This is a duplicate of test testAPI1 that serializes the parser
   // before executing the test.
   @Test
-  public void testJavaAPI1_A() throws Exception {
+  public void testAPI1_A() throws Exception {
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -217,10 +229,10 @@ public class TestAPI {
     }
   }
 
-  // This is a duplicate of test testJavaAPI1 that serializes the parser
+  // This is a duplicate of test testAPI1 that serializes the parser
   // before executing the test.
   @Test
-  public void testJavaAPI1_A_FullFails() throws Exception {
+  public void testAPI1_A_FullFails() throws Exception {
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -241,15 +253,15 @@ public class TestAPI {
     DataProcessor parser = compiler.reload(input);
 
     try {
-      parser = parser.withValidator(ValidatorsFactory.getXercesValidator(parser.getMainSchemaURIForFullValidation()));
+      parser = parser.withValidator(validators.get("xerces").make(makeConfig(schemaFile)));
       fail();
     } catch (InvalidUsageException e) {
-      assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage());
+      assertEquals("Only Limited/No validation allowed when using a restored parser.", e.getMessage());
     }
   }
 
   @Test
-  public void testJavaAPI2() throws IOException, ClassNotFoundException {
+  public void testAPI2() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -293,7 +305,7 @@ public class TestAPI {
    * @throws IOException
    */
   @Test
-  public void testJavaAPI3() throws IOException, ClassNotFoundException {
+  public void testAPI3() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema3.dfdl.xsd");
@@ -322,10 +334,10 @@ public class TestAPI {
     }
   }
 
-  // This is a duplicate of test testJavaAPI3 that serializes the parser
+  // This is a duplicate of test testAPI3 that serializes the parser
   // before executing the test.
   @Test
-  public void testJavaAPI3_A() throws Exception {
+  public void testAPI3_A() throws Exception {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema3.dfdl.xsd");
@@ -364,7 +376,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI4b() throws IOException, ClassNotFoundException {
+  public void testAPI4b() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     File schemaFileName = getResource("/test/api/mySchema3.dfdl.xsd");
@@ -393,7 +405,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI5() throws IOException, ClassNotFoundException {
+  public void testAPI5() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     File schemaFileName = getResource("/test/api/mySchema3.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFileName, "e4", null); // e4 is a 4-byte long string
@@ -428,7 +440,7 @@ public class TestAPI {
    * @throws IOException
    */
   @Test
-  public void testJavaAPI6() throws IOException {
+  public void testAPI6() throws IOException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = new java.io.File("/test/api/notHere1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -450,7 +462,7 @@ public class TestAPI {
    * @throws IOException
    */
   @Test
-  public void testJavaAPI7() throws IOException, ClassNotFoundException {
+  public void testAPI7() throws IOException, ClassNotFoundException {
     // TODO: This is due to the fact that we are doing several conversions
     // back and forth between Scala.xml.Node and JDOM. And the conversions
     // both use XMLOutputter to format the result (which escapes the
@@ -480,7 +492,7 @@ public class TestAPI {
   }
 
   /**
-   * This test is nearly identical to testJavaAPI7. The only difference is
+   * This test is nearly identical to testAPI7. The only difference is
    * that this test uses double newline as a terminator for the first element
    * in the sequence rather than double newline as a separator for the
    * sequence
@@ -488,7 +500,7 @@ public class TestAPI {
    * @throws IOException
    */
   @Test
-  public void testJavaAPI8() throws IOException, ClassNotFoundException {
+  public void testAPI8() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/TopLevel.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile, "TopLevel2", null);
@@ -518,7 +530,7 @@ public class TestAPI {
    * error.
    */
   @Test
-  public void testJavaAPI9() throws IOException, ClassNotFoundException {
+  public void testAPI9() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/TopLevel.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile, "TopLevel2", null);
@@ -559,7 +571,7 @@ public class TestAPI {
    * Verify that hidden elements do not appear in the resulting infoset
    */
   @Test
-  public void testJavaAPI10() throws IOException, ClassNotFoundException {
+  public void testAPI10() throws IOException, ClassNotFoundException {
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema4.dfdl.xsd");
@@ -587,7 +599,7 @@ public class TestAPI {
    * Verify that nested elements do not appear as duplicates
    */
   @Test
-  public void testJavaAPI11() throws IOException, ClassNotFoundException {
+  public void testAPI11() throws IOException, ClassNotFoundException {
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema5.dfdl.xsd");
@@ -625,7 +637,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI12() throws IOException, ClassNotFoundException {
+  public void testAPI12() throws IOException, ClassNotFoundException {
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -652,7 +664,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI13() throws IOException, ClassNotFoundException, ExternalVariableException {
+  public void testAPI13() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via Compiler.
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
@@ -688,7 +700,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI14() throws IOException, ClassNotFoundException, ExternalVariableException {
+  public void testAPI14() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via DataProcessor.
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
@@ -726,7 +738,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI15() throws IOException, ClassNotFoundException {
+  public void testAPI15() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
@@ -759,14 +771,14 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI16() throws IOException, ClassNotFoundException {
+  public void testAPI16() throws IOException, ClassNotFoundException, ValidatorNotRegisteredException, ValidatorInitializationException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withValidator(ValidatorsFactory.getLimitedValidator());
+    dp = dp.withValidator(validators.get("limited").make(new Properties()));
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -787,13 +799,13 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI17() throws IOException, ClassNotFoundException {
+  public void testAPI17() throws IOException, ClassNotFoundException, ValidatorNotRegisteredException, ValidatorInitializationException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withValidator(ValidatorsFactory.getXercesValidator(dp.getMainSchemaURIForFullValidation().toString()));
+    dp = dp.withValidator(validators.get("xerces").make(makeConfig(schemaFile)));
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -822,7 +834,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI18() throws IOException, ClassNotFoundException {
+  public void testAPI18() throws IOException, ClassNotFoundException {
     // Demonstrate that we can use the API to continue a parse where we left off
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -863,7 +875,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI19() throws IOException, ClassNotFoundException {
+  public void testAPI19() throws IOException, ClassNotFoundException {
     // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
     // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -897,7 +909,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI20() throws Exception {
+  public void testAPI20() throws Exception {
     // Test SAX parsing/unparsing
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
@@ -972,7 +984,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI21() throws IOException, ClassNotFoundException {
+  public void testAPI21() throws IOException, ClassNotFoundException {
     // Test SAX parsing with errors
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
@@ -1011,7 +1023,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI22_withExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
+  public void testAPI22_withExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates here that we can set external variables using a
     // Java AbstractMap after compilation but before parsing via DataProcessor.
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
@@ -1052,7 +1064,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI23() throws IOException, ClassNotFoundException {
+  public void testAPI23() throws IOException, ClassNotFoundException {
     // test SAX unparsing with errors
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -1094,7 +1106,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI24() throws IOException, ClassNotFoundException, ExternalVariableException {
+  public void testAPI24() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates error cases of setting external variables
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -1211,7 +1223,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI25() throws IOException, ClassNotFoundException, ExternalVariableException {
+  public void testAPI25() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates the use of a custom InfosetInputter/Outputter
 
     String expectedData = "42";
@@ -1249,7 +1261,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI26() throws IOException, ClassNotFoundException, ExternalVariableException {
+  public void testAPI26() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates the use of the various EntityResolver methods from Java
 
     assertTrue(DaffodilXMLEntityResolver.getEntityResolver() != null);
@@ -1258,7 +1270,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPI27() throws IOException {
+  public void testAPI27() throws IOException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema6.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -1274,7 +1286,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPINullXMLTextEscapeStyle() throws IOException, ClassNotFoundException {
+  public void testAPINullXMLTextEscapeStyle() throws IOException, ClassNotFoundException {
     ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
     try {
       InfosetOutputter outputter = Infoset.getXMLTextInfosetOutputter(xmlBos, true, null);
@@ -1287,7 +1299,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICDATA1() throws Exception {
+  public void testAPICDATA1() throws Exception {
     String expected = "NO_WHITESPACE_OR_SPECIAL_CHARS";
     String data = "NO_WHITESPACE_OR_SPECIAL_CHARS$";
     String schemaType = "string";
@@ -1295,7 +1307,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICDATA2() throws Exception {
+  public void testAPICDATA2() throws Exception {
     String expected = "<![CDATA[   'some' stuff   here &#xE000; and ]]]]><![CDATA[> even]]>";
     String data = "   'some' stuff   here &#xE000; and ]]> even$";
     String schemaType = "string";
@@ -1303,7 +1315,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICDATA3() throws Exception {
+  public void testAPICDATA3() throws Exception {
     String expected = "6.892";
     String data = "6.892";
     String schemaType = "float";
@@ -1311,7 +1323,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICDATA4() throws Exception {
+  public void testAPICDATA4() throws Exception {
     String expected = "<![CDATA[this contains a CRLF\nline ending]]>";
     String data = "this contains a CRLF\r\nline ending$";
     String schemaType = "string";
@@ -1319,7 +1331,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICDATA5() throws Exception {
+  public void testAPICDATA5() throws Exception {
     String expected = "<![CDATA[abcd&gt]]>";
     String data = "abcd&gt$";
     String schemaType = "string";
@@ -1352,12 +1364,12 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPIBlob1() throws Exception {
+  public void testAPIBlob1() throws Exception {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/blob.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withValidator(ValidatorsFactory.getXercesValidator(dp.getMainSchemaURIForFullValidation().toString()));
+    dp = dp.withValidator(validators.get("xerces").make(makeConfig(schemaFile)));
 
     byte[] data = new byte[]{0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04};
     ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -1393,7 +1405,7 @@ public class TestAPI {
    * Verify that ProcessorFactory.withDistinguishedRootNode selects the right node
    */
   @Test
-  public void testJavaAPIWithDistinguishedRootNode() throws IOException, ClassNotFoundException {
+  public void testAPIWithDistinguishedRootNode() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
     // e3 is defined first in mySchema3.dfdl.xsd, so if withDistinguishedRootNode is ignored,
@@ -1429,7 +1441,7 @@ public class TestAPI {
    * @throws IOException
    */
   @Test
-  public void testJavaAPIGetDiagnostics() throws IOException {
+  public void testAPIGetDiagnostics() throws IOException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = new java.io.File("/test/api/notHere1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -1445,7 +1457,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICompileResource() throws IOException, ClassNotFoundException {
+  public void testAPICompileResource() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     String name = "/test/api/mySchema1.dfdl.xsd";
     ProcessorFactory pf = c.compileResource(name);
@@ -1465,12 +1477,12 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPICompileSource1() throws IOException, URISyntaxException {
+  public void testAPICompileSource1() throws IOException, URISyntaxException, ValidatorNotRegisteredException, ValidatorInitializationException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     URI uri = new URI("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileSource(uri);
     DataProcessor dp1 = pf.onPath("/");
-    DataProcessor dp = dp1.withValidator(ValidatorsFactory.getXercesValidator(dp1.getMainSchemaURIForFullValidation().toString()));
+    DataProcessor dp = dp1.withValidator(validators.get("xerces").make(makeConfig(getResource(uri.getPath()))));
 
     java.io.File file = getResource("/test/api/myDataBroken.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -1485,34 +1497,8 @@ public class TestAPI {
     }
   }
 
-  // intended to test the case where compileSource succeeds, but onPath
-  // can't find the file when it tries to resolve the schemaLocation
-  // takes care of coverage for this case
   @Test
-  public void testJavaAPICompileSource2() throws IOException {
-    org.apache.daffodil.api.Compiler c = Daffodil.compiler();
-    File tempFile = File.createTempFile("testJavaAPI", ".schema");
-    File schemaFile = getResource("/test/api/mySchema2.dfdl.xsd");
-    FileUtils.copyFile(schemaFile, tempFile);
-    ProcessorFactory pf = c.compileSource(tempFile.toURI());
-    try {
-      assertFalse(pf.isError());
-      // delete file needed by Xerces for full validation
-      tempFile.delete();
-      // should throw FileNotFoundException because onPath calls resolveSchemaLocation
-      // on the URI backed by the deleted file
-      pf.onPath("/");
-      // fail if exception was not thrown
-      fail();
-    } catch (Exception e) {
-      assertTrue(e.getMessage().contains("Could not find file or resource"));
-    } finally {
-      if (tempFile.exists()) tempFile.delete();
-    }
-  }
-
-  @Test
-  public void testJavaAPIJson1() throws IOException, ClassNotFoundException {
+  public void testAPIJson1() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -1536,7 +1522,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testJavaAPIJson2() throws IOException, ClassNotFoundException {
+  public void testAPIJson2() throws IOException, ClassNotFoundException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);

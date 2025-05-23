@@ -15,11 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api.compiler;
-
-import org.apache.daffodil.api.CodeGenerator;
-import org.apache.daffodil.api.DataProcessor;
-import org.apache.daffodil.api.WithDiagnostics;
+package org.apache.daffodil.api;
 
 /**
  * Factory to create {@link DataProcessor}s, used for parsing data

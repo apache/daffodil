@@ -18,14 +18,13 @@
 package org.apache.daffodil.lib.validation
 
 import java.io.InputStream
+import java.util.Properties
 
 import org.apache.daffodil.api
 
-import com.typesafe.config.Config
-
 class PassingValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = PassingValidator.name
-  def make(config: Config): api.validation.Validator =
+  def make(config: Properties): api.validation.Validator =
     new TestingValidatorSPI(Seq.empty)
 }
 object PassingValidator {
@@ -34,7 +33,7 @@ object PassingValidator {
 
 class FailingValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = FailingValidator.name
-  def make(config: Config): api.validation.Validator =
+  def make(config: Properties): api.validation.Validator =
     new TestingValidatorSPI(Seq("boom"))
 }
 object FailingValidator {

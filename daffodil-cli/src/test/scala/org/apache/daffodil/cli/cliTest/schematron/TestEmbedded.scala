@@ -28,10 +28,19 @@ class TestEmbedded {
   @Test def alwaysFails(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/always-fails-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.sendLine(UUID.randomUUID.toString, inputDone = true)
         cli.expect("</always-fails>")
+    }(ExitCode.ParseError)
+  }
+
+  @Test def alwaysFails_2(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/always-fails-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron -s $schema""") { cli =>
+      cli.sendLine(UUID.randomUUID.toString, inputDone = true)
+      cli.expect("</always-fails>")
     }(ExitCode.ParseError)
   }
 
@@ -48,7 +57,7 @@ class TestEmbedded {
     val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
 
     runCLI(
-      args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema"""
+      args"""parse -r list --validate schematron=${jsonEscape(schema.toString)} -s $schema"""
     ) { cli =>
       cli.send("widget,monday,1,$5.00,$6.00", inputDone = true)
       cli.expect("</ex:list>")
@@ -60,7 +69,7 @@ class TestEmbedded {
     val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
 
     runCLI(
-      args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema"""
+      args"""parse -r list --validate schematron=${jsonEscape(schema.toString)} -s $schema"""
     ) { cli =>
       cli.send("widget,monday,5,$5.00,$25.00||gadget,tuesday,1,$10.00,$11.00", inputDone = true)
       cli.expect("</ex:list>")
@@ -71,7 +80,7 @@ class TestEmbedded {
   @Test def extends1(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send("bob;l;smith", inputDone = true)
         cli.expect("</name>")
@@ -81,7 +90,7 @@ class TestEmbedded {
   @Test def extends2(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send("ob;;smith", inputDone = true)
         cli.expect("</name>")
@@ -91,7 +100,7 @@ class TestEmbedded {
   @Test def extends3(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send(";;smith", inputDone = true)
         cli.expectErr("Validation Error: first is blank")
@@ -101,7 +110,7 @@ class TestEmbedded {
   @Test def extends4(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send("bob;l;", inputDone = true)
         cli.expectErr("Validation Error: last is blank")
@@ -111,7 +120,7 @@ class TestEmbedded {
   @Test def extends5(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send(";l;", inputDone = true)
         cli.expectErr("Validation Error: last is blank")
@@ -122,7 +131,7 @@ class TestEmbedded {
   @Test def testWithNs1(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/with-ns-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send("0;1", inputDone = true)
         cli.expect("</myns:interval>")
@@ -132,7 +141,7 @@ class TestEmbedded {
   @Test def testWithNs2(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/with-ns-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send("2;1", inputDone = true)
         cli.expectErr("Validation Error")
@@ -142,7 +151,7 @@ class TestEmbedded {
   @Test def testWithNs3(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/with-ns-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.send("0;0", inputDone = true)
         cli.expectErr("Validation Error")
@@ -152,7 +161,7 @@ class TestEmbedded {
   @Test def testRelativeImport(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/relative-import.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+    runCLI(args"""parse --validate schematron=${jsonEscape(schema.toString)} -s $schema""") {
       cli =>
         cli.sendLine("not-valid-uuid-field-lengths", inputDone = true)
         cli.expect("</uuid>")

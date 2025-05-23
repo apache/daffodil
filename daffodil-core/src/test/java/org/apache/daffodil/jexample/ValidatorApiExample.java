@@ -21,19 +21,22 @@ import org.apache.daffodil.api.Daffodil;
 import org.apache.daffodil.api.Diagnostic;
 import org.apache.daffodil.api.ParseResult;
 import org.apache.daffodil.api.DataProcessor;
-import org.apache.daffodil.api.compiler.ProcessorFactory;
-import org.apache.daffodil.api.exceptions.InvalidUsageException;
+import org.apache.daffodil.api.ProcessorFactory;
 import org.apache.daffodil.api.infoset.Infoset;
 import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.api.InputSourceDataInputStream;
-import org.apache.daffodil.api.validation.ValidatorsFactory;
+import org.apache.daffodil.api.validation.Validator;
+import org.apache.daffodil.api.validation.ValidatorInitializationException;
+import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
+import org.apache.daffodil.api.validation.Validators;
 import org.apache.daffodil.jexample.validation.FailingValidator;
 import org.apache.daffodil.jexample.validation.PassingValidator;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -80,7 +83,7 @@ public class ValidatorApiExample {
   }
 
   @Test // Verifies that Daffodil-2456 is a false report. Not a bug.
-  public void testInvalidNoInfoset() throws IOException, ClassNotFoundException {
+  public void testInvalidNoInfoset() throws IOException, ClassNotFoundException, ValidatorNotRegisteredException, ValidatorInitializationException {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/alwaysInvalid.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
@@ -88,7 +91,11 @@ public class ValidatorApiExample {
       System.err.println(d.getMessage());
     }
     DataProcessor dp1 = pf.onPath("/");
-    DataProcessor dp = dp1.withValidator(ValidatorsFactory.getXercesValidator(dp1.getMainSchemaURIForFullValidation().toString()));
+    Properties props = new Properties();
+    ByteArrayInputStream bais = new ByteArrayInputStream(
+        String.format("%s=%s", Validator.rootSchemaKey, schemaFile.toURI()).getBytes());
+    props.load(bais);
+    DataProcessor dp = dp1.withValidator(Validators.getInstance().get("xerces").make(props));
 
     java.io.InputStream fis = new ByteArrayInputStream("0".getBytes());
     try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {

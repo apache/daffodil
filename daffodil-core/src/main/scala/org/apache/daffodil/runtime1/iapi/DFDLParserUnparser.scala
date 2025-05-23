@@ -99,21 +99,21 @@ object DFDL {
      */
 
     /**
-     * Compilation returns a [[org.apache.daffodil.api.compiler.ProcessorFactory]], which must be interrogated for diagnostics
+     * Compilation returns a [[ProcessorFactory]], which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
     def compileSource(
       schemaSource: DaffodilSchemaSource,
       optRootNodeName: Option[String] = None,
       optRootNodeNamespace: Option[String] = None
-    ): api.compiler.ProcessorFactory
+    ): api.ProcessorFactory
   }
 
   /**
    * The point of [[ProcessorFactory]] is to allow compilation of the path expression
    * and/or generation of source code to process data matching the compiled schema
    */
-  trait ProcessorFactory extends WithDiagnostics with api.compiler.ProcessorFactory {
+  trait ProcessorFactory extends WithDiagnostics with api.ProcessorFactory {
 
     /**
      * Returns a [[org.apache.daffodil.api.CodeGenerator]] to generate code from a DFDL schema to parse or unparse data

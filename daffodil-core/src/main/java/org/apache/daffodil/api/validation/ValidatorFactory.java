@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.api.validation;
 
-import com.typesafe.config.Config;
 import org.apache.daffodil.lib.util.SimpleNamedLoadableService;
 
+import java.util.Properties;
+
 /**
- * Implement this trait and register with SPI to provide runtime discovery of custom Validator implementations
+ * Implement this trait and register with SPI to provide runtime discovery of Validator implementations
  * <p>
- * The factory implementations are expected to be thread safe
+ * The factory implementations must be thread safe
  */
 public interface ValidatorFactory extends SimpleNamedLoadableService {
 
@@ -37,9 +38,9 @@ public interface ValidatorFactory extends SimpleNamedLoadableService {
   /**
    * The factory method to generate the Validator instance
    *
-   * @param config com.typesafe.config.Config to pass to validator instance
+   * @param config java.util.Properties to pass to validator instance
    * @return {@link org.apache.daffodil.api.validation.Validator} instance ready to execute
    * @throws org.apache.daffodil.api.validation.ValidatorInitializationException when initialization fails
    */
-  Validator make(Config config) throws ValidatorInitializationException;
+  Validator make(Properties config) throws ValidatorInitializationException;
 }

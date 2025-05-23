@@ -736,7 +736,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     optSchemaURI.foreach { schemaURI =>
       val validator =
         try {
-          XercesValidator.fromURIs(Seq(schemaURI))
+          XercesValidator.fromURI(Seq(schemaURI))
         } catch {
           case e: org.xml.sax.SAXParseException =>
             Assert.invariantFailed(

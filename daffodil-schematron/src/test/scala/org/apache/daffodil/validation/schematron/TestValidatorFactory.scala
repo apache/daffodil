@@ -17,24 +17,34 @@
 
 package org.apache.daffodil.validation.schematron
 
+import java.io.ByteArrayInputStream
+import java.util.Properties
+
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits.intercept
 
-import com.typesafe.config.ConfigFactory
 import org.junit.Test
 
 class TestValidatorFactory {
   @Test def testMakeFactory(): Unit = {
-    SchematronValidatorFactory.makeValidator(
-      ConfigFactory.parseString("schematron = sch/schematron-1.sch")
-    )
+    SchematronValidatorFactory.makeValidator({
+      val p = "schematron = sch/schematron-1.sch"
+      val bai = new ByteArrayInputStream(p.getBytes)
+      val props = new Properties()
+      props.load(bai)
+      props
+    })
   }
 
   @Test def testSchNotFound(): Unit = {
     intercept[api.validation.ValidatorInitializationException] {
-      SchematronValidatorFactory.makeValidator(
-        ConfigFactory.parseString("schematron = sch/schematron-xxx.sch")
-      )
+      SchematronValidatorFactory.makeValidator({
+        val p = "schematron = sch/schematron-xxx.sch"
+        val bai = new ByteArrayInputStream(p.getBytes)
+        val props = new Properties()
+        props.load(bai)
+        props
+      })
     }
   }
 }

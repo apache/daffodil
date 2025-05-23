@@ -22,29 +22,33 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Properties
 
 import org.apache.daffodil.api
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigValueType
 import net.sf.saxon.TransformerFactoryImpl
 
 /**
  * Daffodil ValidatorFactory implementation for ISO schematron
  */
 object SchematronValidatorFactory {
-  def makeValidator(config: Config): SchematronValidator = {
-    if (!config.hasPath(SchematronValidator.name)) {
+  def makeValidator(config: Properties): SchematronValidator = {
+
+    if (config == null) {
       throw new api.validation.ValidatorInitializationException(
         "invalid configuration: missing schematron path"
       )
     }
 
-    val schPathValue = config.getValue(SchematronValidator.name)
-    val schPath = Paths.get(schPathValue.valueType() match {
-      case ConfigValueType.OBJECT => config.getString(SchematronValidator.ConfigKeys.schPath)
-      case ConfigValueType.STRING => config.getString(SchematronValidator.name)
+    val schPathValue = config.getProperty(SchematronValidator.name)
+    lazy val schemaPathValue = config.getProperty(SchematronValidator.ConfigKeys.schPath)
+    lazy val defaultSchema = config.getProperty(SchematronValidator.ConfigKeys.rootSchema)
+    val schPath = Paths.get(schPathValue match {
+      case e if e == null && !Misc.isNullOrBlank(schemaPathValue) => schemaPathValue
+      case e if e != null => schPathValue
+      case _ if !Misc.isNullOrBlank(defaultSchema) => defaultSchema
       case _ =>
         throw new api.validation.ValidatorInitializationException(
           "invalid configuration: schematron path was not an object or string"
@@ -58,10 +62,12 @@ object SchematronValidatorFactory {
             s"schematron resource not found: $schPath"
           )
         )
-    val svrlOutPath: Option[Path] =
-      if (config.hasPath(SchematronValidator.ConfigKeys.svrlOutputFile))
-        Some(Paths.get(config.getString(SchematronValidator.ConfigKeys.svrlOutputFile)))
+    val svrlOutPath: Option[Path] = {
+      val svrl = config.getProperty(SchematronValidator.ConfigKeys.svrlOutputFile)
+      if (svrl != null)
+        Some(Paths.get(svrl))
       else None
+    }
 
     makeValidator(schStream, schPath.toString, SchSource.from(schPath), svrlOutPath)
   }
@@ -88,6 +94,6 @@ object SchematronValidatorFactory {
 
 final class SchematronValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = SchematronValidator.name
-  def make(config: Config): api.validation.Validator =
+  def make(config: Properties): api.validation.Validator =
     SchematronValidatorFactory.makeValidator(config)
 }

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.jexample.validation;
 
-import com.typesafe.config.Config;
 import org.apache.daffodil.api.validation.Validator;
 import org.apache.daffodil.api.validation.ValidatorFactory;
+
+import java.util.Properties;
 
 
 public class PassingValidatorFactory implements ValidatorFactory {
@@ -29,7 +30,7 @@ public class PassingValidatorFactory implements ValidatorFactory {
   }
 
   @Override
-  public Validator make(Config config) {
+  public Validator make(Properties config) {
     return new PassingValidator();
   }
 }

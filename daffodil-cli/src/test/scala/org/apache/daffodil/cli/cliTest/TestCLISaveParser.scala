@@ -175,10 +175,10 @@ class TestCLISaveParser {
         ExitCode.Success
       )
 
-      runCLI(args"parse --parser $parser --validate on $input") { cli =>
+      runCLI(args"parse --parser $parser --validate xerces $input") { cli =>
         cli.expectErr("[error]")
         cli.expectErr(
-          "The validation mode must be 'limited' or 'off' when using a saved parser."
+          "The validation name must be 'limited' or 'off' when using a saved parser."
         )
       }(ExitCode.Usage)
     }
@@ -213,8 +213,9 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser --validate on -s $schema -r validation_check $parser") { cli =>
-        cli.expectErr("Unknown option 'validate'")
+      runCLI(args"save-parser --validate xerces -s $schema -r validation_check $parser") {
+        cli =>
+          cli.expectErr("Unknown option 'validate'")
       }(ExitCode.Usage)
 
       runCLI(args"save-parser -s $schema -r validation_check $parser") { _ => }(
@@ -228,9 +229,9 @@ class TestCLISaveParser {
         cli.expectErr("[0-8]+")
       }(ExitCode.ParseError)
 
-      runCLI(args"parse --validate on -P $parser") { cli =>
+      runCLI(args"parse --validate xerces -P $parser") { cli =>
         cli.send("test", inputDone = true)
-        cli.expectErr("validation mode must be 'limited' or 'off' when using a saved parser.")
+        cli.expectErr("validation name must be 'limited' or 'off' when using a saved parser.")
       }(ExitCode.Usage)
     }
   }
