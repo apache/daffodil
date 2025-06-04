@@ -113,9 +113,7 @@ public class TestAPI {
 
   private Properties makeConfig(File schemaFile) throws IOException {
     Properties props = new Properties();
-    ByteArrayInputStream bais = new ByteArrayInputStream(
-        String.format("%s=%s", Validator.rootSchemaKey, schemaFile.toURI()).getBytes());
-    props.load(bais);
+    props.setProperty(Validator.rootSchemaKey, schemaFile.toURI().toString());
     return props;
   }
 

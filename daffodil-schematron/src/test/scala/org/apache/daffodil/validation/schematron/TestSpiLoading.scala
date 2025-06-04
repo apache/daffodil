@@ -22,6 +22,7 @@ import java.util.Properties
 import scala.io.Source
 
 import org.apache.daffodil.api.validation.Validators
+import org.apache.daffodil.lib.util.Misc
 
 import org.junit.Test
 
@@ -31,10 +32,9 @@ class TestSpiLoading {
   @Test def load(): Unit = {
     val vf = validators.get(SchematronValidator.name)
     val v = vf.make({
-      val p = "schematron = sch/schematron-2.sch"
-      val bai = new ByteArrayInputStream(p.getBytes)
       val props = new Properties()
-      props.load(bai)
+      val uri = Misc.getRequiredResource("sch/schematron-2.sch")
+      props.setProperty("schematron", uri.toString)
       props
     })
     val xml = Source.fromResource("xml/article-2.xml").mkString

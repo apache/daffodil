@@ -17,11 +17,8 @@
 
 package org.apache.daffodil.validation.schematron
 
-import java.io.FileInputStream
 import java.io.InputStream
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.net.URI
 import java.util.Properties
 
 import org.apache.daffodil.api
@@ -45,7 +42,7 @@ object SchematronValidatorFactory {
     val schPathValue = config.getProperty(SchematronValidator.name)
     lazy val schemaPathValue = config.getProperty(SchematronValidator.ConfigKeys.schPath)
     lazy val defaultSchema = config.getProperty(SchematronValidator.ConfigKeys.rootSchema)
-    val schPath = Paths.get(schPathValue match {
+    val schUri = new URI(schPathValue match {
       case e if e == null && !Misc.isNullOrBlank(schemaPathValue) => schemaPathValue
       case e if e != null => schPathValue
       case _ if !Misc.isNullOrBlank(defaultSchema) => defaultSchema
@@ -55,21 +52,22 @@ object SchematronValidatorFactory {
         )
     })
     val schStream =
-      if (Files.exists(schPath)) new FileInputStream(schPath.toFile)
-      else
-        Option(getClass.getClassLoader.getResourceAsStream(schPath.toString)).getOrElse(
+      try {
+        schUri.toURL.openStream()
+      } catch {
+        case _: Exception =>
           throw new api.validation.ValidatorInitializationException(
-            s"schematron resource not found: $schPath"
+            s"schematron resource not found: $schUri"
           )
-        )
-    val svrlOutPath: Option[Path] = {
+      }
+    val svrlOutPath: Option[URI] = {
       val svrl = config.getProperty(SchematronValidator.ConfigKeys.svrlOutputFile)
       if (svrl != null)
-        Some(Paths.get(svrl))
+        Some(new URI(svrl))
       else None
     }
 
-    makeValidator(schStream, schPath.toString, SchSource.from(schPath), svrlOutPath)
+    makeValidator(schStream, schUri.toString, SchSource.from(schUri), svrlOutPath)
   }
 
   def makeValidator(
@@ -83,7 +81,7 @@ object SchematronValidatorFactory {
     schematron: InputStream,
     schematronID: String,
     srcfmt: SchSource,
-    svrlPath: Option[Path]
+    svrlPath: Option[URI]
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
     factory.setURIResolver(DFDLCatalogResolver.get)

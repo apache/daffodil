@@ -412,9 +412,7 @@ class StreamParser private (val schema: Node) {
     val props = new Properties()
     val schemaTempFile = Files.createTempFile("streamparser", ".test")
     FileUtils.write(schemaTempFile.toFile, schema.toString(), Charset.defaultCharset())
-    val p = s"${api.validation.Validator.rootSchemaKey}=${schemaTempFile.toUri.toString}"
-    val is = new ByteArrayInputStream(p.getBytes())
-    props.load(is)
+    props.setProperty(api.validation.Validator.rootSchemaKey, schemaTempFile.toUri.toString)
     val dataproc = dataproc1
       .withValidator(
         TestUtils.validators.get("xerces").make(props)

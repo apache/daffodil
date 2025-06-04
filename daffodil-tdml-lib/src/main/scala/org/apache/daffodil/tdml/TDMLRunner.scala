@@ -590,10 +590,7 @@ class DFDLTestSuite private[tdml] (
       }
 
     val props = new Properties()
-    val bais = new ByteArrayInputStream(
-      s"${Validator.rootSchemaKey}=${suppliedSchema.uriForLoading}".getBytes
-    )
-    props.load(bais)
+    props.setProperty(Validator.rootSchemaKey, suppliedSchema.uriForLoading.toString)
 
     val compileResult = cache.getCompileResult(
       impl,
@@ -783,10 +780,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       .get(validatorName)
       .make({
         val props = new Properties()
-        val bais = new ByteArrayInputStream(
-          s"${Validator.rootSchemaKey}=${getSuppliedSchema().uriForLoading}".getBytes
-        )
-        props.load(bais)
+        props.setProperty(Validator.rootSchemaKey, getSuppliedSchema().uriForLoading.toString)
         props
       })
 

@@ -18,7 +18,6 @@
 package org.apache.daffodil.lib.validation
 
 import java.net.URI
-import java.nio.file.Paths
 import java.util.Properties
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
@@ -38,6 +37,7 @@ import org.xml.sax.SAXParseException
  * SPI service name: xerces
  * Configuration requirements:
  *   - daffodil.rootSchema=schema_file_uri_string
+ *   - xerces=schema_file_uri_string
  */
 class XercesValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = XercesValidator.name
@@ -58,7 +58,10 @@ object XercesValidatorFactory {
       if (schemaPath != null) schemaPath
       else config.getProperty(XercesValidator.ConfigKeys.rootSchema)
     if (Misc.isNullOrBlank(schemaFile)) null
-    else XercesValidator.fromFile(schemaFile)
+    else {
+      val uri = new URI(schemaFile)
+      XercesValidator.fromURI(uri)
+    }
   }
 
   def makeConfig(uri: String): Properties = {
@@ -142,15 +145,6 @@ object XercesValidator {
     ) // must set this so that relative URIs will be created for import/include files.
     stream
   })
-
-  def fromFile(schemaFileName: String) = {
-    val uri = new URI(schemaFileName)
-    if (uri.isAbsolute) {
-      fromURI(uri)
-    } else {
-      fromURI(Paths.get(schemaFileName).toUri)
-    }
-  }
 
   object ConfigKeys {
     val rootSchema = api.validation.Validator.rootSchemaKey

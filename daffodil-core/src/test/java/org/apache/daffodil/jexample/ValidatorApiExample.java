@@ -92,9 +92,7 @@ public class ValidatorApiExample {
     }
     DataProcessor dp1 = pf.onPath("/");
     Properties props = new Properties();
-    ByteArrayInputStream bais = new ByteArrayInputStream(
-        String.format("%s=%s", Validator.rootSchemaKey, schemaFile.toURI()).getBytes());
-    props.load(bais);
+    props.setProperty(Validator.rootSchemaKey, schemaFile.toURI().toString());
     DataProcessor dp = dp1.withValidator(Validators.getInstance().get("xerces").make(props));
 
     java.io.InputStream fis = new ByteArrayInputStream("0".getBytes());

@@ -17,21 +17,21 @@
 
 package org.apache.daffodil.validation.schematron
 
-import java.io.ByteArrayInputStream
+import java.nio.file.Paths
 import java.util.Properties
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.util.Misc
 
 import org.junit.Test
 
 class TestValidatorFactory {
   @Test def testMakeFactory(): Unit = {
     SchematronValidatorFactory.makeValidator({
-      val p = "schematron = sch/schematron-1.sch"
-      val bai = new ByteArrayInputStream(p.getBytes)
       val props = new Properties()
-      props.load(bai)
+      val uri = Misc.getRequiredResource("sch/schematron-1.sch")
+      props.setProperty("schematron", uri.toString)
       props
     })
   }
@@ -39,10 +39,9 @@ class TestValidatorFactory {
   @Test def testSchNotFound(): Unit = {
     intercept[api.validation.ValidatorInitializationException] {
       SchematronValidatorFactory.makeValidator({
-        val p = "schematron = sch/schematron-xxx.sch"
-        val bai = new ByteArrayInputStream(p.getBytes)
         val props = new Properties()
-        props.load(bai)
+        val uri = Paths.get("sch/schematron-xxx.sch").toUri
+        props.setProperty("schematron", uri.toString)
         props
       })
     }

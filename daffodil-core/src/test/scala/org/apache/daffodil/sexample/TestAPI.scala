@@ -745,10 +745,7 @@ class TestAPI {
 
   private def makeConfig(schemaFile: File) = {
     val props = new Properties()
-    val bais = new ByteArrayInputStream(
-      s"${Validator.rootSchemaKey}=${schemaFile.toURI.toString}".getBytes
-    )
-    props.load(bais)
+    props.setProperty(Validator.rootSchemaKey, schemaFile.toURI.toString)
     props
   }
 

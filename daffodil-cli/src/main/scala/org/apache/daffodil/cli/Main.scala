@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.cli
 
-import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -172,7 +171,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       import ValidatorPatterns._
       val defaults = new Properties()
       val rootSchema = schema.toOption match {
-        case Some(sch) => sch.uri.getPath
+        case Some(sch) => sch.uri.toString
         case _ => ""
       }
       defaults.setProperty(Validator.rootSchemaKey, rootSchema)
@@ -183,9 +182,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
             val is = new FileInputStream(arg)
             props.load(is)
           } else {
-            val p = s"$name=$arg"
-            val bai = new ByteArrayInputStream(p.getBytes)
-            props.load(bai)
+            val uss = fileResourceToURI(arg)
+            props.setProperty(name, uss.uri.toString)
           }
           validators.get(name).make(props)
         case NoArgsPattern(name) if validators.isRegistered(name) =>
@@ -253,56 +251,60 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
   implicit def fileResourceURIConverter: ValueConverter[URISchemaSource] =
     singleArgConverter[URISchemaSource]((s: String) => {
-      val optResolved =
-        try {
-          val uri =
-            if (File.separatorChar == '/' || s.startsWith("/")) {
-              // This is either a non-Windows system or a resource on the classpath. Either way we
-              // assume it is a valid URI except for things like spaces, which this URI
-              // constructor converts. We do not specify a schema since this might be a relative
-              // path
-              new URI(null, s, null)
-            } else {
-              // This is a Windows system, which has complex path resolution and paths that are
-              // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
-              // settle for an absolute URI
-              val p = Paths.get(s)
-              if (p.isAbsolute() || s.startsWith("\\")) {
-                // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
-                // starts with a backslash (which resolves relative to the current drive instead
-                // of the current working directory), then there is no valid relative URI
-                // representation, so we just convert it to an absolute URI
-                p.toUri
-              } else {
-                // this Windows path is relative to the current working directory. We can convert
-                // it to a relative URI by just switching all the path separators. We do not
-                // specify a schema since this is a relative path
-                new URI(null, s.replace('\\', '/'), null)
-              }
-            }
-          // At this point we have a valid URI, which could be absolute or relative, with relative
-          // URIs resolved from the current working directory. We create a fake contextPath that represents
-          // a fake file in the current working directory and pass that as the contextSource to the
-          // resolveSchemaLocation function to find the actual file or resource. This is necessary because
-          // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
-          val contextPath = Paths.get("fakeContext.dfdl.xsd")
-          val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
-          XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
-        } catch {
-          case _: Exception => throw new Exception(s"Could not find file or resource $s")
-        }
-      optResolved match {
-        case Some((uriSchemaSource, relToAbs)) => {
-          if (relToAbs) {
-            Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$s")
-          }
-          uriSchemaSource
-        }
-        case None => {
-          throw new Exception(s"Could not find file or resource $s")
-        }
-      }
+      fileResourceToURI(s)
     })
+
+  private def fileResourceToURI(path: String) = {
+    val optResolved =
+      try {
+        val uri =
+          if (File.separatorChar == '/' || path.startsWith("/")) {
+            // This is either a non-Windows system or a resource on the classpath. Either way we
+            // assume it is a valid URI except for things like spaces, which this URI
+            // constructor converts. We do not specify a schema since this might be a relative
+            // path
+            new URI(null, path, null)
+          } else {
+            // This is a Windows system, which has complex path resolution and paths that are
+            // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
+            // settle for an absolute URI
+            val p = Paths.get(path)
+            if (p.isAbsolute() || path.startsWith("\\")) {
+              // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
+              // starts with a backslash (which resolves relative to the current drive instead
+              // of the current working directory), then there is no valid relative URI
+              // representation, so we just convert it to an absolute URI
+              p.toUri
+            } else {
+              // this Windows path is relative to the current working directory. We can convert
+              // it to a relative URI by just switching all the path separators. We do not
+              // specify a schema since this is a relative path
+              new URI(null, path.replace('\\', '/'), null)
+            }
+          }
+        // At this point we have a valid URI, which could be absolute or relative, with relative
+        // URIs resolved from the current working directory. We create a fake contextPath that represents
+        // a fake file in the current working directory and pass that as the contextSource to the
+        // resolveSchemaLocation function to find the actual file or resource. This is necessary because
+        // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
+        val contextPath = Paths.get("fakeContext.dfdl.xsd")
+        val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
+        XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
+      } catch {
+        case _: Exception => throw new Exception(s"Could not find file or resource $path")
+      }
+    optResolved match {
+      case Some((uriSchemaSource, relToAbs)) => {
+        if (relToAbs) {
+          Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$path")
+        }
+        uriSchemaSource
+      }
+      case None => {
+        throw new Exception(s"Could not find file or resource $path")
+      }
+    }
+  }
 
   printedName = "Apache Daffodil"
 

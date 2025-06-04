@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.validation.schematron
 
+import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.nio.file.Path
+import java.net.URI
 import scala.util.Try
 import scala.xml.Elem
 import scala.xml.XML
@@ -29,10 +30,15 @@ import org.apache.daffodil.api.validation.Validator
 
 /**
  * Daffodil Validator implementation for ISO schematron
+ *
+ * Configuration
+ * - schematron.path=uri_string_to_schematron_file
+ * - schematron.svrl.file=uri_string_to_output_file
+ * - daffodil.rootSchema=schema_file_uri_string
  */
 final class SchematronValidator(
   engine: Schematron,
-  svrlPath: Option[Path]
+  svrlPath: Option[URI]
 ) extends api.validation.Validator {
   def validateXML(
     document: InputStream,
@@ -44,9 +50,9 @@ final class SchematronValidator(
     }
 
     val svrlString = svrl.mkString
-    svrlPath.foreach { path =>
+    svrlPath.foreach { uri =>
       Try {
-        val os = new FileOutputStream(path.toFile)
+        val os = new FileOutputStream(new File(uri))
         os.write(svrlString.getBytes)
         os.close()
       }.failed.foreach(handler.validationErrorNoContext)

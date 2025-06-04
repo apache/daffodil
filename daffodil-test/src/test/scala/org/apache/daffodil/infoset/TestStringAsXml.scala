@@ -47,15 +47,9 @@ class TestStringAsXml {
     val dp = pf.onPath("/")
     val props = new Properties()
     if (validatingSchema != null) {
-      val bais = new ByteArrayInputStream(
-        s"${Validator.rootSchemaKey}=${validatingSchema.toString}".getBytes
-      )
-      props.load(bais)
+      props.setProperty(Validator.rootSchemaKey, validatingSchema.toString)
     } else {
-      val bais = new ByteArrayInputStream(
-        s"${Validator.rootSchemaKey}=${dfdlSchemaURI.toString}".getBytes
-      )
-      props.load(bais)
+      props.setProperty(Validator.rootSchemaKey, dfdlSchemaURI.toString)
     }
     dp.withValidator(Validators.getInstance().get("xerces").make(props))
 
