@@ -38,7 +38,7 @@ class TestEmbedded {
   @Test def alwaysFails_2(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/always-fails-1.dfdl.xsd")
 
-    runCLI(args"""parse --validate schematron -s $schema""") { cli =>
+    runCLI(args"""parse --validate schematron -s $schema""", debug = true) { cli =>
       cli.sendLine(UUID.randomUUID.toString, inputDone = true)
       cli.expect("</always-fails>")
     }(ExitCode.ParseError)

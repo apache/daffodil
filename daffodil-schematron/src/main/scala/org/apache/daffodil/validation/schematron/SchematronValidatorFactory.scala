@@ -45,15 +45,17 @@ object SchematronValidatorFactory {
     val schPathValue = config.getProperty(SchematronValidator.name)
     lazy val schemaPathValue = config.getProperty(SchematronValidator.ConfigKeys.schPath)
     lazy val defaultSchema = config.getProperty(SchematronValidator.ConfigKeys.rootSchema)
-    val schPath = Paths.get(schPathValue match {
-      case e if e == null && !Misc.isNullOrBlank(schemaPathValue) => schemaPathValue
-      case e if e != null => schPathValue
-      case _ if !Misc.isNullOrBlank(defaultSchema) => defaultSchema
-      case _ =>
-        throw new api.validation.ValidatorInitializationException(
-          "invalid configuration: schematron path was not an object or string"
-        )
-    })
+    val schPath = Paths
+      .get(schPathValue match {
+        case e if e == null && !Misc.isNullOrBlank(schemaPathValue) => schemaPathValue
+        case e if e != null => schPathValue
+        case _ if !Misc.isNullOrBlank(defaultSchema) => defaultSchema
+        case _ =>
+          throw new api.validation.ValidatorInitializationException(
+            "invalid configuration: schematron path was not an object or string"
+          )
+      })
+    println(s"schematron schPath: $schPath")
     val schStream =
       if (Files.exists(schPath)) new FileInputStream(schPath.toFile)
       else

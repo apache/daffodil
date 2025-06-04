@@ -135,6 +135,8 @@ object XercesValidator {
   val name = "xerces"
 
   def fromURI(schemaURI: URI) = new XercesValidator({
+    println(s"uri: ${schemaURI}")
+    println(s"uri path: ${schemaURI.getPath}")
     val is = schemaURI.toURL.openStream()
     val stream = new StreamSource(is)
     stream.setSystemId(
@@ -145,10 +147,11 @@ object XercesValidator {
 
   def fromFile(schemaFileName: String) = {
     val uri = new URI(schemaFileName)
+    println(s"uri from file: $uri")
     if (uri.isAbsolute) {
       fromURI(uri)
     } else {
-      fromURI(Paths.get(schemaFileName).toUri)
+      fromURI(Paths.get(schemaFileName).toAbsolutePath.toUri)
     }
   }
 
