@@ -50,7 +50,7 @@ import org.junit.Assert.assertEquals
 
 object Util {
 
-  private val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
+  val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
   private val daffodilBinPath = {
     val ext = if (isWindows) ".bat" else ""
