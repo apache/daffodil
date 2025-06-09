@@ -17,7 +17,10 @@
 
 package org.apache.daffodil.cli.cliTest
 
+import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets.UTF_8
+import scala.sys.process.Process
+import scala.util.Using
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
@@ -25,6 +28,7 @@ import org.apache.daffodil.lib.Implicits._
 
 import org.apache.commons.io.FileUtils
 import org.junit.Assert._
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 
 class TestCLIParsing {
@@ -302,6 +306,29 @@ class TestCLIParsing {
       cli.sendLine("0,1,2,3", inputDone = true)
       cli.expect("<tns:cell>3</tns:cell>")
     }(ExitCode.LeftOverData)
+  }
+
+  @Test def test_CLI_Parsing_SimpleParse_fifo(): Unit = {
+    // disable this test on windows since it requires the mkfifo command
+    assumeTrue("fifo test ignored on Windows", !isWindows)
+
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    )
+
+    withTempDir { tempDir =>
+      val fifo = s"$tempDir/fifo"
+      Process("mkfifo", Seq(fifo)).!!
+
+      runCLI(args"parse -s $schema -r matrix $fifo") { cli =>
+        // Write to the fifo file. Calling Using.resource will close the fifo file when writing
+        // is complete and trigger an EOF in the CLI to end the parse
+        Using.resource(new FileOutputStream(fifo)) { os =>
+          os.write("0,1,2,3".getBytes("UTF-8"))
+        }
+        cli.expect("<tns:cell>3</tns:cell>")
+      }(ExitCode.Success)
+    }
   }
 
   @Test def test_CLI_Parsing_SimpleParse_verboseMode(): Unit = {

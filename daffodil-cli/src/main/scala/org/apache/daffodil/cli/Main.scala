@@ -1272,18 +1272,24 @@ class Main(
             val input = parseOpts.infile.toOption match {
               case Some("-") | None => InputSourceDataInputStream(STDIN)
               case Some(file) => {
-                // for files <= 2GB, use a mapped byte buffer to avoid the overhead related to
-                // the BucketingInputSource. Larger files cannot be mapped so we cannot avoid it
+                // Try to use a memory mapped byte buffer for input files since it is
+                // significantly more efficient, especially for large files. Files larger than
+                // 2GB and non-regular files (e.g. fifo files, devices, unix sockets) cannot be
+                // mapped--in these cases we use use a normal input stream which is less
+                // efficient.
                 val path = Paths.get(file)
-                val size = Files.size(path)
-                if (size <= Int.MaxValue) {
-                  val fc = FileChannel.open(path, StandardOpenOption.READ)
-                  val bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size)
-                  fc.close() // we no longer need the channel now that we've mapped it
-                  InputSourceDataInputStream(bb)
-                } else {
-                  val is = Files.newInputStream(path, StandardOpenOption.READ)
-                  InputSourceDataInputStream(is)
+                val optSize = if (Files.isRegularFile(path)) Some(Files.size(path)) else None
+                optSize match {
+                  case Some(size) if size <= Int.MaxValue => {
+                    val fc = FileChannel.open(path, StandardOpenOption.READ)
+                    val bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size)
+                    fc.close() // we no longer need the channel now that we've mapped it
+                    InputSourceDataInputStream(bb)
+                  }
+                  case _ => {
+                    val is = Files.newInputStream(path, StandardOpenOption.READ)
+                    InputSourceDataInputStream(is)
+                  }
                 }
               }
             }
