@@ -18,7 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.dsom.IIUtils._
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.xml.XMLUtils
 
 /**

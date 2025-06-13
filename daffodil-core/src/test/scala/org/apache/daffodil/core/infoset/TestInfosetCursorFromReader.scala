@@ -59,7 +59,7 @@ class TestInfosetInputterFromReader {
       throw new Exception(msgs)
     }
     val rootERD = u.ssrd.elementRuntimeData
-    val inputter = new ScalaXMLInfosetInputter(infosetXML)
+    val inputter = new InfosetInputter(new ScalaXMLInfosetInputter(infosetXML))
     inputter.initialize(rootERD, u.tunables)
     val is = Adapter(inputter)
     (is, rootERD, inputter, u.tunables)

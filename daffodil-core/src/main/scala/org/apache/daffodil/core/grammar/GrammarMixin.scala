@@ -16,6 +16,7 @@
  */
 
 package org.apache.daffodil.core.grammar
+
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.dsom.SchemaComponent
 

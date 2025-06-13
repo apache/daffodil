@@ -24,6 +24,7 @@ import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
+import org.apache.daffodil.api
 import org.apache.daffodil.codegen.c.generators.AlignmentFillCodeGenerator
 import org.apache.daffodil.codegen.c.generators.AssertStatementGenerateCode
 import org.apache.daffodil.codegen.c.generators.BinaryBooleanCodeGenerator
@@ -60,12 +61,12 @@ import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthPrefixed
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.iapi.Diagnostic
+import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
 
@@ -78,7 +79,7 @@ import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
  *
  * @param root Passes DFDL schema from which to generate code
  */
-class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
+class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
   // Note this class is not thread-safe due to mutable state needed to
   // implement WithDiagnostics trait
   private var diagnostics: Seq[Diagnostic] = Nil
@@ -239,7 +240,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
   }
 
   // Implements the WithDiagnostics trait
-  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
   override def isError: Boolean = errorStatus
 }
 

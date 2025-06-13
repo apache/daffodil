@@ -19,11 +19,12 @@ package org.apache.daffodil.core.general
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
+import org.apache.daffodil.runtime1.iapi.DFDL.DataProcessor
 
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
 import org.apache.daffodil.core.util.Fakes
-import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -63,8 +64,8 @@ class TestTunables {
     val c2 = c.withTunable("maxSkipLengthInBytes", "2048")
     val pf2 = c2.compileNode(testSchema)
 
-    val dp1 = pf1.onPath("/")
-    var dp2 = pf2.onPath("/")
+    val dp1 = pf1.onPath("/").asInstanceOf[DataProcessor]
+    var dp2 = pf2.onPath("/").asInstanceOf[DataProcessor]
 
     val t1 = dp1.tunables
     val t2 = dp2.tunables
