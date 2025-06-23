@@ -17,7 +17,7 @@
 
 /**
  * <h2>Daffodil Runtime1 Layers API Package</h2>
- *
+ * <p>
  * This package provides base classes for creating Layers, which provide a means of
  * algorithmic operations on the data stream that cannot be expressed using
  * regular DFDL properties.
@@ -45,7 +45,7 @@
  * checksum layers.
  *
  * <h3> About Testing </h3>
- *
+ * <p>
  * The Daffodil test code base includes tests for many ways that
  * an API user can goof up the definition of a layer class.
  * For example there are tests for calling {@code processingError}, {@code runtimeSchemaDefinitionError}, and throwing
@@ -56,7 +56,7 @@
  * other alternatives for parsing that data.
  *
  * <h3>Compatibility with Daffodil 3.7.0 and prior versions of Apache Daffodil</h3>
- *
+ * <p>
  * This new Layer API is entirely incompatible with schemas or layer code
  * from Daffodil 3.7.0 and all prior versions of Daffodil.
  * <p>

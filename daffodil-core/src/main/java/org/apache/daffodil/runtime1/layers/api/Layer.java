@@ -33,7 +33,7 @@ import java.util.List;
  * This class is used directly as a base class to define <i>transforming</i> layers.
  * To simplify the
  * definition of <i>checksum</i> layers, a specialized sub-class
- * {@link org.apache.daffodil.runtime1.layers.api.ChecksumLayer}
+ * {@link ChecksumLayer}
  * is also available.
  * Many of the requirements for layers, such as the naming conventions for layer variables,
  * are described here, but they apply equally to checksum layers.

@@ -74,7 +74,8 @@ public abstract class ChecksumLayer extends ChecksumLayerBase {
 
   /**
    * Base class constructor
-   * @param layerName the name of the layer
+   *
+   * @param layerName            the name of the layer
    * @param layerTargetNamespace the URI that is the target namespace of the layer
    * @throws IllegalArgumentException if arguments are null or do not obey required syntax.
    */
@@ -85,8 +86,8 @@ public abstract class ChecksumLayer extends ChecksumLayerBase {
   /**
    * Override to compute the checksum of a buffer of data.
    *
-   * @param isUnparse true if the direction is unparsing. Used because in some cases the computed checksum must
-   *                  be written into the byte buffer in a specific location.
+   * @param isUnparse  true if the direction is unparsing. Used because in some cases the computed checksum must
+   *                   be written into the byte buffer in a specific location.
    * @param byteBuffer the bytes over which the checksum is to be computed.
    *                   This byte buffer can be modified, (for example so as to embed the computed checksum in the
    *                   middle of the data somewhere).
@@ -95,7 +96,7 @@ public abstract class ChecksumLayer extends ChecksumLayerBase {
    * @return the checksum value as an Int (32-bit signed integer)
    */
   public abstract int compute(
-    boolean isUnparse,
-    ByteBuffer byteBuffer
+      boolean isUnparse,
+      ByteBuffer byteBuffer
   );
 }
