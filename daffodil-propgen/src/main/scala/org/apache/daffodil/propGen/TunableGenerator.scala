@@ -37,7 +37,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     | * limitations under the License.
     | */
     |
-    |package org.apache.daffodil.lib.api
+    |package org.apache.daffodil.lib.iapi
     |
     |////////////////////////////////////////////////////////////////////////////////////////////
     |//

@@ -24,13 +24,14 @@ import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.ns2String
-import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.runtime1.iapi.DFDL.DataProcessor
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.ExternalVariableException
 import org.apache.daffodil.runtime1.processors.VariableMap
@@ -221,7 +222,7 @@ class TestExternalVariables {
     pf.isError
     pf.diagnostics.foreach { d => println(d) }
     assertFalse(pf.isError)
-    val dp = pf.onPath("/").withExternalVariables(variables)
+    val dp = pf.onPath("/").asInstanceOf[DataProcessor].withExternalVariables(variables)
 
     val sset = pf.sset
 
@@ -273,7 +274,7 @@ class TestExternalVariables {
     val pf = c.compileSource(source)
     val sset = pf.sset
 
-    val dp = pf.onPath("/").withExternalVariables(variables)
+    val dp = pf.onPath("/").asInstanceOf[DataProcessor].withExternalVariables(variables)
 
     // var1's namespace was htp://example.com, so we expect to find it
     checkResult(dp.variableMap, "{http://example.com}var1", "value1")
@@ -326,7 +327,7 @@ class TestExternalVariables {
     val variables = ExternalVariablesLoader.mapToBindings(vars)
 
     val exception = intercept[ExternalVariableException] {
-      pf.onPath("/").withExternalVariables(variables)
+      pf.onPath("/").asInstanceOf[DataProcessor].withExternalVariables(variables)
     }
 
     val msg = exception.getMessage()
@@ -356,8 +357,8 @@ class TestExternalVariables {
     val pf = c.compileSource(source)
     val sset = pf.sset
 
-    val dp1 = pf.onPath("/")
-    val dp2 = pf.onPath("/").withExternalVariables(variables)
+    val dp1 = pf.onPath("/").asInstanceOf[DataProcessor]
+    val dp2 = pf.onPath("/").asInstanceOf[DataProcessor].withExternalVariables(variables)
 
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(

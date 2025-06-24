@@ -64,7 +64,7 @@ class TestInfosetInputterFromReader2 {
       (("<bar xmlns='" + ex + "' >") #:: foos.take(size))
 
     val is = new StreamInputStream(strings)
-    val inputter = new XMLTextInfosetInputter(is)
+    val inputter = new InfosetInputter(new XMLTextInfosetInputter(is))
     inputter.initialize(rootERD, u.tunables)
     val ic = Adapter(inputter)
     (ic, rootERD, inputter)

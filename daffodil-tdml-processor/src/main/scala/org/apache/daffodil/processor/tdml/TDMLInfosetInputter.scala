@@ -17,23 +17,26 @@
 
 package org.apache.daffodil.processor.tdml
 
+import java.lang.{ Boolean => JBoolean }
 import java.net.URI
 import java.net.URISyntaxException
+import java.util.Optional
+import scala.jdk.CollectionConverters._
 
-import org.apache.daffodil.lib.util.MaybeBoolean
+import org.apache.daffodil.api
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.InfosetInputter
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.JsonInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.runtime1.infoset.XMLTextInfoset
 import org.apache.daffodil.tdml.TDMLException
 
 class TDMLInfosetInputter(
   val scalaInputter: ScalaXMLInfosetInputter,
-  others: Seq[InfosetInputter]
-) extends InfosetInputter {
+  others: Seq[api.infoset.InfosetInputter]
+) extends api.infoset.InfosetInputter {
 
   private def implString: String = "daffodil"
 
@@ -55,7 +58,7 @@ class TDMLInfosetInputter(
     val res = scalaInputter.getNamespaceURI()
     val resIsEmpty = res == null || res == ""
     val othersMatch = others.forall { i =>
-      if (!i.supportsNamespaces) {
+      if (!i.getSupportsNamespaces) {
         true
       } else {
         val ns = i.getNamespaceURI()
@@ -69,6 +72,12 @@ class TDMLInfosetInputter(
       throw TDMLException("getNamespaceURI does not match", Some(implString))
     res
   }
+
+  override def getSimpleText(primType: NodeInfo.Kind): String =
+    scalaInputter.getSimpleText(
+      primType,
+      Map[String, String](XMLTextInfoset.stringAsXml -> "false").asJava
+    )
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
@@ -125,7 +134,7 @@ class TDMLInfosetInputter(
     }
   }
 
-  override def isNilled(): MaybeBoolean = {
+  override def isNilled(): Optional[JBoolean] = {
     val res = scalaInputter.isNilled()
     if (!others.forall(_.isNilled() == res))
       throw TDMLException("isNilled does not match", Some(implString))
@@ -149,7 +158,7 @@ class TDMLInfosetInputter(
     others.foreach(_.fini())
   }
 
-  override val supportsNamespaces = true
+  override def getSupportsNamespaces = true
 
   /**
    * Converts a JSON infoset string to its XML equivalent.

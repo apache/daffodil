@@ -17,51 +17,57 @@
 
 package org.apache.daffodil.validation.schematron
 
-import java.io.FileInputStream
 import java.io.InputStream
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.net.URI
+import java.util.Properties
 
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.ValidatorFactory
-import org.apache.daffodil.lib.api.ValidatorInitializationException
+import org.apache.daffodil.api
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigValueType
 import net.sf.saxon.TransformerFactoryImpl
 
 /**
  * Daffodil ValidatorFactory implementation for ISO schematron
  */
 object SchematronValidatorFactory {
-  def makeValidator(config: Config): SchematronValidator = {
-    if (!config.hasPath(SchematronValidator.name)) {
-      throw ValidatorInitializationException("invalid configuration: missing schematron path")
+  def makeValidator(config: Properties): SchematronValidator = {
+
+    if (config == null) {
+      throw new api.validation.ValidatorInitializationException(
+        "invalid configuration: missing schematron path"
+      )
     }
 
-    val schPathValue = config.getValue(SchematronValidator.name)
-    val schPath = Paths.get(schPathValue.valueType() match {
-      case ConfigValueType.OBJECT => config.getString(SchematronValidator.ConfigKeys.schPath)
-      case ConfigValueType.STRING => config.getString(SchematronValidator.name)
+    val schPathValue = config.getProperty(SchematronValidator.name)
+    lazy val schemaPathValue = config.getProperty(SchematronValidator.ConfigKeys.schPath)
+    lazy val defaultSchema = config.getProperty(SchematronValidator.ConfigKeys.rootSchema)
+    val schUri = new URI(schPathValue match {
+      case e if e == null && !Misc.isNullOrBlank(schemaPathValue) => schemaPathValue
+      case e if e != null => schPathValue
+      case _ if !Misc.isNullOrBlank(defaultSchema) => defaultSchema
       case _ =>
-        throw ValidatorInitializationException(
+        throw new api.validation.ValidatorInitializationException(
           "invalid configuration: schematron path was not an object or string"
         )
     })
     val schStream =
-      if (Files.exists(schPath)) new FileInputStream(schPath.toFile)
-      else
-        Option(getClass.getClassLoader.getResourceAsStream(schPath.toString)).getOrElse(
-          throw ValidatorInitializationException(s"schematron resource not found: $schPath")
-        )
-    val svrlOutPath: Option[Path] =
-      if (config.hasPath(SchematronValidator.ConfigKeys.svrlOutputFile))
-        Some(Paths.get(config.getString(SchematronValidator.ConfigKeys.svrlOutputFile)))
+      try {
+        schUri.toURL.openStream()
+      } catch {
+        case _: Exception =>
+          throw new api.validation.ValidatorInitializationException(
+            s"schematron resource not found: $schUri"
+          )
+      }
+    val svrlOutPath: Option[URI] = {
+      val svrl = config.getProperty(SchematronValidator.ConfigKeys.svrlOutputFile)
+      if (svrl != null)
+        Some(new URI(svrl))
       else None
+    }
 
-    makeValidator(schStream, schPath.toString, SchSource.from(schPath), svrlOutPath)
+    makeValidator(schStream, schUri.toString, SchSource.from(schUri), svrlOutPath)
   }
 
   def makeValidator(
@@ -75,7 +81,7 @@ object SchematronValidatorFactory {
     schematron: InputStream,
     schematronID: String,
     srcfmt: SchSource,
-    svrlPath: Option[Path]
+    svrlPath: Option[URI]
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
     factory.setURIResolver(DFDLCatalogResolver.get)
@@ -84,7 +90,8 @@ object SchematronValidatorFactory {
   }
 }
 
-final class SchematronValidatorFactory extends ValidatorFactory {
+final class SchematronValidatorFactory extends api.validation.ValidatorFactory {
   def name(): String = SchematronValidator.name
-  def make(config: Config): Validator = SchematronValidatorFactory.makeValidator(config)
+  def make(config: Properties): api.validation.Validator =
+    SchematronValidatorFactory.makeValidator(config)
 }

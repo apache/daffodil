@@ -19,7 +19,7 @@ package org.apache.daffodil.codegen.c
 
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
-import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
 import org.junit.Test

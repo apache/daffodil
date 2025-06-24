@@ -16,7 +16,6 @@
  */
 
 import sbt.*
-import sbtunidoc.GenJavadocPlugin.autoImport.unidocGenjavadocVersion
 
 object Dependencies {
 
@@ -30,7 +29,6 @@ object Dependencies {
     "xerces" % "xercesImpl" % "2.12.2",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.19.0",
-    "com.typesafe" % "config" % "1.4.3",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
   )
 
@@ -67,12 +65,4 @@ object Dependencies {
   lazy val exi = Seq(
     "com.siemens.ct.exi" % "exificient" % "1.0.7"
   )
-
-  lazy val genjavadocVersion = {
-    // Scala Steward may try to update this version to include the Scala version,
-    // for example 0.18_2.12.15. This is incorrect because the unidoc plugin uses
-    // crossVersion to figure out the Scala version. This should be set to just the
-    // version of the genjavadoc plugin, without the Scala version.
-    unidocGenjavadocVersion := "0.19"
-  }
 }
