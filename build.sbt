@@ -432,11 +432,13 @@ lazy val unidocSettings =
     ),
     ScalaUnidoc / unidoc / unidocProjectFilter :=
       inProjects(udf, core),
-    ScalaUnidoc / unidoc / scalacOptions := Seq(
-      "-doc-title",
+    ScalaUnidoc / unidoc / javacOptions := Seq(
+      "-windowtitle",
       "Apache Daffodil " + version.value + " Java API",
-      "-doc-root-content",
-      (core / baseDirectory).value + "/root-doc.txt"
+      "-doctitle",
+      "<h1>Apache Daffodil " + version.value + " Java API</h1>",
+      "-notimestamp",
+      "-quiet"
     ),
     ScalaUnidoc / unidoc / unidocAllSources :=
       (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)
