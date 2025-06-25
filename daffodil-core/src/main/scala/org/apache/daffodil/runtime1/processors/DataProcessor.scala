@@ -25,6 +25,7 @@ import java.nio.LongBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
+import java.util
 import java.util.zip.GZIPOutputStream
 
 import org.apache.daffodil.api
@@ -245,7 +246,8 @@ class DataProcessor(
 
   override def isError = false
 
-  override def getDiagnostics = diagnostics.asInstanceOf[Seq[api.Diagnostic]]
+  override def getDiagnostics: util.List[api.Diagnostic] =
+    diagnostics.asInstanceOf[Seq[api.Diagnostic]]
 
   override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = {
     val xrdr = new DaffodilParseXMLReader(this)

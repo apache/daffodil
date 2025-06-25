@@ -19,6 +19,8 @@ package org.apache.daffodil.runtime1.debugger
 
 import java.io.PrintStream
 
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
+
 class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebuggerRunner {
   val traceIter = Seq(
     "set infosetParents 1",

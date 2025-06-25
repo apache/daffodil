@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime1.debugger;
+package org.apache.daffodil.runtime1.debugger
 
-import org.apache.daffodil.api.debugger.DebuggerRunner;
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner;
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
 
 /*
  * The below class is empty and is not ever actually used. It is just a place
@@ -27,30 +26,34 @@ import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner;
  * since the Scala pattern matcher would still match and use the equivalent
  * Scala trace runner and lose any added functionality. One must extend the
  * DebuggerRunner to create their own debugger runner.
+ */ /*
+ * The below class is empty and is not ever actually used. It is just a place
+ * holder. Whenever the API uses it, it is translated to the appropriate
+ * Scala debugger runner. It is marked final so that it cannot be extended,
+ * since the Scala pattern matcher would still match and use the equivalent
+ * Scala trace runner and lose any added functionality. One must extend the
+ * DebuggerRunner to create their own debugger runner.
  */
-
 
 /**
- * {@link DebuggerRunner} that writes verbose information about parsing to stdout
+ * `DebuggerRunner` that writes verbose information about parsing to stdout
  */
-public final class InteractiveTraceDebuggerRunner implements InteractiveDebuggerRunner {
-  public void init() {
+final class InteractiveTraceDebuggerRunner extends InteractiveDebuggerRunner {
+  override def init(): Unit = {
     // do nothing
   }
 
-  public void init(InteractiveDebugger id) {
+  override def init(id: InteractiveDebugger): Unit = {
     // do nothing
   }
 
-  public String getCommand() {
-    return "";
-  }
+  override def getCommand = ""
 
-  public void lineOutput(String line) {
+  override def lineOutput(line: String): Unit = {
     // do nothing
   }
 
-  public void fini() {
+  override def fini(): Unit = {
     // do nothing
   }
 }

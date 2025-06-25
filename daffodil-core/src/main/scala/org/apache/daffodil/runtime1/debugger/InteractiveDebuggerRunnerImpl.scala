@@ -15,36 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime1.debugger;
+package org.apache.daffodil.runtime1.debugger
 
-import org.apache.daffodil.api.debugger.DebuggerRunner;
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner;
+import org.apache.daffodil.api.debugger.DebuggerRunner
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
 
-public class InteractiveDebuggerRunnerImpl implements InteractiveDebuggerRunner {
-  DebuggerRunner dr;
-
-  public InteractiveDebuggerRunnerImpl(DebuggerRunner dr) {
-    this.dr = dr;
-  }
-
-  public void init(InteractiveDebugger id) {
-    dr.init();
-  }
-
-  @Override
-  public void init() {
-    dr.init();
-  }
-
-  public String getCommand() {
-    return dr.getCommand();
-  }
-
-  public void lineOutput(String line) {
-    dr.lineOutput(line);
-  }
-
-  public void fini() {
-    dr.fini();
-  }
+class InteractiveDebuggerRunnerImpl(private[debugger] var dr: DebuggerRunner)
+  extends InteractiveDebuggerRunner {
+  override def init(id: InteractiveDebugger): Unit = { dr.init() }
+  override def init(): Unit = { dr.init() }
+  override def getCommand: String = dr.getCommand
+  override def lineOutput(line: String): Unit = { dr.lineOutput(line) }
+  override def fini(): Unit = { dr.fini() }
 }

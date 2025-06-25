@@ -23,6 +23,7 @@ import java.io.PrintStream
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
 import org.apache.daffodil.runtime1.debugger._
 
 import org.jline.reader.Candidate

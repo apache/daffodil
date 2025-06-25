@@ -52,13 +52,6 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateForSuspension
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
-abstract class InteractiveDebuggerRunner extends JInteractiveDebuggerRunner {
-  def init(id: InteractiveDebugger): Unit
-  def getCommand: String
-  def lineOutput(line: String): Unit
-  def fini(): Unit
-}
-
 case class DebuggerExitException() extends UnsuppressableException("Debugger exit")
 
 class InteractiveDebugger(
