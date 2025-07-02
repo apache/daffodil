@@ -82,8 +82,10 @@ trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
       val ch = this match {
         case cgd: GlobalChoiceGroupDef => cgd.xml \ "choice"
       }
-      val Elem(_, "choice", _, _, c @ _*) = ch(0)
-      c
+      ch(0) match {
+        case Elem(_, "choice", _, _, c @ _*) => c
+        case x => SDE(s"Expected <choice> elem, found $x")
+      }
     }
   }
 }

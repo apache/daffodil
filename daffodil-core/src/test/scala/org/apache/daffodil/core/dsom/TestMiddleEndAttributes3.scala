@@ -59,12 +59,18 @@ class TestMiddleEndAttributes3 {
     val ect = e.complexType
     val seq = ect.sequence
     val mems = seq.groupMembers
-    val Seq(ile: ElementBase, _: ElementBase) = mems
+    val ile = mems match {
+      case Seq(ile: ElementBase, _: ElementBase) => ile
+      case _ => fail(); null
+    }
     val ile_nextSibling = ile.nextSibling
     assertNotNull(ile_nextSibling)
     val ilct = ile.complexType
     val ilseq = ilct.sequence
-    val Seq(_: ElementBase, ipsrcle: ElementBase) = ilseq.groupMembers
+    val ipsrcle = ilseq.groupMembers match {
+      case Seq(_: ElementBase, ipsrcle: ElementBase) => ipsrcle
+      case _ => fail(); null
+    }
     val nextSiblings = ipsrcle.nextSibling
     assertNotNull(nextSiblings)
   }
@@ -108,12 +114,18 @@ class TestMiddleEndAttributes3 {
     val ect = e.complexType
     val seq = ect.sequence
     val mems = seq.groupMembers
-    val Seq(ile: ElementBase, _: ElementBase, _: Choice) = mems
+    val ile = mems match {
+      case Seq(ile: ElementBase, _: ElementBase, _: Choice) => ile
+      case _ => fail(); null
+    }
     val ile_nextSibling = ile.nextSibling
     assertNotNull(ile_nextSibling)
     val ilct = ile.complexType
     val ilseq = ilct.sequence
-    val Seq(_: ElementBase, _: SequenceGroupRef, ipsrcle: ElementBase) = ilseq.groupMembers
+    val ipsrcle = ilseq.groupMembers match {
+      case Seq(_: ElementBase, _: SequenceGroupRef, ipsrcle: ElementBase) => ipsrcle
+      case _ => fail(); null
+    }
     val nextSiblings = ipsrcle.nextSibling
     assertNotNull(nextSiblings)
   }

@@ -113,7 +113,7 @@ object NodeInfoUtils {
       case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
     }
 
-    val (argType: Numeric.Kind, resultType: Numeric.Kind) = {
+    val (argType, resultType) = {
       val lub = NodeInfoUtils.typeLeastUpperBound(leftArgType, rightArgType)
       //
       // For each abstract type that could be the least upper bound of the two
@@ -123,6 +123,9 @@ object NodeInfoUtils {
         case _ => lub
       }
       (lubImplementationType, lubImplementationType)
+    } match {
+      case (argType: Numeric.Kind, resultType: Numeric.Kind) => (argType, resultType)
+      case x => Assert.invariantFailed(s"Expected Numeric.Kind. Found ${x.getClass}")
     }
     val res = op match {
       case "div" => (argType, divResult(resultType))

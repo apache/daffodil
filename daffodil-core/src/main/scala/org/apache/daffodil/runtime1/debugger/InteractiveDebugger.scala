@@ -1347,7 +1347,10 @@ class InteractiveDebugger(
             } else {
               // Not a recognized info subcommand. Assume it is an arg to the
               // most recent command we've seen and prepend it to that list.
-              val head :: tail = infoCmds
+              val (head, tail) = infoCmds match {
+                case head :: tail => (head, tail)
+                case Nil => Assert.invariantFailed("infoCmds is empty")
+              }
               (arg +: head) +: tail
             }
         }
@@ -1364,7 +1367,10 @@ class InteractiveDebugger(
         }
         val infocmds = buildInfoCommands(args)
         infocmds.foreach { cmds =>
-          val cmd :: args = cmds
+          val (cmd, args) = cmds match {
+            case cmd :: args => (cmd, args)
+            case Nil => Assert.invariantFailed("cmds was empty")
+          }
           subcommands.find(_.matches(cmd)) match {
             case Some(c) => c.validate(args)
             case None => throw new DebugException("undefined info command: %s".format(cmd))
@@ -1379,7 +1385,10 @@ class InteractiveDebugger(
       ): DebugState.Type = {
         val infocmds = buildInfoCommands(args)
         infocmds.foreach { cmds =>
-          val cmd :: args = cmds
+          val (cmd, args) = cmds match {
+            case cmd :: args => (cmd, args)
+            case Nil => Assert.invariantFailed("cmds was empty")
+          }
           val action = subcommands.find(_.matches(cmd)).get
           action.act(args, state, processor)
         }

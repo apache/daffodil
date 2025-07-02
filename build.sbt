@@ -58,7 +58,7 @@ lazy val daffodil = project
 
 lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
   .settings(commonSettings, nopublish)
-  .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
+  .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.13.16")
   .disablePlugins(OsgiCheckPlugin)
 
 lazy val propgen = Project("daffodil-propgen", file("daffodil-propgen"))
@@ -191,8 +191,8 @@ val minSupportedJavaVersion: String =
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
   version := IO.read((ThisBuild / baseDirectory).value / "VERSION").trim,
-  scalaVersion := "2.13.16",
-  crossScalaVersions := Seq("2.13.16"),
+  scalaVersion := "3.3.6",
+  crossScalaVersions := Seq("3.3.6", "2.13.16"),
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
   Test / scalacOptions ++= buildTestScalacOptions(scalaVersion.value),
   Compile / compile / javacOptions ++= buildJavacOptions(),
@@ -217,7 +217,7 @@ lazy val commonSettings = Seq(
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
-  libraryDependencies ++= Dependencies.common,
+  libraryDependencies ++= Dependencies.common(scalaVersion.value),
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
   Compile / packageDoc / publishArtifact := false
 )
@@ -227,21 +227,27 @@ def buildScalacOptions(scalaVersion: String) = {
     s"-release:$minSupportedJavaVersion", // scala 2.12 can only do Java 8, regardless of this setting.
     "-feature",
     "-deprecation",
-    "-language:experimental.macros",
-    "-unchecked",
-    "-Xfatal-warnings",
-    "-Xxml:-coalescing",
-    "-Ywarn-unused:imports"
+    "-unchecked"
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 13)) =>
       Seq(
+        "-language:experimental.macros",
+        "-Xfatal-warnings",
+        "-Xxml:-coalescing",
+        "-Ywarn-unused:imports",
         "-Xlint:inaccessible",
         "-Xlint:infer-any",
         "-Xlint:nullary-unit",
         // suppress nullary-unit warning in the specific trait
         "-Wconf:cat=lint-nullary-unit:silent,site=org.apache.daffodil.junit.tdml.TdmlTests:silent"
+      )
+    case Some((3, _)) =>
+      Seq(
+        "-no-indent",
+        "-Werror",
+        "-Wunused:imports"
       )
     case _ => Seq.empty
   }

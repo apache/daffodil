@@ -269,7 +269,10 @@ class TestDsomCompiler {
     seq.formatAnnotation.asInstanceOf[DFDLSequence] // ...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
-    val Seq(e1a: DFDLElement) = e1d.annotationObjs
+    val e1a = e1d.annotationObjs match {
+      case Seq(e1a: DFDLElement) => e1a
+      case _ => fail(); null
+    }
     assertEquals("UTF-8", e1a.getPropertyForUnitTest("encoding"))
 
     // Explore global simple type defs
@@ -311,20 +314,30 @@ class TestDsomCompiler {
     ) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
-    val Seq(_, root, _*) = sd.globalElementDecls
+    val root = sd.globalElementDecls match {
+      case Seq(_, root, _*) => root
+      case _ => fail(); null
+    }
     val seq1 = root.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
 
-    val Seq(e1r: ElementRef, cgr: ChoiceGroupRef) = seq1.groupMembers
+    val (e1r, cgr) = seq1.groupMembers match {
+      case Seq(e1r: ElementRef, cgr: ChoiceGroupRef) => (e1r, cgr)
+      case _ => fail(); null
+    }
 
     val Seq(ggd1, ggd2, _, _, _) = sd.globalGroupDefs // there are two
     assertEquals("gr", ggd1.namedQName.local)
     assertEquals("hiddenGroup", ggd2.namedQName.local)
 
     // Explore LocalSimpleTypeDef
-    val Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest @ _*) =
-      cgr.groupMembers
+    val (c1, c3) =
+      cgr.groupMembers match {
+        case Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest @ _*) =>
+          (c1, c3)
+        case _ => fail(); null
+      }
     val ist =
-      c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
+      c3.immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     val istBase = ist.optRestriction.get.baseQName.toQNameString
     assertEquals("tns:aType", istBase)
 
@@ -334,7 +347,10 @@ class TestDsomCompiler {
     assertEquals("{ $myVar1 eq (+47 mod 4) }", c1a.asInstanceOf[DFDLDiscriminator].testBody.get)
 
     // Explore sequence
-    val Seq(ann: DFDLGroup) = seq1.annotationObjs // one format annotation with a property
+    val ann = seq1.annotationObjs match {
+      case Seq(ann: DFDLGroup) => ann // one format annotation with a property
+      case _ => fail(); null
+    }
     assertNotNull(ann)
     assertEquals(SeparatorPosition.Infix, seq1.separatorPosition)
     assertEquals(2, e1r.maxOccurs)
@@ -350,13 +366,23 @@ class TestDsomCompiler {
     val sd = sch.schemaDocuments.head
 
     // Explore global group defs
-    val Seq(_, root, _*) = sd.globalElementDecls
+    val root = sd.globalElementDecls match {
+      case Seq(_, root, _*) => root
+      case _ => fail(); null
+    }
     val seq1 = root.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
 
-    val Seq(_: ElementRef, cgr: ChoiceGroupRef) = seq1.groupMembers
+    val cgr = seq1.groupMembers match {
+      case Seq(_: ElementRef, cgr: ChoiceGroupRef) => cgr
+      case _ => fail(); null
+    }
     val cgd = cgr.groupDef
-    val Seq(_, cd2: LocalElementDecl, rest @ _*) =
-      cgd.groupMembersNotShared // Children nodes of Choice-node, there are 3
+    val cd2 =
+      cgd.groupMembersNotShared match {
+        case Seq(_, cd2: LocalElementDecl, rest @ _*) =>
+          cd2 // Children nodes of Choice-node, there are 3
+        case _ => fail(); null
+      }
 
     // val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
     // of the group node.
@@ -364,8 +390,12 @@ class TestDsomCompiler {
     assertEquals(AlignmentType.Implicit, cgr.alignment)
     assertEquals(ChoiceLengthKind.Implicit, cgr.choiceLengthKind)
 
-    val Seq(asrt1: DFDLAssert) = cd2.annotationObjs // Obtain Annotation object that is child
+    // Obtain Annotation object that is child
     // of cd2.
+    val asrt1 = cd2.annotationObjs match {
+      case Seq(asrt1: DFDLAssert) => asrt1
+      case _ => fail(); null
+    }
 
     assertEquals("{ $myVar1 eq xs:int(xs:string(fn:round-half-to-even(8.5))) }", asrt1.testTxt)
   }
@@ -578,7 +608,10 @@ class TestDsomCompiler {
     val ct = ge1.complexType
     val seq = ct.sequence
 
-    val Seq(e1: ElementBase, _: ElementBase) = seq.groupMembers
+    val e1 = seq.groupMembers match {
+      case Seq(e1: ElementBase, _: ElementBase) => e1
+      case _ => fail(); null
+    }
     //
     assertTrue(e1.verifyPropValue("initiator", ""))
     assertTrue(e1.verifyPropValue("representation", "text"))
@@ -664,7 +697,10 @@ class TestDsomCompiler {
 
     val seq = ge1.sequence
 
-    val Seq(e1: LocalElementDecl, e2: LocalElementDecl) = seq.groupMembers
+    val (e1, e2) = seq.groupMembers match {
+      case Seq(e1: LocalElementDecl, e2: LocalElementDecl) => (e1, e2)
+      case _ => fail(); null
+    }
     e1.formatAnnotation.asInstanceOf[DFDLElement]
     // val props = e1.properties
 
@@ -688,11 +724,17 @@ class TestDsomCompiler {
     val Seq(sch) = sset.schemas
     val sd = sch.schemaDocuments.head
 
-    val Seq(_, gedf, _*) = sd.globalElementDecls
+    val gedf = sd.globalElementDecls match {
+      case Seq(_, gedf, _*) => gedf
+      case _ => fail(); null
+    }
     val root = gedf.asRoot
     val sgr = root.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
 
-    val Seq(e1r: ElementRef, cgr: ChoiceGroupRef) = sgr.groupMembers
+    val (e1r, cgr) = sgr.groupMembers match {
+      case Seq(e1r: ElementRef, cgr: ChoiceGroupRef) => (e1r, cgr)
+      case _ => fail(); null
+    }
 
     assertEquals("hiddenGroup", cgr.groupDef.namedQName.local)
     assertEquals(AlignmentType.Implicit, cgr.alignment)

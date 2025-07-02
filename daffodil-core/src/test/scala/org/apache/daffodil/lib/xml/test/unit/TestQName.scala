@@ -29,7 +29,6 @@ import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.UnspecifiedNamespace
 
 import org.junit.Assert._
-import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class TestQName {

@@ -44,7 +44,10 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final def sequence = group.asInstanceOf[LocalSequence]
   final def choice = group.asInstanceOf[Choice]
 
-  private lazy val Elem(_, "complexType", _, _, xmlChildren @ _*) = xml
+  private lazy val xmlChildren = xml match {
+    case Elem(_, "complexType", _, _, xc @ _*) => xc
+    case x => schemaDefinitionError(s"Expected <complexType> elem, found $x")
+  }
 
   final lazy val Seq(modelGroup) = {
     val s = smg

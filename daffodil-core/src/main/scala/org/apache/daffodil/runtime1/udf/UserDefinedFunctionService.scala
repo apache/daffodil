@@ -30,6 +30,7 @@ import java.util.ServiceLoader
 import scala.collection.immutable.{ ArraySeq => IArraySeq }
 import scala.collection.mutable._
 
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -219,7 +220,10 @@ object UserDefinedFunctionService {
             val evaluateParamTypes: List[NodeInfo.Kind] = initParamTypeConv.flatMap {
               _._1
             }.toList
-            val Some(evaluateReturnType: NodeInfo.Kind) = initRetTypeConv
+            val evaluateReturnType: NodeInfo.Kind = initRetTypeConv match {
+              case Some(evt: NodeInfo.Kind) => evt
+              case x => Assert.invariantFailed(s"Expected Some, found $x")
+            }
 
             val key = s"{$fns}$fname"
             if (udfInfoLookup.contains(key)) {

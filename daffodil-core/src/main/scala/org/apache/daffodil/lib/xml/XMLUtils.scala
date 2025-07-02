@@ -891,7 +891,10 @@ Differences were (path, expected, actual):
   }
 
   def childArrayCounters(e: Elem) = {
-    val Elem(_, _, _, _, children @ _*) = e
+    val children = e match {
+      case Elem(_, _, _, _, c @ _*) => c
+      case x => Assert.invariantFailed(s"Expected elem with children, found $x")
+    }
     val labels = children.map { _.label }
     val groups = labels.groupBy { x => x }
     val counts = groups.map { case (label, labelList) => (label, labelList.length) }
@@ -926,8 +929,16 @@ Differences were (path, expected, actual):
     lazy val zPath = parentPathSteps.reverse.mkString("/")
     (an, bn) match {
       case (a: Elem, b: Elem) => {
-        val Elem(prefixA, labelA, attribsA, nsbA, childrenA @ _*) = a
-        val Elem(prefixB, labelB, attribsB, nsbB, childrenB @ _*) = b
+        val (prefixA, labelA, attribsA, nsbA, childrenA) = a match {
+          case Elem(prefixA, labelA, attribsA, nsbA, childrenA @ _*) =>
+            (prefixA, labelA, attribsA, nsbA, childrenA)
+          case x => Assert.invariantFailed(s"Expected elem, found $x")
+        }
+        val (prefixB, labelB, attribsB, nsbB, childrenB) = b match {
+          case Elem(prefixB, labelB, attribsB, nsbB, childrenB @ _*) =>
+            (prefixB, labelB, attribsB, nsbB, childrenB)
+          case x => Assert.invariantFailed(s"Expected elem, found $x")
+        }
         val typeA: Option[String] = getXSIType(a)
         val typeB: Option[String] = getXSIType(b)
         val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))

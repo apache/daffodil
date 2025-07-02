@@ -2283,7 +2283,10 @@ case class Document(d: NodeSeq, parent: TestCase) {
     }
   }
 
-  private lazy val Seq(Elem(_, "document", _, _, children @ _*)) = d
+  private lazy val children = d match {
+    case Seq(Elem(_, "document", _, _, children @ _*)) => children
+    case x => Assert.invariantFailed(s"Expected <document>, found $x")
+  }
 
   private val actualDocumentPartElementChildren = children.toList.flatMap { child =>
     child match {

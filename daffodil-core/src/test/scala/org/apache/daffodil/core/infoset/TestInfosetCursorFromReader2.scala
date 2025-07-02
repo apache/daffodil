@@ -99,24 +99,48 @@ class TestInfosetInputterFromReader2 {
 
   def doTest(count: Int): Unit = {
     val (is, rootERD, inp) = infosetUnlimitedSource(count)
-    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
+    val barSeqTRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
+    val fooERD = barSeqTRD.groupMembers match {
+      case Seq(fooERD: ElementRuntimeData) => fooERD
+      case _ => fail(); null
+    }
     inp.pushTRD(rootERD)
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = is.next()
+    val foo_arr_s = is.next() match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
     (1 to count).foreach { i =>
-      val Start(foo_1_s: DISimple) = is.next()
-      val End(foo_1_e: DISimple) = is.next()
+      val foo_1_s = is.next() match {
+        case Start(foo_1_s: DISimple) => foo_1_s
+        case _ => fail(); null
+      }
+      val foo_1_e = is.next() match {
+        case End(foo_1_e: DISimple) => foo_1_e
+        case _ => fail(); null
+      }
       assertTrue(foo_1_s eq foo_1_e)
       assertTrue(foo_1_s.dataValue.getAnyRef.isInstanceOf[String])
       assertEquals("Hello", foo_1_s.dataValueAsString)
     }
-    val EndArray(foo_arr_e) = is.next()
+    val foo_arr_e = is.next() match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     inp.popTRD()
     inp.popTRD()
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     inp.popTRD()
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object

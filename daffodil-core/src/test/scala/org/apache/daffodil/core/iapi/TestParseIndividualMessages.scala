@@ -26,11 +26,12 @@ import scala.concurrent.TimeoutException
 import scala.concurrent.duration.Duration
 import scala.xml.Node
 
+import org.apache.daffodil.api
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.SocketPairTestRig
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.iapi._
+import org.apache.daffodil.runtime1.iapi.DFDL
 
 import org.junit.Assert._
 import org.junit.Test
@@ -73,12 +74,11 @@ class TestParseIndividualMessages {
         //
         // If we need more than 4 bytes to successfully parse (we shouldn't for this schema)
         // then this will hang, because only 4 bytes are in fact available.
-        val (pr: DFDL.ParseResult, xml: Node) =
+        val (pr: api.ParseResult, xml: Node) =
           TestUtils.runDataProcessorOnInputStream(dp, cis, areTracing = false)
-
         assertFalse(pr.isError)
         assertEquals("1234", xml.text)
-        assertEquals(33, pr.resultState.currentLocation.bitPos1b)
+        assertEquals(33, pr.asInstanceOf[DFDL.ParseResult].resultState.currentLocation.bitPos1b)
       }
     }
     sptr.run()

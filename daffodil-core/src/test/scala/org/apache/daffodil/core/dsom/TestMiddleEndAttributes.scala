@@ -179,7 +179,10 @@ class TestMiddleEndAttributes {
     val mems = seq.groupMembers
     val Seq(t1: Term) = mems
     val e1ref = t1.asInstanceOf[ElementRef]
-    val Some(nes: LocalSequence) = e1ref.optLexicalParent
+    val nes = e1ref.optLexicalParent match {
+      case Some(nes: LocalSequence) => nes
+      case _ => fail(); null
+    }
     assertEquals(seq, nes)
   }
 

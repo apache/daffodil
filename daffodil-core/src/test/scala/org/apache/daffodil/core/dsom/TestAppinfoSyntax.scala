@@ -63,8 +63,14 @@ class TestAppinfoSyntax {
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
     val a = sch.schemaDocuments.head
-    val Seq(ao: Elem) = a.dfdlAppInfos
-    val Some(ns) = ao.attribute(nnURI, "nonNativeAttribute1")
+    val ao = a.dfdlAppInfos match {
+      case Seq(ao: Elem) => ao
+      case _ => fail(); null
+    }
+    val ns = ao.attribute(nnURI, "nonNativeAttribute1") match {
+      case Some(ns) => ns
+      case _ => fail(); null
+    }
     assertEquals(expected, ns.toString())
     val (_, actual) = TestUtils.testString(sc, "5")
     val expectedParseInfoset = <root>5</root>
@@ -104,9 +110,18 @@ class TestAppinfoSyntax {
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
     val a = sch.schemaDocuments.head
-    val Seq(ao: Elem, bo: Elem) = a.dfdlAppInfos
-    val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
-    val Some(bnna) = bo.attribute(nnURI, "nonNativeAttribute2")
+    val (ao, bo) = a.dfdlAppInfos match {
+      case Seq(ao: Elem, bo: Elem) => (ao, bo)
+      case _ => fail(); null
+    }
+    val anna = ao.attribute(nnURI, "nonNativeAttribute1") match {
+      case Some(anna) => anna
+      case _ => fail(); null
+    }
+    val bnna = bo.attribute(nnURI, "nonNativeAttribute2") match {
+      case Some(bnna) => bnna
+      case _ => fail(); null
+    }
     assertEquals(expected, anna.toString())
     assertEquals(expected, bnna.toString())
     val e = intercept[Exception] {
@@ -147,8 +162,14 @@ class TestAppinfoSyntax {
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
     val a = sch.schemaDocuments.head
-    val Seq(ao: Elem) = a.dfdlAppInfos
-    val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
+    val ao = a.dfdlAppInfos match {
+      case Seq(ao: Elem) => ao
+      case _ => fail(); null
+    }
+    val anna = ao.attribute(nnURI, "nonNativeAttribute1") match {
+      case Some(anna) => anna
+      case _ => fail(); null
+    }
     assertEquals(expected, anna.toString())
     val e = intercept[Exception] {
       TestUtils.testString(sc, "5")
@@ -193,8 +214,14 @@ class TestAppinfoSyntax {
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
     val a = sch.schemaDocuments.head
-    val Seq(ao: Elem) = a.dfdlAppInfos
-    val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
+    val ao = a.dfdlAppInfos match {
+      case Seq(ao: Elem) => ao
+      case _ => fail(); null
+    }
+    val anna = ao.attribute(nnURI, "nonNativeAttribute1") match {
+      case Some(anna) => anna
+      case _ => fail(); null
+    }
     assertEquals(expected, anna.toString())
     val (_, actual) = TestUtils.testString(sc, "5")
     val expectedParseInfoset = <root>5</root>
@@ -243,8 +270,14 @@ class TestAppinfoSyntax {
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
     val a = sch.schemaDocuments.head
-    val Seq(ao: Elem) = a.dfdlAppInfos
-    val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
+    val ao = a.dfdlAppInfos match {
+      case Seq(ao: Elem) => ao
+      case _ => fail(); null
+    }
+    val anna = ao.attribute(nnURI, "nonNativeAttribute1") match {
+      case Some(anna) => anna
+      case _ => fail(); null
+    }
     assertEquals(expected, anna.toString())
     val (_, actual) = TestUtils.testString(sc, "5")
     val expectedParseInfoset = <root>5</root>

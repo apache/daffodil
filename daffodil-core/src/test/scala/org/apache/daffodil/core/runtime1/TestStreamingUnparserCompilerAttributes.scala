@@ -26,6 +26,7 @@ import org.apache.daffodil.core.dsom.SequenceGroupRef
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.core.util.TestUtils.getRoot
 
+import org.junit.Assert.fail
 import org.junit.Test
 
 class TestStreamingUnparserCompilerAttributes {
@@ -52,11 +53,26 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:element>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, b: LE) = rg.groupMembers
-    val Closed(Seq(PNE(`r`, true))) = poss(r)
-    val Closed(Nil) = poss(rg)
-    val Closed(Seq(PNE(`a`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, true))) = poss(b)
+    val (a, b) = rg.groupMembers match {
+      case Seq(a: LE, b: LE) => (a, b)
+      case _ => fail(); null
+    }
+    poss(r) match {
+      case Closed(Seq(PNE(`r`, true))) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Closed(Nil) =>
+      case _ => fail()
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, true))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent2() = {
@@ -71,11 +87,27 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:element>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, b: LE) = rg.groupMembers
-    val Closed(Seq(PNE(`r`, true))) = poss(r)
-    val Closed(Nil) = poss(rg)
-    val Closed(Seq(PNE(`a`, false), PNE(`b`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, true))) = poss(b)
+    val (a, b) = rg.groupMembers match {
+      case Seq(a: LE, b: LE) => (a, b)
+      case _ => fail(); null
+
+    }
+    poss(r) match {
+      case Closed(Seq(PNE(`r`, true))) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Closed(Nil) =>
+      case _ => fail()
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent2OVC() = {
@@ -90,11 +122,26 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:element>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, b: LE) = rg.groupMembers
-    val Closed(Seq(PNE(`r`, true))) = poss(r)
-    val Closed(Nil) = poss(rg)
-    val Closed(Seq(PNE(`a`, false), PNE(`b`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, true))) = poss(b)
+    val (a, b) = rg.groupMembers match {
+      case Seq(a: LE, b: LE) => (a, b)
+      case _ => fail(); null
+    }
+    poss(r) match {
+      case Closed(Seq(PNE(`r`, true))) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Closed(Nil) =>
+      case _ => fail()
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent3() = {
@@ -115,13 +162,34 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, b: LE, gr: SGR) = rg.groupMembers
-    val Seq(c: LE) = gr.groupMembers
-    val Closed(Seq(PNE(`r`, true))) = poss(r)
-    val Closed(Nil) = poss(rg)
-    val Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, false), PNE(`c`, true))) = poss(b)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
+    val (a: LE, b: LE, gr: SGR) = rg.groupMembers match {
+      case Seq(a: LE, b: LE, gr: SGR) => (a: LE, b: LE, gr: SGR)
+      case _ => fail(); null
+    }
+    val (c: LE) = gr.groupMembers match {
+      case Seq(c: LE) => (c: LE)
+      case _ => fail(); null
+    }
+    poss(r) match {
+      case Closed(Seq(PNE(`r`, true))) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Closed(Nil) =>
+      case _ => fail()
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, false), PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent4() = {
@@ -143,15 +211,34 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, b: LE, gr: CGR) = rg.groupMembers
-    val Seq(c: LE, d: LE) = gr.groupMembers
-    val Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(
-      a
-    )
-    val Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(b)
-    val Closed(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(gr)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (a: LE, b: LE, gr: CGR) = rg.groupMembers match {
+      case Seq(a: LE, b: LE, gr: CGR) => (a: LE, b: LE, gr: CGR)
+      case _ => fail(); null
+    }
+    val (c: LE, d: LE) = gr.groupMembers match {
+      case Seq(c: LE, d: LE) => (c: LE, d: LE)
+      case _ => fail(); null
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(gr) match {
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent5() = {
@@ -178,15 +265,42 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(sgr: SGR, cgr: CGR) = rg.groupMembers
-    val Seq(a: LE, b: LE) = sgr.groupMembers
-    val Seq(c: LE, d: LE) = cgr.groupMembers
-    val Closed(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(sgr)
-    val Open(Seq(PNE(`a`, false), PNE(`b`, false))) = poss(a)
-    val Open(Seq(PNE(`b`, false))) = poss(b)
-    val Closed(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(cgr)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (sgr: SGR, cgr: CGR) = rg.groupMembers match {
+      case Seq(sgr: SGR, cgr: CGR) => (sgr: SGR, cgr: CGR)
+      case _ => fail(); null
+    }
+    val (a: LE, b: LE) = sgr.groupMembers match {
+      case Seq(a: LE, b: LE) => (a: LE, b: LE)
+      case _ => fail(); null
+    }
+    val (c: LE, d: LE) = cgr.groupMembers match {
+      case Seq(c: LE, d: LE) => (c: LE, d: LE)
+      case _ => fail(); null
+    }
+    poss(sgr) match {
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(a) match {
+      case Open(Seq(PNE(`a`, false), PNE(`b`, false))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Open(Seq(PNE(`b`, false))) =>
+      case _ => fail()
+    }
+    poss(cgr) match {
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent6() = {
@@ -201,10 +315,22 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:element>
     }
     val rg: C = r.complexType.choice
-    val Seq(c: LE, d: LE) = rg.groupMembers
-    val Closed(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(rg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (c: LE, d: LE) = rg.groupMembers match {
+      case Seq(c: LE, d: LE) => (c: LE, d: LE)
+      case _ => fail(); null
+    }
+    poss(rg) match {
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent7() = {
@@ -220,11 +346,26 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:element>
     }
     val rg: C = r.complexType.choice
-    val Seq(c: LE, d: LE, es: S) = rg.groupMembers
-    val Open(Nil) = poss(es)
-    val Open(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(rg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (c: LE, d: LE, es: S) = rg.groupMembers match {
+      case Seq(c: LE, d: LE, es: S) => (c: LE, d: LE, es: S)
+      case _ => fail(); null
+    }
+    poss(es) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Open(Seq(PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent8() = {
@@ -243,11 +384,26 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: C = r.complexType.choice
-    val Seq(c: LE, d: LE, gr: SGR) = rg.groupMembers
-    val Open(Nil) = poss(gr)
-    val Open(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(rg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (c: LE, d: LE, gr: SGR) = rg.groupMembers match {
+      case Seq(c: LE, d: LE, gr: SGR) => (c: LE, d: LE, gr: SGR)
+      case _ => fail(); null
+    }
+    poss(gr) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Open(Seq(PNE(`c`, false), PNE(`d`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent9() = {
@@ -268,12 +424,30 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: C = r.complexType.choice
-    val Seq(c: LE, d: LE, gr: SGR) = rg.groupMembers
-    val Seq(e: LE) = gr.groupMembers
-    val Open(Nil) = poss(gr)
-    val Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) = poss(rg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (c: LE, d: LE, gr: SGR) = rg.groupMembers match {
+      case Seq(c: LE, d: LE, gr: SGR) => (c: LE, d: LE, gr: SGR)
+      case _ => fail(); null
+    }
+    val (e: LE) = gr.groupMembers match {
+      case Seq(e: LE) => (e: LE)
+      case _ => fail(); null
+    }
+    poss(gr) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent9OVC() = {
@@ -294,12 +468,30 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: C = r.complexType.choice
-    val Seq(c: LE, d: LE, gr: SGR) = rg.groupMembers
-    val Seq(e: LE) = gr.groupMembers
-    val Open(Nil) = poss(gr)
-    val Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) = poss(rg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (c: LE, d: LE, gr: SGR) = rg.groupMembers match {
+      case Seq(c: LE, d: LE, gr: SGR) => (c: LE, d: LE, gr: SGR)
+      case _ => fail(); null
+    }
+    val (e: LE) = gr.groupMembers match {
+      case Seq(e: LE) => (e: LE)
+      case _ => fail(); null
+    }
+    poss(gr) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent9OVCIVC() = {
@@ -320,12 +512,30 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: C = r.complexType.choice
-    val Seq(c: LE, d: LE, gr: SGR) = rg.groupMembers
-    val Seq(e: LE) = gr.groupMembers
-    val Open(Nil) = poss(gr)
-    val Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) = poss(rg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (c: LE, d: LE, gr: SGR) = rg.groupMembers match {
+      case Seq(c: LE, d: LE, gr: SGR) => (c: LE, d: LE, gr: SGR)
+      case _ => fail(); null
+    }
+    val (e: LE) = gr.groupMembers match {
+      case Seq(e: LE) => (e: LE)
+      case _ => fail(); null
+    }
+    poss(gr) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(rg) match {
+      case Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent10() = {
@@ -353,16 +563,46 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(s: S) = rg.groupMembers
-    val Seq(cgr: CGR) = s.groupMembers
-    val Seq(c: LE, d: LE, gr: SGR) = cgr.groupMembers
-    val Seq(e: LE) = gr.groupMembers
-    val Closed(Nil) = poss(rg)
-    val Open(Nil) = poss(s)
-    val Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) = poss(cgr)
-    val Open(Nil) = poss(gr)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Closed(Seq(PNE(`d`, true))) = poss(d)
+    val (s: S) = rg.groupMembers match {
+      case Seq(s: S) => (s: S)
+      case _ => fail(); null
+    }
+    val (cgr: CGR) = s.groupMembers match {
+      case Seq(cgr: CGR) => (cgr: CGR)
+      case _ => fail(); null
+    }
+    val (c: LE, d: LE, gr: SGR) = cgr.groupMembers match {
+      case Seq(c: LE, d: LE, gr: SGR) => (c: LE, d: LE, gr: SGR)
+      case _ => fail(); null
+    }
+    val (e: LE) = gr.groupMembers match {
+      case Seq(e: LE) => (e: LE)
+      case _ => fail(); null
+    }
+    poss(rg) match {
+      case Closed(Nil) =>
+      case _ => fail()
+    }
+    poss(s) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(cgr) match {
+      case Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
+      case _ => fail()
+    }
+    poss(gr) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(d) match {
+      case Closed(Seq(PNE(`d`, true))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEvent11() = {
@@ -378,10 +618,22 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:element>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, b: LE, c: LE) = rg.groupMembers
-    val Closed(Seq(PNE(`a`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, false), PNE(`c`, true))) = poss(b)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
+    val (a: LE, b: LE, c: LE) = rg.groupMembers match {
+      case Seq(a: LE, b: LE, c: LE) => (a: LE, b: LE, c: LE)
+      case _ => fail(); null
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, true))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, false), PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
   }
 
 // DAFFODIL-2937
@@ -419,14 +671,32 @@ class TestStreamingUnparserCompilerAttributes {
         </xs:group>
     }
     val rg: SGR = r.complexType.group.asInstanceOf[SequenceGroupRef]
-    val Seq(g2c1: LE, g2c2: LE, g2c3: LE, hg: CGR, vg: CGR) = rg.groupMembers
-    val Closed(Seq(PNE(`g2c1`, true))) = poss(g2c1)
-    val Closed(Seq(PNE(`g2c2`, true))) = poss(g2c2)
-    val Closed(Seq(PNE(`g2c3`, false), PNE(vg_inty, false), PNE(vg_stringy, false))) = poss(
-      g2c3
-    )
-    val Open(Seq(PNE(`vg_inty`, false), PNE(`vg_stringy`, false))) = poss(hg)
-    val Closed(Seq(PNE(`vg_inty`, false), PNE(`vg_stringy`, false))) = poss(vg)
+    val (g2c1: LE, g2c2: LE, g2c3: LE, hg: CGR, vg: CGR) = rg.groupMembers match {
+      case Seq(g2c1: LE, g2c2: LE, g2c3: LE, hg: CGR, vg: CGR) =>
+        (g2c1: LE, g2c2: LE, g2c3: LE, hg: CGR, vg: CGR)
+      case _ => fail(); null
+    }
+    poss(g2c1) match {
+      case Closed(Seq(PNE(`g2c1`, true))) =>
+      case _ => fail()
+    }
+    poss(g2c2) match {
+      case Closed(Seq(PNE(`g2c2`, true))) =>
+      case _ => fail()
+    }
+    val (vg_inty, vg_stringy) = poss(g2c3) match {
+      case Closed(Seq(PNE(`g2c3`, false), PNE(vg_inty, false), PNE(vg_stringy, false))) =>
+        (vg_inty, vg_stringy)
+      case _ => fail(); null
+    }
+    poss(hg) match {
+      case Open(Seq(PNE(`vg_inty`, false), PNE(`vg_stringy`, false))) =>
+      case _ => fail()
+    }
+    poss(vg) match {
+      case Closed(Seq(PNE(`vg_inty`, false), PNE(`vg_stringy`, false))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEventHidden1() = {
@@ -447,12 +717,30 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, hgr: SGR, b: LE) = rg.groupMembers
-    val Seq(e: LE) = hgr.groupMembers
-    val Closed(Seq(PNE(`a`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, true))) = poss(b)
-    val Closed(Seq(PNE(`b`, true))) = poss(hgr)
-    val Open(Seq(PNE(`e`, false))) = poss(e)
+    val (a: LE, hgr: SGR, b: LE) = rg.groupMembers match {
+      case Seq(a: LE, hgr: SGR, b: LE) => (a: LE, hgr: SGR, b: LE)
+      case _ => fail(); null
+    }
+    val (e: LE) = hgr.groupMembers match {
+      case Seq(e: LE) => (e: LE)
+      case _ => fail(); null
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, true))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(hgr) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(e) match {
+      case Open(Seq(PNE(`e`, false))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEventHidden2() = {
@@ -484,20 +772,62 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, cg: C, c: LE) = rg.groupMembers
-    val Seq(s1: S, s2: SGR) = cg.groupMembers
-    val Seq(pg: SGR, b: LE) = s1.groupMembers
-    val Seq(aflag: LE) = s2.groupMembers
-    val Seq(pflag: LE) = pg.groupMembers
-    val Closed(Seq(PNE(`a`, true))) = poss(a)
-    val Closed(Seq(PNE(`b`, false), PNE(`c`, true))) = poss(cg)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Open(Nil) = poss(s1)
-    val Open(Nil) = poss(s2)
-    val Closed(Seq(PNE(`b`, true))) = poss(pg)
-    val Open(Seq(PNE(`pflag`, false))) = poss(pflag)
-    val Closed(Seq(PNE(`b`, true))) = poss(b)
-    val Open(Seq(PNE(`aflag`, false))) = poss(aflag)
+    val (a: LE, cg: C, c: LE) = rg.groupMembers match {
+      case Seq(a: LE, cg: C, c: LE) => (a: LE, cg: C, c: LE)
+      case _ => fail(); null
+    }
+    val (s1: S, s2: SGR) = cg.groupMembers match {
+      case Seq(s1: S, s2: SGR) => (s1: S, s2: SGR)
+      case _ => fail(); null
+    }
+    val (pg: SGR, b: LE) = s1.groupMembers match {
+      case Seq(pg: SGR, b: LE) => (pg: SGR, b: LE)
+      case _ => fail(); null
+    }
+    val (aflag: LE) = s2.groupMembers match {
+      case Seq(aflag: LE) => (aflag: LE)
+      case _ => fail(); null
+    }
+    val (pflag: LE) = pg.groupMembers match {
+      case Seq(pflag: LE) => (pflag: LE)
+      case _ => fail(); null
+    }
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, true))) =>
+      case _ => fail()
+    }
+    poss(cg) match {
+      case Closed(Seq(PNE(`b`, false), PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(s1) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(s2) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(pg) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(pflag) match {
+      case Open(Seq(PNE(`pflag`, false))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(aflag) match {
+      case Open(Seq(PNE(`aflag`, false))) =>
+      case _ => fail()
+    }
   }
 
   @Test def testPossibleNextStreamingUnparserEventHidden3() = {
@@ -536,36 +866,114 @@ class TestStreamingUnparserCompilerAttributes {
       </xs:group>
     }
     val rg: S = r.complexType.sequence
-    val Seq(a: LE, cg1: C, cg2: C, d: LE) = rg.groupMembers
-    val Seq(s1a: S, s1b: SGR) = cg1.groupMembers
-    val Seq(pg1: SGR, b: LE) = s1a.groupMembers
-    val Seq(aflag1: LE) = s1b.groupMembers
-    val Seq(pflag1: LE) = pg1.groupMembers
+    val (a: LE, cg1: C, cg2: C, d: LE) = rg.groupMembers match {
+      case Seq(a: LE, cg1: C, cg2: C, d: LE) => (a: LE, cg1: C, cg2: C, d: LE)
+      case _ => fail(); null
+    }
+    val (s1a: S, s1b: SGR) = cg1.groupMembers match {
+      case Seq(s1a: S, s1b: SGR) => (s1a: S, s1b: SGR)
+      case _ => fail(); null
+    }
+    val (pg1: SGR, b: LE) = s1a.groupMembers match {
+      case Seq(pg1: SGR, b: LE) => (pg1: SGR, b: LE)
+      case _ => fail(); null
+    }
+    val (aflag1: LE) = s1b.groupMembers match {
+      case Seq(aflag1: LE) => (aflag1: LE)
+      case _ => fail(); null
+    }
+    val (pflag1: LE) = pg1.groupMembers match {
+      case Seq(pflag1: LE) => (pflag1: LE)
+      case _ => fail(); null
+    }
 
-    val Seq(s2a: S, s2b: SGR) = cg2.groupMembers
-    val Seq(pg2: SGR, c: LE) = s2a.groupMembers
-    val Seq(aflag2: LE) = s2b.groupMembers
-    val Seq(pflag2: LE) = pg2.groupMembers
+    val (s2a: S, s2b: SGR) = cg2.groupMembers match {
+      case Seq(s2a: S, s2b: SGR) => (s2a: S, s2b: SGR)
+      case _ => fail(); null
+    }
+    val (pg2: SGR, c: LE) = s2a.groupMembers match {
+      case Seq(pg2: SGR, c: LE) => (pg2: SGR, c: LE)
+      case _ => fail(); null
+    }
+    val (aflag2: LE) = s2b.groupMembers match {
+      case Seq(aflag2: LE) => (aflag2: LE)
+      case _ => fail(); null
+    }
+    val (pflag2: LE) = pg2.groupMembers match {
+      case Seq(pflag2: LE) => (pflag2: LE)
+      case _ => fail(); null
+    }
 
-    val Closed(Seq(PNE(`a`, true))) = poss(a)
+    poss(a) match {
+      case Closed(Seq(PNE(`a`, true))) =>
+      case _ => fail()
+    }
 
-    val Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, true))) = poss(cg1)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Open(Nil) = poss(s1a)
-    val Open(Nil) = poss(s1b)
-    val Closed(Seq(PNE(`b`, true))) = poss(pg1)
-    val Open(Seq(PNE(`pflag1`, false))) = poss(pflag1)
-    val Closed(Seq(PNE(`b`, true))) = poss(b)
-    val Open(Seq(PNE(`aflag1`, false))) = poss(aflag1)
+    poss(cg1) match {
+      case Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, true))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(s1a) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(s1b) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(pg1) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(pflag1) match {
+      case Open(Seq(PNE(`pflag1`, false))) =>
+      case _ => fail()
+    }
+    poss(b) match {
+      case Closed(Seq(PNE(`b`, true))) =>
+      case _ => fail()
+    }
+    poss(aflag1) match {
+      case Open(Seq(PNE(`aflag1`, false))) =>
+      case _ => fail()
+    }
 
-    val Closed(Seq(PNE(`c`, false), PNE(`d`, true))) = poss(cg2)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Open(Nil) = poss(s2a)
-    val Open(Nil) = poss(s2b)
-    val Closed(Seq(PNE(`c`, true))) = poss(pg2)
-    val Open(Seq(PNE(`pflag2`, false))) = poss(pflag2)
-    val Closed(Seq(PNE(`c`, true))) = poss(c)
-    val Open(Seq(PNE(`aflag2`, false))) = poss(aflag2)
+    poss(cg2) match {
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, true))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(s2a) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(s2b) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(pg2) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(pflag2) match {
+      case Open(Seq(PNE(`pflag2`, false))) =>
+      case _ => fail()
+    }
+    poss(c) match {
+      case Closed(Seq(PNE(`c`, true))) =>
+      case _ => fail()
+    }
+    poss(aflag2) match {
+      case Open(Seq(PNE(`aflag2`, false))) =>
+      case _ => fail()
+    }
   }
 
   val schemaX =
@@ -605,18 +1013,54 @@ class TestStreamingUnparserCompilerAttributes {
       getRoot(schemaX, topLevels = <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>)
 
     val rg: S = r.complexType.sequence
-    val Seq(ch: C, y: LE) = rg.groupMembers
-    val Seq(s1: S, ag: SGR) = ch.groupMembers
-    val Seq(pg: SGR, b: LE) = s1.groupMembers
-    val Seq(p: LE) = pg.groupMembers
-    val Seq(a: LE) = ag.groupMembers
+    val (ch: C, y: LE) = rg.groupMembers match {
+      case Seq(ch: C, y: LE) => (ch: C, y: LE)
+      case _ => fail(); null
+    }
+    val (s1: S, ag: SGR) = ch.groupMembers match {
+      case Seq(s1: S, ag: SGR) => (s1: S, ag: SGR)
+      case _ => fail(); null
+    }
+    val (pg: SGR, b: LE) = s1.groupMembers match {
+      case Seq(pg: SGR, b: LE) => (pg: SGR, b: LE)
+      case _ => fail(); null
+    }
+    val (p: LE) = pg.groupMembers match {
+      case Seq(p: LE) => (p: LE)
+      case _ => fail(); null
+    }
+    val (a: LE) = ag.groupMembers match {
+      case Seq(a: LE) => (a: LE)
+      case _ => fail(); null
+    }
 
-    val Open(Seq(PNE(`b`, false), PNE(`y`, false))) = poss(ch)
-    val Open(Nil) = poss(s1)
-    val Open(Seq(PNE(`y`, false))) = poss(y)
-    val Open(Seq(PNE(`b`, false))) = poss(pg)
-    val Open(Nil) = poss(ag)
-    val Open(Seq(PNE(`p`, false))) = poss(p)
-    val Open(Seq(PNE(`a`, false))) = poss(a)
+    poss(ch) match {
+      case Open(Seq(PNE(`b`, false), PNE(`y`, false))) =>
+      case _ => fail()
+    }
+    poss(s1) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(y) match {
+      case Open(Seq(PNE(`y`, false))) =>
+      case _ => fail()
+    }
+    poss(pg) match {
+      case Open(Seq(PNE(`b`, false))) =>
+      case _ => fail()
+    }
+    poss(ag) match {
+      case Open(Nil) =>
+      case _ => fail()
+    }
+    poss(p) match {
+      case Open(Seq(PNE(`p`, false))) =>
+      case _ => fail()
+    }
+    poss(a) match {
+      case Open(Seq(PNE(`a`, false))) =>
+      case _ => fail()
+    }
   }
 }

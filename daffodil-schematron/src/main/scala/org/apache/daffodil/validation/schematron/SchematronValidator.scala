@@ -39,8 +39,8 @@ final class SchematronValidator(
     handler: api.validation.ValidationHandler
   ): Unit = {
     val svrl = XML.loadString(engine.validate(document))
-    for (f @ Elem("svrl", "failed-assert", _, _, msg @ _*) <- svrl.child) yield {
-      handler.validationError(msg.text.trim, { f \\ "@location" }.text)
+    svrl.child.collect { case f @ Elem("svrl", "failed-assert", _, _, msg @ _*) =>
+      handler.validationError(msg.text.trim, (f \ "@location").text)
     }
 
     val svrlString = svrl.mkString
