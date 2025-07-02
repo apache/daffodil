@@ -141,17 +141,24 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
     sources: Seq[LeafPropProvider],
     pname: String
   ): PropertyLookupResult = {
-    val allNotFound =
-      for { source <- sources } yield {
-        val res = source.leafFindProperty(pname)
-        res match {
-          case _: Found => return res // found it! return right now.
-          case nf @ NotFound(_, _, _) => nf
-        }
+    val allNotFound = scala.collection.mutable.ListBuffer.empty[NotFound]
+
+    val result: Option[PropertyLookupResult] = sources
+      .map { source =>
+        source.leafFindProperty(pname)
       }
-    // didn't find it. Compile complete list of everywhere we looked.
-    val allLocalPlacesSearched = allNotFound.flatMap { _.localWhereLooked }.toSeq
-    NotFound(allLocalPlacesSearched, Seq(), pname)
+      .find {
+        case _: Found => true
+        case nf: NotFound =>
+          allNotFound += nf
+          false
+      }
+
+    result.getOrElse {
+      // didn't find it. Compile complete list of everywhere we looked.
+      val allLocalPlacesSearched = allNotFound.flatMap(_.localWhereLooked).toSeq
+      NotFound(allLocalPlacesSearched, Seq(), pname)
+    }
   }
 }
 

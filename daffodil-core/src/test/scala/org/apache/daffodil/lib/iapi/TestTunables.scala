@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.core.general
+package org.apache.daffodil.lib.iapi
 
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
 
 import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
 import org.apache.daffodil.core.util.Fakes
-import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Assert.assertEquals

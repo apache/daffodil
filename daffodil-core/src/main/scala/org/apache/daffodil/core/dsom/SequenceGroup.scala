@@ -299,7 +299,10 @@ trait SequenceDefMixin
   }
 
   final lazy val hiddenGroupRefXML = LV(Symbol("hiddenGroupRefXML")) {
-    val Found(qname, _, _, _) = hiddenGroupRefOption
+    val qname = hiddenGroupRefOption match {
+      case Found(qn, _, _, _) => qn
+      case x => Assert.invariantFailed(s"Expected Found class, got ${x.getClass}")
+    }
     // synthesize a group reference here.
     val contextScope = xml.asInstanceOf[Elem].scope
     val hgr = {

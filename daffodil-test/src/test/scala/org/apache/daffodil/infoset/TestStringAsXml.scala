@@ -96,7 +96,10 @@ class TestStringAsXml {
       )
       .toURL
       .openStream
-    val (parseDiags, Some(parseInfosetActual)) = doParse(dp, parseData)
+    val (parseDiags, Some(parseInfosetActual)) = doParse(dp, parseData) match {
+      case (parseDiags, Some(parseInfosetActual)) => (parseDiags, Some(parseInfosetActual))
+      case _ => fail(); null
+    }
     val parseInfosetExpected = {
       val is = Misc
         .getRequiredResource(
@@ -126,7 +129,10 @@ class TestStringAsXml {
       )
       .toURL
       .openStream
-    val (parseDiags, Some(parseInfosetActual)) = doParse(dp, parseData)
+    val (parseDiags, Some(parseInfosetActual)) = doParse(dp, parseData) match {
+      case (parseDiags, Some(parseInfosetActual)) => (parseDiags, Some(parseInfosetActual))
+      case _ => fail(); null
+    }
     val parseInfosetExpected = {
       val is = Misc
         .getRequiredResource(
@@ -153,7 +159,10 @@ class TestStringAsXml {
       )
       .toURL
       .openStream
-    val (_, Some(unparseDataActual)) = doUnparse(dp, unparseInfoset)
+    val unparseDataActual = doUnparse(dp, unparseInfoset) match {
+      case (_, Some(unparseDataActual)) => unparseDataActual
+      case _ => fail(); null
+    }
     val unparseDataExpected = {
       val is = Misc
         .getRequiredResource(
@@ -177,12 +186,21 @@ class TestStringAsXml {
         .openStream
       IOUtils.toString(is, StandardCharsets.UTF_8)
     }
-    val (_, Some(data1)) =
-      doUnparse(dp, new ByteArrayInputStream(infoset1.getBytes(StandardCharsets.UTF_8)))
-    val (_, Some(infoset2)) =
-      doParse(dp, new ByteArrayInputStream(data1.getBytes(StandardCharsets.UTF_8)))
-    val (_, Some(data2)) =
-      doUnparse(dp, new ByteArrayInputStream(infoset2.getBytes(StandardCharsets.UTF_8)))
+    val data1 =
+      doUnparse(dp, new ByteArrayInputStream(infoset1.getBytes(StandardCharsets.UTF_8))) match {
+        case (_, Some(data1)) => data1
+        case _ => fail(); null
+      }
+    val infoset2 =
+      doParse(dp, new ByteArrayInputStream(data1.getBytes(StandardCharsets.UTF_8))) match {
+        case (_, Some(infoset2)) => infoset2
+        case _ => fail(); null
+      }
+    val data2 =
+      doUnparse(dp, new ByteArrayInputStream(infoset2.getBytes(StandardCharsets.UTF_8))) match {
+        case (_, Some(data2)) => data2
+        case _ => fail(); null
+      }
     // unparsing canonicalizes the XML infoset payload. The original infoset is
     // not canoncialized, so the parsed infoset should not match the original.
     // But both unprsed data should match because the first unparse
@@ -287,7 +305,10 @@ class TestStringAsXml {
       )
       .toURL
       .openStream
-    val (parseDiags, Some(parseInfosetActual)) = doParse(dp, parseData)
+    val (parseDiags, Some(parseInfosetActual)) = doParse(dp, parseData) match {
+      case (parseDiags, Some(parseInfosetActual)) => (parseDiags, Some(parseInfosetActual))
+      case _ => fail(); null
+    }
     val parseInfosetExpected = {
       val is = Misc
         .getRequiredResource(

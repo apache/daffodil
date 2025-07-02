@@ -22,7 +22,7 @@ on:
   push:
     branches-ignore: [ 'dependabot/**' ]
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 # Cancel CI runs in progress when a pull request is updated.
 concurrency:
@@ -40,7 +40,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 8, 11, 17, 21 ]
-        scala_version: [ 2.13.16 ]
+        scala_version: [ 3.3.6, 2.13.16 ]
         os: [ ubuntu-22.04, windows-2022, macos-14 ]
         exclude:
           # only run macos on java 17
@@ -88,13 +88,13 @@ jobs:
       LANG: ${{ matrix.lang }}.${{ matrix.encoding }}
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m -J-Dfile.encoding=${{ matrix.encoding }} ++${{ matrix.scala_version }} coverage
       SONARSCAN: ${{
-                     matrix.os == 'ubuntu-22.04' &&
-                     matrix.java_version == '17' &&
-                     matrix.scala_version == '2.13.16' &&
-                     github.event_name == 'push' &&
-                     github.repository == 'apache/daffodil' &&
-                     github.ref == 'refs/heads/main'
-                  }}
+        matrix.os == 'ubuntu-22.04' &&
+        matrix.java_version == '17' &&
+        matrix.scala_version == '3.3.6' &&
+        github.event_name == 'push' &&
+        github.repository == 'apache/daffodil' &&
+        github.ref == 'refs/heads/main'
+        }}
       DAFFODIL_TDML_API_INFOSETS: all
 
     steps:
@@ -241,7 +241,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 17 ]
-        scala_version: [ 2.13.16 ]
+        scala_version: [ 3.3.6 ]
         os: [ ubuntu-22.04 ]
     runs-on: ${{ matrix.os }}
     env:

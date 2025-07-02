@@ -97,6 +97,7 @@ import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
+import org.rogach.scallop._
 import org.rogach.scallop.exceptions.GenericScallopException
 import org.slf4j.event.Level
 import org.xml.sax.InputSource

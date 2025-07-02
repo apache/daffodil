@@ -105,7 +105,10 @@ class PropertyGenerator(arg: Node) {
   }
 
   def genElement(e: Node): String = {
-    val Some(name) = attr(e, "name")
+    val name = attr(e, "name") match {
+      case Some(name) => name
+      case _ => throw new IllegalStateException("Expected attribute, found none")
+    }
     val typeName = attr(e, "type")
     typeName match {
       case None => genElementImmediateType(e, name)

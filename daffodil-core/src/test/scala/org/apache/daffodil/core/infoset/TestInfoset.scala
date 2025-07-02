@@ -130,7 +130,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ex}><w>4</w></list>
 
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val list_erd = infoset.erd
     assertEquals(list_erd, infoset.runtimeData)
     val Seq(w_erd) = list_erd.childERDs
@@ -189,7 +192,10 @@ class TestInfoset1 {
     )
 
     val xmlInfoset = <list xmlns={ex}><w>4</w><w>5</w></list>
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val Seq(w_erd) = infoset.erd.childERDs
     infoset.getChildArray(w_erd, tunable) match {
       case arr: InfosetArray => {
@@ -226,7 +232,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ex}><w>4</w><w>5</w><c>7</c></list>
 
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val list_erd = infoset.erd
     val Seq(w_erd, _, _, c_erd) = list_erd.childERDs
     infoset.getChildArray(w_erd, tunable) match {
@@ -264,7 +273,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ex} xmlns:xsi={xsi}><x xsi:nil='true'/></list>
 
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val list_erd = infoset.erd
     val Seq(x_erd) = list_erd.childERDs
     assertTrue(x_erd.isArray)
@@ -303,7 +315,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ex} xmlns:xsi={xsi}><x xsi:nil='true'/></list>
 
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val list_erd = infoset.erd
     val Seq(x_erd) = list_erd.childERDs
     infoset.getChildArray(x_erd, tunable) match {
@@ -340,11 +355,17 @@ class TestInfoset1 {
       xsi
     }><w>4</w><w>5</w><x xsi:nil='true'/><x><c>7</c></x></list>
 
-    val (infoset: DIComplex, rootTerm, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, rootTerm, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, rootTerm, tunable) => (infoset, rootTerm, tunable)
+      case _ => fail(); null
+    }
     val list_erd = infoset.erd
     val rootPossibles = rootTerm.possibleNextLexicalSiblingStreamingUnparserElements
-    val Seq(wTerm: ElementBase, xTerm: ElementBase) =
-      rootTerm.complexType.modelGroup.groupMembers
+    val (wTerm, xTerm) =
+      rootTerm.complexType.modelGroup.groupMembers match {
+        case Seq(wTerm: ElementBase, xTerm: ElementBase) => (wTerm, xTerm)
+        case _ => fail(); null
+      }
     val xPossibles = xTerm.possibleNextLexicalSiblingStreamingUnparserElements
     val Seq(w_erd, x_erd) = list_erd.childERDs
     val Seq(a_erd, b_erd, c_erd) = x_erd.childERDs
@@ -387,7 +408,10 @@ class TestInfoset1 {
 
     val xmlInfoset = <list xmlns={ex}><x><c>7</c></x><x><b>8</b></x></list>
 
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val list_erd = infoset.erd
     val Seq(w_erd, x_erd) = list_erd.childERDs
     val Seq(a_erd, b_erd, c_erd) = x_erd.childERDs
@@ -440,7 +464,10 @@ class TestInfoset1 {
       ex
     }><enum>EQUAL_TO_OR_&lt;_0.0001_SQUARE_DATA_MILES</enum></root>
 
-    val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
+    val (infoset, tunable) = testInfoset(testSchema, xmlInfoset) match {
+      case (infoset: DIComplex, _, tunable) => (infoset, tunable)
+      case _ => fail(); null
+    }
     val enumElt: DISimple = infoset.child(0).asInstanceOf[DISimple]
     val value = enumElt.dataValueAsString
     assertEquals("EQUAL_TO_OR_<_0.0001_SQUARE_DATA_MILES", value)

@@ -73,7 +73,10 @@ class TestRefMap {
     val numRefPairs = root.refPairsMap.size
     assertEquals(2, numRefPairs) // good proxy for schema size
     val ctDef = root.complexType.asInstanceOf[GlobalComplexTypeDef]
-    val Some(Seq((edecl, ctRefSpecs))) = refMap.get(ctDef)
+    val (edecl, ctRefSpecs) = refMap.get(ctDef) match {
+      case Some(Seq((edecl, ctRefSpecs))) => (edecl, ctRefSpecs)
+      case _ => fail(); null
+    }
     assertEquals(root.referencedElement.shortSchemaComponentDesignator, edecl)
   }
 
@@ -103,7 +106,10 @@ class TestRefMap {
     assertEquals(3, numRefPairs) // good proxy for schema size
     val rootDecl = root.referencedElement
     val ctDef = root.complexType.asInstanceOf[GlobalComplexTypeDef]
-    val Some(Seq((edecl, ctRefSpecs))) = refMap.get(ctDef)
+    val edecl = refMap.get(ctDef) match {
+      case Some(Seq((edecl, ctRefSpecs))) => edecl
+      case _ => fail(); null
+    }
     assertEquals(rootDecl.shortSchemaComponentDesignator, edecl)
     val gref = rootDecl.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
     val Seq((grefSSCD, gdRefSpecs)) = refMap.get(gref.groupDef).get
@@ -139,7 +145,10 @@ class TestRefMap {
     assertEquals(3, numRefPairs) // good proxy for schema size
     val rootDecl = root.referencedElement
     val ctDef = root.complexType.asInstanceOf[GlobalComplexTypeDef]
-    val Some(Seq((edecl, ctRefSpecs))) = refMap.get(ctDef)
+    val edecl = refMap.get(ctDef) match {
+      case Some(Seq((edecl, ctRefSpecs))) => edecl
+      case _ => fail(); null
+    }
     assertEquals(rootDecl.shortSchemaComponentDesignator, edecl)
     val gref = rootDecl.complexType.modelGroup.asInstanceOf[ChoiceGroupRef]
     val Seq((grefSSCD, gdRefSpecs)) = refMap.get(gref.groupDef).get
@@ -188,7 +197,10 @@ class TestRefMap {
     assertEquals(6, numRefPairs) // good proxy for schema size
     val rootDecl = root.referencedElement
     val ctDef = root.complexType.asInstanceOf[GlobalComplexTypeDef]
-    val Some(Seq((edecl, ctRefSpecs))) = refMap.get(ctDef)
+    val edecl = refMap.get(ctDef) match {
+      case Some(Seq((edecl, ctRefSpecs))) => edecl
+      case _ => fail(); null
+    }
     assertEquals(rootDecl.shortSchemaComponentDesignator, edecl)
     val gref = rootDecl.complexType.modelGroup.asInstanceOf[ChoiceGroupRef]
     val Seq((grefSSCD, gdRefSpecs)) = refMap.get(gref.groupDef).get
@@ -691,7 +703,10 @@ class TestRefMap {
     val numRefPairs = root.refPairsMap.size
     val rootDecl = root.referencedElement
     val ctDef = root.complexType.asInstanceOf[GlobalComplexTypeDef]
-    val Some(Seq((edecl, ctRefSpecs))) = refMap.get(ctDef)
+    val _ = refMap.get(ctDef) match {
+      case Some(Seq((edecl, ctRefSpecs))) => edecl
+      case _ => fail(); null
+    }
     val gref = rootDecl.complexType.modelGroup.asInstanceOf[SequenceGroupRef]
     val g_gDef = gref.groupDef
     val eDecl = g_gDef.groupMembers(0)

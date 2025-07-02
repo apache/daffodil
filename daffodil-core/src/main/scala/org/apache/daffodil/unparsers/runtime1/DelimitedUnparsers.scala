@@ -84,12 +84,7 @@ sealed class StringDelimitedUnparser(
                 val theScheme = scheme.asInstanceOf[EscapeSchemeBlockUnparserHelper]
 
                 def hasInscopeTerminatingDelimiters(): Boolean = {
-                  // Need to do this so we can 'break' the loop early
-                  //
-                  for (d <- terminatingMarkup) {
-                    if (valueString.contains(d.lookingFor)) return true
-                  }
-                  false
+                  terminatingMarkup.exists(d => valueString.contains(d.lookingFor))
                 }
 
                 val generateEscapeBlock =

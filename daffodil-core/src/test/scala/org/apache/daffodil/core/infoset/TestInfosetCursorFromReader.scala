@@ -86,7 +86,10 @@ class TestInfosetInputterFromReader {
     val infosetXML = <foo xmlns={XMLUtils.EXAMPLE_NAMESPACE}>Hello</foo>
     val (ii, _, _, _) = infosetInputter(sch, infosetXML)
     val is = ii.to(LazyList).toList
-    val List(Start(s: DISimple), End(e: DISimple)) = is
+    val (s, e) = is match {
+      case List(Start(s: DISimple), End(e: DISimple)) => (s, e)
+      case _ => fail(); null
+    }
     assertTrue(s eq e) // exact same object
     assertTrue(s.dataValue.getAnyRef.isInstanceOf[String])
     assertTrue(s.dataValueAsString =:= "Hello")
@@ -103,7 +106,10 @@ class TestInfosetInputterFromReader {
     }/>
     val (ii, _, _, _) = infosetInputter(sch, infosetXML)
     val is = ii.to(LazyList).toList
-    val List(Start(s: DISimple), End(e: DISimple)) = is
+    val (s, e) = is match {
+      case List(Start(s: DISimple), End(e: DISimple)) => (s, e)
+      case _ => fail(); null
+    }
     assertTrue(s eq e) // exact same object
     assertTrue(s.isNilled)
   }
@@ -123,15 +129,27 @@ class TestInfosetInputterFromReader {
     val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Seq(fooERD) = rootERD.childERDs
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
 
     inp.pushTRD(fooERD)
-    val Start(foo_s: DISimple) = is.next()
+    val foo_s = is.next() match {
+      case Start(foo_s: DISimple) => foo_s
+      case _ => fail(); null
+    }
     bar_s.addChild(foo_s, tunable)
-    val End(foo_e: DISimple) = is.next()
+    val foo_e = is.next() match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
     val poppedERD = inp.popTRD()
     assertEquals(fooERD, poppedERD)
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_s eq foo_e)
@@ -156,17 +174,35 @@ class TestInfosetInputterFromReader {
       XMLUtils.EXAMPLE_NAMESPACE
     }><foo>Hello</foo><baz>World</baz></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     val Seq(fooERD, bazERD) = rootERD.childERDs
     inp.pushTRD(fooERD)
-    val Start(foo_s: DISimple) = is.next()
-    val End(foo_e: DISimple) = is.next()
+    val foo_s = is.next() match {
+      case Start(foo_s: DISimple) => foo_s
+      case _ => fail(); null
+    }
+    val foo_e = is.next() match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
     assertEquals(fooERD, inp.popTRD())
     inp.pushTRD(bazERD)
-    val Start(baz_s: DISimple) = is.next()
-    val End(baz_e: DISimple) = is.next(); assertNotNull(baz_e)
+    val baz_s = is.next() match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = is.next() match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }; assertNotNull(baz_e)
     assertEquals(bazERD, inp.popTRD())
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_s eq foo_e)
@@ -211,30 +247,65 @@ class TestInfosetInputterFromReader {
     //
     // Get all the ERDs and Sequence TRDs
     //
-    val Some(seq1TRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(bar1ERD: ElementRuntimeData, bar2ERD: ElementRuntimeData) = seq1TRD.groupMembers
-    val Some(bar1SeqTRD: SequenceRuntimeData) = bar1ERD.optComplexTypeModelGroupRuntimeData
-    val Seq(foo1ERD: ElementRuntimeData, baz1ERD: ElementRuntimeData) = bar1SeqTRD.groupMembers
-    val Some(bar2SeqTRD: SequenceRuntimeData) = bar2ERD.optComplexTypeModelGroupRuntimeData
-    val Seq(foo2ERD: ElementRuntimeData, baz2ERD: ElementRuntimeData) = bar2SeqTRD.groupMembers
+    val seq1TRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(seq1TRD: SequenceRuntimeData) => seq1TRD
+      case _ => fail(); null
+    }
+    val (bar1ERD, bar2ERD) = seq1TRD.groupMembers match {
+      case Seq(bar1ERD: ElementRuntimeData, bar2ERD: ElementRuntimeData) => (bar1ERD, bar2ERD)
+      case _ => fail(); null
+    }
+    val bar1SeqTRD = bar1ERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(bar1SeqTRD: SequenceRuntimeData) => bar1SeqTRD
+      case _ => fail(); null
+    }
+    val (foo1ERD, baz1ERD) = bar1SeqTRD.groupMembers match {
+      case Seq(foo1ERD: ElementRuntimeData, baz1ERD: ElementRuntimeData) => (foo1ERD, baz1ERD)
+      case _ => fail(); null
+    }
+    val bar2SeqTRD = bar2ERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(bar2SeqTRD: SequenceRuntimeData) => bar2SeqTRD
+      case _ => fail(); null
+    }
+    val (foo2ERD, baz2ERD) = bar2SeqTRD.groupMembers match {
+      case Seq(foo2ERD: ElementRuntimeData, baz2ERD: ElementRuntimeData) => (foo2ERD, baz2ERD)
+      case _ => fail(); null
+    }
 
     inp.pushTRD(rootERD)
-    val Start(quux_s: DIComplex) = is.next()
+    val quux_s = is.next() match {
+      case Start(quux_s: DIComplex) => quux_s
+      case _ => fail(); null
+    }
     inp.pushTRD(seq1TRD)
     inp.pushTRD(bar1ERD)
-    val Start(bar1_s: DIComplex) = is.next()
+    val bar1_s = is.next() match {
+      case Start(bar1_s: DIComplex) => bar1_s
+      case _ => fail(); null
+    }
     //
     // When the unparser for the bar1 element does eventually run, it will push the bar1ERD
     // and when it runs the model group unparser it will push that sequence's TRD.
     inp.pushTRD(bar1SeqTRD)
     inp.pushTRD(foo1ERD)
-    val Start(foo1_s: DISimple) = is.next()
-    val End(foo1_e: DISimple) = is.next()
+    val foo1_s = is.next() match {
+      case Start(foo1_s: DISimple) => foo1_s
+      case _ => fail(); null
+    }
+    val foo1_e = is.next() match {
+      case End(foo1_e: DISimple) => foo1_e
+      case _ => fail(); null
+    }
     assertEquals(foo1ERD, inp.popTRD())
     inp.pushTRD(baz1ERD)
-    val Start(baz1_s: DISimple) = is.next()
-    val End(baz1_e: DISimple) = is.next();
-    assertNotNull(baz1_e)
+    val baz1_s = is.next() match {
+      case Start(baz1_s: DISimple) => baz1_s
+      case _ => fail(); null
+    }
+    val baz1_e = is.next() match {
+      case End(baz1_e: DISimple) => baz1_e
+      case _ => fail(); null
+    }; assertNotNull(baz1_e)
     assertEquals(baz1ERD, inp.popTRD())
     //
     // At the end of a complex element, it should not be expecting
@@ -243,25 +314,49 @@ class TestInfosetInputterFromReader {
     val badERD = inp.nextElement("notFound", XMLUtils.EXAMPLE_NAMESPACE, true)
     assertTrue(badERD.isInstanceOf[ErrorERD])
 
-    val End(bar1_e: DIComplex) = is.next()
+    val bar1_e = is.next() match {
+      case End(bar1_e: DIComplex) => bar1_e
+      case _ => fail(); null
+    }
     assertEquals(bar1SeqTRD, inp.popTRD())
     assertEquals(bar1ERD, inp.popTRD())
     inp.pushTRD(bar2ERD)
-    val Start(bar2_s: DIComplex) = is.next()
+    val bar2_s = is.next() match {
+      case Start(bar2_s: DIComplex) => bar2_s
+      case _ => fail(); null
+    }
     inp.pushTRD(bar2SeqTRD)
     inp.pushTRD(foo2ERD)
-    val Start(foo2_s: DISimple) = is.next()
-    val End(foo2_e: DISimple) = is.next()
+    val foo2_s = is.next() match {
+      case Start(foo2_s: DISimple) => foo2_s
+      case _ => fail(); null
+    }
+    val foo2_e = is.next() match {
+      case End(foo2_e: DISimple) => foo2_e
+      case _ => fail(); null
+    }
     assertEquals(foo2ERD, inp.popTRD())
     inp.pushTRD(baz2ERD)
-    val Start(baz2_s: DISimple) = is.next()
-    val End(baz2_e: DISimple) = is.next();
+    val baz2_s = is.next() match {
+      case Start(baz2_s: DISimple) => baz2_s
+      case _ => fail(); null
+    }
+    val baz2_e = is.next() match {
+      case End(baz2_e: DISimple) => baz2_e
+      case _ => fail(); null
+    }
     assertNotNull(baz2_e)
     assertEquals(baz2ERD, inp.popTRD())
     assertEquals(bar2SeqTRD, inp.popTRD())
     assertEquals(bar2ERD, inp.popTRD())
-    val End(bar2_e: DIComplex) = is.next()
-    val End(quux_e: DIComplex) = is.next()
+    val bar2_e = is.next() match {
+      case End(bar2_e: DIComplex) => bar2_e
+      case _ => fail(); null
+    }
+    val quux_e = is.next() match {
+      case End(quux_e: DIComplex) => quux_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar1_s eq bar1_e) // exact same object
     assertTrue(foo1_s eq foo1_e)
@@ -294,24 +389,54 @@ class TestInfosetInputterFromReader {
       XMLUtils.EXAMPLE_NAMESPACE
     }><foo>Hello</foo><foo>World</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
+    val barSeqTRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
+    val fooERD = barSeqTRD.groupMembers match {
+      case Seq(fooERD: ElementRuntimeData) => fooERD
+      case _ => fail(); null
+    }
     val doc = inp.documentElement
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     doc.addChild(bar_s, tunable)
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = is.next()
-    val Start(foo_1_s: DISimple) = is.next()
+    val foo_arr_s = is.next() match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = is.next() match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
     bar_s.addChild(foo_1_s, tunable)
-    val End(foo_1_e: DISimple) = is.next()
-    val Start(foo_2_s: DISimple) = is.next()
+    val foo_1_e = is.next() match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = is.next() match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
     bar_s.addChild(foo_2_s, tunable)
-    val End(foo_2_e: DISimple) = is.next()
-    val EndArray(foo_arr_e) = is.next()
+    val foo_2_e = is.next() match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = is.next() match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     assertEquals(fooERD, inp.popTRD())
     assertEquals(barSeqTRD, inp.popTRD())
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -340,29 +465,65 @@ class TestInfosetInputterFromReader {
       XMLUtils.EXAMPLE_NAMESPACE
     }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(fooERD: ElementRuntimeData, bazERD: ElementRuntimeData) = barSeqTRD.groupMembers
-    val Start(bar_s: DIComplex) = is.next()
+    val barSeqTRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
+    val (fooERD, bazERD) = barSeqTRD.groupMembers match {
+      case Seq(fooERD: ElementRuntimeData, bazERD: ElementRuntimeData) => (fooERD, bazERD)
+      case _ => fail(); null
+    }
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = is.next()
-    val Start(foo_1_s: DISimple) = is.next()
-    val End(foo_1_e: DISimple) = is.next()
-    val Start(foo_2_s: DISimple) = is.next()
-    val End(foo_2_e: DISimple) = is.next()
-    val EndArray(foo_arr_e) = is.next()
+    val foo_arr_s = is.next() match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = is.next() match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = is.next() match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = is.next() match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = is.next() match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = is.next() match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     //
     // While fooERD is still on the stack, we should be able to resolve baz element since
     // foo is optional
     //
-    val Start(baz_s: DISimple) = is.next()
+    val baz_s = is.next() match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
     assertEquals(fooERD, inp.popTRD())
     inp.pushTRD(bazERD)
-    val End(baz_e: DISimple) = is.next()
+    val baz_e = is.next() match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
     assertEquals(bazERD, inp.popTRD())
     assertEquals(barSeqTRD, inp.popTRD())
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -393,29 +554,65 @@ class TestInfosetInputterFromReader {
       XMLUtils.EXAMPLE_NAMESPACE
     }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
+    val barSeqTRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
+    val (bazERD, fooERD) = barSeqTRD.groupMembers match {
+      case Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) => (bazERD, fooERD)
+      case _ => fail(); null
+    }
 
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
 
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(bazERD)
 
-    val Start(baz_s: DISimple) = is.next()
-    val End(baz_e: DISimple) = is.next()
+    val baz_s = is.next() match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = is.next() match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
     inp.popTRD()
     inp.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = is.next()
-    val Start(foo_1_s: DISimple) = is.next()
-    val End(foo_1_e: DISimple) = is.next()
-    val Start(foo_2_s: DISimple) = is.next()
-    val End(foo_2_e: DISimple) = is.next()
+    val foo_arr_s = is.next() match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = is.next() match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = is.next() match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = is.next() match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = is.next() match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
     inp.popTRD()
     inp.popTRD()
-    val EndArray(foo_arr_e) = is.next()
+    val foo_arr_e = is.next() match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
 
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -446,25 +643,67 @@ class TestInfosetInputterFromReader {
       XMLUtils.EXAMPLE_NAMESPACE
     }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
+    val barSeqTRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
+    val (bazERD, fooERD) = barSeqTRD.groupMembers match {
+      case Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) => (bazERD, fooERD)
+      case _ => fail(); null
+    }
 
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(bazERD)
-    val StartArray(baz_arr_s) = is.next()
-    val Start(baz_s: DISimple) = is.next()
-    val End(baz_e: DISimple) = is.next()
+    val baz_arr_s = is.next() match {
+      case StartArray(baz_arr_s) => baz_arr_s
+      case _ => fail(); null
+    }
+    val baz_s = is.next() match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = is.next() match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
-    val EndArray(baz_arr_e) = is.next()
-    val StartArray(foo_arr_s) = is.next()
-    val Start(foo_1_s: DISimple) = is.next()
-    val End(foo_1_e: DISimple) = is.next()
-    val Start(foo_2_s: DISimple) = is.next()
-    val End(foo_2_e: DISimple) = is.next()
-    val EndArray(foo_arr_e) = is.next()
+    val baz_arr_e = is.next() match {
+      case EndArray(baz_arr_e) => baz_arr_e
+      case _ => fail(); null
+    }
+    val foo_arr_s = is.next() match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = is.next() match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = is.next() match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = is.next() match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = is.next() match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = is.next() match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     inp.popTRD()
-    val End(bar_e: DIComplex) = is.next()
+    val bar_e = is.next() match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s eq bar_e) // exact same object
     assertTrue(foo_arr_s eq foo_arr_e)
@@ -493,22 +732,52 @@ class TestInfosetInputterFromReader {
     )
     val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
-    val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
+    val barSeqTRD = rootERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
+    val fooERD = barSeqTRD.groupMembers match {
+      case Seq(fooERD: ElementRuntimeData) => fooERD
+      case _ => fail(); null
+    }
 
-    val Start(bar_s1: DIComplex) = is.peek
-    val Start(bar_s2: DIComplex) = is.peek
-    val Start(bar_s: DIComplex) = is.next()
+    val bar_s1 = is.peek match {
+      case Start(bar_s1: DIComplex) => bar_s1
+      case _ => fail(); null
+    }
+    val bar_s2 = is.peek match {
+      case Start(bar_s2: DIComplex) => bar_s2
+      case _ => fail(); null
+    }
+    val bar_s = is.next() match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
-    val Start(foo_s1: DISimple) = is.peek
-    val Start(foo_s2: DISimple) = is.next()
-    val End(foo_e: DISimple) = is.next()
+    val foo_s1 = is.peek match {
+      case Start(foo_s1: DISimple) => foo_s1
+      case _ => fail(); null
+    }
+    val foo_s2 = is.next() match {
+      case Start(foo_s2: DISimple) => foo_s2
+      case _ => fail(); null
+    }
+    val foo_e = is.next() match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
     inp.popTRD()
     inp.popTRD()
-    val End(bar_e1: DIComplex) = is.peek
+    val bar_e1 = is.peek match {
+      case End(bar_e1: DIComplex) => bar_e1
+      case _ => fail(); null
+    }
     assertTrue(is.hasNext)
-    val End(bar_e2: DIComplex) = is.next()
+    val bar_e2 = is.next() match {
+      case End(bar_e2: DIComplex) => bar_e2
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(bar_s1 eq bar_s2)
     assertTrue(bar_e1 eq bar_e2)
@@ -542,31 +811,79 @@ class TestInfosetInputterFromReader {
       XMLUtils.EXAMPLE_NAMESPACE
     }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
     val (is, eERD, inp, tunable) = infosetInputter(sch, infosetXML)
-    val Some(eSeqTRD: SequenceRuntimeData) = eERD.optComplexTypeModelGroupRuntimeData
-    val Seq(sERD: ElementRuntimeData) = eSeqTRD.groupMembers
-    val Some(sChoTRD: ChoiceRuntimeData) = sERD.optComplexTypeModelGroupRuntimeData
-    val Seq(c1ERD: ElementRuntimeData, c2ERD: ElementRuntimeData) = sChoTRD.groupMembers
-    val Start(e: DIComplex) = is.next()
+    val eSeqTRD = eERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(eSeqTRD: SequenceRuntimeData) => eSeqTRD
+      case _ => fail(); null
+    }
+    val sERD = eSeqTRD.groupMembers match {
+      case Seq(sERD: ElementRuntimeData) => sERD
+      case _ => fail(); null
+    }
+    val sChoTRD = sERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(sChoTRD: ChoiceRuntimeData) => sChoTRD
+      case _ => fail(); null
+    }
+    val _ = sChoTRD.groupMembers match {
+      case Seq(c1ERD: ElementRuntimeData, c2ERD: ElementRuntimeData) => c1ERD
+      case _ => fail(); null
+    }
+    val e = is.next() match {
+      case Start(e: DIComplex) => e
+      case _ => fail(); null
+    }
     inp.pushTRD(eSeqTRD)
     inp.pushTRD(sERD)
-    val StartArray(as) = is.next()
-    val Start(s1: DIComplex) = is.next(); assertNotNull(s1)
+    val as = is.next() match {
+      case StartArray(as) => as
+      case _ => fail(); null
+    }
+    val s1 = is.next() match {
+      case Start(s1: DIComplex) => s1
+      case _ => fail(); null
+    }; assertNotNull(s1)
     inp.pushTRD(sChoTRD)
-    val Start(c1: DISimple) = is.next()
-    val End(c1e: DISimple) = is.next(); assertNotNull(c1e)
+    val c1 = is.next() match {
+      case Start(c1: DISimple) => c1
+      case _ => fail(); null
+    }
+    val c1e = is.next() match {
+      case End(c1e: DISimple) => c1e
+      case _ => fail(); null
+    }; assertNotNull(c1e)
     inp.popTRD()
     inp.popTRD()
-    val End(s1e: DIComplex) = is.next(); assertNotNull(s1e)
+    val s1e = is.next() match {
+      case End(s1e: DIComplex) => s1e
+      case _ => fail(); null
+    }; assertNotNull(s1e)
     inp.pushTRD(sERD)
-    val Start(s2: DIComplex) = is.next(); assertNotNull(s2)
+    val s2 = is.next() match {
+      case Start(s2: DIComplex) => s2
+      case _ => fail(); null
+    }; assertNotNull(s2)
     inp.pushTRD(sChoTRD)
-    val Start(c2: DISimple) = is.next()
-    val End(c2e: DISimple) = is.next();; assertNotNull(c2e)
+    val c2 = is.next() match {
+      case Start(c2: DISimple) => c2
+      case _ => fail(); null
+    }
+    val c2e = is.next() match {
+      case End(c2e: DISimple) => c2e
+      case _ => fail(); null
+    };; assertNotNull(c2e)
     inp.popTRD()
-    val End(s2e: DIComplex) = is.next(); assertNotNull(s2e)
-    val EndArray(ase) = is.next()
+    val s2e = is.next() match {
+      case End(s2e: DIComplex) => s2e
+      case _ => fail(); null
+    }; assertNotNull(s2e)
+    val ase = is.next() match {
+      case EndArray(ase) => ase
+      case _ => fail(); null
+    }
     inp.popTRD()
-    val End(ee: DIComplex) = is.next()
+    val ee = is.next() match {
+      case End(ee: DIComplex) => ee
+      case _ => fail(); null
+    }
     assertFalse(is.hasNext)
     assertTrue(as eq ase) // exact same object
     assertTrue(e eq ee)

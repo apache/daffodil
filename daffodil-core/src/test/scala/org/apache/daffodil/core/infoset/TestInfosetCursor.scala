@@ -115,15 +115,24 @@ class TestInfosetInputter {
     val iicc: InfosetAccessor = ic.inspectAccessor
 
     assertTrue(ic.advance)
-    val Start(foo: DISimple) = aacc
+    val foo = aacc match {
+      case Start(foo: DISimple) => foo
+      case _ => fail(); null
+    }
     assertEquals("Hello", foo.dataValueAsString)
 
     assertTrue(ic.inspect)
-    val End(foo_i: DISimple) = iicc
+    val foo_i = iicc match {
+      case End(foo_i: DISimple) => foo_i
+      case _ => fail(); null
+    }
     assertTrue(foo_i eq foo)
 
     assertTrue(ic.advance)
-    val End(foo_e: DISimple) = aacc
+    val foo_e = aacc match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
     assertTrue(foo_e eq foo)
 
     assertFalse(ic.inspect)
@@ -145,15 +154,24 @@ class TestInfosetInputter {
     val iicc: InfosetAccessor = ic.inspectAccessor
 
     assertTrue(ic.advance)
-    val Start(foo: DISimple) = aacc
+    val foo = aacc match {
+      case Start(foo: DISimple) => foo
+      case _ => fail(); null
+    }
     assertTrue(foo.isNilled)
 
     assertTrue(ic.inspect)
-    val End(foo_i: DISimple) = iicc
+    val foo_i = iicc match {
+      case End(foo_i: DISimple) => foo_i
+      case _ => fail(); null
+    }
     assertTrue(foo_i eq foo)
 
     assertTrue(ic.advance)
-    val End(foo_e: DISimple) = aacc
+    val foo_e = aacc match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
     assertTrue(foo_e eq foo)
 
     assertFalse(ic.inspect)
@@ -180,32 +198,53 @@ class TestInfosetInputter {
     val iacc = ic.inspectAccessor
 
     val barERD = rootERD
-    val Some(barSeqTRD) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD) => barSeqTRD
+      case _ => fail(); null
+    }
     val Seq(fooERD) = barERD.childERDs
     ic.pushTRD(barERD)
     assertTrue(ic.advance)
-    val Start(bar: DIComplex) = aacc
+    val bar = aacc match {
+      case Start(bar: DIComplex) => bar
+      case _ => fail(); null
+    }
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(fooERD)
     assertTrue(ic.advance)
-    val Start(foo: DISimple) = aacc
+    val foo = aacc match {
+      case Start(foo: DISimple) => foo
+      case _ => fail(); null
+    }
     assertEquals("Hello", foo.dataValue.getAnyRef)
 
     assertTrue(ic.inspect)
-    val End(ifoo: DISimple) = iacc
+    val ifoo = iacc match {
+      case End(ifoo: DISimple) => ifoo
+      case _ => fail(); null
+    }
     assertTrue(foo eq ifoo)
 
     assertTrue(ic.advance)
-    val End(eFoo: DISimple) = aacc
+    val eFoo = aacc match {
+      case End(eFoo: DISimple) => eFoo
+      case _ => fail(); null
+    }
     assertTrue(foo eq eFoo)
 
     ic.popTRD()
     assertTrue(ic.inspect)
-    val End(ibar: DIComplex) = iacc
+    val ibar = iacc match {
+      case End(ibar: DIComplex) => ibar
+      case _ => fail(); null
+    }
     assertTrue(bar eq ibar)
 
     assertTrue(ic.advance)
-    val End(bar_e: DIComplex) = aacc
+    val bar_e = aacc match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     assertTrue(bar eq bar_e)
     ic.popTRD()
     ic.popTRD()
@@ -231,22 +270,43 @@ class TestInfosetInputter {
     }><foo>Hello</foo><baz>World</baz></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
-    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     val barERD = bar_s.erd
-    val Some(barSeqTRD) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD) => barSeqTRD
+      case _ => fail(); null
+    }
     val Seq(fooERD, bazERD) = barERD.childERDs
 
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(fooERD)
-    val Start(foo_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val foo_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_s: DISimple) => foo_s
+      case _ => fail(); null
+    }
+    val foo_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.pushTRD(bazERD)
-    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc };
+    val baz_s = { assertTrue(ic.advance); aacc } match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = { assertTrue(ic.advance); aacc } match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
     ic.popTRD()
-    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)
@@ -291,43 +351,95 @@ class TestInfosetInputter {
                      </quux>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
-    val Start(quux_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val quux_s = { assertTrue(ic.advance); aacc } match {
+      case Start(quux_s: DIComplex) => quux_s
+      case _ => fail(); null
+    }
     val quuxERD = quux_s.erd
-    val Some(quuxSeqTRD: SequenceRuntimeData) = quuxERD.optComplexTypeModelGroupRuntimeData
+    val quuxSeqTRD = quuxERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(quuxSeqTRD: SequenceRuntimeData) => quuxSeqTRD
+      case _ => fail(); null
+    }
     val Seq(bar1ERD, bar2ERD) = quuxERD.childERDs
-    val Some(bar1SeqTRD: SequenceRuntimeData) = bar1ERD.optComplexTypeModelGroupRuntimeData
-    val Some(bar2SeqTRD: SequenceRuntimeData) = bar2ERD.optComplexTypeModelGroupRuntimeData
+    val bar1SeqTRD = bar1ERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(bar1SeqTRD: SequenceRuntimeData) => bar1SeqTRD
+      case _ => fail(); null
+    }
+    val bar2SeqTRD = bar2ERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(bar2SeqTRD: SequenceRuntimeData) => bar2SeqTRD
+      case _ => fail(); null
+    }
     val Seq(foo1ERD, baz1ERD) = bar1ERD.childERDs
     val Seq(foo2ERD, baz2ERD) = bar2ERD.childERDs
     ic.pushTRD(quuxSeqTRD)
     ic.pushTRD(bar1ERD)
-    val Start(bar1_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar1_s: DIComplex) => bar1_s
+      case _ => fail(); null
+    }
     ic.pushTRD(bar1SeqTRD)
     ic.pushTRD(foo1ERD)
-    val Start(foo1_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo1_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val foo1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo1_s: DISimple) => foo1_s
+      case _ => fail(); null
+    }
+    val foo1_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo1_e: DISimple) => foo1_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.pushTRD(baz1ERD)
-    val Start(baz1_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz1_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz1_e)
+    val baz1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(baz1_s: DISimple) => baz1_s
+      case _ => fail(); null
+    }
+    val baz1_e = { assertTrue(ic.advance); aacc } match {
+      case End(baz1_e: DISimple) => baz1_e
+      case _ => fail(); null
+    };
+    assertNotNull(baz1_e)
     ic.popTRD()
     ic.popTRD()
-    val End(bar1_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar1_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar1_e: DIComplex) => bar1_e
+      case _ => fail(); null
+    }
     ic.pushTRD(bar2ERD)
-    val Start(bar2_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar2_s: DIComplex) => bar2_s
+      case _ => fail(); null
+    }
     ic.pushTRD(bar2SeqTRD)
     ic.pushTRD(foo2ERD)
-    val Start(foo2_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo2_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val foo2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo2_s: DISimple) => foo2_s
+      case _ => fail(); null
+    }
+    val foo2_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo2_e: DISimple) => foo2_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.pushTRD(baz2ERD)
-    val Start(baz2_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz2_e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(baz2_e)
+    val baz2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(baz2_s: DISimple) => baz2_s
+      case _ => fail(); null
+    }
+    val baz2_e = { assertTrue(ic.advance); aacc } match {
+      case End(baz2_e: DISimple) => baz2_e
+      case _ => fail(); null
+    }; assertNotNull(baz2_e)
     ic.popTRD()
     ic.popTRD()
-    val End(bar2_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar2_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar2_e: DIComplex) => bar2_e
+      case _ => fail(); null
+    }
     ic.popTRD()
-    val End(quux_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val quux_e = { assertTrue(ic.advance); aacc } match {
+      case End(quux_e: DIComplex) => quux_e
+      case _ => fail(); null
+    }
     assertFalse(ic.inspect)
     assertTrue(bar1_s eq bar1_e) // exact same object
     assertTrue(foo1_s eq foo1_e)
@@ -362,20 +474,47 @@ class TestInfosetInputter {
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val barERD = rootERD
-    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
     val Seq(fooERD) = barERD.childERDs
     ic.pushTRD(barERD)
-    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
-    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    val foo_arr_s = { assertTrue(ic.advance); aacc } match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = { assertTrue(ic.advance); aacc } match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     ic.popTRD()
-    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)
@@ -407,24 +546,57 @@ class TestInfosetInputter {
     }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
-    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     val barERD = bar_s.erd
-    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
     val Seq(fooERD, bazERD) = barERD.childERDs
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
-    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    val foo_arr_s = { assertTrue(ic.advance); aacc } match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = { assertTrue(ic.advance); aacc } match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.pushTRD(bazERD)
-    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val baz_s = { assertTrue(ic.advance); aacc } match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = { assertTrue(ic.advance); aacc } match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
-    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)
@@ -459,25 +631,58 @@ class TestInfosetInputter {
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val barERD = rootERD
-    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
     ic.pushTRD(barERD)
-    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     val Seq(bazERD, fooERD) = barERD.childERDs
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(bazERD)
-    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val baz_s = { assertTrue(ic.advance); aacc } match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = { assertTrue(ic.advance); aacc } match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
     ic.popTRD()
     ic.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
-    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    val foo_arr_s = { assertTrue(ic.advance); aacc } match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = { assertTrue(ic.advance); aacc } match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     ic.popTRD()
-    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)
@@ -512,27 +717,66 @@ class TestInfosetInputter {
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val barERD = rootERD
-    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
     val Seq(bazERD, fooERD) = barERD.childERDs
     ic.pushTRD(barERD)
-    val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_s = { assertTrue(ic.advance); aacc } match {
+      case Start(bar_s: DIComplex) => bar_s
+      case _ => fail(); null
+    }
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(bazERD)
-    val StartArray(baz_arr_s) = { assertTrue(ic.advance); aacc }
-    val Start(baz_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(baz_e: DISimple) = { assertTrue(ic.advance); aacc }
+    val baz_arr_s = { assertTrue(ic.advance); aacc } match {
+      case StartArray(baz_arr_s) => baz_arr_s
+      case _ => fail(); null
+    }
+    val baz_s = { assertTrue(ic.advance); aacc } match {
+      case Start(baz_s: DISimple) => baz_s
+      case _ => fail(); null
+    }
+    val baz_e = { assertTrue(ic.advance); aacc } match {
+      case End(baz_e: DISimple) => baz_e
+      case _ => fail(); null
+    }
     assertNotNull(baz_e)
-    val EndArray(baz_arr_e) = { assertTrue(ic.advance); aacc }
+    val baz_arr_e = { assertTrue(ic.advance); aacc } match {
+      case EndArray(baz_arr_e) => baz_arr_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.pushTRD(fooERD)
-    val StartArray(foo_arr_s) = { assertTrue(ic.advance); aacc }
-    val Start(foo_1_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_1_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val Start(foo_2_s: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_2_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val EndArray(foo_arr_e) = { assertTrue(ic.advance); aacc }
+    val foo_arr_s = { assertTrue(ic.advance); aacc } match {
+      case StartArray(foo_arr_s) => foo_arr_s
+      case _ => fail(); null
+    }
+    val foo_1_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_1_s: DISimple) => foo_1_s
+      case _ => fail(); null
+    }
+    val foo_1_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_1_e: DISimple) => foo_1_e
+      case _ => fail(); null
+    }
+    val foo_2_s = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_2_s: DISimple) => foo_2_s
+      case _ => fail(); null
+    }
+    val foo_2_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_2_e: DISimple) => foo_2_e
+      case _ => fail(); null
+    }
+    val foo_arr_e = { assertTrue(ic.advance); aacc } match {
+      case EndArray(foo_arr_e) => foo_arr_e
+      case _ => fail(); null
+    }
     ic.popTRD()
-    val End(bar_e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_e = { assertTrue(ic.advance); aacc } match {
+      case End(bar_e: DIComplex) => bar_e
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)
@@ -566,21 +810,48 @@ class TestInfosetInputter {
     val aacc = ic.advanceAccessor
     val iacc = ic.inspectAccessor
     val barERD = rootERD
-    val Some(barSeqTRD: SequenceRuntimeData) = barERD.optComplexTypeModelGroupRuntimeData
+    val barSeqTRD = barERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(barSeqTRD: SequenceRuntimeData) => barSeqTRD
+      case _ => fail(); null
+    }
     val Seq(fooERD) = barERD.childERDs
     ic.pushTRD(barERD)
-    val Start(bar_s1: DIComplex) = { assertTrue(ic.inspect); iacc }
-    val Start(bar_s2: DIComplex) = { assertTrue(ic.inspect); iacc }
-    val Start(bar_s3: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_s1 = { assertTrue(ic.inspect); iacc } match {
+      case Start(bar_s1: DIComplex) => bar_s1
+      case _ => fail(); null
+    }
+    val bar_s2 = { assertTrue(ic.inspect); iacc } match {
+      case Start(bar_s2: DIComplex) => bar_s2
+      case _ => fail(); null
+    }
+    val bar_s3 = { assertTrue(ic.advance); aacc } match {
+      case Start(bar_s3: DIComplex) => bar_s3
+      case _ => fail(); null
+    }
     ic.pushTRD(barSeqTRD)
     ic.pushTRD(fooERD)
-    val Start(foo_s1: DISimple) = { assertTrue(ic.inspect); iacc }
-    val Start(foo_s2: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(foo_e: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(bar_e1: DIComplex) = { assertTrue(ic.inspect); iacc }
+    val foo_s1 = { assertTrue(ic.inspect); iacc } match {
+      case Start(foo_s1: DISimple) => foo_s1
+      case _ => fail(); null
+    }
+    val foo_s2 = { assertTrue(ic.advance); aacc } match {
+      case Start(foo_s2: DISimple) => foo_s2
+      case _ => fail(); null
+    }
+    val foo_e = { assertTrue(ic.advance); aacc } match {
+      case End(foo_e: DISimple) => foo_e
+      case _ => fail(); null
+    }
+    val bar_e1 = { assertTrue(ic.inspect); iacc } match {
+      case End(bar_e1: DIComplex) => bar_e1
+      case _ => fail(); null
+    }
     assertTrue(ic.inspect)
     ic.popTRD()
-    val End(bar_e2: DIComplex) = { assertTrue(ic.advance); aacc }
+    val bar_e2 = { assertTrue(ic.advance); aacc } match {
+      case End(bar_e2: DIComplex) => bar_e2
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)
@@ -618,29 +889,71 @@ class TestInfosetInputter {
     }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
-    val Start(e: DIComplex) = { assertTrue(ic.advance); aacc }
+    val e = { assertTrue(ic.advance); aacc } match {
+      case Start(e: DIComplex) => e
+      case _ => fail(); null
+    }
     val eERD = e.erd
-    val Some(eSeqTRD: SequenceRuntimeData) = eERD.optComplexTypeModelGroupRuntimeData
+    val eSeqTRD = eERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(eSeqTRD: SequenceRuntimeData) => eSeqTRD
+      case _ => fail(); null
+    }
     val Seq(sERD) = eERD.childERDs
-    val Some(sChoTRD: ChoiceRuntimeData) = sERD.optComplexTypeModelGroupRuntimeData
+    val sChoTRD = sERD.optComplexTypeModelGroupRuntimeData match {
+      case Some(sChoTRD: ChoiceRuntimeData) => sChoTRD
+      case _ => fail(); null
+    }
     val Seq(c1ERD, c2ERD) = sERD.childERDs
     ic.pushTRD(eSeqTRD)
     ic.pushTRD(sERD)
-    val StartArray(as) = { assertTrue(ic.advance); aacc }
-    val Start(s1: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s1)
+    val as = { assertTrue(ic.advance); aacc } match {
+      case StartArray(as) => as
+      case _ => fail(); null
+    }
+    val s1 = { assertTrue(ic.advance); aacc } match {
+      case Start(s1: DIComplex) => s1
+      case _ => fail(); null
+    }; assertNotNull(s1)
     ic.pushTRD(sChoTRD)
-    val Start(c1: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(c1e: DISimple) = { assertTrue(ic.advance); aacc }; assertNotNull(c1e)
-    val End(s1e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s1e)
+    val c1 = { assertTrue(ic.advance); aacc } match {
+      case Start(c1: DISimple) => c1
+      case _ => fail(); null
+    }
+    val c1e = { assertTrue(ic.advance); aacc } match {
+      case End(c1e: DISimple) => c1e
+      case _ => fail(); null
+    }; assertNotNull(c1e)
+    val s1e = { assertTrue(ic.advance); aacc } match {
+      case End(s1e: DIComplex) => s1e
+      case _ => fail(); null
+    }; assertNotNull(s1e)
     ic.popTRD()
-    val Start(s2: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2)
+    val s2 = { assertTrue(ic.advance); aacc } match {
+      case Start(s2: DIComplex) => s2
+      case _ => fail(); null
+    }; assertNotNull(s2)
     ic.pushTRD(sChoTRD)
-    val Start(c2: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(c2e: DISimple) = { assertTrue(ic.advance); aacc };; assertNotNull(c2e)
-    val End(s2e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2e)
+    val c2 = { assertTrue(ic.advance); aacc } match {
+      case Start(c2: DISimple) => c2
+      case _ => fail(); null
+    }
+    val c2e = { assertTrue(ic.advance); aacc } match {
+      case End(c2e: DISimple) => c2e
+      case _ => fail(); null
+    }; assertNotNull(c2e)
+    val s2e = { assertTrue(ic.advance); aacc } match {
+      case End(s2e: DIComplex) => s2e
+      case _ => fail(); null
+    }; assertNotNull(s2e)
     ic.popTRD()
-    val EndArray(ase) = { assertTrue(ic.advance); aacc }
-    val End(ee: DIComplex) = { assertTrue(ic.advance); aacc }
+    val ase = { assertTrue(ic.advance); aacc } match {
+      case EndArray(ase) => ase
+      case _ => fail(); null
+    }
+    val ee = { assertTrue(ic.advance); aacc } match {
+      case End(ee: DIComplex) => ee
+      case _ => fail(); null
+    }
     ic.popTRD()
     ic.popTRD()
     assertFalse(ic.inspect)

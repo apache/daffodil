@@ -85,8 +85,8 @@ trait RepTypeMixin { self: ElementBase =>
     }.value
 
   lazy val (
-    repTypeCompareLT: NumberCompareOp,
-    repTypeCompareLE: NumberCompareOp
+    repTypeCompareLT,
+    repTypeCompareLE
   ) = LV(Symbol("repTypeComparers")) {
     Assert.invariant(
       repTypeElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
@@ -94,7 +94,17 @@ trait RepTypeMixin { self: ElementBase =>
     )
     val comparisonOps = ComparisonOps.forType(repTypeElementDecl.primType)
     (comparisonOps.lt, comparisonOps.le)
-  }.value
+  }.value match {
+    case (
+          repTypeCompareLT: NumberCompareOp,
+          repTypeCompareLE: NumberCompareOp
+        ) =>
+      (repTypeCompareLT, repTypeCompareLE)
+    case x =>
+      Assert.invariantFailed(
+        s"Expected NumberCompareOp tuple, found (${x._1.getClass}, ${x._2.getClass}) tuple "
+      )
+  }
 
   lazy val (
     repTypeParseValuesMap: Map[DataValueNumber, DataValueString],

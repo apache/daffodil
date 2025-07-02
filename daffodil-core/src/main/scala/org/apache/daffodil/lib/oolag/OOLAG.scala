@@ -350,7 +350,9 @@ object OOLAG {
       }
     }
 
-    private sealed trait ActivityStatus
+    // scala 3.3.6 complains about this being private (MissingType error). So as a
+    // workaround to that, we make it protected instead
+    protected sealed trait ActivityStatus
     private case object Active extends ActivityStatus
     private case object Inactive extends ActivityStatus
 

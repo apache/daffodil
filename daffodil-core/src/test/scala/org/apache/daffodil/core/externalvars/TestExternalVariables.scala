@@ -37,9 +37,18 @@ class TestExternalVariables {
     val varNoNS = "{}varNoNS"
     val varGuessNS = "varGuessNS"
 
-    val Success(qWithNS) = QName.refQNameFromExtendedSyntax(varWithNS)
-    val Success(qNoNS) = QName.refQNameFromExtendedSyntax(varNoNS)
-    val Success(qGuessNS) = QName.refQNameFromExtendedSyntax(varGuessNS)
+    val qWithNS = QName.refQNameFromExtendedSyntax(varWithNS) match {
+      case Success(qWithNS) => qWithNS
+      case _ => fail(); null
+    }
+    val qNoNS = QName.refQNameFromExtendedSyntax(varNoNS) match {
+      case Success(qNoNS) => qNoNS
+      case _ => fail(); null
+    }
+    val qGuessNS = QName.refQNameFromExtendedSyntax(varGuessNS) match {
+      case Success(qGuessNS) => qGuessNS
+      case _ => fail(); null
+    }
 
     assertEquals(NS("someNS"), qWithNS.namespace)
     assertEquals("varWithNS", qWithNS.local)

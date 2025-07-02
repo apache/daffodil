@@ -134,25 +134,26 @@ trait OrderedCalendar { self: DFDLCalendar =>
     Assert.invariant(!p.hasTimeZone || p.calendar.getTimeZone == TimeZone.GMT_ZONE)
     Assert.invariant(!q.hasTimeZone || q.calendar.getTimeZone == TimeZone.GMT_ZONE)
 
-    val length = fieldsForComparison.length
-    for (i <- 0 until length) {
-      val field = fieldsForComparison(i)
+    fieldsForComparison
+      .map { field =>
+        val hasP = p.calendar.isSet(field)
+        val hasQ = q.calendar.isSet(field)
 
-      val hasPSubI = p.calendar.isSet(field)
-      val hasQSubI = q.calendar.isSet(field)
-
-      if (!hasPSubI && !hasQSubI) { /* continue */ }
-      else if (hasPSubI ^ hasQSubI) return DFDLCalendarOrder.P_NOT_EQUAL_Q
-      else {
-        val pSubI = p.calendar.get(field)
-        val qSubI = q.calendar.get(field)
-
-        if (pSubI < qSubI) { return DFDLCalendarOrder.P_LESS_THAN_Q }
-        else if (pSubI > qSubI) { return DFDLCalendarOrder.P_GREATER_THAN_Q }
-        else { /* continue */ }
+        if (!hasP && !hasQ) {
+          None
+        } else if (hasP ^ hasQ) {
+          Some(DFDLCalendarOrder.P_NOT_EQUAL_Q)
+        } else {
+          val pVal = p.calendar.get(field)
+          val qVal = q.calendar.get(field)
+          if (pVal < qVal) Some(DFDLCalendarOrder.P_LESS_THAN_Q)
+          else if (pVal > qVal) Some(DFDLCalendarOrder.P_GREATER_THAN_Q)
+          else None
+        }
       }
-    }
-    DFDLCalendarOrder.P_EQUAL_Q
+      .find(_.isDefined) // lazily stops at first Some(...)
+      .flatten
+      .getOrElse(DFDLCalendarOrder.P_EQUAL_Q)
   }
 }
 

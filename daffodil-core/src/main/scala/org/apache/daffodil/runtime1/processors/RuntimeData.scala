@@ -357,57 +357,74 @@ final class SimpleTypeRuntimeData(
       }
     }
     // Check length
-    e.length.foreach { length =>
-      if (!checkLength(currentElement, length, e, primType))
+    if (e.length.isDefined) {
+      val length = e.length.get
+      if (!checkLength(currentElement, length, e, primType)) {
         return Error("facet length (%s)".format(length))
+      }
     }
+
     // Check minLength
-    e.minLength.foreach { minLength =>
-      if (!checkMinLength(currentElement, minLength, e, primType))
+    if (e.minLength.isDefined) {
+      val minLength = e.minLength.get
+      if (!checkMinLength(currentElement, minLength, e, primType)) {
         return Error("facet minLength (%s)".format(minLength))
+      }
     }
+
     // Check maxLength
-    e.maxLength.foreach { maxLength =>
-      if (!checkMaxLength(currentElement, maxLength, e, primType))
+    if (e.maxLength.isDefined) {
+      val maxLength = e.maxLength.get
+      if (!checkMaxLength(currentElement, maxLength, e, primType)) {
         return Error("facet maxLength (%s)".format(maxLength))
+      }
     }
+
     // Check minInclusive
-    e.minInclusive.foreach { minInclusive =>
-      if (!checkMinInc(currentElement, minInclusive, primType, e))
+    if (e.minInclusive.isDefined) {
+      val minInclusive = e.minInclusive.get
+      if (!checkMinInc(currentElement, minInclusive, primType, e)) {
         return Error("facet minInclusive (%s)".format(minInclusive))
+      }
     }
+
     // Check maxInclusive
-    e.maxInclusive.foreach { maxInclusive =>
-      if (!checkMaxInc(currentElement, maxInclusive, primType, e))
+    if (e.maxInclusive.isDefined) {
+      val maxInclusive = e.maxInclusive.get
+      if (!checkMaxInc(currentElement, maxInclusive, primType, e)) {
         return Error("facet maxInclusive (%s)".format(maxInclusive))
+      }
     }
+
     // Check minExclusive
-    e.minExclusive.foreach { minExclusive =>
-      if (!checkMinExc(currentElement, minExclusive, primType, e))
+    if (e.minExclusive.isDefined) {
+      val minExclusive = e.minExclusive.get
+      if (!checkMinExc(currentElement, minExclusive, primType, e)) {
         return Error("facet minExclusive (%s)".format(minExclusive))
+      }
     }
+
     // Check maxExclusive
-    e.maxExclusive.foreach { maxExclusive =>
-      if (!checkMaxExc(currentElement, maxExclusive, primType, e))
+    if (e.maxExclusive.isDefined) {
+      val maxExclusive = e.maxExclusive.get
+      if (!checkMaxExc(currentElement, maxExclusive, primType, e)) {
         return Error("facet maxExclusive (%s)".format(maxExclusive))
+      }
     }
 
     // Check totalDigits
-    e.totalDigits.foreach { totalDigits =>
-      val tdLong = totalDigits.longValue()
-      val isTotalDigitsGreaterThanEqToZero = tdLong.compareTo(0L) >= 0
-      if (isTotalDigitsGreaterThanEqToZero) {
-        if (!checkTotalDigits(currentElement, tdLong))
-          return Error("facet totalDigits (%s)".format(totalDigits))
+    if (e.totalDigits.isDefined) {
+      val totalDigits = e.totalDigits.get.longValue()
+      if (totalDigits >= 0 && !checkTotalDigits(currentElement, totalDigits)) {
+        return Error("facet totalDigits (%s)".format(totalDigits))
       }
     }
+
     // Check fractionDigits
-    e.fractionDigits.foreach { fractionDigits =>
-      val fdLong = fractionDigits.longValue()
-      val isFractionDigitsGreaterThanEqToZero = fdLong.compareTo(0L) >= 0
-      if (isFractionDigitsGreaterThanEqToZero) {
-        if (!checkFractionDigits(currentElement, fdLong))
-          return Error("facet fractionDigits (%s)".format(fractionDigits))
+    if (e.fractionDigits.isDefined) {
+      val fractionDigits = e.fractionDigits.get.longValue()
+      if (fractionDigits >= 0 && !checkFractionDigits(currentElement, fractionDigits)) {
+        return Error("facet fractionDigits (%s)".format(fractionDigits))
       }
     }
 

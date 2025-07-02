@@ -243,7 +243,10 @@ trait SchemaComponent
   /**
    * the easiest way to get an empty metadata object.
    */
-  private val scala.xml.Elem(_, _, emptyXMLMetadata, _, _*) = <foo/>
+  private val emptyXMLMetadata = <foo/> match {
+    case scala.xml.Elem(_, _, exm, _, _*) => exm
+    case x => schemaDefinitionError(s"Expected elem, found $x")
+  }
 
   /**
    * Used as factory for the XML Node with the right namespace and prefix etc.

@@ -110,22 +110,35 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_a() = {
     testExpr2(aSchema, "{ /tns:a }") { (ce, erd) =>
-      val WholeExpression(
-        _,
-        RootPathExpression(Some(RelativePathExpression(steps, _))),
-        _,
-        _,
-        _,
-        _
-      ) = ce
-      val List(n1: DownStepExpression) = steps
-      val n1p @ NamedStep("tns:a", None) = n1;
+      val steps = ce match {
+        case WholeExpression(
+              _,
+              RootPathExpression(Some(RelativePathExpression(steps, _))),
+              _,
+              _,
+              _,
+              _
+            ) =>
+          steps
+        case _ => fail(); null
+      }
+      val n1: DownStepExpression = steps match {
+        case List(n1: DownStepExpression) => n1
+        case _ => fail(); null
+      }
+      val n1p = n1 match {
+        case n1p @ NamedStep("tns:a", None) => n1p
+        case _ => fail(); null
+      }
       assertNotNull(n1p)
       assertFalse(n1.isArray)
       assertEquals(NodeInfo.AnyType, n1.targetType)
       assertEquals(NodeInfo.String, n1.inherentType)
       assertTrue(n1.isLastStep)
-      val List(DownElement(nqn: NamedQName)) = n1.compiledDPath.ops.toList
+      val nqn = n1.compiledDPath.ops.toList match {
+        case List(DownElement(nqn: NamedQName)) => nqn
+        case _ => fail(); null
+      }
       assertEquals(nqn, n1.stepElements.head.namedQName)
     }
   }
@@ -145,48 +158,100 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_a_pred(): Unit = {
     testExpr2(bSchema, "{ /tns:b/a[/tns:b/i] }") { (ce, erd) =>
-      val w @ WholeExpression(
-        _,
-        RootPathExpression(Some(RelativePathExpression(steps, _))),
-        _,
-        _,
-        _,
-        _
-      ) = ce
+      val (w, steps) = ce match {
+        case w @ WholeExpression(
+              _,
+              RootPathExpression(Some(RelativePathExpression(steps, _))),
+              _,
+              _,
+              _,
+              _
+            ) =>
+          (w, steps)
+        case _ => fail(); null
+      }
       val List(b, a) = steps
-      val bp @ NamedStep("tns:b", None) = b; assertNotNull(bp)
-      val NamedStep("a", Some(PredicateExpression(i))) = a
-      val RootPathExpression(Some(RelativePathExpression(List(_, istep), _))) = i
-      val isp @ NamedStep("i", None) = istep; assertNotNull(isp)
+      val bp = b match {
+        case bp @ NamedStep("tns:b", None) => bp
+        case _ => fail(); null
+      }; assertNotNull(bp)
+      val i = a match {
+        case NamedStep("a", Some(PredicateExpression(i))) => i
+        case _ => fail(); null
+      }
+      val istep = i match {
+        case RootPathExpression(Some(RelativePathExpression(List(_, istep), _))) => istep
+        case _ => fail(); null
+      }
+      val isp = istep match {
+        case isp @ NamedStep("i", None) => isp
+        case _ => fail(); null
+      }; assertNotNull(isp)
       val ops = i.compiledDPath.ops.toList
-      val List(ToRoot, DownElement(berd), DownElement(_), IntToLong, LongToArrayIndex) = ops
-      val List(ToRoot, DownElement(berd2), DownArrayOccurrence(_, _)) =
-        w.compiledDPath.ops.toList
+      val berd = ops match {
+        case List(ToRoot, DownElement(berd), DownElement(_), IntToLong, LongToArrayIndex) =>
+          berd
+        case _ => fail(); null
+      }
+      val berd2 =
+        w.compiledDPath.ops.toList match {
+          case List(ToRoot, DownElement(berd2), DownArrayOccurrence(_, _)) => berd2
+          case _ => fail(); null
+        }
       assertEquals(berd, berd2)
     }
   }
 
   @Test def test_a_predPred(): Unit = {
     testExpr(dummySchema, "{ a[i[j]] }") { actual =>
-      val WholeExpression(_, RelativePathExpression(steps, _), _, _, _, _) = actual
+      val steps = actual match {
+        case WholeExpression(_, RelativePathExpression(steps, _), _, _, _, _) => steps
+        case _ => fail(); null
+      }
       val List(n1) = steps
-      val NamedStep("a", Some(PredicateExpression(rel))) = n1
-      val RelativePathExpression(List(n2), _) = rel
-      val NamedStep("i", Some(PredicateExpression(j))) = n2
-      val RelativePathExpression(List(n3), _) = j
-      val n3p @ NamedStep("j", None) = n3; assertNotNull(n3p)
+      val rel = n1 match {
+        case NamedStep("a", Some(PredicateExpression(rel))) => rel
+        case _ => fail(); null
+      }
+      val n2 = rel match {
+        case RelativePathExpression(List(n2), _) => n2
+        case _ => fail(); null
+      }
+      val j = n2 match {
+        case NamedStep("i", Some(PredicateExpression(j))) => j
+        case _ => fail(); null
+      }
+      val n3 = j match {
+        case RelativePathExpression(List(n3), _) => n3
+        case _ => fail(); null
+      }
+      val n3p = n3 match {
+        case n3p @ NamedStep("j", None) => n3p
+        case _ => fail(); null
+      }; assertNotNull(n3p)
     }
   }
 
   @Test def test_relativePath() = {
     testExpr(dummySchema, "{ ../..[2]/bookstore }") { actual =>
-      val WholeExpression(_, RelativePathExpression(steps, _), _, _, _, _) = actual
+      val steps = actual match {
+        case WholeExpression(_, RelativePathExpression(steps, _), _, _, _, _) => steps
+        case _ => fail(); null
+      }
       val List(n1, n2, n3) = steps
-      val u @ Up(None) = n1; assertNotNull(u)
-      val u2 @ Up(Some(PredicateExpression(LiteralExpression(two: JBigInt)))) = n2;
-      assertNotNull(u2)
+      val u = n1 match {
+        case u @ Up(None) => u
+        case _ => fail(); null
+      }; assertNotNull(u)
+      val (u2, two) = n2 match {
+        case u2 @ Up(Some(PredicateExpression(LiteralExpression(two: JBigInt)))) => (u2, two)
+        case _ => fail(); null
+      }; assertNotNull(u2)
       assertEquals(JBigInt.valueOf(2), two)
-      val n3p @ NamedStep("bookstore", None) = n3; assertNotNull(n3p)
+      val n3p = n3 match {
+        case n3p @ NamedStep("bookstore", None) => n3p
+        case _ => fail(); null
+      }; assertNotNull(n3p)
     }
   }
 
@@ -211,16 +276,23 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_absolutePath() = {
     testExpr2(testSchema, "{ /tns:bookstore/book/title }") { (actual, erd) =>
-      val WholeExpression(
-        _,
-        RootPathExpression(Some(RelativePathExpression(steps, _))),
-        _,
-        _,
-        _,
-        _
-      ) = actual
+      val steps = actual match {
+        case WholeExpression(
+              _,
+              RootPathExpression(Some(RelativePathExpression(steps, _))),
+              _,
+              _,
+              _,
+              _
+            ) =>
+          steps
+        case _ => fail(); null
+      }
       val List(n1, n2, n3) = steps.asInstanceOf[List[NamedStep]]
-      val n1p @ NamedStep("tns:bookstore", None) = n1; assertNotNull(n1p)
+      val n1p = n1 match {
+        case n1p @ NamedStep("tns:bookstore", None) => n1p
+        case _ => fail(); null
+      }; assertNotNull(n1p)
       assertTrue(n1.isFirstStep)
       assertFalse(n1.isLastStep)
       assertEquals(0, n1.positionInStepsSequence)
@@ -240,7 +312,10 @@ class TestDFDLExpressionTree extends Parsers {
       assertEquals(erd.dpathElementCompileInfo, n1.stepElements.head)
       assertEquals(NS("http://example.com"), erd.targetNamespace)
 
-      val n2p @ NamedStep("book", None) = n2; assertNotNull(n2p)
+      val n2p = n2 match {
+        case n2p @ NamedStep("book", None) => n2p
+        case _ => fail(); null
+      }; assertNotNull(n2p)
       assertFalse(n2.isFirstStep)
       assertFalse(n2.isLastStep)
       assertEquals(1, n2.positionInStepsSequence) // zero based
@@ -248,7 +323,10 @@ class TestDFDLExpressionTree extends Parsers {
       assertEquals(StepQName(None, "book", NoNamespace), n2.stepQName)
       val bookERD = erd.childERDs.find { _.name == "book" }.get
       assertEquals(bookERD.dpathElementCompileInfo, n2.stepElements.head)
-      val n3p @ NamedStep("title", None) = n3; assertNotNull(n3p)
+      val n3p = n3 match {
+        case n3p @ NamedStep("title", None) => n3p
+        case _ => fail(); null
+      }; assertNotNull(n3p)
       assertFalse(n3.isFirstStep)
       assertTrue(n3.isLastStep)
       assertEquals(2, n3.positionInStepsSequence) // zero based
@@ -261,14 +339,18 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_pathNoSuchElement1(): Unit = {
     testExpr2(testSchema, "{ /thereIsNoElementWithThisName }") { (actual, erd) =>
-      val WholeExpression(
-        _,
-        RootPathExpression(Some(RelativePathExpression(List(step: NamedStep), _))),
-        _,
-        _,
-        _,
-        _
-      ) = actual
+      val step = actual match {
+        case WholeExpression(
+              _,
+              RootPathExpression(Some(RelativePathExpression(List(step: NamedStep), _))),
+              _,
+              _,
+              _,
+              _
+            ) =>
+          step
+        case _ => fail(); null
+      }
       val exc = intercept[Exception] {
         step.stepElements
       }
@@ -282,37 +364,57 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_predPath() = {
     testExpr(dummySchema, "{ /bookstore[$i]/book/title }") { actual =>
-      val WholeExpression(
-        _,
-        RootPathExpression(Some(RelativePathExpression(steps, _))),
-        _,
-        _,
-        _,
-        _
-      ) = actual
+      val steps = actual match {
+        case WholeExpression(
+              _,
+              RootPathExpression(Some(RelativePathExpression(steps, _))),
+              _,
+              _,
+              _,
+              _
+            ) =>
+          steps
+        case _ => fail(); null
+      }
       val List(n1, n2, n3) = steps
-      val NamedStep("bookstore", pred) = n1
+      val pred = n1 match {
+        case NamedStep("bookstore", pred) => pred
+        case _ => fail(); null
+      }
       // println(pred)
       NS("http://example.com")
-      val p @ Some(PredicateExpression(VariableRef("i"))) = pred; assertNotNull(p)
-      val n2p @ NamedStep("book", None) = n2; assertNotNull(n2p)
-      val n3p @ NamedStep("title", None) = n3; assertNotNull(n3p)
+      val p = pred match {
+        case p @ Some(PredicateExpression(VariableRef("i"))) => p
+        case _ => fail(); null
+      }; assertNotNull(p)
+      val n2p = n2 match {
+        case n2p @ NamedStep("book", None) => n2p
+        case _ => fail(); null
+      }; assertNotNull(n2p)
+      val n3p = n3 match {
+        case n3p @ NamedStep("title", None) => n3p
+        case _ => fail(); null
+      }; assertNotNull(n3p)
     }
   }
 
   @Test def testAddConstants(): Unit = {
     testExpr(dummySchema, "{ 1 + 2 }") { actual =>
-      val a @ WholeExpression(
-        _,
-        AdditiveExpression(
-          "+",
-          List(LiteralExpression(one: JBigInt), LiteralExpression(two: JBigInt))
-        ),
-        _,
-        _,
-        _,
-        _
-      ) = actual; assertNotNull(a)
+      val (a, one, two) = actual match {
+        case a @ WholeExpression(
+              _,
+              AdditiveExpression(
+                "+",
+                List(LiteralExpression(one: JBigInt), LiteralExpression(two: JBigInt))
+              ),
+              _,
+              _,
+              _,
+              _
+            ) =>
+          (a, one, two)
+        case _ => fail(); null
+      }; assertNotNull(a)
       assertEquals(JBigInt.valueOf(1), one)
       assertEquals(JBigInt.valueOf(2), two)
     }
@@ -320,17 +422,22 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def testFnTrue(): Unit = {
     testExpr(dummySchema, "{ fn:true() }") { actual =>
-      val a @ WholeExpression(_, FunctionCallExpression("fn:true", Nil), _, _, _, _) = actual;
-      assertNotNull(a)
+      val a = actual match {
+        case a @ WholeExpression(_, FunctionCallExpression("fn:true", Nil), _, _, _, _) => a
+        case _ => fail(); null
+      }; assertNotNull(a)
     }
   }
 
   @Test def test_numbers1() = {
     testExpr(dummySchema, "{ 0. }") { (actual: Expression) =>
       val res = JBigDecimal.ZERO
-      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _, _) =
-        actual;
-      assertNotNull(a)
+      val (a, actualRes) =
+        actual match {
+          case a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _, _) =>
+            (a, actualRes)
+          case _ => fail(); null
+        }; assertNotNull(a)
       assertEquals(res, actualRes)
     }
   }
@@ -359,8 +466,10 @@ class TestDFDLExpressionTree extends Parsers {
     //    }
     testExpr(dummySchema, "{ .1 }") { actual =>
       val res = new JBigDecimal("0.1")
-      val a @ WholeExpression(_, LiteralExpression(`res`), _, _, _, _) = actual;
-      assertNotNull(a)
+      val a = actual match {
+        case a @ WholeExpression(_, LiteralExpression(`res`), _, _, _, _) => a
+        case _ => fail(); null
+      }; assertNotNull(a)
     }
     testExpr(
       dummySchema,
@@ -368,21 +477,30 @@ class TestDFDLExpressionTree extends Parsers {
     ) { actual =>
       val res =
         new JBigDecimal("982304892038409234982304892038409234.0909808908982304892038409234")
-      val WholeExpression(_, LiteralExpression(r: JBigDecimal), _, _, _, _) = actual
+      val r = actual match {
+        case WholeExpression(_, LiteralExpression(r: JBigDecimal), _, _, _, _) => r
+        case _ => fail(); null
+      }
       assertEquals(res, r)
     }
 
     testExpr(dummySchema, "{ 0 }") { actual =>
       val res = JBigInt.ZERO
-      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _, _) = actual;
-      assertNotNull(a)
+      val (a, actualRes) = actual match {
+        case a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _, _) =>
+          (a, actualRes)
+        case _ => fail(); null
+      }; assertNotNull(a)
       assertEquals(res, actualRes)
     }
     testExpr(dummySchema, "{ 9817239872193792873982173948739879128370982398723897921370 }") {
       actual =>
         val res = new JBigInt("9817239872193792873982173948739879128370982398723897921370")
-        val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _, _) = actual;
-        assertNotNull(a)
+        val (a, actualRes) = actual match {
+          case a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _, _) =>
+            (a, actualRes)
+          case _ => fail(); null
+        }; assertNotNull(a)
         assertEquals(res, actualRes)
     }
 
@@ -413,7 +531,10 @@ class TestDFDLExpressionTree extends Parsers {
 
     def testFn(expr: String)(body: FunctionCallExpression => Unit): Unit = {
       testExpr(dummySchema, expr) { actual =>
-        val WholeExpression(_, fnExpr: FunctionCallExpression, _, _, _, _) = actual
+        val fnExpr = actual match {
+          case WholeExpression(_, fnExpr: FunctionCallExpression, _, _, _, _) => fnExpr
+          case _ => fail(); null
+        }
         body(fnExpr)
       }
     }
@@ -436,53 +557,72 @@ class TestDFDLExpressionTree extends Parsers {
   else +i
         }"""
     ) { actual =>
-      val WholeExpression(_, IfExpression(Seq(pred, thenPart, elsePart)), _, _, _, _) = actual
-      val p @ OrExpression(
-        List(
-          RelativePathExpression(List(NamedStep("a", None)), _),
-          AndExpression(
-            List(
-              RelativePathExpression(List(NamedStep("b", None)), _),
-              ComparisonExpression(
-                "gt",
-                List(
-                  RelativePathExpression(List(NamedStep("c", None)), _),
-                  RelativePathExpression(List(NamedStep("d", None)), _)
+      val (pred, thenPart, elsePart) = actual match {
+        case WholeExpression(_, IfExpression(Seq(pred, thenPart, elsePart)), _, _, _, _) =>
+          (pred, thenPart, elsePart)
+        case _ => fail(); null
+      }
+      val p = pred match {
+        case p @ OrExpression(
+              List(
+                RelativePathExpression(List(NamedStep("a", None)), _),
+                AndExpression(
+                  List(
+                    RelativePathExpression(List(NamedStep("b", None)), _),
+                    ComparisonExpression(
+                      "gt",
+                      List(
+                        RelativePathExpression(List(NamedStep("c", None)), _),
+                        RelativePathExpression(List(NamedStep("d", None)), _)
+                      )
+                    )
+                  )
                 )
               )
-            )
-          )
-        )
-      ) = pred
+            ) =>
+          p
+        case _ => fail(); null
+      }
       assertNotNull(p)
-      val th @ IfExpression(
-        List(
-          ComparisonExpression(
-            "gt",
-            List(
-              RelativePathExpression(List(NamedStep("c", None)), _),
-              RelativePathExpression(List(NamedStep("d", None)), _)
-            )
-          ),
-          AdditiveExpression(
-            "+",
-            List(
-              RelativePathExpression(List(NamedStep("e", None)), _),
-              MultiplicativeExpression(
-                "*",
-                List(
-                  RelativePathExpression(List(NamedStep("f", None)), _),
-                  RelativePathExpression(List(NamedStep("g", None)), _)
-                )
+      val th = thenPart match {
+        case th @ IfExpression(
+              List(
+                ComparisonExpression(
+                  "gt",
+                  List(
+                    RelativePathExpression(List(NamedStep("c", None)), _),
+                    RelativePathExpression(List(NamedStep("d", None)), _)
+                  )
+                ),
+                AdditiveExpression(
+                  "+",
+                  List(
+                    RelativePathExpression(List(NamedStep("e", None)), _),
+                    MultiplicativeExpression(
+                      "*",
+                      List(
+                        RelativePathExpression(List(NamedStep("f", None)), _),
+                        RelativePathExpression(List(NamedStep("g", None)), _)
+                      )
+                    )
+                  )
+                ),
+                UnaryExpression("-", RelativePathExpression(List(NamedStep("h", None)), _))
               )
-            )
-          ),
-          UnaryExpression("-", RelativePathExpression(List(NamedStep("h", None)), _))
-        )
-      ) = thenPart
+            ) =>
+          th
+        case _ => fail(); null
+      }
       assertNotNull(th)
-      val el @ UnaryExpression("+", RelativePathExpression(List(NamedStep("i", None)), _)) =
-        elsePart
+      val el =
+        elsePart match {
+          case el @ UnaryExpression(
+                "+",
+                RelativePathExpression(List(NamedStep("i", None)), _)
+              ) =>
+            el
+          case _ => fail(); null
+        }
       assertNotNull(el)
     }
   }

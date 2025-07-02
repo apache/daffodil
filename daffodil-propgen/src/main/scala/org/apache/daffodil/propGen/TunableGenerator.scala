@@ -88,7 +88,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |  }
     |}
     |
-    |case class DaffodilTunables private (
+    |case class DaffodilTunables private[iapi] (
     """.trim.stripMargin
 
   val middle = """

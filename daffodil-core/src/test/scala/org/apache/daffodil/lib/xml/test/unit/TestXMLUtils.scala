@@ -160,8 +160,11 @@ class TestXMLUtils {
 
   @Test def testWalkUnicodeString1(): Unit = {
     val s = "abc"
-    val Seq((ab, 'a', 'b'), ('a', 'b', 'c'), ('b', 'c', ca)) =
-      XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
+    val (ab, ca) =
+      XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n)) match {
+        case Seq((ab, 'a', 'b'), ('a', 'b', 'c'), ('b', 'c', ca)) => (ab, ca)
+        case _ => fail(); null
+      }
     assertEquals(0.toChar, ab)
     assertEquals(0.toChar, ca)
   }
