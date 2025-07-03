@@ -17,24 +17,33 @@
 
 package org.apache.daffodil.validation.schematron
 
-import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.lib.api.ValidatorInitializationException
+import java.nio.file.Paths
+import java.util.Properties
 
-import com.typesafe.config.ConfigFactory
+import org.apache.daffodil.api
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.util.Misc
+
 import org.junit.Test
 
 class TestValidatorFactory {
   @Test def testMakeFactory(): Unit = {
-    SchematronValidatorFactory.makeValidator(
-      ConfigFactory.parseString("schematron = sch/schematron-1.sch")
-    )
+    SchematronValidatorFactory.makeValidator({
+      val props = new Properties()
+      val uri = Misc.getRequiredResource("sch/schematron-1.sch")
+      props.setProperty("schematron", uri.toString)
+      props
+    })
   }
 
   @Test def testSchNotFound(): Unit = {
-    intercept[ValidatorInitializationException] {
-      SchematronValidatorFactory.makeValidator(
-        ConfigFactory.parseString("schematron = sch/schematron-xxx.sch")
-      )
+    intercept[api.validation.ValidatorInitializationException] {
+      SchematronValidatorFactory.makeValidator({
+        val props = new Properties()
+        val uri = Paths.get("sch/schematron-xxx.sch").toUri
+        props.setProperty("schematron", uri.toString)
+        props
+      })
     }
   }
 }

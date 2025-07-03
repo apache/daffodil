@@ -23,6 +23,7 @@ import java.io.PrintStream
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
 import org.apache.daffodil.runtime1.debugger._
 
 import org.jline.reader.Candidate
@@ -52,6 +53,12 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
   }
 
   var reader: Option[LineReader] = None
+
+  def init(): Unit = {
+    throw new IllegalArgumentException(
+      "Must pass in InteractiveDebugger to the init function for CLIDebuggerRunner"
+    )
+  }
 
   def init(id: InteractiveDebugger): Unit = {
     // if the in/out parameters aren't the normal stdin/stdout, it's likely

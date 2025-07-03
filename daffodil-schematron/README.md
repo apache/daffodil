@@ -25,13 +25,15 @@ Supports standalone sch files or embedded schematron rules within the Daffodil s
 ### Configuration
 
 #### Parameters
+
 - `schematron`: default parameter provides path to the schematron file or resource
 
 #### XSLT & XPATH versions
 
-Schematron defaults to 1.0 of both XSLT and XPath.  Use 2.0 by setting `sch:queryBinding="xslt2"` on the schema.
+Schematron defaults to 1.0 of both XSLT and XPath. Use 2.0 by setting `sch:queryBinding="xslt2"` on the schema.
 
-See version support comments in the [XSL](src/main/resources/iso-schematron-xslt2/iso_schematron_skeleton_for_saxon.xsl) for more details.
+See version support comments in the [XSL](src/main/resources/iso-schematron-xslt2/iso_schematron_skeleton_for_saxon.xsl)
+for more details.
 
 ### Parse Results
 
@@ -39,9 +41,9 @@ See version support comments in the [XSL](src/main/resources/iso-schematron-xslt
 
 ### SPI registration
 
-Registered as `schematron`  
+Registered as `schematron`
 
-`Validators.get("schematron")`
+`Validators.getInstance().get("schematron")`
 
 ### Command Line Usage
 

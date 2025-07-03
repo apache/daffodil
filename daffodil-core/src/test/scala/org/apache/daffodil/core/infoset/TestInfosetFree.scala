@@ -21,7 +21,10 @@ import java.nio.channels.Channels
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.runtime1.iapi.DFDL.ParseResult
+import org.apache.daffodil.runtime1.iapi.DFDL.UnparseResult
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
@@ -68,7 +71,7 @@ object TestInfosetFree {
     // events. We must walk the infoset again after the parse is complete
     val parseInput = InputSourceDataInputStream(bytes)
     val parseOutputter = new ScalaXMLInfosetOutputter()
-    val parseResult = dp.parse(parseInput, parseOutputter)
+    val parseResult = dp.parse(parseInput, parseOutputter).asInstanceOf[ParseResult]
     if (parseResult.isError) {
       val msgs = parseResult.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("parse errors: " + msgs)
@@ -76,7 +79,7 @@ object TestInfosetFree {
 
     val unparseInputter = new ScalaXMLInfosetInputter(parseOutputter.getResult())
     val unparseOutput = Channels.newChannel(NullOutputStream.INSTANCE)
-    val unparseResult = dp.unparse(unparseInputter, unparseOutput)
+    val unparseResult = dp.unparse(unparseInputter, unparseOutput).asInstanceOf[UnparseResult]
     if (unparseResult.isError) {
       val msgs = unparseResult.getDiagnostics.map { _.getMessage() }.mkString("\n")
       fail("unparse errors: " + msgs)
