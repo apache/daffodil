@@ -437,7 +437,8 @@ class TestDFDLExpressionTree extends Parsers {
           case a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _, _) =>
             (a, actualRes)
           case _ => fail(); null
-        }; assertNotNull(a)
+        };
+      assertNotNull(a)
       assertEquals(res, actualRes)
     }
   }
@@ -445,19 +446,24 @@ class TestDFDLExpressionTree extends Parsers {
   @Test def test_numbers() = {
 
     testExpr(dummySchema, "{ 5.0E2 }") {
-      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ 5E2 }") {
-      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ .2E2 }") {
-      case WholeExpression(_, LiteralExpression(20.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(20.0), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ .2E-3 }") {
-      case WholeExpression(_, LiteralExpression(0.0002), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(0.0002), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ .2E+3 }") {
-      case WholeExpression(_, LiteralExpression(200.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(200.0), _, _, _, _) => /* ok */
+        ;
     }
 
     //    testExpr(dummySchema, "0.") { actual =>
