@@ -24,6 +24,7 @@ import java.lang.{ Float => JFloat }
 import java.lang.{ Integer => JInt }
 import java.lang.{ Long => JLong }
 import java.lang.{ Short => JShort }
+import scala.collection.immutable.ArraySeq
 import scala.collection.immutable.ListSet
 import scala.collection.mutable
 
@@ -75,10 +76,10 @@ class LayerRuntimeCompiler {
       val allMethods = c.getMethods
       val optParamSetter = allMethods.find { _.getName == varParamSetter }
       val allVarResultGetters =
-        ListSet(allMethods.filter { m =>
+        ListSet(ArraySeq.unsafeWrapArray(allMethods.filter { m =>
           val nom = m.getName
           nom.startsWith(varResultPrefix)
-        }.toSeq: _*)
+        }): _*)
 
       if (lrd.qNameToVRD.isEmpty && optParamSetter.isEmpty && allVarResultGetters.isEmpty) {
         // there are no vars, so no setter, and no getter(s). We're done

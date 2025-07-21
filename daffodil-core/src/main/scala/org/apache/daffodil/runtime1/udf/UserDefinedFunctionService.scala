@@ -135,9 +135,9 @@ object UserDefinedFunctionService {
               Logger.log.warn(
                 s"User Defined Function Provider ignored: ${provider.getClass.getName}. No User Defined Functions found."
               )
-              Seq()
+              Array.empty[Class[_]]
             } else {
-              functionClasses.toSeq
+              functionClasses
             }
           } catch {
             /*
@@ -149,11 +149,11 @@ object UserDefinedFunctionService {
               Logger.log.warn(
                 s"User Defined Function Provider ignored: ${provider.getClass.getName}. Error loading User Defined Functions: ${e}"
               )
-              Seq()
+              Array.empty[Class[_]]
             }
           }
         }
-        .getOrElse(Seq())
+        .getOrElse(Array.empty[Class[_]])
 
       val goodFunctionClasses = providerFunctionClasses.filter { udfc =>
         val nonAnn = !udfc.isAnnotationPresent(classUserDefinedFunctionIdentification)

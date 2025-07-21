@@ -170,7 +170,7 @@ abstract class RecipeOp extends Serializable {
 
   protected def toXML(s: String): scala.xml.Node = toXMLVarargs(new scala.xml.Text(s))
 
-  protected def toXMLVarargs(children: scala.xml.Node*): scala.xml.Node = toXML(children.toSeq)
+  protected def toXMLVarargs(children: scala.xml.Node*): scala.xml.Node = toXML(children)
 
   protected def toXML(children: scala.xml.NodeSeq): scala.xml.Node = {
     val name = Misc.getNameFromClass(this)
