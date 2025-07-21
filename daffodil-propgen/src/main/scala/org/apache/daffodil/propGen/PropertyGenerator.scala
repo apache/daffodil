@@ -77,7 +77,7 @@ class PropertyGenerator(arg: Node) {
     res
   }
 
-  def genAll(): Seq[String] = {
+  def genAll() = {
     val allTopLevel = dfdlSchema.child
     val thunks = allTopLevel.map(node => {
       node.label match {
@@ -90,7 +90,7 @@ class PropertyGenerator(arg: Node) {
         }
       }
     })
-    thunks.toSeq
+    thunks
   }
 
   /**
@@ -744,7 +744,7 @@ import org.apache.daffodil.lib.exceptions.ThrowsSDE
 
 """
 
-  def writeGeneratedCode(thunks: Seq[String], ow: java.io.FileWriter): Unit = {
+  def writeGeneratedCode(thunks: Iterable[String], ow: java.io.FileWriter): Unit = {
     ow.write(preamble)
     for (thunk <- thunks) {
       ow.write(thunk)

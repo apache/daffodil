@@ -52,7 +52,7 @@ object UserDefinedFunctionService {
   case class UserDefinedFunctionMethod(
     val decClass: Class[?],
     val methodName: String,
-    val paramTypes: Array[Class[_]]
+    val paramTypes: Array[Class[?]]
   ) extends Serializable {
 
     @transient lazy val method: Method = {
@@ -135,9 +135,9 @@ object UserDefinedFunctionService {
               Logger.log.warn(
                 s"User Defined Function Provider ignored: ${provider.getClass.getName}. No User Defined Functions found."
               )
-              Seq()
+              Array.empty[Class[?]]
             } else {
-              functionClasses.toSeq
+              functionClasses
             }
           } catch {
             /*
@@ -149,11 +149,11 @@ object UserDefinedFunctionService {
               Logger.log.warn(
                 s"User Defined Function Provider ignored: ${provider.getClass.getName}. Error loading User Defined Functions: ${e}"
               )
-              Seq()
+              Array.empty[Class[?]]
             }
           }
         }
-        .getOrElse(Seq())
+        .getOrElse(Array.empty[Class[?]])
 
       val goodFunctionClasses = providerFunctionClasses.filter { udfc =>
         val nonAnn = !udfc.isAnnotationPresent(classUserDefinedFunctionIdentification)

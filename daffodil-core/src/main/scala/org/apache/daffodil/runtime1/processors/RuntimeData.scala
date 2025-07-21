@@ -865,7 +865,7 @@ final class UnexpectedElementErrorERD(
   optTRD: Option[TermRuntimeData],
   local: String,
   namespaceURI: String,
-  val allPossibleNQNs: Seq[QNameBase]
+  val allPossibleNQNs: Iterable[QNameBase]
 ) extends ErrorERD(local, namespaceURI) {}
 
 /**
@@ -877,7 +877,7 @@ final class NamespaceAmbiguousElementErrorERD(
   optTRD: Option[TermRuntimeData],
   local: String,
   namespaceURI: String,
-  val allPossibleNQNs: Seq[QNameBase]
+  val allPossibleNQNs: Iterable[QNameBase]
 ) extends ErrorERD(local, namespaceURI) {
 
   /**

@@ -55,7 +55,7 @@ abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: Strin
   def this() = this(1, null, null)
   def this(msg: String) = this(1, null, msg)
   def this(fmt: String, args: Any*) =
-    this(1, null, fmt, args.toSeq*) // Fix varargs expansion
+    this(1, null, fmt, args*) // Fix varargs expansion
   def this(cause: Throwable) = this(1, cause, null)
 }
 

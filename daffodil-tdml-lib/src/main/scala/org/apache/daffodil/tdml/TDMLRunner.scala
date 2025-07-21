@@ -373,7 +373,7 @@ class DFDLTestSuite private[tdml] (
   }
 
   def reportLoadingErrors(): Nothing = {
-    throw TDMLException(loadingExceptions.toSeq, None)
+    throw TDMLException(loadingExceptions, None)
   }
 
   var checkAllTopLevel: Boolean = compileAllTopLevel
@@ -414,7 +414,7 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultConfig").text
     str
   }
-  lazy val defaultImplementations = {
+  lazy val defaultImplementations: Seq[String] = {
     val str = (ts \ "@defaultImplementations").text
     if (str == "") defaultImplementationsDefault
     else {
@@ -821,7 +821,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           Some(XMLUtils.dafextURI)
         )
         if (node eq null)
-          throw TDMLException(parent.loadingExceptions.toSeq, None)
+          throw TDMLException(parent.loadingExceptions, None)
         val definedConfig = DefinedConfig(node, parent)
         Some(definedConfig)
       }
@@ -2831,7 +2831,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
     val nAfter = testSuite.loadingExceptions.size
     val hasMoreExceptions = before.size < nAfter
     if (hasMoreExceptions) {
-      val newExceptions = (testSuite.loadingExceptions.diff(before)).toSeq
+      val newExceptions = (testSuite.loadingExceptions.diff(before))
       testCase.toss(TDMLException(newExceptions, None), None)
     }
     elem.asInstanceOf[Elem]

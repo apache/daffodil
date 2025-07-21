@@ -217,7 +217,7 @@ final class SchemaSet private (
     val schemas = schemaGroups.map {
       case (ns, pairs) => {
         val sds = pairs.map { case (ns, s) => s }
-        val sch = Schema(ns, sds.toSeq, this)
+        val sch = Schema(ns, sds, this)
         sch
       }
     }
