@@ -190,7 +190,7 @@ sealed trait PartialNextElementResolver extends Serializable {
       hasNamespace
     )
 
-  def currentPossibleNextElements: Seq[ElementRuntimeData]
+  def currentPossibleNextElements: Iterable[ElementRuntimeData]
 
   final def currentPossibleNamedQNames = currentPossibleNextElements.map { _.namedQName }
 }
@@ -337,7 +337,7 @@ class SeveralPossibilitiesForNextElement(
           val localMatches = nextERDMap.view.filterKeys(_.local == local)
           if (localMatches.size > 1) {
             val sqn = StepQName(None, local, NS(namespace))
-            val keys = localMatches.keys.toSeq
+            val keys = localMatches.keys
             val errERD =
               new NamespaceAmbiguousElementErrorERD(Some(trd), local, namespace, keys)
             errERD.toUnparseError(false)
@@ -359,5 +359,5 @@ class SeveralPossibilitiesForNextElement(
 
   override def toString() = "Several(" + nextERDMap.keySet.mkString(", ") + ")"
 
-  override lazy val currentPossibleNextElements = nextERDMap.values.toSeq
+  override lazy val currentPossibleNextElements = nextERDMap.values
 }

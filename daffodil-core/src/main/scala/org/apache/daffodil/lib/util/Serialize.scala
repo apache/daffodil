@@ -75,7 +75,7 @@ trait PreSerialization extends Serializable {
 }
 
 private object PreSerialization {
-  private val classCache = new HashMap[Class[_], Boolean]
+  private val classCache = new HashMap[Class[?], Boolean]
 
   //
   // This private method ensures that any class (or any super class) that use this trait also implements the writeObject method

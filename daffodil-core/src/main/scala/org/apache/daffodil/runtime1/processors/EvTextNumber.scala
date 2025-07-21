@@ -94,16 +94,16 @@ class TextNumberFormatEv(
     groupingSep: MaybeChar,
     exponentRep: Maybe[String]
   ): Unit = {
-    val bindings: Seq[(String, String)] = {
+    val bindings: Iterable[(String, String)] = {
       decimalSep.toOption.map { v => (v.toString, "textStandardDecimalSeparator") } ++
         groupingSep.toOption.map { v => (v.toString, "textStandardGroupingSeparator") } ++
         exponentRep.toOption.map { v => (v, "textStandardExponentRep") } ++
         infRep.toOption.map { v => (v, "textStandardInfinityRep") } ++
         nanRep.toOption.map { v => (v, "textStandardNaNRep") } ++
         zeroRepsRaw.map { zr => (zr, "textStandardZeroRep") }
-    }.toSeq
+    }
 
-    val mm: Map[String, Seq[String]] = bindings
+    val mm: Map[String, Iterable[String]] = bindings
       .groupBy(_._1)
       .view
       .mapValues(t => t.map(_._2))
@@ -113,7 +113,7 @@ class TextNumberFormatEv(
     val dupeStrings = dupes.map { case (k, s) =>
       "Non-distinct property '%s' found in: %s".format(k, s.mkString(", "))
     }
-    tci.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
+    tci.schemaDefinitionUnless(dupeStrings.isEmpty, dupeStrings.mkString("\n"))
   }
 
   /**

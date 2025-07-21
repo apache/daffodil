@@ -624,7 +624,7 @@ object Misc {
   def isAsciiBased(csName: String): Boolean = isAsciiBased(JavaCharset.forName(csName))
 
   def isAsciiBased(cs: JavaCharset): Boolean = {
-    val aliases: Seq[String] = cs.aliases().asScala.toSeq.map { _.toUpperCase }
+    val aliases = cs.aliases().asScala.map { _.toUpperCase }
     val byName =
       aliases.exists { s =>
         !(s.contains("7-BIT")) &&

@@ -155,7 +155,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
           // object that is the choice branch.
           //
           val isRepresentedTerm = alt.term.isRepresented
-          branchKeyRanges.toSeq.map(x => (x._1, x._2, alt.parser, isRepresentedTerm))
+          branchKeyRanges.map(x => (x._1, x._2, alt.parser, isRepresentedTerm))
         }
 
       // check for duplicate branch keys
@@ -316,7 +316,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
     val eventUnparserMap = eventRDMap.map { case (cbe, branchTerm) =>
       (cbe, branchTerm.termContentBody.unparser)
     }
-    val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
+    val mapValues = eventUnparserMap.map { case (k, v) => v }.filterNot(_.isEmpty)
     if (mapValues.isEmpty) {
       if (branchForUnparse.isEmpty) {
         new NadaUnparser(null)

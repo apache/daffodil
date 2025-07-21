@@ -41,7 +41,7 @@ class NilStringLiteralForUnparserEv(
     val rawWithEndMark = stringLiteralRaw + endMarker
     EntityReplacer { er =>
       val cookedWithEndMark = er.replaceForUnparse(rawWithEndMark)
-      val chunksSeparatedByNL = cookedWithEndMark.split(er.markerForNL).toSeq
+      val chunksSeparatedByNL = cookedWithEndMark.split(er.markerForNL)
       val last = chunksSeparatedByNL.last
       val butLast = chunksSeparatedByNL.take(chunksSeparatedByNL.length - 1)
       val chunks =

@@ -95,10 +95,10 @@ ZyBzb2x1dGlvbnMuCg=="""
       IOUtils.toInputStream(b64Text + additionalText, StandardCharsets.ISO_8859_1)
     val expected = text
     val decodedStream = java.util.Base64.getMimeDecoder().wrap(inputStream)
-    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(expected, lines(0))
     val additionalLines =
-      IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+      IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(1, additionalLines.length)
     assertEquals(additionalText, additionalLines(0))
   }
@@ -114,11 +114,11 @@ ZyBzb2x1dGlvbnMuCg=="""
     val inputStream = IOUtils.toInputStream(b64Text + b64Text, StandardCharsets.ISO_8859_1)
     val expected = text
     val decodedStream = java.util.Base64.getMimeDecoder().wrap(inputStream)
-    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(expected, lines(0))
     val decodedStream2 = java.util.Base64.getMimeDecoder().wrap(inputStream)
     val additionalLines =
-      IOUtils.readLines(decodedStream2, StandardCharsets.ISO_8859_1).asScala.toSeq
+      IOUtils.readLines(decodedStream2, StandardCharsets.ISO_8859_1).asScala
     assertEquals(expected, additionalLines(0))
   }
 
@@ -160,11 +160,11 @@ ZyBzb2x1dGlvbnMuCg=="""
     //
     val gzipBufferSize = 1
     val decodedStream = new java.util.zip.GZIPInputStream(inputStream, gzipBufferSize)
-    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(1, lines.length)
     assertEquals(expected, lines(0))
     val additionalLines =
-      IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+      IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(1, additionalLines.length)
     assertEquals(additionalText.drop(2), additionalLines(0))
   }
@@ -192,11 +192,11 @@ ZyBzb2x1dGlvbnMuCg=="""
     //
     val gzipBufferSize = 1
     val decodedStream = new java.util.zip.GZIPInputStream(inputStream, gzipBufferSize)
-    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+    val lines = IOUtils.readLines(decodedStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(1, lines.length)
     assertEquals(expected, lines(0))
     val additionalLines =
-      IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala.toSeq
+      IOUtils.readLines(inputStream, StandardCharsets.ISO_8859_1).asScala
     assertEquals(1, additionalLines.length)
     assertEquals(additionalText.drop(2), additionalLines(0))
   }

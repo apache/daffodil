@@ -154,7 +154,7 @@ trait BitsCharsetJava extends BitsCharset {
 
   private lazy val hasNameOrAliasContainingEBCDIC = {
     val allCharsetNames =
-      (javaCharset.aliases().asScala.toSeq :+ name :+ javaCharset.name()).map {
+      (javaCharset.aliases().asScala ++ Set(name, javaCharset.name())).map {
         _.toUpperCase
       }
     val res = allCharsetNames.exists(_.contains("EBCDIC"))
