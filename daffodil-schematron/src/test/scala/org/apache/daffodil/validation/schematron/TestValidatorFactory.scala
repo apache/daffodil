@@ -21,7 +21,7 @@ import java.nio.file.Paths
 import java.util.Properties
 
 import org.apache.daffodil.api
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.util.Misc
 
 import org.junit.Test

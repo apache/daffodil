@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 

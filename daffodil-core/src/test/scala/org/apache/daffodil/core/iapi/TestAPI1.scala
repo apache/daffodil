@@ -20,7 +20,7 @@ package org.apache.daffodil.core.iapi
 import scala.xml._
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 

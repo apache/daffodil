@@ -20,11 +20,10 @@ package org.apache.daffodil.core.general
 import scala.xml._
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Test; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.lib.util.SchemaUtils
+import org.junit.Test
 
 class TestPrimitives {
 

@@ -20,7 +20,6 @@ package org.apache.daffodil.core.xml
 import java.io.File
 import scala.util.Using
 
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.xml._
 

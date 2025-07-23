@@ -19,7 +19,7 @@ package org.apache.daffodil.core.grammar.primitives
 
 import java.util.regex.PatternSyntaxException
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols

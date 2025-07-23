@@ -21,7 +21,7 @@ import scala.xml.Elem
 
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Assert._

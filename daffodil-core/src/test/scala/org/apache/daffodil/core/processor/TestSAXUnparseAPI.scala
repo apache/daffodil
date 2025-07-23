@@ -20,7 +20,7 @@ package org.apache.daffodil.core.processor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException

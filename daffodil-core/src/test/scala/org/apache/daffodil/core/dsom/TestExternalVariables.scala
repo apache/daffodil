@@ -22,8 +22,8 @@ import scala.jdk.CollectionConverters._
 import scala.xml.Node
 
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils

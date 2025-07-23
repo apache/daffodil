@@ -38,7 +38,6 @@ import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.MultiException
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi._
@@ -52,15 +51,46 @@ import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.VariableMap
 
 import org.apache.commons.io.FileUtils
-
-object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
-
 /*
  * This is not a file of tests.
  *
  * These are utilities to support unit testing schemas
  */
 object TestUtils {
+
+  /**
+   * Based on JUnitSuite intercept
+   */
+  def intercept[T <: AnyRef](body: => Any)(implicit tag: scala.reflect.ClassTag[T]): T = {
+    val clazz = tag.runtimeClass.asInstanceOf[Class[T]]
+    val caught =
+      try {
+        body
+        None
+      } catch {
+        case npe: NullPointerException => throw npe
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: Throwable => {
+          if (!clazz.isAssignableFrom(u.getClass)) {
+            throw new InterceptFailedException(
+              "Failed to intercept expected exception. Expected '%s' but got '%s'.".format(
+                clazz.getName,
+                u.getClass.getName
+              )
+            )
+          } else {
+            Some(u)
+          }
+        }
+      }
+    caught match {
+      case None => throw new InterceptFailedException("Failed to intercept any exceptions.")
+      case Some(e) => e.asInstanceOf[T]
+    }
+  }
+
+  class InterceptFailedException(msg: String) extends RuntimeException(msg)
+
   def assertEquals[T](expected: T, actual: T) =
     if (expected != actual) throw new AssertionError("assertEquals failed.")
 
