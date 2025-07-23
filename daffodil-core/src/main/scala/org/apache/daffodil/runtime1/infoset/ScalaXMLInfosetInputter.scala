@@ -27,7 +27,6 @@ import scala.xml.Text
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo

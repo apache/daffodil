@@ -23,12 +23,8 @@ import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
 
-import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.Implicits._
-
-import org.junit.Assert._
-import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.Found
@@ -46,6 +42,9 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestDsomCompiler {
 

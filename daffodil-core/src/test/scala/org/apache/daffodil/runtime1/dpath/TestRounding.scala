@@ -17,12 +17,11 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
-
-import org.junit.Assert.assertEquals
-import org.junit.Test; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.math.RoundingMode
 import java.math.{ BigDecimal => JBigDecimal }
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class TestRounding {
 

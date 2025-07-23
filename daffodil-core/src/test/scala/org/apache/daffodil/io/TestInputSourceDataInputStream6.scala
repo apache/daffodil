@@ -19,8 +19,8 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
-import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Maybe

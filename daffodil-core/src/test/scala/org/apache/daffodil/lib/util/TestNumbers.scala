@@ -17,12 +17,11 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.Implicits._
-
-import org.junit.Assert._
-import org.junit.Test; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.math.RoundingMode
 import java.math.{ BigDecimal => JBigDecimal }
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestNumbers {
   @Test def testDecimalDivision1(): Unit = {

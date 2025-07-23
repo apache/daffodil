@@ -32,19 +32,14 @@ import org.apache.daffodil.api
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.debugger.Debugger
 import org.apache.daffodil.api.metadata.MetadataHandler
-import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.runtime1.layers.LayerFatalException
-import org.apache.daffodil.validation.DaffodilLimitedValidator
-import org.apache.daffodil.validation.NoValidator
-
-object INoWarn4 {
-  ImplicitsSuppressUnusedImportWarning()
-}
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.layers.LayerFatalException
+import org.apache.daffodil.validation.DaffodilLimitedValidator
+import org.apache.daffodil.validation.NoValidator
 object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning()
 }

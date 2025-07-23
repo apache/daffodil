@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.xml.RemapPUACharDetected
 import org.apache.daffodil.lib.xml.RemapPUAToXMLIllegalChar
 import org.apache.daffodil.lib.xml.RemapXMLIllegalCharToPUA

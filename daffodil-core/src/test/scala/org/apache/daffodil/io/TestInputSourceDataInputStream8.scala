@@ -20,7 +20,7 @@ package org.apache.daffodil.io
 import java.io.InputStream
 import java.io.OutputStream
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 
 import org.junit.Assert._
 import org.junit.Test
