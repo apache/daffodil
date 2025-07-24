@@ -19,9 +19,9 @@ package org.apache.daffodil.validation.schematron
 
 import java.io.InputStream
 import java.io.StringWriter
-import javax.xml.transform.Templates
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamResult
+import javax.xml.transform.{ Templates, Transformer }
 
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 
@@ -48,11 +48,15 @@ object Schematron {
 }
 
 final class Schematron private (reader: XMLReader, templates: Templates) {
-  private lazy val transformer = templates.newTransformer
+  private lazy val transformer = new ThreadLocal[Transformer] {
+    override def initialValue(): Transformer = templates.newTransformer
+  }
 
   def validate(is: InputStream): String = {
     val writer = new StringWriter
-    transformer.transform(new SAXSource(reader, new InputSource(is)), new StreamResult(writer))
+    transformer
+      .get()
+      .transform(new SAXSource(reader, new InputSource(is)), new StreamResult(writer))
     writer.toString
   }
 }
