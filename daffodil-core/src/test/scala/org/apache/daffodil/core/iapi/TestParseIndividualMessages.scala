@@ -28,8 +28,8 @@ import scala.xml.Node
 
 import org.apache.daffodil.api
 import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.io.SocketPairTestRig
-import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.runtime1.iapi.DFDL
 

@@ -21,7 +21,7 @@ import java.io._
 import java.nio._
 import java.nio.charset._
 
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 

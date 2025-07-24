@@ -20,7 +20,7 @@ package org.apache.daffodil.tdml
 import java.io.File
 import scala.util.Using
 
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils

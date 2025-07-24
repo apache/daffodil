@@ -17,11 +17,10 @@
 
 package org.apache.daffodil.core.dpath
 
-import org.apache.daffodil.lib.Implicits._
-
-import org.junit.Test; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util.SchemaUtils
+
+import org.junit.Test
 
 class TestDPath {
 

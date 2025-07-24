@@ -19,7 +19,6 @@ package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
@@ -30,8 +29,6 @@ import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.unparsers.runtime1.DelimiterTextUnparser
-
-object INoWarn5 { ImplicitsSuppressUnusedImportWarning() }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends StringDelimBase(es, guard) {
 

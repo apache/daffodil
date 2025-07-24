@@ -17,12 +17,11 @@
 
 package org.apache.daffodil.core.iapi
 
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Test; object INoWarn7 { ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.core.util.TestUtils
+import org.junit.Test
 
 class TestDFDLParser_New {
 

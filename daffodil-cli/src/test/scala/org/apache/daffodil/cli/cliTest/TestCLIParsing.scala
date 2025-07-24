@@ -24,7 +24,7 @@ import scala.util.Using
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 
 import org.apache.commons.io.FileUtils
 import org.junit.Assert._

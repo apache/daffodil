@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import java.lang.{ Double => JDouble }
 import java.lang.{ Float => JFloat }
 import java.lang.{ Long => JLong }
+import java.util.regex.Matcher
 import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
@@ -32,20 +33,23 @@ import org.apache.daffodil.api.metadata.ModelGroupMetadata
 import org.apache.daffodil.api.metadata.SequenceMetadata
 import org.apache.daffodil.api.metadata.SimpleElementMetadata
 import org.apache.daffodil.api.metadata.TermMetadata
-import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.LocationInSchemaFile
+import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.OKOrError
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.LocalDeclQName
 import org.apache.daffodil.lib.xml.NS
@@ -61,19 +65,11 @@ import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
 import org.apache.daffodil.runtime1.dsom.FacetTypes
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
-import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
-import org.apache.daffodil.runtime1.layers.LayerRuntimeData
-
-object NoWarn { ImplicitsSuppressUnusedImportWarning() }
-import java.util.regex.Matcher
-
-import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.OKOrError
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
+import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 /*

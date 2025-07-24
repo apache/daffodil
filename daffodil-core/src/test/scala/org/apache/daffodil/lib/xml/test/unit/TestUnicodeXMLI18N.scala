@@ -19,7 +19,6 @@ package org.apache.daffodil.lib.xml.test.unit
 
 import scala.xml._
 
-import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 

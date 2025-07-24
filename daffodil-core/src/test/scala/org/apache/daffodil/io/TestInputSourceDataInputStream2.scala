@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util.MaybeULong
 

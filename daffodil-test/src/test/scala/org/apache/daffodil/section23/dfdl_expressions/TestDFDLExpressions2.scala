@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.section23.dfdl_expressions
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.UsageException
 
 import org.junit.Assert.assertFalse

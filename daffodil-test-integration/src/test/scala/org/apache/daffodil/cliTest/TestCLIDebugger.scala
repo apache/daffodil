@@ -22,7 +22,7 @@ import java.nio.file.Files
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
-import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.core.util.TestUtils.intercept
 
 import net.sf.expectit.matcher.Matchers.regexp
 import org.junit.Test

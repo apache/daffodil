@@ -24,9 +24,9 @@ package org.apache.daffodil.section00.general
 import java.nio.file.Paths
 
 import org.apache.daffodil.core.util.TestUtils.compileSchema
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
-import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.runtime1.processors.DataProcessor

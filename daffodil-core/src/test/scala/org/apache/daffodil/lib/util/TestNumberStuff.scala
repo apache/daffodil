@@ -21,7 +21,7 @@ import java.lang.{ Long => JLong, Number => JNumber }
 import java.math.{ BigInteger => JBigInt }
 import java.text.ParsePosition
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols

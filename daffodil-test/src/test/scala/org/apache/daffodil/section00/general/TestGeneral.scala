@@ -21,9 +21,9 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
-import org.apache.daffodil.lib.Implicits.intercept
 
 import org.junit.Assert._
 import org.junit.Ignore

@@ -17,15 +17,13 @@
 
 package org.apache.daffodil.core.grammar
 
-import org.apache.daffodil.lib.Implicits._
-
-import org.junit.Assert._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.util.Fakes
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
+import org.junit.Assert._
 import org.junit.Test
 
 class TestGrammar extends GrammarMixin {

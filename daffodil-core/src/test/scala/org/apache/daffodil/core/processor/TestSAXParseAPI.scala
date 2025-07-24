@@ -23,7 +23,7 @@ import java.io.IOException
 import scala.xml.SAXParseException
 
 import org.apache.daffodil.api
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.runtime1.processors.ParseResult

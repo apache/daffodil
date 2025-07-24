@@ -20,7 +20,7 @@ package org.apache.daffodil.lib.xml.test.unit
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.SAXParseException
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.iapi.StringSchemaSource
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 

@@ -29,9 +29,9 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.io.SocketPairTestRig.timeLimit
 import org.apache.daffodil.io.SocketPairTestRig.withTimeout
-import org.apache.daffodil.lib.Implicits.intercept
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail

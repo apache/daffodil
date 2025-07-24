@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processor.tdml
 
-import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
