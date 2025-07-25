@@ -135,13 +135,12 @@ trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
     val result = optFound match {
       case Some(f: Found) => f
       case None => {
-        val seq = str.toSeq
         // merge all the NotFound stuff.
-        val nonDefaults = seq.flatMap {
+        val nonDefaults = str.flatMap {
           case NotFound(nd, d, _) => nd
           case _: Found => Assert.invariantFailed()
         }
-        val defaults = seq.flatMap {
+        val defaults = str.flatMap {
           case NotFound(nd, d, _) => d
           case _: Found => Assert.invariantFailed()
         }

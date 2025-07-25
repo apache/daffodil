@@ -18,7 +18,6 @@
 package org.apache.daffodil.lib.oolag
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
@@ -446,8 +445,8 @@ object OOLAG {
     private val errors_ = new mutable.LinkedHashSet[api.Diagnostic]()
     private val warnings_ = new mutable.LinkedHashSet[api.Diagnostic]()
 
-    final def errors: Seq[api.Diagnostic] = oolagRoot.errors_.toSeq
-    final def warnings: Seq[api.Diagnostic] = oolagRoot.warnings_.toSeq
+    final def errors: Iterable[api.Diagnostic] = oolagRoot.errors_
+    final def warnings: Iterable[api.Diagnostic] = oolagRoot.warnings_
 
     override def getDiagnostics: java.util.List[api.Diagnostic] =
       diagnostics
@@ -493,7 +492,11 @@ object OOLAG {
       errorCount > 0
     }
 
-    def diagnostics: java.util.List[api.Diagnostic] = (errors ++ warnings).asJava
+    def diagnostics: java.util.List[api.Diagnostic] = {
+      val list = new java.util.ArrayList[api.Diagnostic]()
+      (errors ++ warnings).foreach(list.add)
+      list
+    }
   }
 
   /**

@@ -22,6 +22,7 @@ import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
@@ -124,7 +125,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
     val cgState = new CodeGeneratorState(root)
     DaffodilCCodeGenerator.generateCode(root.document, cgState)
     diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.addAll(root.warnings.asJava)
+    root.warnings.foreach(diagnostics.add)
     val versionHeaderText = cgState.generateVersionHeader
     val codeHeaderText = cgState.generateCodeHeader
     val codeFileText = cgState.generateCodeFile
@@ -217,7 +218,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
     }
     val command = commands.find(inPath)
     if (command.isDefined)
-      command.get.split(' ').toSeq
+      ArraySeq.unsafeWrapArray(command.get.split(' '))
     else
       Seq.empty[String]
   }

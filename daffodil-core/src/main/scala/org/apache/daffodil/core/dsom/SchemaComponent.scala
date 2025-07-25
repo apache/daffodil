@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import scala.collection.immutable.ArraySeq
 import scala.xml.Node
 
 import org.apache.daffodil.core.runtime1.SchemaComponentRuntime1Mixin
@@ -74,7 +75,9 @@ trait SchemaComponent
     val optAttr =
       xml.attribute(XMLUtils.EXT_NS_APACHE, "suppressSchemaDefinitionWarnings").map { _.text }
     val warnStrs: Seq[String] =
-      optAttr.map { _.trim.split("\\s+").toSeq }.getOrElse { Seq.empty }
+      optAttr.map { w => ArraySeq.unsafeWrapArray(w.trim.split("\\s+")) }.getOrElse {
+        Seq.empty
+      }
     val warnIDs = warnStrs.map { warnStr =>
       // throws SDE if not valid warnID
       WarnID.stringToEnum("daf:suppressSchemaDefinitionWarnings", warnStr, this)
