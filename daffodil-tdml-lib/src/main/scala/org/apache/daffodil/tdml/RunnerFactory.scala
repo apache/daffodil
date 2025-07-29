@@ -18,7 +18,6 @@
 package org.apache.daffodil.tdml
 
 import java.nio.file.Paths
-import scala.collection.immutable.ArraySeq
 
 import org.apache.daffodil.lib.iapi.TDMLImplementation
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -50,8 +49,7 @@ object Runner {
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] =
-      ArraySeq.unsafeWrapArray(defaultImplementationsDefaultDefault)
+    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault
   ): Runner = {
 
     // Prepend forward slash to turn dir/file into classpath resource
@@ -115,7 +113,7 @@ object Runner {
    * A test or test suite can override this to specify more or different implementations
    * that the test should pass for.
    */
-  def defaultImplementationsDefaultDefault = TDMLImplementation.values.map(_.toString)
+  def defaultImplementationsDefaultDefault = TDMLImplementation.values.map(_.toString).toSeq
 
   /**
    * By default we don't run Daffodil negative TDML tests against cross-testers.
@@ -143,7 +141,7 @@ object Runner {
  * were a resource on the classpath. Otherwise it is treated as if it were a
  * URI.
  */
-final class Runner private (
+final class Runner private[tdml] (
   source: Either[scala.xml.Elem, String],
   optTDMLImplementation: Option[TDMLImplementation] = None,
   validateTDMLFile: Boolean = true,
@@ -151,8 +149,7 @@ final class Runner private (
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-  defaultImplementationsDefault: Seq[String] =
-    ArraySeq.unsafeWrapArray(Runner.defaultImplementationsDefaultDefault),
+  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
   defaultIgnoreUnexpectedWarningsDefault: Boolean = true,
   defaultIgnoreUnexpectedValidationErrorsDefault: Boolean = true
 ) {

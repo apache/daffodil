@@ -21,8 +21,8 @@ import org.apache.daffodil.tdml.NoRoundTrip$;
 
 import org.apache.daffodil.tdml.Runner;
 
-import java.util.Arrays;
 import java.net.URI;
+import java.util.Arrays;
 
 import org.apache.daffodil.lib.util.Misc;
 import org.junit.Test;
@@ -43,16 +43,16 @@ public class TestRunnerFactory {
     URI tdmlUri = Misc.getRequiredResource("org/apache/daffodil/tdml/genericTdml.tdml");
     Right<scala.xml.Elem, String> rightURI = new Right<>(tdmlUri.toString());
     Runner runner = new Runner(
-      rightURI,
-      Option.apply(null),
-      true,
-      true,
-      false,
-      NoRoundTrip$.MODULE$,
-      "off",
-      CollectionConverters.asScala(Arrays.asList("daffodil", "ibm")).toSeq(),
-      false,
-      false);
+        rightURI,
+        Option.apply(null),
+        true,
+        true,
+        false,
+        NoRoundTrip$.MODULE$,
+        "off",
+        CollectionConverters.asScala(Arrays.asList("daffodil", "ibm")).toSeq(),
+        false,
+        false);
     runner.runOneTest("testPass");
     runner.reset();
   }

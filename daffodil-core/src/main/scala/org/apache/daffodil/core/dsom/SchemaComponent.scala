@@ -74,7 +74,9 @@ trait SchemaComponent
     val optAttr =
       xml.attribute(XMLUtils.EXT_NS_APACHE, "suppressSchemaDefinitionWarnings").map { _.text }
     val warnStrs: Seq[String] =
-      optAttr.map { _.trim.split("\\s+").toSeq }.getOrElse { Seq.empty }
+      optAttr.map { w => w.trim.split("\\s+").toSeq }.getOrElse {
+        Seq.empty
+      }
     val warnIDs = warnStrs.map { warnStr =>
       // throws SDE if not valid warnID
       WarnID.stringToEnum("daf:suppressSchemaDefinitionWarnings", warnStr, this)

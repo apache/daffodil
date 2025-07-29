@@ -244,7 +244,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(4, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum
@@ -302,7 +302,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(5, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum
@@ -356,7 +356,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(4, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum
@@ -418,7 +418,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(5, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum
@@ -488,7 +488,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(6, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum
@@ -566,7 +566,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(7, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum
@@ -652,7 +652,7 @@ class TestRefMap {
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(8, numEntries)
-    val refPairsMap = root.refPairsMap.toSeq
+    val refPairsMap = root.refPairsMap
     val numRefPairs = refPairsMap.map {
       _._2.length
     }.sum

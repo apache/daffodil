@@ -1702,17 +1702,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     getChild(erd.dpathElementCompileInfo.namedQName, tunable)
   }
 
-  private def noQuerySupportCheck(nodes: Seq[DINode], nqn: NamedQName): Unit = {
-    if (nodes.length > 1) {
+  private def noQuerySupportCheck(nodes: ArrayBuffer[DINode], nqn: NamedQName): Unit = {
+    if (nodes.size > 1) {
       // might be more than one result
       // but we have to rule out there being an empty DIArray
-      val withoutEmptyArrays = nodes.filter { node =>
-        node match {
-          case a: DIArray if a.length == 0 => false
-          case _ => true
-        }
+      val nonEmptyNodesCount = nodes.count {
+        case a: DIArray if a.length == 0 => false
+        case _ => true
       }
-      if (withoutEmptyArrays.length > 1)
+      if (nonEmptyNodesCount > 1)
         erd.toss(InfosetAmbiguousNodeException(this, nqn))
     }
   }
@@ -1892,12 +1890,12 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
    * @return
    */
   def findChild(qname: NamedQName, enableLinearSearchIfNotFound: Boolean): Maybe[DINode] = {
-    val fastSeq = nameToChildNodeLookup.get(qname)
-    if (fastSeq != null) {
+    val fastBuf = nameToChildNodeLookup.get(qname)
+    if (fastBuf != null) {
       // Daffodil does not support query expressions yet, so there should only
       // be one item in the list
-      noQuerySupportCheck(fastSeq.toSeq, qname)
-      One(fastSeq(0))
+      noQuerySupportCheck(fastBuf, qname)
+      One(fastBuf(0))
     } else if (enableLinearSearchIfNotFound) {
       // Only DINodes used in expressions defined in the schema are added to
       // the nameToChildNodeLookup hashmap. If an expression defined outside of
@@ -1916,7 +1914,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
       // Daffodil does not support query expressions yet, so there should be at
       // most one item found
-      noQuerySupportCheck(found.toSeq, qname)
+      noQuerySupportCheck(found, qname)
       Maybe.toMaybe(found.headOption)
     } else {
       Nope

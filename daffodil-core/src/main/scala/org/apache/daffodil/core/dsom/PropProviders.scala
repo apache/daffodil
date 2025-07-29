@@ -126,7 +126,7 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
   /**
    * for debug/test only
    */
-  final lazy val properties: PropMap = leafProviders.flatMap { _.properties.toSeq }.toMap
+  final lazy val properties: PropMap = leafProviders.flatMap { _.properties }.toMap
 
   final lazy val leafProviders = leafProvidersArg
 
