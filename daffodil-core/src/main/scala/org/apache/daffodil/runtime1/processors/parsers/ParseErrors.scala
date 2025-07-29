@@ -65,7 +65,7 @@ class AssertionFailed(
 class ChoiceBranchFailed(
   rd: SchemaFileLocation,
   state: PState,
-  val errors: java.util.List[api.Diagnostic]
+  val errors: Seq[api.Diagnostic]
 ) extends ParseError(
     One(rd),
     One(state.currentLocation),
@@ -76,7 +76,7 @@ class ChoiceBranchFailed(
 class EntireChoiceFailed(
   rd: SchemaFileLocation,
   state: PState,
-  diags: java.util.List[api.Diagnostic]
+  diags: Seq[api.Diagnostic]
 ) extends ParseError(
     One(rd),
     One(state.currentLocation),
@@ -85,13 +85,13 @@ class EntireChoiceFailed(
   ) {
 
   override def getLocationsInSchemaFiles: java.util.List[api.LocationInSchemaFile] = {
-    val locs = diags.asScala.flatMap { d => d.getLocationsInSchemaFiles.asScala }
+    val locs = diags.flatMap { d => d.getLocationsInSchemaFiles.asScala }
     locs.toList.asJava
   }
 
   override def getDataLocations: java.util.List[api.DataLocation] = {
     // all should have the same starting location if they are alternatives.
-    val dataLocs = diags.asScala.flatMap { _.getDataLocations.asScala }
+    val dataLocs = diags.flatMap { _.getDataLocations.asScala }
     // TBD: what is the idiom for "insert a equals sign between all the elements of the list...??"
     // Well, this works, but isn't there a one-liner for this idiom.
     val allAreSame = dataLocs match {
@@ -99,7 +99,7 @@ class EntireChoiceFailed(
       case _ => true
     }
     Assert.invariant(allAreSame)
-    diags.get(0).getDataLocations
+    diags.head.getDataLocations
   }
 }
 
@@ -114,7 +114,7 @@ class ChoiceDispatchNoMatch(rd: SchemaFileLocation, state: PState, val key: Stri
 class ChoiceDispatchFailed(
   rd: SchemaFileLocation,
   state: PState,
-  val errors: java.util.List[api.Diagnostic]
+  val errors: Seq[api.Diagnostic]
 ) extends ParseError(
     One(rd),
     One(state.currentLocation),

@@ -103,7 +103,7 @@ final class ProcessorFactory private (
 
   def elementBaseInstanceCount: Long = sset.elementBaseInstanceCount
 
-  def diagnostics: java.util.List[api.Diagnostic] = {
+  def diagnostics: Seq[api.Diagnostic] = {
     // The work to compile a schema and build diagnostics is triggered by the user calling
     // isError. But if a user gets diagnostics before doing so, then no work will have been done
     // and the diagnostics will be empty. Technically this is incorrect usage--a user should
@@ -117,7 +117,7 @@ final class ProcessorFactory private (
     sset.diagnostics
   }
 
-  def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
+  def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics.asJava
 
   override def onPath(xpath: String): api.DataProcessor = sset.onPath(xpath)
 

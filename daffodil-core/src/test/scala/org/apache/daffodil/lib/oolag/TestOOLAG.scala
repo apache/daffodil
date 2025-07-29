@@ -256,7 +256,7 @@ class TestOOLAG {
     assertTrue(h.divZero_.isError)
 
     val d = h.diagnostics
-    d.forEach { System.err.println(_) }
+    d.foreach { System.err.println(_) }
     // Division by zero is not caught by oolag anymore, so there will be
     // no diagnostic message.
     // assertTrue(d.length == 1)

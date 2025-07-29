@@ -184,7 +184,7 @@ object DFDL {
     /**
      * @return list of diagnostics
      */
-    def diagnostics: java.util.List[Diagnostic]
+    def diagnostics: Seq[Diagnostic]
 
     /**
      * @return current data location
@@ -197,7 +197,7 @@ object DFDL {
    */
   abstract class Result extends api.Result {
     def resultState: State
-    var diagnostics: java.util.List[api.Diagnostic] = java.util.Collections.emptyList()
+    var diagnostics: Seq[api.Diagnostic] = Nil
 
     private def resultStatusDiagnostics: Seq[api.Diagnostic] = {
       resultState.processorStatus match {
@@ -207,12 +207,11 @@ object DFDL {
     }
 
     override def getDiagnostics: java.util.List[api.Diagnostic] = {
-      (diagnostics.asScala ++ resultState.diagnostics.asScala ++ resultStatusDiagnostics).distinct.asJava
+      (diagnostics ++ resultState.diagnostics ++ resultStatusDiagnostics).distinct.asJava
     }
 
     override def addDiagnostic(d: api.Diagnostic): Unit = {
-      diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-      diagnostics.add(0, d)
+      diagnostics = d +: diagnostics
     }
 
     override def isError = isProcessingError || isValidationError

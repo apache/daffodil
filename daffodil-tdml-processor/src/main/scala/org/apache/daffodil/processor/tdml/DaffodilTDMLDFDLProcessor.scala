@@ -441,7 +441,7 @@ final class DaffodilTDMLParseResult(actual: ParseResult, outputter: TDMLInfosetO
 
   override def getResult: Node = outputter.getResult
 
-  override def getBlobPaths: java.util.List[Path] = outputter.getBlobPaths()
+  override def getBlobPaths: java.util.List[Path] = outputter.getBlobPaths
 
   def inputter = outputter.toInfosetInputter
 
@@ -455,7 +455,7 @@ final class DaffodilTDMLParseResult(actual: ParseResult, outputter: TDMLInfosetO
 
   override def addDiagnostic(diag: Diagnostic): Unit = actual.addDiagnostic(diag)
 
-  override def cleanUp(): Unit = getBlobPaths.forEach { Files.delete }
+  override def cleanUp(): Unit = getBlobPaths.forEach { Files.delete(_) }
 }
 
 final class DaffodilTDMLUnparseResult(
@@ -481,28 +481,26 @@ final class DaffodilTDMLUnparseResult(
 }
 
 class DaffodilTDMLSAXErrorHandler extends ErrorHandler with WithDiagnostics {
-  private var diagnostics: java.util.List[api.Diagnostic] = java.util.Collections.emptyList()
+  private var diagnostics: Seq[api.Diagnostic] = Nil
   private var errorStatus: Boolean = false
 
   override def warning(exception: SAXParseException): Unit = {
     errorStatus = false
     val embeddedDiagnostic = exception.getCause.asInstanceOf[Diagnostic]
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(embeddedDiagnostic)
+    diagnostics = embeddedDiagnostic +: diagnostics
   }
 
   override def error(exception: SAXParseException): Unit = {
     errorStatus = true
     val embeddedDiagnostic = exception.getCause.asInstanceOf[Diagnostic]
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(embeddedDiagnostic)
+    diagnostics = embeddedDiagnostic +: diagnostics
   }
 
   override def fatalError(exception: SAXParseException): Unit = {
     error(exception)
   }
 
-  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics.asJava
 
   override def isError: Boolean = errorStatus
 }
