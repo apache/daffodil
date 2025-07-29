@@ -319,10 +319,8 @@ class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
           if (!actual.isError && !errorHandler.isError) {
             verifySameParseOutput(outputter.xmlStream, saxOutputStream)
           }
-          val dpParseDiag = new java.util.ArrayList[String]
-          actual.getDiagnostics.forEach(d => dpParseDiag.add(d.toString))
-          val saxParseDiag = new java.util.ArrayList[String]
-          errorHandler.getDiagnostics.forEach(d => saxParseDiag.add(d.toString))
+          val dpParseDiag = actual.getDiagnostics.asScala.map(_.toString()).toSeq
+          val saxParseDiag = errorHandler.getDiagnostics.asScala.map(_.toString()).toSeq
           verifySameDiagnostics(dpParseDiag, saxParseDiag)
         }
       }
@@ -379,10 +377,8 @@ class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
           VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
         }
       }
-      val dpUnparseDiag = new java.util.ArrayList[String]()
-      val saxUnparseDiag = new java.util.ArrayList[String]()
-      actualDP.getDiagnostics.forEach(d => dpUnparseDiag.add(d.toString))
-      actualSAX.getDiagnostics.forEach(d => saxUnparseDiag.add(d.toString))
+      val dpUnparseDiag = actualDP.getDiagnostics.asScala.map(_.toString()).toSeq
+      val saxUnparseDiag = actualSAX.getDiagnostics.asScala.map(_.toString()).toSeq
       verifySameDiagnostics(dpUnparseDiag, saxUnparseDiag)
     }
 
@@ -418,21 +414,21 @@ class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
   }
 
   private def verifySameDiagnostics(
-    expected: java.util.List[String],
-    actual: java.util.List[String]
+    seqDiagExpected: Seq[String],
+    seqDiagActual: Seq[String]
   ): Unit = {
-    java.util.Collections.sort(expected)
-    java.util.Collections.sort(actual)
+    val expected = seqDiagExpected.sorted
+    val actual = seqDiagActual.sorted
 
-    if (expected.asScala != actual.asScala) {
+    if (expected != actual) {
       throw TDMLException(
         """SAX parse/unparse diagnostics do not match DataProcessor diagnostics""" +
           "\n" +
-          """DataProcessor Parse diagnostics: """ + expected.asScala.mkString +
-          (if (actual.isEmpty) {
+          """DataProcessor Parse diagnostics: """ + seqDiagExpected +
+          (if (seqDiagActual.isEmpty) {
              "\nNo SAX diagnostics were generated."
            } else {
-             "\nSAX Parse diagnostics: " + actual.asScala.mkString
+             "\nSAX Parse diagnostics: " + seqDiagActual
            }),
         None
       )

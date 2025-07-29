@@ -49,7 +49,7 @@ object Runner {
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Array[String] = defaultImplementationsDefaultDefault
+    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault
   ): Runner = {
 
     // Prepend forward slash to turn dir/file into classpath resource
@@ -113,7 +113,7 @@ object Runner {
    * A test or test suite can override this to specify more or different implementations
    * that the test should pass for.
    */
-  def defaultImplementationsDefaultDefault = TDMLImplementation.values.map(_.toString)
+  def defaultImplementationsDefaultDefault = TDMLImplementation.values.map(_.toString).toSeq
 
   /**
    * By default we don't run Daffodil negative TDML tests against cross-testers.
@@ -149,7 +149,7 @@ final class Runner private[tdml] (
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-  defaultImplementationsDefault: Array[String] = Runner.defaultImplementationsDefaultDefault,
+  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
   defaultIgnoreUnexpectedWarningsDefault: Boolean = true,
   defaultIgnoreUnexpectedValidationErrorsDefault: Boolean = true
 ) {

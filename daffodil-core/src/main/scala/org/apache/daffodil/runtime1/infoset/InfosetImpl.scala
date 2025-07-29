@@ -1702,15 +1702,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     getChild(erd.dpathElementCompileInfo.namedQName, tunable)
   }
 
-  private def noQuerySupportCheck(nodes: Iterable[DINode], nqn: NamedQName): Unit = {
+  private def noQuerySupportCheck(nodes: ArrayBuffer[DINode], nqn: NamedQName): Unit = {
     if (nodes.size > 1) {
       // might be more than one result
       // but we have to rule out there being an empty DIArray
-      val withoutEmptyArrays = nodes.filter {
+      val nonEmptyNodesCount = nodes.count {
         case a: DIArray if a.length == 0 => false
         case _ => true
       }
-      if (withoutEmptyArrays.size > 1)
+      if (nonEmptyNodesCount > 1)
         erd.toss(InfosetAmbiguousNodeException(this, nqn))
     }
   }

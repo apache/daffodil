@@ -20,7 +20,6 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
@@ -67,16 +66,19 @@ object SimpleNamedServiceLoader {
           }
         }
     }
-    val instancesFound: Map[String, mutable.Buffer[T]] = instanceBuf.groupBy { _.name() }
-    val instanceMap: java.util.Map[String, T] = instancesFound.flatMap {
-      case (name, mutable.Buffer(lc)) => Some((name, lc))
-      case (name, buf) => {
-        Logger.log.warn(
-          s"Duplicate classes for $thingName found. Ignored: ${buf.map { Misc.getNameFromClass(_) }.mkString(", ")}."
-        )
-        None
+    val instancesFound: Map[String, Seq[T]] = instanceBuf.toSeq.groupBy { _.name() }
+    val instanceMap: java.util.Map[String, T] = instancesFound.toSeq
+      .flatMap {
+        case (name, Seq(lc)) => Some((name, lc))
+        case (name, seq) => {
+          Logger.log.warn(
+            s"Duplicate classes for $thingName found. Ignored: ${seq.map { Misc.getNameFromClass(_) }.mkString(", ")}."
+          )
+          None
+        }
       }
-    }.asJava
+      .toMap
+      .asJava
     instanceMap
   }
 }

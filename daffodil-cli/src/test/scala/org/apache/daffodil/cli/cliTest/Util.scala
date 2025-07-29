@@ -31,7 +31,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
-import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -66,9 +65,7 @@ object Util {
     val scala2Regex = "org\\.scala-lang\\.scala-library-([0-9.]+)\\.jar".r
     val versionRegex = ".*-([0-9.]+)\\.jar".r
 
-    val jarFiles = ArraySeq.unsafeWrapArray(
-      Paths.get("daffodil-cli/target/universal/stage/lib").toFile.listFiles()
-    )
+    val jarFiles = Paths.get("daffodil-cli/target/universal/stage/lib").toFile.listFiles().toSeq
 
     // Prioritize finding Scala 3 first, then fallback to Scala 2
     val scalaLibraryFile = jarFiles

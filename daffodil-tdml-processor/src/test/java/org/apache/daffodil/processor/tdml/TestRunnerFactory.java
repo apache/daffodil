@@ -22,12 +22,14 @@ import org.apache.daffodil.tdml.NoRoundTrip$;
 import org.apache.daffodil.tdml.Runner;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import org.apache.daffodil.lib.util.Misc;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
 import scala.Option;
+import scala.jdk.javaapi.CollectionConverters;
 import scala.xml.Elem;
 import scala.xml.XML;
 import scala.util.Right;
@@ -48,7 +50,7 @@ public class TestRunnerFactory {
         false,
         NoRoundTrip$.MODULE$,
         "off",
-        new String[]{"daffodil", "ibm"},
+        CollectionConverters.asScala(Arrays.asList("daffodil", "ibm")).toSeq(),
         false,
         false);
     runner.runOneTest("testPass");

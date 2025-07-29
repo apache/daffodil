@@ -189,7 +189,7 @@ class DFDLTestSuite private[tdml] (
   val compileAllTopLevel: Boolean,
   val defaultRoundTripDefault: RoundTrip,
   val defaultValidationDefault: String,
-  val defaultImplementationsDefault: Array[String],
+  val defaultImplementationsDefault: Seq[String],
   val shouldDoErrorComparisonOnCrossTests: Boolean,
   val shouldDoWarningComparisonOnCrossTests: Boolean,
   val defaultIgnoreUnexpectedWarningsDefault: Boolean,
@@ -422,12 +422,12 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultConfig").text
     str
   }
-  lazy val defaultImplementations: Array[String] = {
+  lazy val defaultImplementations: Seq[String] = {
     val str = (ts \ "@defaultImplementations").text
     if (str == "") defaultImplementationsDefault
     else {
       // parse the str to get a list of strings
-      str.split("""\s+""")
+      str.split("""\s+""").toSeq
     }
   }
   lazy val defaultIgnoreUnexpectedWarnings = {
@@ -640,11 +640,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val defaultIgnoreUnexpectedValidationErrors: Boolean =
     parent.defaultIgnoreUnexpectedValidationErrors
 
-  private lazy val defaultImplementations: Array[String] = parent.defaultImplementations
+  private lazy val defaultImplementations: Seq[String] = parent.defaultImplementations
   private lazy val tcImplementations = (testCaseXML \ "@implementations").text
   private lazy val implementationStrings =
     if (tcImplementations == "") defaultImplementations
-    else tcImplementations.split("""\s+""")
+    else tcImplementations.split("""\s+""").toSeq
 
   def toss(t: Throwable, implString: Option[String]) = {
     t match {

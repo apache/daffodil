@@ -22,7 +22,6 @@ import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.isWin
 
@@ -218,7 +217,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
     }
     val command = commands.find(inPath)
     if (command.isDefined)
-      ArraySeq.unsafeWrapArray(command.get.split(' '))
+      command.get.split(' ').toSeq
     else
       Seq.empty[String]
   }
