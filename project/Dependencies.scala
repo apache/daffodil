@@ -19,12 +19,7 @@ import sbt.*
 
 object Dependencies {
 
-  def common(scalaVersion: String) = core ++ infoset ++ test ++ {
-    CrossVersion.partialVersion(scalaVersion) match {
-      case Some((2, 13)) => Seq("org.scala-lang" % "scala-reflect" % "2.13.16")
-      case _ => Seq.empty
-    }
-  }
+  lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
     "com.lihaoyi" %% "os-lib" % "0.11.4", // for writing/compiling C source files
