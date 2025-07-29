@@ -218,7 +218,7 @@ class TestExternalVariables {
     val c = Compiler(validateDFDLSchemas = false)
     val pf = c.compileSource(source)
     pf.isError
-    pf.diagnostics.forEach { d => println(d) }
+    pf.diagnostics.foreach { d => println(d) }
     assertFalse(pf.isError)
     val dp = pf.onPath("/").asInstanceOf[DataProcessor].withExternalVariables(variables)
 

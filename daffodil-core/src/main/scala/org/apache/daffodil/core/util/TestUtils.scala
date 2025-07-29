@@ -127,7 +127,7 @@ object TestUtils {
   ): Unit = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
-    if (pf.isError) throwDiagnostics(pf.diagnostics)
+    if (pf.isError) throwDiagnostics(pf.getDiagnostics)
     var u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) throwDiagnostics(u.getDiagnostics)
     val outputStream = new java.io.ByteArrayOutputStream()

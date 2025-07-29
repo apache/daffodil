@@ -165,11 +165,11 @@ final class PState private (
   var dataInputStream: InputSourceDataInputStream,
   val walker: InfosetWalker,
   vmap: VariableMap,
-  diagnosticsArg: java.util.List[api.Diagnostic],
+  diagnosticsArg: Seq[api.Diagnostic],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
-  var blobPaths: java.util.List[Path],
+  var blobPaths: Seq[Path],
   tunable: DaffodilTunables
 ) // Runtime tunables obtained from DataProcessor)
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable)
@@ -465,8 +465,7 @@ final class PState private (
   }
 
   def addBlobPath(path: Path): Unit = {
-    blobPaths = new java.util.LinkedList[Path](blobPaths)
-    blobPaths.add(0, path)
+    blobPaths = path +: blobPaths
   }
 
   final def notifyDebugging(flag: Boolean): Unit = {
@@ -604,9 +603,9 @@ object PState {
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
     var validationStatus: Boolean = _
-    var diagnostics: java.util.List[api.Diagnostic] = _
+    var diagnostics: Seq[api.Diagnostic] = _
     var delimitedParseResult: Maybe[dfa.ParseResult] = Nope
-    var blobPaths: java.util.List[Path] = new java.util.LinkedList[Path]()
+    var blobPaths: Seq[Path] = Seq.empty
     var context: RuntimeData = _
 
     val mpStateMark = new MPState.Mark
@@ -622,7 +621,7 @@ object PState {
       diagnostics = null
       delimitedParseResult = Nope
       mpStateMark.clear()
-      blobPaths = new java.util.LinkedList[Path]()
+      blobPaths = Seq.empty
       // DO NOT clear requestorId/context. It is there to help us debug if we try to repeatedly reset/discard a mark already discarded.
     }
 
@@ -671,16 +670,15 @@ object PState {
 
       // We are backtracking here, potentially past blob files that have
       // already been written, so we must delete them. Since we always prepend
-      // blobs to the blobPaths list as they are created, we can delete them by
-      // deleting all blob files that are in front of the blobsToKeep list. This
+      // blobs to the blobPaths Seq as they are created, we can delete them by
+      // deleting all blob files that are in front of the blobsToKeep Seq. This
       // also lets us do fast reference equality comparisons for determining
       // when to stop deleting.
       val blobsToKeep = this.blobPaths
       var currentBlobs = ps.blobPaths
-      while (!currentBlobs.equals(blobsToKeep)) {
-        Files.delete(currentBlobs.get(0))
-        currentBlobs = new java.util.LinkedList[Path](currentBlobs)
-        currentBlobs.remove(0)
+      while (currentBlobs ne blobsToKeep) {
+        Files.delete(currentBlobs.head)
+        currentBlobs = currentBlobs.tail
       }
       ps.blobPaths = blobsToKeep
     }
@@ -732,7 +730,7 @@ object PState {
      */
     val variables = dataProc.variableMap.copy()
 
-    val diagnostics = new java.util.LinkedList[api.Diagnostic]()
+    val diagnostics = Nil
     val mutablePState = MPState()
     val tunables = dataProc.tunables
     val infosetWalker = InfosetWalker(
@@ -756,7 +754,7 @@ object PState {
       mutablePState,
       dataProc.asInstanceOf[DataProcessor],
       Nope,
-      new java.util.LinkedList[Path](),
+      Seq.empty,
       tunables
     )
     newState

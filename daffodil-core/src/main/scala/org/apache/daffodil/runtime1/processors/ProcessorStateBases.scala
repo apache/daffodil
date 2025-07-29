@@ -140,7 +140,7 @@ trait HasTunable {
  */
 abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
-  var diagnostics: java.util.List[api.Diagnostic],
+  var diagnostics: Seq[api.Diagnostic],
   var dataProc: Maybe[DataProcessor],
   val tunable: DaffodilTunables
 ) extends api.validation.ValidationHandler
@@ -155,7 +155,7 @@ abstract class ParseOrUnparseState protected (
 
   def this(
     vmap: VariableMap,
-    diags: java.util.List[api.Diagnostic],
+    diags: Seq[api.Diagnostic],
     dataProc: Maybe[DataProcessor],
     tunable: DaffodilTunables
   ) =
@@ -419,8 +419,7 @@ abstract class ParseOrUnparseState protected (
     // threadCheck()
     if (!diagnostics.contains(failureDiagnostic)) {
       _processorStatus = new Failure(failureDiagnostic)
-      diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-      diagnostics.add(0, failureDiagnostic)
+      diagnostics = failureDiagnostic +: diagnostics
     } else {
       Assert.invariant(processorStatus ne Success)
     }
@@ -430,8 +429,7 @@ abstract class ParseOrUnparseState protected (
     val ctxt = getContext()
     val vde = new ValidationError(ctxt.schemaFileLocation, this, msg, args: _*)
     _validationStatus = false
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(0, vde)
+    diagnostics = vde +: diagnostics
   }
 
   final def validationErrorAny(msg: String, args: Any*): Unit = {
@@ -441,8 +439,7 @@ abstract class ParseOrUnparseState protected (
   final override def validationErrorNoContext(cause: Throwable): Unit = {
     val vde = new ValidationError(this, cause)
     _validationStatus = false
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(0, vde)
+    diagnostics = vde +: diagnostics
   }
 
   /**
@@ -461,8 +458,7 @@ abstract class ParseOrUnparseState protected (
    */
   final def suppressDiagnosticAndSucceed(d: Diagnostic): Unit = {
     Assert.usage(diagnostics.contains(d))
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.removeIf { _ eq d }
+    diagnostics = diagnostics.filterNot { _ eq d }
     setSuccess()
   }
 
@@ -573,8 +569,7 @@ abstract class ParseOrUnparseState protected (
   final def SDEButContinue(str: String, args: Any*) = {
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(0, rsde)
+    diagnostics = rsde +: diagnostics
   }
 
   final def SDW(warnID: WarnID, str: String, args: Any*) = {
@@ -590,8 +585,7 @@ abstract class ParseOrUnparseState protected (
         val sde = new SchemaDefinitionErrorFromWarning(rsdw)
         ctxt.toss(sde)
       } else {
-        diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-        diagnostics.add(0, rsdw)
+        diagnostics = rsdw +: diagnostics
       }
     }
   }
@@ -666,12 +660,7 @@ final class CompileState(
   tci: DPathCompileInfo,
   maybeDataProc: Maybe[DataProcessor],
   tunable: DaffodilTunables
-) extends ParseOrUnparseState(
-    tci.variableMap,
-    new java.util.ArrayList(),
-    maybeDataProc,
-    tunable
-  ) {
+) extends ParseOrUnparseState(tci.variableMap, Nil, maybeDataProc, tunable) {
 
   def arrayIterationPos: Long = 1L
   def occursPos: Long = 1L

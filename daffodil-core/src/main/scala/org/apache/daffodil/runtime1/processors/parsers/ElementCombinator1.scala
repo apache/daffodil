@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
@@ -143,9 +142,7 @@ abstract class ElementParserBase(
 
       Assert.invariant(pstate.hasInfoset)
 
-      var setVarFailureDiags: java.util.List[api.Diagnostic] =
-        new java.util.LinkedList[Diagnostic]()
-
+      var setVarFailureDiags: Seq[api.Diagnostic] = Nil
       if (pstate.processorStatus eq Success) {
         var i: Int = 0
         while (i < setVarParser.length) {
@@ -175,8 +172,8 @@ abstract class ElementParserBase(
       // We're done with the discriminator, so now we revisit the set variable statements.
       // If a failure occurred there, then now we can fail out right here.
       //
-      if (!setVarFailureDiags.isEmpty) {
-        pstate.setFailed(setVarFailureDiags.get(0))
+      if (setVarFailureDiags.nonEmpty) {
+        pstate.setFailed(setVarFailureDiags.head)
         return
       }
 

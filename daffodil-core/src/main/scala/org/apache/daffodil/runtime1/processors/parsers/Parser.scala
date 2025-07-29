@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.util.Collections
-
 import org.apache.daffodil.api
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.io.BacktrackingException
@@ -260,7 +258,7 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
 
   def parse(pstate: PState): Unit = {
 
-    var diagnostics: java.util.List[api.Diagnostic] = Collections.emptyList()
+    var diagnostics: Seq[api.Diagnostic] = Nil
     var i = 0
     val numAlternatives = childParsers.length
 
@@ -295,8 +293,7 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
 
           val diag =
             new ChoiceBranchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
-          diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-          diagnostics.add(0, diag)
+          diagnostics = diag +: diagnostics
 
           if (pstate.isPointOfUncertaintyResolved(pou)) {
             // A discriminator resolved the point of uncertainty associated with
@@ -318,10 +315,8 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
     }
 
     if (!successfullyParsedChildBranch) {
-      diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-      Collections.reverse(diagnostics)
       val allDiags =
-        new EntireChoiceFailed(context.schemaFileLocation, pstate, diagnostics)
+        new EntireChoiceFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
       pstate.setFailed(allDiags)
     }
   }

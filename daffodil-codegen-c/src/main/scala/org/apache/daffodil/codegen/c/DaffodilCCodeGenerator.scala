@@ -81,7 +81,7 @@ import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
 class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
   // Note this class is not thread-safe due to mutable state needed to
   // implement WithDiagnostics trait
-  private var diagnostics: java.util.List[api.Diagnostic] = java.util.Collections.emptyList()
+  private var diagnostics: Seq[api.Diagnostic] = Nil
   private var errorStatus: Boolean = false
 
   /**
@@ -123,8 +123,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
     // while appending any warnings to our diagnostics
     val cgState = new CodeGeneratorState(root)
     DaffodilCCodeGenerator.generateCode(root.document, cgState)
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.addAll(root.warnings.asJava)
+    diagnostics = diagnostics ++ root.warnings
     val versionHeaderText = cgState.generateVersionHeader
     val codeHeaderText = cgState.generateCodeHeader
     val codeFileText = cgState.generateCodeFile
@@ -228,8 +227,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
   private def warning(formatString: String, args: Any*): Unit = {
     val sde =
       new SchemaDefinitionWarning(WarnID.CodeGenerator, None, None, formatString, args: _*)
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(sde)
+    diagnostics = diagnostics :+ sde
   }
 
   /**
@@ -237,13 +235,12 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
    */
   private def error(formatString: String, args: Any*): Unit = {
     val sde = new SchemaDefinitionError(None, None, formatString, args: _*)
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(sde)
+    diagnostics = diagnostics :+ sde
     errorStatus = true
   }
 
   // Implements the WithDiagnostics trait
-  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics
+  override def getDiagnostics: java.util.List[api.Diagnostic] = diagnostics.asJava
   override def isError: Boolean = errorStatus
 }
 

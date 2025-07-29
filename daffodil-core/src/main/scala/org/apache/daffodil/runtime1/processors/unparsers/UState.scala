@@ -71,7 +71,7 @@ object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
 abstract class UState(
   vbox: VariableBox,
-  diagnosticsArg: java.util.List[api.Diagnostic],
+  diagnosticsArg: Seq[api.Diagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
   areDebugging: Boolean
@@ -220,8 +220,7 @@ abstract class UState(
   }
 
   def addUnparseError(ue: UnparseError): Unit = {
-    diagnostics = new java.util.LinkedList[api.Diagnostic](diagnostics)
-    diagnostics.add(0, ue)
+    diagnostics = ue +: diagnostics
     _processorStatus = new Failure(ue)
   }
 
@@ -507,7 +506,7 @@ final class UStateMain private (
   private val inputter: InfosetInputter,
   outStream: java.io.OutputStream,
   vbox: VariableBox,
-  diagnosticsArg: java.util.List[api.Diagnostic],
+  diagnosticsArg: Seq[api.Diagnostic],
   dataProcArg: DataProcessor,
   tunable: DaffodilTunables,
   areDebugging: Boolean
@@ -519,7 +518,7 @@ final class UStateMain private (
     inputter: InfosetInputter,
     outputStream: java.io.OutputStream,
     vmap: VariableMap,
-    diagnosticsArg: java.util.List[api.Diagnostic],
+    diagnosticsArg: Seq[api.Diagnostic],
     dataProcArg: DataProcessor,
     tunable: DaffodilTunables,
     areDebugging: Boolean
@@ -761,7 +760,7 @@ object UState {
      */
     val variables = dataProc.variableMap.copy()
 
-    val diagnostics = new java.util.LinkedList[api.Diagnostic]()
+    val diagnostics = Nil
     val newState = new UStateMain(
       inputter,
       outStream,

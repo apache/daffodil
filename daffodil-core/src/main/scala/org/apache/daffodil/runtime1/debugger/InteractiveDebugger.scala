@@ -195,7 +195,7 @@ class InteractiveDebugger(
 
       if (state.processorStatus ne Success) {
         debugPrintln("failure:")
-        debugPrintln("%s".format(state.diagnostics.get(0).toString), "  ")
+        debugPrintln("%s".format(state.diagnostics.head.toString), "  ")
       }
 
       if (debugState == DebugState.Trace) {

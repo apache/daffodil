@@ -450,7 +450,7 @@ object OOLAG {
     final def warnings: Seq[api.Diagnostic] = oolagRoot.warnings_.toSeq
 
     override def getDiagnostics: java.util.List[api.Diagnostic] =
-      diagnostics
+      diagnostics.asJava
 
     def warn(th: Diagnostic): Unit = {
       oolagRoot.oolagWarn(th)
@@ -493,7 +493,7 @@ object OOLAG {
       errorCount > 0
     }
 
-    def diagnostics: java.util.List[api.Diagnostic] = (errors ++ warnings).asJava
+    def diagnostics: Seq[api.Diagnostic] = errors ++ warnings
   }
 
   /**

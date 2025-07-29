@@ -27,9 +27,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.zip.GZIPOutputStream
+import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.debugger.Debugger
 import org.apache.daffodil.api.metadata.MetadataHandler
 import org.apache.daffodil.lib.Implicits._
@@ -133,8 +133,7 @@ class DataProcessor(
   val validator: api.validation.Validator = NoValidator,
   protected val areDebugging: Boolean = false,
   protected val optDebugger: Option[api.debugger.Debugger] = None,
-  protected val diagnostics: java.util.List[api.Diagnostic] =
-    new java.util.LinkedList[api.Diagnostic]()
+  protected val diagnostics: Seq[api.Diagnostic] = Seq.empty
 ) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
@@ -167,7 +166,7 @@ class DataProcessor(
     validator: api.validation.Validator = validator,
     areDebugging: Boolean = areDebugging,
     optDebugger: Option[api.debugger.Debugger] = optDebugger,
-    diagnostics: java.util.List[api.Diagnostic] = diagnostics
+    diagnostics: Seq[api.Diagnostic] = diagnostics
   ) = new DataProcessor(
     ssrd,
     tunables,
@@ -239,7 +238,7 @@ class DataProcessor(
   override def isError = false
 
   override def getDiagnostics: java.util.List[api.Diagnostic] =
-    diagnostics
+    diagnostics.asJava
 
   override def newXMLReaderInstance: api.DaffodilParseXMLReader = {
     val xrdr = new DaffodilParseXMLReader(this)
@@ -274,7 +273,7 @@ class DataProcessor(
       variableMap = ssrd.originalVariables,
       validator = NoValidator,
       // don't save any warnings that were generated
-      diagnostics = new java.util.ArrayList[Diagnostic]()
+      diagnostics = Seq.empty
     )
 
     try {
@@ -364,11 +363,11 @@ class DataProcessor(
         validator.validateXML(bis, state)
       }
       // copy the blob paths we created to the users infoset outputter
-      output.setBlobPaths(state.blobPaths)
+      output.setBlobPaths(state.blobPaths.asJava)
       new ParseResult(state)
     } else {
       // failed, so delete all blobs that were created
-      state.blobPaths.forEach { path =>
+      state.blobPaths.foreach { path =>
         Files.delete(path)
       }
       // ensure the blob paths on the users infoset outputter are empty in case of reuse
