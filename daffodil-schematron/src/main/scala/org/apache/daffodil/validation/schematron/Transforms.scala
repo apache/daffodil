@@ -29,7 +29,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamSource
 
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.validation.schematron.Schematron.templatesRootDir
+import org.apache.daffodil.validation.schematron.SchematronValidator.templatesRootDir
 
 class TransformErrorListener extends ErrorListener {
   override def error(e: TransformerException): Unit = throw e
