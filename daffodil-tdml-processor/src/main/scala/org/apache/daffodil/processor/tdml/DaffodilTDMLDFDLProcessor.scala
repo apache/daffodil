@@ -20,6 +20,7 @@ package org.apache.daffodil.processor.tdml
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.OutputStreamWriter
+import java.net.URI
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -104,7 +105,8 @@ final class TDMLDFDLProcessorFactory private (
    */
   private def generateProcessor(
     pf: DFDL.ProcessorFactory,
-    useSerializedProcessor: Boolean
+    useSerializedProcessor: Boolean,
+    schemaSource: DaffodilSchemaSource
   ): TDML.CompileResult = {
     val p = pf.onPath("/")
     if (p.isError) {
@@ -121,7 +123,11 @@ final class TDMLDFDLProcessorFactory private (
         } else p
       }
       val diags = p.getDiagnostics
-      Right((diags, new DaffodilTDMLDFDLProcessor(dp.asInstanceOf[DFDL.DataProcessor])))
+      val processor = new DaffodilTDMLDFDLProcessor(
+        dp.asInstanceOf[DFDL.DataProcessor],
+        schemaSource.uriForLoading
+      )
+      Right(diags, processor)
     }
   }
 
@@ -136,7 +142,7 @@ final class TDMLDFDLProcessorFactory private (
       val diags = pf.getDiagnostics
       Left(diags)
     } else {
-      val res = this.generateProcessor(pf, useSerializedProcessor)
+      val res = this.generateProcessor(pf, useSerializedProcessor, schemaSource)
       res
     }
   }
@@ -156,20 +162,25 @@ final class TDMLDFDLProcessorFactory private (
       val dp = compiler.reload(schemaSource)
       val diags = dp.getDiagnostics
       Assert.invariant(diags.asScala.forall { !_.isError })
-      Right((diags, new DaffodilTDMLDFDLProcessor(dp.asInstanceOf[DFDL.DataProcessor])))
+      val processor = new DaffodilTDMLDFDLProcessor(
+        dp.asInstanceOf[DFDL.DataProcessor],
+        schemaSource.uriForLoading
+      )
+      Right(diags, processor)
     }
   }
 
 }
 
-class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
+class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor, schemaURI: URI)
   extends TDMLDFDLProcessor {
 
   override type R = DaffodilTDMLDFDLProcessor
 
-  def this(ddp: DFDL.DataProcessor) = this(ddp.asInstanceOf[api.DataProcessor])
+  def this(ddp: DFDL.DataProcessor, schemaURI: URI) =
+    this(ddp.asInstanceOf[api.DataProcessor], schemaURI)
 
-  private def copy(dp: api.DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp)
+  private def copy(dp: api.DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp, schemaURI)
 
   private lazy val builtInTracer =
     new InteractiveDebugger(
@@ -204,10 +215,13 @@ class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor)
     copy(dp = dp.withDebugger(d))
   }
 
-  override def withValidator(
-    validator: api.validation.Validator
-  ): DaffodilTDMLDFDLProcessor =
-    copy(dp = dp.withValidator(validator))
+  override def withValidation(validation: String): DaffodilTDMLDFDLProcessor = {
+    val validatorName = validation match {
+      case "on" => "xerces"
+      case _ => validation
+    }
+    copy(dp = dp.withValidation(validatorName, schemaURI))
+  }
 
   override def withExternalDFDLVariables(
     externalVarBindings: Seq[Binding]

@@ -552,7 +552,7 @@ class TestCLIParsing {
     runCLI(args"parse --validate FooBar -s $schema -r matrix") { cli =>
       cli.sendLine("0,1,2", inputDone = true)
       cli.expectErr("FooBar")
-    }(ExitCode.Usage)
+    }(ExitCode.UnableToCreateValidatorError)
   }
 
   @Test def test_CLI_Parsing_invalidElementSDE(): Unit = {

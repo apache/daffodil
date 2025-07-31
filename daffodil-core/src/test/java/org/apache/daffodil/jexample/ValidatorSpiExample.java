@@ -18,7 +18,6 @@
 package org.apache.daffodil.jexample;
 
 import org.apache.daffodil.api.infoset.Infoset;
-import org.apache.daffodil.api.validation.ValidatorFactory;
 import org.apache.daffodil.api.validation.Validators;
 import org.apache.daffodil.jexample.validation.FailingValidator;
 import org.apache.daffodil.jexample.validation.PassingValidator;
@@ -29,8 +28,6 @@ import org.apache.daffodil.api.ProcessorFactory;
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.api.InputSourceDataInputStream;
 import org.junit.Test;
-
-import java.util.Properties;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -51,8 +48,7 @@ public class ValidatorSpiExample {
     ProcessorFactory pf = c.compileFile(schemaFile);
 
     assertTrue(Validators.isRegistered(PassingValidator.name));
-    ValidatorFactory vf = Validators.get(PassingValidator.name);
-    DataProcessor dp = pf.onPath("/").withValidator(vf.make(new Properties()));
+    DataProcessor dp = pf.onPath("/").withValidation(PassingValidator.name);
 
     java.io.File file = getResource("/test/api/myData5.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -71,8 +67,7 @@ public class ValidatorSpiExample {
     ProcessorFactory pf = c.compileFile(schemaFile);
 
     assertTrue(Validators.isRegistered(FailingValidator.name));
-    ValidatorFactory vf = Validators.get(FailingValidator.name);
-    DataProcessor dp = pf.onPath("/").withValidator(vf.make(new Properties()));
+    DataProcessor dp = pf.onPath("/").withValidation(FailingValidator.name);
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);

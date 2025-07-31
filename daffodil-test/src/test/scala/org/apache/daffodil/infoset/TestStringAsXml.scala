@@ -21,11 +21,8 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.net.URI
 import java.nio.charset.StandardCharsets
-import java.util.Properties
 import scala.jdk.CollectionConverters._
 
-import org.apache.daffodil.api.validation.Validator
-import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -45,13 +42,8 @@ class TestStringAsXml {
       URISchemaSource(Misc.uriToDiagnosticFile(dfdlSchemaURI), dfdlSchemaURI)
     )
     val dp = pf.onPath("/")
-    val props = new Properties()
-    if (validatingSchema != null) {
-      props.setProperty(Validator.rootSchemaKey, validatingSchema.toString)
-    } else {
-      props.setProperty(Validator.rootSchemaKey, dfdlSchemaURI.toString)
-    }
-    dp.withValidator(Validators.get("xerces").make(props))
+    val schema = if (validatingSchema != null) validatingSchema else dfdlSchemaURI
+    dp.withValidation("xerces", schema)
 
   }
 

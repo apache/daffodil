@@ -28,7 +28,6 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
-import java.util.Properties
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
@@ -41,8 +40,6 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.validation.Validator
-import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
@@ -412,10 +409,6 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
-  lazy val defaultValidatorName = defaultValidation match {
-    case "on" => "xerces"
-    case m => m
-  }
 
   lazy val defaultConfig = {
     val str = (ts \ "@defaultConfig").text
@@ -588,13 +581,10 @@ class DFDLTestSuite private[tdml] (
         GlobalTDMLCompileResultCache.cache
       }
 
-    val props = new Properties()
-    props.setProperty(Validator.rootSchemaKey, suppliedSchema.uriForLoading.toString)
-
     val compileResult = cache.getCompileResult(
       impl,
       key,
-      Validators.get(defaultValidatorName).make(props)
+      defaultValidation
     )
     compileResult
   }
@@ -634,7 +624,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   protected final var processor: TDMLDFDLProcessor = null
 
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
-  lazy val defaultValidatorName: String = parent.defaultValidatorName
+  lazy val defaultValidation: String = parent.defaultValidation
   lazy val defaultIgnoreUnexpectedWarnings: Boolean = parent.defaultIgnoreUnexpectedWarnings
   lazy val defaultIgnoreUnexpectedValidationErrors: Boolean =
     parent.defaultIgnoreUnexpectedValidationErrors
@@ -768,19 +758,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     case "false" => false
     case _ => false
   }
-  lazy val validatorName: String = (testCaseXML \ "@validation").text match {
-    case "" => defaultValidatorName
-    case "on" => "xerces"
+  lazy val validation: String = (testCaseXML \ "@validation").text match {
+    case "" => defaultValidation
     case mode => mode
   }
-  lazy val validator: api.validation.Validator =
-    Validators
-      .get(validatorName)
-      .make({
-        val props = new Properties()
-        props.setProperty(Validator.rootSchemaKey, getSuppliedSchema().uriForLoading.toString)
-        props
-      })
 
   protected def runProcessor(
     compileResult: TDML.CompileResult,
@@ -789,7 +770,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     errors: Option[Seq[ExpectedErrors]],
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validatorName: String,
+    validation: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ): Unit
@@ -954,8 +935,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
 
       val useSerializedProcessor =
-        if (validatorName == "xerces") false
-        else if (defaultValidatorName == "xerces") false
+        if (validation == "on") false
+        else if (defaultValidation == "on") false
         else if (optExpectedWarnings.isDefined) false
         else true
 
@@ -994,7 +975,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           optExpectedErrors,
           optExpectedWarnings,
           optExpectedValidationErrors,
-          validatorName,
+          validation,
           roundTrip,
           implString
         )
@@ -1074,7 +1055,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedErrors: Option[Seq[ExpectedErrors]],
     optExpectedWarnings: Option[Seq[ExpectedWarnings]],
     optExpectedValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validatorName: String,
+    validation: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -1105,7 +1086,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               nBits,
               optExpectedWarnings,
               optExpectedValidationErrors,
-              validator,
+              validation,
               roundTrip,
               implString,
               diags.asScala
@@ -1132,7 +1113,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
-              validator,
+              validation,
               implString,
               diags.asScala
             )
@@ -1153,7 +1134,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validator: api.validation.Validator,
+    validation: String,
     implString: Option[String],
     compileWarnings: Iterable[api.Diagnostic]
   ): Unit = {
@@ -1161,7 +1142,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     try {
       processor = processor
         .withExternalDFDLVariables(externalVarBindings)
-        .withValidator(validator)
+        .withValidation(validation)
     } catch {
       case e: Exception => throw TDMLException(e, implString)
     }
@@ -1380,7 +1361,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validator: api.validation.Validator,
+    validation: String,
     roundTripArg: RoundTrip,
     implString: Option[String],
     compileWarnings: Iterable[api.Diagnostic]
@@ -1389,7 +1370,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val roundTrip =
       roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
-    processor = processor.withValidator(validator)
+    processor = processor.withValidation(validation)
 
     val firstParseTestData = IOUtils.toByteArray(dataToParse)
     val testInfoset = optExpectedInfoset.get
@@ -1576,7 +1557,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validatorName: String,
+    validation: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -3100,7 +3081,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
     key: TDMLCompileResultCacheKey,
-    defaultValidator: api.validation.Validator
+    defaultValidation: String
   ): TDML.CompileResult = this.synchronized {
 
     if (entryExpireDurationSeconds.isDefined) {
@@ -3145,7 +3126,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
       // have to rebuild it for every test. This saves memory and should be significantly
       // faster.
       val value = compileResult.map { case (diags, proc) =>
-        (diags, proc.withValidator(defaultValidator))
+        (diags, proc.withValidation(defaultValidation))
       }
       cache += (key -> TDMLCompileResultCacheValue(value, None))
       value

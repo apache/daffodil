@@ -126,7 +126,7 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   override def withDebugging(onOff: Boolean): R = this
   override def withTracing(onOff: Boolean): R = this
   override def withDebugger(db: AnyRef): R = this
-  override def withValidator(validator: api.validation.Validator): R = this
+  override def withValidation(validation: String): R = this
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R = this
 
   // Parses the input stream to an infoset and returns a TDMLParseResult

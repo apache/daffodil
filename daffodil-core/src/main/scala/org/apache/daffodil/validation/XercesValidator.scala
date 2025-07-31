@@ -37,10 +37,9 @@ import org.xml.sax.SAXParseException
  *
  * SPI service name: xerces
  * 
- * Configuration requirements (only one must be present, but the value of xerces takes precedence if both are present):
+ * Configuration requirements.
  *   <ul>
  *    <li>xerces=schema_file_uri_string</li>
- *    <li>daffodil.rootSchema=schema_file_uri_string</li>
  *   </ul>
  */
 class XercesValidatorFactory extends api.validation.ValidatorFactory {
@@ -52,20 +51,12 @@ class XercesValidatorFactory extends api.validation.ValidatorFactory {
 
 object XercesValidatorFactory {
   def makeValidator(config: Properties): api.validation.Validator = {
-    if (config == null) {
-      throw new api.validation.ValidatorInitializationException(
-        "invalid configuration: missing xerces path"
-      )
-    }
-
     val schemaPath = config.getProperty(XercesValidator.name)
-    lazy val defaultSchema = config.getProperty(api.validation.Validator.rootSchemaKey)
     val schemaFile = {
       if (!Misc.isNullOrBlank(schemaPath)) schemaPath
-      else if (!Misc.isNullOrBlank(defaultSchema)) defaultSchema
       else
         throw new api.validation.ValidatorInitializationException(
-          "invalid configuration: xerces validator path was empty"
+          "invalid configuration: xerces property is empty or not defined"
         )
     }
     val uri = new URI(schemaFile)

@@ -62,21 +62,6 @@ class CustomValidatorFactory extends ValidatorFactory {
   def make(config: Properties): Validator = new CustomValidator
 }
 
-class AlwaysValidator(s: Seq[String]) extends Validator {
-  def validateXML(
-    document: InputStream,
-    validationHandler: ValidationHandler
-  ): Unit =
-    s.foreach(validationHandler.validationError(_))
-}
-
-object Always {
-  def fails: Validator = (_: InputStream, vh: ValidationHandler) => vh.validationError("boom")
-  def passes: Validator = (_: InputStream, vh: ValidationHandler) => {
-    // do nothing
-  }
-}
-
 class PassingValidatorFactory extends ValidatorFactory {
   def name(): String = PassingValidator.name
   def make(config: Properties): Validator = new TestingValidatorSPI(Seq.empty)

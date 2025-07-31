@@ -109,12 +109,6 @@ public class TestAPI {
     }
   }
 
-  private Properties makeConfig(File schemaFile) throws IOException {
-    Properties props = new Properties();
-    props.setProperty(Validator.rootSchemaKey, schemaFile.toURI().toString());
-    return props;
-  }
-
   /**
    * This is a test-only helper function used to serialize and deserialize a
    * DataProcessor to ensure all JAPI classes that need to extend
@@ -249,7 +243,7 @@ public class TestAPI {
     DataProcessor parser = compiler.reload(input);
 
     try {
-      parser = parser.withValidator(Validators.get("xerces").make(makeConfig(schemaFile)));
+      parser = parser.withValidation("xerces", schemaFile.toURI());
       fail();
     } catch (InvalidUsageException e) {
       assertEquals("Only Limited/No validation allowed when using a restored parser.", e.getMessage());
@@ -774,7 +768,7 @@ public class TestAPI {
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withValidator(Validators.get("limited").make(new Properties()));
+    dp = dp.withValidation("limited");
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -801,7 +795,7 @@ public class TestAPI {
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withValidator(Validators.get("xerces").make(makeConfig(schemaFile)));
+    dp = dp.withValidation("xerces", schemaFile.toURI());
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -1365,7 +1359,7 @@ public class TestAPI {
     java.io.File schemaFile = getResource("/test/api/blob.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withValidator(Validators.get("xerces").make(makeConfig(schemaFile)));
+    dp = dp.withValidation("xerces", schemaFile.toURI());
 
     byte[] data = new byte[]{0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04};
     ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -1478,7 +1472,7 @@ public class TestAPI {
     URI uri = new URI("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileSource(uri);
     DataProcessor dp1 = pf.onPath("/");
-    DataProcessor dp = dp1.withValidator(Validators.get("xerces").make(makeConfig(getResource(uri.getPath()))));
+    DataProcessor dp = dp1.withValidation("xerces", getResource(uri.getPath()).toURI());
 
     java.io.File file = getResource("/test/api/myDataBroken.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);

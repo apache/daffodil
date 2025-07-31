@@ -29,7 +29,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Optional
-import java.util.Properties
 import javax.xml.XMLConstants
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
@@ -45,11 +44,8 @@ import org.apache.daffodil.api.exceptions.ExternalVariableException
 import org.apache.daffodil.api.exceptions.InvalidUsageException
 import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
-import org.apache.daffodil.api.validation.Validator
-import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
-import org.apache.daffodil.validation.NoValidator
 
 import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertArrayEquals
@@ -155,7 +151,7 @@ class TestAPI {
     val dp = reserializeDataProcessor(dp1)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(NoValidator)
+      .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -205,7 +201,7 @@ class TestAPI {
       .reload(savedParser)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(NoValidator)
+      .withValidation("off")
     val file = getResource("/test/api/myData.dat")
     // This test uses a byte array here, just so as to be sure to exercise
     // the constructor for creating an InputSourceDataInputStream from a byte array
@@ -616,7 +612,7 @@ class TestAPI {
     val dp = reserializeDataProcessor(dp1)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(NoValidator)
+      .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -649,7 +645,7 @@ class TestAPI {
       .withExternalVariables(extVarsFile)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(NoValidator)
+      .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -681,7 +677,7 @@ class TestAPI {
       .withExternalVariables(extVarFile)
       .withDebuggerRunner(debugger)
       .withDebugging(true)
-      .withValidator(NoValidator)
+      .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
@@ -730,13 +726,7 @@ class TestAPI {
     val parser = compiler.reload(input)
 
     try {
-      parser.withValidator(
-        Validators
-          .get("xerces")
-          .make({
-            makeConfig(schemaFile)
-          })
-      )
+      parser.withValidation("xerces", schemaFile.toURI)
       fail()
     } catch {
       case e: InvalidUsageException =>
@@ -745,12 +735,6 @@ class TestAPI {
           e.getMessage
         )
     }
-  }
-
-  private def makeConfig(schemaFile: File) = {
-    val props = new Properties()
-    props.setProperty(Validator.rootSchemaKey, schemaFile.toURI.toString)
-    props
   }
 
   @Test
@@ -790,8 +774,7 @@ class TestAPI {
     val schemaFile = getResource("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    val dp = reserializeDataProcessor(dp1)
-      .withValidator(Validators.get("limited").make(new Properties()))
+    val dp = reserializeDataProcessor(dp1).withValidation("limited")
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
     Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
@@ -816,9 +799,7 @@ class TestAPI {
     val schemaFile = getResource("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    val dp = dp1.withValidator(
-      Validators.get("xerces").make(makeConfig(schemaFile))
-    )
+    val dp = dp1.withValidation("xerces", schemaFile.toURI)
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
     Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
@@ -1328,10 +1309,7 @@ class TestAPI {
     val schemaFile = getResource("/test/api/blob.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    val dp = dp1
-      .withValidator(
-        Validators.get("xerces").make(makeConfig(schemaFile))
-      )
+    val dp = dp1.withValidation("xerces", schemaFile.toURI)
 
     val data = Array[Byte](0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04)
     val bis = new ByteArrayInputStream(data)
@@ -1438,8 +1416,7 @@ class TestAPI {
     val uri = new URI("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileSource(uri)
     val dp1 = pf.onPath("/")
-    val dp =
-      dp1.withValidator(Validators.get("xerces").make(makeConfig(getResource(uri.getPath))))
+    val dp = dp1.withValidation("xerces", getResource(uri.getPath).toURI)
 
     val file = getResource("/test/api/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)

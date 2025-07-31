@@ -33,10 +33,6 @@ import java.io.Serializable;
  * ValidationHandler
  */
 public interface Validator extends Serializable {
-  /**
-   * default schema key for configuration file
-   */
-  String rootSchemaKey = "daffodil.rootSchema";
 
   /**
    * Used to validate XMLs. Any validation diagnostics will be added to the state

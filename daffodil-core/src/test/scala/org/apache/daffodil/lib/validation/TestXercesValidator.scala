@@ -17,7 +17,8 @@
 
 package org.apache.daffodil.lib.validation
 
-import org.apache.daffodil.api.validation.ValidatorFactory
+import java.util.Properties
+
 import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.validation.XercesValidator
 
@@ -29,8 +30,10 @@ class TestXercesValidator {
   val infoset = getClass.getResourceAsStream("/test/validation/testData1Infoset.xml")
 
   @Test def testFromSPI(): Unit = {
-    val f = Validators.get(XercesValidator.name)
-    val v = f.make(ValidatorFactory.makeConfig(schema))
+    val properties = new Properties()
+    properties.setProperty(XercesValidator.name, schema)
+
+    val v = Validators.get(XercesValidator.name).make(properties)
     val validationHandler = new TestingValidationHandler
     v.validateXML(infoset, validationHandler)
 
