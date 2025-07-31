@@ -58,7 +58,14 @@ lazy val daffodil = project
 
 lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
   .settings(commonSettings, nopublish)
-  .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % "2.13.16")
+  .settings({
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value)
+        case _ => Seq.empty
+      }
+    }
+  })
   .disablePlugins(OsgiCheckPlugin)
 
 lazy val propgen = Project("daffodil-propgen", file("daffodil-propgen"))
@@ -217,7 +224,7 @@ lazy val commonSettings = Seq(
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
-  libraryDependencies ++= Dependencies.common(scalaVersion.value),
+  libraryDependencies ++= Dependencies.common,
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
   Compile / packageDoc / publishArtifact := false
 )
