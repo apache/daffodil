@@ -31,6 +31,8 @@ object DaffodilLimitedValidator extends api.validation.Validator {
   ): Unit = {
     // do nothing
   }
+
+  val name = "limited"
 }
 
 class DaffodilLimitedValidator
@@ -42,7 +44,7 @@ class DaffodilLimitedValidator
  */
 class DaffodilLimitedValidatorFactory extends api.validation.ValidatorFactory {
 
-  override def name(): String = "limited"
+  override def name(): String = DaffodilLimitedValidator.name
 
   override def make(config: Properties = new Properties()): Validator = {
     DaffodilLimitedValidator

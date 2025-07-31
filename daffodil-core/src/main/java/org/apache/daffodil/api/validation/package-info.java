@@ -16,97 +16,104 @@
  */
 
 /**
- * We provide 4 different types of built-in validators for use with
- * {@link org.apache.daffodil.api.DataProcessor#withValidator(org.apache.daffodil.api.validation.Validator)}:
- * <ul>
- *   <li>{@link org.apache.daffodil.validation.NoValidator} - for no validation</li>
- *   <li>{@link org.apache.daffodil.validation.DaffodilLimitedValidator} - for limited/daffodil schema constraints validation</li>
- *   <li>{@link org.apache.daffodil.validation.XercesValidator} - for full validation using Xerces schema validation</li>
- *   <li>see org.apache.daffodil.validation.schematron.SchematronValidator - for schematron validation</li>
- * </ul>
- * <p>
- * It is also possible to create a custom validator by doing the following:
- * <ol>
- *  <li>create a custom Validator class that implements the
- *  {@link org.apache.daffodil.api.validation.Validator} interface</li>
- *  <li>create a custom ValidatorFactory class that implements the
- *  {@link org.apache.daffodil.api.validation.ValidatorFactory} interface, whose make method
- *  returns the custom validator from the previous step</li>
- *  <li>Register the created custom Validator Factory by creating a {@link org.apache.daffodil.api.validation.ValidatorFactory}
- *  file in {@code META-INF/services/}, its contents being the fully qualified name of the custom validator factory</li>
- * </ol>
- * <p>
- * To get an instance of one of the provided validators, one will need:
- * <ul>
- *   <li> access to registered {@link org.apache.daffodil.api.validation.ValidatorFactory}s
- *   via the {@link org.apache.daffodil.api.validation.Validators#get(java.lang.String)} command</li>
- *   <li> a {@link java.util.Properties} object with the appropriate keys/values (see below for specifics for each kind of validator)</li>
- *   <li> the name of the validator (ex: off, limited, xerces or schematron) </li>
- * </ul>
- * <p>
- * To geta specific Validator factory instance, do the below:
- * <pre>
- * {@code
- *  org.apache.daffodil.api.validation.ValidatorFactory vf = org.apache.daffodil.api.validation.Validators.get("xerces")
- * }
- * </pre>
- * To get the validator, certain properties are required to be passed into the make function,
- * depending on the validator.
- * <ul>
- *   <li>{@link org.apache.daffodil.validation.NoValidator}
- *    <ul>
- *      <li>none; empty Properties object or null</li>
- *    </ul>
- *   </li>
- *   <li>{@link org.apache.daffodil.validation.DaffodilLimitedValidator}
- *    <ul>
- *      <li>none; empty Properties object or null</li>
- *    </ul>
- *   </li>
- *   <li>{@link org.apache.daffodil.validation.XercesValidator}
- *    <ul>
- *      <li>{@code daffodil.rootSchema=schema_file_uri_string}</li>
- *      <li>{@code xerces=schema_file_uri_string} - if not found, Daffodil will attempt to use
- *      the above instead. So one or both must be present, but this will always take precedence over
- *      daffodil.rootSchema if both are present.</li>
- *    </ul>
- *   </li>
- *   <li>org.apache.daffodil.validation.schematron.SchematronValidator
- *    <ul>
- *      <li>{@code schematron=uri_string_to_schematron_file} - if not found, Daffodil will attempt to use
- *      the daffodil.rootSchema instead. So one or both must be present, but this will always take precedence over
- *      daffodil.rootSchema if both are present. </li>
- *      <li>{@code schematron.svrl.file=uri_string_to_output_file}</li>
- *      <li>{@code daffodil.rootSchema=schema_file_uri_string}</li>
- *    </ul>
- *   </li>
- * </ul>
- * <p>
- * And finally get the validator using make as below:
- * <pre>
- * {@code
- *  Properties props = new Properties();
- *  props.setProperty(XercesValidator.name, "/path/to/validating/schema.xsd");
- *  org.apache.daffodil.validation.Validator v = vf.make(props);
- * }
- * </pre>
- * <p>
- * or one can load the below properties file as follows:
- * <pre>
- *   {@code
- *   // schematron.properties
- *   schematron=/path/to/schema.xsd
- *   schematron.svrl.file=/path/to/validation/output.txt
- *   }
- * </pre>
+ * Daffodil Validation API package
  *
- * <pre>
- * {@code
- *  Properties props = new Properties();
- *  props.load(new FileInputStream("schematron.properties"));
- *  org.apache.daffodil.validation.Validator v = vf.make(props);
- * }
- * </pre>
+ * <p>
+ * Daffodil provides a number of built-in validators for use with {@link
+ * org.apache.daffodil.api.DataProcessor#withValidation(String, URI)}. For each
+ * built-in validator, the following contains the validator name, a
+ * description, and validator specific properties. The {@code String} paramter
+ * should be the name of the validator. If the URI parameter ends in
+ * <i>.conf</i> or <i>.properties</i> then it is treated as a {@link
+ * java.util.Properties} file that provides validator properties. Otherwise,
+ * the URI is set to a property with the same name as the validator. If a
+ * validator does not require properties, the URI parameter can be set to
+ * {@code null} or excluded.
+ * </p>
+ *
+ * <dl>
+ *   <dt><span style="font-size: large;"><b>off</b></span></dt>
+ *   <dd>
+ *     <p><b>Description:</b> disable validation</p>
+ *     <p><b>Properties:</b> none</p>
+ *     <p><b>Example:</b></p>
+ *     <pre>{@code
+ * // explicitly disable validation
+ * dataProcessor.withValidation("off")
+ * }</pre>
+ *   </dd>
+ *
+ *   <dt><span style="font-size: large;"><b>limited</b></span></dt>
+ *   <dd>
+ *     <p><b>Description:</b> XML schema validation using Daffodil</p>
+ *     <p><b>Properties:</b> none</p>
+ *     <p><b>Example:</b></p>
+ *     <pre>{@code
+ * // enable XML schema validation using Daffodil
+ * dataProcessor.withValidation("limited")
+ * }</pre>
+ *   </dd>
+ *
+ *   <dt><span style="font-size: large;"><b>xerces</b></span></dt>
+ *   <dd>
+ *     <p><b>Description:</b> XML Schema validation using Xerces library</p>
+ *     <p><b>Properties:</b></p>
+ *     <dl>
+ *       <dt>{@code xerces}</dt>
+ *       <dd>absolute URI to a XSD file</dd>
+ *     </dl>
+ *     <p><b>Example:</b></p>
+ *     <pre>{@code
+ * // enable XML schema validation, setting the "xerces" property to the schema.xsd file
+ * dataProcessor.withValidation("xerces", URI.create("file:///path/to/schema.xsd"))
+ * }</pre>
+ *   </dd>
+ *
+ *   <dt><span style="font-size: large;"><b>schematron</b></span></dt>
+ *   <dd>
+ *     <p><b>Description:</b> schematron validation using Saxon-HE library</p>
+ *     <p><b>Properties:</b></p>
+ *     <dl>
+ *       <dt>{@code schematron}</dt>
+ *       <dd>
+ *         absolute URI to a file containing schematron rules. If the URI
+ *         ends with {@code .sch} then the file is treated as a schematron file.
+ *         Otherwise, it is treated as an XSD file containing embedded
+ *         schematron rules.
+ *       </dd>
+ *       <dt>{@code schematron.svrl.file}</dt>
+ *       <dd>
+ *         absolute URI to a file to write the results of schematron
+ *         validation in SVRL format. This property is not thread safe and
+ *         will overwrite existing files--it is intended primarily for
+ *         debugging with single file validation.
+ *       </dd>
+ *     </dl>
+ *     <p><b>Example:</b></p>
+ *     <pre>{@code
+ * // enable schematron validation, setting the "schematron" property to the schematron.sch file
+ * dataProcessor.withValidation("schematron", URI.create("file:///path/to/schematron.sch"))
+ *
+ * // use schematron validation, reading the schematron.properties file to set "schematron" or other schematron properties
+ * dataProcessor.withValidation("schematron", URI.create("file:///path/to/schematron.properties"))
+ * }</pre>
+ *   </dd>
+ * </dl>
+ *
+ * <h2>Custom Validators</h2>
+ * <p>
+ * Daffodil also supports custom validators. To make a custom validator available to Daffodil, follow these steps:
+ * <ol>
+ *  <li>Create a custom class that implements the
+ *  {@link org.apache.daffodil.api.validation.Validator} interface</li>
+ *  <li>Create a custom class that implements the
+ *  {@link org.apache.daffodil.api.validation.ValidatorFactory} interface, whose {@code make} method
+ *  returns the custom Validator from the previous step</li>
+ *  <li>Register the custom ValidatorFactory by creating a {@link org.apache.daffodil.api.validation.ValidatorFactory}
+ *  file in {@code META-INF/services/}, its contents being the fully qualified name of the custom validator factory</li>
+ *  <li>Call the {@link org.apache.daffodil.api.DataProcessor#withValidation(String, URI)} function, providing the name
+ *  of the validator and optional URI.</li>
+ * </ol>
  */
 
 package org.apache.daffodil.api.validation;

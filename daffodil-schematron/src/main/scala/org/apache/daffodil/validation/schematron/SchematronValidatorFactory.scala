@@ -29,35 +29,25 @@ import net.sf.saxon.TransformerFactoryImpl
 
 /**
  * Daffodil ValidatorFactory implementation for ISO schematron.
- * svrl.file is optional, and if provided a schematron report will be written there.
- * If schematron is defined it will use that and expect it to be a .sch file.
- * If that's not defined, it will use daffodil.rootSchema and attempt to extract embedded schematron rules
+ * schematron.svrl.file is optional, and if provided a schematron report will be written there.
+ * schematron property must be defined, which can either be a .sch file or a DFDL file with
+ * embedded schematron rules.
  *
  * Configuration
  *
  * <ul>
  *  <li>schematron=uri_string_to_schematron_file</li>
  *  <li>schematron.svrl.file=uri_string_to_output_file</li>
- *  <li>daffodil.rootSchema=schema_file_uri_string</li>
  * </ul>
  */
 object SchematronValidatorFactory {
   def makeValidator(config: Properties): SchematronValidator = {
-
-    if (config == null) {
-      throw new api.validation.ValidatorInitializationException(
-        "invalid configuration: missing schematron path"
-      )
-    }
-
     val schPathValue = config.getProperty(SchematronValidator.name)
-    lazy val defaultSchema = config.getProperty(api.validation.Validator.rootSchemaKey)
     val schUri = new URI({
       if (!Misc.isNullOrBlank(schPathValue)) schPathValue
-      else if (!Misc.isNullOrBlank(defaultSchema)) defaultSchema
       else
         throw new api.validation.ValidatorInitializationException(
-          "invalid configuration: schematron path was not an object or string"
+          "invalid configuration: schematron property is empty or not defined"
         )
     })
     val schStream =
@@ -94,8 +84,15 @@ object SchematronValidatorFactory {
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
     factory.setURIResolver(DFDLCatalogResolver.get)
-    val rules = Transforms.from(schematron, schematronID, srcfmt, factory)
-    new SchematronValidator(Schematron.fromRules(rules), svrlPath)
+    try {
+      val rules = Transforms.from(schematron, schematronID, srcfmt, factory)
+      new SchematronValidator(Schematron.fromRules(rules), svrlPath)
+    } catch {
+      case e: Exception =>
+        throw new api.validation.ValidatorInitializationException(
+          s"failed to create schematron validator: " + e.getMessage
+        )
+    }
   }
 }
 

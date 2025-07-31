@@ -31,6 +31,8 @@ object NoValidator extends Validator {
   ): Unit = {
     // do nothing
   }
+
+  val name = "off"
 }
 
 /**
@@ -40,7 +42,7 @@ object NoValidator extends Validator {
  */
 class NoValidatorFactory extends api.validation.ValidatorFactory {
 
-  override def name(): String = "off"
+  override def name(): String = NoValidator.name
 
   override def make(config: Properties = new Properties()): Validator = {
     NoValidator

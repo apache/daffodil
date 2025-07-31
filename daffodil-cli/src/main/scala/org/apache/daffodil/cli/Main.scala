@@ -29,7 +29,6 @@ import java.nio.channels.FileChannel
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-import java.util.Properties
 import java.util.Scanner
 import java.util.concurrent.Executors
 import javax.xml.parsers.SAXParserFactory
@@ -48,8 +47,8 @@ import scala.util.matching.Regex
 import org.apache.daffodil.api
 import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
 import org.apache.daffodil.api.exceptions.InvalidParserException
-import org.apache.daffodil.api.validation.ValidatorFactory
-import org.apache.daffodil.api.validation.Validators
+import org.apache.daffodil.api.validation.ValidatorInitializationException
+import org.apache.daffodil.api.validation.ValidatorNotRegisteredException
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.ExpressionCompilers
@@ -86,7 +85,6 @@ import org.apache.daffodil.slf4j.DaffodilLogger
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
-import org.apache.daffodil.validation.NoValidator
 
 import com.siemens.ct.exi.core.EXIFactory
 import com.siemens.ct.exi.core.exceptions.EXIException
@@ -167,40 +165,27 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   def validateConverter(
     schema: ScallopOption[URISchemaSource],
     parser: ScallopOption[File]
-  ): ValueConverter[api.validation.Validator] =
-    singleArgConverter[api.validation.Validator]((s: String) => {
+  ): ValueConverter[(String, Option[URI])] =
+    singleArgConverter[(String, Option[URI])]((s: String) => {
       import ValidatorPatterns._
 
       def doesNotSupportReloadableParsers(name: String): Boolean =
         // TODO: DAFFODIL-1749, this will change once ticket is implemented
         schema.isEmpty && parser.isDefined && !Seq("limited", "off").exists(_.contains(name))
 
-      val defaults = {
-        schema
-          .map(sch => ValidatorFactory.makeConfig(sch.uri.toString))
-          .getOrElse(new Properties())
-      }
-      val props = new Properties(defaults)
-
       s match {
-        case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
+        case DefaultArgPattern(name, arg) =>
           if (doesNotSupportReloadableParsers(name)) {
-            null
+            null // validateOpt will cause null to output an appropriate error message
           } else {
-            if (Seq(".conf", ".properties").exists(arg.endsWith)) {
-              val is = new FileInputStream(arg)
-              props.load(is)
-            } else {
-              val uss = fileResourceToURI(arg)
-              props.setProperty(name, uss.uri.toString)
-            }
-            Validators.get(name).make(props)
+            val uri = fileResourceToURI(arg).uri
+            (name, Some(uri))
           }
-        case NoArgsPattern(name) if Validators.isRegistered(name) =>
+        case NoArgsPattern(name) =>
           if (doesNotSupportReloadableParsers(name)) {
-            null
+            null // validateOpt will cause null to output an appropriate error message
           } else {
-            Validators.get(name).make(props)
+            (name, schema.map(_.uri).toOption)
           }
         case _ =>
           throw new Exception(
@@ -436,14 +421,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
+    val validate: ScallopOption[(String, Option[URI])] = opt[(String, Option[URI])](
       short = 'V',
-      default = Some(NoValidator),
+      default = Some(("off", None)),
       argName = "validator_name",
       descr =
-        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
-          "is an optional schema to validate against, a key/value configuration file or a required schematron" +
-          " schema in the case of the schematron validator plugin."
+        "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
+          "custom validator_name[=value]. The optional value paramter provides a file to the " +
+          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration."
     )(validateConverter(schema, parser))
     val debug = opt[Option[String]](
       argName = "file",
@@ -566,14 +551,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Tunable configuration options to change Daffodil's behavior. " +
         "Only valid with the --schema option."
     )
-    val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
+    val validate: ScallopOption[(String, Option[URI])] = opt[(String, Option[URI])](
       short = 'V',
-      default = Some(NoValidator),
+      default = Some(("off", None)),
       argName = "validator_name",
       descr =
-        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
-          "is an optional schema to validate against, a key/value configuration file or a required schematron" +
-          " schema in the case of the schematron validator plugin."
+        "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
+          "custom validator_name[=value]. The optional value paramter provides a file to the " +
+          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration."
     )(validateConverter(schema, parser))
     val debug = opt[Option[String]](
       argName = "file",
@@ -801,14 +786,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       default = Some(false),
       descr = "Perform unparse instead of parse for performance test"
     )
-    val validate: ScallopOption[api.validation.Validator] = opt[api.validation.Validator](
+    val validate: ScallopOption[(String, Option[URI])] = opt[(String, Option[URI])](
       short = 'V',
-      default = Some(NoValidator),
+      default = Some(("off", None)),
       argName = "validator_name",
       descr =
-        "Validator name. Use 'xerces=[value]', 'limited', 'off', or a validator_plugin_name=value, where value" +
-          "is an optional schema to validate against, a key/value configuration file or a required schematron" +
-          " schema in the case of the schematron validator plugin."
+        "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
+          "custom validator_name[=value]. The optional value paramter provides a file to the " +
+          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration."
     )(validateConverter(schema, parser))
 
     val infile = trailArg[String](
@@ -990,6 +975,7 @@ object Main {
     val UserDefinedFunctionError = Value(34)
     val UnableToCreateProcessor = Value(35)
     val LayerExecutionError = Value(36)
+    val UnableToCreateValidatorError = Value(37)
 
     val Usage = Value(64)
   }
@@ -1070,7 +1056,7 @@ class Main(
   def createProcessorFromParser(
     savedParser: File,
     path: Option[String],
-    validator: api.validation.Validator
+    validate: (String, Option[URI])
   ) = {
     try {
       val compiler = Compiler()
@@ -1084,7 +1070,8 @@ class Main(
           Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
           Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
         }
-        Some(processor.withValidator(validator))
+        val (validationKind, validationConfig) = validate
+        Some(processor.withValidation(validationKind, validationConfig.getOrElse(null)))
       } else {
         None
       }
@@ -1136,7 +1123,7 @@ class Main(
     rootNS: Option[RefQName],
     path: Option[String],
     tunablesMap: Map[String, String],
-    validator: api.validation.Validator
+    validate: (String, Option[URI])
   ): Option[api.DataProcessor] = {
     val compiler = {
       val c = Compiler().withTunables(tunablesMap)
@@ -1157,9 +1144,10 @@ class Main(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
         if (!processorFactory.isError) {
+          val (validationKind, validationConfig) = validate
           val processor = processorFactory
             .onPath(path.getOrElse("/"))
-            .withValidator(validator)
+            .withValidation(validationKind, validationConfig.getOrElse(null))
             // needed to access SchemaSetRuntimeData
             .asInstanceOf[DataProcessor]
           if (processor.isError) {
@@ -1239,7 +1227,7 @@ class Main(
       case Some(conf.parse) => {
         val parseOpts = conf.parse
 
-        val validate = parseOpts.validate.toOption.get
+        val validate = parseOpts.validate()
 
         val optDafConfig = parseOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
@@ -1262,8 +1250,7 @@ class Main(
             .withExternalVariables(
               combineExternalVariables(parseOpts.vars, optDafConfig)
             )
-        }.map { _.withValidator(validate) }
-          .map { withDebugOrTrace(_, parseOpts.trace, parseOpts.debug) }
+        }.map { withDebugOrTrace(_, parseOpts.trace, parseOpts.debug) }
 
         val rc = processor match {
           case None => ExitCode.UnableToCreateProcessor
@@ -1438,7 +1425,7 @@ class Main(
       case Some(conf.performance) => {
         val performanceOpts = conf.performance
 
-        val validate = performanceOpts.validate.toOption.get
+        val validate = performanceOpts.validate()
 
         val optDafConfig = performanceOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
@@ -1463,7 +1450,7 @@ class Main(
         }.map { p =>
           p.asInstanceOf[DFDL.DataProcessor]
             .withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig))
-        }.map { _.withValidator(validate) }
+        }
 
         val rc: ExitCode.Value = processor match {
           case None => ExitCode.UnableToCreateProcessor
@@ -1592,7 +1579,7 @@ class Main(
       case Some(conf.unparse) => {
         val unparseOpts = conf.unparse
 
-        val validate = unparseOpts.validate.toOption.get
+        val validate = unparseOpts.validate()
 
         val optDafConfig = unparseOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
@@ -1613,8 +1600,7 @@ class Main(
         }.map { p =>
           p.asInstanceOf[DFDL.DataProcessor]
             .withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig))
-        }.map { _.withValidator(validate) }
-          .map { withDebugOrTrace(_, unparseOpts.trace, unparseOpts.debug) }
+        }.map { withDebugOrTrace(_, unparseOpts.trace, unparseOpts.debug) }
 
         val output = unparseOpts.output.toOption match {
           case Some("-") | None => STDOUT
@@ -1696,7 +1682,7 @@ class Main(
       case Some(conf.save) => {
         val saveOpts = conf.save
 
-        val validate = NoValidator
+        val validate = ("off", None)
         val optDafConfig = saveOpts.config.toOption.map { DaffodilConfig.fromFile(_) }
 
         val tunables =
@@ -2082,6 +2068,14 @@ class Main(
         case e: BindingException => {
           Logger.log.error(Misc.getSomeMessage(e).get)
           ExitCode.BadExternalVariable
+        }
+        case e: ValidatorNotRegisteredException => {
+          Logger.log.error(Misc.getSomeMessage(e).get)
+          ExitCode.UnableToCreateValidatorError
+        }
+        case e: ValidatorInitializationException => {
+          Logger.log.error(Misc.getSomeMessage(e).get)
+          ExitCode.UnableToCreateValidatorError
         }
         case e: NotYetImplementedException => {
           nyiFound(e)

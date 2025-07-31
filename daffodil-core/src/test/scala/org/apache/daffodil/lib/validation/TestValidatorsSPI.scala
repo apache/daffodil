@@ -17,7 +17,8 @@
 
 package org.apache.daffodil.lib.validation
 
-import org.apache.daffodil.api.validation.ValidatorFactory
+import java.util.Properties
+
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException
 import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.validation.XercesValidator
@@ -55,7 +56,7 @@ class TestValidatorsSPI {
 
   @Test def testPassingValidator(): Unit = {
     val f = Validators.get(PassingValidator.name)
-    val v = f.make(ValidatorFactory.makeConfig(schema))
+    val v = f.make(new Properties())
     val validationHandler = new TestingValidationHandler
     v.validateXML(infoset, validationHandler)
 
@@ -65,7 +66,7 @@ class TestValidatorsSPI {
 
   @Test def testFailingValidator(): Unit = {
     val f = Validators.get(FailingValidator.name)
-    val v = f.make(ValidatorFactory.makeConfig(schema))
+    val v = f.make(new Properties())
     val validationHandler = new TestingValidationHandler
     v.validateXML(infoset, validationHandler)
 

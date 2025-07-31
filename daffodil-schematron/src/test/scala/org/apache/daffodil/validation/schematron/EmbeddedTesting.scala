@@ -27,7 +27,6 @@ import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.ParseResult
 import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.validation.schematron.SchSource.Xsd
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -75,12 +74,7 @@ trait EmbeddedTesting {
     if (pf.isError()) pf.getDiagnostics.forEach(println)
     assertFalse("Schema did not compile", pf.isError())
 
-    val v = SchematronValidatorFactory.makeValidator(
-      schema.toURL.openStream(),
-      schema.toURL.toString(),
-      Xsd
-    )
-    val dp = pf.onPath("/").withValidator(v)
+    val dp = pf.onPath("/").withValidation("schematron", schema)
 
     f(Validation(dp))
   }

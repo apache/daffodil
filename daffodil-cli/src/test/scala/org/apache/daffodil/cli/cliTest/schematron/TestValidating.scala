@@ -64,8 +64,8 @@ class TestValidating {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
 
     runCLI(args"""parse --validate schematron=$schematron -s $schema $input""") { cli =>
-      cli.expectErr("Bad arguments")
+      cli.expectErr("failed to create schematron validator")
       cli.expectErr("does-no-exist/title-rules.sch")
-    }(ExitCode.Usage)
+    }(ExitCode.UnableToCreateValidatorError)
   }
 }

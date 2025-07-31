@@ -77,7 +77,7 @@ trait TDMLDFDLProcessor {
 
   def withDebugger(db: AnyRef): R
 
-  def withValidator(validator: api.validation.Validator): R
+  def withValidation(validation: String): R
 
   def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
 

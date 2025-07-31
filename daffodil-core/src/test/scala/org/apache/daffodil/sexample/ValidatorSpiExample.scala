@@ -17,10 +17,6 @@
 
 package org.apache.daffodil.sexample
 
-import java.util.Properties
-
-import org.apache.daffodil.api.validation.Validators
-
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,8 +28,7 @@ class ValidatorSpiExample extends ValidatorExamplesSupport {
   def testAlwaysPass(): Unit =
     withSchema("/test/api/mySchema5.dfdl.xsd") { dp =>
       withInput("/test/api/myData5.dat") { input =>
-        val v = Validators.get(PassingValidator.name).make(new Properties())
-        val res = dp.withValidator(v).parse(input, `/dev/null`)
+        val res = dp.withValidation(PassingValidator.name).parse(input, `/dev/null`)
         assertFalse(res.isValidationError())
       }
     }
@@ -42,8 +37,7 @@ class ValidatorSpiExample extends ValidatorExamplesSupport {
   def testAlwaysFail(): Unit =
     withSchema("/test/api/mySchema5.dfdl.xsd") { dp =>
       withInput("/test/api/myData5.dat") { input =>
-        val v = Validators.get(FailingValidator.name).make(new Properties())
-        val res = dp.withValidator(v).parse(input, `/dev/null`)
+        val res = dp.withValidation(FailingValidator.name).parse(input, `/dev/null`)
         assertTrue(res.isValidationError())
       }
     }

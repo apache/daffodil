@@ -20,18 +20,22 @@ package org.apache.daffodil.runtime1.processors
 import java.io.File
 import java.io.IOException
 import java.io.ObjectOutputStream
+import java.net.URI
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Properties
 import java.util.zip.GZIPOutputStream
 import scala.jdk.CollectionConverters._
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.debugger.Debugger
 import org.apache.daffodil.api.metadata.MetadataHandler
+import org.apache.daffodil.api.validation.ValidatorInitializationException
+import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WithDiagnostics
@@ -102,9 +106,9 @@ object DataProcessor {
     variableMap: VariableMap // must be explicitly reset by save method
   ) extends DataProcessor(ssrd, tunables, variableMap) {
 
-    override def withValidator(v: api.validation.Validator): api.DataProcessor = {
-      if ((v eq DaffodilLimitedValidator) || (v eq NoValidator)) {
-        super.withValidator(v)
+    override def withValidation(kind: String, config: URI): api.DataProcessor = {
+      if (kind == DaffodilLimitedValidator.name || kind == NoValidator.name) {
+        super.withValidation(kind, config)
       } else {
         throw new InvalidUsageException(
           "Only Limited/No validation allowed when using a restored parser."
@@ -191,7 +195,21 @@ class DataProcessor(
    */
   override def clone(): DataProcessor = copy()
 
-  override def withValidator(v: api.validation.Validator): api.DataProcessor = {
+  override def withValidation(kind: String, config: URI): api.DataProcessor = {
+    val properties = new Properties()
+    if (config != null) {
+      val configStr = config.toString
+      if (configStr.endsWith(".conf") || configStr.endsWith(".properties")) {
+        try {
+          properties.load(config.toURL.openStream())
+        } catch {
+          case e: Exception => throw new ValidatorInitializationException(e.getMessage)
+        }
+      } else {
+        properties.setProperty(kind, configStr)
+      }
+    }
+    val v = Validators.get(kind).make(properties)
     copy(validator = v)
   }
 

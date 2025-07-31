@@ -19,12 +19,12 @@ package org.apache.daffodil.core.util
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
+import java.net.URI
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.nio.charset.Charset
 import java.nio.file.Files
-import java.util.Properties
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 import scala.util.Try
@@ -34,7 +34,6 @@ import org.apache.daffodil.api
 import org.apache.daffodil.api.ProcessorFactory
 import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
 import org.apache.daffodil.api.metadata.MetadataHandler
-import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -236,7 +235,7 @@ object TestUtils {
         dp.withDebugger(builtInTracer).withDebugging(true)
       } else dp
 
-    val p = p1.withValidator(Validators.get("limited").make(new Properties))
+    val p = p1.withValidation("limited")
 
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(is)
@@ -370,7 +369,7 @@ class Fakes private () {
     override def withExternalVariables(
       extVars: java.util.Map[String, String]
     ): DFDL.DataProcessor = this
-    override def withValidator(validator: api.validation.Validator): DFDL.DataProcessor = this
+    override def withValidation(kind: String, config: URI): DFDL.DataProcessor = this
     override def withDebugger(dbg: api.debugger.Debugger): DFDL.DataProcessor = this
     override def withDebugging(flag: Boolean): DFDL.DataProcessor = this
 
@@ -445,14 +444,9 @@ class StreamParser private (val schema: Node) {
     if (pf.isError) throw new StreamParser.CompileFailure(pf.getDiagnostics)
     val dataproc1 = pf
       .onPath("/")
-    val props = new Properties()
     val schemaTempFile = Files.createTempFile("streamparser", ".test")
     FileUtils.write(schemaTempFile.toFile, schema.toString(), Charset.defaultCharset())
-    props.setProperty(api.validation.Validator.rootSchemaKey, schemaTempFile.toUri.toString)
-    val dataproc = dataproc1
-      .withValidator(
-        Validators.get("xerces").make(props)
-      )
+    val dataproc = dataproc1.withValidation("xerces", schemaTempFile.toUri)
     // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
     // .withDebugging(true)
     if (dataproc.isError)

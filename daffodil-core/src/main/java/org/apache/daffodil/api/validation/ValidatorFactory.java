@@ -43,16 +43,4 @@ public interface ValidatorFactory extends SimpleNamedLoadableService {
    * @throws org.apache.daffodil.api.validation.ValidatorInitializationException when initialization fails
    */
   Validator make(Properties config) throws ValidatorInitializationException;
-
-  /**
-   * Helper utility to create a Properties file with the rootSchemaKey set, which many validators can use
-   *
-   * @param defaultSchema String uri to the default validating schema
-   * @return Properties object with the default root schema set
-   */
-  static Properties makeConfig(String defaultSchema) {
-    Properties properties = new Properties();
-    properties.setProperty(Validator.rootSchemaKey, defaultSchema);
-    return properties;
-  }
 }

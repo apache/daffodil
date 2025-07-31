@@ -54,7 +54,7 @@ public class ValidatorApiExample {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema5.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
-    DataProcessor dp = pf.onPath("/").withValidator(Validators.get(PassingValidator.name).make(new Properties()));
+    DataProcessor dp = pf.onPath("/").withValidation(PassingValidator.name);
 
     java.io.File file = getResource("/test/api/myData5.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -70,7 +70,7 @@ public class ValidatorApiExample {
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
-    DataProcessor dp = pf.onPath("/").withValidator(Validators.get(FailingValidator.name).make(new Properties()));
+    DataProcessor dp = pf.onPath("/").withValidation(FailingValidator.name);
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -91,9 +91,7 @@ public class ValidatorApiExample {
       System.err.println(d.toString());
     }
     DataProcessor dp1 = pf.onPath("/");
-    Properties props = new Properties();
-    props.setProperty(Validator.rootSchemaKey, schemaFile.toURI().toString());
-    DataProcessor dp = dp1.withValidator(Validators.get("xerces").make(props));
+    DataProcessor dp = dp1.withValidation("xerces", schemaFile.toURI());
 
     java.io.InputStream fis = new ByteArrayInputStream("0".getBytes());
     try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
