@@ -113,6 +113,7 @@ final class TDMLDFDLProcessorFactory private (
       val diags = p.getDiagnostics
       Left(diags)
     } else {
+      val diags = p.getDiagnostics
       val dp = {
         if (useSerializedProcessor) {
           val os = new java.io.ByteArrayOutputStream()
@@ -122,11 +123,7 @@ final class TDMLDFDLProcessorFactory private (
           compiler.reload(is)
         } else p
       }
-      val diags = p.getDiagnostics
-      val processor = new DaffodilTDMLDFDLProcessor(
-        dp.asInstanceOf[DFDL.DataProcessor],
-        schemaSource.uriForLoading
-      )
+      val processor = new DaffodilTDMLDFDLProcessor(dp, schemaSource.uriForLoading)
       Right(diags, processor)
     }
   }
@@ -162,23 +159,19 @@ final class TDMLDFDLProcessorFactory private (
       val dp = compiler.reload(schemaSource)
       val diags = dp.getDiagnostics
       Assert.invariant(diags.asScala.forall { !_.isError })
-      val processor = new DaffodilTDMLDFDLProcessor(
-        dp.asInstanceOf[DFDL.DataProcessor],
-        schemaSource.uriForLoading
-      )
+      val processor = new DaffodilTDMLDFDLProcessor(dp, schemaSource.uriForLoading)
       Right(diags, processor)
     }
   }
 
 }
 
-class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor, schemaURI: URI)
-  extends TDMLDFDLProcessor {
+class DaffodilTDMLDFDLProcessor private[tdml] (
+  private var dp: api.DataProcessor,
+  schemaURI: URI
+) extends TDMLDFDLProcessor {
 
   override type R = DaffodilTDMLDFDLProcessor
-
-  def this(ddp: DFDL.DataProcessor, schemaURI: URI) =
-    this(ddp.asInstanceOf[api.DataProcessor], schemaURI)
 
   private def copy(dp: api.DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp, schemaURI)
 

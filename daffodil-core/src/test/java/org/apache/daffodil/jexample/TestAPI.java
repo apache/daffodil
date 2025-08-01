@@ -20,6 +20,7 @@ package org.apache.daffodil.jexample;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -222,7 +223,7 @@ public class TestAPI {
   // This is a duplicate of test testAPI1 that serializes the parser
   // before executing the test.
   @Test
-  public void testAPI1_A_FullFails() throws Exception {
+  public void testAPI1_A_Full_SavedParser() throws Exception {
     DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -241,13 +242,9 @@ public class TestAPI {
     ReadableByteChannel input = Channels.newChannel(is);
     org.apache.daffodil.api.Compiler compiler = Daffodil.compiler();
     DataProcessor parser = compiler.reload(input);
-
-    try {
-      parser = parser.withValidation("xerces", schemaFile.toURI());
-      fail();
-    } catch (InvalidUsageException e) {
-      assertEquals("Only Limited/No validation allowed when using a restored parser.", e.getMessage());
-    }
+    assertNotNull(schemaFile);
+    parser = parser.withValidation("xerces", schemaFile.toURI());
+    assertNotNull(parser);
   }
 
   @Test

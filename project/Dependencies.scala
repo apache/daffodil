@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import sbt.*
+import sbt._
 
 object Dependencies {
 
