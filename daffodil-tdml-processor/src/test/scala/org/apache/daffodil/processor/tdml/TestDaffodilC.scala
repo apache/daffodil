@@ -214,13 +214,11 @@ class TestDaffodilC {
     val processorFactory = new DaffodilCTDMLDFDLProcessorFactory()
     val schemaSource =
       UnitTestSchemaSource(testSchema, nameHint = "getProcessor", Some(tempDir.toIO))
-    val useSerializedProcessor = false
     val optRootName = None
     val optRootNamespace = None
     val tunables = Map.empty[String, String]
     val cr = processorFactory.getProcessor(
       schemaSource,
-      useSerializedProcessor,
       optRootName,
       optRootNamespace,
       tunables

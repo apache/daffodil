@@ -72,7 +72,6 @@ final class DaffodilCTDMLDFDLProcessorFactory(compiler: Compiler)
   // schema (only diagnostics on left, or processor too on right)
   override def getProcessor(
     schemaSource: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
     optRootName: Option[String] = None,
     optRootNamespace: Option[String] = None,
     tunables: Map[String, String]

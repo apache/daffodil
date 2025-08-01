@@ -46,6 +46,34 @@ class TestValidating {
     }(ExitCode.ParseError)
   }
 
+  // always fails sch, with validate flag should fail
+  @Test def failShouldFail_reloadable_parser(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/always-fails.sch")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
+
+    runCLI(args"""parse --validate schematron=$schematron -s $schema $input""") { cli =>
+      cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+      cli.expectErr("[error] Validation Error: never fails")
+    }(ExitCode.ParseError)
+
+    // test reloadable parser
+    withTempFile { parser =>
+      runCLI(args"save-parser -s $schema $parser") { _ => }(
+        ExitCode.Success
+      )
+
+      runCLI(args"""parse --validate schematron -P $parser $input""") { cli =>
+        cli.expectErr("schematron property is empty or not defined")
+      }(ExitCode.UnableToCreateValidatorError)
+
+      runCLI(args"""parse --validate schematron=$schematron -P $parser $input""") { cli =>
+        cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+        cli.expectErr("[error] Validation Error: never fails")
+      }(ExitCode.ParseError)
+    }
+  }
+
   // never fails sch, with validate flag should pass
   @Test def passShouldPass(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
@@ -55,6 +83,32 @@ class TestValidating {
     runCLI(args"""parse --validate schematron=$schematron -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
     }(ExitCode.Success)
+  }
+
+  // never fails sch, with validate flag should pass
+  @Test def passShouldPass_reloadable_parser(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
+
+    runCLI(args"""parse --validate schematron=$schematron -s $schema $input""") { cli =>
+      cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+    }(ExitCode.Success)
+
+    // test reloadable parser
+    withTempFile { parser =>
+      runCLI(args"save-parser -s $schema $parser") { _ => }(
+        ExitCode.Success
+      )
+
+      runCLI(args"""parse --validate schematron -P $parser $input""") { cli =>
+        cli.expectErr("schematron property is empty or not defined")
+      }(ExitCode.UnableToCreateValidatorError)
+
+      runCLI(args"""parse --validate schematron=$schematron -P $parser $input""") { cli =>
+        cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+      }(ExitCode.Success)
+    }
   }
 
   // fails to resolve included schema

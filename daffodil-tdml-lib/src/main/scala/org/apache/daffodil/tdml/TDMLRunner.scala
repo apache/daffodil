@@ -553,7 +553,6 @@ class DFDLTestSuite private[tdml] (
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
     suppliedSchema: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
     optRootName: Option[String],
     optRootNamespace: Option[String],
     tunables: Map[String, String]
@@ -562,7 +561,6 @@ class DFDLTestSuite private[tdml] (
     val key = TDMLCompileResultCacheKey(
       impl.implementationName,
       suppliedSchema,
-      useSerializedProcessor,
       optRootName,
       optRootNamespace,
       tunables
@@ -934,18 +932,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         _.nBits
       }
 
-      val useSerializedProcessor =
-        if (validation == "on") false
-        else if (defaultValidation == "on") false
-        else if (optExpectedWarnings.isDefined) false
-        else true
-
       val rootNamespaceString = getRootNamespaceString()
 
       val compileResult: TDML.CompileResult = parent.getCompileResult(
         impl,
         suppliedSchema,
-        useSerializedProcessor,
         Option(rootName),
         Option(rootNamespaceString),
         tunables
@@ -3014,7 +3005,6 @@ object UTF8Encoder {
 case class TDMLCompileResultCacheKey(
   impl: String,
   suppliedSchema: DaffodilSchemaSource,
-  useSerializedProcessor: Boolean,
   optRootName: Option[String],
   optRootNamespace: Option[String],
   tunables: Map[String, String]
@@ -3102,7 +3092,6 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
     } else {
       val compileResult = impl.getProcessor(
         key.suppliedSchema,
-        key.useSerializedProcessor,
         key.optRootName,
         key.optRootNamespace,
         key.tunables

@@ -105,35 +105,27 @@ final class TDMLDFDLProcessorFactory private (
    */
   private def generateProcessor(
     pf: DFDL.ProcessorFactory,
-    useSerializedProcessor: Boolean,
     schemaSource: DaffodilSchemaSource
   ): TDML.CompileResult = {
     val p = pf.onPath("/")
+    val diags = p.getDiagnostics
     if (p.isError) {
-      val diags = p.getDiagnostics
       Left(diags)
     } else {
       val dp = {
-        if (useSerializedProcessor) {
-          val os = new java.io.ByteArrayOutputStream()
-          val output = Channels.newChannel(os)
-          p.save(output)
-          val is = new java.io.ByteArrayInputStream(os.toByteArray)
-          compiler.reload(is)
-        } else p
+        val os = new java.io.ByteArrayOutputStream()
+        val output = Channels.newChannel(os)
+        p.save(output)
+        val is = new java.io.ByteArrayInputStream(os.toByteArray)
+        compiler.reload(is)
       }
-      val diags = p.getDiagnostics
-      val processor = new DaffodilTDMLDFDLProcessor(
-        dp.asInstanceOf[DFDL.DataProcessor],
-        schemaSource.uriForLoading
-      )
+      val processor = new DaffodilTDMLDFDLProcessor(dp, schemaSource.uriForLoading)
       Right(diags, processor)
     }
   }
 
   private def compileProcessor(
     schemaSource: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
     optRootName: Option[String],
     optRootNamespace: Option[String]
   ): TDML.CompileResult = {
@@ -142,43 +134,38 @@ final class TDMLDFDLProcessorFactory private (
       val diags = pf.getDiagnostics
       Left(diags)
     } else {
-      val res = this.generateProcessor(pf, useSerializedProcessor, schemaSource)
+      val res = this.generateProcessor(pf, schemaSource)
       res
     }
   }
 
   override def getProcessor(
     schemaSource: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
     optRootName: Option[String],
     optRootNamespace: Option[String],
     tunables: Map[String, String]
   ): TDML.CompileResult = {
     if (schemaSource.isXSD) {
       val res =
-        compileProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace)
+        compileProcessor(schemaSource, optRootName, optRootNamespace)
       res
     } else {
       val dp = compiler.reload(schemaSource)
       val diags = dp.getDiagnostics
       Assert.invariant(diags.asScala.forall { !_.isError })
-      val processor = new DaffodilTDMLDFDLProcessor(
-        dp.asInstanceOf[DFDL.DataProcessor],
-        schemaSource.uriForLoading
-      )
+      val processor = new DaffodilTDMLDFDLProcessor(dp, schemaSource.uriForLoading)
       Right(diags, processor)
     }
   }
 
 }
 
-class DaffodilTDMLDFDLProcessor private (private var dp: api.DataProcessor, schemaURI: URI)
-  extends TDMLDFDLProcessor {
+class DaffodilTDMLDFDLProcessor private[tdml] (
+  private var dp: api.DataProcessor,
+  schemaURI: URI
+) extends TDMLDFDLProcessor {
 
   override type R = DaffodilTDMLDFDLProcessor
-
-  def this(ddp: DFDL.DataProcessor, schemaURI: URI) =
-    this(ddp.asInstanceOf[api.DataProcessor], schemaURI)
 
   private def copy(dp: api.DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp, schemaURI)
 

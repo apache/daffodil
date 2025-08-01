@@ -143,7 +143,8 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    * Save the DataProcessor
    * <p>
    * The resulting output can be reloaded by {@code Compiler.reload(savedParser:java\.nio\.channels\.ReadableByteChannel)* Compiler.reload}.
-   *
+   * Note that any changes due to withValidator, withDebugger, and any compile diagnostics are not saved
+   * 
    * @param output the byte channel to write the {@link DataProcessor} to. Note that external variable settings are not saved.
    */
   void save(WritableByteChannel output);

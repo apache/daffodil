@@ -115,8 +115,6 @@ object TestUtils {
     runSchemaOnRBC(testSchema, rbc, areTracing)
   }
 
-  private val useSerializedProcessor = true
-
   def testUnparsing(
     testSchema: scala.xml.Elem,
     infosetXML: Node,
@@ -182,21 +180,18 @@ object TestUtils {
     )
 
   private def saveAndReload(p: DataProcessor): DataProcessor = {
-    if (this.useSerializedProcessor) {
-      //
-      // We want to serialize/deserialize here, to avoid strange debug artifacts
-      // like where schema compilation is still happening at runtime (and
-      // therefore generating lots of Debug messages to the log)
-      //
-      val os = new java.io.ByteArrayOutputStream()
-      val output = Channels.newChannel(os)
-      p.save(output)
+    // We want to serialize/deserialize here, to avoid strange debug artifacts
+    // like where schema compilation is still happening at runtime (and
+    // therefore generating lots of Debug messages to the log)
+    //
+    val os = new java.io.ByteArrayOutputStream()
+    val output = Channels.newChannel(os)
+    p.save(output)
 
-      val is = new java.io.ByteArrayInputStream(os.toByteArray)
-      val input = Channels.newChannel(is)
-      val compiler_ = Compiler()
-      compiler_.reload(input).asInstanceOf[DataProcessor]
-    } else p
+    val is = new java.io.ByteArrayInputStream(os.toByteArray)
+    val input = Channels.newChannel(is)
+    val compiler_ = Compiler()
+    compiler_.reload(input).asInstanceOf[DataProcessor]
   }
 
   def compileSchema(testSchema: Node) = {
