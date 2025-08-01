@@ -169,24 +169,12 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     singleArgConverter[(String, Option[URI])]((s: String) => {
       import ValidatorPatterns._
 
-      def doesNotSupportReloadableParsers(name: String): Boolean =
-        // TODO: DAFFODIL-1749, this will change once ticket is implemented
-        schema.isEmpty && parser.isDefined && !Seq("limited", "off").exists(_.contains(name))
-
       s match {
         case DefaultArgPattern(name, arg) =>
-          if (doesNotSupportReloadableParsers(name)) {
-            null // validateOpt will cause null to output an appropriate error message
-          } else {
-            val uri = fileResourceToURI(arg).uri
-            (name, Some(uri))
-          }
+          val uri = fileResourceToURI(arg).uri
+          (name, Some(uri))
         case NoArgsPattern(name) =>
-          if (doesNotSupportReloadableParsers(name)) {
-            null // validateOpt will cause null to output an appropriate error message
-          } else {
-            (name, schema.map(_.uri).toOption)
-          }
+          (name, schema.map(_.uri).toOption)
         case _ =>
           throw new Exception(
             "Unrecognized Validator name %s.  Must be 'xerces', 'limited', 'off', or name of spi validator."
@@ -427,8 +415,9 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "validator_name",
       descr =
         "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
-          "custom validator_name[=value]. The optional value paramter provides a file to the " +
-          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration."
+          "custom validator_name[=value]. The optional value parameter provides a file to the " +
+          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration. " +
+          "If using --parser, some validators may require a config file specified."
     )(validateConverter(schema, parser))
     val debug = opt[Option[String]](
       argName = "file",
@@ -460,12 +449,6 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
         Left("Input must not be stdin during interactive debugging")
-      case _ => Right(())
-    }
-
-    validateOpt(parser, validate) {
-      case (Some(_), Some(null)) =>
-        Left("The validation name must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(())
     }
 
@@ -557,8 +540,10 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "validator_name",
       descr =
         "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
-          "custom validator_name[=value]. The optional value paramter provides a file to the " +
-          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration."
+          "custom validator_name[=value]. The optional value parameter provides a file to the " +
+          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration. " +
+          "If using --parser, some validators may require a config file specified. Note that " +
+          "using this flag doesn't use the created validator as unparse validation is currently unsupported."
     )(validateConverter(schema, parser))
     val debug = opt[Option[String]](
       argName = "file",
@@ -792,8 +777,9 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "validator_name",
       descr =
         "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
-          "custom validator_name[=value]. The optional value paramter provides a file to the " +
-          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration."
+          "custom validator_name[=value]. The optional value parameter provides a file to the " +
+          "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration. " +
+          "If using --parser, some validators may require a config file specified."
     )(validateConverter(schema, parser))
 
     val infile = trailArg[String](

@@ -934,18 +934,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         _.nBits
       }
 
-      val useSerializedProcessor =
-        if (validation == "on") false
-        else if (defaultValidation == "on") false
-        else if (optExpectedWarnings.isDefined) false
-        else true
-
       val rootNamespaceString = getRootNamespaceString()
 
       val compileResult: TDML.CompileResult = parent.getCompileResult(
         impl,
         suppliedSchema,
-        useSerializedProcessor,
+        useSerializedProcessor = true,
         Option(rootName),
         Option(rootNamespaceString),
         tunables

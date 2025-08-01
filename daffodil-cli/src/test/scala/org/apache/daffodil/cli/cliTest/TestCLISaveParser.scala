@@ -164,7 +164,7 @@ class TestCLISaveParser {
     }
   }
 
-  @Test def test_CLI_DFDL_1205_FullValidation_SavedParser_Incompatible(): Unit = {
+  @Test def test_CLI_DFDL_1205_FullValidation_SavedParser(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd"
     )
@@ -176,11 +176,16 @@ class TestCLISaveParser {
       )
 
       runCLI(args"parse --parser $parser --validate xerces $input") { cli =>
-        cli.expectErr("[error]")
-        cli.expectErr(
-          "The validation name must be 'limited' or 'off' when using a saved parser."
-        )
-      }(ExitCode.Usage)
+        cli.expectErr("xerces property is empty or not defined")
+      }(
+        ExitCode.UnableToCreateValidatorError
+      )
+
+      runCLI(args"parse --validate xerces $input --parser $parser") { cli =>
+        cli.expectErr("xerces property is empty or not defined")
+      }(
+        ExitCode.UnableToCreateValidatorError
+      )
     }
   }
 
@@ -231,8 +236,14 @@ class TestCLISaveParser {
 
       runCLI(args"parse --validate xerces -P $parser") { cli =>
         cli.send("test", inputDone = true)
-        cli.expectErr("validation name must be 'limited' or 'off' when using a saved parser.")
-      }(ExitCode.Usage)
+        cli.expectErr("xerces property is empty or not defined")
+      }(ExitCode.UnableToCreateValidatorError)
+
+      runCLI(args"parse --validate xerces=$schema -P $parser") { cli =>
+        cli.send("test", inputDone = true)
+        cli.expectErr("[error] Validation Error")
+        cli.expectErr("not valid")
+      }(ExitCode.ParseError)
     }
   }
 
