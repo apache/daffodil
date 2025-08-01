@@ -83,42 +83,6 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
 class InvalidUsageException(msg: String, cause: Throwable = null)
   extends api.exceptions.InvalidUsageException(msg, cause)
 
-object DataProcessor {
-
-  /**
-   * This is the SerializableDataProcessor constructed from a saved processor.
-   *
-   * It enables us to implement restrictions on what you can/cannot do with a reloaded
-   * processor versus an original one.
-   *
-   * When we reload a processor, we want it to have default values for everything settable
-   * like debug mode and debugger.
-   *
-   * Note that this class does preserve variableMap. That is because
-   * serializations other than our own save/reload may need such settings (e.g., Apache Spark
-   * which serializes to move objects for remote execution).
-   *
-   * Hence, we're depending on the save method to explicitly reset them to default values.
-   */
-  private class SerializableDataProcessor(
-    ssrd: SchemaSetRuntimeData,
-    tunables: DaffodilTunables,
-    variableMap: VariableMap // must be explicitly reset by save method
-  ) extends DataProcessor(ssrd, tunables, variableMap) {
-
-    override def withValidation(kind: String, config: URI): api.DataProcessor = {
-      if (kind == DaffodilLimitedValidator.name || kind == NoValidator.name) {
-        super.withValidation(kind, config)
-      } else {
-        throw new InvalidUsageException(
-          "Only Limited/No validation allowed when using a restored parser."
-        )
-      }
-    }
-  }
-
-}
-
 /**
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
@@ -136,27 +100,6 @@ class DataProcessor(
 ) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
-
-  import DataProcessor.SerializableDataProcessor
-
-  /**
-   * In order to make this serializable, without serializing the unwanted current state of
-   * debugging mode, debugger, etc. we replace, at serialization time, this
-   * object with a [[SerializableDataProcessor]] which is a private derived class that
-   * sets all these troublesome slots back to the default values.
-   *
-   * But note: there is serialization for us to save/reload, and there is serialization
-   * in other contexts like Apache Spark, which may serialize objects without notifying us.
-   *
-   * So we preserve everything that something like Spark might need preserved
-   * and reinitialize things that are *always* reinitialized e.g., debugger, areDebugging.
-   *
-   * @throws java.io.ObjectStreamException Must be part of writeReplace's API
-   * @return the serializable object
-   */
-  @throws(classOf[java.io.ObjectStreamException])
-  private def writeReplace(): Object =
-    new SerializableDataProcessor(ssrd, tunables, variableMap.copy())
 
   def copy(
     ssrd: SchemaSetRuntimeData = ssrd,
@@ -286,7 +229,10 @@ class DataProcessor(
       variableMap = ssrd.originalVariables,
       validator = NoValidator,
       // don't save any warnings that were generated
-      diagnostics = Seq.empty
+      diagnostics = Seq.empty,
+      // disable debugger if provided
+      areDebugging = false,
+      optDebugger = None
     )
 
     try {

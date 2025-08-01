@@ -41,7 +41,6 @@ import org.apache.daffodil.api.ParseResult
 import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.exceptions.ExternalVariableException
-import org.apache.daffodil.api.exceptions.InvalidUsageException
 import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
 import org.apache.daffodil.lib.exceptions.UsageException
@@ -51,8 +50,8 @@ import org.apache.commons.io.FileUtils
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
 import org.xml.sax.XMLReader
 
@@ -132,7 +131,7 @@ class TestAPI {
         try {
           Class.forName(desc.getName, false, getClass.getClassLoader)
         } catch {
-          case e: ClassNotFoundException => super.resolveClass(desc);
+          case e: ClassNotFoundException => super.resolveClass(desc)
         }
       }
     }
@@ -172,9 +171,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("42", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("42", bos.toString())
     }
   }
   // This is a duplicate of test testAPI1 that serializes the parser
@@ -225,9 +224,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("42", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("42", bos.toString())
     }
   }
   @Test
@@ -297,9 +296,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("9", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("9", bos.toString())
     }
   }
   // This is a duplicate of test testAPI3 that serializes the parser
@@ -338,9 +337,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("9", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("9", bos.toString())
     }
   }
   @Test
@@ -366,9 +365,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("data", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("data", bos.toString())
     }
   }
   @Test
@@ -400,9 +399,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("data", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("data", bos.toString())
     }
   }
 
@@ -492,8 +491,8 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
+      val err2 = res2.isError()
+      assertFalse(err2)
       assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"))
     }
   }
@@ -525,8 +524,8 @@ class TestAPI {
       val wbc1 = java.nio.channels.Channels.newChannel(bos1)
       val inputter1 = Infoset.getScalaXMLInfosetInputter(node1)
       val res2 = dp.unparse(inputter1, wbc1)
-      val err2 = res2.isError();
-      assertFalse(err2);
+      val err2 = res2.isError()
+      assertFalse(err2)
       assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"))
 
       val node2 = outputter.getResult()
@@ -535,8 +534,8 @@ class TestAPI {
       val wbc2 = java.nio.channels.Channels.newChannel(bos2)
       val inputter2 = Infoset.getScalaXMLInfosetInputter(node2)
       val res3 = dp.unparse(inputter2, wbc2)
-      val err3 = res3.isError();
-      assertFalse(err3);
+      val err3 = res3.isError()
+      assertFalse(err3)
       assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"))
     }
   }
@@ -701,10 +700,11 @@ class TestAPI {
   }
   // This is a duplicate of test testAPI1 that serializes the parser
   // before executing the test.
-  // Demonstrates that setting validation to Full for a saved parser fails.
+  // Demonstrates that setting validation to xerces for a saved parser
+  // does not fail.
   //
   @Test
-  def testAPI1_A_FullFails(): Unit = {
+  def testAPI1_A_Full_SavedParser(): Unit = {
     val debugger = new DebuggerRunnerForAPITest()
 
     val c = Daffodil.compiler()
@@ -724,17 +724,8 @@ class TestAPI {
     val input = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
     val parser = compiler.reload(input)
-
-    try {
-      parser.withValidation("xerces", schemaFile.toURI)
-      fail()
-    } catch {
-      case e: InvalidUsageException =>
-        assertEquals(
-          "Only Limited/No validation allowed when using a restored parser.",
-          e.getMessage
-        )
-    }
+    val p = parser.withValidation("xerces", schemaFile.toURI)
+    assertNotNull(p)
   }
 
   @Test
@@ -762,7 +753,7 @@ class TestAPI {
 
     val diags = res.getDiagnostics
     assertEquals(1, diags.size)
-    val d = diags.get(0);
+    val d = diags.get(0)
     assertTrue(d.getMessage.contains("wrong"))
     assertTrue(d.getMessage.contains("e2"))
   }
@@ -1368,9 +1359,9 @@ class TestAPI {
       val wbc = java.nio.channels.Channels.newChannel(bos)
       val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
-      val err2 = res2.isError();
-      assertFalse(err2);
-      assertEquals("9100", bos.toString());
+      val err2 = res2.isError()
+      assertFalse(err2)
+      assertEquals("9100", bos.toString())
     }
   }
 
