@@ -29,7 +29,7 @@ import net.sf.saxon.TransformerFactoryImpl
 
 /**
  * Daffodil ValidatorFactory implementation for ISO schematron.
- * schematron.svrl.file is optional, and if provided a schematron report will be written there.
+ * schematron.svrl.file is optional, and if provided a schematron report will be written there. Note that it is not threadsafe, and will be overwritten in a multithreaded environment.
  * schematron property must be defined, which can either be a .sch file or a DFDL file with
  * embedded schematron rules.
  *
@@ -86,7 +86,7 @@ object SchematronValidatorFactory {
     factory.setURIResolver(DFDLCatalogResolver.get)
     try {
       val rules = Transforms.from(schematron, schematronID, srcfmt, factory)
-      new SchematronValidator(Schematron.fromRules(rules), svrlPath)
+      new SchematronValidator(rules, svrlPath)
     } catch {
       case e: Exception =>
         throw new api.validation.ValidatorInitializationException(
