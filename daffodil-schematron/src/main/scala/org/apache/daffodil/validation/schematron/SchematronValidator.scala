@@ -18,7 +18,7 @@
 package org.apache.daffodil.validation.schematron
 
 import java.io.File
-import java.io.FileOutputStream
+import java.io.FileWriter
 import java.io.InputStream
 import java.io.StringWriter
 import java.net.URI
@@ -65,17 +65,17 @@ final class SchematronValidator(
     val writer = new StringWriter
     transformer
       .transform(new SAXSource(reader, new InputSource(document)), new StreamResult(writer))
-    val svrl = XML.loadString(writer.toString)
+    val svrlString = writer.toString
+    val svrl = XML.loadString(svrlString)
     svrl.child.collect { case f @ Elem("svrl", "failed-assert", _, _, msg @ _*) =>
       handler.validationError(msg.text.trim, (f \ "@location").text)
     }
-
-    val svrlString = svrl.mkString
     svrlPath.foreach { uri =>
       Try {
-        val os = new FileOutputStream(new File(uri))
-        os.write(svrlString.getBytes)
-        os.close()
+        val writer = new FileWriter(new File(uri))
+        val xmlPrologRegex = "<\\?xml.*\n"
+        writer.write(svrlString.replaceFirst(xmlPrologRegex, ""))
+        writer.flush()
       }.failed.foreach(handler.validationErrorNoContext)
     }
   }
