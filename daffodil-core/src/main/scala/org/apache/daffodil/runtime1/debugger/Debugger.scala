@@ -17,6 +17,6 @@
 
 package org.apache.daffodil.runtime1.debugger
 
-import org.apache.daffodil.api.debugger.{ Debugger => JDebugger }
+import org.apache.daffodil.api.debugger.Debugger as JDebugger
 
 trait Debugger extends JDebugger

@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.cookers.SeparatorCooker
 import org.apache.daffodil.lib.cookers.TerminatorCooker
 import org.apache.daffodil.lib.cookers.TerminatorDelimitedCooker
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.processors.dfa.CreateDelimiterDFA
 import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
 import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType

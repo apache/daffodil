@@ -18,8 +18,8 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.cookers.Converter
-import org.apache.daffodil.lib.exceptions._
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.lib.exceptions.*
+import org.apache.daffodil.runtime1.dsom.*
 
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar

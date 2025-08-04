@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.runtime1.iapi
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.lib.externalvars.Binding
-import org.apache.daffodil.lib.iapi._
+import org.apache.daffodil.lib.iapi.*
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.Success

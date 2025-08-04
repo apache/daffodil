@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.exceptions.Assert
@@ -25,7 +25,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.lib.util.DecimalUtils.OverpunchLocation
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeDouble
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType

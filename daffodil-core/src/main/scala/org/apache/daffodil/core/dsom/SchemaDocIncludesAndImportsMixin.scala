@@ -20,8 +20,8 @@ package org.apache.daffodil.core.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq
 
-import org.apache.daffodil.core.dsom.IIUtils._
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.core.dsom.IIUtils.*
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NoNamespace

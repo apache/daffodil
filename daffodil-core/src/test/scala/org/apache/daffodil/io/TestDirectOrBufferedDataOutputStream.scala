@@ -25,7 +25,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Maybe
 
 import org.apache.commons.io.IOUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDirectOrBufferedDataOutputStream {

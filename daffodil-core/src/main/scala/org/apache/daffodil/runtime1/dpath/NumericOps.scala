@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.lang.Number as JNumber
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 
-import org.apache.daffodil.lib.util.Numbers._
+import org.apache.daffodil.lib.util.Numbers.*
 
 case object PlusDecimal extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigDecimal = {

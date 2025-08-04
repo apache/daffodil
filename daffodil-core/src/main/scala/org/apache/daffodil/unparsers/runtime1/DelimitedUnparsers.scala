@@ -32,7 +32,7 @@ import org.apache.daffodil.runtime1.processors.EscapeSchemeCharUnparserHelper
 import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
 import org.apache.daffodil.runtime1.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedUnparser
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 sealed class StringDelimitedUnparser(
   override val context: ElementRuntimeData,

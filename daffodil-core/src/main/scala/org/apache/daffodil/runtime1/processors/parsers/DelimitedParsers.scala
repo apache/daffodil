@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.PackedSignCodes
@@ -29,7 +29,7 @@ import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock;
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets

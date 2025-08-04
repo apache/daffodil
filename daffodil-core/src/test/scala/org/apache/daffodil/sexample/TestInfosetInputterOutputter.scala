@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.sexample
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.Boolean as JBoolean
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.OptionConverters._
+import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
 import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetInputter

@@ -17,14 +17,14 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.Boolean as JBoolean
 import java.net.URI
 import java.net.URISyntaxException
-import scala.jdk.OptionConverters._
+import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Coroutine
 import org.apache.daffodil.lib.util.Maybe

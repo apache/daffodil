@@ -20,13 +20,13 @@ package org.apache.daffodil.lib.xml
 import java.net.URI
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.UniquenessCache
 
 /**
  * Central factory for, and class to represent namespace URIs
  *
- * Import this object. I.e., import org.apache.daffodil.lib.xml.NS._
+ * Import this object. I.e., import org.apache.daffodil.lib.xml.NS.*
  */
 object NS extends UniquenessCache[URI, NS] {
 

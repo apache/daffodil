@@ -17,7 +17,7 @@
 
 import scala.collection.immutable.ListSet
 
-import sbtcc._
+import sbtcc.*
 
 lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
@@ -58,14 +58,6 @@ lazy val daffodil = project
 
 lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
   .settings(commonSettings, nopublish)
-  .settings({
-    libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) => Seq("org.scala-lang" % "scala-reflect" % scalaVersion.value)
-        case _ => Seq.empty
-      }
-    }
-  })
   .disablePlugins(OsgiCheckPlugin)
 
 lazy val propgen = Project("daffodil-propgen", file("daffodil-propgen"))
@@ -199,7 +191,7 @@ lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
   version := IO.read((ThisBuild / baseDirectory).value / "VERSION").trim,
   scalaVersion := "3.3.6",
-  crossScalaVersions := Seq("3.3.6", "2.13.16"),
+  crossScalaVersions := Seq("3.3.6"),
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
   Test / scalacOptions ++= buildTestScalacOptions(scalaVersion.value),
   Compile / compile / javacOptions ++= buildJavacOptions(),
@@ -238,18 +230,6 @@ def buildScalacOptions(scalaVersion: String) = {
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 13)) =>
-      Seq(
-        "-language:experimental.macros",
-        "-Xfatal-warnings",
-        "-Xxml:-coalescing",
-        "-Ywarn-unused:imports",
-        "-Xlint:inaccessible",
-        "-Xlint:infer-any",
-        "-Xlint:nullary-unit",
-        // suppress nullary-unit warning in the specific trait
-        "-Wconf:cat=lint-nullary-unit:silent,site=org.apache.daffodil.junit.tdml.TdmlTests:silent"
-      )
     case Some((3, _)) =>
       Seq(
         "-no-indent",
@@ -266,12 +246,7 @@ def buildTestScalacOptions(scalaVersion: String) = {
   val commonOptions = Seq.empty
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 12)) => Seq.empty
-    case Some((2, 13)) =>
-      Seq(
-        // suppress nullary-unit warning in tests
-        "-Wconf:cat=lint-nullary-unit:silent"
-      )
+    case Some((3, _)) => Seq.empty
     case _ => Seq.empty
   }
 

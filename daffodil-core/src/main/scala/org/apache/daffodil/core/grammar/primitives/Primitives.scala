@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Terminal
 
 abstract class Primitive(e: Term, guard: Boolean = false) extends Terminal(e, guard) {

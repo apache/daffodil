@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import java.lang.{ Float => JFloat }
-import java.lang.{ Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal }
+import java.lang.Float as JFloat
+import java.lang.Number as JNumber
+import java.math.BigDecimal as JBigDecimal
 
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Numbers.isZero
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.*
 import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,

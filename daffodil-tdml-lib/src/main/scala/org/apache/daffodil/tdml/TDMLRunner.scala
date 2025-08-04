@@ -29,7 +29,7 @@ import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.language.postfixOps
 import scala.util.Try
 import scala.util.Using
@@ -2255,7 +2255,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
   }
 
   private lazy val children = d match {
-    case Seq(Elem(_, "document", _, _, children @ _*)) => children
+    case Seq(Elem(_, "document", _, _, children*)) => children
     case x => Assert.invariantFailed(s"Expected <document>, found $x")
   }
 
@@ -2287,7 +2287,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
         case scala.xml.PCData(s) => // ok
         case scala.xml.EntityRef(_) => // ok
         case _: scala.xml.Atom[
-              _
+              ?
             ] => // ok. Things like &lt; come through as this. Should be EntityRef("lt")
         case x => Assert.usageError("Illegal TDML data document content '" + x + "'")
       }
@@ -2696,7 +2696,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
       case scala.xml.Text(s) => Some(childNode)
       case scala.xml.Comment(_) => None
       case scala.xml.EntityRef(_) => Some(childNode)
-      case _: scala.xml.Atom[_] =>
+      case _: scala.xml.Atom[?] =>
         Some(childNode) // Things like &lt; come through as this. Should be EntityRef
       case _ =>
         Assert.invariantFailed("unrecognized child part in TextDocumentPart: " + childNode)

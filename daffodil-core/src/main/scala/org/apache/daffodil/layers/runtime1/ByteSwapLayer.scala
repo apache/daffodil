@@ -125,7 +125,7 @@ class ByteSwapInputStream(layer: ByteSwap, wordsize: Int, jis: InputStream, whol
    *
    */
   override def read(): Int = {
-    import State._
+    import State.*
     if (state eq Done) return -1
     while (state != Done) {
       state match {

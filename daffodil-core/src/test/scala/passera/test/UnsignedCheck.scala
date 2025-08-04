@@ -28,12 +28,12 @@ package passera.test
 
 import scala.language.implicitConversions
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
+import org.scalacheck.*
 // import org.scalacheck.ConsoleReporter
-import org.scalacheck.Prop._
-import org.scalacheck._
-import passera.unsigned._
+import org.scalacheck.Prop.*
+import passera.unsigned.*
 
 class UnsignedCheck {
   import Arbitrary.arbitrary

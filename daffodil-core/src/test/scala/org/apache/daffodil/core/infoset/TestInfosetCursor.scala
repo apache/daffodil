@@ -17,20 +17,20 @@
 
 package org.apache.daffodil.core.infoset
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.lib.xml.*
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
-import InfosetEventKind._
-import org.junit.Assert._
+import InfosetEventKind.*
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

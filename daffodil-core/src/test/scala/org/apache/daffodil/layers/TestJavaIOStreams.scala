@@ -22,12 +22,12 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.Scanner
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 
 import org.apache.commons.io.IOUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

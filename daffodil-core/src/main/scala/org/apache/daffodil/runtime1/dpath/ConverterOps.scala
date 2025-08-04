@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Byte => JByte }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.lang.{ Short => JShort }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Boolean as JBoolean
+import java.lang.Byte as JByte
+import java.lang.Double as JDouble
+import java.lang.Float as JFloat
+import java.lang.Integer as JInt
+import java.lang.Long as JLong
+import java.lang.Short as JShort
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.lib.calendar.DFDLDate
 import org.apache.daffodil.lib.calendar.DFDLDateTime

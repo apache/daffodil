@@ -22,7 +22,7 @@ import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.PropTypes
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 
 /**
  * Property lookup uses ChainPropProviders containing LeafPropProviders.

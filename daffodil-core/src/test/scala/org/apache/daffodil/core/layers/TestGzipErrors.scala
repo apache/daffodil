@@ -27,7 +27,7 @@ import org.apache.daffodil.core.util.FuzzRandomSingleByte
 import org.apache.daffodil.core.util.FuzzZeroBits
 import org.apache.daffodil.core.util.LayerParseTester
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.apache.commons.io.IOUtils

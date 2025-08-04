@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.codegen.c
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.iapi.TDMLImplementation

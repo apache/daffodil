@@ -20,7 +20,7 @@ package org.apache.daffodil.io
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDumpDisplay {

@@ -28,16 +28,16 @@ import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.nio.charset.Charset
+import java.nio.charset.Charset as JavaCharset
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
-import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.file.Files
 import java.nio.file.Paths
 import scala.io.Source
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 
 import passera.unsigned.UByte
@@ -53,7 +53,7 @@ object Misc {
 
   def getNameFromClass(obj: Any): String = getNameGivenAClassObject(obj.getClass)
 
-  def getNameGivenAClassObject(clazz: Class[_]): String = {
+  def getNameGivenAClassObject(clazz: Class[?]): String = {
     if (clazz == null) return "null"
     val nonPackageClassName = clazz.getName.split("""\.""").toList.reverse.head
     val nonDollarsParts = nonPackageClassName.split("""\$""").toList.reverse
@@ -746,11 +746,13 @@ object Misc {
     }
   }
 
-  // helper function for scala 2.13 and 3 compatibility
+  /**
+   * scala 3 changes the way lazy val are deserialized so it looks like fieldName$lzy1
+   * This is a helper function for lazy and non-lazy fields and to keep from 
+   * cluttering the code.
+   */
   def lookupDeclaredField(clazz: Class[?], fieldName: String): Field = {
     try {
-      // TODO scala 2.12 phase out, we can remove the check for the plain name, and always
-      // check the lazy name version instead
       clazz.getDeclaredField(fieldName)
     } catch {
       case _: NoSuchFieldException =>

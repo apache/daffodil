@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions.Assert
@@ -25,7 +25,7 @@ import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.NamedQName
@@ -37,7 +37,7 @@ import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.ContentValueReferencedElementInfoMixin
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
-import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.parsers.DoSDEMixin
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.unparsers.UState

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Long => JLong }
+import java.lang.Long as JLong
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.runtime1.infoset.DIElement

@@ -39,8 +39,8 @@ abstract class SequenceParserBase(
 
   val childParsers: Array[SequenceChildParser]
 
-  import ArrayIndexStatus._
-  import ParseAttemptStatus._
+  import ArrayIndexStatus.*
+  import ParseAttemptStatus.*
 
   final protected def checkN(pstate: PState, childParser: SequenceChildParser): Unit = {
     if (pstate.arrayIterationPos > pstate.tunable.maxOccursBounds) {

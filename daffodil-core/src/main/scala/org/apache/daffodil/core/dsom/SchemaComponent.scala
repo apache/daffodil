@@ -33,7 +33,7 @@ import org.apache.daffodil.lib.xml.ResolvesQNames
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.processors.VariableMap
 
 abstract class SchemaComponentImpl(

@@ -19,7 +19,7 @@ package org.apache.daffodil.core.grammar
 
 import org.apache.daffodil.core.compiler.ForParser
 import org.apache.daffodil.core.compiler.ForUnparser
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.SeqCompParser

@@ -21,7 +21,7 @@ import org.apache.daffodil.core.grammar.GrammarMixin
 import org.apache.daffodil.core.grammar.primitives.InitiatedContent
 import org.apache.daffodil.core.grammar.primitives.Initiator
 import org.apache.daffodil.core.grammar.primitives.Terminator
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin

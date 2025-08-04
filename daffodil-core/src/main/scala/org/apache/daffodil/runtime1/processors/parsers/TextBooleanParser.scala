@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.Boolean as JBoolean
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData

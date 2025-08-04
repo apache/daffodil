@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.dsom
 
-import java.lang.{ Boolean => JBoolean, Long => JLong }
+import java.lang.{ Boolean as JBoolean, Long as JLong }
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.xml.NS

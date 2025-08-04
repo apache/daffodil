@@ -23,7 +23,7 @@ import java.nio.CharBuffer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.LocalStack
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 
 abstract class LocalBuffer[T <: java.nio.Buffer] {
   protected def allocate(length: Long): T

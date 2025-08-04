@@ -33,7 +33,7 @@ import org.apache.daffodil.io.SocketPairTestRig
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.runtime1.iapi.DFDL
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

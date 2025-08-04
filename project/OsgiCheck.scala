@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import sbt.KeyRanks._
-import sbt.Keys._
-import sbt._
+import sbt.*
+import sbt.KeyRanks.*
+import sbt.Keys.*
 
 object OsgiCheckPlugin extends AutoPlugin {
 
@@ -34,7 +34,7 @@ object OsgiCheckPlugin extends AutoPlugin {
     val osgiCheck = taskKey[Unit]("Check all subpackages for osgi conflicts").withRank(ATask)
   }
 
-  import autoImport._
+  import autoImport.*
 
   private val packageMatcher = """^\s*package (\S+);?.*$""".r
 

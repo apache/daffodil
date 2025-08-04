@@ -33,7 +33,7 @@ object TestTDMLRunnerWarnings {
 }
 
 class TestTDMLRunnerWarnings {
-  import TestTDMLRunnerWarnings._
+  import TestTDMLRunnerWarnings.*
 
   // DAFFODIL-1583
   @Test def test_warningWhenExpectingSuccess() = {

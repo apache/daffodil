@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.schema.annotation.props.gen._
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
+import org.apache.daffodil.runtime1.dsom.*
 
 class BinaryFloatRepEv(expr: CompiledExpression[String], eci: DPathElementCompileInfo)
   extends EvaluatableConvertedExpression[String, BinaryFloatRep](expr, BinaryFloatRep, eci)

@@ -17,17 +17,17 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.lang.{
-  Boolean => JBoolean,
-  Byte => JByte,
-  Double => JDouble,
-  Float => JFloat,
-  Integer => JInt,
-  Long => JLong,
-  Number => JNumber,
-  Short => JShort,
-  String => JString
+  Boolean as JBoolean,
+  Byte as JByte,
+  Double as JDouble,
+  Float as JFloat,
+  Integer as JInt,
+  Long as JLong,
+  Number as JNumber,
+  Short as JShort,
+  String as JString
 }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 import java.net.URI
 
 import org.apache.daffodil.lib.calendar.DFDLCalendar

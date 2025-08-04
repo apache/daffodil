@@ -18,9 +18,9 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.io.InputStream
-import java.lang.{ Boolean => JBoolean }
+import java.lang.Boolean as JBoolean
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.OptionConverters._
+import scala.jdk.OptionConverters.*
 import scala.xml.Elem
 import scala.xml.SAXParser
 import scala.xml.Text
@@ -28,7 +28,7 @@ import scala.xml.XML
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType._
+import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo

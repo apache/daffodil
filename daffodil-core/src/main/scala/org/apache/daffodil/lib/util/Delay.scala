@@ -185,7 +185,7 @@ object Delay {
 
     private lazy val str = {
       val ctxtList = Seq(Option(ctxt1), Option(ctxt2)).flatten.distinct
-      val descList: Seq[_] = ctxtList.map { nameOrValue(_) }
+      val descList: Seq[?] = ctxtList.map { nameOrValue(_) }
       val desc =
         if (descList.isEmpty) "@" + hashCode().toString
         else descList.mkString("(", ", ", ")")

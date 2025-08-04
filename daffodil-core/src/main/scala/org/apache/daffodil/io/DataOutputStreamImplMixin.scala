@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.io.ByteArrayOutputStream
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
@@ -27,7 +27,7 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
@@ -79,7 +79,7 @@ trait DataOutputStreamImplMixin
    * having been setFinished.
    */
   final override def zeroLengthStatus = {
-    import ZeroLengthStatus._
+    import ZeroLengthStatus.*
     zlStatus_ match {
       case Zero => // ok
       case NonZero => // ok

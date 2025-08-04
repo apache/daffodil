@@ -18,12 +18,12 @@
 package org.apache.daffodil.core.dsom
 
 import java.nio.file.Paths
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
 
-import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.compiler.*
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
@@ -39,11 +39,11 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDsomCompiler {
@@ -331,7 +331,7 @@ class TestDsomCompiler {
     // Explore LocalSimpleTypeDef
     val (c1, c3) =
       cgr.groupMembers match {
-        case Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest @ _*) =>
+        case Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest*) =>
           (c1, c3)
         case _ => fail(); null
       }
@@ -378,7 +378,7 @@ class TestDsomCompiler {
     val cgd = cgr.groupDef
     val cd2 =
       cgd.groupMembersNotShared match {
-        case Seq(_, cd2: LocalElementDecl, rest @ _*) =>
+        case Seq(_, cd2: LocalElementDecl, rest*) =>
           cd2 // Children nodes of Choice-node, there are 3
         case _ => fail(); null
       }

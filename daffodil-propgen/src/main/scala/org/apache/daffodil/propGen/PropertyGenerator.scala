@@ -20,7 +20,7 @@ package org.apache.daffodil.propGen
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
-import scala.xml._
+import scala.xml.*
 
 /**
  * Reads the XSD which describes DFDL annotations and properties. Generates scala source code text for
@@ -369,7 +369,7 @@ class PropertyGenerator(arg: Node) {
    * <pre>
    * class User extends CurrencyMixin {
    * def myFunc() {
-   * import Currency._ // if you want to name qualify then import.
+   * import Currency.* // if you want to name qualify then import.
    * val c = currency
    * val cs = c match {
    * case EUR => "EUR"
@@ -739,7 +739,7 @@ object PropertyGenerator {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-import org.apache.daffodil.lib.schema.annotation.props._
+import org.apache.daffodil.lib.schema.annotation.props.*
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 
 """

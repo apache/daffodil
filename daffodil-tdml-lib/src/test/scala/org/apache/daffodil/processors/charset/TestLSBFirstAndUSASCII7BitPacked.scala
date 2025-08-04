@@ -21,7 +21,7 @@ import java.nio.CharBuffer
 
 import org.apache.daffodil.io.FormatInfoForUnitTest
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.io.processors.charset._
+import org.apache.daffodil.io.processors.charset.*
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Misc

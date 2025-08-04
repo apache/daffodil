@@ -19,7 +19,7 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
 
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 object ElementRef {

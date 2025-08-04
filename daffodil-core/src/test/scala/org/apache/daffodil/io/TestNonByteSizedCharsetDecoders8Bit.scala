@@ -25,7 +25,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Misc
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestNonByteSizedCharsetDecoders8Bit {

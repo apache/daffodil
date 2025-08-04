@@ -20,7 +20,7 @@ package org.apache.daffodil.core.iapi
 import scala.xml.NodeSeq
 
 import org.apache.daffodil.core.util.TestUtils.compileSchema
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 
 import org.junit.Assert.fail
 

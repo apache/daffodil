@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Boolean => JBoolean, Long => JLong }
+import java.lang.{ Boolean as JBoolean, Long as JLong }
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind

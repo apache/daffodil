@@ -40,7 +40,7 @@ object TestTDMLRunner2 {
 
 class TestTDMLRunner2 {
 
-  import TestTDMLRunner2._
+  import TestTDMLRunner2.*
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE

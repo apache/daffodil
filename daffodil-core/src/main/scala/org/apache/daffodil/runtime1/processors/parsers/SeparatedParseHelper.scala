@@ -185,7 +185,7 @@ final class PostfixSeparatorHelper(
   scParserArg: Separated,
   isSimpleDelimited: Boolean
 ) extends SeparatorParseHelper(sep, child, scParserArg) {
-  import ParseAttemptStatus._
+  import ParseAttemptStatus.*
 
   override def parseOneWithSeparator(
     pstate: PState,

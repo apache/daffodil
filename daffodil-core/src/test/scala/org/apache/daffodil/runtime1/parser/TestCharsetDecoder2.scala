@@ -19,7 +19,7 @@ package org.apache.daffodil.runtime1.parser
 
 import org.apache.daffodil.io.processors.charset.CharsetUtils
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestCharsetDecoder2 {

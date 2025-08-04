@@ -40,10 +40,10 @@ import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerDelim
 import org.apache.daffodil.runtime1.processors.parsers.LiteralNilDelimitedEndOfDataParser
 import org.apache.daffodil.runtime1.processors.parsers.PackedDecimalDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.PackedIntegerDelimitedParser
+import org.apache.daffodil.runtime1.processors.parsers.Parser as DaffodilParser
 import org.apache.daffodil.runtime1.processors.parsers.StringDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.StringOfSpecifiedLengthParser
-import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser as DaffodilUnparser
 import org.apache.daffodil.unparsers.runtime1.BCDDecimalDelimitedUnparser
 import org.apache.daffodil.unparsers.runtime1.BCDIntegerDelimitedUnparser
 import org.apache.daffodil.unparsers.runtime1.BlobSpecifiedLengthUnparser

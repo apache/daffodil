@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.util
 
-import org.junit.Assert._
+import org.junit.Assert.*
 
 final class TestMaybeInlineForeach {
 

@@ -27,14 +27,14 @@ import java.io.StringWriter
 import java.lang.reflect.Method
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
-import scala.collection.immutable.{ ArraySeq => IArraySeq }
-import scala.collection.mutable._
+import scala.collection.immutable.ArraySeq as IArraySeq
+import scala.collection.mutable.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.udf._
+import org.apache.daffodil.udf.*
 
 /**
  * Loads, validates and caches (for use at schema compile time) all User Defined Functions
@@ -50,7 +50,7 @@ object UserDefinedFunctionService {
    * to happen once (per call) during deserialization, rather than at evaluation time.
    */
   case class UserDefinedFunctionMethod(
-    val decClass: Class[_],
+    val decClass: Class[?],
     val methodName: String,
     val paramTypes: Array[Class[_]]
   ) extends Serializable {
@@ -60,7 +60,7 @@ object UserDefinedFunctionService {
     }
 
     def lookupMethod() = {
-      val m = decClass.getMethod(methodName, IArraySeq.unsafeWrapArray(paramTypes): _*)
+      val m = decClass.getMethod(methodName, IArraySeq.unsafeWrapArray(paramTypes)*)
       m
     }
 
@@ -82,7 +82,7 @@ object UserDefinedFunctionService {
     evalInfo: EvaluateMethodInfo
   )
   case class UserDefinedFunctionInfo(
-    udfClass: Class[_],
+    udfClass: Class[?],
     provider: UserDefinedFunctionProvider,
     evaluateMethodInfo: EvaluateMethodInfo
   )

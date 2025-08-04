@@ -31,7 +31,7 @@ import java.nio.file.Paths
 import java.util.Optional
 import javax.xml.XMLConstants
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 import org.apache.daffodil.api.Daffodil
@@ -75,7 +75,7 @@ object TestAPI {
 }
 
 class TestAPI {
-  import TestAPI._
+  import TestAPI.*
 
   lazy val SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces"
   lazy val SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes"
@@ -127,7 +127,7 @@ class TestAPI {
        * class loader to be used when deserializing an object.  For more
        * information, see https://github.com/sbt/sbt/issues/163
        */
-      override protected def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+      override protected def resolveClass(desc: java.io.ObjectStreamClass): Class[?] = {
         try {
           Class.forName(desc.getName, false, getClass.getClassLoader)
         } catch {
@@ -1203,7 +1203,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new TestInfosetInputter(ArraySeq.unsafeWrapArray(expectedEvents): _*)
+      val inputter = new TestInfosetInputter(ArraySeq.unsafeWrapArray(expectedEvents)*)
 
       val ur = dp.unparse(inputter, wbc)
       assertFalse(ur.isError())

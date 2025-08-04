@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.runtime1.parser
 
-import java.io._
-import java.nio._
-import java.nio.charset._
+import java.io.*
+import java.nio.*
+import java.nio.charset.*
 
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import Converter._
-import org.junit.Assert._
+import Converter.*
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

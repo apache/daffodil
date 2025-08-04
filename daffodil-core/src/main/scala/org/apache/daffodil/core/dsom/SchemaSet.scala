@@ -31,7 +31,7 @@ import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.TransitiveClosure
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 
 object SchemaSet {
   def apply(

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.cookers
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 

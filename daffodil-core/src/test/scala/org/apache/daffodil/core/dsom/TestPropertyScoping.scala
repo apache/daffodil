@@ -21,7 +21,7 @@ import scala.xml.Node
 
 import org.apache.daffodil.core.util.Fakes
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class HasProps(xml: Node) extends DFDLFormatAnnotation(xml, Fakes.fakeElem)

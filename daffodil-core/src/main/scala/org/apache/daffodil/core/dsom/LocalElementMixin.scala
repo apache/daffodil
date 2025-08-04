@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.core.grammar.LocalElementGrammarMixin
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 /**

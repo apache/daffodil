@@ -35,7 +35,7 @@ import org.xml.sax.SAXParseException
 import org.xml.sax.XMLReader
 
 class TestSAXUnparseAPI {
-  import TestSAXUtils._
+  import TestSAXUtils.*
 
   /**
    * tests the base case of unparsing error free using SAX. Default for namespace features/prefixes

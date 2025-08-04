@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueByteArray

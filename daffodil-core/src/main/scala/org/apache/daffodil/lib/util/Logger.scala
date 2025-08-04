@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.util
 
-import com.typesafe.scalalogging.{ Logger => ScalaLogger }
+import com.typesafe.scalalogging.Logger as ScalaLogger
 
 /**
  * At this time, we do not need loggers specific to each class. Instead we do

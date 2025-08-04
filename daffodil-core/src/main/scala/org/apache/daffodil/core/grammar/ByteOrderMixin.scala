@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.core.grammar
 
-import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.lib.equality._;
+import org.apache.daffodil.core.dsom.*
+import org.apache.daffodil.lib.equality.*;
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound

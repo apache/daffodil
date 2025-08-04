@@ -24,7 +24,7 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SuspendableOperation
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 trait StreamSplitter {
 

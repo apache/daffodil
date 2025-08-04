@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.io.File
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 import java.nio.CharBuffer
 import java.nio.file.Path
 

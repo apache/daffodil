@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Double => JDouble, Float => JFloat, Long => JLong, Number => JNumber }
+import java.lang.{ Double as JDouble, Float as JFloat, Long as JLong, Number as JNumber }
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInteger
 import java.math.MathContext
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInteger }
 import java.text.ParsePosition
 import scala.util.matching.Regex
 
@@ -34,7 +34,7 @@ import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
 
-import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
+import com.ibm.icu.math.BigDecimal as ICUBigDecimal
 import com.ibm.icu.text.DecimalFormat
 
 case class ConvertTextCombinatorParser(

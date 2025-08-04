@@ -21,10 +21,10 @@ import java.io.File
 import java.io.InputStream
 import java.io.PrintStream
 import scala.io.Source
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
-import org.apache.daffodil.runtime1.debugger._
+import org.apache.daffodil.runtime1.debugger.*
 
 import org.jline.reader.Candidate
 import org.jline.reader.Completer

@@ -40,7 +40,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Using
 import scala.util.matching.Regex
 
@@ -92,10 +92,7 @@ import com.siemens.ct.exi.main.api.sax.EXIResult
 import com.siemens.ct.exi.main.api.sax.EXISource
 import org.apache.commons.io.output.NullOutputStream
 import org.rogach.scallop
-import org.rogach.scallop.ArgType
-import org.rogach.scallop.ScallopOption
-import org.rogach.scallop.ValueConverter
-import org.rogach.scallop._
+import org.rogach.scallop.*
 import org.rogach.scallop.exceptions.GenericScallopException
 import org.slf4j.event.Level
 import org.xml.sax.InputSource
@@ -167,7 +164,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     parser: ScallopOption[File]
   ): ValueConverter[(String, Option[URI])] =
     singleArgConverter[(String, Option[URI])]((s: String) => {
-      import ValidatorPatterns._
+      import ValidatorPatterns.*
 
       s match {
         case DefaultArgPattern(name, arg) =>
@@ -972,7 +969,7 @@ class Main(
   STDOUT: PrintStream = System.out,
   STDERR: PrintStream = System.err
 ) {
-  import Main._
+  import Main.*
 
   val traceCommands = Seq(
     "display info parser",
@@ -1760,7 +1757,7 @@ class Main(
               }
             }
             val formatStr = maxCols.map(max => "%" + -max + "s").mkString("  ")
-            STDOUT.println(formatStr.format(headers: _*))
+            STDOUT.println(formatStr.format(headers*))
             tests.foreach { testPair =>
               testPair match {
                 case (name, Some(test)) =>

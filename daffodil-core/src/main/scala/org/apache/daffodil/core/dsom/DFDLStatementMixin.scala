@@ -23,7 +23,7 @@ import scala.xml.Node
 import org.apache.daffodil.core.grammar.primitives.AssertBase
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
 trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMixin {
   self: Term =>

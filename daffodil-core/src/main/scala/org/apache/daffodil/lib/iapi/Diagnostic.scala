@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.iapi
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
@@ -41,7 +41,7 @@ abstract class ThinDiagnostic(
     dataContext,
     maybeCause,
     maybeFormatString,
-    args: _*
+    args*
   ) {
   Assert.invariant(maybeCause.isDefined || maybeFormatString.isDefined)
 }
@@ -82,7 +82,7 @@ abstract class Diagnostic protected (
     dataContext,
     maybeCause,
     maybeFormatString,
-    args: _*
+    args*
   )
 
   final def toss =
@@ -167,7 +167,7 @@ abstract class Diagnostic protected (
    *
    * @return [[org.apache.daffodil.lib.iapi.LocationInSchemaFile]]
    */
-  def getLocationsInSchemaFiles: java.util.List[_ <: api.LocationInSchemaFile] =
+  def getLocationsInSchemaFiles: java.util.List[? <: api.LocationInSchemaFile] =
     schemaContext.toSeq.asJava
 
   private def schemaLocationsString = {
@@ -204,7 +204,7 @@ abstract class Diagnostic protected (
       val m =
         if (args.size > 0) {
           try {
-            maybeFormatString.get.format(args: _*)
+            maybeFormatString.get.format(args*)
           } catch {
             case e: IllegalArgumentException =>
               Assert.abort(

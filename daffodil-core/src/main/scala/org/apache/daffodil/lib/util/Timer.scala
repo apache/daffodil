@@ -18,7 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object Timer {
 
@@ -232,7 +232,7 @@ object TimeTracker extends TimeTrackerUsingMacrosMixin {
 
     Logger.log.info(formatString.format("Name", "Time", "Pct", "Average", "Count"))
     stringStats.foreach { stats =>
-      Logger.log.info(formatString.format(stats.productIterator.toList: _*))
+      Logger.log.info(formatString.format(stats.productIterator.toList*))
     }
     Logger.log.info(f"Total Time: $totalTime%.3f")
   }

@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
@@ -30,12 +30,12 @@ import org.apache.daffodil.lib.cookers.IntRangeCooker
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.ProperlySerializableMap._
+import org.apache.daffodil.lib.util.ProperlySerializableMap.*
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
 import org.apache.daffodil.runtime1.processors.RangeBound
-import org.apache.daffodil.runtime1.processors.parsers._
-import org.apache.daffodil.runtime1.processors.unparsers._
-import org.apache.daffodil.unparsers.runtime1._
+import org.apache.daffodil.runtime1.processors.parsers.*
+import org.apache.daffodil.runtime1.processors.unparsers.*
+import org.apache.daffodil.unparsers.runtime1.*
 
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to

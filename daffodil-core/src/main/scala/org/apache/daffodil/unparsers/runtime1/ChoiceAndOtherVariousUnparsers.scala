@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.ProperlySerializableMap._
-import org.apache.daffodil.runtime1.infoset._
-import org.apache.daffodil.runtime1.processors._
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.lib.util.ProperlySerializableMap.*
+import org.apache.daffodil.runtime1.infoset.*
+import org.apache.daffodil.runtime1.processors.*
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 case class ChoiceBranchMap(
   lookupTable: ProperlySerializableMap[ChoiceBranchEvent, Unparser],
