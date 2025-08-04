@@ -128,8 +128,6 @@ abstract class Diagnostic protected (
    */
   override def getMessage(): String = message
 
-  override def getMessageOnly: String = message
-
   override def toString() =
     getModeName() + ": " + getMessage + schemaContextString + dataLocationString
 
