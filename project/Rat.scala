@@ -26,9 +26,6 @@ object Rat {
     // IntelliJ files
     file(".idea"),
 
-    // scaladoc related, has no way to include a license
-    file("daffodil-core/root-doc.txt"),
-
     // version file does not contain a license header
     file("VERSION"),
 

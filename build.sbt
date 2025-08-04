@@ -410,24 +410,21 @@ lazy val ratSettings = Seq(
 )
 
 /**
- * Filter to include only the doc files in our supported API classes
+ * For maximum compatability with Java users, our API is written entirely in Java. The
+ * following configures unidoc to convert all our .java files to javadoc
  *
- * @param sources - the sequence of files to filter
- * @return - the filtered sequence of files
- */
-def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source =>
-  source.toString.contains("src/main/java")
-}
-
-/**
- * Previously we used JavaUnidoc to generate javadoc and ScalaUnidoc to generate scaladoc.
- * But JavaUnidoc requires the genjavadoc plugin, which does not work on Scala 3.
- * So we can only use ScalaUnidoc. But this doesn't necessarily mean we must generate
- * scaladoc. ScalaUnidoc will generate scaladoc if there is at least one .scala file,
- * but uses javadoc if all source files are .java. Our public API is 100% java, so we
- * add a filter to only include files in src/main/java so we generate javadoc.
- * This does mean scaladoc is no longer available, but javadoc can be understood by
- * both Scala and Java devs.
+ * Note that that we do not use JavaUnidoc because that uses the genjavadoc plugin to
+ * convert .scala files to .java and runs javadoc on the result. Our API is already all
+ * .java so we do not need this converstion.
+ *
+ * Instead, we use ScalaUnidoc to generate javadoc. This works because all of our API sources
+ * are .java files, which causes unidoc to generate documentation using javadoc instead of
+ * scaladoc. Note that we need to change the logic of unidocAllSources because by default it
+ * only includes .tasty files when run with Scala 3--we change it to instead find scoped source
+ * files (i.e. .scala and .java files) and filter to include only .java files.
+ *
+ * Note that Scala 3 does not support .java files, so we are unlikely to ever be able to
+ * generate scaladoc-style output in addition to the javadoc-style currently supported.
  */
 lazy val unidocSettings =
   Seq(
@@ -438,22 +435,22 @@ lazy val unidocSettings =
     ),
     ScalaUnidoc / unidoc / unidocProjectFilter :=
       inProjects(udf, core),
-    ScalaUnidoc / unidoc / scalacOptions := Seq(
-      "-doc-title",
-      "Apache Daffodil " + version.value + " Scala API",
-      "-doc-root-content",
-      (core / baseDirectory).value + "/root-doc.txt"
-    ),
     ScalaUnidoc / unidoc / javacOptions := Seq(
       "-windowtitle",
-      "Apache Daffodil " + version.value + " Java API",
+      "Apache Daffodil " + version.value + " API",
       "-doctitle",
-      "<h1>Apache Daffodil " + version.value + " Java API</h1>",
+      "<h1>Apache Daffodil " + version.value + " API</h1>",
       "-notimestamp",
       "-quiet"
     ),
-    ScalaUnidoc / unidoc / unidocAllSources :=
-      (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)
+    ScalaUnidoc / unidoc / unidocAllSources := Def
+      .taskDyn {
+        val scopeFilter = (ScalaUnidoc / unidoc / unidocScopeFilter).value
+        val scopedSources = sources.all(scopeFilter)
+        scopedSources
+      }
+      .value
+      .map(_.filter(_.getName.endsWith(".java")))
   )
 
 lazy val genTunablesDocSettings = Seq(
