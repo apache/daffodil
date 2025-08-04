@@ -19,7 +19,7 @@ package org.apache.daffodil.lib.util
 
 import java.nio.ByteBuffer
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestBits {

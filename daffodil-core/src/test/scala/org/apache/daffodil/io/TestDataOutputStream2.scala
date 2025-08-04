@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.util.Maybe
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDataOutputStream2 {

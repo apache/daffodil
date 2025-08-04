@@ -36,7 +36,7 @@ import org.junit.Test
 import org.xml.sax.InputSource
 
 class TestSAXParseUnparseAPI {
-  import TestSAXUtils._
+  import TestSAXUtils.*
 
   /**
    * Tests the case where we use SAX to parse data and SAX unparse to unparse the parsed data
@@ -207,7 +207,7 @@ class TestSAXParseUnparseAPI {
 
   @Test
   def test_entityRefInXML(): Unit = {
-    import InfosetInputterEventType._
+    import InfosetInputterEventType.*
 
     val sii = new ScalaXMLInfosetInputter(<foo>&amp;</foo>)
     assertTrue(sii.hasNext())

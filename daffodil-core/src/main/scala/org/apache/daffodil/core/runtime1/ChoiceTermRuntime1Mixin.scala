@@ -60,7 +60,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   final lazy val choiceBranchMap: (Map[ChoiceBranchEvent, Term], Option[Term]) = {
 
-    import PossibleNextElements._
+    import PossibleNextElements.*
 
     val eventTuples = alternatives.flatMap { alt =>
       alt.context match {

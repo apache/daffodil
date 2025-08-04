@@ -18,11 +18,11 @@
 package org.apache.daffodil.lib.util
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 
-import Maybe._
+import Maybe.*
 
 /**
  * Encapsulates Java Maps with get that returns Maybe[V].

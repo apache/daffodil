@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.util.OnStack
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.*
 
 trait AssertParserMixin {
   def messageExpr: CompiledExpression[AnyRef]

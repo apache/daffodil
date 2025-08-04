@@ -22,7 +22,7 @@ import scala.xml.Node
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.NamedMixinBase
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 
 /**
  * Common Mixin for things that have a name attribute.

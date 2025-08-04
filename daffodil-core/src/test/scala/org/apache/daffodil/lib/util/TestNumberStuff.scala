@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.lib.util
 
-import java.lang.{ Long => JLong, Number => JNumber }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.{ Long as JLong, Number as JNumber }
+import java.math.BigInteger as JBigInt
 import java.text.ParsePosition
 
 import org.apache.daffodil.core.util.TestUtils.intercept

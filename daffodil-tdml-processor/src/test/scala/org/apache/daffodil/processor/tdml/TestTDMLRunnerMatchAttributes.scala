@@ -35,7 +35,7 @@ object TestTDMLRunnerMatchAttributes {
 }
 
 class TestTDMLRunnerMatchAttributes {
-  import TestTDMLRunnerMatchAttributes._
+  import TestTDMLRunnerMatchAttributes.*
 
   // DAFFODIL-1583
   @Test def test_getsWarningExpectsWarnings(): Unit = {

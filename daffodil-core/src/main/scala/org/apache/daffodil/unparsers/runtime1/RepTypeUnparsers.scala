@@ -25,7 +25,7 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
 import org.apache.daffodil.runtime1.infoset.Infoset
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 class RepTypeUnparser(
   repTypeUnparser: Unparser,

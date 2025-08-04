@@ -35,8 +35,8 @@ import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData;
 object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.lib.iapi.DaffodilTunables
@@ -117,7 +117,7 @@ case class DState(
   val parseOrUnparseState: Maybe[ParseOrUnparseState]
 ) {
 
-  import org.apache.daffodil.lib.util.Numbers._
+  import org.apache.daffodil.lib.util.Numbers.*
 
   var isCompile = false
 
@@ -342,10 +342,10 @@ case class DState(
 
   def SDE(formatString: String, args: Any*) = {
     if (isCompile) {
-      compileInfo.SDE(formatString, args: _*)
+      compileInfo.SDE(formatString, args*)
     } else {
       Assert.usage(runtimeData.isDefined)
-      errorOrWarn.get.SDE(formatString, args: _*)
+      errorOrWarn.get.SDE(formatString, args*)
     }
   }
 

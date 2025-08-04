@@ -59,10 +59,10 @@ abstract class Gram(contextArg: SchemaComponent)
   final override def localSuppressSchemaDefinitionWarnings =
     context.localSuppressSchemaDefinitionWarnings
 
-  final override def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
+  final override def SDE(str: String, args: Any*): Nothing = context.SDE(str, args*)
 
   final override def SDW(warnID: WarnID, str: String, args: Any*): Unit =
-    context.SDW(warnID, str, args: _*)
+    context.SDW(warnID, str, args*)
 
   val forWhat: ParserOrUnparser = BothParserAndUnparser
 

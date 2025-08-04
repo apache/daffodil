@@ -22,7 +22,7 @@ import scala.util.Using
 
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.UsageException
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Assert.assertEquals

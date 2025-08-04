@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Long => JLong }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+import java.lang.Long as JLong
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.{ DecimalUtils, PackedSignCodes }

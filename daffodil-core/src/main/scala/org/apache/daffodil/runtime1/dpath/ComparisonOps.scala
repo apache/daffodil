@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1.dpath
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Numbers._
+import org.apache.daffodil.lib.util.Numbers.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBool
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive

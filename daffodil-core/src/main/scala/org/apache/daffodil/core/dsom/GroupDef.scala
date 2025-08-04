@@ -30,7 +30,7 @@ object GlobalGroupDef {
   def apply(defXML: Node, schemaDocument: SchemaDocument) = {
     val trimmedXml = scala.xml.Utility.trim(defXML)
     trimmedXml match {
-      case Elem(_, "group", _, _, contents @ _*) => {
+      case Elem(_, "group", _, _, contents*) => {
         val list = contents.collect {
           case groupXML @ Elem(_, "sequence", _, _, _*) =>
             GlobalSequenceGroupDef(defXML, groupXML, schemaDocument)

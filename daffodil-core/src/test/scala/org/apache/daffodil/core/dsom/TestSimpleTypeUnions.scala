@@ -18,16 +18,16 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dpath.NodeInfo._
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dpath.NodeInfo.*
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.infoset.DIDocument
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.processors.parsers.PState
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestSimpleTypeUnions {

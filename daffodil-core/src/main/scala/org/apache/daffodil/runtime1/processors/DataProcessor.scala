@@ -29,17 +29,17 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Properties
 import java.util.zip.GZIPOutputStream
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.debugger.Debugger
 import org.apache.daffodil.api.metadata.MetadataHandler
 import org.apache.daffodil.api.validation.ValidatorInitializationException
 import org.apache.daffodil.api.validation.Validators
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WithDiagnostics
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.validation.DaffodilLimitedValidator
@@ -55,7 +55,7 @@ import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.oolag.ErrorAlreadyHandled
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.events.MultipleEventHandler
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader

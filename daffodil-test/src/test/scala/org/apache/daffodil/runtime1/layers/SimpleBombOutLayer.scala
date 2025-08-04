@@ -65,7 +65,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
     override def apply(name: String, context: ThrowsSDE): Loc =
       stringToEnum("Loc", name, context)
   }
-  import Loc._
+  import Loc.*
 
   sealed trait Kind extends EnumValue
   object Kind extends Enum[Kind] {
@@ -83,7 +83,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
     override def apply(name: String, context: ThrowsSDE): Kind =
       stringToEnum("Kind", name, context)
   }
-  import Kind._
+  import Kind.*
 
   private var intVar: Int = 0
   private var stringVar: String = _

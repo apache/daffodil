@@ -18,7 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import scala.collection.mutable.HashMap
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 
@@ -81,7 +81,7 @@ private object PreSerialization {
   // This private method ensures that any class (or any super class) that use this trait also implements the writeObject method
   // used by the Java serialization framework.
   //
-  private def classHasWriteObjectMethod(cls: Class[_]): Boolean = {
+  private def classHasWriteObjectMethod(cls: Class[?]): Boolean = {
 
     if (cls == null) return false
     if (classCache contains cls) return classCache(cls)

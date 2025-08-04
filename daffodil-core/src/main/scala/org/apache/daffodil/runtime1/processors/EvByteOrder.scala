@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.equality.*
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.

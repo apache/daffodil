@@ -20,7 +20,7 @@ package org.apache.daffodil.propGen
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.InputStream
-import scala.xml._
+import scala.xml.*
 
 /**
  * Reads the XSD which describes DFDL annotations and properties. Generates scala source code text for

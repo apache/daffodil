@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import java.lang.{ Long => JLong }
-import java.lang.{ Number => JNumber }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Long as JLong
+import java.lang.Number as JNumber
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 case class ConvertNonBaseTenTextNumberUnparser(
   override val context: ElementRuntimeData,

@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.processors.parsers._
-import org.apache.daffodil.runtime1.processors.unparsers._
-import org.apache.daffodil.unparsers.runtime1.{ Separated => SeparatedUnparser, _ }
+import org.apache.daffodil.runtime1.processors.parsers.*
+import org.apache.daffodil.runtime1.processors.unparsers.*
+import org.apache.daffodil.unparsers.runtime1.{ Separated as SeparatedUnparser, * }
 
 /**
  * Base class for all kinds of sequences.

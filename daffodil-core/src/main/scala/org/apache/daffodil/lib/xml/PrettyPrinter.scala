@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.xml
 
-import scala.xml._
+import scala.xml.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 
@@ -30,7 +30,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 class PrettyPrinter(step: Int) {
 
   private def isLeaf(l: Node) = l match {
-    case _: Atom[_] | _: Comment | _: EntityRef | _: ProcInstr => true
+    case _: Atom[?] | _: Comment | _: EntityRef | _: ProcInstr => true
     case _ => false
   }
 

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 
 trait RequiredOptionalMixin { self: ElementBase =>
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1

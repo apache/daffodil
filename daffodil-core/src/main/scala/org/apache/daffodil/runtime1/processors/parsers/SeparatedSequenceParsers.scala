@@ -17,7 +17,7 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.*
 
 trait Separated { self: SequenceChildParser =>
 
@@ -28,7 +28,7 @@ trait Separated { self: SequenceChildParser =>
 
   override def childProcessors: Vector[Processor] = Vector(self.childParser) :+ sep
 
-  import SeparatorPosition._
+  import SeparatorPosition.*
 
   protected final val separatorHelper = spos match {
     case Prefix => new PrefixSeparatorHelper(sep, childParser, this)

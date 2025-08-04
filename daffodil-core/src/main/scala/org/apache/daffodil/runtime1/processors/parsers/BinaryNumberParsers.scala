@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Double => JDouble, Float => JFloat, Long => JLong, Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.lang.{ Double as JDouble, Float as JFloat, Long as JLong, Number as JNumber }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo

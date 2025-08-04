@@ -19,7 +19,7 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.io.StringReader
 import java.nio.charset.StandardCharsets
-import javax.xml.stream.XMLStreamConstants._
+import javax.xml.stream.XMLStreamConstants.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.InfosetArray

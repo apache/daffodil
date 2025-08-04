@@ -31,7 +31,7 @@ import org.junit.Test
 
 class TestStreamingUnparserCompilerAttributes {
 
-  import PossibleNextElements._
+  import PossibleNextElements.*
 
   private def poss(t: Term) = t.possibleNextLexicalSiblingStreamingUnparserElements
   type LE = LocalElementDecl

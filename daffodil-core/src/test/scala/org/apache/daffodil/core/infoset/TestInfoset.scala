@@ -18,22 +18,22 @@
 package org.apache.daffodil.core.infoset
 
 import java.math.BigInteger
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
-import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.compiler.*
 import org.apache.daffodil.core.dsom.{ ElementBase, Root }
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilTunables
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
 
 import org.apache.commons.io.output.NullOutputStream
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 object TestInfoset {
@@ -114,7 +114,7 @@ class TestInfoset1 {
   val dfdl = XMLUtils.dfdlAppinfoSource // XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
   val ex = XMLUtils.EXAMPLE_NAMESPACE
-  import TestInfoset._
+  import TestInfoset.*
 
   @Test def testXMLToInfoset1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(

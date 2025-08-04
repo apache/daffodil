@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import java.lang.{ Boolean => JBoolean }
-import scala.jdk.OptionConverters._
+import java.lang.Boolean as JBoolean
+import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -82,7 +82,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends api.infoset.Infose
   }
 
   override def getEventType(): InfosetInputterEventType = {
-    import InfosetInputterEventType._
+    import InfosetInputterEventType.*
     if (fakeElementEndEvent) {
       EndElement
     } else {

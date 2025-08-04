@@ -24,10 +24,10 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.InvalidRestrictionPolicy
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
 trait Facets { self: Restriction =>
-  import org.apache.daffodil.runtime1.dsom.FacetTypes._
+  import org.apache.daffodil.runtime1.dsom.FacetTypes.*
 
   private def retrieveFacetValueFromRestrictionBase(
     xml: Node,

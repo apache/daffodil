@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.util
 
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryNumberCheckPolicy

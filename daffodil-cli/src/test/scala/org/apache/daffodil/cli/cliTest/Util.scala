@@ -32,7 +32,7 @@ import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.cli.Main
 import org.apache.daffodil.cli.Main.ExitCode
@@ -60,9 +60,8 @@ object Util {
   lazy val scalaVersionForTargetPath: String = {
     // scala.util.Properties.versionNumberString doesn't actually return scala 3.3.5 as expected
     // when called in scala 3, as it returns the library version which is 2.13.16 for scala 2 and scala 3
-    // so we try to get the scala 3 version from the jar files and if it fails, we try for the scala 2 library
+    // so we try to get the scala 3 version from the jar files
     val scala3Regex = "org\\.scala-lang\\.scala3-library_3-([0-9.]+)\\.jar".r
-    val scala2Regex = "org\\.scala-lang\\.scala-library-([0-9.]+)\\.jar".r
     val versionRegex = ".*-([0-9.]+)\\.jar".r
 
     val jarFiles = Paths.get("daffodil-cli/target/universal/stage/lib").toFile.listFiles().toSeq
@@ -70,7 +69,6 @@ object Util {
     // Prioritize finding Scala 3 first, then fallback to Scala 2
     val scalaLibraryFile = jarFiles
       .find(f => scala3Regex.pattern.matcher(f.getName).matches())
-      .orElse(jarFiles.find(f => scala2Regex.pattern.matcher(f.getName).matches()))
       .getOrElse(throw new IllegalStateException("No Scala library JAR found"))
 
     // Extract Scala version using regex
@@ -80,7 +78,6 @@ object Util {
       .getOrElse(throw new IllegalStateException("No Scala Version found"))
 
     scalaVersion match {
-      case v if v.startsWith("2.13") => "scala-2.13"
       case v if v.startsWith("3.") => "scala-" + v
       case _ =>
         throw new IllegalStateException(s"Unsupported version $scalaVersion provided for tests")
@@ -507,10 +504,10 @@ object Util {
       if (inputDone) closeInput()
     }
 
-    def expect(matcher: Matcher[_]): Result = expect.expect(matcher)
+    def expect(matcher: Matcher[?]): Result = expect.expect(matcher)
     def expect(string: String): Result = expect.expect(contains(string))
 
-    def expectErr(matcher: Matcher[_]): Result = expect.expectIn(1, matcher)
+    def expectErr(matcher: Matcher[?]): Result = expect.expectIn(1, matcher)
     def expectErr(string: String): Result = expect.expectIn(1, contains(string))
   }
 

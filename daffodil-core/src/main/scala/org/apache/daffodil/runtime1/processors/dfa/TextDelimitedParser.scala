@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1.processors.dfa
 
 import org.apache.daffodil.io.DataInputStream
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope

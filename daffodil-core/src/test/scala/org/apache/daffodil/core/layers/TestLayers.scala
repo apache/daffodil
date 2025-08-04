@@ -21,14 +21,14 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.apache.commons.io.IOUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestLayers {

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import scala.jdk.OptionConverters._
+import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.Accessor
 import org.apache.daffodil.lib.util.CursorImplMixin
 import org.apache.daffodil.lib.util.MStackOfAnyRef
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -35,7 +35,7 @@ import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 class InfosetError(kind: String, args: String*)
-  extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
+  extends ProcessingError("Infoset", Nope, Nope, kind, args*)
 
 /**
  * Base class for objects that create Unparser infoset events from
@@ -209,7 +209,7 @@ final class InfosetInputter(delegate: api.infoset.InfosetInputter)
   protected final def fill(advanceInput: Boolean): Boolean = {
     if (isPending) {
       val (kind, n) = dequeuePending()
-      import InfosetEventKind._
+      import InfosetEventKind.*
       kind match {
         case StartElement => startElement(n.element)
         case EndElement => endElement(n.element)
@@ -232,7 +232,7 @@ final class InfosetInputter(delegate: api.infoset.InfosetInputter)
     if (advanceInput) {
       delegate.next()
     }
-    import InfosetInputterEventType._
+    import InfosetInputterEventType.*
     delegate.getEventType match {
       case StartElement => handleStartElement()
       case EndElement => handleEndElement()

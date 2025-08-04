@@ -17,9 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.api.exceptions.{
-  ExternalVariableException => JExternalVariableException
-}
+import org.apache.daffodil.api.exceptions.ExternalVariableException as JExternalVariableException
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.externalvars.Binding

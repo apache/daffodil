@@ -25,7 +25,7 @@ import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
 

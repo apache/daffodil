@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.io
 
-import java.nio._
-import java.nio.charset._
+import java.nio.*
+import java.nio.charset.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestISO8859_1 {

@@ -22,7 +22,7 @@ import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class ToSerialize extends Serializable {

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.calendar
 
-import java.math.{ BigDecimal => JBigDecimal }
+import java.math.BigDecimal as JBigDecimal
 
 import org.apache.daffodil.lib.exceptions.Assert
 
@@ -39,7 +39,7 @@ object DFDLCalendarOrder extends Enumeration {
 }
 
 trait OrderedCalendar { self: DFDLCalendar =>
-  import DFDLCalendarOrder._
+  import DFDLCalendarOrder.*
 
   /**
    * From Section 3.2.7.4 of http://www.w3.org/TR/xmlschema-2/#dateTime

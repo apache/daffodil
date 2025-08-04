@@ -21,7 +21,7 @@ import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.Assert
 
 import org.apache.commons.io.IOUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

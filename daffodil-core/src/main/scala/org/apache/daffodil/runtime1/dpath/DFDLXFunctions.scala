@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Double => JDouble }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Double as JDouble
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger

@@ -40,7 +40,7 @@ final class SchemaSetRuntimeData(
   def unqualifiedPathStepPolicy = elementRuntimeData.unqualifiedPathStepPolicy
   def encodingInfo = elementRuntimeData.encodingInfo
   override def schemaFileLocation = elementRuntimeData.schemaFileLocation
-  override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args: _*)
+  override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args*)
 
   private def writeObject(oos: java.io.ObjectOutputStream): Unit = {
     oos.defaultWriteObject()

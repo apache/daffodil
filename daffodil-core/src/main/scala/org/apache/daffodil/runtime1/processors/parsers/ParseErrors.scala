@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.DataLocation
@@ -39,9 +39,9 @@ class ParseError(
   causedBy: Maybe[Throwable],
   kind: Maybe[String],
   args: Any*
-) extends ProcessingError("Parse", rd, loc, causedBy, kind, args: _*) {
+) extends ProcessingError("Parse", rd, loc, causedBy, kind, args*) {
   def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], kind: String, args: Any*) =
-    this(rd, loc, Maybe.Nope, Maybe(kind), args: _*)
+    this(rd, loc, Maybe.Nope, Maybe(kind), args*)
 
   override def toParseError = this
 }

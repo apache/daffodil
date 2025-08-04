@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dpath
 
-import org.apache.daffodil.runtime1.dpath._
+import org.apache.daffodil.runtime1.dpath.*
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
@@ -48,7 +48,7 @@ object Conversion {
     tt: NodeInfo.Kind,
     context: Expression
   ): List[RecipeOp] = {
-    import NodeInfo._
+    import NodeInfo.*
     val ops: List[RecipeOp] = (st, tt) match {
       case (_, Array) => Nil
       case (x, y) if (x == y) => Nil

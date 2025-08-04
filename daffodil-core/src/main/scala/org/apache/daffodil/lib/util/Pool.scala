@@ -19,7 +19,7 @@ package org.apache.daffodil.lib.util
 
 import scala.collection.mutable
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 
 /**

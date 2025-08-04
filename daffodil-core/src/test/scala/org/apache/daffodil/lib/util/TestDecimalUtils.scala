@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.lib.util
 
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.{
   BinaryNumberCheckPolicy,
   TextZonedSignStyle
 }
-import org.apache.daffodil.lib.util.DecimalUtils._
+import org.apache.daffodil.lib.util.DecimalUtils.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDecimalUtils {

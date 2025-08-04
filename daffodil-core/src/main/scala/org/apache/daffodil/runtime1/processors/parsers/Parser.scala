@@ -51,7 +51,7 @@ sealed trait Parser extends Processor {
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.setFailed(
-      new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*)
+      new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args*)
     )
   }
 
@@ -62,7 +62,7 @@ sealed trait Parser extends Processor {
     s: String,
     args: Any*
   ) = {
-    pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args: _*))
+    pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args*))
   }
 
   def PENotEnoughBits(

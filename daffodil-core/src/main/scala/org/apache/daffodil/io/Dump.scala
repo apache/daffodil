@@ -19,11 +19,11 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+import java.nio.charset.Charset as JavaCharset
+import java.nio.charset.CharsetDecoder as JavaCharsetDecoder
 import java.nio.charset.CoderResult
-import java.nio.charset.{ Charset => JavaCharset }
-import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
 

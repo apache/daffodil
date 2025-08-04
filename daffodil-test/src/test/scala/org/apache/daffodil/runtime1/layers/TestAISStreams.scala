@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import java.io._
+import java.io.*
 import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.io.BoundaryMarkInsertingJavaOutputStream
@@ -25,7 +25,7 @@ import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
 import org.apache.daffodil.lib.util.Misc
 
 import org.apache.commons.io.IOUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

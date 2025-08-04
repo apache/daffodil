@@ -21,7 +21,7 @@ import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestBits2 {

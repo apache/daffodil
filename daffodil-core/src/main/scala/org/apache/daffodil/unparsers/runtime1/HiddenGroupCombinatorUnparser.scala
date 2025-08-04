@@ -18,7 +18,7 @@
 package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 /**
  * The purpose of this combinator is to increment/decrement the depth counter

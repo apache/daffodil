@@ -20,7 +20,7 @@ package org.apache.daffodil.cli.cliTest.schematron
 import java.util.UUID
 
 import org.apache.daffodil.cli.Main.ExitCode
-import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.cli.cliTest.Util.*
 
 import org.junit.Test
 

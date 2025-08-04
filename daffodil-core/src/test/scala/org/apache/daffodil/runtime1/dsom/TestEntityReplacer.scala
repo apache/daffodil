@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.dsom
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.cookers.EntityReplacer
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestEntityReplacer {

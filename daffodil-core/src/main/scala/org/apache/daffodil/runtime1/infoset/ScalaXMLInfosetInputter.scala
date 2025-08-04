@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import java.lang.{ Boolean => JBoolean }
-import scala.jdk.OptionConverters._
+import java.lang.Boolean as JBoolean
+import scala.jdk.OptionConverters.*
 import scala.xml.Comment
 import scala.xml.Elem
 import scala.xml.Node
@@ -61,7 +61,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends api.infoset.InfosetInputte
   private var doStartEvent = true
 
   override def getEventType(): InfosetInputterEventType = {
-    import InfosetInputterEventType._
+    import InfosetInputterEventType.*
     if (stack.top._1 == null) {
       if (doStartEvent) StartDocument else EndDocument
     } else {
@@ -98,7 +98,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends api.infoset.InfosetInputte
           //
           case txt: scala.xml.Text =>
             txt.addString(sb)
-          case atom: scala.xml.Atom[_] =>
+          case atom: scala.xml.Atom[?] =>
             sb.append(atom.text)
           case er: scala.xml.EntityRef =>
             er.text.addString(sb)

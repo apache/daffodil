@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInteger }
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInteger
 import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets

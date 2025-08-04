@@ -21,14 +21,14 @@ import java.io.File
 import java.net.URI
 import scala.collection.immutable.Queue
 import scala.io.Codec.string2codec
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.externalvars._
+import org.apache.daffodil.lib.externalvars.*
 import org.apache.daffodil.lib.iapi.URISchemaSource
-import org.apache.daffodil.lib.util.Misc._
+import org.apache.daffodil.lib.util.Misc.*
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.VariableMap

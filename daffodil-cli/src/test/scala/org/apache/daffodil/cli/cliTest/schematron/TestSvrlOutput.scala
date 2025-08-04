@@ -25,7 +25,7 @@ import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.cli.Main.ExitCode
-import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.cli.cliTest.Util.*
 
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -63,7 +63,7 @@ class TestSvrlOutput {
           }(ExitCode.Success)
 
           XML.loadFile(svrl.toFile) match {
-            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
+            case Elem("svrl", "schematron-output", _, _, rules*) =>
               val res = rules.find { r =>
                 r match {
                   case Elem("svrl", "failed-assert", _, _, _*) => true
@@ -96,7 +96,7 @@ class TestSvrlOutput {
             cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
           }(ExitCode.ParseError)
           XML.loadFile(svrl.toFile) match {
-            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
+            case Elem("svrl", "schematron-output", _, _, rules*) =>
               val res = rules.find { r =>
                 r match {
                   case Elem("svrl", "failed-assert", _, _, _*) => true
@@ -174,7 +174,7 @@ class TestSvrlOutput {
           }(ExitCode.Success)
 
           XML.loadFile(svrl.toFile) match {
-            case Elem("svrl", "schematron-output", _, _, rules @ _*) =>
+            case Elem("svrl", "schematron-output", _, _, rules*) =>
               val res = rules.find { r =>
                 r match {
                   case Elem("svrl", "failed-assert", _, _, _*) => true

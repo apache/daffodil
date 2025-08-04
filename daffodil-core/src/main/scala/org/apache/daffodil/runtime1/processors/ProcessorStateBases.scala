@@ -56,8 +56,8 @@ import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionWarning
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionErrorFromWarning
 import org.apache.daffodil.runtime1.dsom.ValidationError
 import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.dfa.Registers
 import org.apache.daffodil.runtime1.processors.dfa.RegistersPool
 import org.apache.daffodil.runtime1.processors.parsers.PState
@@ -427,13 +427,13 @@ abstract class ParseOrUnparseState protected (
 
   final override def validationError(msg: String, args: AnyRef*): Unit = {
     val ctxt = getContext()
-    val vde = new ValidationError(ctxt.schemaFileLocation, this, msg, args: _*)
+    val vde = new ValidationError(ctxt.schemaFileLocation, this, msg, args*)
     _validationStatus = false
     diagnostics = vde +: diagnostics
   }
 
   final def validationErrorAny(msg: String, args: Any*): Unit = {
-    validationError(msg, args.map(_.asInstanceOf[AnyRef]): _*)
+    validationError(msg, args.map(_.asInstanceOf[AnyRef])*)
   }
 
   final override def validationErrorNoContext(cause: Throwable): Unit = {
@@ -562,13 +562,13 @@ abstract class ParseOrUnparseState protected (
 
   final def SDE(str: String, args: Any*) = {
     val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args*)
     ctxt.toss(rsde)
   }
 
   final def SDEButContinue(str: String, args: Any*) = {
     val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args*)
     diagnostics = rsde +: diagnostics
   }
 
@@ -580,7 +580,7 @@ abstract class ParseOrUnparseState protected (
       tssdw.contains(warnID) || tssdw.contains(WarnID.All)
     if (!suppress) {
       val rsdw =
-        new RuntimeSchemaDefinitionWarning(warnID, ctxt.schemaFileLocation, str, args: _*)
+        new RuntimeSchemaDefinitionWarning(warnID, ctxt.schemaFileLocation, str, args*)
       if (tunable.escalateWarningsToErrors) {
         val sde = new SchemaDefinitionErrorFromWarning(rsdw)
         ctxt.toss(sde)

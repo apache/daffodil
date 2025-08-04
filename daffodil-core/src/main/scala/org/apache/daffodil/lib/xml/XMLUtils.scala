@@ -31,12 +31,12 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
 import scala.math.abs
 import scala.util.matching.Regex
-import scala.xml._
+import scala.xml.*
 
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
-import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.exceptions.*
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
@@ -175,10 +175,10 @@ object XMLUtils {
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {
     node match {
-      case Elem(prefix, label, attribs, scope, child @ _*) => {
+      case Elem(prefix, label, attribs, scope, child*) => {
         val coalescedChildren = child.map(coalesceAllAdjacentTextNodes(_))
         val newChildren = coalesceAdjacentTextNodes(coalescedChildren)
-        Elem(prefix, label, attribs, scope, true, newChildren: _*)
+        Elem(prefix, label, attribs, scope, true, newChildren*)
       }
       case x => x
     }
@@ -199,7 +199,7 @@ object XMLUtils {
     if (seq.length == 0) return seq
     if (seq.length == 1) {
       seq(0) match {
-        case a: Atom[_] => return seq
+        case a: Atom[?] => return seq
         case _ => // fall through to code below. (We need to process children)
       }
     }
@@ -545,7 +545,7 @@ object XMLUtils {
 
   def collapseScopes(x: Node, outer: NamespaceBinding): Node = {
     x match {
-      case Elem(pre, lab, md, scp, child @ _*) => {
+      case Elem(pre, lab, md, scp, child*) => {
         val newScope = combineScopes(scp, outer)
         Elem(
           pre,
@@ -553,7 +553,7 @@ object XMLUtils {
           md,
           newScope,
           true,
-          (child.flatMap { ch => collapseScopes(ch, newScope) }): _*
+          (child.flatMap { ch => collapseScopes(ch, newScope) })*
         )
       }
       case _ => x
@@ -599,9 +599,9 @@ object XMLUtils {
 
   def removeComments(e: Node): Node = {
     e match {
-      case Elem(prefix, label, attribs, scope, child @ _*) => {
+      case Elem(prefix, label, attribs, scope, child*) => {
         val newChildren = child.filterNot { _.isInstanceOf[Comment] }.map { removeComments(_) }
-        Elem(prefix, label, attribs, scope, true, newChildren: _*)
+        Elem(prefix, label, attribs, scope, true, newChildren*)
       }
       case x => x
     }
@@ -683,10 +683,10 @@ object XMLUtils {
   private def convertPCDataToText(n: Node): Node = {
     val res = n match {
       case t: Text => t
-      case a: Atom[_] => Text(a.text)
-      case Elem(prefix, label, attributes, scope, children @ _*) => {
+      case a: Atom[?] => Text(a.text)
+      case Elem(prefix, label, attributes, scope, children*) => {
         val newChildren = children.map { convertPCDataToText(_) }
-        Elem(prefix, label, attributes, scope, true, newChildren: _*)
+        Elem(prefix, label, attributes, scope, true, newChildren*)
       }
       case _ => n
     }
@@ -700,7 +700,7 @@ object XMLUtils {
   ): NodeSeq = {
     val res = n match {
 
-      case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
+      case e @ Elem(prefix, label, attributes, scope, children*) => {
 
         val filteredScope = if (ns.length > 0) filterScope(scope, ns) else xml.TopScope
 
@@ -787,7 +787,7 @@ object XMLUtils {
           }
         }
 
-        Elem(newPrefix, label, newAttributes, newScope, true, textMergedChildren: _*)
+        Elem(newPrefix, label, newAttributes, newScope, true, textMergedChildren*)
       }
       case c: scala.xml.Comment => NodeSeq.Empty // remove comments
       case other => other
@@ -892,7 +892,7 @@ Differences were (path, expected, actual):
 
   def childArrayCounters(e: Elem) = {
     val children = e match {
-      case Elem(_, _, _, _, c @ _*) => c
+      case Elem(_, _, _, _, c*) => c
       case x => Assert.invariantFailed(s"Expected elem with children, found $x")
     }
     val labels = children.map { _.label }
@@ -930,12 +930,12 @@ Differences were (path, expected, actual):
     (an, bn) match {
       case (a: Elem, b: Elem) => {
         val (prefixA, labelA, attribsA, nsbA, childrenA) = a match {
-          case Elem(prefixA, labelA, attribsA, nsbA, childrenA @ _*) =>
+          case Elem(prefixA, labelA, attribsA, nsbA, childrenA*) =>
             (prefixA, labelA, attribsA, nsbA, childrenA)
           case x => Assert.invariantFailed(s"Expected elem, found $x")
         }
         val (prefixB, labelB, attribsB, nsbB, childrenB) = b match {
-          case Elem(prefixB, labelB, attribsB, nsbB, childrenB @ _*) =>
+          case Elem(prefixB, labelB, attribsB, nsbB, childrenB*) =>
             (prefixB, labelB, attribsB, nsbB, childrenB)
           case x => Assert.invariantFailed(s"Expected elem, found $x")
         }
@@ -994,7 +994,7 @@ Differences were (path, expected, actual):
           val repeatingChildrenLabels =
             childrenA.groupBy(_.label).filter { case (k, v) => v.length > 1 }.keys
           val labelsWithZeroCount = repeatingChildrenLabels.map { _ -> 0 }
-          val countMap = mutable.Map(labelsWithZeroCount.toSeq: _*)
+          val countMap = mutable.Map(labelsWithZeroCount.toSeq*)
 
           val childrenDiffs = childrenACompare.zip(childrenBCompare).flatMap { case (ca, cb) =>
             val maybeChildCount = countMap.get(ca.label)

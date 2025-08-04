@@ -28,8 +28,8 @@ import java.nio.channels.Channels
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters._
-import scala.jdk.OptionConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.OptionConverters.*
 import scala.util.Try
 import scala.xml.Node
 
@@ -270,7 +270,7 @@ class Compiler private (
         /// used when deserializing an object.
         //  For more information, see https://github.com/sbt/sbt/issues/163
         ///
-        override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+        override def resolveClass(desc: java.io.ObjectStreamClass): Class[?] = {
           try { Class.forName(desc.getName, false, getClass.getClassLoader) }
           catch { case _: ClassNotFoundException => super.resolveClass(desc) }
         }

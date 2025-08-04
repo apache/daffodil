@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.lib.xml.test.unit
 
-import scala.xml._
+import scala.xml.*
 
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestUnicodeXMLI18N {

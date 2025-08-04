@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.processors.input
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextStringJustification
 import org.apache.daffodil.runtime1.processors.DFDLRegularExpressions
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

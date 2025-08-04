@@ -138,7 +138,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   private lazy val attrValue = getAttributeOption("value")
 
   private lazy val eltChildren = node match {
-    case Elem("dfdl", "newVariableInstance", _, _, ec @ _*) => ec
+    case Elem("dfdl", "newVariableInstance", _, _, ec*) => ec
     case x => schemaDefinitionError(s"Expected <dfdl:newVariableInstance> elem, found $x")
   }
 
@@ -181,7 +181,7 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   with DFDLSetVariableRuntime1Mixin {
   private lazy val attrValue = getAttributeOption("value")
   private lazy val eltChildren = node match {
-    case Elem("dfdl", "setVariable", _, _, ec @ _*) => ec
+    case Elem("dfdl", "setVariable", _, _, ec*) => ec
     case x => schemaDefinitionError(s"Expected <dfdl:setVariable> elem, found $x")
   }
   private lazy val eltValue = eltChildren.text.trim

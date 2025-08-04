@@ -18,14 +18,14 @@
 package org.apache.daffodil.runtime1.dpath
 
 import java.lang.{
-  Byte => JByte,
-  Double => JDouble,
-  Float => JFloat,
-  Integer => JInt,
-  Long => JLong,
-  Short => JShort
+  Byte as JByte,
+  Double as JDouble,
+  Float as JFloat,
+  Integer as JInt,
+  Long as JLong,
+  Short as JShort
 }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 import java.net.URI
 
 import org.apache.daffodil.api.DataLocation

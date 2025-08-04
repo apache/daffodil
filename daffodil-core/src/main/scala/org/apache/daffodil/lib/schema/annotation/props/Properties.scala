@@ -18,9 +18,9 @@
 package org.apache.daffodil.lib.schema.annotation.props
 
 import org.apache.daffodil.lib.cookers.Converter
-import org.apache.daffodil.lib.exceptions._
-import org.apache.daffodil.lib.util.Misc._
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.exceptions.*
+import org.apache.daffodil.lib.util.*
+import org.apache.daffodil.lib.util.Misc.*
 
 /**
  * Enum class as basis for our DFDL properties

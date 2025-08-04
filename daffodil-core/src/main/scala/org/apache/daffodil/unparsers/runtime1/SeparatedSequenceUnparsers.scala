@@ -20,17 +20,17 @@ import scala.collection.mutable.Buffer
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy._
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy.*
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
-import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition._
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition.*
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 trait Separated { self: SequenceChildUnparser =>
 

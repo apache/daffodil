@@ -21,9 +21,9 @@ import java.io.File
 import scala.util.Using
 
 import org.apache.daffodil.lib.iapi.URISchemaSource
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestXMLLoaderWithLocation {

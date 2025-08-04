@@ -16,14 +16,14 @@
  */
 package org.apache.daffodil.runtime1.layers
 
+import java.lang.Boolean as JBoolean
+import java.lang.Byte as JByte
+import java.lang.Double as JDouble
+import java.lang.Float as JFloat
+import java.lang.Integer as JInt
+import java.lang.Long as JLong
+import java.lang.Short as JShort
 import java.lang.reflect.Method
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Byte => JByte }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.lang.{ Short => JShort }
 import scala.collection.immutable.ListSet
 import scala.collection.mutable
 
@@ -78,13 +78,13 @@ class LayerRuntimeCompiler {
         ListSet(allMethods.filter { m =>
           val nom = m.getName
           nom.startsWith(varResultPrefix)
-        }.toSeq: _*)
+        }.toSeq*)
 
       if (lrd.qNameToVRD.isEmpty && optParamSetter.isEmpty && allVarResultGetters.isEmpty) {
         // there are no vars, so no setter, and no getter(s). We're done
         new LayerVarsRuntime(constructor, None, Nil, Nil)
       } else {
-        val allLayerVRDs = ListSet(lrd.qNameToVRD.toSeq.map(_._2): _*)
+        val allLayerVRDs = ListSet(lrd.qNameToVRD.toSeq.map(_._2)*)
         // there is either a params setter, a result getter, or both.
         val paramVRDs: Seq[VariableRuntimeData] =
           optParamSetter.toSeq.flatMap { paramSetter =>
@@ -198,7 +198,7 @@ class LayerRuntimeCompiler {
    * @param pt - setter arg type, or getter result type from reflection
    * @return true if the types are compatible meaning a DFDL variable can supply the parameter, or receive the result.
    */
-  private def compatibleTypes(vrdClass: Class[_], pt: Class[_]): Boolean = {
+  private def compatibleTypes(vrdClass: Class[?], pt: Class[?]): Boolean = {
     vrdClass == pt || compatibleBoxedPrimType(vrdClass, pt)
   }
 
@@ -210,7 +210,7 @@ class LayerRuntimeCompiler {
   private val DoublePrimClass = classOf[Double]
   private val BooleanPrimClass = classOf[Boolean]
 
-  private def compatibleBoxedPrimType(vrdClass: Class[_], pt: Class[_]): Boolean = {
+  private def compatibleBoxedPrimType(vrdClass: Class[?], pt: Class[?]): Boolean = {
     pt match {
       case LongPrimClass => vrdClass == classOf[JLong]
       case IntPrimClass => vrdClass == classOf[JInt]

@@ -26,7 +26,7 @@
 
 package passera.test
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

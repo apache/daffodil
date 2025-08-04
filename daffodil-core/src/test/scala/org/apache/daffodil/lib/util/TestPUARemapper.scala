@@ -21,7 +21,7 @@ import org.apache.daffodil.lib.xml.RemapPUACharDetected
 import org.apache.daffodil.lib.xml.RemapPUAToXMLIllegalChar
 import org.apache.daffodil.lib.xml.RemapXMLIllegalCharToPUA
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 object TestPUARemapper {
@@ -44,7 +44,7 @@ object TestPUARemapper {
 }
 
 class TestPUARemapper {
-  import TestPUARemapper._
+  import TestPUARemapper.*
 
   val xmlToPUANoCR2LF = new RemapXMLIllegalCharToPUA(true, false)
   val xmlToPUAUnsafe = new RemapXMLIllegalCharToPUA(false, false)
@@ -136,7 +136,7 @@ class TestPUARemapper {
 }
 
 class TestRemapPUAToXML() {
-  import TestPUARemapper._
+  import TestPUARemapper.*
 
   val puaToXML = new RemapPUAToXMLIllegalChar()
 

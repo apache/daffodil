@@ -17,19 +17,19 @@
 
 package org.apache.daffodil.runtime1.processors.input
 
-import java.lang.{ Double => JDouble }
-import java.lang.{ Long => JLong }
+import java.lang.Double as JDouble
+import java.lang.Long as JLong
 import java.text.ParsePosition
 
 import org.apache.daffodil.lib.calendar.TextCalendarConstants
 
-import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
+import com.ibm.icu.math.BigDecimal as ICUBigDecimal
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.ULocale
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestICU {

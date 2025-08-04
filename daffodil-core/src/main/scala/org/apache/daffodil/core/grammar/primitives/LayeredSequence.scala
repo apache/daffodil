@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.core.layers.LayerSchemaCompiler
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.parsers.LayeredSequenceParser
-import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.runtime1.processors.parsers.Parser as DaffodilParser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser as DaffodilUnparser
 import org.apache.daffodil.unparsers.runtime1.LayeredSequenceUnparser
 
 case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)

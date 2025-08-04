@@ -22,7 +22,7 @@ import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.Properties.isWin
 
 import org.apache.daffodil.api
@@ -226,7 +226,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
    */
   private def warning(formatString: String, args: Any*): Unit = {
     val sde =
-      new SchemaDefinitionWarning(WarnID.CodeGenerator, None, None, formatString, args: _*)
+      new SchemaDefinitionWarning(WarnID.CodeGenerator, None, None, formatString, args*)
     diagnostics = diagnostics :+ sde
   }
 
@@ -234,7 +234,7 @@ class DaffodilCCodeGenerator(root: Root) extends api.CodeGenerator {
    * Adds an error message to the diagnostics and sets isError true
    */
   private def error(formatString: String, args: Any*): Unit = {
-    val sde = new SchemaDefinitionError(None, None, formatString, args: _*)
+    val sde = new SchemaDefinitionError(None, None, formatString, args*)
     diagnostics = diagnostics :+ sde
     errorStatus = true
   }

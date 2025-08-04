@@ -21,7 +21,7 @@ import java.io.StringWriter
 import java.util.ServiceConfigurationError
 import java.util.ServiceLoader
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 trait SimpleNamedLoadableService { def name(): String }
 

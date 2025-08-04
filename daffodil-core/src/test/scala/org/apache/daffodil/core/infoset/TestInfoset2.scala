@@ -18,10 +18,10 @@
 package org.apache.daffodil.core.infoset
 
 import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestInfoset2 {

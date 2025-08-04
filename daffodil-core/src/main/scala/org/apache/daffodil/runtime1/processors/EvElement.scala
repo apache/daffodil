@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import java.lang.{ Long => JLong }
+import java.lang.Long as JLong
 
 import org.apache.daffodil.lib.cookers.ChoiceDispatchKeyCooker
 import org.apache.daffodil.lib.cookers.OutputNewLineCooker
@@ -28,7 +28,7 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeJULong
 import org.apache.daffodil.runtime1.dpath.EvalMode
 import org.apache.daffodil.runtime1.dpath.UnparserBlocking
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
 sealed trait LengthEv extends Evaluatable[JLong]
 

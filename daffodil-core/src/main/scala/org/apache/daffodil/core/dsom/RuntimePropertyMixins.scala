@@ -36,11 +36,11 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.TextPadKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextTrimKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeJULong
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.processors.BinaryFloatRepEv
 import org.apache.daffodil.runtime1.processors.ByteOrderEv
 import org.apache.daffodil.runtime1.processors.CharsetEv
@@ -331,8 +331,8 @@ trait ElementRuntimeValuedPropertiesMixin
 
   private lazy val implicitLengthEv: LengthEv = {
     Assert.usage(repElement.lengthKind eq LengthKind.Implicit)
-    import NodeInfo._
-    import Representation._
+    import NodeInfo.*
+    import Representation.*
     lazy val maxLengthLong = repElement.maxLength.longValueExact
     val ev = (repElement.impliedRepresentation, repElement.typeDef.typeNode) match {
       case (Text, String) => new ImplicitLengthEv(maxLengthLong, eci)
@@ -388,9 +388,9 @@ trait ElementRuntimeValuedPropertiesMixin
     Assert.usage(
       (repElement.lengthKind eq LengthKind.Implicit) || (repElement.lengthKind eq LengthKind.Explicit)
     )
-    import LengthKind._
-    import NodeInfo._
-    import Representation._
+    import LengthKind.*
+    import NodeInfo.*
+    import Representation.*
     val (units: LengthUnits, lenEv: LengthEv) =
       (
         repElement.lengthKind,
@@ -433,9 +433,9 @@ trait ElementRuntimeValuedPropertiesMixin
   }
 
   protected lazy val (minLenUnits: LengthUnits, minLen: Long) = {
-    import LengthKind._
-    import NodeInfo._
-    import Representation._
+    import LengthKind.*
+    import NodeInfo.*
+    import Representation.*
     lazy val maxLengthLong = maxLength.longValueExact
     lazy val minLengthLong = minLength.longValueExact
     val res: (LengthUnits, Long) =
@@ -474,7 +474,7 @@ trait ElementRuntimeValuedPropertiesMixin
       (d.impliedRepresentation eq Representation.Text) &&
       d.optionTextPadKind.isDefined &&
       (d.textPadKind eq TextPadKind.PadChar) && {
-        import LengthKind._
+        import LengthKind.*
         val lk = d.lengthKind
         lk match {
           case Delimited | Prefixed | Pattern | EndOfParent => true

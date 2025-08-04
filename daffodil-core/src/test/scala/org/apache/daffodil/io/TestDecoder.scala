@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction
 //
 import java.nio.charset.StandardCharsets
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

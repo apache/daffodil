@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Long => JLong }
+import java.lang.Double as JDouble
+import java.lang.Float as JFloat
+import java.lang.Long as JLong
 import java.util.regex.Matcher
 import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
@@ -255,7 +255,7 @@ final class SimpleTypeRuntimeData(
     unqualifiedPathStepPolicyArg
   ) {
 
-  import org.apache.daffodil.lib.util.OKOrError._
+  import org.apache.daffodil.lib.util.OKOrError.*
 
   /**
    * These are creators of regex pattern matcher objects. we want to avoid

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.io.DataInputStream

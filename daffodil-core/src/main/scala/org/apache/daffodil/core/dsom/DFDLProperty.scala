@@ -64,10 +64,10 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   // have to be resolved by THIS Object
   lazy val value = {
     val values: Option[NodeSeq] = xml match {
-      case Elem("dfdl", "property", _, _, valueNodes @ _*) if valueNodes.isEmpty => None
-      case Elem("daf", "property", _, _, valueNodes @ _*) if valueNodes.isEmpty => None
-      case Elem("dfdl", "property", _, _, valueNodes @ _*) => Some(valueNodes)
-      case Elem("daf", "property", _, _, valueNodes @ _*) => Some(valueNodes)
+      case Elem("dfdl", "property", _, _, valueNodes*) if valueNodes.isEmpty => None
+      case Elem("daf", "property", _, _, valueNodes*) if valueNodes.isEmpty => None
+      case Elem("dfdl", "property", _, _, valueNodes*) => Some(valueNodes)
+      case Elem("daf", "property", _, _, valueNodes*) => Some(valueNodes)
     }
 
     values match {
@@ -98,7 +98,7 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
             }
             case scala.xml.Comment(_) => None
             case scala.xml.EntityRef(_) => Some(valueNode)
-            case _: scala.xml.Atom[_] =>
+            case _: scala.xml.Atom[?] =>
               Some(valueNode) // &lt; comes through as this... should be EntityRef
           }
         }

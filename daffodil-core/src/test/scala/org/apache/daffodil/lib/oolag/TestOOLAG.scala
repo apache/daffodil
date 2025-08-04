@@ -21,11 +21,11 @@ import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.Diagnostic
-import org.apache.daffodil.lib.oolag.OOLAG._
+import org.apache.daffodil.lib.oolag.OOLAG.*
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Ignore
 import org.junit.Test
 

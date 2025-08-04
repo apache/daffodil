@@ -20,7 +20,7 @@ package org.apache.daffodil.cli.cliTest
 import java.nio.file.Files.exists
 
 import org.apache.daffodil.cli.Main.ExitCode
-import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.cli.cliTest.Util.*
 
 import org.junit.Assert.assertTrue
 import org.junit.Test

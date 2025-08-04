@@ -21,7 +21,7 @@ import scala.xml.Elem
 
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.core.util.TestUtils.intercept
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError

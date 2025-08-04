@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.core.grammar._
+import org.apache.daffodil.core.dsom.*
+import org.apache.daffodil.core.grammar.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.processors.parsers._
-import org.apache.daffodil.unparsers.runtime1._
+import org.apache.daffodil.runtime1.processors.parsers.*
+import org.apache.daffodil.unparsers.runtime1.*
 
 /**
  * A SequenceChild is exactly that, a child Term of a Sequence
@@ -62,8 +62,8 @@ import org.apache.daffodil.unparsers.runtime1._
  */
 abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, groupIndex: Int)
   extends Terminal(child, true) {
-  import SeparatedSequenceChildBehavior._
-  import SeparatorSuppressionPolicy._
+  import SeparatedSequenceChildBehavior.*
+  import SeparatorSuppressionPolicy.*
 
   private lazy val sgtb = sq.asInstanceOf[SequenceGroupTermBase]
 
@@ -119,14 +119,14 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
   protected final def ssp = sq.separatorSuppressionPolicy
 
   protected lazy val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior = {
-    import SeparatorSuppressionPolicy._
-    import SeparatedSequenceChildBehavior._
+    import SeparatorSuppressionPolicy.*
+    import SeparatedSequenceChildBehavior.*
     child match {
       case m: ModelGroup => {
         handleIfPotentiallyTrailingElseDefaultBehavior
       }
       case eb: ElementBase if (eb.isArray || eb.isOptional) => {
-        import OccursCountKind._
+        import OccursCountKind.*
         eb.occursCountKind match {
           case Fixed => Positional
           case Expression => Positional
@@ -315,7 +315,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
   final lazy val zeroLengthDetector: ZeroLengthDetector = {
     val result: ZeroLengthDetector = child match {
       case e: ElementBase => {
-        import LengthKind._
+        import LengthKind.*
 
         lazy val couldBeZLSimpleType =
           !e.hasDelimiters &&
@@ -389,7 +389,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
 class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: Int)
   extends SequenceChild(sq, term, groupIndex) {
-  import SeparatedSequenceChildBehavior._
+  import SeparatedSequenceChildBehavior.*
 
   lazy val sequenceChildParser: SequenceChildParser = {
     val res = term match {
@@ -558,7 +558,7 @@ sealed abstract class RepElementSequenceChild(
   protected val e: ElementBase,
   groupIndex: Int
 ) extends SequenceChild(sq, e, groupIndex) {
-  import SeparatedSequenceChildBehavior._
+  import SeparatedSequenceChildBehavior.*
 
   Assert.usage(!e.isScalar)
 

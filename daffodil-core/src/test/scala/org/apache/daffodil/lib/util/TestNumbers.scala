@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.lib.util
 
+import java.math.BigDecimal as JBigDecimal
 import java.math.RoundingMode
-import java.math.{ BigDecimal => JBigDecimal }
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestNumbers {

@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Long => JLong }
+import java.lang.Long as JLong
 import java.util.regex.Matcher
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.MaybeULong

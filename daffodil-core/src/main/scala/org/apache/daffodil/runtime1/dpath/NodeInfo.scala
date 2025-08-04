@@ -18,16 +18,16 @@
 package org.apache.daffodil.runtime1.dpath
 
 import java.io.Serializable
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Byte => JByte }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.lang.{ Short => JShort }
-import java.lang.{ String => JString }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Boolean as JBoolean
+import java.lang.Byte as JByte
+import java.lang.Double as JDouble
+import java.lang.Float as JFloat
+import java.lang.Integer as JInt
+import java.lang.Long as JLong
+import java.lang.Short as JShort
+import java.lang.String as JString
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 import java.net.URI
 import java.net.URISyntaxException
 
@@ -46,7 +46,7 @@ import org.apache.daffodil.lib.xml.NoNamespace
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dsom.walker._
+import org.apache.daffodil.runtime1.dsom.walker.*
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBool
@@ -64,7 +64,7 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueTime
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueURI
 
-import com.ibm.icu.util.{ Calendar => ICUCalendar }
+import com.ibm.icu.util.Calendar as ICUCalendar
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -256,7 +256,7 @@ object NodeInfo extends Enum {
    * @param jc the java class
    * @return the corresponding DFDL PrimType object
    */
-  def fromClass(jc: Class[_]): Option[PrimType] = {
+  def fromClass(jc: Class[?]): Option[PrimType] = {
     val ni = jc match {
       case ClassIntBoxed | ClassIntPrim => Some(NodeInfo.Int)
       case ClassByteBoxed | ClassBytePrim => Some(NodeInfo.Byte)
@@ -943,7 +943,7 @@ object NodeInfo extends Enum {
       }
     }
 
-    def toJavaType(dfdlType: DFDLPrimType): Class[_] = {
+    def toJavaType(dfdlType: DFDLPrimType): Class[?] = {
       dfdlType match {
         case DFDLPrimType.String => classOf[JString]
         case DFDLPrimType.Int => classOf[JInt]

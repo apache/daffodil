@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.compiler.*
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestIsScannable {

@@ -19,7 +19,7 @@ package org.apache.daffodil.processor.tdml
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.codegen.c.DaffodilCCodeGenerator
 import org.apache.daffodil.core.compiler.Compiler

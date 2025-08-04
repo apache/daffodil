@@ -23,9 +23,9 @@ import scala.util.Using
 
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.UsageException
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.tdml._
+import org.apache.daffodil.tdml.*
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

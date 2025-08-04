@@ -26,7 +26,7 @@ import org.apache.daffodil.api.DFDLPrimType
 import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
-import org.apache.daffodil.api.infoset.{ ScalaXMLInfosetOutputter => JScalaXMLInfosetOutputter }
+import org.apache.daffodil.api.infoset.ScalaXMLInfosetOutputter as JScalaXMLInfosetOutputter
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
@@ -107,7 +107,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
         attributes,
         diSimple.metadata.minimizedScope,
         minimizeEmpty = true,
-        children: _*
+        children*
       )
 
     stack.top.append(elem)
@@ -132,7 +132,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
         attributes,
         diComplex.metadata.minimizedScope,
         minimizeEmpty = true,
-        children: _*
+        children*
       )
 
     stack.top.append(elem)

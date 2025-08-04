@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.processors.dfa
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.processors.RuntimeData
 
 /**

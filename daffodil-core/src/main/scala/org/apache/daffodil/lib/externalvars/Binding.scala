@@ -20,7 +20,7 @@ package org.apache.daffodil.lib.externalvars
 import scala.xml.Node
 
 import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 
 /**
  * Represents a variable binding expressed in a config file as a bind element, or specified

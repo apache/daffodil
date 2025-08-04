@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.xml._
+import scala.xml.*
 
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 
 /*
  * This is not a file of tests.
@@ -107,7 +107,7 @@ object SchemaUtils {
     var scope =
       if (schemaScope != TopScope) schemaScope
       else {
-        import XMLUtils._
+        import XMLUtils.*
         <ignore xmlns:xsd={xsdURI} xmlns:dfdl={dfdlURI} xmlns:xsi={xsiURI} xmlns:fn={
           fnURI
         } xmlns:math={mathURI}/>.scope

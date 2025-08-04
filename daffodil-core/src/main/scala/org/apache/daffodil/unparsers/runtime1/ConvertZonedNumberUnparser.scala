@@ -20,9 +20,9 @@ package org.apache.daffodil.unparsers.runtime1
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.lib.util.DecimalUtils.OverpunchLocation
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.*
 import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 case class ConvertZonedCombinatorUnparser(
   rd: TermRuntimeData,

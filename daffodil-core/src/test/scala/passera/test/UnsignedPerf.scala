@@ -26,7 +26,7 @@
 
 package passera.test
 
-import passera.unsigned._
+import passera.unsigned.*
 
 object UnsignedPerf {
   def main(args: Array[String]) = {

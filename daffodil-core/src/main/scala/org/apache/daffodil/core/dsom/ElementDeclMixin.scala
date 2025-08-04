@@ -21,9 +21,9 @@ import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.walker.ElementDeclView
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 trait ElementLikeMixin extends AnnotatedSchemaComponent with ProvidesDFDLStatementMixin {

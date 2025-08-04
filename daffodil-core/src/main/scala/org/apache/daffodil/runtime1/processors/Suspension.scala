@@ -22,7 +22,7 @@ import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.processors.unparsers.UState
@@ -52,7 +52,7 @@ trait Suspension extends Serializable {
   val isReadOnly = false
 
   def UE(ustate: UState, s: String, args: Any*) = {
-    UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
+    UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args*)
   }
 
   private var savedUstate_ : UState = null

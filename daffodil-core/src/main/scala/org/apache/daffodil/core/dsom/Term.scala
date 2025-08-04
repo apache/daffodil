@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.lang.{ Integer => JInt }
+import java.lang.Integer as JInt
 import java.util.UUID
 
 import org.apache.daffodil.core.dsom.walker.TermView
@@ -415,7 +415,7 @@ trait Term
   }
 
   final lazy val couldBePotentiallyTrailing: Boolean = {
-    import SeparatorSuppressionPolicy._
+    import SeparatorSuppressionPolicy.*
     this match {
       case e: ElementBase => {
         lazy val allowsZeroOccurs = e.minOccurs == 0

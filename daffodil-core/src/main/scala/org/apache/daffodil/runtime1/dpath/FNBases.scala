@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Boolean as JBoolean
+import java.lang.Double as JDouble
+import java.lang.Integer as JInt
+import java.lang.Long as JLong
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 import scala.collection.mutable.ListBuffer
 import scala.xml.NodeSeq.seqToNodeSeq
 

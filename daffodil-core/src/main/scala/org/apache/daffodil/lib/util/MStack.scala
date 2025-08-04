@@ -19,7 +19,7 @@ package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.exceptions.Assert
 
-import Maybe._
+import Maybe.*
 
 object MStack {
   final case class Mark(val v: Int) extends AnyVal

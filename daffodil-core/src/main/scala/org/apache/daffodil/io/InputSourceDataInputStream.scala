@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.io.InputStream
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
@@ -99,7 +99,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   with DataInputStreamImplMixin
   with java.io.Closeable {
 
-  import DataInputStream._
+  import DataInputStream.*
 
   override def toString = {
     val bp0b = bitPos0b

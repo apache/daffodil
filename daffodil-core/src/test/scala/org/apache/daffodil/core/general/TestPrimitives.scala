@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.general
 
-import scala.xml._
+import scala.xml.*
 
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util.SchemaUtils

@@ -19,15 +19,15 @@ package org.apache.daffodil.core.infoset
 
 // workaround for scala 3 bug where there are false positives with
 // unused imports: https://github.com/scala/scala3/issues/22692
-import javax.xml.stream._
-import scala.jdk.CollectionConverters._
+import javax.xml.stream.*
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 

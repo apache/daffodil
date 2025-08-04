@@ -26,7 +26,7 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableInProcess
 import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],

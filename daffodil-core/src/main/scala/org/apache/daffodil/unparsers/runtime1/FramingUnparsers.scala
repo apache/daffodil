@@ -21,7 +21,7 @@ import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.processors.SuspendableOperation
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextProcessor
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 class SkipRegionUnparser(skipInBits: Int, override val context: TermRuntimeData)
   extends AlignmentPrimUnparser {

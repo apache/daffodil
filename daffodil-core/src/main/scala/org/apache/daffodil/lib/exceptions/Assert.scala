@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.exceptions
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.util.Misc
 
@@ -45,7 +45,7 @@ abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: Strin
 
   private def init: Unit = {
     msg_ =
-      if (fmt ne null) fmt.format(args: _*)
+      if (fmt ne null) fmt.format(args*)
       else if (cause ne null) cause.getMessage
       else Misc.getNameFromClass(this)
   }
@@ -55,7 +55,7 @@ abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: Strin
   def this() = this(1, null, null)
   def this(msg: String) = this(1, null, msg)
   def this(fmt: String, args: Any*) =
-    this(1, null, fmt, args.toSeq: _*) // Fix varargs expansion
+    this(1, null, fmt, args.toSeq*) // Fix varargs expansion
   def this(cause: Throwable) = this(1, cause, null)
 }
 

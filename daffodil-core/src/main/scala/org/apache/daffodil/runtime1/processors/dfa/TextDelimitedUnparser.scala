@@ -21,9 +21,9 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataInputStream
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.processors.AllDelimiterIterator
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
@@ -98,10 +98,10 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     val fieldReg: Registers = state.dfaRegistersPool.getFromPool("escapeBlock1")
 
     val fieldEscapesIter = {
-      val ab = ArrayBuffer(ArraySeq.unsafeWrapArray(blockEnd +: delims): _*)
+      val ab = ArrayBuffer(ArraySeq.unsafeWrapArray(blockEnd +: delims)*)
       new AllDelimiterIterator(ab)
     }
-    val delimIter = new AllDelimiterIterator(ArrayBuffer(ArraySeq.unsafeWrapArray(delims): _*))
+    val delimIter = new AllDelimiterIterator(ArrayBuffer(ArraySeq.unsafeWrapArray(delims)*))
 
     fieldReg.reset(state, input, fieldEscapesIter)
 
@@ -275,7 +275,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val fieldReg: Registers = state.dfaRegistersPool.getFromPool("escapeCharacter1")
 
-    val delimIter = new AllDelimiterIterator(ArrayBuffer(ArraySeq.unsafeWrapArray(delims): _*))
+    val delimIter = new AllDelimiterIterator(ArrayBuffer(ArraySeq.unsafeWrapArray(delims)*))
 
     fieldReg.reset(state, input, delimIter)
 

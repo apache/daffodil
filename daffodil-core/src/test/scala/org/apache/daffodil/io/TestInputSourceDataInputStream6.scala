@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestInputSourceDataInputStream6 {

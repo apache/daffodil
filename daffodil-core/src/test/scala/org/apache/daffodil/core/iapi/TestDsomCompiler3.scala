@@ -19,10 +19,10 @@ package org.apache.daffodil.core.iapi
 
 import java.io.File
 
-import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.compiler.*
 import org.apache.daffodil.core.dsom.DFDLElement
-import org.apache.daffodil.lib.schema.annotation.props.gen._
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Assert.assertEquals

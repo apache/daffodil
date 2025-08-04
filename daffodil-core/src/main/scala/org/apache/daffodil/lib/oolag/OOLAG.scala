@@ -18,7 +18,7 @@
 package org.apache.daffodil.lib.oolag
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
@@ -26,8 +26,8 @@ import org.apache.daffodil.lib.exceptions.ThinException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.WithDiagnostics
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
+import org.apache.daffodil.lib.util.Maybe.*
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars

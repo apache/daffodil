@@ -17,19 +17,19 @@
 
 package org.apache.daffodil.core.grammar
 
-import java.lang.{ Long => JLong }
+import java.lang.Long as JLong
 
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
-import org.apache.daffodil.core.grammar.primitives._
+import org.apache.daffodil.core.grammar.primitives.*
 import org.apache.daffodil.core.runtime1.ElementBaseRuntime1Mixin
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 import org.apache.daffodil.lib.util.PackedSignCodes
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -58,7 +58,7 @@ trait ElementBaseGrammarMixin
     if (unparsingPadChar.isEmpty)
       (EmptyGram, EmptyGram)
     else {
-      import TextJustificationType._
+      import TextJustificationType.*
       this.justificationPad match {
         case None => (EmptyGram, EmptyGram)
         case Left => (EmptyGram, OnlyPadding(context))
@@ -71,7 +71,7 @@ trait ElementBaseGrammarMixin
   lazy val isPrefixed: Boolean = lengthKind == LengthKind.Prefixed
 
   protected lazy val isDelimitedPrefixedPattern: Boolean = {
-    import LengthKind._
+    import LengthKind.*
     lengthKind match {
       case Delimited =>
         true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
@@ -344,7 +344,7 @@ trait ElementBaseGrammarMixin
     (isSimpleType &&
       (impliedRepresentation eq Representation.Binary) &&
       (primType ne PrimType.HexBinary) && {
-        import NodeInfo._
+        import NodeInfo.*
         primType match {
           case Float => true
           case Double => true;

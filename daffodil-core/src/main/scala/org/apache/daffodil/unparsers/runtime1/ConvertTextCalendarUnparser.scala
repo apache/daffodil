@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.CalendarEv
 import org.apache.daffodil.runtime1.processors.DateTimeFormatterEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 import com.ibm.icu.util.Calendar
 

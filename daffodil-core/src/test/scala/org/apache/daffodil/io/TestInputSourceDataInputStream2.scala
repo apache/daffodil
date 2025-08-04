@@ -21,7 +21,7 @@ import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util.MaybeULong
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestInputSourceDataInputStream2 {

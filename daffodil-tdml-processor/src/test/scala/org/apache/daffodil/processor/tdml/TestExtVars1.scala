@@ -32,7 +32,7 @@ object TestExtVars1 {
 }
 
 class TestExtVars1 {
-  import TestExtVars1._
+  import TestExtVars1.*
 
   @Test def test_configLittleEndian() = { runner.runOneTest("configLittleEndian") }
   @Test def test_unparseConfigLittleEndian() = {

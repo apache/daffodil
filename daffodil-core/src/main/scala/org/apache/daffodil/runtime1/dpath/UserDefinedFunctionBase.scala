@@ -42,7 +42,7 @@ case class UserDefinedFunctionCall(
   override def computeValue(values: List[DataValuePrimitive], dstate: DState) = {
     val jValues = values.map { _.getAnyRef.asInstanceOf[Object] }
     try {
-      val res = evaluateFxn.method.invoke(userDefinedFunction, jValues: _*)
+      val res = evaluateFxn.method.invoke(userDefinedFunction, jValues*)
       DataValue.unsafeFromAnyRef(res)
     } catch {
       case e: InvocationTargetException => {

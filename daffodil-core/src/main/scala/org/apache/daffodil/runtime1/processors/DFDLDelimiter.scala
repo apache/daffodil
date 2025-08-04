@@ -24,7 +24,7 @@ import scala.collection.mutable.Queue
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Enum
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType

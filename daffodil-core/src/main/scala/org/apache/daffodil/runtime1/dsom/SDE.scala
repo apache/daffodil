@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.runtime1.dsom
 
-import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.exceptions.*
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
 class SchemaDefinitionError(
@@ -36,11 +36,11 @@ class SchemaDefinitionError(
     annotationContext,
     Nope,
     Maybe(fmtString),
-    args: _*
+    args*
   ) {
 
   def this(sc: SchemaFileLocation, kind: String, args: Any*) =
-    this(Some(sc), None, kind, args: _*)
+    this(Some(sc), None, kind, args*)
 
   def isError = true
   def modeName = "Schema Definition"
@@ -53,7 +53,7 @@ class SchemaDefinitionErrorFromWarning(sdw: SchemaDefinitionWarning)
     sdw.schemaContext,
     sdw.annotationContext,
     sdw.kind,
-    sdw.args: _*
+    sdw.args*
   ) {
 
   override def isError = true
@@ -66,7 +66,7 @@ class SchemaDefinitionErrorFromWarning(sdw: SchemaDefinitionWarning)
  * in the debugger for special handling.
  */
 class RelativePathPastRootError(schemaContext: SchemaFileLocation, kind: String, args: Any*)
-  extends SchemaDefinitionError(Some(schemaContext), None, kind, args: _*)
+  extends SchemaDefinitionError(Some(schemaContext), None, kind, args*)
 
 class RuntimeSchemaDefinitionError(
   schemaContext: SchemaFileLocation,
@@ -77,7 +77,7 @@ class RuntimeSchemaDefinitionError(
     Option(schemaContext),
     None,
     fmtString,
-    args: _*
+    args*
   ) {
 
   def this(
@@ -85,7 +85,7 @@ class RuntimeSchemaDefinitionError(
     fmtString: String,
     args: Any*
   ) =
-    this(schemaContext, null, fmtString, args: _*)
+    this(schemaContext, null, fmtString, args*)
 
   override def modeName = "Runtime Schema Definition"
 
@@ -102,7 +102,7 @@ class RuntimeSchemaDefinitionWarning(
     Some(schemaContext),
     None,
     kind,
-    args: _*
+    args*
   ) {
 
   override def modeName = "Runtime Schema Definition"
@@ -121,11 +121,11 @@ class SchemaDefinitionWarning(
     annotationContext,
     Nope,
     Maybe(kind + s" (id: ${warnID})"),
-    args: _*
+    args*
   ) {
 
   def this(w: WarnID, sc: SchemaFileLocation, kind: String, args: Any*) =
-    this(w, Some(sc), None, kind, args: _*)
+    this(w, Some(sc), None, kind, args*)
 
   override def isError = false
   def modeName = "Schema Definition"
@@ -144,7 +144,7 @@ class ValidationError(
     None,
     maybeCause,
     maybeFormatString,
-    args: _*
+    args*
   ) {
 
   def this(
@@ -153,7 +153,7 @@ class ValidationError(
     formatString: String,
     args: Any*
   ) =
-    this(Maybe(schemaContext), Maybe(runtimeContext), Nope, Maybe(formatString), args: _*)
+    this(Maybe(schemaContext), Maybe(runtimeContext), Nope, Maybe(formatString), args*)
 
   def this(runtimeContext: ParseOrUnparseState, cause: Throwable) =
     this(
@@ -167,7 +167,7 @@ class ValidationError(
     )
 
   def this(formatString: String, args: Any*) =
-    this(Nope, Nope, Nope, Maybe(formatString), args: _*)
+    this(Nope, Nope, Nope, Maybe(formatString), args*)
 
   override def isError = true
 
@@ -186,7 +186,7 @@ final class TunableLimitExceededError(
     None,
     None,
     Maybe(kind),
-    args: _*
+    args*
   ) {
 
   override def isError = true
@@ -205,7 +205,7 @@ abstract class SchemaDefinitionDiagnosticBase(
     if (runtimeContext.isDefined) Maybe(runtimeContext.get.currentLocation) else Nope,
     mc,
     mfmt,
-    args: _*
+    args*
   ) {
 
   override def equals(other: Any) = {
@@ -237,7 +237,7 @@ trait ImplementsThrowsSDE extends ThrowsSDE {
 
   def SDE(id: String, args: Any*): Nothing = {
     val sde =
-      new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
+      new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args*)
     toss(sde)
   }
 }
@@ -252,7 +252,7 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
 
   def SDEButContinue(id: String, args: Any*): Unit = {
     val sde =
-      new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
+      new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args*)
     error(sde) // calls the error routine which records the error, but doesn't throw/toss it.
   }
 
@@ -270,7 +270,7 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
         Some(schemaFileLocation),
         NoAnnotationContext,
         fmt,
-        args: _*
+        args*
       )
       if (tunable.escalateWarningsToErrors) {
         val sde = new SchemaDefinitionErrorFromWarning(sdw)

@@ -19,9 +19,9 @@ package org.apache.daffodil.core.externalvars
 
 import scala.util.Success
 
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestExternalVariables {

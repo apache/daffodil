@@ -19,7 +19,7 @@ package org.apache.daffodil.runtime1.debugger
 
 import java.io.File
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.InfosetElement
@@ -28,7 +28,7 @@ import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.oolag.ErrorsNotYetRecorded
-import org.apache.daffodil.lib.oolag.OOLAG._
+import org.apache.daffodil.lib.oolag.OOLAG.*
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.util.DPathUtil
 import org.apache.daffodil.lib.util.Enum
@@ -43,9 +43,9 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom.ExpressionCompilerClass
 import org.apache.daffodil.runtime1.dsom.RelativePathPastRootError
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
-import org.apache.daffodil.runtime1.infoset._
-import org.apache.daffodil.runtime1.processors._
-import org.apache.daffodil.runtime1.processors.parsers._
+import org.apache.daffodil.runtime1.infoset.*
+import org.apache.daffodil.runtime1.processors.*
+import org.apache.daffodil.runtime1.processors.parsers.*
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateForSuspension
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser

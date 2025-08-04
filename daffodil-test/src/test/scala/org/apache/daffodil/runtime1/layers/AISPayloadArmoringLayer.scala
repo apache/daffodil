@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import java.io._
-import java.nio._
-import java.nio.charset._
+import java.io.*
+import java.nio.*
+import java.nio.charset.*
 import scala.util.Using
 
 import org.apache.daffodil.io.FormatInfo

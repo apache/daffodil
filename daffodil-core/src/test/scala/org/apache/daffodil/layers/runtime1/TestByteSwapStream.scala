@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import java.io._
+import java.io.*
 import java.nio.charset.StandardCharsets
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestByteSwapStreams {

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.core.dpath
 
-import java.lang.{ Double => JDouble }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Double as JDouble
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.CharSequenceReader
 import scala.xml.NamespaceBinding
@@ -31,7 +31,7 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.QNameRegex
 import org.apache.daffodil.runtime1.BasicComponent
-import org.apache.daffodil.runtime1.dpath._
+import org.apache.daffodil.runtime1.dpath.*
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.ConstantExpression
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo

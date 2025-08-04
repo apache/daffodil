@@ -69,7 +69,7 @@ object SeparatedSequenceChildBehavior {
 }
 
 trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
-  import SeparatedSequenceChildBehavior._
+  import SeparatedSequenceChildBehavior.*
 
   def separatedSequenceChildBehavior: SeparatedSequenceChildBehavior
   protected final def sscb = separatedSequenceChildBehavior

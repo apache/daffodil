@@ -18,8 +18,8 @@
 package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.compiler.ForParser
-import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.core.grammar._
+import org.apache.daffodil.core.dsom.*
+import org.apache.daffodil.core.grammar.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
@@ -29,7 +29,7 @@ import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.processors.parsers.AssertExpressionEvaluationParser
 import org.apache.daffodil.runtime1.processors.parsers.AssertPatternParser
 import org.apache.daffodil.runtime1.processors.parsers.IVCParser
@@ -40,9 +40,9 @@ import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimOn
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceEndParser
 import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceStartParser
+import org.apache.daffodil.runtime1.processors.parsers.Parser as DaffodilParser
 import org.apache.daffodil.runtime1.processors.parsers.SetVariableParser
-import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser as DaffodilUnparser
 import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceEndUnparser
 import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceStartUnparser

@@ -24,7 +24,7 @@ import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.iapi.StringSchemaSource
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestXMLLoader {

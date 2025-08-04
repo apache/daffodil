@@ -31,7 +31,7 @@ import org.apache.daffodil.core.grammar.primitives.HiddenGroupCombinator
 import org.apache.daffodil.core.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.core.grammar.primitives.TrailingSkipRegion
 import org.apache.daffodil.core.runtime1.ModelGroupRuntime1Mixin
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin

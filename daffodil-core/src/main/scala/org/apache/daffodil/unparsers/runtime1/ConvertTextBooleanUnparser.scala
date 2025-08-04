@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import java.lang.Boolean.{ FALSE => JFalse }
-import java.lang.Boolean.{ TRUE => JTrue }
+import java.lang.Boolean.FALSE as JFalse
+import java.lang.Boolean.TRUE as JTrue
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors._
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.*
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 case class ConvertTextBooleanUnparser(
   erd: ElementRuntimeData,

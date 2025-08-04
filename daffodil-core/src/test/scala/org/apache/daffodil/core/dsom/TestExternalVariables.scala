@@ -18,7 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import java.nio.channels.Channels
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 
 import org.apache.daffodil.core.compiler.Compiler
@@ -36,7 +36,7 @@ import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.ExternalVariableException
 import org.apache.daffodil.runtime1.processors.VariableMap
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

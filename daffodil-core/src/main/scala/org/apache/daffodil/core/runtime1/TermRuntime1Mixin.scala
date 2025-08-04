@@ -17,14 +17,14 @@
 
 package org.apache.daffodil.core.runtime1
 
-import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.QNameBase
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.infoset.DoNotUseThisResolver
 import org.apache.daffodil.runtime1.infoset.NoNextElement
 import org.apache.daffodil.runtime1.infoset.OnlyOnePossibilityForNextElement
@@ -41,7 +41,7 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
  * on the input event stream of the streaming unparser.
  */
 sealed trait PossibleNextElements {
-  import PossibleNextElements._
+  import PossibleNextElements.*
   def pnes: Seq[PossibleNextElement]
   final def isClosed = !isOpen
   def isOpen: Boolean
@@ -108,7 +108,7 @@ trait TermRuntime1Mixin { self: Term =>
 
   def termRuntimeData: TermRuntimeData
 
-  import PossibleNextElements._
+  import PossibleNextElements.*
 
   /**
    * Finds possible next streaming unparser elements for this term itself.

@@ -16,17 +16,17 @@
  */
 package org.apache.daffodil.runtime1.infoset
 
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Byte => JByte }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.lang.{ Number => JNumber }
-import java.lang.{ Short => JShort }
-import java.lang.{ String => JString }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.Boolean as JBoolean
+import java.lang.Byte as JByte
+import java.lang.Double as JDouble
+import java.lang.Float as JFloat
+import java.lang.Integer as JInt
+import java.lang.Long as JLong
+import java.lang.Number as JNumber
+import java.lang.Short as JShort
+import java.lang.String as JString
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 import java.net.URI
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong

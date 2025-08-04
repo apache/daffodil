@@ -21,10 +21,10 @@ import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 import org.apache.daffodil.lib.xml.NS
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**
@@ -64,19 +64,19 @@ class TestGeneratedProperties {
     lazy val unqualifiedPathStepPolicy = DaffodilTunables().unqualifiedPathStepPolicy
 
     def SDE(id: String, args: Any*): Nothing = {
-      throw new Exception(id.format(args: _*))
+      throw new Exception(id.format(args*))
     }
 
     def SDEButContinue(id: String, args: Any*): Unit = {
-      System.err.println(new Exception(id.format(args: _*)))
+      System.err.println(new Exception(id.format(args*)))
     }
 
     def SDW(id: String, args: Any*): Unit = {
-      System.err.println(new Exception(id.format(args: _*)))
+      System.err.println(new Exception(id.format(args*)))
     }
 
     def SDW(warnID: WarnID, id: String, args: Any*): Unit = {
-      System.err.println(new Exception(id.format(args: _*)))
+      System.err.println(new Exception(id.format(args*)))
     }
 
     /**

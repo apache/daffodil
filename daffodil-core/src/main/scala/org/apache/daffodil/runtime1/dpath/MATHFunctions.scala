@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Double => JDouble }
+import java.lang.Double as JDouble
 
-import org.apache.daffodil.lib.util.Numbers._
+import org.apache.daffodil.lib.util.Numbers.*
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueDouble
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 

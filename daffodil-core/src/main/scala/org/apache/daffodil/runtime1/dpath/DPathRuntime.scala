@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{ Number => JNumber }
+import java.lang.Number as JNumber
 import scala.collection.immutable.ArraySeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
@@ -44,7 +44,7 @@ import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
-  def this(ops: List[RecipeOp]) = this(ArraySeq.unsafeWrapArray(ops.toArray): _*)
+  def this(ops: List[RecipeOp]) = this(ArraySeq.unsafeWrapArray(ops.toArray)*)
 
   override def toString =
     toXML.toString
@@ -180,7 +180,7 @@ abstract class RecipeOp extends Serializable {
       scala.xml.Null,
       scala.xml.TopScope,
       children.isEmpty,
-      children: _*
+      children*
     )
   }
 

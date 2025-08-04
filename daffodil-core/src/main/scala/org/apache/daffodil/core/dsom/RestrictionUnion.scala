@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInt
 import scala.collection.mutable.Queue
 import scala.xml.Node
 
@@ -29,9 +29,9 @@ import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.runtime1.dsom.FacetTypes.FacetValue
-import org.apache.daffodil.runtime1.dsom._
 
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.GregorianCalendar

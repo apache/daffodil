@@ -24,7 +24,7 @@ import org.apache.daffodil.io.FormatInfoForUnitTest
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util.Misc
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestAISPayloadArmoringEncoder {

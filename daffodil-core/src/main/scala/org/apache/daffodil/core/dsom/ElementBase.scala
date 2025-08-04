@@ -17,27 +17,27 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.lang.{ Integer => JInt }
+import java.lang.Integer as JInt
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.core.dsom.walker.ElementBaseView
 import org.apache.daffodil.core.grammar.ElementBaseGrammarMixin
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.WarnID
-import org.apache.daffodil.lib.schema.annotation.props._
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.*
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.*
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -428,7 +428,7 @@ trait ElementBase
   }
 
   lazy val unparserInfosetElementDefaultingBehavior: UnparserInfo.InfosetEventBehavior = {
-    import UnparserInfo._
+    import UnparserInfo.*
     if (!isRepresented) MustExist
     else if (isOutputValueCalc) Computed
     else if (isOptional) Optional
@@ -437,7 +437,7 @@ trait ElementBase
   }
 
   lazy val canBeAbsentFromUnparseInfoset: Boolean = {
-    import UnparserInfo._
+    import UnparserInfo.*
     unparserInfosetElementDefaultingBehavior !=:= MustExist
   }
 
@@ -967,7 +967,7 @@ trait ElementBase
       (simpleType.primType =:= PrimType.String ||
         simpleType.primType =:= PrimType.HexBinary)
 
-  import org.apache.daffodil.runtime1.dsom.FacetTypes._
+  import org.apache.daffodil.runtime1.dsom.FacetTypes.*
 
   private lazy val hasPattern: Boolean = typeDef.optRestriction.exists(_.hasPattern)
   private lazy val hasEnumeration: Boolean = typeDef.optRestriction.exists(_.hasEnumeration)

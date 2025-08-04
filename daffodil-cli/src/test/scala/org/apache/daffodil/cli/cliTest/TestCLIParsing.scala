@@ -23,11 +23,11 @@ import scala.sys.process.Process
 import scala.util.Using
 
 import org.apache.daffodil.cli.Main.ExitCode
-import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.cli.cliTest.Util.*
 import org.apache.daffodil.core.util.TestUtils.intercept
 
 import org.apache.commons.io.FileUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
