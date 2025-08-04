@@ -22,7 +22,7 @@ import java.io.File
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Maybe
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDataOutputStream {

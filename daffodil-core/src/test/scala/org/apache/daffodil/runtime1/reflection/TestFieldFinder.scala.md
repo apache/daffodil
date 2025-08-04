@@ -21,28 +21,28 @@ package org.apache.daffodil.reflection
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.Assert
 import org.junit.Test
-import org.junit.Assert._
+import org.junit.Assert.*
 
 /**
  * These have to be top-level classes or for some reason
  * the reflection doesn't work.
  */
 abstract class C(
-  notInterested: String, // wrong type
-  warnAbout: List[String], // only used here in constructor
-  s: List[String], // yes. Right type, and in use in the printMore method
-  var t: List[String]) { // yes. var
+                  notInterested: String, // wrong type
+                  warnAbout: List[String], // only used here in constructor
+                  s: List[String], // yes. Right type, and in use in the printMore method
+                  var t: List[String]) { // yes. var
   def printMore = println(s)
 }
 
 class Bar1(
-  val ignoreMe: String, // nope, wrong type.
-  dontWarnAboutMe: String, // wrong type
-  val x: List[String], // yes, val
-  var y: List[String], // yes, var
-  warnAboutMe: List[String], // need warning. Right type, but used only as a constructor arg
-  w: List[String], // yes, it is used in the printIt method
-  warnAboutMeToo: List[String]) // warning. Used nowhere.
+            val ignoreMe: String, // nope, wrong type.
+            dontWarnAboutMe: String, // wrong type
+            val x: List[String], // yes, val
+            var y: List[String], // yes, var
+            warnAboutMe: List[String], // need warning. Right type, but used only as a constructor arg
+            w: List[String], // yes, it is used in the printIt method
+            warnAboutMeToo: List[String]) // warning. Used nowhere.
   extends C(ignoreMe, warnAboutMe, List("s"), List("t")) { // warnAboutMe is used only as a constructor arg.
 
   lazy val p: List[String] = List("p")

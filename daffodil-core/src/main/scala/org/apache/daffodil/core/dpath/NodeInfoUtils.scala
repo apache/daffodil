@@ -20,7 +20,7 @@ package org.apache.daffodil.core.dpath
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
-import NodeInfo._
+import NodeInfo.*
 
 object NodeInfoUtils {
 

@@ -22,11 +22,11 @@ import java.nio.charset.UnmappableCharacterException
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 class DelimiterTextUnparser(
   override val context: TermRuntimeData,

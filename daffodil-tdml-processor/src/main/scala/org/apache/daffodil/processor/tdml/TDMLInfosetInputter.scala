@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processor.tdml
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.Boolean as JBoolean
 import java.net.URI
 import java.net.URISyntaxException
 

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.xml._
+import scala.xml.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestSchemaUtils {

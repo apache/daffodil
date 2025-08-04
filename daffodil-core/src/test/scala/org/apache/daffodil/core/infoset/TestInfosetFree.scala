@@ -23,14 +23,14 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.ParseResult
 import org.apache.daffodil.runtime1.processors.UnparseResult
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
 
 import org.apache.commons.io.output.NullOutputStream
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 object TestInfosetFree {

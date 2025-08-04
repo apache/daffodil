@@ -19,7 +19,7 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
 
-import org.apache.daffodil.core.dsom.IIUtils._
+import org.apache.daffodil.core.dsom.IIUtils.*
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.util.Logger
 

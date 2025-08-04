@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.xml.test.unit
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

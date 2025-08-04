@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 
 object Processor {
 

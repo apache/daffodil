@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dsom.walker
 
-import org.apache.daffodil.runtime1.dsom.walker._
+import org.apache.daffodil.runtime1.dsom.walker.*
 
 /**
  * Below is a series of "View" Mixins defined such that particular simple attributes

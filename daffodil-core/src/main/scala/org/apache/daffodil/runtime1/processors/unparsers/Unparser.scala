@@ -18,9 +18,9 @@
 package org.apache.daffodil.runtime1.processors.unparsers
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.*
 
 sealed trait Unparser extends Processor {
 
@@ -76,7 +76,7 @@ sealed trait Unparser extends Processor {
   }
 
   def UE(ustate: UState, s: String, args: Any*) = {
-    UnparseError(One(context.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
+    UnparseError(One(context.schemaFileLocation), One(ustate.currentLocation), s, args*)
   }
 
 }

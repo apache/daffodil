@@ -22,7 +22,7 @@ import java.net.URISyntaxException
 import scala.collection.immutable.ListMap
 import scala.xml.Node
 
-import org.apache.daffodil.core.dsom.IIUtils._
+import org.apache.daffodil.core.dsom.IIUtils.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource

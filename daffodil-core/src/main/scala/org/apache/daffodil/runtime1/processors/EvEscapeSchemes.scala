@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 

@@ -21,7 +21,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.ThinDiagnostic
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.unparsers.UState

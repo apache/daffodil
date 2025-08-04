@@ -56,10 +56,10 @@ trait ThrowsSDE extends SDEUsingMacrosMixin {
   }
 
   final def schemaDefinitionError(str: String, args: Any*): Nothing =
-    SDE(str, args: _*) // long form synonym
+    SDE(str, args*) // long form synonym
 
   final def notYetImplemented(msg: String, args: Any*): Nothing =
-    SDE("Feature not yet implemented: " + msg, args: _*)
+    SDE("Feature not yet implemented: " + msg, args*)
 
   /**
    * Use for cases where it is an SDE because of something we've chosen
@@ -67,11 +67,11 @@ trait ThrowsSDE extends SDEUsingMacrosMixin {
    * more like things we've chosen to defer intentionally to some future release.
    */
   def subset(testThatWillThrowIfFalse: Boolean, msg: String, args: Any*) = {
-    if (!testThatWillThrowIfFalse) subsetError(msg, args: _*)
+    if (!testThatWillThrowIfFalse) subsetError(msg, args*)
   }
 
   def subsetError(msg: String, args: Any*) = {
-    val msgTxt = msg.format(args: _*)
+    val msgTxt = msg.format(args*)
     SDE("Subset: " + msgTxt)
   }
 }
@@ -95,7 +95,7 @@ trait SavesErrorsAndWarnings extends SDWUsingMacrosMixin {
   def SDEButContinue(str: String, args: Any*): Unit
 
   def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit =
-    SDEButContinue(str, args: _*)
+    SDEButContinue(str, args*)
 
   /**
    * SDE special case when we're blaming the error on the value of a property.
@@ -116,10 +116,10 @@ trait SavesErrorsAndWarnings extends SDWUsingMacrosMixin {
     // output that information as well.
     //
     if (propertyLocation.locationDescription != otherPropertyLocation.locationDescription) {
-      SDEButContinue(str, args: _*)
+      SDEButContinue(str, args*)
       SDE("Property %s defined as '%s'.", propertyName, propertyValue)
     } else {
-      SDE(str, args: _*)
+      SDE(str, args*)
     }
   }
 }

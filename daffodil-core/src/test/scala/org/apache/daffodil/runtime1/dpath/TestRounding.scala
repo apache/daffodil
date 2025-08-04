@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.dpath
 
+import java.math.BigDecimal as JBigDecimal
 import java.math.RoundingMode
-import java.math.{ BigDecimal => JBigDecimal }
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

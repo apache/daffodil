@@ -17,20 +17,20 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import java.lang.{ Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInteger }
+import java.lang.Number as JNumber
+import java.math.BigDecimal as JBigDecimal
+import java.math.BigInteger as JBigInteger
 
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 trait PackedBinaryConversion {
   def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte]

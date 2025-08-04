@@ -35,7 +35,7 @@ import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter

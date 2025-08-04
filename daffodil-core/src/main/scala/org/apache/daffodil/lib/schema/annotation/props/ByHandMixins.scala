@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.lib.schema.annotation.props
 
-import java.lang.{ Integer => JInt }
+import java.lang.Integer as JInt
 
 import org.apache.daffodil.lib.cookers.NilValueLiteralCharacterCooker
 import org.apache.daffodil.lib.cookers.NilValueLiteralValueBinaryCooker

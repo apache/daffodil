@@ -19,9 +19,9 @@ package org.apache.daffodil.processor.tdml
 
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.tdml._
+import org.apache.daffodil.tdml.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestTDMLRoundTrips {

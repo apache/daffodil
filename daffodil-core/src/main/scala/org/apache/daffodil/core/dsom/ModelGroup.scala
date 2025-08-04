@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.lang.{ Integer => JInt }
+import java.lang.Integer as JInt
 import scala.xml.Comment
 import scala.xml.Elem
 import scala.xml.Node
@@ -145,7 +145,7 @@ object ModelGroupFactory {
 
     val newXML = realChildren match {
       // If an annotation is first, that stays on the outer sequence
-      case Seq(annotation @ Elem(_, "annotation", _, _, _*), terms @ _*) =>
+      case Seq(annotation @ Elem(_, "annotation", _, _, _*), terms*) =>
         <sequence dfdlx:layer={seq.xml.attribute("layer")}>
           {annotation}
           <sequence>

@@ -20,17 +20,17 @@ package org.apache.daffodil.core.dsom
 import java.io.File
 import scala.xml.Elem
 
-import org.apache.daffodil.core.dsom.IIUtils._
+import org.apache.daffodil.core.dsom.IIUtils.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.XercesSchemaFileLocation
-import org.apache.daffodil.lib.iapi._
+import org.apache.daffodil.lib.iapi.*
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
 import org.xml.sax.SAXParseException
 

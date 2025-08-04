@@ -26,9 +26,9 @@ package org.apache.daffodil.lib.util
  * However, MaybeULong still has overhead, vs regular old scala Long.
  */
 class TestMaybeTakPerf {
-  import java.lang.{ Long => JLong }
+  import java.lang.Long as JLong
 
-  import Maybe._
+  import Maybe.*
 
   /**
    * Tak, but passing MaybeInt objects which should be unboxed.

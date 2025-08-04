@@ -21,9 +21,9 @@ import java.io.FileNotFoundException
 
 import org.apache.daffodil.core.util.TestUtils.InterceptFailedException
 import org.apache.daffodil.core.util.TestUtils.intercept
-import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.exceptions.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestIntercept {

@@ -20,7 +20,7 @@ package org.apache.daffodil.lib.xml
 import java.io.BufferedInputStream
 import java.net.URI
 import scala.io.Source
-import scala.xml._
+import scala.xml.*
 import scala.xml.include.sax.EncodingHeuristics
 import scala.xml.parsing.ConstructingParser
 

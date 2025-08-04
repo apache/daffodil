@@ -18,10 +18,10 @@
 package org.apache.daffodil.core.dsom.walker
 
 import org.apache.daffodil.core.compiler.{ Compiler, ProcessorFactory }
-import org.apache.daffodil.lib.util._
-import org.apache.daffodil.runtime1.dsom.walker._
+import org.apache.daffodil.lib.util.*
+import org.apache.daffodil.runtime1.dsom.walker.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDSOMWalker {
@@ -186,7 +186,7 @@ class TestDSOMWalker {
     )
     val walker: BasicWalker = new BasicWalker(false, true)
     walker.walkFromRoot(pf.rootView)
-    val simpleTypes: List[Class[_ <: PrimTypeView]] = List(
+    val simpleTypes: List[Class[? <: PrimTypeView]] = List(
       classOf[StringView],
       classOf[BooleanView],
       classOf[ByteView],

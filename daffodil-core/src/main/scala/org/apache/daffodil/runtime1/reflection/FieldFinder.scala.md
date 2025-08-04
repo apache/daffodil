@@ -24,8 +24,8 @@
 
 package org.apache.daffodil.reflection
 
-import scala.reflect.runtime.{ universe => ru }
-import ru._
+import scala.reflect.runtime.{universe => ru}
+import ru.*
 import scala.reflect.ClassTag
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.Assert
@@ -55,9 +55,13 @@ object FieldFinder {
     val clsSym = rm.classSymbol(a.getClass)
     val clsType = clsSym.toType
     val allClasses = clsType.baseClasses
-    val allTypes = allClasses.map { _.asType.toType }
+    val allTypes = allClasses.map {
+      _.asType.toType
+    }
     val allMembers = allTypes.flatMap { ty => ty.members.sorted }
-    val members = allMembers.filter { _.isTerm } // just terms, not types
+    val members = allMembers.filter {
+      _.isTerm
+    } // just terms, not types
     val im = rm.reflect(a)
     val allMethods = members.collect { case x if x.isMethod => x.asMethod }
     val allGetters = allMethods.collect { case m if m.isGetter => m.getter.Method }
@@ -86,7 +90,9 @@ object FieldFinder {
     // are referring to the same slot/location.
     //
     // So we just compare these based on the string representation
-    val gottenStrings = gotten.map { _.toString }
+    val gottenStrings = gotten.map {
+      _.toString
+    }
     val allWanted = nonMethods.filterNot { term => gottenStrings.contains(term.String) }
     val wanted = allWanted.filter { w =>
       w.typeSignature <:< tpe
@@ -138,7 +144,9 @@ object FieldFinder {
       }
     }
 
-    val warnings = warnTerms.map { _.toString }.distinct
+    val warnings = warnTerms.map {
+      _.toString
+    }.distinct
 
     (values, warnings)
   }

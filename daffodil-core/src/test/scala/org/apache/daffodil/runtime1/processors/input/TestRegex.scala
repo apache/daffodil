@@ -18,11 +18,11 @@
 package org.apache.daffodil.runtime1.processors.input
 
 import java.io.StringReader
-import scala.util.parsing.combinator._
+import scala.util.parsing.combinator.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestRegex extends RegexParsers {

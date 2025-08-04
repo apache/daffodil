@@ -36,7 +36,7 @@ import org.apache.daffodil.api.metadata.SequenceMetadata
 import org.apache.daffodil.api.metadata.SimpleElementMetadata
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.runtime1.iapi.DFDL.ParseResult
 import org.apache.daffodil.runtime1.processors.DataProcessor
 

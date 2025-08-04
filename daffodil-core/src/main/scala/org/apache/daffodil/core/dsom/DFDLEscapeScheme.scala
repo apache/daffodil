@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.EscapeCharEv
 import org.apache.daffodil.runtime1.processors.EscapeEscapeCharEv

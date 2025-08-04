@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.grammar
 
-import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.core.grammar.primitives._
+import org.apache.daffodil.core.dsom.*
+import org.apache.daffodil.core.grammar.primitives.*
 import org.apache.daffodil.core.runtime1.SequenceTermRuntime1Mixin
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 
 trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
   self: SequenceTermBase =>
@@ -33,7 +33,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
   }
 
   private lazy val sequenceContent = {
-    import columnConstants._
+    import columnConstants.*
     self.sequenceKind match {
       case Ordered__ => orderedSequence
       case Unordered => unorderedSequence
@@ -119,7 +119,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
    * a time, orchestrated by the surrounding sequence's processor.
    */
   private def sequenceChild(child: Term, groupIndex: Int): SequenceChild = {
-    import columnConstants._
+    import columnConstants.*
 
     val (max, min, ock) = child match {
       case e: EB =>

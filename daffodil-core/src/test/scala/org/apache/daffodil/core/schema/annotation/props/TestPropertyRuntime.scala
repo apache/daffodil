@@ -21,9 +21,9 @@ import org.apache.daffodil.core.dsom.NestingLexicalMixin
 import org.apache.daffodil.core.dsom.SchemaComponentImpl
 import org.apache.daffodil.core.util.Fakes
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.schema.annotation.props._
+import org.apache.daffodil.lib.schema.annotation.props.*
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 sealed trait MyPropType extends EnumValue

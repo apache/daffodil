@@ -18,10 +18,10 @@
 package org.apache.daffodil.runtime1.processors.unparsers
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
-import org.apache.daffodil.lib.iapi._
+import org.apache.daffodil.lib.iapi.*
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.lib.util.Maybe.*
+import org.apache.daffodil.runtime1.processors.*
 
 class UnparseAlternativeFailed(
   rd: TermRuntimeData,
@@ -42,7 +42,7 @@ object UnparseError {
     formatString: String,
     args: Any*
   ) = {
-    val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args: _*)
+    val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args*)
     ue.toss
   }
 }
@@ -53,7 +53,7 @@ class UnparseError(
   causedBy: Maybe[Throwable],
   kind: Maybe[String],
   args: Any*
-) extends ProcessingError("Unparse", rd, loc, causedBy, kind, args: _*) {
+) extends ProcessingError("Unparse", rd, loc, causedBy, kind, args*) {
   def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], causedBy: Throwable) =
     this(rd, loc, Maybe(causedBy), Maybe.Nope)
 }

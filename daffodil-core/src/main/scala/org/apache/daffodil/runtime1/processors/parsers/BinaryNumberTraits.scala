@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Long => JLong }
+import java.lang.Long as JLong
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits

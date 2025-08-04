@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.math.{ BigInteger => JBigInt }
-import scala.jdk.CollectionConverters._
+import java.math.BigInteger as JBigInt
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.ProperlySerializableMap._
+import org.apache.daffodil.lib.util.ProperlySerializableMap.*
 import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.DelimiterParseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv

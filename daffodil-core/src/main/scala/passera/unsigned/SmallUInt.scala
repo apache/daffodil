@@ -26,7 +26,7 @@
 
 package passera.unsigned
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 
 /**
  * Supertrait of UByte, UShort, UInt

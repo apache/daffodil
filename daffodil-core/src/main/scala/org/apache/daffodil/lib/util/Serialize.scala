@@ -18,7 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import scala.collection.mutable.HashMap
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 
@@ -81,7 +81,7 @@ private object PreSerialization {
   // This private method ensures that any class (or any super class) that use this trait also implements the writeObject method
   // used by the Java serialization framework.
   //
-  private def classHasWriteObjectMethod(cls: Class[_]): Boolean = {
+  private def classHasWriteObjectMethod(cls: Class[?]): Boolean = {
 
     if (cls == null) return false
     if (classCache contains cls) return classCache(cls)
@@ -114,7 +114,7 @@ private object PreSerialization {
  * class with helper function is added to make it easy to correctly convert a Scala Map to a
  * ProperlySerializableMap. For example:
  *
- *     import org.apache.daffodil.lib.util.ProperlySerializableMap._
+ *     import org.apache.daffodil.lib.util.ProperlySerializableMap.*
  *
  *     val myScalaMap = Map((1,2), (3,4))
  *     val serializableMap = myScalaMap.toProperlySerializableMap

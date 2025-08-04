@@ -25,7 +25,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 import com.ibm.icu.util.Calendar
 

@@ -85,7 +85,7 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable 
 
 /**
  * Outside of Maybe because it has to be public due to inlining, and
- * it doesn't want to get imported by 'import Maybe._' since it is
+ * it doesn't want to get imported by 'import Maybe.*' since it is
  * for internal use only.
  */
 object NopeValue extends Serializable {

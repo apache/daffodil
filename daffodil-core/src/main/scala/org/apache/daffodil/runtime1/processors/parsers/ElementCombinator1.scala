@@ -24,7 +24,7 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dpath.DFDLCheckConstraintsFunction
-import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.Success

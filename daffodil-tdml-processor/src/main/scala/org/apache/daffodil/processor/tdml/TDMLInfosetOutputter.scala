@@ -37,7 +37,7 @@ import org.apache.daffodil.runtime1.infoset.XMLTextInfosetInputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 
 class TDMLInfosetOutputterScala(scalaOut: ScalaXMLInfosetOutputter)
-  extends TeeInfosetOutputter(Seq(scalaOut): _*)
+  extends TeeInfosetOutputter(Seq(scalaOut)*)
   with TDMLInfosetOutputter {
 
   override def getResult: Node = scalaOut.getResult()
@@ -69,7 +69,7 @@ class TDMLInfosetOutputterAll(
   w3cdomOut: W3CDOMInfosetOutputter,
   jsonOut: JsonInfosetOutputter,
   xmlOut: XMLTextInfosetOutputter
-) extends TeeInfosetOutputter(Seq(xmlOut, scalaOut, jdomOut, w3cdomOut, jsonOut): _*)
+) extends TeeInfosetOutputter(Seq(xmlOut, scalaOut, jdomOut, w3cdomOut, jsonOut)*)
   with TDMLInfosetOutputter {
 
   override def getResult: Node = scalaOut.getResult()

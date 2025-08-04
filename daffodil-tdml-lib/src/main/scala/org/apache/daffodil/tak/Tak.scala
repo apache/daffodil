@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.tak
 
-import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.util.*
 
 /**
  * Tak is about establishing a sort-of platform independent self-calibrating

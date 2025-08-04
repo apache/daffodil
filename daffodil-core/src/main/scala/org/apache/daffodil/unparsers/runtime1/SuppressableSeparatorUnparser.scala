@@ -24,7 +24,7 @@ import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SuspendableOperation
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 /**
  * Performance Note: This can be a very special purpose suspension. Unlike the
@@ -171,7 +171,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * alignment if we didn't statically determine that it wasn't needed
    */
   override def continuation(state: UState): Unit = {
-    import ZeroLengthStatus._
+    import ZeroLengthStatus.*
     zlStatus_ match {
       case Zero => {
         // zero length, so we suppress the separator

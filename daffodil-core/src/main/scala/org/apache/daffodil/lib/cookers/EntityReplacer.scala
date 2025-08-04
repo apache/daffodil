@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.lib.cookers
 
-import java.lang.{ Byte => JByte, Character => JChar }
+import java.lang.{ Byte as JByte, Character as JChar }
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import scala.collection.mutable.ListBuffer
 
-import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.util.Maybe

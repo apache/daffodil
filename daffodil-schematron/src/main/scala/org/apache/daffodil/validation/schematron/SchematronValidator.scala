@@ -67,7 +67,7 @@ final class SchematronValidator(
       .transform(new SAXSource(reader, new InputSource(document)), new StreamResult(writer))
     val svrlString = writer.toString
     val svrl = XML.loadString(svrlString)
-    svrl.child.collect { case f @ Elem("svrl", "failed-assert", _, _, msg @ _*) =>
+    svrl.child.collect { case f @ Elem("svrl", "failed-assert", _, _, msg*) =>
       handler.validationError(msg.text.trim, (f \ "@location").text)
     }
     svrlPath.foreach { uri =>

@@ -28,7 +28,7 @@ import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.LengthEv
 import org.apache.daffodil.runtime1.processors.TextTruncationType
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 sealed abstract class StringSpecifiedLengthUnparserBase(val erd: ElementRuntimeData)
   extends TextPrimUnparser {

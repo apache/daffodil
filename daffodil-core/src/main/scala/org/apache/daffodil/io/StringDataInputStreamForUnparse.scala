@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.io
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
@@ -30,7 +30,7 @@ import org.apache.daffodil.lib.util.Misc
  * string data being unparsed as a DataInputStream.
  */
 final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
-  import DataInputStream._
+  import DataInputStream.*
 
   override final protected val cst = new AnyRef with DataStreamCommonState
 

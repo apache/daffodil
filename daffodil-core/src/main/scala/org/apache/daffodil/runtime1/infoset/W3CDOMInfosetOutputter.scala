@@ -24,7 +24,7 @@ import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetElement
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
-import org.apache.daffodil.api.infoset.{ W3CDOMInfosetOutputter => JW3CDOMInfosetOutputter }
+import org.apache.daffodil.api.infoset.W3CDOMInfosetOutputter as JW3CDOMInfosetOutputter
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe

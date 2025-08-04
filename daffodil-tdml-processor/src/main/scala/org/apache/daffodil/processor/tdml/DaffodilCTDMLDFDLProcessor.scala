@@ -20,7 +20,7 @@ package org.apache.daffodil.processor.tdml
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.io.OutputStream
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 import scala.xml.XML
 

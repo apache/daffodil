@@ -23,7 +23,7 @@ import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.EndArrayChecksMixin
 import org.apache.daffodil.runtime1.processors.parsers.MinMaxRepeatsMixin
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 /**
  * base for unparsers for the children of sequences.
@@ -195,7 +195,7 @@ abstract class RepeatingChildUnparser(
     maxReps: Long,
     arrPos: Long
   ): Unit = {
-    import OccursCountKind._
+    import OccursCountKind.*
 
     val minReps = unparser.minRepeats(state)
     val ev = state.inspectAccessor

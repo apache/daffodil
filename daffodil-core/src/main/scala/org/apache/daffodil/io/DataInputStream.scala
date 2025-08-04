@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.io
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.BigInteger as JBigInt
 import java.util.regex.Matcher
 
 import org.apache.daffodil.lib.exceptions.ThinException
@@ -169,7 +169,7 @@ object DataInputStream {
 }
 
 trait DataInputStream extends DataStreamCommon with IOUsingMacrosMixin {
-  import DataInputStream._
+  import DataInputStream.*
 
   /**
    * The position is maintained at bit granularity.

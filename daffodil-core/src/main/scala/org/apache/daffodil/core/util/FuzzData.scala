@@ -142,7 +142,7 @@ class FuzzParseTester(
 
   private val p = TestUtils.compileSchema(sch)
 
-  val unexpectedThrowClasses = new mutable.HashSet[Class[_ <: Throwable]]()
+  val unexpectedThrowClasses = new mutable.HashSet[Class[? <: Throwable]]()
 
   val okParses = new mutable.HashSet[(Node, Array[Byte], XMLDifferenceException)]
 

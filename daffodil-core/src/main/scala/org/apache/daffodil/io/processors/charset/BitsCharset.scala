@@ -20,11 +20,11 @@ import java.io.InvalidObjectException
 import java.io.ObjectStreamException
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+import java.nio.charset.Charset as JavaCharset
+import java.nio.charset.CharsetEncoder as JavaCharsetEncoder
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
-import java.nio.charset.{ Charset => JavaCharset }
-import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder

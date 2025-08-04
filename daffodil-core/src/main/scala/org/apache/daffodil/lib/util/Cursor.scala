@@ -19,7 +19,7 @@ package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.exceptions.Assert
 
-import Maybe._
+import Maybe.*
 
 /**
  * Cursor pattern is a performance hack to avoid allocation of objects

@@ -19,7 +19,7 @@ package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.processors.dfa.CreateDelimiterDFA

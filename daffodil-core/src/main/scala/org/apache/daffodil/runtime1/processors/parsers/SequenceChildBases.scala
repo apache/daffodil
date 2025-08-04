@@ -298,7 +298,7 @@ abstract class RepeatingChildParser(
    * assignment to a loop var, or held in pstate.
    */
   def arrayIndexStatus(minRepeats: Long, maxRepeats: Long, pstate: PState): ArrayIndexStatus = {
-    import ArrayIndexStatus._
+    import ArrayIndexStatus.*
     Assert.invariant(pstate.processorStatus eq Success)
     val apos = pstate.arrayIterationPos
     val result: ArrayIndexStatus =

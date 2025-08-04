@@ -42,7 +42,7 @@ import com.ibm.icu.util.Calendar
  * such a schema is used for parse/unparse.
  */
 class LayerVarsRuntime(
-  constructor: Constructor[_],
+  constructor: Constructor[?],
   optParamSetter: Option[Method],
   paramVRDs: Seq[VariableRuntimeData],
   resultVarPairs: Seq[(VariableRuntimeData, Method)]
@@ -78,7 +78,7 @@ class LayerVarsRuntime(
     }
     optParamSetter.foreach { paramSetter =>
       try {
-        paramSetter.invoke(layer, args: _*)
+        paramSetter.invoke(layer, args*)
       } catch {
         case ite: InvocationTargetException =>
           // unwrap and re-throw. We don't care if it was reflective call.

@@ -17,22 +17,22 @@
 
 package org.apache.daffodil.core.dpath
 
-import java.lang.{ Boolean => JBoolean, Double => JDouble, Integer => JInt, Long => JLong }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.lang.{ Boolean as JBoolean, Double as JDouble, Integer as JInt, Long as JLong }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 import scala.util.{ Failure, Success }
 import scala.xml.NamespaceBinding
 
-import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.equality.*
+import org.apache.daffodil.lib.exceptions.*
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHost
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.lib.util.Numbers
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.lib.xml.*
 import org.apache.daffodil.runtime1.BasicComponent
-import org.apache.daffodil.runtime1.dpath._
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dpath.*
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService
 
@@ -315,7 +315,7 @@ trait NumericExpression extends BinaryExpMixin {
   self: ExpressionLists =>
 
   lazy val numericOp: NumericOp = {
-    import NodeInfo._
+    import NodeInfo.*
     (op, convergedArgType) match {
       case ("+", Decimal) => PlusDecimal
       case ("-", Decimal) => MinusDecimal
@@ -3004,7 +3004,7 @@ case class DFDLCheckRangeExpr(
   // value of subexpr in targetTypeForSubexpression, and we need all 3 sub
   // expressions to come to the right target target for the args
   lazy val convergedArgType: NodeInfo.Kind = {
-    import NodeInfo._
+    import NodeInfo.*
     val targetType = (arg1.inherentType, arg2.inherentType, arg3.inherentType) match {
       case (testType: Numeric.Kind, minType: Numeric.Kind, maxType: Numeric.Kind) => {
         val rangeType =

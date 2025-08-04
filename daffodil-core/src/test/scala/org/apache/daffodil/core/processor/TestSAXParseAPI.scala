@@ -41,7 +41,7 @@ import org.xml.sax.SAXNotRecognizedException
 import org.xml.sax.SAXNotSupportedException
 
 class TestSAXParseAPI {
-  import TestSAXUtils._
+  import TestSAXUtils.*
 
   /**
    * tests the case where we attempt to set an unsupported feature

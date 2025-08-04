@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.core.dpath
 
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInt }
 import scala.util.parsing.combinator.Parsers
 
-import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.compiler.*
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.runtime1.dpath._
+import org.apache.daffodil.lib.xml.*
+import org.apache.daffodil.runtime1.dpath.*
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDFDLExpressionTree extends Parsers {

@@ -22,7 +22,7 @@ import scala.util.Using
 import scala.util.parsing.combinator.Parsers
 
 import org.apache.daffodil.api.infoset.InfosetDocument
-import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.compiler.*
 import org.apache.daffodil.core.infoset.TestInfoset
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -34,7 +34,7 @@ import org.apache.daffodil.runtime1.infoset.NullInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.parsers.PState
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestDFDLExpressionEvaluation extends Parsers {

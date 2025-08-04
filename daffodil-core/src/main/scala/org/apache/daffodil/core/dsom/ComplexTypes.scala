@@ -45,7 +45,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final def choice = group.asInstanceOf[Choice]
 
   private lazy val xmlChildren = xml match {
-    case Elem(_, "complexType", _, _, xc @ _*) => xc
+    case Elem(_, "complexType", _, _, xc*) => xc
     case x => schemaDefinitionError(s"Expected <complexType> elem, found $x")
   }
 
@@ -77,7 +77,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
     xmlChildren.flatMap { xmlChild =>
       {
         xmlChild match {
-          case Elem(_, "annotation", _, _, annotationChildren @ _*) => {
+          case Elem(_, "annotation", _, _, annotationChildren*) => {
             val dais = annotationChildren.find { ai =>
               ai.attribute("source") match {
                 case Some(n) => n.text.contains("ogf") && n.text.contains("dfdl")

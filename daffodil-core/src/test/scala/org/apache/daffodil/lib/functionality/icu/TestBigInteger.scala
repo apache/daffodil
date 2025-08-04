@@ -21,7 +21,7 @@ import java.text.ParsePosition
 
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestBigInteger {

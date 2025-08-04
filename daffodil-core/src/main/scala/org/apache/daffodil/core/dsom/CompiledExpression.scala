@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Long => JLong }
+import java.lang.Boolean as JBoolean
+import java.lang.Long as JLong
 import scala.xml.NamespaceBinding
 
-import org.apache.daffodil.core.dpath._
+import org.apache.daffodil.core.dpath.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.util.DPathUtil
@@ -30,7 +30,7 @@ import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.AnyAtomic
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 object ExpressionCompilers extends ExpressionCompilerClass {

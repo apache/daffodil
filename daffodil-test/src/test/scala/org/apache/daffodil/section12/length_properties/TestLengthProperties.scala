@@ -108,7 +108,7 @@ class TestLengthProperties extends TdmlTests {
   @Test def bitSignedCombo = test
 
   @Test def test_littleEndianBits1() = {
-    import org.apache.daffodil.lib.util._
+    import org.apache.daffodil.lib.util.*
     val b1 = Bits.littleEndianBitValue(1, 10)
     val b2 = Bits.littleEndianBitValue(10, 10)
     val res = b1 + b2

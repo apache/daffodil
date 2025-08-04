@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Enum
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.LocalTypedDelimiterIterator
 import org.apache.daffodil.runtime1.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator

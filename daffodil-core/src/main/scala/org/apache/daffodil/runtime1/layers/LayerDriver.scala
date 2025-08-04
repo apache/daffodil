@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.layers
 import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.OutputStream
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream

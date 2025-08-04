@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import java.lang.{ Boolean => JBoolean }
+import java.lang.Boolean as JBoolean
 import java.util.Iterator
-import scala.jdk.OptionConverters._
+import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -70,7 +70,7 @@ class JDOMInfosetInputter(doc: Document) extends api.infoset.InfosetInputter {
   private var doStartEvent = true
 
   override def getEventType(): InfosetInputterEventType = {
-    import InfosetInputterEventType._
+    import InfosetInputterEventType.*
     if (stack.top._1 == null) {
       if (doStartEvent) StartDocument else EndDocument
     } else {

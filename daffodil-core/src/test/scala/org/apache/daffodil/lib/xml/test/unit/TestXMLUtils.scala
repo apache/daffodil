@@ -21,13 +21,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-import scala.xml._
+import scala.xml.*
 
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestXMLUtils {

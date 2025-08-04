@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPOutputStream
 
 import org.apache.commons.io.IOUtils
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestGzipLayer {

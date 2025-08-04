@@ -20,7 +20,7 @@ package org.apache.daffodil.propGen
 import java.nio.file.Files
 import java.nio.file.Paths
 
-import org.junit.Assert._
+import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder

@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import java.lang.{ Long => JLong }
-import java.math.{ BigInteger => JBigInteger }
+import java.lang.Long as JLong
+import java.math.BigInteger as JBigInteger
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.DecimalUtils
@@ -28,7 +28,7 @@ import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.unparsers.*
 
 abstract class PackedIntegerBaseUnparser(
   e: ElementRuntimeData,

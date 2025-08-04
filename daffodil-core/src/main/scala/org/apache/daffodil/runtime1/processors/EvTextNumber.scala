@@ -28,12 +28,12 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRoundingMode
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.dsom.*
 
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
