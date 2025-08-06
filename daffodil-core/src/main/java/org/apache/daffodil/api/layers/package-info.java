@@ -16,7 +16,7 @@
  */
 
 /**
- * <h2>Daffodil Runtime1 Layers API Package</h2>
+ * <h2>Daffodil Layers API Package</h2>
  * <p>
  * This package provides base classes for creating Layers, which provide a means of
  * algorithmic operations on the data stream that cannot be expressed using
@@ -37,23 +37,29 @@
  * This API documentation is focused on the programming required to create a new layer implementation
  * as a custom plug-in for Daffodil.
  * <p>
- * {@link org.apache.daffodil.runtime1.layers.api.Layer} is the general abstract base class
+ * {@link org.apache.daffodil.api.layers.Layer} is the general abstract base class
  * used to define any layer, but most commonly it is used for transforming layers.
  * <p>
- * {@link org.apache.daffodil.runtime1.layers.api.ChecksumLayer} is an abstract base class
- * derived from {@link org.apache.daffodil.runtime1.layers.api.Layer}, and further specialized for defining
+ * {@link org.apache.daffodil.api.layers.ChecksumLayer} is an abstract base class
+ * derived from {@link org.apache.daffodil.api.layers.Layer}, and further specialized for defining
  * checksum layers.
  *
  * <h3> About Testing </h3>
  * <p>
  * The Daffodil test code base includes tests for many ways that
  * an API user can goof up the definition of a layer class.
- * For example there are tests for calling {@code processingError}, {@code runtimeSchemaDefinitionError}, and throwing
+ * For example, there are tests for calling {@code processingError}, {@code runtimeSchemaDefinitionError}, and throwing
  * an {@code Exception} from every place a custom-defined Layer could cause these.
  * Processing errors cause the parser to backtrack in all sensible cases.
- * That is to say that if a layer is parsing data, and the data it encounters is not a match for that layer, then
- * a properly written layer will issue a processing error, and the parser will backtrack, allowing the format to try
- * other alternatives for parsing that data.
+ * That is to say that if a layer is parsing data, and the data it encounters is not
+ * a match for that layer, then a properly written layer will issue a processing error,
+ * and the parser will backtrack, allowing the format to try other alternatives for
+ * parsing that data.
+ *
+ * <h4>Custom Plug-In Layers</h4>
+ * Custom Plug-in layers must extend the {@link org.apache.daffodil.api.layers.Layer} class, and be
+ * referenced in a {@code META-INF/services} file with the same class reference as the name. This
+ * path has changed in Daffodil 4.0.0.
  *
  * <h3>Compatibility with Daffodil 3.7.0 and prior versions of Apache Daffodil</h3>
  * <p>
@@ -67,4 +73,4 @@
  * It is our intention that this Layer API (introduced in Daffodil 3.8.0) will prove to be stable
  * and supportable long term.
  */
-package org.apache.daffodil.runtime1.layers.api;
+package org.apache.daffodil.api.layers;

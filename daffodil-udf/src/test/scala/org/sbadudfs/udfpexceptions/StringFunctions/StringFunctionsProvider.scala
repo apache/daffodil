@@ -16,9 +16,9 @@
  */
 package org.sbadudfs.udfpexceptions.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
+import org.apache.daffodil.api.udf.UserDefinedFunction
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider
 
 /**
  * UDF Provider for Negative Unit test

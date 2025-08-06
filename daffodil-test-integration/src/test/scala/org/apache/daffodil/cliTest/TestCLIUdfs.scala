@@ -89,7 +89,7 @@ class TestCLIUdfs {
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
       cli.send("strng", inputDone = true)
       cli.expectErr(
-        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider:"
+        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.api.udf.UserDefinedFunctionProvider:"
       )
       cli.expectErr(
         "Provider org.nonexistentclass.example.StringFunctions.StringFunctionsProvider not found"
@@ -174,12 +174,12 @@ class TestCLIUdfs {
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.nonUDF.StringFunctions.FuncA." +
-          " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction"
+          " Doesn't implement org.apache.daffodil.api.udf.UserDefinedFunction"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.nonUDF.StringFunctions.Replace." +
-          " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction"
+          " Doesn't implement org.apache.daffodil.api.udf.UserDefinedFunction"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -201,7 +201,7 @@ class TestCLIUdfs {
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.annotations.StringFunctions.FuncB." +
-          " Missing org.apache.daffodil.udf.UserDefinedFunctionIdentification annotation"
+          " Missing org.apache.daffodil.api.udf.UserDefinedFunctionIdentification annotation"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
@@ -371,7 +371,7 @@ class TestCLIUdfs {
 
     runCLI(args"-vv parse -s $schema -r user_func3", classpath) { cli =>
       cli.expectErr(
-        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider"
+        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.api.udf.UserDefinedFunctionProvider"
       )
       cli.expectErr(
         "Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated"

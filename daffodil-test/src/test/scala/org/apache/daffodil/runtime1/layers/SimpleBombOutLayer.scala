@@ -21,11 +21,11 @@ package org.apache.daffodil.runtime1.layers
 import java.io.InputStream
 import java.io.OutputStream
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.Enum
 import org.apache.daffodil.lib.schema.annotation.props.EnumValue
-import org.apache.daffodil.runtime1.layers.api.Layer
 
 /**
  * This layer has bombWhere and bombHow variables to enable

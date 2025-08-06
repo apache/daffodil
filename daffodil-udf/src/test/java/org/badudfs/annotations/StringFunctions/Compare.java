@@ -16,12 +16,12 @@
  */
 package org.badudfs.annotations.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for Annotations Negative Unit test
- *
+ * <p>
  * Contains annotation with blank fields
  */
 @SuppressWarnings("serial")

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.udf;
+package org.apache.daffodil.api.udf;
 
 /**
  * Abstract class used by ServiceLoader to poll for UDF providers on classpath.
@@ -31,9 +31,8 @@ package org.apache.daffodil.udf;
  * initialized function class object based on the supplied namespace and name.
  * <p>
  * Subclasses must also supply a
- * src/META-INF/services/org.apache.daffodil.udf.UserDefinedFunctionProvider
+ * src/META-INF/services/org.apache.daffodil.api.udf.UserDefinedFunctionProvider
  * file in their JAVA project in order to be discoverable by Daffodil.
- *
  */
 
 public abstract class UserDefinedFunctionProvider {
@@ -50,26 +49,19 @@ public abstract class UserDefinedFunctionProvider {
    * provided. The UserDefinedFunctionIdentification annotation applied to the
    * function class must match name and namespaceURI field passed in from the
    * schema.
-   *
+   * <p>
    * Must be overloaded if the function class's constructor takes arguments.
    * Otherwise it will throw exceptions.
    *
-   * @param namespaceURI
-   *          XML namespace associated with schema function call
-   * @param fName
-   *          function name called in schema
+   * @param namespaceURI XML namespace associated with schema function call
+   * @param fName        function name called in schema
    * @return initialized UserDefinedFunction object that must contain evaluate
-   *         function with desired functionality
-   *
-   * @throws java.lang.SecurityException
-   *           if security manager exists and disallows access
-   * @throws java.lang.IllegalArgumentException
-   *           if the UDF doesn't have a no-argument constructor
-   * @throws java.lang.ExceptionInInitializerError
-   *           if there is an issue initializing the UDF object
-   * @throws java.lang.ReflectiveOperationException
-   *           if the UDF doesn't have a no-argument constructor or if there is an
-   *           issue initializing the UDF object
+   * function with desired functionality
+   * @throws java.lang.SecurityException            if security manager exists and disallows access
+   * @throws java.lang.IllegalArgumentException     if the UDF doesn't have a no-argument constructor
+   * @throws java.lang.ExceptionInInitializerError  if there is an issue initializing the UDF object
+   * @throws java.lang.ReflectiveOperationException if the UDF doesn't have a no-argument constructor or if there is an
+   *                                                issue initializing the UDF object
    */
   public UserDefinedFunction createUserDefinedFunction(String namespaceURI, String fName)
       throws IllegalArgumentException, SecurityException, ExceptionInInitializerError,

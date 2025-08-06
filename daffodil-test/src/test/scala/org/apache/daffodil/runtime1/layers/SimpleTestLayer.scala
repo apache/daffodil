@@ -21,7 +21,7 @@ package org.apache.daffodil.runtime1.layers
 import java.io.InputStream
 import java.io.OutputStream
 
-import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.api.layers.Layer
 
 abstract class TLayer(n: String, ns: String) extends Layer(n, ns) {
   protected var intVar: Int = 0

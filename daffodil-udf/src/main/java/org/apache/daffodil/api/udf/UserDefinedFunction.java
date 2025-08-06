@@ -15,29 +15,25 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.udf.exceptions;
+package org.apache.daffodil.api.udf;
+
+import java.io.Serializable;
 
 /**
- * Exception to throw to abort parsing/unparsing.
+ * Interface that all User Defined Functions classes must implement.
+ * <p>
+ * It implements the java.io.Serializable class and must have the
+ * UserDefinedFunctionIdentification annotation applied and filled in with the
+ * values to be used in the schema.
+ * <p>
+ * It must also have an evaluate method that contains the functionality it is
+ * offering
+ * <p>
+ * Any "state" variables should be passed in during overloaded
+ * UserDefinedFunctionProvider initialization
  */
-@SuppressWarnings("serial")
-public class UserDefinedFunctionFatalException extends Exception {
-
-  /**
-   * Constructs a new exception with a specified detail message
-   *
-   * @param errorMessage the detail message
-   */
-  public UserDefinedFunctionFatalException(String errorMessage) {
-    super(errorMessage);
-  }
-
-  /**
-   * Constructs a new exception with a specified cause
-   *
-   * @param cause the cause of the exception
-   */
-  public UserDefinedFunctionFatalException(Throwable cause) {
-    super(cause);
-  }
+@UserDefinedFunctionIdentification(
+    name = "replace.me",
+    namespaceURI = "replace.me")
+public interface UserDefinedFunction extends Serializable {
 }

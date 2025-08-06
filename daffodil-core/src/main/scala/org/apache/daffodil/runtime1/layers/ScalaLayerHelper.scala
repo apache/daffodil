@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.api.layers.Layer
 
 /**
  * The Layer API is defined in Java. This gives the things that throw more

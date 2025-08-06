@@ -16,16 +16,16 @@
  */
 package org.badudfs.functionclasses2.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunctionProvider;
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider;
 
 /**
  * UDF Provider for Negative Unit test
- *
+ * <p>
  * userDefinedFunctionClasses array is empty
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    return new Class<?>[] {};
+    return new Class<?>[]{};
   }
 }

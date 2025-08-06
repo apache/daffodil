@@ -18,9 +18,9 @@ package org.sbadudfs.functionclasses2.StringFunctions
 
 import java.io.Serializable
 
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
+import org.apache.daffodil.api.udf.UserDefinedFunction
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider
 
 /**
  * UDF Provider for Negative Unit test

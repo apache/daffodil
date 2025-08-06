@@ -16,10 +16,10 @@
  */
 package org.sbadudfs.udfexceptions.evaluating.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
-import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
+import org.apache.daffodil.api.udf.UserDefinedFunction
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider
+import org.apache.daffodil.api.udf.exceptions.UserDefinedFunctionProcessingError
 
 /**
  * UDF Provider for Negative Unit test

@@ -30,11 +30,11 @@ import java.util.ServiceLoader
 import scala.collection.immutable.{ ArraySeq => IArraySeq }
 import scala.collection.mutable._
 
+import org.apache.daffodil.api.udf._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.udf._
 
 /**
  * Loads, validates and caches (for use at schema compile time) all User Defined Functions

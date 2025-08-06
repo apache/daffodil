@@ -18,11 +18,11 @@ package org.badudfs.nonUDF.StringFunctions;
 
 import java.io.Serializable;
 
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for implementing UserDefinedFunction Negative Unit test
- *
+ * <p>
  * Does not implement UserDefinedFunction interface but implements Serializable
  */
 @UserDefinedFunctionIdentification(

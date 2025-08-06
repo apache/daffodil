@@ -16,17 +16,17 @@
  */
 package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunctionProvider;
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider;
 
 /**
  * UDF Provider for Negative Unit test
- *
+ * <p>
  * Contains classes with invalid or missing evaluate functions
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    return new Class<?>[] { Replace.class, FuncA.class, FuncB.class, FuncC.class, FuncD.class,
-      FuncE.class };
+    return new Class<?>[]{Replace.class, FuncA.class, FuncB.class, FuncC.class, FuncD.class,
+        FuncE.class};
   }
 }

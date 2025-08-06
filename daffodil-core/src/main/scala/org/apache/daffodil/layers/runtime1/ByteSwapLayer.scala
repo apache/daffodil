@@ -22,8 +22,8 @@ import java.io.OutputStream
 import java.util.ArrayDeque
 import java.util.Deque
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.layers.api.Layer
 
 final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2)
 
