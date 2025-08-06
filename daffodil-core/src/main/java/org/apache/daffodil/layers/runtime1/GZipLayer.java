@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.layers.runtime1;
 
-import org.apache.daffodil.runtime1.layers.api.Layer;
+import org.apache.daffodil.api.layers.Layer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +41,7 @@ public final class GZipLayer extends Layer {
         majorVersion = 8;
       } else {
         String[] parts = versionString.split("\\.");
-        assert(parts.length > 0);
+        assert (parts.length > 0);
         majorVersion = Integer.parseInt(parts[0]);
       }
       fixNeeded = (majorVersion < 16);
@@ -99,10 +99,14 @@ class GZIPFixedOutputStream extends OutputStream {
   private int bytePosition = 0;
 
   @Override
-  public void close() throws IOException { os.close(); }
+  public void close() throws IOException {
+    os.close();
+  }
 
   @Override
-  public void flush() throws IOException { os.flush(); }
+  public void flush() throws IOException {
+    os.flush();
+  }
 
   @Override
   public void write(byte[] b, int off, int len) throws IOException {

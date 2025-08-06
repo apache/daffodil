@@ -15,23 +15,22 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.udf;
+package org.apache.daffodil.api.udf;
 
 import java.io.Serializable;
 
 /**
  * Interface that all User Defined Functions classes must implement.
- *
+ * <p>
  * It implements the java.io.Serializable class and must have the
  * UserDefinedFunctionIdentification annotation applied and filled in with the
  * values to be used in the schema.
- *
+ * <p>
  * It must also have an evaluate method that contains the functionality it is
  * offering
- *
+ * <p>
  * Any "state" variables should be passed in during overloaded
  * UserDefinedFunctionProvider initialization
- *
  */
 @UserDefinedFunctionIdentification(
     name = "replace.me",

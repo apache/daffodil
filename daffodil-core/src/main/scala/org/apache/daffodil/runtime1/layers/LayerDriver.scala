@@ -22,6 +22,8 @@ import java.io.InputStream
 import java.io.OutputStream
 import scala.jdk.CollectionConverters.*
 
+import org.apache.daffodil.api.layers.Layer
+import org.apache.daffodil.api.layers.exceptions.*
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -34,7 +36,6 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
-import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessingError
 
@@ -313,30 +314,6 @@ class LayerDriver private (val layer: Layer) {
     return this.lth
   }
 
-}
-
-/**
- * This is used to encapsulate runtime exceptions that are thrown out of layer code.
- */
-class LayerFatalException(msg: String, cause: Throwable) extends RuntimeException(msg, cause) {
-  def this(msg: String) = this(msg, null)
-
-  /**
-   * When constructed with just a cause, we also pass a message if the cause provides one
-   * because the SLF4J logging system doesn't synthesize a message from the cause if only
-   * a cause is provided.
-   * @param cause
-   */
-  def this(cause: Throwable) =
-    this(
-      {
-        if (cause.getMessage == null)
-          Misc.getNameFromClass(cause)
-        else
-          cause.getMessage
-      },
-      cause
-    )
 }
 
 /**

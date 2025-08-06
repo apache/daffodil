@@ -27,10 +27,10 @@ import java.lang.reflect.Method
 import scala.collection.immutable.ListSet
 import scala.collection.mutable
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 class LayerRuntimeCompiler {

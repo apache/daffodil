@@ -14,13 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.runtime1.layers;
+package org.apache.daffodil.api.layers.exceptions;
+
+import org.apache.daffodil.lib.util.Misc;
+
+import java.util.Objects;
 
 /**
  * LayerNotEnoughDataException is a custom exception class that represents an exception that occurs
  * when there is insufficient data for a layer in a program.
  */
-public class LayerNotEnoughDataException extends LayerProcessingException {
+public class LayerNotEnoughDataException extends Exception {
 
     /**
      * Creates a new instance of LayerNotEnoughDataException with the specified
@@ -30,7 +34,24 @@ public class LayerNotEnoughDataException extends LayerProcessingException {
      * @param numAvailableBytes the number of bytes available for the layer
      */
     public LayerNotEnoughDataException(int numNeededBytes, int numAvailableBytes) {
-        super("Insufficient data. Needed " + numNeededBytes +
-                " bytes, but only " + numAvailableBytes + " were available.");
+       this("Insufficient data. Needed " + numNeededBytes +
+           " bytes, but only " + numAvailableBytes + " were available.");
     }
+
+    public LayerNotEnoughDataException(String msg, Throwable cause) {
+        super(msg, cause);
+        if (Objects.isNull(msg)) Objects.requireNonNull(cause);
+        if (Objects.isNull(cause)) Objects.requireNonNull(msg);
+    }
+
+    public LayerNotEnoughDataException(String msg) { this(msg, null); }
+
+    /**
+     * When creating an exception with just a cause, we also synthesize some sort of
+     * message, because otherwise SLF4J doesn't do so, and you get out errors like
+     * '[error] null' because you didn't supply a message.
+     * @param cause the cause of this processing exception
+     */
+    public LayerNotEnoughDataException(Throwable cause) {
+        this((cause.getMessage()) == null ? Misc.getNameFromClass(cause) : cause.getMessage(), cause); }
 }

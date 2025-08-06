@@ -15,29 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.udf.exceptions;
+package org.apache.daffodil.layers.runtime1
 
 /**
- * Exception to throw to abort parsing/unparsing.
+ * To obtain enum use LineFoldMode.valueOf(dfdlName)
+ * @param dfdlName name of enum
  */
-@SuppressWarnings("serial")
-public class UserDefinedFunctionFatalException extends Exception {
-
-  /**
-   * Constructs a new exception with a specified detail message
-   *
-   * @param errorMessage the detail message
-   */
-  public UserDefinedFunctionFatalException(String errorMessage) {
-    super(errorMessage);
-  }
-
-  /**
-   * Constructs a new exception with a specified cause
-   *
-   * @param cause the cause of the exception
-   */
-  public UserDefinedFunctionFatalException(Throwable cause) {
-    super(cause);
-  }
+enum LineFoldMode(val dfdlName: String) {
+  case IMF extends LineFoldMode("lineFolded_IMF")
+  case iCalendar extends LineFoldMode("lineFolded_iCalendar")
 }

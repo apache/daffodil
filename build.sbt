@@ -432,7 +432,11 @@ lazy val unidocSettings =
         scopedSources
       }
       .value
-      .map(_.filter(_.getName.endsWith(".java")))
+      .map(
+        _.filter(fn =>
+          fn.getName.endsWith(".java") && fn.getPath.contains("org/apache/daffodil/api")
+        )
+      )
   )
 
 lazy val genTunablesDocSettings = Seq(

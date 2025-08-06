@@ -16,16 +16,15 @@
  */
 package org.jgoodudfs.example.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunctionProvider;
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider;
 
 /**
  * Example User Defined Function Provider in Java
- *
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
 
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    return new Class<?>[] { Replace.class, Compare.class };
+    return new Class<?>[]{Replace.class, Compare.class};
   }
 }

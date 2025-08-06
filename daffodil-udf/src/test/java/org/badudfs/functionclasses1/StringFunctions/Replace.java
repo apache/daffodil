@@ -16,8 +16,8 @@
  */
 package org.badudfs.functionclasses1.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for userDefinedFunctionClasses array on Negative Unit test

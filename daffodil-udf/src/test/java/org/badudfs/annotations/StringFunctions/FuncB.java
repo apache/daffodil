@@ -16,11 +16,11 @@
  */
 package org.badudfs.annotations.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
 
 /**
  * UDF for Annotations Negative Unit test
- *
+ * <p>
  * Missing @UserDefinedFunctionIdentification annotation
  */
 @SuppressWarnings("serial")

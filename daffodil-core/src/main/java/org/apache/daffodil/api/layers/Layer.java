@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.runtime1.layers.api;
+package org.apache.daffodil.api.layers;
 
 import org.apache.daffodil.lib.util.SimpleNamedLoadableService;
 import org.apache.daffodil.runtime1.layers.LayerRuntime;
@@ -42,7 +42,7 @@ import java.util.List;
  * The names of concrete classes derived from Layer are listed in
  * a metadata resource file
  * named for this class (that is, the file name is the fully-qualified class name of this class:
- * {@code resources/META-INF/services/org.apache.daffodil.runtime1.layers.api.Layer}).
+ * {@code resources/META-INF/services/org.apache.daffodil.api.layers.Layer}).
  * This file contains lines where each line contains one fully qualified class name of a derived
  * layer class.
  * More than one line in the file denotes that the Jar file contains the definitions of more than one derived layer

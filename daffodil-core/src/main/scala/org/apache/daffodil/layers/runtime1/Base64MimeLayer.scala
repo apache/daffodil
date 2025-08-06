@@ -20,7 +20,7 @@ package org.apache.daffodil.layers.runtime1
 import java.io.InputStream
 import java.io.OutputStream
 
-import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.api.layers.Layer
 
 final class Base64MimeLayer
   extends Layer("base64_MIME", "urn:org.apache.daffodil.layers.base64_MIME") {

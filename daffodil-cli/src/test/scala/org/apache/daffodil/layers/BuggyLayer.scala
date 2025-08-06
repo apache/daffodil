@@ -21,7 +21,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.api.layers.Layer
 
 final class BuggyLayer extends Layer("buggy", "urn:org.apache.daffodil.layers.buggy") {
 
