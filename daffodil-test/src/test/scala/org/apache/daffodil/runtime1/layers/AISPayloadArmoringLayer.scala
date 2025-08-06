@@ -22,6 +22,7 @@ import java.nio.*
 import java.nio.charset.*
 import scala.util.Using
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
@@ -37,7 +38,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.runtime1.layers.api.Layer
 
 import org.apache.commons.io.IOUtils
 

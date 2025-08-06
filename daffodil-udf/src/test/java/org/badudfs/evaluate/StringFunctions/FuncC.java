@@ -18,12 +18,12 @@ package org.badudfs.evaluate.StringFunctions;
 
 import java.util.Arrays;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for Evaluate Function Negative Unit test
- *
+ * <p>
  * Contains evaluate function with multiple unsupported parameter types
  */
 @SuppressWarnings("serial")

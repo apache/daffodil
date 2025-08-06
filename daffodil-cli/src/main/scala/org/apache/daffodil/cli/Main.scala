@@ -47,6 +47,7 @@ import scala.util.matching.Regex
 import org.apache.daffodil.api
 import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
 import org.apache.daffodil.api.exceptions.InvalidParserException
+import org.apache.daffodil.api.layers.exceptions.LayerFatalException
 import org.apache.daffodil.api.validation.ValidatorInitializationException
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
@@ -76,7 +77,6 @@ import org.apache.daffodil.runtime1.debugger.DebuggerExitException
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ExternalVariableException

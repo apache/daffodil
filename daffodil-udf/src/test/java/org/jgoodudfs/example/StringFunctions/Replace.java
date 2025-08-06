@@ -16,12 +16,11 @@
  */
 package org.jgoodudfs.example.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * Example User Defined Function in Java
- *
  */
 @SuppressWarnings("serial")
 @UserDefinedFunctionIdentification(

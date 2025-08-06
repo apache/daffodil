@@ -22,8 +22,8 @@ import java.nio.charset.Charset
 import java.nio.charset.IllegalCharsetNameException
 import java.nio.charset.UnsupportedCharsetException
 
+import org.apache.daffodil.api.layers.ChecksumLayer
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 
 /** Check digit example layer
  *

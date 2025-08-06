@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.udf;
+package org.apache.daffodil.api.udf;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 /**
  * Annotation that must be applied to every UDF in order for it to be considered
  * valid.
- *
+ * <p>
  * It must have the name and namespaceURI fields initialized with the namespace
  * and name callers would be expected to use in the schema.
  */
@@ -35,7 +35,7 @@ public @interface UserDefinedFunctionIdentification {
 
   /**
    * Get the local name that identifies the user defined function
-   *
+   * <p>
    * This value must be a valid XML NCName. It should not include a namespace or namespace prefix.
    *
    * @return the value
@@ -44,7 +44,7 @@ public @interface UserDefinedFunctionIdentification {
 
   /**
    * Get the namespace URI that identifies the user defined function
-   *
+   * <p>
    * This value must be a valid XML anyURI.
    *
    * @return the value

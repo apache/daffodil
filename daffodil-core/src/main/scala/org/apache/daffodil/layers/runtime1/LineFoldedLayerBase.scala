@@ -20,8 +20,8 @@ package org.apache.daffodil.layers.runtime1
 import java.io.InputStream
 import java.io.OutputStream
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.layers.api.Layer
 /*
  * This and related classes implement so called "line folding" from
  * IETF RFC 2822 Internet Message Format (IMF), and IETF RFC 5545 iCalendar.

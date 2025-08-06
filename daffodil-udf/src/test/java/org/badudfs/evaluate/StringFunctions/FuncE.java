@@ -16,12 +16,12 @@
  */
 package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for Evaluate Function Negative Unit test
- *
+ * <p>
  * Contains evaluate function with unsupported return type
  */
 @SuppressWarnings("serial")
@@ -31,7 +31,7 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
 public class FuncE implements UserDefinedFunction {
 
   public String[] evaluate(String first, String second) {
-    String[] ret = new String[] { first, second };
+    String[] ret = new String[]{first, second};
     return ret;
   }
 }

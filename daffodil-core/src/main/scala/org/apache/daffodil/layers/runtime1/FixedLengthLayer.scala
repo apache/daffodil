@@ -22,9 +22,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
+import org.apache.daffodil.api.layers.Layer
+import org.apache.daffodil.api.layers.exceptions.LayerNotEnoughDataException
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
-import org.apache.daffodil.runtime1.layers.api.Layer
 
 import org.apache.commons.io.IOUtils
 

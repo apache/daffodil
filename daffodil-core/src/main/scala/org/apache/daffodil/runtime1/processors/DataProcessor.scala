@@ -33,6 +33,7 @@ import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.debugger.Debugger
+import org.apache.daffodil.api.layers.exceptions.LayerFatalException
 import org.apache.daffodil.api.metadata.MetadataHandler
 import org.apache.daffodil.api.validation.ValidatorInitializationException
 import org.apache.daffodil.api.validation.Validators
@@ -41,7 +42,6 @@ import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.validation.DaffodilLimitedValidator
 import org.apache.daffodil.validation.NoValidator
 object EqualityNoWarn3 {

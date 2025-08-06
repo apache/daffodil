@@ -16,12 +16,12 @@
  */
 package org.badudfs.nonUDF.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionProvider;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider;
 
 /**
  * UDF Provider for Negative Unit test
- *
+ * <p>
  * Contains classes that don't implement UserDefinedFunction interface
  */
 public class StringFunctionsProvider extends UserDefinedFunctionProvider {
@@ -32,18 +32,18 @@ public class StringFunctionsProvider extends UserDefinedFunctionProvider {
     String nn = String.join("_", namespace, name);
 
     switch (nn) {
-    case "http://example.com/badudfs/StringFunctions_replace":
-      functionClass = (UserDefinedFunction) new Replace();
-      break;
-    case "http://example.com/badudfs/StringFunctions_funcA":
-      functionClass = (UserDefinedFunction) new FuncA();
-      break;
+      case "http://example.com/badudfs/StringFunctions_replace":
+        functionClass = (UserDefinedFunction) new Replace();
+        break;
+      case "http://example.com/badudfs/StringFunctions_funcA":
+        functionClass = (UserDefinedFunction) new FuncA();
+        break;
     }
     return functionClass;
   }
 
   @Override
   public Class<?>[] getUserDefinedFunctionClasses() {
-    return new Class<?>[] { FuncA.class, Replace.class };
+    return new Class<?>[]{FuncA.class, Replace.class};
   }
 }

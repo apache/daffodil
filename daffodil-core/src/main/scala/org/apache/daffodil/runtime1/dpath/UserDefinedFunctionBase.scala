@@ -19,14 +19,14 @@ package org.apache.daffodil.runtime1.dpath
 
 import java.lang.reflect.InvocationTargetException
 
+import org.apache.daffodil.api.udf.UserDefinedFunction
+import org.apache.daffodil.api.udf.exceptions.UserDefinedFunctionProcessingError
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionFatalErrorException
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionProcessingErrorException
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService.UserDefinedFunctionMethod
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
 
 /**
  * Both the serializable evaluate method and the User Defined Function instance are passed in,
