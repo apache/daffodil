@@ -19,8 +19,8 @@ package org.apache.daffodil.runtime1.layers.ipv4 // different subpackage on purp
 
 import java.nio.ByteBuffer
 
+import org.apache.daffodil.api.layers.ChecksumLayer
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 
 import passera.unsigned.UShort
 

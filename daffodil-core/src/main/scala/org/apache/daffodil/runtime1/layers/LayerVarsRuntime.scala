@@ -20,12 +20,12 @@ import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.lib.calendar.DFDLDate
 import org.apache.daffodil.lib.calendar.DFDLDateTime
 import org.apache.daffodil.lib.calendar.DFDLTime
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue
-import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 import com.ibm.icu.util.Calendar

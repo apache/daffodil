@@ -16,12 +16,12 @@
  */
 package org.badudfs.evaluate.StringFunctions;
 
-import org.apache.daffodil.udf.UserDefinedFunction;
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification;
+import org.apache.daffodil.api.udf.UserDefinedFunction;
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification;
 
 /**
  * UDF for Evaluate Function Negative Unit test
- *
+ * <p>
  * Missing evaluate function
  */
 @UserDefinedFunctionIdentification(

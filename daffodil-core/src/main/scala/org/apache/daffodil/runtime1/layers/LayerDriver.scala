@@ -22,6 +22,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import scala.jdk.CollectionConverters._
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -34,7 +35,6 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
-import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessingError
 

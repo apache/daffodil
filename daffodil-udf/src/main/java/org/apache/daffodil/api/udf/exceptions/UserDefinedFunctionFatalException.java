@@ -15,20 +15,20 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.udf.exceptions;
+package org.apache.daffodil.api.udf.exceptions;
 
 /**
- * Exception to throw to cause backtracking during parsing/unparsing.
+ * Exception to throw to abort parsing/unparsing.
  */
 @SuppressWarnings("serial")
-public class UserDefinedFunctionProcessingError extends Exception {
+public class UserDefinedFunctionFatalException extends Exception {
 
   /**
    * Constructs a new exception with a specified detail message
    *
    * @param errorMessage the detail message
    */
-  public UserDefinedFunctionProcessingError(String errorMessage) {
+  public UserDefinedFunctionFatalException(String errorMessage) {
     super(errorMessage);
   }
 
@@ -37,17 +37,7 @@ public class UserDefinedFunctionProcessingError extends Exception {
    *
    * @param cause the cause of the exception
    */
-  public UserDefinedFunctionProcessingError(Throwable cause) {
+  public UserDefinedFunctionFatalException(Throwable cause) {
     super(cause);
-  }
-
-  /**
-   * Constructs a new exception with a specified detail message and cause
-   *
-   * @param errorMessage the detail message
-   * @param cause the cause of the exception
-   */
-  public UserDefinedFunctionProcessingError(String errorMessage, Throwable cause) {
-    super(errorMessage, cause);
   }
 }

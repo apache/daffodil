@@ -22,10 +22,10 @@ import java.nio.charset.Charset
 import java.nio.charset.IllegalCharsetNameException
 import java.nio.charset.UnsupportedCharsetException
 
+import org.apache.daffodil.api.layers.Layer
 import org.apache.daffodil.io.BoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
 import org.apache.daffodil.runtime1.layers.ScalaLayerHelper
-import org.apache.daffodil.runtime1.layers.api.Layer
 
 /**
  * A layer which isolates text data by way of a boundary mark string.

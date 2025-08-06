@@ -21,7 +21,7 @@ package org.apache.daffodil.runtime1.layers
 import java.io.InputStream
 import java.io.OutputStream
 
-import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.api.layers.Layer
 
 import com.ibm.icu.util.Calendar
 

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.udf
+package org.apache.daffodil.api.udf
 
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests

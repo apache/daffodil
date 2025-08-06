@@ -16,9 +16,9 @@
  */
 package org.sgoodudfs.example.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
+import org.apache.daffodil.api.udf.UserDefinedFunction
+import org.apache.daffodil.api.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.api.udf.UserDefinedFunctionProvider
 
 /**
  * Example User Defined Function Provider in Scala
