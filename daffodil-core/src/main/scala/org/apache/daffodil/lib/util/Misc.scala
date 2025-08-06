@@ -748,10 +748,17 @@ object Misc {
 
   /**
    * scala 3 changes the way lazy val are deserialized so it looks like fieldName$lzy1
-   * This is a helper function to keep from dirtying the code
+   * This is a helper function for lazy and non-lazy fields and to keep from 
+   * cluttering the code.
    */
   def lookupDeclaredField(clazz: Class[?], fieldName: String): Field = {
-    clazz.getDeclaredField(fieldName + "$lzy1")
+    try {
+      clazz.getDeclaredField(fieldName)
+    } catch {
+      case _: NoSuchFieldException =>
+        // scala 3 changes the way lazy val are deserialized so it looks like fieldName$lzy1
+        clazz.getDeclaredField(fieldName + "$lzy1")
+    }
   }
 
 }
