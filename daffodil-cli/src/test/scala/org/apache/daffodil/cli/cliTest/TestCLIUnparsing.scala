@@ -467,4 +467,16 @@ class TestCLIUnparsing {
     }(ExitCode.Success)
   }
 
+  @Test def test_CLI_Unparsing_extra_data(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"unparse -s $schema --root e1") { cli =>
+      cli.send("<e1 xmlns='http://example.com'>Hello</e1>extra", inputDone = true)
+      cli.expectErr("Unexpected character 'e'")
+      cli.expectErr("[row,col {unknown-source}]: [1,42]")
+    }(ExitCode.UnparseError)
+  }
+
 }
