@@ -219,7 +219,7 @@ class TestTDMLRunner2 {
    * Should Parse Succeed? Yes
    * Exception expected? Yes
    *
-   * Reasoning: The data parses successfully and fails 'limited' validation.
+   * Reasoning: The data parses successfully and fails 'daffodil' validation.
    * However the test case itself does not expect a validation error. Since
    * ignoreUnexpectedValidationError is set to false, the test will thrown an
    * Exception alerting the test writer to the fact that a validation occurred
@@ -282,7 +282,7 @@ class TestTDMLRunner2 {
    * Should Parse Succeed? Yes
    * Exception expected? No
    *
-   * Reasoning: The data parses successfully and fails 'limited' validation.
+   * Reasoning: The data parses successfully and fails 'daffodil' validation.
    * However the test case itself does not expect a validation error.  Since
    * the ignoreUnexpectedValidationError defaults to true, the unexpected validation
    * error will be ignored, and the test will poss

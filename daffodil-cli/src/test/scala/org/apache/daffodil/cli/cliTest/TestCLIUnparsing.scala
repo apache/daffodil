@@ -239,7 +239,7 @@ class TestCLIUnparsing {
       cli.expect("[warn] Validation Error: validation_check failed")
     }(ExitCode.Failure)
 
-    runCLI(args"unparse -s $schema -r validation_check --validate limited") { cli =>
+    runCLI(args"unparse -s $schema -r validation_check --validate daffodil") { cli =>
       cli.sendLine(
         """<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""",
         inputDone = true

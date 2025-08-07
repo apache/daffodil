@@ -205,6 +205,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
   override def withValidation(validation: String): DaffodilTDMLDFDLProcessor = {
     val validatorName = validation match {
       case "on" => "xerces"
+      case "limited" => "daffodil"
       case _ => validation
     }
     copy(dp = dp.withValidation(validatorName, schemaURI))

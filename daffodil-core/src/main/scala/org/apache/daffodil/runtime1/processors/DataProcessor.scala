@@ -42,7 +42,7 @@ import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.iapi.DFDL
-import org.apache.daffodil.validation.DaffodilLimitedValidator
+import org.apache.daffodil.validation.DaffodilValidator
 import org.apache.daffodil.validation.NoValidator
 object EqualityNoWarn3 {
   EqualitySuppressUnusedImportWarning()
@@ -286,7 +286,7 @@ class DataProcessor(
     //
     val (outputter: api.infoset.InfosetOutputter, maybeValidationBytes) = {
       validator match {
-        case DaffodilLimitedValidator | NoValidator =>
+        case DaffodilValidator | NoValidator =>
           (output, Nope)
         case _ =>
           val bos = new java.io.ByteArrayOutputStream()

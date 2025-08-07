@@ -527,7 +527,7 @@ class TestCLIParsing {
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
-    runCLI(args"parse -s $schema -r matrix --validate limited") { cli =>
+    runCLI(args"parse -s $schema -r matrix --validate daffodil") { cli =>
       cli.sendLine("0,1,2", inputDone = true)
       cli.expect("<tns:cell>2</tns:cell>")
     }(ExitCode.LeftOverData)
