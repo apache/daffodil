@@ -177,8 +177,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
           (name, schema.map(_.uri).toOption)
         case _ =>
           throw new Exception(
-            "Missing Validator name %s.  Must be 'xerces', 'daffodil', 'schematron', 'off', or name of a custom validator."
-              .format(s)
+            "Missing Validator name.  Must be 'xerces', 'daffodil', 'schematron', 'off', or name of a custom validator."
           )
       }
     })
