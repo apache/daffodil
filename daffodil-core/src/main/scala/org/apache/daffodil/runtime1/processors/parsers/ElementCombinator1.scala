@@ -28,7 +28,7 @@ import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.Success
-import org.apache.daffodil.validation.DaffodilLimitedValidator
+import org.apache.daffodil.validation.DaffodilValidator
 
 abstract class ElementParserBase(
   erd: ElementRuntimeData,
@@ -197,10 +197,10 @@ abstract class ElementParserBase(
 
       if (pstate.processorStatus ne Success) return
 
-      // if we should do limited validation via CheckConstraints
+      // if we should do daffodil validation via CheckConstraints
       val shouldValidate = erd.isSimpleType &&
         pstate.dataProc.isDefined &&
-        (pstate.dataProc.value.validator eq DaffodilLimitedValidator)
+        (pstate.dataProc.value.validator eq DaffodilValidator)
 
       if (shouldValidate) {
         validate(pstate)

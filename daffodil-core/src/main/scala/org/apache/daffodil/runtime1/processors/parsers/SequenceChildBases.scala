@@ -27,7 +27,7 @@ import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.validation.DaffodilLimitedValidator
+import org.apache.daffodil.validation.DaffodilValidator
 
 /**
  * Enables various sub-kinds of success/failure of a parse to be distinguished
@@ -529,10 +529,10 @@ trait EndArrayChecksMixin {
   def endArray(state: ParseOrUnparseState, occurrences: Long): Unit = {
     if (state.processorStatus eq Success) {
 
-      // if we should do limited validation
+      // if we should do daffodil validation
       val shouldValidate =
         state.dataProc.isDefined &&
-          (state.dataProc.value.validator eq DaffodilLimitedValidator)
+          (state.dataProc.value.validator eq DaffodilValidator)
 
       if (shouldValidate) {
         val minO = erd.minOccurs

@@ -88,7 +88,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    *
    * @param kind Kind of validation to use. Can be a custom validator name available via the
    *             {@link org.apache.daffodil.api.validation.ValidatorFactory} SPI or one of the built-in validators
-   *             ("xerces", "limited", "off", "schematron")
+   *             ("xerces", "daffodil", "off", "schematron")
    * @return a new {@link DataProcessor} with a specified validator.
    * @throws ValidatorNotRegisteredException if the validator cannot be found
    * @throws ValidatorInitializationException if initializing the validator fails
@@ -102,7 +102,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    *
    * @param kind Kind of validation to use. Can be a custom validator name available via the
    *             {@link org.apache.daffodil.api.validation.ValidatorFactory} SPI or one of the built-in validators
-   *             ("xerces", "limited", "off", "schematron")
+   *             ("xerces", "daffodil", "off", "schematron")
    * @param config Absolute URI to use for validation configuration. If the URI ends with .conf
    *               or .properties it is treated as a java.util.Properties file that is loaded and
    *               provided to the validator. Otherwise, the URI is provided as a single property to
