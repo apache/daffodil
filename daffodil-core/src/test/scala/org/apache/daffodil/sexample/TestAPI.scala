@@ -765,7 +765,7 @@ class TestAPI {
     val schemaFile = getResource("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    val dp = reserializeDataProcessor(dp1).withValidation("limited")
+    val dp = reserializeDataProcessor(dp1).withValidation("daffodil")
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
     Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>

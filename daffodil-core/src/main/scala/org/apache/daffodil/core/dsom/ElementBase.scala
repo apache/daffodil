@@ -1011,7 +1011,7 @@ trait ElementBase
     typeDef match {
       case _ if hasRepType => {
         // this minLength/maxLength is only used for the length of the representation. The
-        // values used for facet restrictions during limited validation come from elsewhere
+        // values used for facet restrictions during daffodil validation come from elsewhere
         (repTypeElementDecl.minLength, repTypeElementDecl.maxLength)
       }
       case prim: PrimitiveType => {

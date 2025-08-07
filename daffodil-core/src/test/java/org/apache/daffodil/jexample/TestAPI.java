@@ -765,7 +765,7 @@ public class TestAPI {
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withValidation("limited");
+    dp = dp.withValidation("daffodil");
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
