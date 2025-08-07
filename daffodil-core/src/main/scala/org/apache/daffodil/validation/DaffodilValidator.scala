@@ -24,7 +24,7 @@ import org.apache.daffodil.api
 import org.apache.daffodil.api.validation.ValidationHandler
 import org.apache.daffodil.api.validation.Validator
 
-object DaffodilLimitedValidator extends api.validation.Validator {
+object DaffodilValidator extends api.validation.Validator {
   override def validateXML(
     document: InputStream,
     validationHandler: ValidationHandler
@@ -32,21 +32,21 @@ object DaffodilLimitedValidator extends api.validation.Validator {
     // do nothing
   }
 
-  val name = "limited"
+  val name = "daffodil"
 }
 
-class DaffodilLimitedValidator
+class DaffodilValidator
 
 /**
- * SPI service name: limited
+ * SPI service name: daffodil
  * Configuration properties
  * - none; empty Properties file or null is sufficient
  */
-class DaffodilLimitedValidatorFactory extends api.validation.ValidatorFactory {
+class DaffodilValidatorFactory extends api.validation.ValidatorFactory {
 
-  override def name(): String = DaffodilLimitedValidator.name
+  override def name(): String = DaffodilValidator.name
 
   override def make(config: Properties = new Properties()): Validator = {
-    DaffodilLimitedValidator
+    DaffodilValidator
   }
 }

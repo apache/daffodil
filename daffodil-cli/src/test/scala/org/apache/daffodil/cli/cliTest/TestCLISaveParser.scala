@@ -227,7 +227,7 @@ class TestCLISaveParser {
         ExitCode.Success
       )
 
-      runCLI(args"parse --validate limited -P $parser") { cli =>
+      runCLI(args"parse --validate daffodil -P $parser") { cli =>
         cli.send("test", inputDone = true)
         cli.expectErr("[error] Validation Error")
         cli.expectErr("ex:validation_check failed")

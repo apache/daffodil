@@ -230,7 +230,7 @@ object TestUtils {
         dp.withDebugger(builtInTracer).withDebugging(true)
       } else dp
 
-    val p = p1.withValidation("limited")
+    val p = p1.withValidation("daffodil")
 
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(is)

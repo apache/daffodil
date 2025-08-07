@@ -177,7 +177,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
           (name, schema.map(_.uri).toOption)
         case _ =>
           throw new Exception(
-            "Unrecognized Validator name %s.  Must be 'xerces', 'limited', 'off', or name of spi validator."
+            "Missing Validator name %s.  Must be 'xerces', 'daffodil', 'schematron', 'off', or name of a custom validator."
               .format(s)
           )
       }
@@ -414,7 +414,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       default = Some(("off", None)),
       argName = "validator_name",
       descr =
-        "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
+        "Validator name. Use 'off', 'daffodil', 'xerces[=value]', 'schematron[=value]', or a " +
           "custom validator_name[=value]. The optional value parameter provides a file to the " +
           "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration. " +
           "If using --parser, some validators may require a config file specified."
@@ -539,7 +539,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       default = Some(("off", None)),
       argName = "validator_name",
       descr =
-        "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
+        "Validator name. Use 'off', 'daffodil', 'xerces[=value]', 'schematron[=value]', or a " +
           "custom validator_name[=value]. The optional value parameter provides a file to the " +
           "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration. " +
           "If using --parser, some validators may require a config file specified. Note that " +
@@ -776,7 +776,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       default = Some(("off", None)),
       argName = "validator_name",
       descr =
-        "Validator name. Use 'off', 'limited', 'xerces[=value]', 'schematron[=value]', or a " +
+        "Validator name. Use 'off', 'daffodil', 'xerces[=value]', 'schematron[=value]', or a " +
           "custom validator_name[=value]. The optional value parameter provides a file to the " +
           "validator (e.g. .xsd, .sch, .conf, .properties) used for validator configuration. " +
           "If using --parser, some validators may require a config file specified."

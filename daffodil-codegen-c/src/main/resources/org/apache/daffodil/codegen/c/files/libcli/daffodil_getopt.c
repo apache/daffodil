@@ -83,7 +83,7 @@ parse_daffodil_cli(int argc, char *argv[])
             // Ignore "-s schema" option/optarg
             break;
         case 'V':
-            if (strcmp("limited", optarg) == 0 || strcmp("on", optarg) == 0)
+            if (strcmp("daffodil", optarg) == 0 || strcmp("xerces", optarg) == 0)
             {
                 daffodil_pu.validate = true;
             }

@@ -22,7 +22,7 @@
  * Daffodil provides a number of built-in validators for use with {@link
  * org.apache.daffodil.api.DataProcessor#withValidation(String, URI)}. For each
  * built-in validator, the following contains the validator name, a
- * description, and validator specific properties. The {@code String} paramter
+ * description, and validator specific properties. The {@code String} parameter
  * should be the name of the validator. If the URI parameter ends in
  * <i>.conf</i> or <i>.properties</i> then it is treated as a {@link
  * java.util.Properties} file that provides validator properties. Otherwise,
@@ -43,14 +43,14 @@
  * }</pre>
  *   </dd>
  *
- *   <dt><span style="font-size: large;"><b>limited</b></span></dt>
+ *   <dt><span style="font-size: large;"><b>daffodil</b></span></dt>
  *   <dd>
  *     <p><b>Description:</b> XML schema validation using Daffodil</p>
  *     <p><b>Properties:</b> none</p>
  *     <p><b>Example:</b></p>
  *     <pre>{@code
  * // enable XML schema validation using Daffodil
- * dataProcessor.withValidation("limited")
+ * dataProcessor.withValidation("daffodil")
  * }</pre>
  *   </dd>
  *
