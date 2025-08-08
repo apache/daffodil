@@ -19,7 +19,6 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.lang.{ Boolean => JBoolean }
 import javax.xml.XMLConstants
-import scala.jdk.OptionConverters._
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -114,22 +113,22 @@ class W3CDOMInfosetInputter(doc: Document) extends api.infoset.InfosetInputter {
     text
   }
 
-  override def isNilled(): java.util.Optional[JBoolean] = {
+  override def isNilled(): JBoolean = {
     val elem = stack.top._1
     val nilAttrValue = elem.getAttributeNS(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil")
-    val res: Option[JBoolean] =
+    val res: JBoolean =
       if (nilAttrValue == "") {
-        None
+        null
       } else if (nilAttrValue == "true" || nilAttrValue == "1") {
-        Some(true)
+        true
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
-        Some(false)
+        false
       } else {
         throw new InvalidInfosetException(
           "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getNodeName
         )
       }
-    res.toJava
+    res
   }
 
   override def hasNext(): Boolean = {
