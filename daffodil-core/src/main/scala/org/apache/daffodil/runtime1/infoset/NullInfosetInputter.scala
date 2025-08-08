@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.infoset
 import java.io.InputStream
 import java.lang.Boolean as JBoolean
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.OptionConverters.*
 import scala.xml.Elem
 import scala.xml.SAXParser
 import scala.xml.Text
@@ -40,7 +39,7 @@ object NullInfosetInputter {
     localName: String = null,
     namespaceURI: String = null,
     simpleText: String = null,
-    isNilled: Option[JBoolean] = None
+    isNilled: JBoolean = null
   )
 
   def toEvents(is: InputStream): Array[Event] = {
@@ -81,9 +80,10 @@ object NullInfosetInputter {
           val value = str == "true" || str == "1"
           value.asInstanceOf[JBoolean]
         }
+        .orNull
       (text, isNilled)
     } else {
-      (null, None)
+      (null, null)
     }
 
     events += Event(StartElement, localName, namespaceURI, simpleText, isNilled)
@@ -114,7 +114,7 @@ class NullInfosetInputter(events: Array[NullInfosetInputter.Event])
     primType: NodeInfo.Kind,
     runtimeProperties: java.util.Map[String, String]
   ): String = curEvent.simpleText
-  def isNilled(): java.util.Optional[JBoolean] = curEvent.isNilled.toJava
+  def isNilled(): JBoolean = curEvent.isNilled
 
   def hasNext(): Boolean = curIndex + 1 < events.length
   def next(): Unit = {

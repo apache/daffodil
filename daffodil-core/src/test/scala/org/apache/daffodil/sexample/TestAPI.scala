@@ -28,7 +28,6 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Optional
 import javax.xml.XMLConstants
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.*
@@ -347,7 +346,7 @@ class TestAPI {
     val c = Daffodil.compiler()
 
     val schemaFileName = getResource("/test/api/mySchema3.dfdl.xsd")
-    val pf = c.compileFile(schemaFileName, Optional.of("e4"), Optional.empty[String]())
+    val pf = c.compileFile(schemaFileName, "e4")
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -376,11 +375,7 @@ class TestAPI {
 
     val schemaFileName = getResource("/test/api/mySchema3.dfdl.xsd")
     // element
-    val pf = c.compileFile(
-      schemaFileName,
-      Optional.of("e4"),
-      Optional.empty[String]()
-    ) // e4 is a 4-byte long string
+    val pf = c.compileFile(schemaFileName, "e4") // e4 is a 4-byte long string
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -440,7 +435,7 @@ class TestAPI {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/api/TopLevel.dfdl.xsd")
-    val pf = c.compileFile(schemaFile, Optional.of("TopLevel"), Optional.empty[String]())
+    val pf = c.compileFile(schemaFile, "TopLevel")
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -475,7 +470,7 @@ class TestAPI {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/api/TopLevel.dfdl.xsd")
-    val pf = c.compileFile(schemaFile, Optional.of("TopLevel2"), Optional.empty[String]())
+    val pf = c.compileFile(schemaFile, "TopLevel2")
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -506,7 +501,7 @@ class TestAPI {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/api/TopLevel.dfdl.xsd")
-    val pf = c.compileFile(schemaFile, Optional.of("TopLevel2"), Optional.empty[String]())
+    val pf = c.compileFile(schemaFile, "TopLevel2")
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -822,7 +817,7 @@ class TestAPI {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/api/mySchema3.dfdl.xsd")
-    val pf = c.compileFile(schemaFile, Optional.of("e4"), Optional.empty[String]())
+    val pf = c.compileFile(schemaFile, "e4")
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -862,7 +857,7 @@ class TestAPI {
     val c = Daffodil.compiler()
 
     val schemaFile = getResource("/test/api/ambig_elt.dfdl.xsd")
-    val pf = c.compileFile(schemaFile, Optional.of("root"), Optional.empty[String]())
+    val pf = c.compileFile(schemaFile, "root")
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
 
@@ -1275,7 +1270,7 @@ class TestAPI {
   def doXMLTextEscapeStyleTest(expect: String, data: String, schemaType: String): Unit = {
     val c = Daffodil.compiler()
     val schemaFile = getResource("/test/api/mySchemaCDATA.dfdl.xsd")
-    val pf = c.compileFile(schemaFile, Optional.of(schemaType), Optional.empty[String]())
+    val pf = c.compileFile(schemaFile, schemaType)
     var dp = pf.onPath("/")
 
     val is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8))

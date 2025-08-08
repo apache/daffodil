@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.lang.Boolean as JBoolean
-import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -138,13 +137,13 @@ class JsonInfosetInputter(input: java.io.InputStream) extends api.infoset.Infose
     }
   }
 
-  override def isNilled(): java.util.Optional[JBoolean] = {
+  override def isNilled(): JBoolean = {
     val opt = if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
-      Some(java.lang.Boolean.valueOf(true))
+      java.lang.Boolean.valueOf(true)
     } else {
-      None
+      null
     }
-    opt.toJava
+    opt
   }
 
   override def fini(): Unit = {

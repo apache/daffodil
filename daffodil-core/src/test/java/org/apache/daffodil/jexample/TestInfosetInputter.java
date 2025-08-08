@@ -22,8 +22,6 @@ import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.runtime1.dpath.NodeInfo;
 
 import java.util.Map;
-import java.util.Optional;
-
 
 public class TestInfosetInputter extends InfosetInputter {
 
@@ -56,9 +54,8 @@ public class TestInfosetInputter extends InfosetInputter {
   }
 
   @Override
-  public Optional<Boolean> isNilled() {
-    Boolean isNilled = events[curEventIndex].isNilled;
-    return Optional.ofNullable(isNilled);
+  public Boolean isNilled() {
+    return events[curEventIndex].isNilled;
   }
 
   @Override

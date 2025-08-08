@@ -20,7 +20,6 @@ package org.apache.daffodil.api.infoset;
 import org.apache.daffodil.runtime1.dpath.NodeInfo;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Abstract class used to determine how the infoset representation should be
@@ -104,11 +103,11 @@ public abstract class InfosetInputter {
    * Determine if the current event is nilled. This will only be called when
    * the current event type is StartElement.
    *
-   * @return Optional.empty if no nil property is set, which implies the element is not nilled
-   * or Optional.of(false) if the nil property is set, but it is set to false or Optional.of(true)
+   * @return null if no nil property is set, which implies the element is not nilled
+   * or false if the nil property is set, but it is set to false or true
    * if the nil property is set to true.
    */
-  public abstract Optional<Boolean> isNilled();
+  public abstract Boolean isNilled();
 
   /**
    * @return true if there are remaining events. False otherwise.

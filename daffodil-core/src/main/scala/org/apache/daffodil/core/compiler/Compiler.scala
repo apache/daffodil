@@ -29,7 +29,6 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters.*
-import scala.jdk.OptionConverters.*
 import scala.util.Try
 import scala.xml.Node
 
@@ -428,24 +427,24 @@ class Compiler private (
 
   override def compileFile(
     schemaFile: File,
-    optRootName: java.util.Optional[String],
-    optRootNamespace: java.util.Optional[String]
+    rootName: String,
+    rootNamespace: String
   ): api.ProcessorFactory =
-    compileFile(schemaFile, optRootName.toScala, optRootNamespace.toScala)
+    compileFile(schemaFile, Option(rootName), Option(rootNamespace))
 
   override def compileSource(
     uri: URI,
-    optRootName: java.util.Optional[String],
-    optRootNamespace: java.util.Optional[String]
+    rootName: String,
+    rootNamespace: String
   ): api.ProcessorFactory =
-    compileSource(uri, optRootName.toScala, optRootNamespace.toScala)
+    compileSource(uri, Option(rootName), Option(rootNamespace))
 
   override def compileResource(
     name: String,
-    optRootName: java.util.Optional[String],
-    optRootNamespace: java.util.Optional[String]
+    rootName: String,
+    rootNamespace: String
   ): api.ProcessorFactory =
-    compileResource(name, optRootName.toScala, optRootNamespace.toScala)
+    compileResource(name, Option(rootName), Option(rootNamespace))
 
   override def withTunables(tunables: java.util.Map[String, String]): api.Compiler =
     withTunables(

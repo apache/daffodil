@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import scala.jdk.OptionConverters.*
-
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.lib.exceptions.Assert
@@ -348,7 +346,7 @@ final class InfosetInputter(delegate: api.infoset.InfosetInputter)
   private def createElement(erd: ERD) = {
     val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
 
-    val optNilled = delegate.isNilled.toScala
+    val optNilled = Option(delegate.isNilled)
 
     if (optNilled.isDefined) {
       if (!erd.isNillable) {
