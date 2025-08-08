@@ -25,6 +25,8 @@ import org.apache.daffodil.validation.XercesValidator
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -38,7 +40,7 @@ class TestValidatorsSPI {
   }
 
   @Test def testValidatorFindNotFoundNone(): Unit = {
-    assertFalse(Validators.find("dont exist").isPresent)
+    assertNull(Validators.find("dont exist"))
   }
 
   @Test def testValidatorNonExists(): Unit = {
@@ -50,7 +52,7 @@ class TestValidatorsSPI {
     val defaultF = Validators.get(defaultName)
 
     assertEquals(defaultName, defaultF.name())
-    assertTrue(Validators.find(defaultName).isPresent)
+    assertNotNull(Validators.find(defaultName))
     assertTrue(Validators.isRegistered(defaultName))
   }
 

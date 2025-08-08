@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.infoset
 import java.lang.Boolean as JBoolean
 import java.net.URI
 import java.net.URISyntaxException
-import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -107,13 +106,13 @@ class SAXInfosetInputter(
     }
   }
 
-  override def isNilled(): java.util.Optional[JBoolean] = {
-    val _isNilled: Option[JBoolean] = if (currentEvent.nilValue.isDefined) {
+  override def isNilled(): JBoolean = {
+    val _isNilled: JBoolean = if (currentEvent.nilValue.isDefined) {
       val nilValue = currentEvent.nilValue.get
       if (nilValue == "true" || nilValue == "1") {
-        Some(true)
+        true
       } else if (nilValue == "false" || nilValue == "0") {
-        Some(false)
+        false
       } else {
         throw new InvalidInfosetException(
           "xsi:nil property is not a valid boolean: '" + nilValue +
@@ -121,9 +120,9 @@ class SAXInfosetInputter(
         )
       }
     } else {
-      None
+      null
     }
-    _isNilled.toJava
+    _isNilled
   }
 
   override def hasNext(): Boolean = {

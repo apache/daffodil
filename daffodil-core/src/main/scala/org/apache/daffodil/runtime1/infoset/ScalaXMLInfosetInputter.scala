@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.lang.Boolean as JBoolean
-import scala.jdk.OptionConverters.*
 import scala.xml.Comment
 import scala.xml.Elem
 import scala.xml.Node
@@ -119,12 +118,12 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends api.infoset.InfosetInputte
     result
   }
 
-  override def isNilled(): java.util.Optional[JBoolean] = {
+  override def isNilled(): JBoolean = {
     val elem = stack.top._1
     val nilAttrValueOpt = elem.attribute(XMLUtils.XSI_NAMESPACE, "nil")
-    val res: Option[JBoolean] =
+    val res: JBoolean =
       if (nilAttrValueOpt.isEmpty) {
-        None
+        null
       } else {
         val nilAttrValueSeq = nilAttrValueOpt.get
         if (nilAttrValueSeq.length > 1) {
@@ -134,16 +133,16 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends api.infoset.InfosetInputte
         }
         val nilAttrValue = nilAttrValueSeq.head.toString
         if (nilAttrValue == "true" || nilAttrValue == "1") {
-          Some(true)
+          true
         } else if (nilAttrValue == "false" || nilAttrValue == "0") {
-          Some(false)
+          false
         } else {
           throw new InvalidInfosetException(
             "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.label
           )
         }
       }
-    res.toJava
+    res
   }
 
   override def hasNext(): Boolean = {

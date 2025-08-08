@@ -125,7 +125,7 @@ class TDMLInfosetInputter(
     }
   }
 
-  override def isNilled(): java.util.Optional[JBoolean] = {
+  override def isNilled(): JBoolean = {
     val res = scalaInputter.isNilled()
     if (!others.forall(_.isNilled() == res))
       throw TDMLException("isNilled does not match", Some(implString))

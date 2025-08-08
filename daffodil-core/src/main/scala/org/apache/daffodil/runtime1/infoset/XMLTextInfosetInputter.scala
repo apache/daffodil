@@ -27,7 +27,6 @@ import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.stream.util.XMLEventAllocator
-import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
@@ -342,17 +341,17 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
     txt
   }
 
-  override def isNilled(): java.util.Optional[JBoolean] = {
+  override def isNilled(): JBoolean = {
     Assert.invariant(xsr.getEventType() == START_ELEMENT)
     // this should use a fast hash lookup
     val nilAttrValue = xsr.getAttributeValue(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil")
-    val res: Option[JBoolean] =
+    val res: JBoolean =
       if (nilAttrValue == null) {
-        None
+        null
       } else if (nilAttrValue == "true" || nilAttrValue == "1") {
-        Some(true)
+        true
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
-        Some(false)
+        false
       } else {
         throw new InvalidInfosetException(
           "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' on line " + evAlloc
@@ -361,7 +360,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
             .getLineNumber
         )
       }
-    res.toJava
+    res
   }
 
   override def fini(): Unit = {

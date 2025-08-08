@@ -19,8 +19,6 @@ package org.apache.daffodil.api.validation;
 
 import org.apache.daffodil.lib.util.SimpleNamedServiceLoader;
 
-import java.util.Optional;
-
 /**
  * Access SPI registered {@link org.apache.daffodil.api.validation.ValidatorFactory} instances.
  * <p>
@@ -55,13 +53,13 @@ public class Validators {
   }
 
   /**
-   * Optionally find the factory
+   * Attempt to find the factory
    *
    * @param name registered name of the validator factory
-   * @return {@link org.apache.daffodil.api.validation.ValidatorFactory} optional factory instance
+   * @return {@link org.apache.daffodil.api.validation.ValidatorFactory} factory instance or null if not found
    */
-  public static Optional<ValidatorFactory> find(String name) {
-    return Optional.ofNullable(impls.get(name));
+  public static ValidatorFactory find(String name) {
+    return impls.get(name);
   }
 
   /**

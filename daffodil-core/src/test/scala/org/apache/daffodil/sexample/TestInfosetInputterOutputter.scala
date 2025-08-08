@@ -19,7 +19,6 @@ package org.apache.daffodil.sexample
 
 import java.lang.Boolean as JBoolean
 import scala.collection.mutable.ArrayBuffer
-import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
@@ -35,7 +34,7 @@ case class TestInfosetEvent(
   localName: String = null,
   namespaceURI: String = null,
   simpleText: String = null,
-  isNilled: Option[JBoolean] = None
+  isNilled: JBoolean = null
 )
 
 object TestInfosetEvent {
@@ -46,7 +45,7 @@ object TestInfosetEvent {
   def startComplex(
     name: String,
     namespace: String,
-    isNilled: Option[JBoolean] = None
+    isNilled: JBoolean = null
   ) =
     TestInfosetEvent(StartElement, name, namespace, null, isNilled)
 
@@ -54,7 +53,7 @@ object TestInfosetEvent {
     name: String,
     namespace: String,
     text: String,
-    isNilled: Option[JBoolean] = None
+    isNilled: JBoolean = null
   ) =
     TestInfosetEvent(StartElement, name, namespace, text, isNilled)
 
@@ -79,7 +78,7 @@ case class TestInfosetInputter(events: TestInfosetEvent*) extends InfosetInputte
     primType: NodeInfo.Kind,
     runtimeProperties: java.util.Map[String, String]
   ) = events(curEventIndex).simpleText
-  override def isNilled(): java.util.Optional[JBoolean] = events(curEventIndex).isNilled.toJava
+  override def isNilled(): JBoolean = events(curEventIndex).isNilled
 
   override def hasNext(): Boolean = curEventIndex + 1 < events.length
   override def next(): Unit = curEventIndex += 1
@@ -111,7 +110,7 @@ case class TestInfosetOutputter() extends InfosetOutputter {
         simple.metadata.name,
         simple.metadata.namespace,
         simple.getText,
-        if (simple.metadata.isNillable) Some(simple.isNilled) else None
+        if (simple.metadata.isNillable) simple.isNilled else null
       )
     )
   }
@@ -127,7 +126,7 @@ case class TestInfosetOutputter() extends InfosetOutputter {
       TestInfosetEvent.startComplex(
         complex.metadata.name,
         complex.metadata.namespace,
-        if (complex.metadata.isNillable) Some(complex.isNilled) else None
+        if (complex.metadata.isNillable) complex.isNilled else null
       )
     )
   }
