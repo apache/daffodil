@@ -211,7 +211,6 @@ is subject to the terms and conditions of the following licenses.
   This product bundles source from 'Passera', including all files under the
   following directories:
     - passera/
-    - passera/
   These files are available under the BSD-2-Clause license:
 
     Copyright (c) 2011-2013, Nate Nystrom
