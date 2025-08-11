@@ -217,7 +217,7 @@ is subject to the terms and conditions of the following licenses.
 
     COPYRIGHT AND PERMISSION NOTICE
 
-    Copyright © 2016-2023 Unicode, Inc.
+    Copyright © 2016-2025 Unicode, Inc.
 
     NOTICE TO USER: Carefully read the following legal agreement. BY
     DOWNLOADING, INSTALLING, COPYING OR OTHERWISE USING DATA FILES, AND/OR
@@ -252,6 +252,8 @@ is subject to the terms and conditions of the following licenses.
     not be used in advertising or otherwise to promote the sale, use or other
     dealings in these Data Files or Software without prior written
     authorization of the copyright holder.
+
+    SPDX-License-Identifier: Unicode-3.0
 
     ----------------------------------------------------------------------
 
@@ -643,6 +645,32 @@ is subject to the terms and conditions of the following licenses.
     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+    ----------------------------------------------------------------------
+
+    File: sorttable.js (only for ICU4J)
+
+    The MIT Licence, for code from kryogenix.org
+
+    Code downloaded from the Browser Experiments section of kryogenix.org is
+    licenced under the so-called MIT licence. The licence is below.
+
+    Copyright (c) 1997-date Stuart Langridge
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
 
 - com.fasterxml.jackson.core.jackson-core-2.13.4.jar
   This product bundles 'Jackson JSON processor' which bundles a shaded copy of FastDoubleParser <https://github.com/wrandelshofer/FastDoubleParser>.
@@ -1516,7 +1544,7 @@ is subject to the terms and conditions of the following licenses.
       other dealings in this Software without prior written authorization
       from James Clark.
 
-- org.apache.daffodil.daffodil-lib-<VERSION>.jar with:
+- org.apache.daffodil.daffodil-core-<VERSION>.jar with:
   org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd)
   org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd)
   org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd)
@@ -1563,7 +1591,7 @@ is subject to the terms and conditions of the following licenses.
     permission. Title to copyright in this work will at all times remain with
     copyright holders.
 
-- org.apache.daffodil.daffodil-lib-<VERSION>.jar with:
+- org.apache.daffodil.daffodil-core-<VERSION>.jar with:
   passera/ directory
   This product bundles 'Passera' compiled source from the above files.
   These files are available under the BSD-2-Clause license:
