@@ -227,7 +227,7 @@ daffodil/
 ├── daffodil-codegen-c/         - Contains Daffodil's C code generator
 ├── daffodil-macro-lib/         - Defines Daffodil's Scala 2.x macros
 ├── daffodil-propgen/           - Contains generators to generate more source code
-├── daffodil-core/              - Contains Daffodil's input/output/charsets, Scala parser, schema compiler, utilities, layers, unparsers and the API
+├── daffodil-core/              - Contains Daffodil's input/output/charsets, Scala parser, schema compiler, utilities, layers, udfs, unparsers and the API
 ├── daffodil-schematron/
 │   ├── README.md               - Explains how to validate with Schematron rules
 │   └── src/                    - Contains Daffodil's Schematron validator
@@ -235,9 +235,6 @@ daffodil/
 ├── daffodil-tdml-processor/    - Contains Daffodil's Scala & C TDML implementations
 ├── daffodil-test/              - Contains Daffodil's TDML tests
 ├── daffodil-test-ibm1/         - Contains more TDML tests from IBM & Tresys
-├── daffodil-udf/
-│   ├── README.md               - Explains how to implement user defined functions
-│   └── src/                    - Contains Daffodil's UDF interfaces
 ├── project/
 │   ├── Dependencies.scala      - Defines third party dependencies
 │   ├── Rat.scala               - Lists files to be ignored by license audit tool
@@ -273,7 +270,7 @@ Daffodil's API from Maven or sbt:
 
 <dependency>
   <groupId>org.apache.daffodil</groupId>
-  <artifactId>daffodil-core_3.3</artifactId>
+  <artifactId>daffodil-core_3</artifactId>
   <version>4.0.0</version>
 </dependency>
 ```

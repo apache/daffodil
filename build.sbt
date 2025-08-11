@@ -44,8 +44,7 @@ lazy val daffodil = project
     testIBM1,
     // testIntegration, // integration tests must be run manually
     testStdLayout,
-    tutorials,
-    udf
+    tutorials
   )
   .settings(
     commonSettings,
@@ -69,7 +68,6 @@ lazy val slf4jLogger = Project("daffodil-slf4j-logger", file("daffodil-slf4j-log
 
 lazy val core = Project("daffodil-core", file("daffodil-core"))
   .dependsOn(
-    udf,
     macroLib % "compile-internal, test-internal",
     slf4jLogger % "test"
   )
@@ -132,17 +130,13 @@ lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
   .settings(libraryDependencies ++= Dependencies.cli)
   .settings(libraryDependencies ++= Dependencies.exi)
 
-lazy val udf = Project("daffodil-udf", file("daffodil-udf"))
-  .dependsOn(slf4jLogger % "test")
-  .settings(commonSettings)
-
 lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron"))
   .dependsOn(core, core % Test, slf4jLogger % "test")
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.schematron)
 
 lazy val testDaf = Project("daffodil-test", file("daffodil-test"))
-  .dependsOn(tdmlJunit % "test", codeGenC % "test->test", udf % "test->test")
+  .dependsOn(tdmlJunit % "test", codeGenC % "test->test", core % "test->test")
   .settings(commonSettings, nopublish)
 //
 // Uncomment the following line to run these tests
@@ -161,7 +155,7 @@ lazy val testIBM1 = Project("daffodil-test-ibm1", file("daffodil-test-ibm1"))
 
 lazy val testIntegration =
   Project("daffodil-test-integration", file("daffodil-test-integration"))
-    .dependsOn(cli % "test->test", udf % "test->test", testDaf % "test->test")
+    .dependsOn(cli % "test->test", core % "test->test", testDaf % "test->test")
     .settings(commonSettings, nopublish)
     .settings(
       // CLI integration tests fork a new process which requires extra memory, so these should
@@ -411,12 +405,11 @@ lazy val ratSettings = Seq(
 lazy val unidocSettings =
   Seq(
     ScalaUnidoc / unidoc / unidocAllClasspaths := Seq(
-      (udf / Compile / fullClasspath).value,
       (core / Compile / fullClasspath).value,
       (Compile / fullClasspath).value
     ),
     ScalaUnidoc / unidoc / unidocProjectFilter :=
-      inProjects(udf, core),
+      inProjects(core),
     ScalaUnidoc / unidoc / javacOptions := Seq(
       "-windowtitle",
       "Apache Daffodil " + version.value + " API",

@@ -105,10 +105,10 @@ class TestCLIPlugins {
    */
   @Test def test_reload_missing_udf(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = testClasspath(
-      s"daffodil-udf/target/$scalaVersionForTargetPath/test-classes/"
+      s"daffodil-core/target/$scalaVersionForTargetPath/test-classes/"
     )
 
     withTempFile { parser =>
