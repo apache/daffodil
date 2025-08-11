@@ -33,7 +33,7 @@ class TestCLIUdfs {
    * the directory containing the META-INF dir needed for the test.
    */
   private def udfClasspath(extra: String*): Seq[Path] = {
-    val classes = path(s"daffodil-udf/target/$scalaVersionForTargetPath/test-classes/")
+    val classes = path(s"daffodil-core/target/$scalaVersionForTargetPath/test-classes/")
     val paths = extra.map(path(_))
     classes +: paths
   }
@@ -44,7 +44,7 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_regular_schema(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
 
     runCLI(args"-v parse -s $schema -r fn_func", fork = true) { cli =>
@@ -62,7 +62,7 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_udf_schema(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", fork = true) { cli =>
@@ -80,10 +80,10 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_MissingClassInMetaInfFile(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/resources/org/badmetainf/nonexistentclass/"
+      "daffodil-core/src/test/resources/org/badmetainf/nonexistentclass/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -104,7 +104,7 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_MissingMetaInfFile(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath()
 
@@ -119,10 +119,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_NoUdfClasses(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/functionclasses1/StringFunctions/"
+      "daffodil-core/src/test/java/org/badudfs/functionclasses1/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -141,10 +141,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_emptyUdfClasses(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/functionclasses2/StringFunctions/"
+      "daffodil-core/src/test/java/org/badudfs/functionclasses2/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -164,10 +164,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_nonUDF(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/nonUDF/StringFunctions/"
+      "daffodil-core/src/test/java/org/badudfs/nonUDF/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -191,10 +191,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_nonAnn(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/annotations/StringFunctions/"
+      "daffodil-core/src/test/java/org/badudfs/annotations/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -226,10 +226,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_noEvaluate(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/evaluate/StringFunctions/"
+      "daffodil-core/src/test/java/org/badudfs/evaluate/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -273,10 +273,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_CustomExceptionOnEvaluate(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/"
     )
 
     runCLI(args"parse -s $schema -r user_func2", classpath) { cli =>
@@ -296,10 +296,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_ProcessingErrorOnEvaluate(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/"
     )
 
     runCLI(args"parse -s $schema -r user_func3", classpath) { cli =>
@@ -315,10 +315,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_exceptionOnLoad(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions2/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/udfexceptions2/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
@@ -340,10 +340,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_exceptionOnLoadingUDFs(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/udfpexceptions/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
@@ -363,10 +363,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_exceptionOnLoad(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions2/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/udfpexceptions2/StringFunctions/"
     )
 
     runCLI(args"-vv parse -s $schema -r user_func3", classpath) { cli =>
@@ -390,10 +390,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_incorrectUDFObject(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
@@ -412,10 +412,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_incorrectUDFCreateImplementation(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func2", classpath) { cli =>
@@ -437,10 +437,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_serializability(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
     )
 
     runCLI(args"-vv save-parser -s $schema -r user_func4", classpath) { cli =>
@@ -468,10 +468,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_serializability2(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
+      "daffodil-core/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
+      "daffodil-core/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
     )
 
     withTempFile { parser =>
