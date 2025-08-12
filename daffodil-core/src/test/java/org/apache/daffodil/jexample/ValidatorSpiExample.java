@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.jexample;
 
-import org.apache.daffodil.api.infoset.Infoset;
 import org.apache.daffodil.api.validation.Validators;
 import org.apache.daffodil.jexample.validation.FailingValidator;
 import org.apache.daffodil.jexample.validation.PassingValidator;
@@ -52,8 +51,8 @@ public class ValidatorSpiExample {
 
     java.io.File file = getResource("/test/api/myData5.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
 
       assertFalse(res.isValidationError());
@@ -71,8 +70,8 @@ public class ValidatorSpiExample {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
 
       assertTrue(res.isValidationError());

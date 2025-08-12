@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1.infoset
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.Accessor

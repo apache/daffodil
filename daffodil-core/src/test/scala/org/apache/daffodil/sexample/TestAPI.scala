@@ -40,7 +40,6 @@ import org.apache.daffodil.api.ParseResult
 import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.exceptions.ExternalVariableException
-import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
 import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
@@ -153,8 +152,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -168,7 +167,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -206,8 +205,8 @@ class TestAPI {
     // and byte buffer.
     val ba = FileUtils.readFileToByteArray(file)
     val bb = ByteBuffer.wrap(ba)
-    Using.resource(Infoset.getInputSourceDataInputStream(bb)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(bb)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = parser.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -221,7 +220,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -242,8 +241,8 @@ class TestAPI {
     // the constructor for creating an InputSourceDataInputStream from a byte array
     // and byte buffer.
     val ba = FileUtils.readFileToByteArray(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(ba)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(ba)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
 
       // TODO: Need scala API for status enum
@@ -283,8 +282,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -293,7 +292,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -324,8 +323,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = parser.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -334,7 +333,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -352,8 +351,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData2.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -362,7 +361,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -382,8 +381,8 @@ class TestAPI {
     val file = getResource("/test/api/myData3.dat"); // contains 5
     // bytes
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -392,7 +391,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -441,15 +440,15 @@ class TestAPI {
 
     val file = getResource("/test/api/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -476,15 +475,15 @@ class TestAPI {
 
     val file = getResource("/test/api/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -507,8 +506,8 @@ class TestAPI {
 
     val file = getResource("/test/api/01very_simple.txt")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -517,7 +516,7 @@ class TestAPI {
 
       val bos1 = new java.io.ByteArrayOutputStream()
       val wbc1 = java.nio.channels.Channels.newChannel(bos1)
-      val inputter1 = Infoset.getScalaXMLInfosetInputter(node1)
+      val inputter1 = Daffodil.newScalaXMLInfosetInputter(node1)
       val res2 = dp.unparse(inputter1, wbc1)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -527,7 +526,7 @@ class TestAPI {
 
       val bos2 = new java.io.ByteArrayOutputStream()
       val wbc2 = java.nio.channels.Channels.newChannel(bos2)
-      val inputter2 = Infoset.getScalaXMLInfosetInputter(node2)
+      val inputter2 = Daffodil.newScalaXMLInfosetInputter(node2)
       val res3 = dp.unparse(inputter2, wbc2)
       val err3 = res3.isError()
       assertFalse(err3)
@@ -550,8 +549,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData4.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -576,8 +575,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData5.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -610,8 +609,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -643,8 +642,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -675,8 +674,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -741,7 +740,7 @@ class TestAPI {
     val bos = new java.io.ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bos)
 
-    val inputter = Infoset.getScalaXMLInfosetInputter(xml)
+    val inputter = Daffodil.newScalaXMLInfosetInputter(xml)
     val res = dp.unparse(inputter, wbc)
     val err = res.isError()
     assertTrue(err)
@@ -763,8 +762,8 @@ class TestAPI {
     val dp = reserializeDataProcessor(dp1).withValidation("daffodil")
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
       assertFalse(res.isProcessingError())
@@ -788,8 +787,8 @@ class TestAPI {
     val dp = dp1.withValidation("xerces", schemaFile.toURI)
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
       assertFalse(res.isProcessingError())
@@ -823,8 +822,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData2.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter
       var res: ParseResult = null
       var err: Boolean = false
 
@@ -863,8 +862,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData19.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       var res: ParseResult = null
       var err: Boolean = false
 
@@ -899,10 +898,10 @@ class TestAPI {
     val file = getResource("/test/api/myData.dat")
     val fisDP = new java.io.FileInputStream(file)
     val fisSAX = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fisSAX)) { inputSAX =>
-      val inputDP = Infoset.getInputSourceDataInputStream(fisDP)
+    Using.resource(Daffodil.newInputSourceDataInputStream(fisSAX)) { inputSAX =>
+      val inputDP = Daffodil.newInputSourceDataInputStream(fisDP)
       val bosDP = new ByteArrayOutputStream()
-      val outputter = Infoset.getXMLTextInfosetOutputter(bosDP, true)
+      val outputter = Daffodil.newXMLTextInfosetOutputter(bosDP, true)
       dp.parse(inputDP, outputter)
       val infosetDPString = bosDP.toString()
 
@@ -980,7 +979,7 @@ class TestAPI {
 
     val file = getResource("/test/api/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
       val contentHandler = new org.jdom2.input.sax.SAXHandler()
       val errorHandler = new SAXErrorHandlerForSAPITest()
       parseXMLReader.setContentHandler(contentHandler)
@@ -1139,8 +1138,8 @@ class TestAPI {
     {
       val ba = Array[Byte]()
       val bb = ByteBuffer.wrap(ba)
-      Using.resource(Infoset.getInputSourceDataInputStream(bb)) { dis =>
-        val outputter = Infoset.getScalaXMLInfosetOutputter()
+      Using.resource(Daffodil.newInputSourceDataInputStream(bb)) { dis =>
+        val outputter = Daffodil.newScalaXMLInfosetOutputter()
         val res = dp.parse(dis, outputter)
         assertFalse(res.isError())
         val docString = outputter.getResult().toString()
@@ -1154,8 +1153,8 @@ class TestAPI {
     {
       val ba = Array[Byte]()
       val bb = ByteBuffer.wrap(ba)
-      Using.resource(Infoset.getInputSourceDataInputStream(bb)) { dis =>
-        val outputter = Infoset.getScalaXMLInfosetOutputter()
+      Using.resource(Daffodil.newInputSourceDataInputStream(bb)) { dis =>
+        val outputter = Daffodil.newScalaXMLInfosetOutputter()
         val res = dp.parse(dis, outputter)
         assertFalse(res.isError())
         val docString = outputter.getResult().toString()
@@ -1186,7 +1185,7 @@ class TestAPI {
 
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { dis =>
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { dis =>
       val outputter = new TestInfosetOutputter()
       val pr = dp.parse(dis, outputter)
 
@@ -1274,9 +1273,9 @@ class TestAPI {
     var dp = pf.onPath("/")
 
     val is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8))
-    Using.resource(Infoset.getInputSourceDataInputStream(is)) { input =>
+    Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
       val bosDP = new ByteArrayOutputStream()
-      val outputter = Infoset.getXMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA)
+      val outputter = Daffodil.newXMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA)
       val res = dp.parse(input, outputter)
       val err = res.isError()
 
@@ -1299,13 +1298,13 @@ class TestAPI {
 
     val data = Array[Byte](0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04)
     val bis = new ByteArrayInputStream(data)
-    Using.resource(Infoset.getInputSourceDataInputStream(data)) { input =>
+    Using.resource(Daffodil.newInputSourceDataInputStream(data)) { input =>
       val blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "api")
       Files.createDirectories(blobRoot)
       val blobDir = Files.createTempDirectory(blobRoot, "blob-")
 
       val bos = new ByteArrayOutputStream()
-      val output = Infoset.getXMLTextInfosetOutputter(bos, true)
+      val output = Daffodil.newXMLTextInfosetOutputter(bos, true)
       output.setBlobAttributes(blobDir, "pre-", ".suf")
 
       val res = dp.parse(input, output)
@@ -1342,8 +1341,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myData16.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       val err = res.isError()
       assertFalse(err)
@@ -1352,7 +1351,7 @@ class TestAPI {
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getScalaXMLInfosetInputter(outputter.getResult())
+      val inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
       val res2 = dp.unparse(inputter, wbc)
       val err2 = res2.isError()
       assertFalse(err2)
@@ -1385,8 +1384,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter()
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter()
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
 
@@ -1406,8 +1405,8 @@ class TestAPI {
 
     val file = getResource("/test/api/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getScalaXMLInfosetOutputter
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newScalaXMLInfosetOutputter
       val res = dp.parse(input, outputter)
       assertTrue(res.isError())
 
@@ -1427,8 +1426,8 @@ class TestAPI {
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val bos = new ByteArrayOutputStream()
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      val outputter = Infoset.getJsonInfosetOutputter(bos, false)
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      val outputter = Daffodil.newJsonInfosetOutputter(bos, false)
       val res = dp.parse(input, outputter)
       assertFalse(res.isError())
     }
@@ -1436,7 +1435,7 @@ class TestAPI {
     Using.resource(new ByteArrayInputStream(bos.toByteArray())) { input =>
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getJsonInfosetInputter(input)
+      val inputter = Daffodil.newJsonInfosetInputter(input)
       val res = dp.unparse(inputter, wbc)
       assertFalse(res.isError())
       assertEquals("42", bos.toString())
@@ -1456,7 +1455,7 @@ class TestAPI {
     Using.resource(new ByteArrayInputStream(badJsonInfoset.getBytes("UTF-8"))) { input =>
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = Infoset.getJsonInfosetInputter(input)
+      val inputter = Daffodil.newJsonInfosetInputter(input)
       val res = dp.unparse(inputter, wbc)
       assertTrue(res.isError())
       val diags = res.getDiagnostics

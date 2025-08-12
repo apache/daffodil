@@ -26,14 +26,13 @@ import scala.util.Using
 import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.DataProcessor
 import org.apache.daffodil.api.InputSourceDataInputStream
-import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.api.validation.ValidationHandler
 import org.apache.daffodil.api.validation.Validator
 import org.apache.daffodil.api.validation.ValidatorFactory
 
 abstract class ValidatorExamplesSupport {
   private def fileFromResource(path: String): File = new File(getClass.getResource(path).toURI)
-  val `/dev/null` = Infoset.getNullInfosetOutputter
+  val `/dev/null` = Daffodil.newNullInfosetOutputter
 
   def withSchema(name: String)(f: DataProcessor => Unit): Unit = {
     val c = Daffodil.compiler()
@@ -44,7 +43,7 @@ abstract class ValidatorExamplesSupport {
 
   def withInput(name: String)(f: InputSourceDataInputStream => Unit): Unit = {
     Using.resource(
-      Infoset.getInputSourceDataInputStream(new FileInputStream(fileFromResource(name)))
+      Daffodil.newInputSourceDataInputStream(new FileInputStream(fileFromResource(name)))
     ) { s =>
       f(s)
     }

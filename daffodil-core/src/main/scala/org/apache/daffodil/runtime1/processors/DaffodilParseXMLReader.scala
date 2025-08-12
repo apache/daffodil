@@ -139,7 +139,7 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends api.DaffodilParseXMLRead
   override def parse(input: InputSource): Unit = {
     val is = input.getByteStream
     if (is != null) {
-      Using.resource(api.infoset.Infoset.getInputSourceDataInputStream(is)) { isdis =>
+      Using.resource(api.Daffodil.newInputSourceDataInputStream(is)) { isdis =>
         parse(isdis)
       }
     } else {
@@ -172,13 +172,13 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends api.DaffodilParseXMLRead
   }
 
   def parse(stream: InputStream): Unit = {
-    Using.resource(api.infoset.Infoset.getInputSourceDataInputStream(stream)) { isdis =>
+    Using.resource(api.Daffodil.newInputSourceDataInputStream(stream)) { isdis =>
       parse(isdis)
     }
   }
 
   def parse(arr: Array[Byte]): Unit = {
-    Using.resource(api.infoset.Infoset.getInputSourceDataInputStream(arr)) { isdis =>
+    Using.resource(api.Daffodil.newInputSourceDataInputStream(arr)) { isdis =>
       parse(isdis)
     }
   }

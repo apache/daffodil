@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.infoset
 import java.lang.Boolean as JBoolean
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.runtime1.dpath.NodeInfo

@@ -22,7 +22,7 @@ import javax.xml.XMLConstants
 import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
