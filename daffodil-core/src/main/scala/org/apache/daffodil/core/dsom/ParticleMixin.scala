@@ -116,6 +116,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
         case (1, 1) => false
         case (_, n) if n > 1 => true
         case (_, UNBOUNDED) => true
+
         /**
          * This next case is for occursCountKinds parsed and stopValue.
          * These only use min/maxOccurs for validation, so anything
@@ -127,6 +128,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
               occursCountKind == OccursCountKind.StopValue ||
               occursCountKind == OccursCountKind.Expression) =>
           true
+
         /**
          * Special case for minoccurs 0 and maxOccurs 0 when OCK is 'implicit' in that
          * case we treat as an array that cannot have any occurrences.

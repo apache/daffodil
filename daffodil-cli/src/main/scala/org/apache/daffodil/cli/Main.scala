@@ -138,7 +138,10 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         s match {
           case Nil => Right(None) // flag was not present
           case (_, Nil) :: Nil => Right(Some(None)) // flag was present but had no parameter
-          case (_, v :: Nil) :: Nil => { // flag was present with a parameter, convert the parameter
+          case (
+                _,
+                v :: Nil
+              ) :: Nil => { // flag was present with a parameter, convert the parameter
             try {
               Right(Some(Some(conv(v))))
             } catch {
@@ -1378,8 +1381,9 @@ class Main(
                         else ""
                       val dataHex =
                         if (destArrayFilled)
-                          s"\nLeft over data (Hex) starting at byte ${curBytePosition1b} is: (0x${destArray.map { a =>
-                              f"$a%02x"
+                          s"\nLeft over data (Hex) starting at byte ${curBytePosition1b} is: (0x${destArray.map {
+                              a =>
+                                f"$a%02x"
                             }.mkString}...)"
                         else ""
                       val remainingBits =

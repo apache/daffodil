@@ -469,6 +469,7 @@ class VariableMap private (
 
       case _ => {
         vrd.direction match {
+
           /**
            * Due to potential race conditions regarding the setting of
            * variables via setVariable and default values in combination with

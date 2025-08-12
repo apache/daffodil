@@ -2399,7 +2399,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
   final lazy val nBits: Long =
     documentParts.map {
       _.nBits
-    } sum
+    }.sum
 
   final lazy val documentBytes = bits2Bytes(documentBits)
 
@@ -2636,7 +2636,7 @@ sealed abstract class DataDocumentPart(part: Node, parent: Document)
 
   lazy val lengthInBits = dataBits.map {
     _.length
-  } sum
+  }.sum
   override lazy val nBits: Long = lengthInBits
 
   lazy val contentAsBits = dataBits

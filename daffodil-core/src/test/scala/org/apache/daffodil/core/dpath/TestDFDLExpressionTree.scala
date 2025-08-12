@@ -445,19 +445,24 @@ class TestDFDLExpressionTree extends Parsers {
   @Test def test_numbers() = {
 
     testExpr(dummySchema, "{ 5.0E2 }") {
-      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ 5E2 }") {
-      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(500.0), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ .2E2 }") {
-      case WholeExpression(_, LiteralExpression(20.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(20.0), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ .2E-3 }") {
-      case WholeExpression(_, LiteralExpression(0.0002), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(0.0002), _, _, _, _) => /* ok */
+        ;
     }
     testExpr(dummySchema, "{ .2E+3 }") {
-      case WholeExpression(_, LiteralExpression(200.0), _, _, _, _) => /* ok */ ;
+      case WholeExpression(_, LiteralExpression(200.0), _, _, _, _) => /* ok */
+        ;
     }
 
     //    testExpr(dummySchema, "0.") { actual =>
