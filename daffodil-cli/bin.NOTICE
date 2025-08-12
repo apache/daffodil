@@ -102,14 +102,15 @@ The following NOTICE information applies to binary components distributed with t
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Akka (https://akka.io).
 
+- org.scala-lang.scala-library-<VERSION>.jar
 - org.scala-lang.scala3-library-<VERSION>.jar
-  Scala 3 (https://www.scala-lang.org)
-  Copyright (c) 2012-2025 EPFL
-  Copyright (c) 2012-2025 Lightbend, Inc. dba Akka
+  Scala
+  Copyright (c) 2002-2025 EPFL
+  Copyright (c) 2011-2025 Lightbend, Inc. dba Akka
 
   Scala includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
-  Akka (https://akka.io).
+  Akka (https://akka.io/).
 
 - org.xmlresolver.xmlresolver-<VERSION>.jar:
   Copyright 2015-2023 Norman Walsh and contributors. http://nwalsh.com/
