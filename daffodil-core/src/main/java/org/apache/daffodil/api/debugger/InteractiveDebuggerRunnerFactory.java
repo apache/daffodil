@@ -50,7 +50,7 @@ public class InteractiveDebuggerRunnerFactory {
    * @param out stream to print trace to
    * @return instance of TraceDebuggerRunner
    */
-  public static org.apache.daffodil.api.debugger.TraceDebuggerRunner getTraceDebuggerRunner(PrintStream out) {
+  public static org.apache.daffodil.api.debugger.TraceDebuggerRunner newTraceDebuggerRunner(PrintStream out) {
     return new TraceDebuggerRunner(out);
   }
 }
