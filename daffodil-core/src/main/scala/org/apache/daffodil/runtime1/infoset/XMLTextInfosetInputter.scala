@@ -28,8 +28,8 @@ import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamWriter
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo

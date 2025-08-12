@@ -22,8 +22,8 @@ import java.net.URI
 import java.net.URISyntaxException
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Coroutine
 import org.apache.daffodil.lib.util.Maybe

@@ -22,21 +22,17 @@ import org.apache.daffodil.api.Diagnostic;
 import org.apache.daffodil.api.ParseResult;
 import org.apache.daffodil.api.DataProcessor;
 import org.apache.daffodil.api.ProcessorFactory;
-import org.apache.daffodil.api.infoset.Infoset;
 import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.api.InputSourceDataInputStream;
-import org.apache.daffodil.api.validation.Validator;
 import org.apache.daffodil.api.validation.ValidatorInitializationException;
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
-import org.apache.daffodil.api.validation.Validators;
 import org.apache.daffodil.jexample.validation.FailingValidator;
 import org.apache.daffodil.jexample.validation.PassingValidator;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -58,8 +54,8 @@ public class ValidatorApiExample {
 
     java.io.File file = getResource("/test/api/myData5.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      InfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      InfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       assertFalse(res.isValidationError());
     }
@@ -74,8 +70,8 @@ public class ValidatorApiExample {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      InfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      InfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
 
       assertTrue(res.isValidationError());
@@ -94,8 +90,8 @@ public class ValidatorApiExample {
     DataProcessor dp = dp1.withValidation("xerces", schemaFile.toURI());
 
     java.io.InputStream fis = new ByteArrayInputStream("0".getBytes());
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
 
       assertTrue(res.isValidationError());

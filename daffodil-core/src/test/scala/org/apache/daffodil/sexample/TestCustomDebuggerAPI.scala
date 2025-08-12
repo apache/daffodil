@@ -21,7 +21,6 @@ import scala.util.Using
 
 import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.debugger.Debugger
-import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.Parser
@@ -55,8 +54,8 @@ class TestCustomDebuggerAPI {
 
     val file = Misc.getRequiredResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file.toURL.getFile)
-    Using.resource(Infoset.getInputSourceDataInputStream(fis)) { input =>
-      dp.parse(input, Infoset.getNullInfosetOutputter)
+    Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
+      dp.parse(input, Daffodil.newNullInfosetOutputter)
 
       assertEquals(6, dbg.nodes)
       assertTrue(dbg.inited)

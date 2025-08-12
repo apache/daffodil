@@ -28,8 +28,6 @@ import org.apache.daffodil.runtime1.processors.parsers.Parser;
 import org.apache.daffodil.lib.util.Misc;
 import org.junit.Test;
 
-import org.apache.daffodil.api.infoset.Infoset;
-
 import java.io.IOException;
 import java.net.URI;
 
@@ -66,13 +64,13 @@ public class TestCustomDebuggerAPI {
     URI schemaFileName = Misc.getRequiredResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileSource(schemaFileName);
     DataProcessor dp = pf.onPath("/")
-        .withDebugger(dbg)
-        .withDebugging(true);
+      .withDebugger(dbg)
+      .withDebugging(true);
 
     String file = Misc.getRequiredResource("/test/api/myData2.dat").toURL().getFile();
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      ParseResult res = dp.parse(dis, Infoset.getNullInfosetOutputter());
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      ParseResult res = dp.parse(dis, Daffodil.newNullInfosetOutputter());
 
       assertEquals(6, dbg.nodes);
       assertTrue(dbg.inited);
