@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.jexample;
 
-import org.apache.daffodil.api.infoset.Infoset;
+import org.apache.daffodil.api.Daffodil;
 import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.runtime1.dpath.NodeInfo;
 
@@ -34,7 +34,7 @@ public class TestInfosetInputter extends InfosetInputter {
   }
 
   @Override
-  public Infoset.InfosetInputterEventType getEventType() {
+  public Daffodil.InfosetInputterEventType getEventType() {
     return events[curEventIndex].eventType;
   }
 

@@ -175,7 +175,7 @@ object TestUtils {
 
   private lazy val builtInTracer =
     new InteractiveDebugger(
-      InteractiveDebuggerRunnerFactory.getTraceDebuggerRunner(System.out),
+      InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(System.out),
       ExpressionCompilers
     )
 

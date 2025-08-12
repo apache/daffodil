@@ -29,8 +29,8 @@ import javax.xml.stream.XMLStreamWriter
 import javax.xml.stream.util.XMLEventAllocator
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils

@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.api.infoset;
 
+import org.apache.daffodil.api.Daffodil;
 import org.apache.daffodil.runtime1.dpath.NodeInfo;
 
 import java.util.Map;
@@ -63,7 +64,7 @@ public abstract class InfosetInputter {
   /**
    * @return the current infoset inputter event type
    */
-  public abstract Infoset.InfosetInputterEventType getEventType();
+  public abstract Daffodil.InfosetInputterEventType getEventType();
 
   /**
    * Get the local name of the current event. This will only be called when the

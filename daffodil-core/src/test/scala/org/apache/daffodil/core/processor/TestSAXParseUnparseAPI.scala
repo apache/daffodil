@@ -21,7 +21,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils

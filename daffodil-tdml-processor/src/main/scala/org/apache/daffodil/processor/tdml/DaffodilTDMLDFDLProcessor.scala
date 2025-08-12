@@ -171,7 +171,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
 
   private lazy val builtInTracer =
     new InteractiveDebugger(
-      InteractiveDebuggerRunnerFactory.getTraceDebuggerRunner(System.out),
+      InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(System.out),
       ExpressionCompilers
     )
 

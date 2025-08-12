@@ -1086,7 +1086,7 @@ class Main(
     debug: ScallopOption[Option[String]]
   ) = {
     if (trace()) {
-      InteractiveDebuggerRunnerFactory.getTraceDebuggerRunner(STDOUT)
+      InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(STDOUT)
     } else {
       if (System.console == null) {
         Logger.log.warn(

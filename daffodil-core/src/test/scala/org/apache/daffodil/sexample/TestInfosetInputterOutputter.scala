@@ -20,8 +20,8 @@ package org.apache.daffodil.sexample
 import java.lang.Boolean as JBoolean
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
+import org.apache.daffodil.api.Daffodil.InfosetInputterEventType.*
 import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetInputter
