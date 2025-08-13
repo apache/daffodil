@@ -114,9 +114,6 @@ abstract class SequenceParserBase(
       //
       while (!isDone && (scpIndex < limit) && (pstate.processorStatus eq Success)) {
 
-        // keep track of the current last child node. If the last child changes
-        // while parsing, we know a new child was added in this loop
-
         child = children(scpIndex).asInstanceOf[SequenceChildParser]
 
         child match {
@@ -216,29 +213,9 @@ abstract class SequenceParserBase(
                 pstate.mpstate.moveOverOneGroupIndexOnly()
               }
 
-              val newLastChildNode = pstate.infoset.maybeLastChild
-              if (newLastChildNode.isDefined) {
-                // We have potentially added a child to to this complex during
-                // this array loop.
-                //
-                // If the new child is a DIArray, we know this DIArray has at
-                // least one element, but we don't know if we actually added a
-                // new one in this loop or not. So just get the last array
-                // element and set it as final anyways.
-                //
-                // If it's not a DIArray, that means it's just an optional
-                // simple/complex and that will get set final below where all
-                // other non-array elements get set as final.
-                val lastChild = newLastChildNode.get
-                if (lastChild.isArray) {
-                  // not simple or complex, must be an array
-                  val lastArrayElem = lastChild.maybeLastChild
-                  if (lastArrayElem.isDefined) {
-                    lastArrayElem.get.isFinal = true
-                    pstate.walker.walk()
-                  }
-                }
-              }
+              // we might have added a new instance to the array. Attempt to project it to an
+              // infoset if there are no PoU's or anything blocking it
+              pstate.walker.walk()
 
             } // end while for each repeat
             parser.endArray(pstate)
@@ -335,50 +312,9 @@ abstract class SequenceParserBase(
           } // end case scalarParser
         } // end match case parser
 
-        // now that we have finished parsing a single instance of this sequence,
-        // we need to potentially set things as final, get the last child to
-        // determine if it changed from the saved last child, which lets us know
-        // if a new child was actually added.
-        val newLastChildNode = pstate.infoset.maybeLastChild
-
-        if (!isOrdered) {
-          // In the special case of unordered sequences with arrays, we do not
-          // use the RepatingChildParser. Instead we parse on instance at a time
-          // in this loop. So array elements aren't set final above like normal
-          // arrays are.
-          //
-          // So if the last child node is a DIArray, we must set new array
-          // elements as final here. We can't know if we actually added a new
-          // DIArray element or not, so just set the last one as final
-          // regardless.
-          //
-          // Note that we do not need to do a null check because in an unordered
-          // sequence we are blocking, so we can't possibly walk/free any of
-          // these newly added elements.
-          if (newLastChildNode.isDefined && newLastChildNode.get.isArray) {
-            // we have a new last child, and it's not simple or complex, so must
-            // be an array. Set its last child final
-            newLastChildNode.get.maybeLastChild.get.isFinal = true
-          }
-        }
-
-        // We finished parsing one part of a sequence, which could either be an
-        // array, simple, or complex. We aren't sure if we actually added a new
-        // element or not, but in case we did, mark the last node as final.
-        //
-        // Additionally, if this is an ordered sequence, try to walk the infoset
-        // to output events for this potentially new element. If this is an
-        // unordered sequence, walking is unnecessary. This is because we may
-        // need to reorder the infoset once this unordered sequence is complete
-        // (via flattenAndValidateChildNodes below) and cannot walk until that
-        // happens. To ensure we don't walk even if a child parser tries to call
-        // walk() we incremented infosetWalkerBlockCount at the beginning of this
-        // function, so the walker is effectively blocked from making any
-        // progress. So we don't even bother calling walk() in this case.
-        if (newLastChildNode.isDefined) {
-          newLastChildNode.get.isFinal = true
-          if (isOrdered) pstate.walker.walk()
-        }
+        // we finished parsing one whole thing (scalar element, entire array, etc). Attempt to
+        // project it to an infoset if there are no PoU's or anything blocking it
+        pstate.walker.walk()
 
         scpIndex += 1
 
