@@ -174,8 +174,12 @@ sealed trait DINode {
 
   /**
   * Use to mark a node as final, indicating that its value will not change or have
-  * any children added to it. This cannot be called if an element is already
-  * marked as final to help ensure correct use of final
+  * any children added to it. Setting an element as final does not preclude it from
+  * being discarded by backtracking, i.e. it is only locally final, but might still
+  * be inside an enclosing PoU.
+  *
+  * This cannot be called if an element is already marked as final to help ensure
+  * correct use.
    */
   def setFinal(): Unit = {
     Assert.invariant(!_isFinal)
