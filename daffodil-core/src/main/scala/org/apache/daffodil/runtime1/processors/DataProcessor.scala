@@ -368,12 +368,9 @@ class DataProcessor(
         state.setMaybeProcessor(Maybe(p))
 
         if (state.processorStatus == Success) {
-          // At this point all infoset nodes have been set final, all infoset
-          // walker blocks released, and all elements walked. The one exception
-          // is the root node has not been set final because isFinal is handled
-          // by the sequence parser and there is no sequence around the root
-          // node. So mark it final and do one last walk to end the document.
-          state.infoset.child(0).isFinal = true
+          // At this point all infoset nodes have been set final, all PoUs
+          // resolved, and all infoset walker blocks released. Do one last walk
+          // to project any unwalked elements to the target infoset
           state.walker.walk(lastWalk = true)
           Assert.invariant(state.walker.isFinished)
         }
