@@ -466,7 +466,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
         if (lastChildMaybe.isDefined) {
           val lastChild = lastChildMaybe.get
           if (lastChild.isArray && (lastChild.erd ne newElem.erd)) {
-            lastChild.isFinal = true
+            lastChild.setFinal()
             parentComplex.freeChildIfNoLongerNeeded(
               parentComplex.numChildren - 1,
               state.releaseUnneededInfoset
@@ -527,7 +527,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
         // is no sibling following the array, so it must be set here.
         val lastChild = cur.maybeLastChild
         if (lastChild.isDefined && lastChild.get.isArray) {
-          lastChild.get.isFinal = true
+          lastChild.get.setFinal()
           cur.freeChildIfNoLongerNeeded(cur.numChildren - 1, state.releaseUnneededInfoset)
         }
       }
@@ -535,8 +535,12 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       // cur is finished, mark it as final and free if possible. Note that we
       // need the container and not the parent of the current element to free
       // it. This way if this element is in an array, we free this element
-      // from the array
-      cur.isFinal = true
+      // from the array. We also do not set hidden IVC elements as
+      // final--although we allow hidden IVC elements when unparsing, they
+      // never get a value so we can't set them as final without breaking
+      // assertions. Nothing can access hidden IVC elements, so this should
+      // not break anything
+      if (!state.withinHiddenNest || erd.isRepresented) cur.setFinal()
       val curContainer =
         if (cur.erd.isArray) cur.diParent.maybeLastChild.get
         else cur.diParent
@@ -551,7 +555,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
         // so mark the DIDocument as final
         val doc = state.documentElement
         Assert.invariant(!doc.isFinal)
-        doc.isFinal = true
+        doc.setFinal()
       }
 
       move(state)
@@ -614,7 +618,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
     if (lastChildMaybe.isDefined) {
       val lastChild = lastChildMaybe.get
       if (lastChild.isArray) {
-        lastChild.isFinal = true
+        lastChild.setFinal()
         parentComplex.freeChildIfNoLongerNeeded(
           parentComplex.numChildren - 1,
           state.releaseUnneededInfoset
@@ -645,7 +649,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
       // so mark the DIDocument as final
       val doc = state.documentElement
       Assert.invariant(!doc.isFinal)
-      doc.isFinal = true
+      doc.setFinal()
     }
 
     move(state)

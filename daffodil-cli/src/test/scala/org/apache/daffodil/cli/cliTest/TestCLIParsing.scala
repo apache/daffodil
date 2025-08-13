@@ -1012,4 +1012,29 @@ class TestCLIParsing {
       e.getMessage.contains("""Input Buffer: <?xml version="1.0" encoding="UTF-8"?>""")
     )
   }
+
+  @Test def test_CLI_Parsing_parse_error_infoset_walker_jdom(): Unit = {
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_05.dfdl.xsd"
+    )
+
+    runCLI(args"parse -s $schema -I jdom -TinfosetWalkerSkipMin=0 -TinfosetWalkerSkipMax=0") {
+      cli =>
+        // this is not enough data for the scema, which leads to a parse error about insufficient bits
+        cli.sendBytes(Array[Byte](0, 0, 0, 1), inputDone = true)
+
+        // there was a bug Daffodil that is most easily observed using the jdom infoset outputter
+        // with a non skipping infoset walker. With this setup, when an element fails to parse
+        // inside a choice dispatch (and no surrounding points of uncertainty) the infoset walker
+        // could walk into the failed element, which leads to an SDE when using the JDOM infoset
+        // outputter. This SDE prevents backtracking so we do not see a diagnostic about the
+        // choice dispatch branch failing. If the bug is fixed, we should never walk into the
+        // invalid element, we should not get an SDE, and we should get a diagnostic about choice
+        // dispatch.
+        cli.expectErr("Parse Error: Choice dispatch branch failed")
+
+        // this is the core failure diagnostic, which we see regardless of bug
+        cli.expectErr("Parse Error: Insufficient bits in data.")
+    }(ExitCode.ParseError)
+  }
 }

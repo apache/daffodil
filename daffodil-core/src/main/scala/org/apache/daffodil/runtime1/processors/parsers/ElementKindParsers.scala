@@ -213,17 +213,6 @@ abstract class ChoiceDispatchCombinatorParserBase(
 
           if (pstate.processorStatus eq Success) {
             Logger.log.debug(s"Choice dispatch success: ${parser}")
-
-            // We usually rely on the sequence parser to set elements as final.
-            // But choices with scalar elements do not necessarily have a
-            // sequence surrounding them and so they aren't set final. In order
-            // to set these elements final, we do it here as well. We will
-            // attempt to walk the infoset after the PoU is discarded.
-            val newLastChildNode = pstate.infoset.maybeLastChild
-            if (newLastChildNode.isDefined) {
-              newLastChildNode.get.isFinal = true
-            }
-
           } else {
             Logger.log.debug(s"Choice dispatch failed: ${parser}")
             val diag =

@@ -206,6 +206,13 @@ abstract class ElementParserBase(
         validate(pstate)
       }
 
+      // We successfully finished parsing this element. There are no more changes expected to be
+      // made so we can mark it as final and allow the InfosetWalker to project it to the target
+      // infoset. Note that the InfosetWalker will not walk past active points of uncertainty,
+      // so even though this is final we don't have to worry that it might we might backtrack
+      // and remove it--setFinal is just about local finality.
+      pstate.infoset.setFinal()
+
     } finally {
       parseEnd(pstate)
       if (pstate.dataProc.isDefined) pstate.dataProc.value.endElement(pstate, this)

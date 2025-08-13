@@ -357,6 +357,21 @@ abstract class RepeatingChildParser(
     state.mpstate.arrayIterationIndexStack.pop()
     val occurrences = state.mpstate.occursIndexStack.pop() - 1
     super.endArray(state, occurrences)
+
+    // if there were no issues parsing this array, and we actually created some elements, we
+    // need to mark the DIArray as final to allow the InfosetWalker to end the array and walk to
+    // later siblings. Note that the InfosetWalker will not walk past active points of
+    // uncertainty, so even though this is final we don't have to worry that it might we might
+    // backtrack and remove it--setFinal is just about local finality. Also, this
+    // RepeatingChildParser is used for both arrays and optional elements. We only need to do
+    // this for arrays since optional elements are set final in the ElementParser
+    if ((state.processorStatus eq Success) && occurrences > 0 && erd.isArray) {
+      // state.infoset is the parent of the array we need to set as final. We know we added an
+      // array and we know its the last child of the parent, so we can just get that directly
+      val parent = state.infoset
+      val array = parent.maybeLastChild.get
+      array.setFinal()
+    }
   }
 
 }
