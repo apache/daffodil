@@ -62,7 +62,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
     Debugger dbg = null;
     InteractiveDebuggerRunner runner;
     if (dr instanceof TraceDebuggerRunner) {
-      runner = InteractiveDebuggerRunnerFactory.getTraceDebuggerRunner(System.out);
+      runner = InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(System.out);
     } else if (dr != null) {
       runner = InteractiveDebuggerRunnerFactory.get(dr);
     } else {

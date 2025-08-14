@@ -25,7 +25,6 @@ import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.DataProcessor
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.ParseResult
-import org.apache.daffodil.api.infoset.Infoset
 import org.apache.daffodil.lib.util.Misc
 
 import org.junit.Assert.assertFalse
@@ -51,8 +50,8 @@ trait EmbeddedTesting {
     def withBytes(bytes: Array[Byte], verbose: PrintInfosetMode = Quiet): PR = {
       val bos = new ByteArrayOutputStream()
       val r1 = dp.parse(
-        Infoset.getInputSourceDataInputStream(new ByteArrayInputStream(bytes)),
-        Infoset.getXMLTextInfosetOutputter(bos, true)
+        Daffodil.newInputSourceDataInputStream(new ByteArrayInputStream(bytes)),
+        Daffodil.newXMLTextInfosetOutputter(bos, true)
       )
       verbose match {
         case Always | AnyError if r1.isError() => r1.getDiagnostics.forEach(println)

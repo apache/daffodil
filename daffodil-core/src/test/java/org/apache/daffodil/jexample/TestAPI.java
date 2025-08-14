@@ -49,18 +49,14 @@ import org.apache.daffodil.api.DataProcessor;
 import org.apache.daffodil.api.Diagnostic;
 import org.apache.daffodil.api.LocationInSchemaFile;
 import org.apache.daffodil.api.ParseResult;
-import org.apache.daffodil.api.validation.Validator;
 import org.apache.daffodil.api.validation.ValidatorInitializationException;
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
-import org.apache.daffodil.api.validation.Validators;
 import org.apache.daffodil.japi.SAXErrorHandlerForAPITest;
 import org.apache.daffodil.api.UnparseResult;
 import org.apache.daffodil.api.ProcessorFactory;
 import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException;
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException;
 import org.apache.daffodil.api.exceptions.ExternalVariableException;
-import org.apache.daffodil.api.exceptions.InvalidUsageException;
-import org.apache.daffodil.api.infoset.Infoset;
 import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
@@ -78,7 +74,6 @@ import org.xml.sax.XMLReader;
 import javax.xml.XMLConstants;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 
 
 public class TestAPI {
@@ -90,7 +85,7 @@ public class TestAPI {
    * are also used to illustrate API usage, this exemplifies best practice.
    */
   public static void setSecureDefaults(XMLReader xmlReader)
-      throws SAXNotSupportedException, SAXNotRecognizedException {
+    throws SAXNotSupportedException, SAXNotRecognizedException {
     xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     // since we're not really sure what they mean by secure processing
     // we make doubly sure by setting these ourselves also.
@@ -153,8 +148,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -164,7 +159,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -201,8 +196,8 @@ public class TestAPI {
     // and byte buffer.
     byte[] ba = FileUtils.readFileToByteArray(data);
     ByteBuffer bb = ByteBuffer.wrap(ba);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(bb)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(bb)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = parser.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -212,7 +207,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -260,8 +255,8 @@ public class TestAPI {
     // the constructor for creating an InputSourceDataInputStream from a byte array
     // and byte buffer.
     byte[] ba = FileUtils.readFileToByteArray(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(ba)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(ba)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
 
       // TODO: NEED a java friendly way to get the status of the outputter.
@@ -303,8 +298,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData16.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -313,7 +308,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -344,8 +339,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData16.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = parser.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -354,7 +349,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -373,8 +368,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData2.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -383,7 +378,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -402,8 +397,8 @@ public class TestAPI {
     java.io.File file = getResource("/test/api/myData3.dat"); // contains 5
     // bytes
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -412,7 +407,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -462,15 +457,15 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/01very_simple.txt");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -496,15 +491,15 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/01very_simple.txt");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -526,8 +521,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/01very_simple.txt");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -536,7 +531,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
-      InfosetInputter inputter1 = Infoset.getJDOMInfosetInputter(doc1);
+      InfosetInputter inputter1 = Daffodil.newJDOMInfosetInputter(doc1);
       UnparseResult res2 = dp.unparse(inputter1, wbc1);
       err = res2.isError();
       assertFalse(err);
@@ -546,7 +541,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
-      InfosetInputter inputter2 = Infoset.getJDOMInfosetInputter(doc2);
+      InfosetInputter inputter2 = Daffodil.newJDOMInfosetInputter(doc2);
       UnparseResult res3 = dp.unparse(inputter2, wbc2);
       err = res3.isError();
       assertFalse(err);
@@ -568,8 +563,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData4.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -596,8 +591,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData5.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -639,8 +634,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -670,8 +665,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -705,8 +700,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -745,7 +740,7 @@ public class TestAPI {
 
     java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
     java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-    InfosetInputter inputter = Infoset.getJDOMInfosetInputter(doc);
+    InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(doc);
     UnparseResult res = dp.unparse(inputter, wbc);
     boolean err = res.isError();
     assertTrue(err);
@@ -769,8 +764,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       assertTrue(res.isError());
       assertFalse(res.isProcessingError());
@@ -796,8 +791,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       assertTrue(res.isError());
       assertFalse(res.isProcessingError());
@@ -832,9 +827,9 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData2.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream input = Infoset.getInputSourceDataInputStream(fis)) {
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(fis)) {
 
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = null;
       boolean err = false;
 
@@ -874,9 +869,9 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData19.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream input = Infoset.getInputSourceDataInputStream(fis)) {
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(fis)) {
 
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = null;
       boolean err = false;
 
@@ -908,10 +903,10 @@ public class TestAPI {
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fisDP = new java.io.FileInputStream(file);
     java.io.FileInputStream fisSAX = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream disDP = Infoset.getInputSourceDataInputStream(fisDP)) {
-      InputSourceDataInputStream disSAX = Infoset.getInputSourceDataInputStream(fisSAX);
+    try (InputSourceDataInputStream disDP = Daffodil.newInputSourceDataInputStream(fisDP)) {
+      InputSourceDataInputStream disSAX = Daffodil.newInputSourceDataInputStream(fisSAX);
       ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
-      InfosetOutputter outputter = Infoset.getXMLTextInfosetOutputter(xmlBos, true);
+      InfosetOutputter outputter = Daffodil.newXMLTextInfosetOutputter(xmlBos, true);
       ParseResult res = dp.parse(disDP, outputter);
       String infosetDPString = xmlBos.toString();
 
@@ -923,11 +918,11 @@ public class TestAPI {
       parseXMLReader.setContentHandler(contentHandler);
       parseXMLReader.setErrorHandler(errorHandler);
       parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
-          Paths.get(System.getProperty("java.io.tmpdir")));
+        Paths.get(System.getProperty("java.io.tmpdir")));
       parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX,
-          "daffodil-sapi-");
+        "daffodil-sapi-");
       parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX,
-          ".sax.blob");
+        ".sax.blob");
       parseXMLReader.parse(disSAX);
       ParseResult resSAX = (ParseResult) parseXMLReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT);
       boolean err = errorHandler.isError();
@@ -947,7 +942,7 @@ public class TestAPI {
       DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
       try {
         org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
-            .newSAXParser().getXMLReader();
+          .newSAXParser().getXMLReader();
         setSecureDefaults(unparseXMLReader);
         unparseXMLReader.setContentHandler(unparseContentHandler);
         unparseXMLReader.setErrorHandler(errorHandler);
@@ -982,14 +977,14 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myDataBroken.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
 
       org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
       SAXErrorHandlerForAPITest errorHandler = new SAXErrorHandlerForAPITest();
       parseXMLReader.setContentHandler(contentHandler);
       parseXMLReader.setErrorHandler(errorHandler);
       parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
-          Paths.get(System.getProperty("java.io.tmpdir")));
+        Paths.get(System.getProperty("java.io.tmpdir")));
       parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX, "daffodil-sapi-");
       parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX, ".sax.blob");
       parseXMLReader.parse(dis);
@@ -1031,8 +1026,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -1068,7 +1063,7 @@ public class TestAPI {
     DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
     try {
       org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
-          .newSAXParser().getXMLReader();
+        .newSAXParser().getXMLReader();
       setSecureDefaults(unparseXMLReader);
       unparseXMLReader.setContentHandler(unparseContentHandler);
       unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
@@ -1175,8 +1170,8 @@ public class TestAPI {
     {
       byte[] ba = {};
       ByteBuffer bb = ByteBuffer.wrap(ba);
-      try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(bb)) {
-        JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+      try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(bb)) {
+        JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
         ParseResult res = dp.parse(dis, outputter);
         assertFalse(res.isError());
         org.jdom2.Document doc = outputter.getResult();
@@ -1196,8 +1191,8 @@ public class TestAPI {
     {
       byte[] ba = {};
       ByteBuffer bb = ByteBuffer.wrap(ba);
-      try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(bb)) {
-        JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+      try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(bb)) {
+        JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
         ParseResult res = dp.parse(dis, outputter);
         assertFalse(res.isError());
         org.jdom2.Document doc = outputter.getResult();
@@ -1215,12 +1210,12 @@ public class TestAPI {
 
     String expectedData = "42";
     TestInfosetEvent expectedEvents[] = {
-        TestInfosetEvent.startDocument(),
-        TestInfosetEvent.startComplex("e1", "http://example.com"),
-        TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
-        TestInfosetEvent.endSimple("e2", "http://example.com"),
-        TestInfosetEvent.endComplex("e1", "http://example.com"),
-        TestInfosetEvent.endDocument()
+      TestInfosetEvent.startDocument(),
+      TestInfosetEvent.startComplex("e1", "http://example.com"),
+      TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
+      TestInfosetEvent.endSimple("e2", "http://example.com"),
+      TestInfosetEvent.endComplex("e1", "http://example.com"),
+      TestInfosetEvent.endDocument()
     };
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
@@ -1230,7 +1225,7 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
       TestInfosetOutputter outputter = new TestInfosetOutputter();
       ParseResult pr = dp.parse(dis, outputter);
 
@@ -1276,7 +1271,7 @@ public class TestAPI {
   public void testAPINullXMLTextEscapeStyle() throws IOException, ClassNotFoundException {
     ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
     try {
-      InfosetOutputter outputter = Infoset.getXMLTextInfosetOutputter(xmlBos, true, null);
+      InfosetOutputter outputter = Daffodil.newXMLTextInfosetOutputter(xmlBos, true, null);
     } catch (IllegalArgumentException e) {
       String msg = e.getMessage().toLowerCase();
       assertTrue(msg.contains("unrecognized"));
@@ -1326,7 +1321,7 @@ public class TestAPI {
   }
 
   public void doXMLTextEscapeStyleTest(String expect, String data, String schemaType)
-      throws Exception {
+    throws Exception {
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchemaCDATA.dfdl.xsd");
@@ -1334,9 +1329,9 @@ public class TestAPI {
     DataProcessor dp = pf.onPath("/");
 
     ByteArrayInputStream is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
-    try (InputSourceDataInputStream input = Infoset.getInputSourceDataInputStream(is)) {
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
       ByteArrayOutputStream bosDP = new ByteArrayOutputStream();
-      InfosetOutputter outputter = Infoset.getXMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA);
+      InfosetOutputter outputter = Daffodil.newXMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA);
       ParseResult res = dp.parse(input, outputter);
       boolean err = res.isError();
 
@@ -1360,14 +1355,14 @@ public class TestAPI {
 
     byte[] data = new byte[]{0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04};
     ByteArrayInputStream bis = new ByteArrayInputStream(data);
-    try (InputSourceDataInputStream input = Infoset.getInputSourceDataInputStream(data)) {
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(data)) {
 
       Path blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "api");
       Files.createDirectories(blobRoot);
       Path blobDir = Files.createTempDirectory(blobRoot, "blob-");
 
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      InfosetOutputter output = Infoset.getXMLTextInfosetOutputter(bos, true);
+      InfosetOutputter output = Daffodil.newXMLTextInfosetOutputter(bos, true);
       output.setBlobAttributes(blobDir, "pre-", ".suf");
 
       ParseResult res = dp.parse(input, output);
@@ -1404,8 +1399,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData16.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
@@ -1414,7 +1409,7 @@ public class TestAPI {
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-      InfosetInputter inputter = Infoset.getJDOMInfosetInputter(outputter.getResult());
+      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
       UnparseResult res2 = dp.unparse(inputter, wbc);
       err = res2.isError();
       assertFalse(err);
@@ -1452,8 +1447,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myDataBroken.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       assertTrue(res.isError());
 
@@ -1473,8 +1468,8 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myDataBroken.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis)) {
-      JDOMInfosetOutputter outputter = Infoset.getJDOMInfosetOutputter();
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter();
       ParseResult res = dp.parse(dis, outputter);
       assertTrue(res.isError());
 
@@ -1493,14 +1488,14 @@ public class TestAPI {
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    InputSourceDataInputStream dis = Infoset.getInputSourceDataInputStream(fis);
+    InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis);
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    InfosetOutputter outputter = Infoset.getJsonInfosetOutputter(bos, false);
+    InfosetOutputter outputter = Daffodil.newJsonInfosetOutputter(bos, false);
     ParseResult res = dp.parse(dis, outputter);
     assertFalse(res.isError());
 
     java.io.ByteArrayInputStream input = new java.io.ByteArrayInputStream(bos.toByteArray());
-    InfosetInputter inputter = Infoset.getJsonInfosetInputter(input);
+    InfosetInputter inputter = Daffodil.newJsonInfosetInputter(input);
     java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
     java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos2);
     UnparseResult res2 = dp.unparse(inputter, wbc);
@@ -1519,7 +1514,7 @@ public class TestAPI {
     String badJsonInfoset = "{\"e1\": {\"e2\": {\"unexpected\": \"object\"}}}";
 
     java.io.ByteArrayInputStream input = new java.io.ByteArrayInputStream(badJsonInfoset.getBytes("UTF-8"));
-    InfosetInputter inputter = Infoset.getJsonInfosetInputter(input);
+    InfosetInputter inputter = Daffodil.newJsonInfosetInputter(input);
     java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
     java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos2);
     UnparseResult res = dp.unparse(inputter, wbc);

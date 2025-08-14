@@ -18,14 +18,13 @@
 package org.apache.daffodil.jexample;
 
 
-import org.apache.daffodil.api.infoset.Infoset;
-import scala.Option;
+import org.apache.daffodil.api.Daffodil;
 
-import static org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*;
+import static org.apache.daffodil.api.Daffodil.InfosetInputterEventType.*;
 
 public class TestInfosetEvent {
 
-  Infoset.InfosetInputterEventType eventType;
+  Daffodil.InfosetInputterEventType eventType;
   String localName;
   String namespaceURI;
   String simpleText;
@@ -34,7 +33,7 @@ public class TestInfosetEvent {
   // nullable and has the given value
   Boolean isNilled;
 
-  public TestInfosetEvent(Infoset.InfosetInputterEventType _eventType, String _localName, String _namespaceURI, String _simpleText, Boolean _isNilled) {
+  public TestInfosetEvent(Daffodil.InfosetInputterEventType _eventType, String _localName, String _namespaceURI, String _simpleText, Boolean _isNilled) {
     this.eventType = _eventType;
     this.localName = _localName;
     this.namespaceURI = _namespaceURI;
