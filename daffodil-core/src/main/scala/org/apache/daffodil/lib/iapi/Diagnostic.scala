@@ -121,15 +121,17 @@ abstract class Diagnostic protected (
   }
 
   /**
-   * Turns the diagnostic object into a string.
+   * Return just the message portion of the diagnostic.
    *
-   * Should utilize locale information to properly internationalize. But if that is
-   * unavailable, will still construct an English-language string.
+   * This should be localized but Daffodil does not currently support localized error
+   * messages--only english is supported.
    */
   override def getMessage(): String = message
 
-  override def getMessageOnly: String = message
-
+  /**
+   * Turns the diagnostic object into a human-readable string containing all available
+   * diagnostic information, including mode, message, schema context, and data location
+   */
   override def toString() =
     getModeName() + ": " + getMessage + schemaContextString + dataLocationString
 

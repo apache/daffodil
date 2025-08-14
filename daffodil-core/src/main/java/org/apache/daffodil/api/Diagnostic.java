@@ -38,23 +38,16 @@ public abstract class Diagnostic extends Exception {
   }
 
   /**
-   * Get all diagnostic information, including mode name, schema context, and data location
+   * Get the diagnostic message
    * <p>
-   * Future versions of Daffodil will change getMessage to return only the message portion of a
-   * diagnostic, matching the behavior of getMessageOnly--users should call toString() instead.
+   * This does not include any additional details about the Diagnostic, such as
+   * mode name, schema context, or data location. For a human-readable
+   * representation of this diagnostic, including the message and all context
+   * information, use {@link #toString()}.
    *
    * @return diagnostic message in string form
    */
   public abstract String getMessage();
-
-  /**
-   * Get only the message part of a diagnostic.
-   * <p>
-   * This does not include mode name, schema context, or data location information
-   *
-   * @return diagnostic message in string form
-   */
-  public abstract String getMessageOnly();
 
   /**
    * Get the diagnostic mode name
