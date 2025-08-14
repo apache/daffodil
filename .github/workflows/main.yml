@@ -39,17 +39,15 @@ jobs:
       fail-fast: false
       matrix:
         java_distribution: [ temurin ]
-        java_version: [ 8, 11, 17, 21 ]
+        java_version: [ 17, 21, 24 ]
         scala_version: [ 3.3.6 ]
         os: [ ubuntu-22.04, windows-2022, macos-14 ]
         exclude:
           # only run macos on java 17
           - os: macos-14
-            java_version: 8
-          - os: macos-14
-            java_version: 11
-          - os: macos-14
             java_version: 21
+          - os: macos-14
+            java_version: 24
         include:
           # configure shell/cc/ar for all OSes
           - os: ubuntu-22.04
@@ -68,13 +66,13 @@ jobs:
           - lang: en_US
           - encoding: UTF-8
           - os: ubuntu-22.04
-            java_version: 8
+            java_version: 17
             lang: de_DE
           - os: ubuntu-22.04
-            java_version: 11
+            java_version: 21
             lang: ja_JP
           - os: windows-2022
-            java_version: 8
+            java_version: 21
             encoding: US-ASCII
 
 

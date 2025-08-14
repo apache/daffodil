@@ -175,11 +175,8 @@ lazy val testStdLayout = Project("daffodil-test-stdLayout", file("test-stdLayout
   .dependsOn(tdmlJunit % "test")
   .settings(commonSettings, nopublish)
 
-// Choices here are Java LTS versions, 8, 11, 17, 21,...
-// However 8 is deprecated as of Java 21, so will be phased out.
-val minSupportedJavaVersion: String =
-  if (scala.util.Properties.isJavaAtLeast("21")) "11"
-  else "8"
+// Choices here are Java LTS versions, 17, 21,...
+val minSupportedJavaVersion: String = "17"
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
@@ -217,7 +214,7 @@ lazy val commonSettings = Seq(
 
 def buildScalacOptions(scalaVersion: String) = {
   val commonOptions = Seq(
-    s"-release:$minSupportedJavaVersion", // scala 2.12 can only do Java 8, regardless of this setting.
+    s"-release:$minSupportedJavaVersion",
     "-feature",
     "-deprecation",
     "-unchecked"
@@ -247,18 +244,6 @@ def buildTestScalacOptions(scalaVersion: String) = {
   commonOptions ++ scalaVersionSpecificOptions
 }
 
-val javaVersionSpecificOptions = {
-  val releaseOption = // as of Java 11, they no longer accept "-release". Must use "--release".
-    if (scala.util.Properties.isJavaAtLeast("11")) "--release" else "-release"
-
-  // Java 21 deprecates Java 8 and warns about it.
-  // So if you are using Java 21, Java code compilation will specify a newer Java version
-  // to avoid warnings.
-  if (scala.util.Properties.isJavaAtLeast("11")) Seq(releaseOption, minSupportedJavaVersion)
-  else if (scala.util.Properties.isJavaAtLeast("9")) Seq(releaseOption, "8")
-  else Nil // for Java 8 compilation
-}
-
 // Workaround issue that some options are valid for javac, not javadoc.
 // These javacOptions are for code compilation only. (Issue sbt/sbt#355)
 def buildJavacOptions() = {
@@ -267,10 +252,12 @@ def buildJavacOptions() = {
     "-Xlint:deprecation",
     "-deprecation",
     "-Xlint:dep-ann",
-    "-Xlint:unchecked"
+    "-Xlint:unchecked",
+    "--release",
+    minSupportedJavaVersion
   )
 
-  commonOptions ++ javaVersionSpecificOptions
+  commonOptions
 }
 
 lazy val nopublish = Seq(
