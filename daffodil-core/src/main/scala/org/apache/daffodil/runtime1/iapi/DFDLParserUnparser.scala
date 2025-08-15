@@ -154,9 +154,9 @@ object DFDL {
     def this(cause: Exception) = this(null, cause)
   }
 
-  trait ParseResult extends Result with WithDiagnostics with api.ParseResult
+  trait ParseResult extends Result with api.ParseResult
 
-  trait UnparseResult extends Result with api.UnparseResult with WithDiagnostics {
+  trait UnparseResult extends Result with api.UnparseResult {
 
     /**
      * Data is 'scannable' if it consists entirely of textual data, and that data
@@ -195,7 +195,7 @@ object DFDL {
   /**
    * Interface for Parse and Unparse results
    */
-  abstract class Result extends api.Result {
+  abstract class Result extends api.Result with WithDiagnostics {
     def resultState: State
     var diagnostics: Seq[api.Diagnostic] = Nil
 
@@ -210,12 +210,12 @@ object DFDL {
       (diagnostics ++ resultState.diagnostics ++ resultStatusDiagnostics).distinct.asJava
     }
 
-    override def addDiagnostic(d: api.Diagnostic): Unit = {
+    def addDiagnostic(d: api.Diagnostic): Unit = {
       diagnostics = d +: diagnostics
     }
 
-    override def isError = isProcessingError || isValidationError
-    override def isProcessingError = resultState.processorStatus != Success
-    override def isValidationError = resultState.validationStatus != true
+    override def isError: Boolean = isProcessingError || isValidationError
+    override def isProcessingError: Boolean = resultState.processorStatus != Success
+    override def isValidationError: Boolean = !resultState.validationStatus
   }
 }

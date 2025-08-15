@@ -21,29 +21,4 @@ package org.apache.daffodil.api;
  * Result of calling {@code DataProcessor.parse(input:org\.apache\.daffodil* DataProcessor.parse}, containing
  * any diagnostic information, and the final data location
  */
-public interface ParseResult extends Result, WithDiagnostics {
-  /**
-   * Get the {@link org.apache.daffodil.api.DataLocation} where the parse completed
-   *
-   * @return the data location where the parse completed
-   */
-  DataLocation location();
-
-  /**
-   * Determine if any processing errors occurred. isError() will always return
-   * true if this returns true.
-   *
-   * @return true if any processing errors occurred, false otherwise.
-   */
-  boolean isProcessingError();
-
-  /**
-   * Determine if all validation checks passed based on the validation mode of
-   * the DataProcessor. If validation mode is Off, this will always return
-   * false. This is only meaningful when isProcessingError() is false.
-   * isError() will always return true if this return true.
-   *
-   * @return true if any validation errors occurred, false otherwise.
-   */
-  boolean isValidationError();
-}
+public interface ParseResult extends Result {}

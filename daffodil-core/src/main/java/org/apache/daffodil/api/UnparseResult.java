@@ -21,6 +21,4 @@ package org.apache.daffodil.api;
  * Result of calling {@code DataProcessor#unparse(InfosetInputter, java.nio.channels.WritableByteChannel)},
  * containing diagnostic information
  */
-public interface UnparseResult extends Result, WithDiagnostics {
-
-}
+public interface UnparseResult extends Result {}
