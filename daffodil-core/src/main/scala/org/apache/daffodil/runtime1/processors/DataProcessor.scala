@@ -603,6 +603,8 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
 
   override def resultState = ustate
 
+  override def location(): api.DataLocation = resultState.currentLocation
+
   private def maybeEncodingInfo =
     if (Maybe.WithNulls.isDefined(ustate.currentInfosetNode))
       One(ustate.currentInfosetNode.asInstanceOf[DIElement].runtimeData.encodingInfo)

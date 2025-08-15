@@ -22,5 +22,10 @@ package org.apache.daffodil.api;
  * containing diagnostic information
  */
 public interface UnparseResult extends Result, WithDiagnostics {
-
+  /**
+   * Get the current unparse {@link org.apache.daffodil.api.DataLocation}
+   *
+   * @return the current infoset location
+   */
+  DataLocation location();
 }
