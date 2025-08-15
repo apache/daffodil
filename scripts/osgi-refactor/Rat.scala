@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import sbt._
+import sbt.*
 
 object Rat {
 

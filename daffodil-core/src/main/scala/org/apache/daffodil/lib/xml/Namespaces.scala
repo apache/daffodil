@@ -100,7 +100,8 @@ object UnspecifiedNamespace extends NS(null) {
   override def explainForMsg = "with unspecified namespace"
 }
 
-sealed class NS protected (uriArg: URI) extends Serializable { // protected constructor. Must use factory.
+sealed class NS protected (uriArg: URI)
+  extends Serializable { // protected constructor. Must use factory.
   override def toString = uri.toString
   def uri = uriArg
   def optURI = One(uriArg)
