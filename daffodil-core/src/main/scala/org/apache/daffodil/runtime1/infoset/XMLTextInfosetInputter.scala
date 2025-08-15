@@ -26,15 +26,15 @@ import javax.xml.stream.XMLStreamConstants.*
 import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamWriter
-import javax.xml.stream.util.XMLEventAllocator
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType
 import org.apache.daffodil.api.infoset.Infoset.InfosetInputterEventType.*
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+
+import com.ctc.wstx.cfg.ErrorConsts;
 
 object XMLTextInfoset {
   lazy val xmlInputFactory = {
@@ -189,25 +189,14 @@ object XMLTextInfoset {
 
 class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.InfosetInputter {
 
-  /**
-   * evAlloc is only to be used for diagnostic messages. It lets us easily
-   * capture and toString the event information. But we don't call it otherwise
-   * as it allocates an object, and we're trying to avoid that.
-   */
-  private lazy val (xsr: XMLStreamReader, evAlloc: XMLEventAllocator) = {
+  private lazy val xsr: XMLStreamReader = {
     val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(input)
-
-    //
-    // This gets the event allocator corresponding to the xmlStreamReader just created.
-    // Strange API. They should let you get this from the xmlStreamReader itself.
-    //
-    val evAlloc = XMLTextInfoset.xmlInputFactory.getEventAllocator
 
     // no need for UnparseError here. If the XML syntax is bad, parser catches it before we get here.
     Assert.invariant(xsr.hasNext())
     val evNum = xsr.getEventType()
     Assert.invariant(evNum == START_DOCUMENT)
-    (xsr, evAlloc)
+    xsr
   }
 
   /**
@@ -307,10 +296,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
           gatherXmlAsString()
         } catch {
           case xse: XMLStreamException => {
-            val lineNum = evAlloc.allocate(xsr).getLocation.getLineNumber
-            throw new InvalidInfosetException(
-              "Error on line " + lineNum + ": " + xse.getMessage
-            )
+            throw new InvalidInfosetException(xse.getMessage())
           }
         }
       } else {
@@ -319,9 +305,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
             xsr.getElementText()
           } catch {
             case xse: XMLStreamException => {
-              throw new NonTextFoundInSimpleContentException(
-                "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber
-              )
+              throw new NonTextFoundInSimpleContentException(xse.getMessage)
             }
           }
         if (primType == NodeInfo.String) {
@@ -354,10 +338,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
         false
       } else {
         throw new InvalidInfosetException(
-          "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' on line " + evAlloc
-            .allocate(xsr)
-            .getLocation
-            .getLineNumber
+          s"xsi:nil property is not a valid boolean: '$nilAttrValue' at ${xsr.getLocation}"
         )
       }
     res
@@ -403,10 +384,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
           xsr.next()
         } catch {
           case xse: XMLStreamException => {
-            val details = "Error: " + Misc
-              .getSomeMessage(xse)
-              .get + " on line " + evAlloc.allocate(xsr).getLocation.getLineNumber
-            throw new IllegalContentWhereEventExpected(details)
+            throw new IllegalContentWhereEventExpected(xse.getMessage)
           }
         }
       result match {
@@ -416,14 +394,11 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
         case SPACE | PROCESSING_INSTRUCTION | COMMENT => // skip these too
         case DTD =>
           throw new IllegalContentWhereEventExpected(
-            "DOCTYPE/DTD Not supported. Error on line " + evAlloc
-              .allocate(xsr)
-              .getLocation
-              .getLineNumber
+            s"DOCTYPE/DTD Not supported. Error at ${xsr.getLocation}"
           )
         case other =>
           throw new IllegalContentWhereEventExpected(
-            "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber + " : " + other
+            s"Unexpected token: ${ErrorConsts.tokenTypeDesc(other)}. Error at ${xsr.getLocation}"
           )
       }
     }
