@@ -161,13 +161,32 @@ sealed trait DINode {
   var wouldHaveBeenFreed: Boolean = false
 
   /**
-   * When unparsing, arrays and complex elements have a notion of being finalized.
-   * This is when we know that no more elements will be added to them, so things
-   * like fn:count can return a value knowing it won't change, and fn:exists can
-   * return false, knowing nobody will subsequently append the item that was being
-   * questioned.
+   * All node types have a concept of being finalized. When parsing, this is used
+   * by the InfosetWalker to know if the element could change (e.g. simple type
+   * modifying the element value, complex or array adding a child) and thus if it
+   * can project the element to the target infoset. When unparsing, this is used
+   * for comlplex and arrays, so we know if more elements could be added to them,
+   * so functions like fn:count can return a value knowing it won't change, and
+   * fn:exists can return false, knowing nobody will subsequently append the item
+   * that was being questioned.
    */
-  var isFinal: Boolean = false
+  private var _isFinal: Boolean = false
+
+  /**
+  * Use to mark a node as final, indicating that its value will not change or have
+  * any children added to it. Setting an element as final does not preclude it from
+  * being discarded by backtracking, i.e. it is only locally final, but might still
+  * be inside an enclosing PoU.
+  *
+  * This cannot be called if an element is already marked as final to help ensure
+  * correct use.
+   */
+  def setFinal(): Unit = {
+    Assert.invariant(!_isFinal)
+    _isFinal = true
+  }
+
+  def isFinal: Boolean = _isFinal
 
   /**
    * use to require it be finalized or throw the appropriate
@@ -1134,7 +1153,7 @@ sealed trait DIElement
   }
 
   def setNilled(): Unit = {
-    Assert.invariant(erd.isNillable)
+    Assert.invariant(erd.isNillable && !isFinal)
     _isNilled = true
   }
 
@@ -1260,6 +1279,7 @@ final class DIArray(
   }
 
   def append(ie: DIElement): Unit = {
+    Assert.invariant(!isFinal)
     _contents += ie
     ie.setArray(this)
   }
@@ -1341,6 +1361,11 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     this.setValid(true)
   }
 
+  override def setFinal(): Unit = {
+    Assert.invariant(hasValue || _isNilled)
+    super.setFinal()
+  }
+
   /**
    * Parsing of a text number first does setDataValue to a string, then a conversion does overwrite data value
    * with a number. Unparsing does setDataValue to a value, then overwriteDataValue to a string.
@@ -1351,6 +1376,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   }
 
   def overwriteDataValue(x: DataValuePrimitiveNullable): Unit = {
+    Assert.invariant(!isFinal)
     //
     // let's find places where we're putting a string in the infoset
     // but the simple type is not string. That happens when parsing or unparsing text Numbers, text booleans, text Date/Times.
@@ -1801,6 +1827,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
               occurrence
             )
 
+          // SequenceParserBase uses special logic for unordered sequences and arrays, so it
+          // never sets DIArrays in unordered as final. Now that we have finished parsing the
+          // unordered sequence and flattened its arrays, we can mark the arrays as final and
+          // allow the infoset walker to project it to an infoset. Note that the InfosetWalker
+          // will not walk past active points of uncertainty, so even though this is final we
+          // don't have to worry that we might backtrack and remove it--setFinal is just about
+          // local finality.
+          a.setFinal()
+
         } else {
           if (nodes.length > 1) {
             val diag = new InfosetMultipleScalarError(erd)
@@ -1821,6 +1856,8 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
    * When slot contains an array, this appends to the end of the array.
    */
   def addChild(e: DIElement, tunable: DaffodilTunables): Unit = {
+    Assert.invariant(!isFinal)
+
     if (e.runtimeData.isArray) {
       val childERD = e.runtimeData
       val needsNewArray =
