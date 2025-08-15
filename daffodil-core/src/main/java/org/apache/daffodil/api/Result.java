@@ -17,27 +17,10 @@
 
 package org.apache.daffodil.api;
 
-import java.util.List;
-
 /**
  * Interface for Parse and Unparse results
  */
-public interface Result {
-  /**
-   * @return list of diagnostics
-   */
-  List<Diagnostic> getDiagnostics();
-
-  /**
-   * @param diagnostic diagnostic to add to list of diagnostics
-   */
-  void addDiagnostic(Diagnostic diagnostic);
-
-  /**
-   * @return true if in error state
-   */
-  boolean isError();
-
+public interface Result extends WithDiagnostics {
   /**
    * @return true if cause of error state is processing error
    */
@@ -47,4 +30,11 @@ public interface Result {
    * @return true if cause of error state is validation error
    */
   boolean isValidationError();
+
+  /**
+   * Get the current {@link DataLocation}
+   *
+   * @return the current location
+   */
+  DataLocation location();
 }
