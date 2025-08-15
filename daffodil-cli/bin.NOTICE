@@ -46,29 +46,13 @@ The following NOTICE information applies to binary components distributed with t
   and the licenses and copyrights that apply to that code.
 
 - com.typesafe.scala-logging.scala-logging_<VERSION>.jar
-  Copyright 2014-2021 Lightbend, Inc.
-
-- commons-codec.commons-codec-<VERSION>.jar
-  Apache Commons Codec
-  Copyright 2002-2020 The Apache Software Foundation
-
-  src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
-  contains test data from http://aspell.net/test/orig/batch0.tab.
-  Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org)
-
-  ===============================================================================
-
-  The content of package org.apache.commons.codec.language.bm has been translated
-  from the original php source code available at http://stevemorse.org/phoneticinfo.htm
-  with permission from the original authors.
-  Original source copyright:
-  Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
+  Copyright 2014-2025 Lightbend, Inc. dba Akka
 
 - commons-io.commons-io-<VERSION>.jar
   Apache Commons IO
-  Copyright 2002-2021 The Apache Software Foundation
+  Copyright 2002-2025 The Apache Software Foundation
 
-- org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org.apache.daffodil.daffodil-core-<VERSION>.jar
   Apache Daffodil
   Copyright 2025 The Apache Software Foundation
 
@@ -91,19 +75,7 @@ The following NOTICE information applies to binary components distributed with t
     The derived work is adapted from scala/src/library/scala/Symbol.scala:
       https://github.com/scala/scala/blob/904e3a5d2b9616b9c533d77d0c51652b138e8659/src/library/scala/Symbol.scala
     and can be found in:
-      daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
-
-- org.apache.httpcomponents.client5.httpclient5-<VERSION>.jar
-  Apache HttpClient
-  Copyright 1999-2020 The Apache Software Foundation
-
-- org.apache.httpcomponents.core5.httpcore5-<VERSION>.jar
-  Apache HttpComponents Core HTTP/1.1
-  Copyright 2005-2020 The Apache Software Foundation
-
-- org.apache.httpcomponents.core5.httpcore5-h2-<VERSION>.jar
-  Apache HttpComponents Core HTTP/2
-  Copyright 2005-2020 The Apache Software Foundation
+      daffodil-core/src/main/scala/org/apache/daffodil/lib/util/UniquenessCache.scala
 
 - org.jdom.jdom2-<VERSION>.jar
   Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
@@ -114,31 +86,34 @@ The following NOTICE information applies to binary components distributed with t
 
 - org.scala-lang.modules.scala-parser-combinators_<VERSION>.jar
   Scala parser combinators
-  Copyright (c) 2002-2022 EPFL
-  Copyright (c) 2011-2022 Lightbend, Inc.
+  Copyright (c) 2002-2025 EPFL
+  Copyright (c) 2011-2025 Lightbend, Inc. dba Akka
 
   Scala includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
-  Lightbend, Inc. (https://www.lightbend.com/).
+  Akka (https://akka.io/).
 
 - org.scala-lang.modules.scala-xml_<VERSION>.jar
   scala-xml
-  Copyright (c) 2002-2022 EPFL
-  Copyright (c) 2011-2022 Lightbend, Inc.
+  Copyright (c) 2002-2025 EPFL
+  Copyright (c) 2011-2025 Lightbend, Inc. dba Akka
 
   scala-xml includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
-  Lightbend, Inc. (https://www.lightbend.com/).
+  Akka (https://akka.io).
 
 - org.scala-lang.scala-library-<VERSION>.jar
-- org.scala-lang.scala-reflect-<VERSION>.jar
+- org.scala-lang.scala3-library-<VERSION>.jar
   Scala
-  Copyright (c) 2002-2023 EPFL
-  Copyright (c) 2011-2023 Lightbend, Inc.
+  Copyright (c) 2002-2025 EPFL
+  Copyright (c) 2011-2025 Lightbend, Inc. dba Akka
 
   Scala includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
-  Lightbend, Inc. (https://www.lightbend.com/).
+  Akka (https://akka.io/).
+
+- org.xmlresolver.xmlresolver-<VERSION>.jar:
+  Copyright 2015-2023 Norman Walsh and contributors. http://nwalsh.com/
 
 - xerces.xercesImpl-<VERSION>.jar
   Apache Xerces Java
