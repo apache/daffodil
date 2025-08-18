@@ -699,11 +699,9 @@ object OOLAG {
       res
     }
 
-    final lazy val valueAsAny: Any = {
+    final def valueAsAny: Any = {
       if (hasValue) value_.get
       else {
-        // egad.... on 2024-12-19 this was always re-evaluating due to missing `else` keyword.
-        // this should make a substantial difference in schema compilation time.
         val res =
           try {
             oolagBefore()
@@ -723,7 +721,7 @@ object OOLAG {
       }
     }
 
-    protected lazy val toOptionAny: Option[Any] = {
+    protected def toOptionAny: Option[Any] = {
       if (wasTried) {
         if (hasValue) Some(value_.get)
         else None
@@ -752,9 +750,9 @@ object OOLAG {
      * Use this if you are getting stack-overflows or circular value problems
      * caused by an SDE and the SDE infrastructure needing the value of some LV.
      */
-    final lazy val toOption: Option[T] = toOptionAny.asInstanceOf[Option[T]]
+    final def toOption: Option[T] = toOptionAny.asInstanceOf[Option[T]]
 
-    final lazy val value: T = valueAsAny.asInstanceOf[T]
+    final def value: T = valueAsAny.asInstanceOf[T]
   }
 } // end object
 

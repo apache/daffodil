@@ -26,7 +26,6 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 
 import org.junit.Assert.*
-import org.junit.Ignore
 import org.junit.Test
 
 class MyException(msg: String) extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
@@ -205,7 +204,7 @@ class TestOOLAG {
   // In Scala 3, Circular Definition detection doesn't work with
   // lazy vals because the thread hangs on trying to grab the aleady evaluating
   // lazy val the 2nd go round. Uncomment the test when the bug is fixed
-  @Ignore @Test def testCircularDefinitionDetected(): Unit = {
+  @Test def testCircularDefinitionDetected(): Unit = {
     val h = new MyHost
     h.setRequiredEvaluationsActive()
     var e: Exception = null
