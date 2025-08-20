@@ -28,6 +28,7 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
+import scala.collection.immutable.ListMap
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.language.postfixOps
@@ -555,7 +556,8 @@ class DFDLTestSuite private[tdml] (
     suppliedSchema: DaffodilSchemaSource,
     optRootName: Option[String],
     optRootNamespace: Option[String],
-    tunables: Map[String, String]
+    tunables: Map[String, String],
+    validation: String
   ): TDML.CompileResult = {
 
     val key = TDMLCompileResultCacheKey(
@@ -579,11 +581,7 @@ class DFDLTestSuite private[tdml] (
         GlobalTDMLCompileResultCache.cache
       }
 
-    val compileResult = cache.getCompileResult(
-      impl,
-      key,
-      defaultValidation
-    )
+    val compileResult = cache.getCompileResult(impl, key, validation)
     compileResult
   }
 
@@ -768,7 +766,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     errors: Option[Seq[ExpectedErrors]],
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validation: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ): Unit
@@ -939,7 +936,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         suppliedSchema,
         Option(rootName),
         Option(rootNamespaceString),
-        tunables
+        tunables,
+        validation
       )
 
       val newCompileResult: TDML.CompileResult = compileResult.map {
@@ -966,7 +964,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           optExpectedErrors,
           optExpectedWarnings,
           optExpectedValidationErrors,
-          validation,
           roundTrip,
           implString
         )
@@ -977,7 +974,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         // with the DataProcessor, so we set it to null so it can be garbage collected if
         // nothing else uses it. This is common if a test case calls withXYZ to create a
         // temporary copy of a cached DataProcessor but with different variables, tunables,
-        // validation mode, etc. used only for this specific test. This is especially important
+        // etc. used only for this specific test. This is especially important
         // if a DataProcessor stores any large information like a Xerces validator.
         processor = null
       }
@@ -1046,7 +1043,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedErrors: Option[Seq[ExpectedErrors]],
     optExpectedWarnings: Option[Seq[ExpectedWarnings]],
     optExpectedValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validation: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -1077,7 +1073,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               nBits,
               optExpectedWarnings,
               optExpectedValidationErrors,
-              validation,
               roundTrip,
               implString,
               diags.asScala
@@ -1104,7 +1099,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedErrors,
               optExpectedWarnings,
               optExpectedValidationErrors,
-              validation,
               implString,
               diags.asScala
             )
@@ -1125,7 +1119,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validation: String,
     implString: Option[String],
     compileWarnings: Iterable[api.Diagnostic]
   ): Unit = {
@@ -1133,7 +1126,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     try {
       processor = processor
         .withExternalDFDLVariables(externalVarBindings)
-        .withValidation(validation)
     } catch {
       case e: Exception => throw TDMLException(e, implString)
     }
@@ -1352,7 +1344,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     warnings: Option[Seq[ExpectedWarnings]],
     validationErrors: Option[Seq[ExpectedValidationErrors]],
-    validation: String,
     roundTripArg: RoundTrip,
     implString: Option[String],
     compileWarnings: Iterable[api.Diagnostic]
@@ -1360,8 +1351,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val roundTrip =
       roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
-
-    processor = processor.withValidation(validation)
 
     val firstParseTestData = IOUtils.toByteArray(dataToParse)
     val testInfoset = optExpectedInfoset.get
@@ -1548,7 +1537,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optErrors: Option[Seq[ExpectedErrors]],
     optWarnings: Option[Seq[ExpectedWarnings]],
     optValidationErrors: Option[Seq[ExpectedValidationErrors]],
-    validation: String,
     roundTrip: RoundTrip,
     implString: Option[String]
   ) = {
@@ -3014,6 +3002,16 @@ case class TDMLCompileResultCacheKey(
  * Stores the compile result as well as the time when this compile result
  * should be removed from the cache.
  *
+ * compileResultMap is a map where each key is the validation type associated
+ * with the processor in the CompileResult. This allows us to store the same
+ * DataProcessor with different validation types so we can avoid duplicating
+ * work related to calling withValidation (e.g. building a Xerces validator).
+ * This map is guaranteed to have an entry for "off" validation. DataProcessors
+ * for other validation types are created and added to the Map as needed by
+ * tests. We use a ListMap here because usually there will only be single entry,
+ * sometimes two, and rarely three--with such a small number of entires, a
+ * ListMap is much more memory efficient with virtually constant time lookups
+ *
  * If optExpireTimeMillis is set to None, it means a DFDLTestSuite exists that
  * is using this compile result, and so it will not expire.
  *
@@ -3022,7 +3020,7 @@ case class TDMLCompileResultCacheKey(
  * the Some value time
  */
 case class TDMLCompileResultCacheValue(
-  compileResult: TDML.CompileResult,
+  var compileResultMap: ListMap[String, TDML.CompileResult],
   var optExpireTimeMillis: Option[Long] = None
 )
 
@@ -3071,7 +3069,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
     key: TDMLCompileResultCacheKey,
-    defaultValidation: String
+    validation: String
   ): TDML.CompileResult = this.synchronized {
 
     if (entryExpireDurationSeconds.isDefined) {
@@ -3079,47 +3077,59 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
     }
 
     val optVal = cache.get(key)
-    if (optVal.isDefined) {
-      val v = optVal.get
-      // If some other DFDL Test Suite set an expire time for this compile
-      // result it may be scheduled to be expired. But this cache hit means
-      // that some other DFDLTestSuite started and is running a test with the
-      // same compile result. By setting the expire time of this entry to None,
-      // we essentially reset this expire time, ensuring that this entry exists
-      // for expire duration after the DFDLTestSuite finishes.
-      v.optExpireTimeMillis = None
-      v.compileResult
-    } else {
-      val compileResult = impl.getProcessor(
-        key.suppliedSchema,
-        key.optRootName,
-        key.optRootNamespace,
-        key.tunables
-      )
-      compileResult match {
-        case Left(diags) => {
-          // a Left must have at least one error diagnostic if we don't get a processor
-          Assert.invariant(diags.asScala.exists(_.isError))
+    val compileResultCacheValue =
+      if (optVal.isDefined) {
+        val v = optVal.get
+        // If some other DFDL Test Suite set an expire time for this compile
+        // result it may be scheduled to be expired. But this cache hit means
+        // that some other DFDLTestSuite started and is running a test with the
+        // same compile result. By setting the expire time of this entry to None,
+        // we essentially reset this expire time, ensuring that this entry exists
+        // for expire duration after the DFDLTestSuite finishes.
+        v.optExpireTimeMillis = None
+        v
+      } else {
+        val compileResult = impl.getProcessor(
+          key.suppliedSchema,
+          key.optRootName,
+          key.optRootNamespace,
+          key.tunables
+        )
+        compileResult match {
+          case Left(diags) => {
+            // a Left must have at least one error diagnostic if we don't get a processor
+            Assert.invariant(diags.asScala.exists(_.isError))
+          }
+          case Right((diags, _)) => {
+            // if a Right has diags, they must all be warnings
+            Assert.invariant(diags.asScala.forall(!_.isError))
+          }
         }
-        case Right((diags, _)) => {
-          // if a Right has diags, they must all be warnings
-          Assert.invariant(diags.asScala.forall(!_.isError))
-        }
+
+        // the compile result does not have validation enabled, store the result in the
+        // compileResultMap with the "off" key to indicate this
+        val compileResultMap = ListMap("off" -> compileResult)
+        val cacheValue = TDMLCompileResultCacheValue(compileResultMap, None)
+        cache += (key -> cacheValue)
+        cacheValue
       }
 
-      // if compileResult is Right and we got a processor, set the processor validation mode to
-      // the default validation mode of the test suite. This is useful in cases where the
-      // default validation mode is on/full, in which case the Xerces validator will be compiled
-      // and added to the DataProcessor that we cache. This way any tests that do not change the
-      // validation mode from the default will be able to use the same validator so we won't
-      // have to rebuild it for every test. This saves memory and should be significantly
-      // faster.
-      val value = compileResult.map { case (diags, proc) =>
-        (diags, proc.withValidation(defaultValidation))
+    // we defintely have a compileResultMap that contains a CompileResult for "off"
+    // validation. If we don't have a CompileResult for the requested validation type,
+    // then get the "off" CompileResult and create a new CompileResult with a processor
+    // that does have the requested validation, and add it to the compileResultMap.
+    val compileResultMap = compileResultCacheValue.compileResultMap
+    val compileResult = compileResultMap
+      .get(validation)
+      .getOrElse {
+        val newCr = compileResultMap("off").map { case (diags, proc) =>
+          (diags, proc.withValidation(validation))
+        }
+        val newCrMap = compileResultMap.updated(validation, newCr)
+        compileResultCacheValue.compileResultMap = newCrMap
+        newCr
       }
-      cache += (key -> TDMLCompileResultCacheValue(value, None))
-      value
-    }
+    compileResult
   }
 
 }
