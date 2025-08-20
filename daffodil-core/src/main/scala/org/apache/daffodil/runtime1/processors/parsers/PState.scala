@@ -528,8 +528,7 @@ final class PState private (
     }
   }
 
-  override lazy val (regexMatchBuffer, regexMatchBitPositionBuffer) =
-    dataProcArg.regexMatchState.get
+  override lazy val regexMatchStatePool = dataProcArg.regexMatchStatePool
 
   /**
    * Verify that the state is left where we expect it to be after

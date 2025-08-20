@@ -25,6 +25,7 @@ import javax.xml.transform.stream.StreamSource
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -72,15 +73,26 @@ object XercesValidatorFactory {
 class XercesValidator(schemaSource: javax.xml.transform.Source)
   extends api.validation.Validator {
 
-  private val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
-  private val resolver = DFDLCatalogResolver.get
-  factory.setResourceResolver(resolver)
+  private val schema = {
+    val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
+    factory.setResourceResolver(DFDLCatalogResolver.get)
+    factory.newSchema(schemaSource)
+  }
 
-  private val schema = factory.newSchema(schemaSource)
-
-  private val validator = new ThreadLocal[XercesValidatorImpl] {
-    override def initialValue(): XercesValidatorImpl =
-      initializeValidator(schema.newValidator, resolver)
+  // the Xerces Validator is not thread safe, so we use a ThreadSafePool. The use of a pool
+  // allows reuse of objects that are expensive to create while ensuring each Thread gets their
+  // own instance. Note that we do not use ThreadLocal, since that can lead to memory leaks that
+  // cannot be easily cleaned up
+  private val validatorPool = new ThreadSafePool[XercesValidatorImpl] {
+    override def allocate(): XercesValidatorImpl = {
+      val v = schema.newValidator
+      v.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
+      v.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
+      v.setFeature("http://xml.org/sax/features/validation", true)
+      v.setFeature("http://apache.org/xml/features/validation/schema", true)
+      v.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+      v
+    }
   }
 
   def validateXML(
@@ -98,33 +110,21 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
 
     val documentSource = new StreamSource(document)
 
-    // get the validator instance for this thread
-    val xv = validator.get()
-
-    xv.setErrorHandler(eh)
-
-    // validate the document
-    try {
-      xv.validate(documentSource)
-    } catch {
-      // can be thrown by the resolver if it cannot
-      // resolve the schemaLocation of an include/import.
-      // Regular Xerces doesn't report this as an error.
-      case spe: SAXParseException => eh.error(spe)
+    validatorPool.withInstance { xv =>
+      try {
+        // DFDLCatalogResolver.get returns a resolver for use by a thread, but the validator in
+        // the pool might have been created with another thread. We need to make sure this
+        // validator uses the resolver allocated for this thread.
+        xv.setResourceResolver(DFDLCatalogResolver.get)
+        xv.setErrorHandler(eh)
+        xv.validate(documentSource)
+      } catch {
+        // can be thrown by the resolver if it cannot
+        // resolve the schemaLocation of an include/import.
+        // Regular Xerces doesn't report this as an error.
+        case spe: SAXParseException => eh.error(spe)
+      }
     }
-  }
-
-  private def initializeValidator(
-    validator: XercesValidatorImpl,
-    resolver: DFDLCatalogResolver
-  ): XercesValidatorImpl = {
-    validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-    validator.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
-    validator.setFeature("http://xml.org/sax/features/validation", true)
-    validator.setFeature("http://apache.org/xml/features/validation/schema", true)
-    validator.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-    validator.setResourceResolver(resolver)
-    validator
   }
 }
 

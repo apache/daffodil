@@ -49,6 +49,7 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.runtime1.dpath.DState
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
@@ -699,8 +700,8 @@ final class CompileState(
     // do nothing
   }
 
-  def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
-  def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
+  def regexMatchStatePool: ThreadSafePool[(CharBuffer, LongBuffer)] =
+    Assert.usageError("Not to be used.")
 
   // $COVERAGE-OFF$
   override def setVariable(

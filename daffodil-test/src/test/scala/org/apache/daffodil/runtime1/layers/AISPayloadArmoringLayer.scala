@@ -38,6 +38,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.ThreadSafePool
 
 import org.apache.commons.io.IOUtils
 
@@ -107,8 +108,7 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
     override def maybeUTF16Width: Maybe[UTF16Width] = doNotUse
     override def encodingMandatoryAlignmentInBits: Int = doNotUse
     override def tunable: DaffodilTunables = doNotUse
-    override def regexMatchBuffer: CharBuffer = doNotUse
-    override def regexMatchBitPositionBuffer: LongBuffer = doNotUse
+    override def regexMatchStatePool: ThreadSafePool[(CharBuffer, LongBuffer)] = doNotUse
   }
 
   override def close(): Unit = {

@@ -62,8 +62,6 @@ case class ConvertTextCalendarParser(
     // the case.
     calendarOrig.clear()
 
-    val df = dateTimeFormatterEv.evaluate(start).get
-
     // When we evaluate calendarEV, if it is a constant we will always get back
     // the same Calendar object. Because of this it is important here to clone
     // this calendar and always use the clone below for two reasons:
@@ -78,8 +76,11 @@ case class ConvertTextCalendarParser(
     //    cloning, we ensure that they modify different objects.
     val calendar = calendarOrig.clone().asInstanceOf[Calendar]
 
-    df.setCalendar(calendar)
-    df.parse(str, calendar, pos);
+    val dateTimeFormatterPool = dateTimeFormatterEv.evaluate(start)
+    dateTimeFormatterPool.withInstance { df =>
+      df.setCalendar(calendar)
+      df.parse(str, calendar, pos);
+    }
 
     // Verify that we did not fail to parse and that we consumed the entire string. Note that
     // getErrorIndex is never set and is always -1. Only a getIndex value of zero means there

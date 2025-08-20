@@ -67,8 +67,6 @@ case class ConvertTextCalendarUnparser(
     // the case.
     calendarOrig.clear()
 
-    val df = dateTimeFormatterEv.evaluate(state).get
-
     // When we evaluate calendarEV, if it is a constant we will always get back
     // the same Calendar object. Because of this it is important here to clone
     // this calendar and always use the clone below for two reasons:
@@ -105,8 +103,11 @@ case class ConvertTextCalendarUnparser(
     calendar.set(Calendar.MILLISECOND, infosetCalendar.get(Calendar.MILLISECOND))
     calendar.setTimeZone(infosetCalendar.getTimeZone)
 
-    df.setCalendar(calendar)
-    val str = df.format(calendar)
+    val dateFormatterPool = dateTimeFormatterEv.evaluate(state)
+    val str = dateFormatterPool.withInstance { df =>
+      df.setCalendar(calendar)
+      df.format(calendar)
+    }
 
     node.overwriteDataValue(str)
   }

@@ -72,6 +72,7 @@ import org.apache.daffodil.lib.util.Misc.bits2Bytes
 import org.apache.daffodil.lib.util.Misc.hex2Bits
 import org.apache.daffodil.lib.util.Misc.uriToDiagnosticFile
 import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.DiagnosticType.DiagnosticType
@@ -1954,9 +1955,7 @@ object VerifyTestCase {
 
       override def tunable: DaffodilTunables = doNotUse
 
-      override def regexMatchBuffer: CharBuffer = doNotUse
-
-      override def regexMatchBitPositionBuffer: LongBuffer = doNotUse
+      override def regexMatchStatePool: ThreadSafePool[(CharBuffer, LongBuffer)] = doNotUse
     }
 
     Using.resource(InputSourceDataInputStream(bytes)) { dis =>

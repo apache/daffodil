@@ -57,6 +57,7 @@ import org.apache.daffodil.lib.oolag.ErrorAlreadyHandled
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.runtime1.events.MultipleEventHandler
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.infoset.DIElement
@@ -119,14 +120,12 @@ class DataProcessor(
     diagnostics
   )
 
-  // This thread local state is used by the PState when it needs buffers for
+  // This thread safe state pool is used by the PState when it needs buffers for
   // regex matching. This cannot be in PState because a PState does not last
   // beyond a single parse, but we want to share this among different parses to
-  // avoid large memory allocations. The alternative is to use a ThreadLocal
-  // companion object, but that would have not access to tunables, so one could
-  // not configure the size of the regex match buffers.
-  @transient lazy val regexMatchState = new ThreadLocal[(CharBuffer, LongBuffer)] {
-    override def initialValue = {
+  // avoid large memory allocations.
+  @transient lazy val regexMatchStatePool = new ThreadSafePool[(CharBuffer, LongBuffer)] {
+    override def allocate() = {
       val cb = CharBuffer.allocate(tunables.maximumRegexMatchLengthInCharacters)
       val lb = LongBuffer.allocate(tunables.maximumRegexMatchLengthInCharacters)
       (cb, lb)

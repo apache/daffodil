@@ -34,6 +34,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.ThreadSafePool
 
 object FormatInfoForUnitTest {
   def apply() = {
@@ -58,8 +59,11 @@ class FormatInfoForUnitTest private () extends FormatInfo {
   var encodingMandatoryAlignmentInBits: Int = 8
   var encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
   var tunable: DaffodilTunables = DaffodilTunables()
-  var regexMatchBuffer = CharBuffer.allocate(1024)
-  var regexMatchBitPositionBuffer = LongBuffer.allocate(1024)
+  var regexMatchStatePool = new ThreadSafePool[(CharBuffer, LongBuffer)] {
+    override def allocate() = {
+      (CharBuffer.allocate(1024), LongBuffer.allocate(1024))
+    }
+  }
 
   def reset(cs: BitsCharset): Unit = {
     priorEncoding = cs
@@ -107,8 +111,7 @@ class FakeFormatInfo(val bitOrder: BitOrder, val byteOrder: ByteOrder) extends F
   def encodingMandatoryAlignmentInBits: Int = ???
   def encodingErrorPolicy: EncodingErrorPolicy = ???
   def tunable: DaffodilTunables = ???
-  def regexMatchBuffer: CharBuffer = ???
-  def regexMatchBitPositionBuffer: LongBuffer = ???
+  def regexMatchStatePool: ThreadSafePool[(CharBuffer, LongBuffer)] = ???
 }
 
 object FakeFormatInfo_MSBF_BE
