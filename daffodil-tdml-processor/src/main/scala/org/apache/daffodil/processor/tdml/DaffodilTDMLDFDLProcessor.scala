@@ -31,9 +31,8 @@ import scala.util.Using
 import scala.xml.Node
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
+import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
@@ -42,8 +41,6 @@ import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
-import org.apache.daffodil.runtime1.debugger.Debugger
-import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.iapi.*
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseContentHandler
@@ -169,11 +166,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
 
   private def copy(dp: api.DataProcessor = dp) = new DaffodilTDMLDFDLProcessor(dp, schemaURI)
 
-  private lazy val builtInTracer =
-    new InteractiveDebugger(
-      InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(System.out),
-      ExpressionCompilers
-    )
+  private lazy val builtInTracer = Daffodil.newTraceDebugger(System.out)
 
   private lazy val blobDir =
     Paths.get(System.getProperty("java.io.tmpdir"), "daffodil-tdml", "blobs")
@@ -182,23 +175,19 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
 
   private lazy val tdmlApiInfosetsEnv = sys.env.getOrElse("DAFFODIL_TDML_API_INFOSETS", "scala")
 
-  override def withDebugging(b: Boolean): DaffodilTDMLDFDLProcessor =
-    copy(dp = dp.withDebugging(b))
-
   override def withTracing(bool: Boolean): DaffodilTDMLDFDLProcessor = {
     copy(dp = newTracing(bool))
   }
 
   private def newTracing(bool: Boolean) =
     if (bool) {
-      dp.withDebugger(builtInTracer).withDebugging(true)
+      dp.withDebugger(builtInTracer)
     } else {
-      dp.withDebugging(false)
+      dp.withDebugger(null)
     }
 
   override def withDebugger(debugger: AnyRef): DaffodilTDMLDFDLProcessor = {
-    Assert.usage(debugger ne null)
-    val d = debugger.asInstanceOf[Debugger]
+    val d = debugger.asInstanceOf[api.debugger.Debugger]
     copy(dp = dp.withDebugger(d))
   }
 

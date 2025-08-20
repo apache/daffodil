@@ -20,27 +20,24 @@
  *
  * <h2>Overview</h2>
  * <p>
- * Daffodil comes with one prebuilt debugger, the {@link org.apache.daffodil.api.debugger.TraceDebuggerRunner}, which outputs
- * verbose information during the parsing processes, which can be used to aid
- * in debugging a DFDL schema. For example, the {@link
- * org.apache.daffodil.api.debugger.TraceDebuggerRunner} can be used like so:
+ * Daffodil comes with one prebuilt debugger, the trace {@link org.apache.daffodil.api.debugger.Debugger},
+ * which outputs verbose information during the parsing processes, which can be used to aid
+ * in debugging a DFDL schema. For example, the trace {@link
+ * org.apache.daffodil.api.debugger.Debugger} can be used like so:
  *
  * <pre>
  * {@code
- * TraceDebuggerRunner tdr = InteractiveDebuggerRunnerFactory.getTraceDebuggerRunner(System.out);
- * Daffodil.setDebugger(tdr);
+ * Debugger td = Daffodil.newTraceDebugger(System.out);
+ * dp.setDebugger(td);
  * }</pre>
  * <p>
- * Additionally, one may create their own debugger runner by implementing the
- * methods in the {@link
- * org.apache.daffodil.api.debugger.DebuggerRunner}.
- * <p>
- * Once the debugger is set, it must then be turned on, like so:
- *
- * <pre>
- * {@code
- * Daffodil.setDebugging(true);
- * }</pre>
+ * Additionally, one may create their own debugger by creating a class that implements the {@link
+ * org.apache.daffodil.api.debugger.DaffodilDebuggerRunner} interface and then calling
+ * {@code Daffodil.newDaffodilDebugger(customRunner)} to get a debugger. 
+ * Or they can create a class that implements the {@link org.apache.daffodil.api.debugger.Debugger} 
+ * interface.
+ * 
+ * Then with either, they may call {@code DataProcessor.withDebugger(debugger)} to set the debugger.
  */
 
 package org.apache.daffodil.api.debugger;

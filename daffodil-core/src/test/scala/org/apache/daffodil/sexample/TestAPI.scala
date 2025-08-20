@@ -139,15 +139,15 @@ class TestAPI {
 
   @Test
   def testAPI1(): Unit = {
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
     val schemaFile = getResource("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
       .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
@@ -158,12 +158,12 @@ class TestAPI {
       val err = res.isError()
       assertFalse(err)
 
-      assertTrue(debugger.lines.size > 0)
+      assertTrue(customRunner.lines.nonEmpty)
       assertTrue(
-        debugger.lines
+        customRunner.lines
           .contains("----------------------------------------------------------------- 1\n")
       )
-      assertTrue(debugger.getCommand().equals("trace"))
+      assertTrue(customRunner.getCommand().equals("trace"))
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
@@ -178,7 +178,8 @@ class TestAPI {
   // before executing the test.
   @Test
   def testAPI1_A(): Unit = {
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
 
@@ -196,8 +197,7 @@ class TestAPI {
     val compiler = Daffodil.compiler()
     val parser = compiler
       .reload(savedParser)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
       .withValidation("off")
     val file = getResource("/test/api/myData.dat")
     // This test uses a byte array here, just so as to be sure to exercise
@@ -211,12 +211,12 @@ class TestAPI {
       val err = res.isError()
       assertFalse(err)
 
-      assertTrue(debugger.lines.size > 0)
+      assertTrue(customRunner.lines.nonEmpty)
       assertTrue(
-        debugger.lines
+        customRunner.lines
           .contains("----------------------------------------------------------------- 1\n")
       )
-      assertTrue(debugger.getCommand().equals("trace"))
+      assertTrue(customRunner.getCommand().equals("trace"))
 
       val bos = new java.io.ByteArrayOutputStream()
       val wbc = java.nio.channels.Channels.newChannel(bos)
@@ -595,7 +595,8 @@ class TestAPI {
   }
   @Test
   def testAPI12(): Unit = {
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
 
@@ -603,8 +604,7 @@ class TestAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
       .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
@@ -615,9 +615,9 @@ class TestAPI {
       val err = res.isError()
       assertFalse(err)
 
-      assertTrue(debugger.lines.size > 0)
+      assertTrue(customRunner.lines.nonEmpty)
       assertTrue(
-        debugger.lines
+        customRunner.lines
           .contains("----------------------------------------------------------------- 1\n")
       )
     }
@@ -626,7 +626,8 @@ class TestAPI {
   def testAPI13(): Unit = {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via Compiler.
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
     val c = Daffodil.compiler()
 
     val extVarsFile = getResource("/test/api/external_vars_1.xml")
@@ -636,8 +637,7 @@ class TestAPI {
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
       .withExternalVariables(extVarsFile)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
       .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
@@ -658,7 +658,8 @@ class TestAPI {
   def testAPI14(): Unit = {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via DataProcessor.
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
 
@@ -668,8 +669,7 @@ class TestAPI {
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
       .withExternalVariables(extVarFile)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
       .withValidation("off")
 
     val file = getResource("/test/api/myData.dat")
@@ -685,9 +685,9 @@ class TestAPI {
       val var1ValueText = var1ValueNode.text
       assertTrue(var1ValueText == "externallySet")
 
-      assertTrue(debugger.lines.size > 0)
+      assertTrue(customRunner.lines.size > 0)
       assertTrue(
-        debugger.lines
+        customRunner.lines
           .contains("----------------------------------------------------------------- 1\n")
       )
     }
@@ -699,7 +699,8 @@ class TestAPI {
   //
   @Test
   def testAPI1_A_Full_SavedParser(): Unit = {
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
 
@@ -707,8 +708,7 @@ class TestAPI {
     val pf = c.compileFile(schemaFile)
     val dp = pf
       .onPath("/")
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
     // Serialize the parser to memory, then deserialize for parsing.
     val os = new ByteArrayOutputStream()
     val output = Channels.newChannel(os)
@@ -724,7 +724,8 @@ class TestAPI {
 
   @Test
   def testAPI15(): Unit = {
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
 
@@ -732,8 +733,7 @@ class TestAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
 
     val file = getResource("/test/api/myInfosetBroken.xml")
     val xml = scala.xml.XML.loadFile(file)
@@ -1016,7 +1016,8 @@ class TestAPI {
   @Test
   def testAPI22(): Unit = {
     // Test SAX unparse with errors
-    val debugger = new DebuggerRunnerForAPITest()
+    val customRunner = new DebuggerRunnerForAPITest()
+    val debugger = Daffodil.newDaffodilDebugger(customRunner)
 
     val c = Daffodil.compiler()
 
@@ -1024,8 +1025,7 @@ class TestAPI {
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
     val dp = reserializeDataProcessor(dp1)
-      .withDebuggerRunner(debugger)
-      .withDebugging(true)
+      .withDebugger(debugger)
 
     val file = getResource("/test/api/myInfosetBroken.xml")
     val xml = scala.xml.XML.loadFile(file)

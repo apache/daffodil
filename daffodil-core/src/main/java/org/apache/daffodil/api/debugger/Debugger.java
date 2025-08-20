@@ -20,7 +20,7 @@ package org.apache.daffodil.api.debugger;
 import org.apache.daffodil.runtime1.events.EventHandler;
 
 /**
- * debugger interface
+ * Debugger interface for receiving debug events during Daffodil processing
  */
 public interface Debugger extends EventHandler {
 }

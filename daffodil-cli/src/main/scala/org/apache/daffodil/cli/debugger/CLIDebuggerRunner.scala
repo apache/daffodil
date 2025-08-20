@@ -23,7 +23,7 @@ import java.io.PrintStream
 import scala.io.Source
 import scala.jdk.CollectionConverters.*
 
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner
+import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner
 import org.apache.daffodil.runtime1.debugger.*
 
 import org.jline.reader.Candidate
@@ -37,7 +37,7 @@ import org.jline.terminal.TerminalBuilder
 import org.jline.terminal.impl.DumbTerminal
 
 class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintStream)
-  extends InteractiveDebuggerRunner {
+  extends DaffodilDebuggerRunner {
   private val prompt = "(debug) "
 
   def this(in: InputStream = System.in, out: PrintStream = System.out) = {
@@ -60,7 +60,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
     )
   }
 
-  def init(id: InteractiveDebugger): Unit = {
+  def init(id: DaffodilDebugger): Unit = {
     // if the in/out parameters aren't the normal stdin/stdout, it's likely
     // either some sort of integration test or something where a DumbTerminal
     // is needed. Otherwise, use the TerminalBuilder which detects OS
@@ -111,7 +111,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
   }
 }
 
-class CLIDebuggerCompleter(id: InteractiveDebugger) extends Completer {
+class CLIDebuggerCompleter(id: DaffodilDebugger) extends Completer {
 
   def complete(
     reader: LineReader,

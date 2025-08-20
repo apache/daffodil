@@ -19,9 +19,10 @@ package org.apache.daffodil.sexample
 
 import scala.collection.mutable.ListBuffer
 
-import org.apache.daffodil.api.debugger.DebuggerRunner
+import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner
+import org.apache.daffodil.runtime1.debugger.DaffodilDebugger
 
-class DebuggerRunnerForAPITest extends DebuggerRunner {
+class DebuggerRunnerForAPITest extends DaffodilDebuggerRunner {
   val lines = ListBuffer[String]()
 
   val commandsIter = Seq(
@@ -33,7 +34,7 @@ class DebuggerRunnerForAPITest extends DebuggerRunner {
     "trace"
   ).iterator
 
-  def init(): Unit = {}
+  def init(dd: DaffodilDebugger): Unit = {}
 
   def fini(): Unit = {}
 

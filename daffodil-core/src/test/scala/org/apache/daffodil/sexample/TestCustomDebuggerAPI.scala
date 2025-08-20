@@ -50,7 +50,6 @@ class TestCustomDebuggerAPI {
     val dp = pf
       .onPath("/")
       .withDebugger(dbg)
-      .withDebugging(true)
 
     val file = Misc.getRequiredResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file.toURL.getFile)

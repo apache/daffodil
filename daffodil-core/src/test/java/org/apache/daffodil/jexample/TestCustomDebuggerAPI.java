@@ -35,6 +35,27 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestCustomDebuggerAPI {
+  @Test
+  public void testCustomDebugger() throws IOException, ClassNotFoundException {
+    org.apache.daffodil.api.Compiler c = Daffodil.compiler();
+
+    CustomDebugger dbg = new CustomDebugger();
+    URI schemaFileName = Misc.getRequiredResource("/test/api/mySchema1.dfdl.xsd");
+    ProcessorFactory pf = c.compileSource(schemaFileName);
+    DataProcessor dp = pf.onPath("/")
+      .withDebugger(dbg);
+
+    String file = Misc.getRequiredResource("/test/api/myData2.dat").toURL().getFile();
+    java.io.FileInputStream fis = new java.io.FileInputStream(file);
+    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
+      ParseResult res = dp.parse(dis, Daffodil.newNullInfosetOutputter());
+
+      assertEquals(6, dbg.nodes);
+      assertTrue(dbg.inited);
+      assertTrue(dbg.finished);
+    }
+  }
+
   static class CustomDebugger implements Debugger {
     public int nodes;
     public boolean inited;
@@ -53,28 +74,6 @@ public class TestCustomDebuggerAPI {
     @Override
     public void fini(Parser processor) {
       finished = true;
-    }
-  }
-
-  @Test
-  public void testCustomDebugger() throws IOException, ClassNotFoundException {
-    org.apache.daffodil.api.Compiler c = Daffodil.compiler();
-
-    CustomDebugger dbg = new CustomDebugger();
-    URI schemaFileName = Misc.getRequiredResource("/test/api/mySchema1.dfdl.xsd");
-    ProcessorFactory pf = c.compileSource(schemaFileName);
-    DataProcessor dp = pf.onPath("/")
-      .withDebugger(dbg)
-      .withDebugging(true);
-
-    String file = Misc.getRequiredResource("/test/api/myData2.dat").toURL().getFile();
-    java.io.FileInputStream fis = new java.io.FileInputStream(file);
-    try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {
-      ParseResult res = dp.parse(dis, Daffodil.newNullInfosetOutputter());
-
-      assertEquals(6, dbg.nodes);
-      assertTrue(dbg.inited);
-      assertTrue(dbg.finished);
     }
   }
 }

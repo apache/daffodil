@@ -945,7 +945,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         case (diags, proc: TDMLDFDLProcessor) =>
           // warnings are checked elsewhere for expected ones.
           val newProc: TDMLDFDLProcessor =
-            proc.withDebugging(parent.areDebugging).withTracing(parent.areTracing)
+            proc.withTracing(parent.areTracing)
           val newNewProc =
             if (
               parent.areDebugging &&

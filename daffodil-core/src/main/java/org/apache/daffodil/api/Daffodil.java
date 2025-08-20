@@ -17,17 +17,23 @@
 
 package org.apache.daffodil.api;
 
+import org.apache.daffodil.api.debugger.Debugger;
+import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner;
 import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.api.infoset.ScalaXMLInfosetOutputter;
 import org.apache.daffodil.api.infoset.W3CDOMInfosetOutputter;
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle;
+import org.apache.daffodil.core.dsom.ExpressionCompilers$;
+import org.apache.daffodil.runtime1.debugger.DaffodilDebugger;
+import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner;
 import org.apache.daffodil.runtime1.infoset.JsonInfosetOutputter;
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -222,6 +228,26 @@ public class Daffodil {
    */
   public static InputSourceDataInputStream newInputSourceDataInputStream(byte[] arr) {
     return org.apache.daffodil.io.InputSourceDataInputStream.apply(arr);
+  }
+
+  /**
+   * Factory method to get a Debugger that is controlled by a DaffodilDebuggerRunner.
+   *
+   * @param dr debugger runner
+   * @return a Debugger that is controlled by a DaffodilDebuggerRunner
+   */
+  public static Debugger newDaffodilDebugger(DaffodilDebuggerRunner dr) {
+    return new DaffodilDebugger(dr, ExpressionCompilers$.MODULE$);
+  }
+
+  /**
+   * Factory method to get a debugger that provides verbose trace output to a PrintStream
+   *
+   * @param out stream to print trace to
+   * @return a debugger that provides verbose trace output to a PrintStream
+   */
+  public static Debugger newTraceDebugger(PrintStream out) {
+    return newDaffodilDebugger(new TraceDebuggerRunner(out));
   }
 
   /**

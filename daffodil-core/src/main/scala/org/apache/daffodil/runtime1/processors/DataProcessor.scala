@@ -162,12 +162,12 @@ class DataProcessor(
 
   override def withDebugger(dbg: api.debugger.Debugger): DataProcessor = {
     val optDbg = if (dbg eq null) None else Some(dbg)
-    copy(areDebugging = optDbg.isDefined, optDebugger = optDbg)
-  }
-
-  def withDebugging(flag: Boolean): DataProcessor = {
-    val newTunables = tunables.withTunable("allowExternalPathExpressions", flag.toString)
-    copy(areDebugging = flag, tunables = newTunables)
+    val newTunables: DaffodilTunables = if (optDbg.isDefined) {
+      tunables.withTunable("allowExternalPathExpressions", "true")
+    } else {
+      tunables
+    }
+    copy(areDebugging = optDbg.isDefined, optDebugger = optDbg, tunables = newTunables)
   }
 
   def withExternalVariables(extVars: java.util.Map[String, String]): DataProcessor = {

@@ -50,6 +50,38 @@ public class TestJavaMetadataAPI {
     }
   }
 
+  @Test
+  public void testMetadataWalkDataWalk01() throws IOException {
+    GatherMetadata gatherMetadata = new GatherMetadata();
+    org.apache.daffodil.api.Compiler c = Daffodil.compiler();
+    File schemaFile = getResource("/test/api/metadataTestSchema1.dfdl.xsd");
+    ProcessorFactory pf = c.compileFile(schemaFile);
+    if (pf.isError()) {
+      String diags = pf.getDiagnostics()
+        .stream()
+        .map(Diagnostic::getMessage)
+        .collect(Collectors.joining(System.lineSeparator()));
+      fail(diags);
+    }
+    DataProcessor dp = pf.onPath("/");
+    dp.walkMetadata(gatherMetadata);
+    List<Metadata> md = gatherMetadata.getResult();
+    List<String> mdQNames = md.stream().map(item -> {
+      if (item instanceof ElementMetadata) {
+        ElementMetadata em = ((ElementMetadata) item);
+        String res = em.toQName() + ((em.isArray()) ? "_array" : "");
+        return res;
+      } else if (item instanceof SequenceMetadata) {
+        return "seq";
+      } else if (item instanceof ChoiceMetadata) {
+        return "cho";
+      } else {
+        return "";
+      }
+    }).collect(Collectors.toList());
+    assertEquals("[ex:e1, cho, seq, seq, seq, s1_array, seq, cho, ex:e1]", mdQNames.toString());
+  }
+
   public static class GatherMetadata extends MetadataHandler {
 
     private final List<Metadata> buf = new ArrayList<>();
@@ -94,38 +126,5 @@ public class TestJavaMetadataAPI {
     public void endChoiceMetadata(ChoiceMetadata m) {
       buf.add(m);
     }
-  }
-
-
-  @Test
-  public void testMetadataWalkDataWalk01() throws IOException {
-    GatherMetadata gatherMetadata = new GatherMetadata();
-    org.apache.daffodil.api.Compiler c = Daffodil.compiler();
-    File schemaFile = getResource("/test/api/metadataTestSchema1.dfdl.xsd");
-    ProcessorFactory pf = c.compileFile(schemaFile);
-    if (pf.isError()) {
-      String diags = pf.getDiagnostics()
-          .stream()
-          .map(Diagnostic::getMessage)
-          .collect(Collectors.joining(System.lineSeparator()));
-      fail(diags);
-    }
-    DataProcessor dp = pf.onPath("/");
-    dp.walkMetadata(gatherMetadata);
-    List<Metadata> md = gatherMetadata.getResult();
-    List<String> mdQNames = md.stream().map(item -> {
-      if (item instanceof ElementMetadata) {
-        ElementMetadata em = ((ElementMetadata) item);
-        String res = em.toQName() + ((em.isArray()) ? "_array" : "");
-        return res;
-      } else if (item instanceof SequenceMetadata) {
-        return "seq";
-      } else if (item instanceof ChoiceMetadata) {
-        return "cho";
-      } else {
-        return "";
-      }
-    }).collect(Collectors.toList());
-    assertEquals("[ex:e1, cho, seq, seq, seq, s1_array, seq, cho, ex:e1]", mdQNames.toString());
   }
 }

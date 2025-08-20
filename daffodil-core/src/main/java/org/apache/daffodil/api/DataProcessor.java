@@ -18,18 +18,12 @@
 package org.apache.daffodil.api;
 
 import org.apache.daffodil.api.debugger.Debugger;
-import org.apache.daffodil.api.debugger.DebuggerRunner;
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunner;
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory;
-import org.apache.daffodil.api.debugger.TraceDebuggerRunner;
 import org.apache.daffodil.api.exceptions.ExternalVariableException;
 import org.apache.daffodil.api.infoset.InfosetInputter;
 import org.apache.daffodil.api.infoset.InfosetOutputter;
 import org.apache.daffodil.api.metadata.MetadataHandler;
 import org.apache.daffodil.api.validation.ValidatorInitializationException;
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
-import org.apache.daffodil.core.dsom.ExpressionCompilers$;
-import org.apache.daffodil.runtime1.debugger.InteractiveDebugger;
 
 import java.io.File;
 import java.io.Serializable;
@@ -42,43 +36,10 @@ import java.util.Map;
  */
 public interface DataProcessor extends WithDiagnostics, Serializable {
   /**
-   * Obtain a new {@link DataProcessor} instance with debugging enabled or disabled.
-   * <p>
-   * Before enabling, {@link DataProcessor#withDebugger} or {@link DataProcessor#withDebuggerRunner} must be called to obtain
-   * a {@link DataProcessor} with a non-null debugger.
+   * Obtain a new {@link DataProcessor} with a specified debugger or null to disable
+   * debugging.
    *
-   * @param flag true to enable debugging, false to disabled
-   * @return a new {@link DataProcessor} instance with debugging enabled or disabled.
-   */
-  DataProcessor withDebugging(boolean flag);
-
-  /**
-   * Obtain a new {@link DataProcessor} with a specified debugger runner.
-   *
-   * @param dr debugger runner
-   * @return a new {@link DataProcessor} with a specified debugger runner.
-   */
-  default DataProcessor withDebuggerRunner(DebuggerRunner dr) {
-    Debugger dbg = null;
-    InteractiveDebuggerRunner runner;
-    if (dr instanceof TraceDebuggerRunner) {
-      runner = InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(System.out);
-    } else if (dr != null) {
-      runner = InteractiveDebuggerRunnerFactory.get(dr);
-    } else {
-      runner = null;
-    }
-
-    if (runner != null) {
-      dbg = new InteractiveDebugger(runner, ExpressionCompilers$.MODULE$);
-    }
-    return withDebugger(dbg);
-  }
-
-  /**
-   * Obtain a new {@link DataProcessor} with a specified debugger.
-   *
-   * @param dbg debugger
+   * @param dbg debugger to use or null to disable debugging
    * @return a new {@link DataProcessor} with a specified debugger.
    */
   DataProcessor withDebugger(Debugger dbg);
@@ -90,7 +51,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    *             {@link org.apache.daffodil.api.validation.ValidatorFactory} SPI or one of the built-in validators
    *             ("xerces", "daffodil", "off", "schematron")
    * @return a new {@link DataProcessor} with a specified validator.
-   * @throws ValidatorNotRegisteredException if the validator cannot be found
+   * @throws ValidatorNotRegisteredException  if the validator cannot be found
    * @throws ValidatorInitializationException if initializing the validator fails
    */
   default DataProcessor withValidation(String kind) throws ValidatorNotRegisteredException, ValidatorInitializationException {
@@ -100,9 +61,9 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
   /**
    * Obtain a new {@link DataProcessor} with validation using a URI for configuration.
    *
-   * @param kind Kind of validation to use. Can be a custom validator name available via the
-   *             {@link org.apache.daffodil.api.validation.ValidatorFactory} SPI or one of the built-in validators
-   *             ("xerces", "daffodil", "off", "schematron")
+   * @param kind   Kind of validation to use. Can be a custom validator name available via the
+   *               {@link org.apache.daffodil.api.validation.ValidatorFactory} SPI or one of the built-in validators
+   *               ("xerces", "daffodil", "off", "schematron")
    * @param config Absolute URI to use for validation configuration. If the URI ends with .conf
    *               or .properties it is treated as a java.util.Properties file that is loaded and
    *               provided to the validator. Otherwise, the URI is provided as a single property to
@@ -110,7 +71,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    *               additional configuration--this could cause an exception if a validator requires
    *               properties.
    * @return a new {@link DataProcessor} with a specified validator.
-   * @throws ValidatorNotRegisteredException if the validator cannot be found
+   * @throws ValidatorNotRegisteredException  if the validator cannot be found
    * @throws ValidatorInitializationException if initializing the validator fails
    */
   DataProcessor withValidation(String kind, URI config) throws ValidatorNotRegisteredException, ValidatorInitializationException;
@@ -144,7 +105,7 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    * <p>
    * The resulting output can be reloaded by {@code Compiler.reload(savedParser:java\.nio\.channels\.ReadableByteChannel)* Compiler.reload}.
    * Note that any changes due to withValidator, withDebugger, and any compile diagnostics are not saved
-   * 
+   *
    * @param output the byte channel to write the {@link DataProcessor} to. Note that external variable settings are not saved.
    */
   void save(WritableByteChannel output);

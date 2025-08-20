@@ -41,20 +41,6 @@ public class TestInfosetEvent {
     this.isNilled = _isNilled;
   }
 
-  public boolean equals(Object o) {
-    if (!(o instanceof TestInfosetEvent)) {
-      return false;
-    }
-    TestInfosetEvent that = (TestInfosetEvent) o;
-    return
-        this.eventType == that.eventType &&
-            java.util.Objects.equals(this.localName, that.localName) &&
-            java.util.Objects.equals(this.namespaceURI, that.namespaceURI) &&
-            java.util.Objects.equals(this.simpleText, that.simpleText) &&
-            java.util.Objects.equals(this.isNilled, that.isNilled);
-
-  }
-
   static TestInfosetEvent startDocument() {
     return new TestInfosetEvent(StartDocument, null, null, null, null);
   }
@@ -85,5 +71,19 @@ public class TestInfosetEvent {
 
   static TestInfosetEvent endDocument() {
     return new TestInfosetEvent(EndDocument, null, null, null, null);
+  }
+
+  public boolean equals(Object o) {
+    if (!(o instanceof TestInfosetEvent)) {
+      return false;
+    }
+    TestInfosetEvent that = (TestInfosetEvent) o;
+    return
+      this.eventType == that.eventType &&
+        java.util.Objects.equals(this.localName, that.localName) &&
+        java.util.Objects.equals(this.namespaceURI, that.namespaceURI) &&
+        java.util.Objects.equals(this.simpleText, that.simpleText) &&
+        java.util.Objects.equals(this.isNilled, that.isNilled);
+
   }
 }

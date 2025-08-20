@@ -52,37 +52,37 @@ public class TestInfosetOutputter extends InfosetOutputter {
   @Override
   public void startSimple(InfosetSimpleElement simple) {
     events.add(
-        TestInfosetEvent.startSimple(
-            simple.metadata().name(),
-            simple.metadata().namespace(),
-            simple.getText(),
-            simple.metadata().isNillable() ? simple.isNilled() : null));
+      TestInfosetEvent.startSimple(
+        simple.metadata().name(),
+        simple.metadata().namespace(),
+        simple.getText(),
+        simple.metadata().isNillable() ? simple.isNilled() : null));
   }
 
   @Override
   public void endSimple(InfosetSimpleElement simple) {
     events.add(
-        TestInfosetEvent.endSimple(
-            simple.metadata().name(),
-            simple.metadata().namespace()));
+      TestInfosetEvent.endSimple(
+        simple.metadata().name(),
+        simple.metadata().namespace()));
   }
 
   @Override
   public void startComplex(InfosetComplexElement complex) throws Exception {
 
     events.add(
-        TestInfosetEvent.startComplex(
-            complex.metadata().name(),
-            complex.metadata().namespace(),
-            complex.metadata().isNillable() ? complex.isNilled() : null));
+      TestInfosetEvent.startComplex(
+        complex.metadata().name(),
+        complex.metadata().namespace(),
+        complex.metadata().isNillable() ? complex.isNilled() : null));
   }
 
   @Override
   public void endComplex(InfosetComplexElement complex) {
     events.add(
-        TestInfosetEvent.endComplex(
-            complex.metadata().name(),
-            complex.metadata().namespace()));
+      TestInfosetEvent.endComplex(
+        complex.metadata().name(),
+        complex.metadata().namespace()));
   }
 
   @Override

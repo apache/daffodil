@@ -31,8 +31,8 @@ import scala.util.Try
 import scala.xml.*
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.ProcessorFactory
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
 import org.apache.daffodil.api.metadata.MetadataHandler
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.*
@@ -42,7 +42,6 @@ import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.*
 import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.*
-import org.apache.daffodil.runtime1.debugger.*
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
@@ -129,7 +128,7 @@ object TestUtils {
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     u = if (areTracing) {
-      u.withDebugger(builtInTracer).withDebugging(true)
+      u.withDebugger(builtInTracer)
     } else u
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     val actual = u.unparse(inputter, out)
@@ -161,7 +160,7 @@ object TestUtils {
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val inputter = new ScalaXMLInfosetInputter(infoset)
     u = if (areTracing) {
-      u.withDebugger(builtInTracer).withDebugging(true)
+      u.withDebugger(builtInTracer)
     } else u
     val actual = u.unparse(inputter, out)
     if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
@@ -173,11 +172,7 @@ object TestUtils {
     }
   }
 
-  private lazy val builtInTracer =
-    new InteractiveDebugger(
-      InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(System.out),
-      ExpressionCompilers
-    )
+  private lazy val builtInTracer = Daffodil.newTraceDebugger(System.out)
 
   private def saveAndReload(p: DataProcessor): DataProcessor = {
     // We want to serialize/deserialize here, to avoid strange debug artifacts
@@ -227,7 +222,7 @@ object TestUtils {
   ): (api.ParseResult, Node) = {
     val p1 =
       if (areTracing) {
-        dp.withDebugger(builtInTracer).withDebugging(true)
+        dp.withDebugger(builtInTracer)
       } else dp
 
     val p = p1.withValidation("daffodil")
@@ -366,7 +361,6 @@ class Fakes private () {
     ): DFDL.DataProcessor = this
     override def withValidation(kind: String, config: URI): DFDL.DataProcessor = this
     override def withDebugger(dbg: api.debugger.Debugger): DFDL.DataProcessor = this
-    override def withDebugging(flag: Boolean): DFDL.DataProcessor = this
 
     override def newXMLReaderInstance: api.DaffodilParseXMLReader = null
     override def newContentHandlerInstance(
