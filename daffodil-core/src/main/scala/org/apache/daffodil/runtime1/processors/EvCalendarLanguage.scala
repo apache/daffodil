@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions.*
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.runtime1.dsom.*
 
 import com.ibm.icu.text.SimpleDateFormat
@@ -103,8 +104,8 @@ class DateTimeFormatterEv(
   localeEv: CalendarLanguageEv,
   pattern: String,
   eci: DPathElementCompileInfo
-) extends Evaluatable[ThreadLocal[SimpleDateFormat]](eci)
-  with InfosetCachedEvaluatable[ThreadLocal[SimpleDateFormat]] {
+) extends Evaluatable[ThreadSafePool[SimpleDateFormat]](eci)
+  with InfosetCachedEvaluatable[ThreadSafePool[SimpleDateFormat]] {
 
   override def runtimeDependencies = Seq(localeEv)
 
@@ -113,17 +114,18 @@ class DateTimeFormatterEv(
     val locale = localeEv.evaluate(state)
 
     // As per ICU4J documentation, "Date formats are not synchronized. If multiple threads
-    // access a format concurrently, it must be synchronized externally." Rather than
-    // synchronzing, we create a ThreadLocal so each thread gets their own copy of the
-    // SimpleDateFormat
-    val dateFormatTL = new ThreadLocal[SimpleDateFormat] with Serializable {
-      override def initialValue = {
+    // access a format concurrently, it must be synchronized externally." We achieve thread
+    // saftey be creating a thread safe pool of SimpleDateFormats. This should have minimal
+    // overhead and allows reuse of SimpleDateFormat instances, and avoids things like memory
+    // leaks often created by ThreadLocals
+    val dateFormatPool = new ThreadSafePool[SimpleDateFormat] {
+      override def allocate() = {
         val formatter = new SimpleDateFormat(pattern, locale)
         formatter.setCalendar(calendar)
         formatter.setLenient(calendar.isLenient)
         formatter
       }
     }
-    dateFormatTL
+    dateFormatPool
   }
 }

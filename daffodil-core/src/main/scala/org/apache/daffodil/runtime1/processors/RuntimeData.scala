@@ -50,6 +50,7 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.OKOrError
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.LocalDeclQName
 import org.apache.daffodil.lib.xml.NS
@@ -263,9 +264,8 @@ final class SimpleTypeRuntimeData(
    * matchers, and we need this generally because matchers are stateful so cannot
    * be shared across threads.
    */
-  def matchers: (Seq[Matcher], Option[Matcher]) = matcherTL.get()
-  private lazy val matcherTL = new ThreadLocal[(Seq[Matcher], Option[Matcher])] {
-    protected final override def initialValue() = {
+  private lazy val matcherPool = new ThreadSafePool[(Seq[Matcher], Option[Matcher])] {
+    protected final override def allocate() = {
       val patternMatchers = patternValues.map { case (_, r) => r.pattern.matcher("") }
       val optEnumMatcher = enumerationValues.map { en => en.r.pattern.matcher("") }
       (patternMatchers, optEnumMatcher)
@@ -333,25 +333,30 @@ final class SimpleTypeRuntimeData(
 
     val e = this
 
-    lazy val (patternMatchers, optEnumMatcher) = this.matchers
+    if (e.patternValues.nonEmpty || e.enumerationValues.isDefined) {
+      matcherPool.withInstance { matchers =>
+        val (patternMatchers, optEnumMatcher) = matchers
 
-    if (e.patternValues.nonEmpty) {
-      val check = checkPatterns(currentElement, patternMatchers)
-      if (!check) {
-        // The escaping is important here as error messages were impossible to figure out when control chars were involved.
-        val patternStrings = e.patternValues
-          .map { case (_, r: Regex) => XMLUtils.escape(r.pattern.pattern()) }
-          .mkString(",")
-        return Error("facet pattern(s): %s".format(patternStrings))
+        if (e.patternValues.nonEmpty) {
+          val check = checkPatterns(currentElement, patternMatchers)
+          if (!check) {
+            // The escaping is important here as error messages were impossible to figure out when control chars were involved.
+            val patternStrings = e.patternValues
+              .map { case (_, r: Regex) => XMLUtils.escape(r.pattern.pattern()) }
+              .mkString(",")
+            return Error("facet pattern(s): %s".format(patternStrings))
+          }
+        }
+
+        if (e.enumerationValues.isDefined) {
+          val check = checkEnumerations(currentElement, optEnumMatcher.get)
+          if (!check) {
+            return Error("facet enumeration(s): %s".format(e.enumerationValues.mkString(",")))
+          }
+        }
       }
     }
 
-    if (e.enumerationValues.isDefined) {
-      val check = checkEnumerations(currentElement, optEnumMatcher.get)
-      if (!check) {
-        return Error("facet enumeration(s): %s".format(e.enumerationValues.mkString(",")))
-      }
-    }
     // Check length
     if (e.length.isDefined) {
       val length = e.length.get

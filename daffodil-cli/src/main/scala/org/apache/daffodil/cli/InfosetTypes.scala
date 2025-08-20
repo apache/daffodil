@@ -31,6 +31,7 @@ import scala.xml.SAXParser
 
 import org.apache.daffodil.api
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -427,20 +428,22 @@ case class W3CDOMInfosetHandler(dataProcessor: api.DataProcessor) extends Infose
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
-    val doc = data.asInstanceOf[ThreadLocal[org.w3c.dom.Document]].get
-    val input = new W3CDOMInfosetInputter(doc)
-    val ur = unparseWithInfosetInputter(input, output)
-    ur
+    val domPool = data.asInstanceOf[ThreadSafePool[org.w3c.dom.Document]]
+    domPool.withInstance { doc =>
+      val input = new W3CDOMInfosetInputter(doc)
+      val ur = unparseWithInfosetInputter(input, output)
+      ur
+    }
   }
 
   def dataToInfoset(bytes: Array[Byte]): AnyRef = {
-    // W3C Documents are not thread safe. So create a ThreadLocal so each
-    // thread gets its own DOM tree. This has the unfortunate downside that we
-    // don't actually convert the XML bytes to DOM until the first call to
-    // unparse(), and we'll parse it multiple times if there are multiple
-    // threads.
-    val doc = new ThreadLocal[org.w3c.dom.Document] {
-      override def initialValue = {
+    // W3C Documents are not thread safe. So we create a thread safe pool so
+    // each unparse gets its own DOM tree. This has the unfortunate downside
+    // that we don't actually convert the XML bytes to DOM until the first call
+    // to unparse(), and we'll parse it multiple times if there are multiple
+    // threads. Future unparses can reuse the already parsed Docuement though.
+    val domPool = new ThreadSafePool[org.w3c.dom.Document] {
+      override def allocate() = {
         val dbf = DocumentBuilderFactory.newInstance()
         dbf.setNamespaceAware(true)
         dbf.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
@@ -448,7 +451,7 @@ case class W3CDOMInfosetHandler(dataProcessor: api.DataProcessor) extends Infose
         db.parse(new ByteArrayInputStream(bytes))
       }
     }
-    doc
+    domPool
   }
 
   def dataToInfoset(stream: InputStream): AnyRef = dataToInfoset(IOUtils.toByteArray(stream))

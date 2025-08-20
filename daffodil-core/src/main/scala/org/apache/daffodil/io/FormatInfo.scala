@@ -30,6 +30,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.ThreadSafePool
 
 /**
  * Abstract interface to obtain format properties or values derived from
@@ -119,6 +120,5 @@ trait FormatInfo {
   /**
    * Buffers used for regex matching
    */
-  def regexMatchBuffer: CharBuffer
-  def regexMatchBitPositionBuffer: LongBuffer
+  def regexMatchStatePool: ThreadSafePool[(CharBuffer, LongBuffer)]
 }

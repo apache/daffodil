@@ -681,84 +681,86 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     if (!aligned) {
       false
     } else {
-      var regexMatchBufferLimit = finfo.tunable.initialRegexMatchLimitInCharacters
-      val regexMatchBuffer = finfo.regexMatchBuffer
-      val regexMatchBitPositionBuffer = finfo.regexMatchBitPositionBuffer
+      finfo.regexMatchStatePool.withInstance { regexMatchState =>
+        var regexMatchBufferLimit = finfo.tunable.initialRegexMatchLimitInCharacters
+        val regexMatchBuffer = regexMatchState._1
+        val regexMatchBitPositionBuffer = regexMatchState._2
 
-      regexMatchBuffer.position(0)
-      regexMatchBuffer.limit(0)
-      regexMatchBitPositionBuffer.position(0)
-      regexMatchBitPositionBuffer.limit(0)
+        regexMatchBuffer.position(0)
+        regexMatchBuffer.limit(0)
+        regexMatchBitPositionBuffer.position(0)
+        regexMatchBitPositionBuffer.limit(0)
 
-      val startingBitPos = bitPos0b
-      var keepMatching = true
-      var isMatch = false
+        val startingBitPos = bitPos0b
+        var keepMatching = true
+        var isMatch = false
 
-      while (keepMatching) {
-        // set the position to the last place data stopped decoding and increase
-        // the limit so we can fill more data
-        regexMatchBuffer.position(regexMatchBuffer.limit())
-        regexMatchBuffer.limit(regexMatchBufferLimit)
-        regexMatchBitPositionBuffer.position(regexMatchBitPositionBuffer.limit())
-        regexMatchBitPositionBuffer.limit(regexMatchBufferLimit)
+        while (keepMatching) {
+          // set the position to the last place data stopped decoding and increase
+          // the limit so we can fill more data
+          regexMatchBuffer.position(regexMatchBuffer.limit())
+          regexMatchBuffer.limit(regexMatchBufferLimit)
+          regexMatchBitPositionBuffer.position(regexMatchBitPositionBuffer.limit())
+          regexMatchBitPositionBuffer.limit(regexMatchBufferLimit)
 
-        val numDecoded =
-          finfo.decoder.decode(this, finfo, regexMatchBuffer, regexMatchBitPositionBuffer)
-        val potentiallyMoreData = regexMatchBuffer.position() == regexMatchBuffer.limit()
+          val numDecoded =
+            finfo.decoder.decode(this, finfo, regexMatchBuffer, regexMatchBitPositionBuffer)
+          val potentiallyMoreData = regexMatchBuffer.position() == regexMatchBuffer.limit()
 
-        regexMatchBuffer.flip
-        regexMatchBitPositionBuffer.flip
+          regexMatchBuffer.flip
+          regexMatchBitPositionBuffer.flip
 
-        if (numDecoded > 0) {
-          // we decoded at least one extra characer than we had before, so the
-          // match results could have changed. Try again.
-          matcher.reset(regexMatchBuffer)
-          isMatch = matcher.lookingAt()
-          val hitEnd = matcher.hitEnd
-          val requireEnd = matcher.requireEnd
+          if (numDecoded > 0) {
+            // we decoded at least one extra characer than we had before, so the
+            // match results could have changed. Try again.
+            matcher.reset(regexMatchBuffer)
+            isMatch = matcher.lookingAt()
+            val hitEnd = matcher.hitEnd
+            val requireEnd = matcher.requireEnd
 
-          if (potentiallyMoreData && (hitEnd || (isMatch && requireEnd))) {
-            // We filled the CharBuffer to its limit, so it's possible there is
-            // more data available AND either 1) we hit the end of the char
-            // buffer and more data might change the match or 2) we got a match
-            // but require the end and more data could negate the match. In
-            // either case, let's increase the match limit if possible, try to
-            // decode more data, and try the match again if we got more data.
-            if (regexMatchBufferLimit == regexMatchBuffer.capacity) {
-              // consumed too much data, just give up
-              keepMatching = false
+            if (potentiallyMoreData && (hitEnd || (isMatch && requireEnd))) {
+              // We filled the CharBuffer to its limit, so it's possible there is
+              // more data available AND either 1) we hit the end of the char
+              // buffer and more data might change the match or 2) we got a match
+              // but require the end and more data could negate the match. In
+              // either case, let's increase the match limit if possible, try to
+              // decode more data, and try the match again if we got more data.
+              if (regexMatchBufferLimit == regexMatchBuffer.capacity) {
+                // consumed too much data, just give up
+                keepMatching = false
+              } else {
+                regexMatchBufferLimit =
+                  Math.min(regexMatchBufferLimit * 2, regexMatchBuffer.capacity)
+              }
             } else {
-              regexMatchBufferLimit =
-                Math.min(regexMatchBufferLimit * 2, regexMatchBuffer.capacity)
+              // no more data could affect the match result, so exit the loop and
+              // figure out the match result
+              keepMatching = false
             }
           } else {
-            // no more data could affect the match result, so exit the loop and
-            // figure out the match result
+            // We failed to decode any data, that means that there is no more
+            // data to match against. Either we've already done a match or more
+            // data could have changed the outcome, or there was never any data
+            // to match in the first place. In either case, the state of isMatch
+            // is correct--we are done.
             keepMatching = false
           }
-        } else {
-          // We failed to decode any data, that means that there is no more
-          // data to match against. Either we've already done a match or more
-          // data could have changed the outcome, or there was never any data
-          // to match in the first place. In either case, the state of isMatch
-          // is correct--we are done.
-          keepMatching = false
         }
-      }
 
-      if (isMatch && matcher.end != 0) {
-        // got a non-zero length match, set the bit position to the end of the
-        // match, note that the end match position is the index *after* the
-        // last match, so we need the ending bitPosition of the previous
-        // character
-        val endingBitPos = regexMatchBitPositionBuffer.get(matcher.end - 1)
-        setBitPos0b(endingBitPos)
-      } else {
-        // failed to match, set the bit position back to where we started
-        setBitPos0b(startingBitPos)
-      }
+        if (isMatch && matcher.end != 0) {
+          // got a non-zero length match, set the bit position to the end of the
+          // match, note that the end match position is the index *after* the
+          // last match, so we need the ending bitPosition of the previous
+          // character
+          val endingBitPos = regexMatchBitPositionBuffer.get(matcher.end - 1)
+          setBitPos0b(endingBitPos)
+        } else {
+          // failed to match, set the bit position back to where we started
+          setBitPos0b(startingBitPos)
+        }
 
-      isMatch
+        isMatch
+      }
     }
   }
 

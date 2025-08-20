@@ -41,6 +41,7 @@ import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.runtime1.dpath.UnparserBlocking
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.infoset.DIArray
@@ -398,8 +399,8 @@ abstract class UState(
     }
   }
 
-  def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
-  def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
+  def regexMatchStatePool: ThreadSafePool[(CharBuffer, LongBuffer)] =
+    Assert.usageError("Not to be used.")
 
   def documentElement: DIDocument
 

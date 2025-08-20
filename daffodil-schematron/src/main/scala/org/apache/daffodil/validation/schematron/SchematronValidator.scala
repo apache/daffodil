@@ -31,6 +31,7 @@ import scala.xml.Elem
 import scala.xml.XML
 
 import org.apache.daffodil.api
+import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 
 import org.xml.sax.InputSource
@@ -44,11 +45,12 @@ final class SchematronValidator(
   svrlPath: Option[URI]
 ) extends api.validation.Validator {
 
-  // XMLReader and Transformer are not thread safe so are ThreadLocals. Alternatively, they could be
-  // created every time validateXML, but ThreadLocal allows reuse of objects
-  // that are potentially expensive to create
-  val readerTransformerTL = new ThreadLocal[(XMLReader, Transformer)] {
-    override def initialValue(): (XMLReader, Transformer) = {
+  // XMLReader and Transformer are not thread safe, so we use a ThreadSafePool. The use of a
+  // pool allows reuse of objects that are expensive to create while ensuring each Thread gets
+  // their own instance. Note that we do not use ThreadLocal, since that can lead to memory
+  // leaks that cannot be easily cleaned up
+  val readerTransformerPool = new ThreadSafePool[(XMLReader, Transformer)] {
+    override def allocate(): (XMLReader, Transformer) = {
       val factory = DaffodilSAXParserFactory()
       factory.setValidating(false)
       val reader = factory.newSAXParser.getXMLReader
@@ -61,10 +63,15 @@ final class SchematronValidator(
     document: InputStream,
     handler: api.validation.ValidationHandler
   ): Unit = {
-    val (reader, transformer) = readerTransformerTL.get
     val writer = new StringWriter
-    transformer
-      .transform(new SAXSource(reader, new InputSource(document)), new StreamResult(writer))
+
+    readerTransformerPool.withInstance { rt =>
+      val (reader, transformer) = rt
+      val source = new SAXSource(reader, new InputSource(document))
+      val result = new StreamResult(writer)
+      transformer.transform(source, result)
+    }
+
     val svrlString = writer.toString
     val svrl = XML.loadString(svrlString)
     svrl.child.collect { case f @ Elem("svrl", "failed-assert", _, _, msg*) =>

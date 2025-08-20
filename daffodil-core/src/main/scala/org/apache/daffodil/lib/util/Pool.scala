@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.lib.util
 
+import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.mutable
 
 import org.apache.daffodil.lib.equality.*
@@ -107,4 +108,57 @@ trait Pool[T <: Poolable] {
     }
   }
 
+}
+
+/**
+ * Provides a fast and efficient thread safe pool of reusable instances
+ *
+ * This intentionally avoids the use of ThreadLocal, since ThreadLocals can easily lead to
+ * memory leaks that are difficult to avoid. And for this reason, in general it is best to
+ * avoid ThreadLocals entirely unless you really are storing Thread specific data. If
+ * ThreadLocal is just being used as a pool of non-threadsafe instances, this
+ * ThreadSafePool should likely be used instead. 
+ *
+ * Unlike ThreadLocals, the instances from this ThreadSafePool could be shared with
+ * different threads, so it is important to take that into consideration if instances are
+ * mutated.
+ *
+ * To ensure efficiency and thread safety, this makes use of a ConcurrentLinkedQueue to
+ * store available instances. New instances are allocated by implementing the allocate()
+ * method. The withInstance method will get an instance form the queue (or create one if
+ * none are available), call the lamdba function, and return the instance back to the
+ * queue. The instance must not be stored to a variable outside the scope of withInstance.
+ *
+ * To avoid potential lambda allocations, this inlines the withInstance function and
+ * parameters.
+ *
+ * Example usage:
+ *
+ *   class Foo {
+ *     val barPool = new ThreadSafePool[Bar] {
+ *       override def allocate(): Bar = { new Bar() }
+ *     }
+ *
+ *     def doSomething(): Unit = {
+ *       barPool.withInstance { bar =>
+ *         bar.act()
+ *       }
+ *     }
+ *   }
+ *
+ */
+abstract class ThreadSafePool[T]() extends Serializable {
+  protected def allocate(): T
+
+  private val queue = new ConcurrentLinkedQueue[T]()
+
+  inline def withInstance[A](inline f: T => A): A = {
+    val polled = queue.poll()
+    val inst = if (polled == null) allocate() else polled
+    try {
+      f(inst)
+    } finally {
+      queue.offer(inst)
+    }
+  }
 }
