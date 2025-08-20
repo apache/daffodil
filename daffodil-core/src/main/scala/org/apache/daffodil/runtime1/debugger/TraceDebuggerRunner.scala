@@ -20,9 +20,9 @@ package org.apache.daffodil.runtime1.debugger
 import java.io.PrintStream
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner
 
-class TraceDebuggerRunner(out: PrintStream = System.out)
-  extends api.debugger.TraceDebuggerRunner {
+class TraceDebuggerRunner(out: PrintStream = System.out) extends DaffodilDebuggerRunner {
   val traceIter = Seq(
     "set infosetParents 1",
     "display info parser",
@@ -33,7 +33,7 @@ class TraceDebuggerRunner(out: PrintStream = System.out)
     "trace"
   ).iterator
 
-  override def init(id: InteractiveDebugger): Unit = {
+  override def init(id: DaffodilDebugger): Unit = {
     // do nothing
   }
 
@@ -54,10 +54,6 @@ class TraceDebuggerRunner(out: PrintStream = System.out)
   }
 
   override def fini(): Unit = {
-    // do nothing
-  }
-
-  override def init(): Unit = {
     // do nothing
   }
 }

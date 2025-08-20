@@ -20,7 +20,7 @@ package org.apache.daffodil.usertests
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
-import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
+import org.apache.daffodil.runtime1.debugger.DaffodilDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 
 import org.junit.Assert.assertTrue
@@ -55,7 +55,7 @@ class TestUserSubmittedTests extends TdmlTests {
 
   @Test def test_DFDL_782() = {
     val crunner = new CountTraceDebuggerRunner
-    val db = new InteractiveDebugger(crunner, ExpressionCompilers)
+    val db = new DaffodilDebugger(crunner, ExpressionCompilers)
 
     // sets the debugger and enables debugging
     tdmlSuite.runner.setDebugger(db)

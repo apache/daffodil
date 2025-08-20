@@ -22,6 +22,7 @@ import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner
 import org.apache.daffodil.api.infoset.InfosetElement
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
@@ -52,10 +53,16 @@ import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 case class DebuggerExitException() extends UnsuppressableException("Debugger exit")
 
-class InteractiveDebugger(
-  runner: api.debugger.InteractiveDebuggerRunner,
+/**
+ * Receives events from daffodil and uses the provided DaffodilDebuggerRunner to
+ * determine how to handle those events
+ * @param runner used to figure out what to do while events are read
+ * @param eCompilers used in the evaluation of expressions
+ */
+class DaffodilDebugger(
+  runner: DaffodilDebuggerRunner,
   eCompilers: ExpressionCompilerClass
-) extends Debugger {
+) extends api.debugger.Debugger {
 
   object DebugState extends Enum {
     sealed abstract trait Type extends EnumValueType

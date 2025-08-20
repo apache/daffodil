@@ -70,8 +70,6 @@ trait TDMLDFDLProcessor {
 
   protected type R <: TDMLDFDLProcessor
 
-  def withDebugging(onOff: Boolean): R
-
   def withTracing(onOff: Boolean): R
 
   def withDebugger(db: AnyRef): R

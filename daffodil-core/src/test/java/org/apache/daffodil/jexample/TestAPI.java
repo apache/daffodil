@@ -49,6 +49,7 @@ import org.apache.daffodil.api.DataProcessor;
 import org.apache.daffodil.api.Diagnostic;
 import org.apache.daffodil.api.LocationInSchemaFile;
 import org.apache.daffodil.api.ParseResult;
+import org.apache.daffodil.api.debugger.Debugger;
 import org.apache.daffodil.api.validation.ValidatorInitializationException;
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
 import org.apache.daffodil.japi.SAXErrorHandlerForAPITest;
@@ -77,6 +78,9 @@ import java.nio.charset.StandardCharsets;
 
 
 public class TestAPI {
+  String SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces";
+  String SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes";
+
   /**
    * Best practices for XML loading are to turn off anything that could lead to
    * insecurity.
@@ -93,9 +97,6 @@ public class TestAPI {
     xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
   }
-
-  String SAX_NAMESPACES_FEATURE = "http://xml.org/sax/features/namespaces";
-  String SAX_NAMESPACE_PREFIXES_FEATURE = "http://xml.org/sax/features/namespace-prefixes";
 
   private java.io.File getResource(String resPath) {
     try {
@@ -136,15 +137,15 @@ public class TestAPI {
 
   @Test
   public void testAPI1() throws IOException, ClassNotFoundException {
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withDebuggerRunner(debugger);
-    dp = dp.withDebugging(true);
+    dp = dp.withDebugger(debugger);
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -153,9 +154,9 @@ public class TestAPI {
       ParseResult res = dp.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
-      assertTrue(debugger.lines.size() > 0);
-      assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-      assertTrue(debugger.getCommand().equals("trace"));
+      assertFalse(customRunner.lines.isEmpty());
+      assertTrue(customRunner.lines.contains("----------------------------------------------------------------- 1\n"));
+      assertEquals("trace", customRunner.getCommand());
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
@@ -171,7 +172,8 @@ public class TestAPI {
   // before executing the test.
   @Test
   public void testAPI1_A() throws Exception {
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
@@ -187,8 +189,7 @@ public class TestAPI {
     ReadableByteChannel input = Channels.newChannel(is);
     org.apache.daffodil.api.Compiler compiler = Daffodil.compiler();
     DataProcessor parser = compiler.reload(input);
-    parser = parser.withDebuggerRunner(debugger);
-    parser = parser.withDebugging(true);
+    parser = parser.withDebugger(debugger);
 
     File data = getResource("/test/api/myData.dat");
     // This test uses a byte array here, just so as to be sure to exercise
@@ -201,9 +202,9 @@ public class TestAPI {
       ParseResult res = parser.parse(dis, outputter);
       boolean err = res.isError();
       assertFalse(err);
-      assertTrue(debugger.lines.size() > 0);
-      assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-      assertTrue(debugger.getCommand().equals("trace"));
+      assertFalse(customRunner.lines.isEmpty());
+      assertTrue(customRunner.lines.contains("----------------------------------------------------------------- 1\n"));
+      assertEquals("trace", customRunner.getCommand());
 
       java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
       java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
@@ -219,14 +220,14 @@ public class TestAPI {
   // before executing the test.
   @Test
   public void testAPI1_A_Full_SavedParser() throws Exception {
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withDebuggerRunner(debugger);
-    dp = dp.withDebugging(true);
+    dp = dp.withDebugger(debugger);
 
     // Serialize the parser to memory, then deserialize for parsing.
     ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -620,7 +621,8 @@ public class TestAPI {
 
   @Test
   public void testAPI12() throws IOException, ClassNotFoundException {
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -629,8 +631,7 @@ public class TestAPI {
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withDebuggerRunner(debugger);
-    dp = dp.withDebugging(true);
+    dp = dp.withDebugger(debugger);
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -640,8 +641,8 @@ public class TestAPI {
       boolean err = res.isError();
       assertFalse(err);
 
-      assertTrue(debugger.lines.size() > 0);
-      assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+      assertFalse(customRunner.lines.isEmpty());
+      assertTrue(customRunner.lines.contains("----------------------------------------------------------------- 1\n"));
     }
   }
 
@@ -649,7 +650,8 @@ public class TestAPI {
   public void testAPI13() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via Compiler.
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -659,8 +661,7 @@ public class TestAPI {
 
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withDebuggerRunner(debugger);
-    dp = dp.withDebugging(true);
+    dp = dp.withDebugger(debugger);
     dp = dp.withExternalVariables(extVarsFile);
 
     java.io.File file = getResource("/test/api/myData.dat");
@@ -685,7 +686,8 @@ public class TestAPI {
   public void testAPI14() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates here that we can set external variables
     // after compilation but before parsing via DataProcessor.
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -694,8 +696,7 @@ public class TestAPI {
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withDebuggerRunner(debugger);
-    dp = dp.withDebugging(true);
+    dp = dp.withDebugger(debugger);
     dp = dp.withExternalVariables(extVarFile);
 
     java.io.File file = getResource("/test/api/myData.dat");
@@ -714,8 +715,8 @@ public class TestAPI {
       assertTrue(containsVar1);
       assertTrue(containsVar1Value);
 
-      assertTrue(debugger.lines.size() > 0);
-      assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+      assertFalse(customRunner.lines.isEmpty());
+      assertTrue(customRunner.lines.contains("----------------------------------------------------------------- 1\n"));
     }
   }
 
@@ -1008,7 +1009,8 @@ public class TestAPI {
   public void testAPI22_withExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
     // Demonstrates here that we can set external variables using a
     // Java AbstractMap after compilation but before parsing via DataProcessor.
-    DebuggerRunnerForAPITest debugger = new DebuggerRunnerForAPITest();
+    DebuggerRunnerForAPITest customRunner = new DebuggerRunnerForAPITest();
+    Debugger debugger = Daffodil.newDaffodilDebugger(customRunner);
 
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
 
@@ -1016,8 +1018,7 @@ public class TestAPI {
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
     dp = reserializeDataProcessor(dp);
-    dp = dp.withDebuggerRunner(debugger);
-    dp = dp.withDebugging(true);
+    dp = dp.withDebugger(debugger);
 
     java.util.AbstractMap<String, String> extVarsMap = new java.util.HashMap<String, String>();
     extVarsMap.put("var1", "var1ValueFromMap");
@@ -1040,8 +1041,8 @@ public class TestAPI {
       assertTrue(containsVar1);
       assertTrue(containsVar1Value);
 
-      assertTrue(debugger.lines.size() > 0);
-      assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+      assertFalse(customRunner.lines.isEmpty());
+      assertTrue(customRunner.lines.contains("----------------------------------------------------------------- 1\n"));
     }
   }
 

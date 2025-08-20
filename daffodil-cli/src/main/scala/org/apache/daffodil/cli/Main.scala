@@ -45,14 +45,13 @@ import scala.util.Using
 import scala.util.matching.Regex
 
 import org.apache.daffodil.api
-import org.apache.daffodil.api.debugger.InteractiveDebuggerRunnerFactory
+import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.exceptions.InvalidParserException
 import org.apache.daffodil.api.layers.exceptions.LayerFatalException
 import org.apache.daffodil.api.validation.ValidatorInitializationException
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException
 import org.apache.daffodil.cli.debugger.CLIDebuggerRunner
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -74,7 +73,6 @@ import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.debugger.DebuggerExitException
-import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.processors.DataLoc
@@ -1072,21 +1070,19 @@ class Main(
   ): api.DataProcessor = {
     (traceArg() || debugArg.isDefined) match {
       case true => {
-        val runner =
-          getTraceOrCLIDebuggerRunner(traceArg, debugArg)
-        val id = new InteractiveDebugger(runner, ExpressionCompilers)
-        proc.withDebugger(id).withDebugging(true)
+        val id = getTraceOrCLIDebugger(traceArg, debugArg)
+        proc.withDebugger(id)
       }
       case false => proc
     }
   }
 
-  private def getTraceOrCLIDebuggerRunner(
+  private def getTraceOrCLIDebugger(
     trace: ScallopOption[Boolean],
     debug: ScallopOption[Option[String]]
   ) = {
     if (trace()) {
-      InteractiveDebuggerRunnerFactory.newTraceDebuggerRunner(STDOUT)
+      Daffodil.newTraceDebugger(STDOUT)
     } else {
       if (System.console == null) {
         Logger.log.warn(
@@ -1094,8 +1090,9 @@ class Main(
         )
       }
       debug() match {
-        case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
-        case None => new CLIDebuggerRunner(STDIN, STDOUT)
+        case Some(f) =>
+          Daffodil.newDaffodilDebugger(new CLIDebuggerRunner(new File(f), STDIN, STDOUT))
+        case None => Daffodil.newDaffodilDebugger(new CLIDebuggerRunner(STDIN, STDOUT))
       }
     }
   }
@@ -1703,9 +1700,8 @@ class Main(
         val tdmlRunnerInit = Runner(tdmlFile, optTDMLImplementation)
 
         val tdmlRunner = if (testOpts.trace() || testOpts.debug.isDefined) {
-          val db = getTraceOrCLIDebuggerRunner(testOpts.trace, testOpts.debug)
-          val id = new InteractiveDebugger(db, ExpressionCompilers)
-          tdmlRunnerInit.setDebugger(id)
+          val db = getTraceOrCLIDebugger(testOpts.trace, testOpts.debug)
+          tdmlRunnerInit.setDebugger(db)
           tdmlRunnerInit
         } else {
           tdmlRunnerInit

@@ -17,31 +17,33 @@
 
 package org.apache.daffodil.jexample;
 
-import org.apache.daffodil.api.debugger.DebuggerRunner;
+import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner;
+import org.apache.daffodil.runtime1.debugger.DaffodilDebugger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
 
-public class DebuggerRunnerForAPITest implements DebuggerRunner {
+public class DebuggerRunnerForAPITest implements DaffodilDebuggerRunner {
   ArrayList<String> lines;
 
   ArrayList<String> commands = new ArrayList<>(Arrays.asList("display info parser",
-      "display info bitPosition",
-      "display info data",
-      "display eval ..",
-      "display info diff",
-      "trace"));
+    "display info bitPosition",
+    "display info data",
+    "display eval ..",
+    "display info diff",
+    "trace"));
 
   Iterator<String> commandsIter;
 
-  public void init() {
-    lines = new ArrayList<String>();
-    commandsIter = commands.iterator();
+  public void fini() {
   }
 
-  public void fini() {
+  @Override
+  public void init(DaffodilDebugger dd) {
+    lines = new ArrayList<String>();
+    commandsIter = commands.iterator();
   }
 
   public String getCommand() {

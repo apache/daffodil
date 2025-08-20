@@ -122,7 +122,6 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
 
   // We don't pass any options to the executable
   override type R = DaffodilCTDMLDFDLProcessor
-  override def withDebugging(onOff: Boolean): R = this
   override def withTracing(onOff: Boolean): R = this
   override def withDebugger(db: AnyRef): R = this
   override def withValidation(validation: String): R = this
