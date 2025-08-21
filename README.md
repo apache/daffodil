@@ -23,16 +23,16 @@
 <br clear="right" />
 [<img src="https://img.shields.io/codecov/c/github/apache/daffodil/main.svg" align="right"/>][CodeCov]
 <br clear="right" />
-[<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_2.12.svg?color=brightgreen&label=version" align="right"/>][Releases]
+[<img src="https://img.shields.io/maven-central/v/org.apache.daffodil/daffodil-core_3.svg?color=brightgreen&label=version" align="right"/>][Releases]
 <br clear="both" />
 
 Apache Daffodil is an open-source implementation of the [DFDL
 specification] that uses DFDL data descriptions to parse fixed format
-data into an infoset.  This infoset is commonly converted into XML or
+data into an infoset. This infoset is commonly converted into XML or
 JSON to enable the use of well-established XML or JSON technologies
 and libraries to consume, inspect, and manipulate fixed format data in
-existing solutions.  Daffodil is also capable of serializing or
-"unparsing" data back to the original data format.  The DFDL infoset
+existing solutions. Daffodil is also capable of serializing or
+"unparsing" data back to the original data format. The DFDL infoset
 can also be converted directly to/from the data structures carried by
 data processing frameworks so as to bypass any XML/JSON overheads.
 
@@ -50,7 +50,7 @@ for a developer guide.
 
 ## Getting Started
 
-[sbt] is the officially supported tool to build Daffodil.  Below are
+[sbt] is the officially supported tool to build Daffodil. Below are
 some of the more commonly used commands for Daffodil development.
 
 ### Compile
@@ -115,7 +115,7 @@ Run [sbt-scoverage] (report in `target/scala-ver/scoverage-report/`):
 ## Getting Help
 
 You can ask questions on the dev@daffodil.apache.org or
-users@daffodil.apache.org mailing lists.  You can report bugs via the
+users@daffodil.apache.org mailing lists. You can report bugs via the
 [Daffodil JIRA].
 
 ## License
@@ -123,13 +123,23 @@ users@daffodil.apache.org mailing lists.  You can report bugs via the
 Apache Daffodil is licensed under the [Apache License, v2.0].
 
 [Apache License, v2.0]: https://www.apache.org/licenses/LICENSE-2.0
+
 [Apache RAT]: https://creadur.apache.org/rat/
+
 [CodeCov]: https://app.codecov.io/gh/apache/daffodil
+
 [Command Line Interface]: https://daffodil.apache.org/cli/
+
 [DFDL specification]: https://daffodil.apache.org/docs/dfdl/
+
 [Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL/
+
 [Github Actions]: https://github.com/apache/daffodil/actions?query=branch%3Amain+
+
 [Releases]: http://daffodil.apache.org/releases/
+
 [Website]: https://daffodil.apache.org/
+
 [sbt-scoverage]: https://github.com/scoverage/sbt-scoverage/
+
 [sbt]: https://www.scala-sbt.org/
