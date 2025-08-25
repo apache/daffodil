@@ -114,15 +114,20 @@ final class RuntimeExpressionDPath[T <: AnyRef](
       case null => Assert.usageError("state cannot be null")
       case ustate: UState => UE(e, One(ustate.currentLocation))
       case pstate: PState => {
-        val pe =
-          new ExpressionEvaluationException(
-            e,
-            state
-          ) // One(ci.schemaFileLocation), One(pstate.currentLocation), msg)
+        val pe = e match {
+          // if this is a non-daffodil exception, it needs to be wrapped in a
+          // Daffodil Exception like ExpressionEvaluationException. If it's not (i.e Processing Error),
+          // we don't need to wrap it in anything.
+          case _pe: ProcessingError => _pe
+          case _ => new ExpressionEvaluationException(e, state)
+        }
         pstate.setFailed(pe.toParseError)
       }
       case compState: CompileState => {
         val d = e match {
+          // if this is a non-daffodil exception, it needs to be wrapped in a
+          // Daffodil Exception like ExpressionEvaluationException. If it's not (i.e Diagnostic),
+          // we don't need to wrap it in anything.
           case d: Diagnostic => d
           case _ =>
             new ExpressionEvaluationException(e, state)
