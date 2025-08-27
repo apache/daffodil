@@ -21,6 +21,9 @@ import java.util.Properties
 
 import org.apache.daffodil.api.validation.ValidatorNotRegisteredException
 import org.apache.daffodil.api.validation.Validators
+import org.apache.daffodil.core.util.TestUtils.intercept
+import org.apache.daffodil.validation.DaffodilValidator
+import org.apache.daffodil.validation.NoValidator
 import org.apache.daffodil.validation.XercesValidator
 
 import org.junit.Assert.assertEquals
@@ -45,6 +48,10 @@ class TestValidatorsSPI {
 
   @Test def testValidatorNonExists(): Unit = {
     assertFalse(Validators.isRegistered("dont exist"))
+    val e = intercept[ValidatorNotRegisteredException] {
+      Validators.get("dont exist")
+    }
+    assertTrue(e.getMessage.contains("dont exist"))
   }
 
   @Test def testDefaultIsRegistered(): Unit = {
@@ -76,5 +83,12 @@ class TestValidatorsSPI {
     assertFalse(validationHandler.errors.isEmpty)
 
     assertEquals(validationHandler.errors.head, "boom")
+  }
+
+  @Test def testListValidators(): Unit = {
+    val vs = Validators.list()
+    assertTrue(vs.contains(NoValidator.name))
+    assertTrue(vs.contains(DaffodilValidator.name))
+    assertTrue(vs.contains(XercesValidator.name))
   }
 }
