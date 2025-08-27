@@ -19,6 +19,9 @@ package org.apache.daffodil.api.validation;
 
 import org.apache.daffodil.lib.util.SimpleNamedServiceLoader;
 
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * Access SPI registered {@link org.apache.daffodil.api.validation.ValidatorFactory} instances.
  * <p>
@@ -70,5 +73,14 @@ public class Validators {
    */
   public static boolean isRegistered(String name) {
     return impls.containsKey(name);
+  }
+
+  /**
+   * Get a list of available validator names
+   *
+   * @return array of validator names
+   */
+  public static List<String> list() {
+    return new ArrayList<String>(impls.keySet());
   }
 }

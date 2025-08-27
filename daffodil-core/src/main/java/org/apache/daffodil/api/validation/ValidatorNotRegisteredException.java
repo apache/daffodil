@@ -27,6 +27,12 @@ public class ValidatorNotRegisteredException extends Exception {
    * @param name the requested validator factory name
    */
   ValidatorNotRegisteredException(String name) {
-    super("No api.validation.ValidatorFactory is registered as " + name);
+    super(
+      String.format(
+        "No Daffodil ValidatorFactory is registered with name '%s'. Available validators: %s",
+        name,
+        String.join(", ", Validators.list())
+      )
+    );
   }
 }
