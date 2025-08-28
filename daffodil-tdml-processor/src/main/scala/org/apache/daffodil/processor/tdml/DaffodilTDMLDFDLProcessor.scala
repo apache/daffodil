@@ -197,7 +197,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
       case "limited" => "daffodil"
       case _ => validation
     }
-    copy(dp = dp.withValidation(validatorName, schemaURI))
+    copy(dp = dp.withValidation(validatorName, schemaURI.toURL))
   }
 
   override def withExternalDFDLVariables(

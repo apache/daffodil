@@ -20,7 +20,7 @@
  *
  * <p>
  * Daffodil provides a number of built-in validators for use with {@link
- * org.apache.daffodil.api.DataProcessor#withValidation(String, URI)}. For each
+ * org.apache.daffodil.api.DataProcessor#withValidation(String, URL)}. For each
  * built-in validator, the following contains the validator name, a
  * description, and validator specific properties. The {@code String} parameter
  * should be the name of the validator. If the URI parameter ends in
@@ -65,7 +65,7 @@
  *     <p><b>Example:</b></p>
  *     <pre>{@code
  * // enable XML schema validation, setting the "xerces" property to the schema.xsd file
- * dataProcessor.withValidation("xerces", URI.create("file:///path/to/schema.xsd"))
+ * dataProcessor.withValidation("xerces", new URL("file:///path/to/schema.xsd"))
  * }</pre>
  *   </dd>
  *
@@ -92,10 +92,10 @@
  *     <p><b>Example:</b></p>
  *     <pre>{@code
  * // enable schematron validation, setting the "schematron" property to the schematron.sch file
- * dataProcessor.withValidation("schematron", URI.create("file:///path/to/schematron.sch"))
+ * dataProcessor.withValidation("schematron", new URL("file:///path/to/schematron.sch"))
  *
  * // use schematron validation, reading the schematron.properties file to set "schematron" or other schematron properties
- * dataProcessor.withValidation("schematron", URI.create("file:///path/to/schematron.properties"))
+ * dataProcessor.withValidation("schematron", new URL("file:///path/to/schematron.properties"))
  * }</pre>
  *   </dd>
  * </dl>
@@ -111,7 +111,7 @@
  *  returns the custom Validator from the previous step</li>
  *  <li>Register the custom ValidatorFactory by creating a {@link org.apache.daffodil.api.validation.ValidatorFactory}
  *  file in {@code META-INF/services/}, its contents being the fully qualified name of the custom validator factory</li>
- *  <li>Call the {@link org.apache.daffodil.api.DataProcessor#withValidation(String, URI)} function, providing the name
+ *  <li>Call the {@link org.apache.daffodil.api.DataProcessor#withValidation(String, URL)} function, providing the name
  *  of the validator and optional URI.</li>
  * </ol>
  */

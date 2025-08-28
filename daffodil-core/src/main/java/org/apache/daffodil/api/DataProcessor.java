@@ -27,7 +27,7 @@ import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
 
 import java.io.File;
 import java.io.Serializable;
-import java.net.URI;
+import java.net.URL;
 import java.nio.channels.WritableByteChannel;
 import java.util.Map;
 
@@ -64,17 +64,17 @@ public interface DataProcessor extends WithDiagnostics, Serializable {
    * @param kind   Kind of validation to use. Can be a custom validator name available via the
    *               {@link org.apache.daffodil.api.validation.ValidatorFactory} SPI or one of the built-in validators
    *               ("xerces", "daffodil", "off", "schematron")
-   * @param config Absolute URI to use for validation configuration. If the URI ends with .conf
+   * @param config URL to use for validation configuration. If the URL path ends with .conf
    *               or .properties it is treated as a java.util.Properties file that is loaded and
-   *               provided to the validator. Otherwise, the URI is provided as a single property to
-   *               the validator. Can be null if a URI is not known or the validator does not need
+   *               provided to the validator. Otherwise, the URL is provided as a single property to
+   *               the validator. Can be null if a URL is not known or the validator does not need
    *               additional configuration--this could cause an exception if a validator requires
    *               properties.
    * @return a new {@link DataProcessor} with a specified validator.
    * @throws ValidatorNotRegisteredException  if the validator cannot be found
    * @throws ValidatorInitializationException if initializing the validator fails
    */
-  DataProcessor withValidation(String kind, URI config) throws ValidatorNotRegisteredException, ValidatorInitializationException;
+  DataProcessor withValidation(String kind, URL config) throws ValidatorNotRegisteredException, ValidatorInitializationException;
 
   /**
    * Obtain a new {@link DataProcessor} with external variables read from a Daffodil configuration file
