@@ -73,7 +73,7 @@ trait EmbeddedTesting {
     if (pf.isError()) pf.getDiagnostics.forEach(println)
     assertFalse("Schema did not compile", pf.isError())
 
-    val dp = pf.onPath("/").withValidation("schematron", schema)
+    val dp = pf.onPath("/").withValidation("schematron", schema.toURL())
 
     f(Validation(dp))
   }
