@@ -718,7 +718,7 @@ class TestAPI {
     val input = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
     val parser = compiler.reload(input)
-    val p = parser.withValidation("xerces", schemaFile.toURI)
+    val p = parser.withValidation("xerces", schemaFile.toURI.toURL)
     assertNotNull(p)
   }
 
@@ -784,7 +784,7 @@ class TestAPI {
     val schemaFile = getResource("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    val dp = dp1.withValidation("xerces", schemaFile.toURI)
+    val dp = dp1.withValidation("xerces", schemaFile.toURI.toURL)
     val file = getResource("/test/api/myData.dat")
     val fis = new java.io.FileInputStream(file)
     Using.resource(Daffodil.newInputSourceDataInputStream(fis)) { input =>
@@ -1294,7 +1294,7 @@ class TestAPI {
     val schemaFile = getResource("/test/api/blob.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp1 = pf.onPath("/")
-    val dp = dp1.withValidation("xerces", schemaFile.toURI)
+    val dp = dp1.withValidation("xerces", schemaFile.toURI.toURL)
 
     val data = Array[Byte](0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04)
     val bis = new ByteArrayInputStream(data)
@@ -1401,7 +1401,7 @@ class TestAPI {
     val uri = new URI("/test/api/mySchema1.dfdl.xsd")
     val pf = c.compileSource(uri)
     val dp1 = pf.onPath("/")
-    val dp = dp1.withValidation("xerces", getResource(uri.getPath).toURI)
+    val dp = dp1.withValidation("xerces", getResource(uri.getPath).toURI.toURL)
 
     val file = getResource("/test/api/myDataBroken.dat")
     val fis = new java.io.FileInputStream(file)

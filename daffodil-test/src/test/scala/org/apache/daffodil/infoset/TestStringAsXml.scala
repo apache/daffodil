@@ -43,7 +43,7 @@ class TestStringAsXml {
     )
     val dp = pf.onPath("/")
     val schema = if (validatingSchema != null) validatingSchema else dfdlSchemaURI
-    dp.withValidation("xerces", schema)
+    dp.withValidation("xerces", schema.toURL)
 
   }
 

@@ -239,7 +239,7 @@ public class TestAPI {
     org.apache.daffodil.api.Compiler compiler = Daffodil.compiler();
     DataProcessor parser = compiler.reload(input);
     assertNotNull(schemaFile);
-    parser = parser.withValidation("xerces", schemaFile.toURI());
+    parser = parser.withValidation("xerces", schemaFile.toURI().toURL());
     assertNotNull(parser);
   }
 
@@ -788,7 +788,7 @@ public class TestAPI {
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withValidation("xerces", schemaFile.toURI());
+    dp = dp.withValidation("xerces", schemaFile.toURI().toURL());
 
     java.io.File file = getResource("/test/api/myData.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -1352,7 +1352,7 @@ public class TestAPI {
     java.io.File schemaFile = getResource("/test/api/blob.dfdl.xsd");
     ProcessorFactory pf = c.compileFile(schemaFile);
     DataProcessor dp = pf.onPath("/");
-    dp = dp.withValidation("xerces", schemaFile.toURI());
+    dp = dp.withValidation("xerces", schemaFile.toURI().toURL());
 
     byte[] data = new byte[]{0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04};
     ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -1465,7 +1465,7 @@ public class TestAPI {
     URI uri = new URI("/test/api/mySchema1.dfdl.xsd");
     ProcessorFactory pf = c.compileSource(uri);
     DataProcessor dp1 = pf.onPath("/");
-    DataProcessor dp = dp1.withValidation("xerces", getResource(uri.getPath()).toURI());
+    DataProcessor dp = dp1.withValidation("xerces", getResource(uri.getPath()).toURI().toURL());
 
     java.io.File file = getResource("/test/api/myDataBroken.dat");
     java.io.FileInputStream fis = new java.io.FileInputStream(file);
