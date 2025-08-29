@@ -46,6 +46,21 @@ Options:
 USAGE
 }
 
+function set_java_version {
+  # There are a number of standard ways to change the java version. One is to
+  # set JAVA_HOME and PATH, but its possible a build tool could execute
+  # /usr/bin/java* directly and use the wrong version. Another option is to use
+  # alternatives, but that needs slightly different commands for java 8 vs java
+  # 17, so would make this function more complicated. Instead, we just manually
+  # overwrite the java* bin symlinks. This is really only fine because this is
+  # always expected to be run in a container.
+  JAVA_BIN_ROOT="/usr/lib/jvm/java-$1/bin"
+  ln -sf $JAVA_BIN_ROOT/java    /usr/bin/java
+  ln -sf $JAVA_BIN_ROOT/javac   /usr/bin/javac
+  ln -sf $JAVA_BIN_ROOT/javadoc /usr/bin/javadoc
+  ln -sf $JAVA_BIN_ROOT/jar     /usr/bin/jar
+}
+
 # Function to get a non-empty string as input
 # $1 is the prompt to use
 # $2 to $N are passed directly to the read command
@@ -271,6 +286,8 @@ git archive --format=zip --prefix=apache-$PROJECT_REPO-$VERSION-src/ HEAD > $DAF
 
 case $PROJECT_REPO in
   "daffodil")
+    set_java_version 17
+
     if [ "$DRY_RUN" = true ]; then
       SBT_PUBLISH="publishLocalSigned"
     else
@@ -305,9 +322,8 @@ case $PROJECT_REPO in
 
     echo "Installing Site Docs..."
     rm -rf $DAFFODIL_DOCS_DIR
-    mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
-    cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
-    cp -R target/scala-*/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
+    mkdir -p $DAFFODIL_DOCS_DIR/javadoc
+    cp -R target/scala-*/unidoc/* $DAFFODIL_DOC_DIR/javadoc/
     cp target/tunables.md $DAFFODIL_SITE_DIR/site/
 
     echo "Installing Site Tutorials..."
@@ -318,6 +334,8 @@ case $PROJECT_REPO in
     ;;
 
   "daffodil-sbt")
+    set_java_version 1.8.0
+
     if [ "$DRY_RUN" = true ]; then
       SBT_PUBLISH="publishLocalSigned"
     else
@@ -336,6 +354,7 @@ case $PROJECT_REPO in
     ;;
 
   "daffodil-vscode")
+    set_java_version 1.8.0
 
     echo "Building Convenience Binaries..."
     mkdir -p $DAFFODIL_RELEASE_DIR/bin/

@@ -29,6 +29,7 @@ RUN \
     clang \
     git \
     java-1.8.0-devel \
+    java-17-openjdk-devel \
     llvm \
     mxml-devel \
     npm \
