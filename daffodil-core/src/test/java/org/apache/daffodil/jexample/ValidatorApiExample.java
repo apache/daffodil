@@ -87,7 +87,7 @@ public class ValidatorApiExample {
       System.err.println(d.toString());
     }
     DataProcessor dp1 = pf.onPath("/");
-    DataProcessor dp = dp1.withValidation("xerces", schemaFile.toURI());
+    DataProcessor dp = dp1.withValidation("xerces", schemaFile.toURI().toURL());
 
     java.io.InputStream fis = new ByteArrayInputStream("0".getBytes());
     try (InputSourceDataInputStream dis = Daffodil.newInputSourceDataInputStream(fis)) {

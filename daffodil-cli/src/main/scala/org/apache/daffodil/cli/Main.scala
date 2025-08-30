@@ -1051,7 +1051,12 @@ class Main(
           Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
         }
         val (validationKind, validationConfig) = validate
-        Some(processor.withValidation(validationKind, validationConfig.getOrElse(null)))
+        Some(
+          processor.withValidation(
+            validationKind,
+            validationConfig.map(_.toURL).getOrElse(null)
+          )
+        )
       } else {
         None
       }
@@ -1126,7 +1131,7 @@ class Main(
           val (validationKind, validationConfig) = validate
           val processor = processorFactory
             .onPath(path.getOrElse("/"))
-            .withValidation(validationKind, validationConfig.getOrElse(null))
+            .withValidation(validationKind, validationConfig.map(_.toURL).getOrElse(null))
             // needed to access SchemaSetRuntimeData
             .asInstanceOf[DataProcessor]
           if (processor.isError) {

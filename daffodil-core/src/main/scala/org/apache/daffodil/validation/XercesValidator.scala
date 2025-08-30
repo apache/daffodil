@@ -18,7 +18,7 @@
 package org.apache.daffodil.validation
 
 import java.io.IOException
-import java.net.URI
+import java.net.URL
 import java.util.Properties
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
@@ -40,7 +40,7 @@ import org.xml.sax.SAXParseException
  * 
  * Configuration requirements.
  *   <ul>
- *    <li>xerces=schema_file_uri_string</li>
+ *    <li>xerces=schema_file_url_string</li>
  *   </ul>
  */
 class XercesValidatorFactory extends api.validation.ValidatorFactory {
@@ -60,8 +60,8 @@ object XercesValidatorFactory {
           "invalid configuration: xerces property is empty or not defined"
         )
     }
-    val uri = new URI(schemaFile)
-    XercesValidator.fromURI(uri)
+    val url = new URL(schemaFile)
+    XercesValidator.fromURL(url)
   }
 }
 
@@ -132,17 +132,17 @@ object XercesValidator {
   private type XercesValidatorImpl = javax.xml.validation.Validator
   val name = "xerces"
 
-  def fromURI(schemaURI: URI) = new XercesValidator({
+  def fromURL(schemaURL: URL) = new XercesValidator({
     val is =
       try {
-        schemaURI.toURL.openStream()
+        schemaURL.openStream()
       } catch {
         case e: IOException =>
           throw new api.validation.ValidatorInitializationException(e.getMessage)
       }
     val stream = new StreamSource(is)
     stream.setSystemId(
-      schemaURI.toString
+      schemaURL.toString
     ) // must set this so that relative URIs will be created for import/include files.
     stream
   })

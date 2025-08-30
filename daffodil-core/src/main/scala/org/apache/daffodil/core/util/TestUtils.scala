@@ -19,7 +19,7 @@ package org.apache.daffodil.core.util
 
 import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.net.URI
+import java.net.URL
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
@@ -359,7 +359,7 @@ class Fakes private () {
     override def withExternalVariables(
       extVars: java.util.Map[String, String]
     ): DFDL.DataProcessor = this
-    override def withValidation(kind: String, config: URI): DFDL.DataProcessor = this
+    override def withValidation(kind: String, config: URL): DFDL.DataProcessor = this
     override def withDebugger(dbg: api.debugger.Debugger): DFDL.DataProcessor = this
 
     override def newXMLReaderInstance: api.DaffodilParseXMLReader = null
@@ -435,7 +435,7 @@ class StreamParser private (val schema: Node) {
       .onPath("/")
     val schemaTempFile = Files.createTempFile("streamparser", ".test")
     FileUtils.write(schemaTempFile.toFile, schema.toString(), Charset.defaultCharset())
-    val dataproc = dataproc1.withValidation("xerces", schemaTempFile.toUri)
+    val dataproc = dataproc1.withValidation("xerces", schemaTempFile.toUri.toURL)
     // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
     // .withDebugging(true)
     if (dataproc.isError)

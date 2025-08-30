@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import java.io.File
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.net.URI
+import java.net.URL
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.channels.Channels
@@ -137,18 +137,18 @@ class DataProcessor(
    */
   override def clone(): DataProcessor = copy()
 
-  override def withValidation(kind: String, config: URI): api.DataProcessor = {
+  override def withValidation(kind: String, config: URL): api.DataProcessor = {
     val properties = new Properties()
     if (config != null) {
-      val configStr = config.toString
-      if (configStr.endsWith(".conf") || configStr.endsWith(".properties")) {
+      val configPath = config.getPath()
+      if (configPath.endsWith(".conf") || configPath.endsWith(".properties")) {
         try {
-          properties.load(config.toURL.openStream())
+          properties.load(config.openStream())
         } catch {
           case e: Exception => throw new ValidatorInitializationException(e.getMessage)
         }
       } else {
-        properties.setProperty(kind, configStr)
+        properties.setProperty(kind, config.toString())
       }
     }
     val v = Validators.get(kind).make(properties)

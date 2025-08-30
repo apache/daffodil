@@ -19,6 +19,7 @@ package org.apache.daffodil.validation.schematron
 
 import java.io.InputStream
 import java.net.URI
+import java.net.URL
 import java.util.Properties
 
 import org.apache.daffodil.api
@@ -36,14 +37,14 @@ import net.sf.saxon.TransformerFactoryImpl
  * Configuration
  *
  * <ul>
- *  <li>schematron=uri_string_to_schematron_file</li>
- *  <li>schematron.svrl.file=uri_string_to_output_file</li>
+ *  <li>schematron=url_string_to_schematron_file</li>
+ *  <li>schematron.svrl.file=url_string_to_output_file</li>
  * </ul>
  */
 object SchematronValidatorFactory {
   def makeValidator(config: Properties): SchematronValidator = {
     val schPathValue = config.getProperty(SchematronValidator.name)
-    val schUri = new URI({
+    val schUrl = new URL({
       if (!Misc.isNullOrBlank(schPathValue)) schPathValue
       else
         throw new api.validation.ValidatorInitializationException(
@@ -52,11 +53,11 @@ object SchematronValidatorFactory {
     })
     val schStream =
       try {
-        schUri.toURL.openStream()
+        schUrl.openStream()
       } catch {
         case _: Exception =>
           throw new api.validation.ValidatorInitializationException(
-            s"schematron resource not found: $schUri"
+            s"schematron resource not found: $schUrl"
           )
       }
     val svrlOutPath: Option[URI] = {
@@ -66,7 +67,7 @@ object SchematronValidatorFactory {
       else None
     }
 
-    makeValidator(schStream, schUri.toString, SchSource.from(schUri), svrlOutPath)
+    makeValidator(schStream, schUrl.toString, SchSource.from(schUrl), svrlOutPath)
   }
 
   def makeValidator(
