@@ -249,7 +249,9 @@ class TestUnicodeErrorTolerance {
     )
     val input = new ByteArrayInputStream(inBuf);
     val e =
-      intercept[MalformedInputException] { // fails to convert because there is no possible surrogate-pair rep for this.
+      intercept[
+        MalformedInputException
+      ] { // fails to convert because there is no possible surrogate-pair rep for this.
         Converter.parse(input, decoder)
       }
     assertEquals(1, e.getInputLength())
