@@ -52,8 +52,8 @@ jobs:
           gpg_signing_key: ${{ secrets.DAFFODIL_GPG_SECRET_KEY }}
           svn_username: ${{ secrets.DAFFODIL_SVN_DEV_USERNAME }}
           svn_password: ${{ secrets.DAFFODIL_SVN_DEV_PASSWORD }}
-          nexus_username: ${{ secrets.NEXUS_USER }}
-          nexus_password: ${{ secrets.NEXUS_PW }}
+          nexus_username: ${{ secrets.NEXUS_STAGE_DEPLOYER_USER }}
+          nexus_password: ${{ secrets.NEXUS_STAGE_DEPLOYER_PW }}
           publish: true
 
       - name: Install Dependencies
