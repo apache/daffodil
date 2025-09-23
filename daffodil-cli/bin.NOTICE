@@ -126,15 +126,6 @@ The following NOTICE information applies to binary components distributed with t
       Apache Software Foundation that were originally developed at iClick, Inc.,
       software copyright (c) 1999.
 
-- xml-apis.xml-apis-<VERSION>.jar
-  Apache XML Commons XML APIs
-  Copyright 1999-2009 The Apache Software Foundation.
-
-  Portions of this software were originally based on the following:
-    - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
-    - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
-    - software copyright (c) 2000 World Wide Web Consortium, http://www.w3.org
-
 - xml-resolver.xml-resolver-<VERSION>.jar
   Apache XML Commons Resolver
   Copyright 2006 The Apache Software Foundation.
