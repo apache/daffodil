@@ -112,7 +112,13 @@
       nillable="true" />
     <xs:element name="pl_text_string_bin_bits" type="xs:string" dfdl:ref="prefixedBinBits"
      nillable="true" />
- 
+
+    <xs:simpleType name="OneBytePrefixLength"
+      dfdl:lengthKind="explicit"
+      dfdl:length="1">
+      <xs:restriction base="xs:integer" />
+    </xs:simpleType>
+
     <xs:element name="pl_text_int_txt_bytes" type="xs:int" dfdl:ref="prefixedTxtByte" />
     <xs:element name="pl_text_int_txt_bits" type="xs:int" dfdl:ref="prefixedTxtBits" />
     <xs:element name="pl_text_int_txt_chars" type="xs:int" dfdl:ref="prefixedTxtChar"
@@ -154,6 +160,12 @@
       dfdl:prefixIncludesPrefixLength="yes" />
     <xs:element name="pl_text_int_txt_chars_includes" type="xs:int" dfdl:ref="prefixedTxtChar"
       dfdl:prefixIncludesPrefixLength="yes" dfdlx:parseUnparsePolicy="parseOnly" />
+    <xs:element name="pl_text_string_text_chars_doesnt_include" type="xs:string"
+      dfdl:lengthUnits="characters"
+      dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="OneBytePrefixLength"
+      dfdl:prefixIncludesPrefixLength="no"
+      dfdlx:parseUnparsePolicy="parseOnly" />
 
     <xs:element name="pl_text_int_bin_bytes_includes" type="xs:int" dfdl:ref="prefixedBinByte"
       dfdl:prefixIncludesPrefixLength="yes" />
@@ -628,6 +640,19 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pl_text_string_txt_chars_includes>ábcde</pl_text_string_txt_chars_includes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_lu_chars" roundTrip="false"
+    root="pl_text_string_text_chars_doesnt_include"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">3ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pl_text_string_text_chars_doesnt_include>ABC</pl_text_string_text_chars_doesnt_include>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
