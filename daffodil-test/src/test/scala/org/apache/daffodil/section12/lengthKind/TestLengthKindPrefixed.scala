@@ -37,6 +37,7 @@ class TestLengthKindPrefixed extends TdmlTests {
   @Test def pl_text_string_txt_bytes = test
   @Test def pl_text_string_txt_bits = test
   @Test def pl_text_string_txt_chars = test
+  @Test def pl_text_string_lu_chars = test
   @Test def pl_text_string_txt_bytes_includes = test
   @Test def pl_text_string_txt_bits_includes = test
   @Test def pl_text_string_txt_chars_includes = test
