@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
@@ -87,7 +88,8 @@ trait PackedBinaryLengthCheck {
 
 abstract class PackedBinaryDecimalBaseParser(
   override val context: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
+  binaryDecimalVirtualPoint: Int,
+  optDecimalSigned: Option[YesNo]
 ) extends PrimParser
   with PackedBinaryConversion[JBigDecimal]
   with PackedBinaryLengthCheck {
@@ -111,6 +113,17 @@ abstract class PackedBinaryDecimalBaseParser(
 
     try {
       val dec = toPrimType(context, dis.getByteArray(nBits, start))
+      if (
+        dec.getBigDecimal
+          .signum() == -1 && optDecimalSigned.isDefined && optDecimalSigned.get == YesNo.No
+      ) {
+        PE(
+          start,
+          "Packed binary decimal value is negative (%s), but property dfdl:decimalSigned is no.",
+          dec.value.toString
+        )
+        return
+      }
       start.simpleElement.setDataValue(dec)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
@@ -207,7 +220,8 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
 ) extends StringDelimitedParser(
     e,
     TextJustificationType.None,
@@ -248,6 +262,14 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
       } else {
         try {
           val num = toPrimType(e, fieldBytes)
+          if (num.getBigDecimal.signum() == -1 && decimalSigned == YesNo.No) {
+            PE(
+              state,
+              "Packed binary decimal value is negative (%s), but property dfdl:decimalSigned is no.",
+              num.value.toString
+            )
+            return
+          }
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>

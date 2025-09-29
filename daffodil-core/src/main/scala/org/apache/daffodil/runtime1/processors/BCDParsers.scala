@@ -29,7 +29,7 @@ class BCDDecimalKnownLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthInBits: Int
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, None)
   with HasKnownLengthInBits {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
@@ -42,7 +42,7 @@ class BCDDecimalRuntimeLengthParser(
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
   val lengthUnits: LengthUnits
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, None)
   with HasRuntimeExplicitLength {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
@@ -53,7 +53,7 @@ class BCDDecimalRuntimeLengthParser(
 class BCDDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, None)
   with BitLengthFromBitLimitMixin {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
