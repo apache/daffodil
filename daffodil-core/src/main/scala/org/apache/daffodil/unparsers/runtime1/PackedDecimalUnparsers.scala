@@ -21,6 +21,7 @@ import java.lang.Long as JLong
 import java.math.BigInteger as JBigInteger
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.lib.util.PackedSignCodes
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -83,8 +84,9 @@ final class PackedIntegerMinimumLengthUnparser(
 abstract class PackedDecimalBaseUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes
-) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  packedSignCodes: PackedSignCodes,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint, Some(decimalSigned)) {
 
   override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
     DecimalUtils.packedFromBigInteger(bigInt, nBits, packedSignCodes)
@@ -94,8 +96,14 @@ class PackedDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
-  override val lengthInBits: Int
-) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
+  override val lengthInBits: Int,
+  decimalSigned: YesNo
+) extends PackedDecimalBaseUnparser(
+    e,
+    binaryDecimalVirtualPoint,
+    packedSignCodes,
+    decimalSigned
+  )
   with HasKnownLengthInBits {}
 
 class PackedDecimalRuntimeLengthUnparser(
@@ -103,8 +111,14 @@ class PackedDecimalRuntimeLengthUnparser(
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits
-) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
+  val lengthUnits: LengthUnits,
+  decimalSigned: YesNo
+) extends PackedDecimalBaseUnparser(
+    e,
+    binaryDecimalVirtualPoint,
+    packedSignCodes,
+    decimalSigned
+  )
   with HasRuntimeExplicitLength {
 
   override def runtimeDependencies = Vector(lengthEv)
@@ -113,8 +127,14 @@ class PackedDecimalRuntimeLengthUnparser(
 final class PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes
-) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
+  packedSignCodes: PackedSignCodes,
+  decimalSigned: YesNo
+) extends PackedDecimalBaseUnparser(
+    e,
+    binaryDecimalVirtualPoint,
+    packedSignCodes,
+    decimalSigned
+  ) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
@@ -122,8 +142,14 @@ final class PackedDecimalDelimitedUnparser(
 final class PackedDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes
-) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
+  packedSignCodes: PackedSignCodes,
+  decimalSigned: YesNo
+) extends PackedDecimalBaseUnparser(
+    e,
+    binaryDecimalVirtualPoint,
+    packedSignCodes,
+    decimalSigned
+  ) {
 
   override def runtimeDependencies = Vector()
 

@@ -91,7 +91,8 @@ class PackedDecimalRuntimeLength(val e: ElementBase, packedSignCodes: PackedSign
     e.binaryDecimalVirtualPoint,
     packedSignCodes,
     e.lengthEv,
-    e.lengthUnits
+    e.lengthUnits,
+    e.decimalSigned
   )
 
   override lazy val unparser: Unparser = new PackedDecimalRuntimeLengthUnparser(
@@ -99,7 +100,8 @@ class PackedDecimalRuntimeLength(val e: ElementBase, packedSignCodes: PackedSign
     e.binaryDecimalVirtualPoint,
     packedSignCodes,
     e.lengthEv,
-    e.lengthUnits
+    e.lengthUnits,
+    e.decimalSigned
   )
 
 }
@@ -113,14 +115,16 @@ class PackedDecimalKnownLength(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     packedSignCodes,
-    lengthInBits.toInt
+    lengthInBits.toInt,
+    e.decimalSigned
   )
 
   override lazy val unparser: Unparser = new PackedDecimalKnownLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     packedSignCodes,
-    lengthInBits.toInt
+    lengthInBits.toInt,
+    e.decimalSigned
   )
 }
 
@@ -130,12 +134,14 @@ class PackedDecimalPrefixedLength(val e: ElementBase, packedSignCodes: PackedSig
   override lazy val parser = new PackedDecimalBitLimitLengthParser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    packedSignCodes
+    packedSignCodes,
+    e.decimalSigned
   )
 
   override lazy val unparser: Unparser = new PackedDecimalMinimumLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    packedSignCodes
+    packedSignCodes,
+    e.decimalSigned
   )
 }

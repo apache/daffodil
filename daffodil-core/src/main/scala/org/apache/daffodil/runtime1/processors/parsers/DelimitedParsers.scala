@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.PackedSignCodes
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -226,13 +227,15 @@ class PackedDecimalDelimitedParser(
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes
+  packedSignCodes: PackedSignCodes,
+  decimalSigned: YesNo
 ) extends PackedBinaryDecimalDelimitedBaseParser(
     erd,
     textParser,
     fieldDFAEv,
     isDelimRequired,
-    binaryDecimalVirtualPoint
+    binaryDecimalVirtualPoint,
+    decimalSigned
   ) {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
@@ -256,13 +259,15 @@ class BCDDecimalDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
 ) extends PackedBinaryDecimalDelimitedBaseParser(
     erd,
     textParser,
     fieldDFAEv,
     isDelimRequired,
-    binaryDecimalVirtualPoint
+    binaryDecimalVirtualPoint,
+    decimalSigned
   ) {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
@@ -287,13 +292,15 @@ class IBM4690PackedDecimalDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
 ) extends PackedBinaryDecimalDelimitedBaseParser(
     erd,
     textParser,
     fieldDFAEv,
     isDelimRequired,
-    binaryDecimalVirtualPoint
+    binaryDecimalVirtualPoint,
+    decimalSigned
   ) {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
