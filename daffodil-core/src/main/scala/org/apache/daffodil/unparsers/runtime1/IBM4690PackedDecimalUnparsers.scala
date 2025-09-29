@@ -21,6 +21,7 @@ import java.lang.Long as JLong
 import java.math.BigInteger as JBigInteger
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
@@ -75,8 +76,9 @@ final class IBM4690PackedIntegerMinimumLengthUnparser(e: ElementRuntimeData)
 
 abstract class IBM4690PackedDecimalBaseUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
-) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint, Some(decimalSigned)) {
 
   override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
     DecimalUtils.ibm4690FromBigInteger(bigInt, nBits)
@@ -85,16 +87,18 @@ abstract class IBM4690PackedDecimalBaseUnparser(
 class IBM4690PackedDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  override val lengthInBits: Int
-) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  override val lengthInBits: Int,
+  decimalSigned: YesNo
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, decimalSigned)
   with HasKnownLengthInBits {}
 
 class IBM4690PackedDecimalRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits
-) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  val lengthUnits: LengthUnits,
+  decimalSigned: YesNo
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, decimalSigned)
   with HasRuntimeExplicitLength {
 
   override def runtimeDependencies = Vector(lengthEv)
@@ -102,16 +106,18 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
 
 final class IBM4690PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
-) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, decimalSigned) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
 final class IBM4690PackedDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
-) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, decimalSigned) {
 
   override def runtimeDependencies = Vector()
 

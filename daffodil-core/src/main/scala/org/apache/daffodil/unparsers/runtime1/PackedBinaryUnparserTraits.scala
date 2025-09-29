@@ -24,6 +24,7 @@ import java.math.BigInteger as JBigInteger
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
@@ -87,7 +88,8 @@ abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData
 
 abstract class PackedBinaryDecimalBaseUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: Option[YesNo]
 ) extends PackedBinaryBaseUnparser(e) {
 
   override def getNumberToPut(ustate: UState): JNumber = {
@@ -98,6 +100,23 @@ abstract class PackedBinaryDecimalBaseUnparser(
         "Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d",
         bigDec,
         binaryDecimalVirtualPoint
+      )
+    }
+    if (bigDec.signum == -1 && decimalSigned.isEmpty) {
+      UnparseError(
+        One(e.schemaFileLocation),
+        Nope,
+        "Signed numbers with dfdl:binaryNumberRep 'bcd' are always only positive. %s cannot be negative, but value was %s",
+        context.dpathElementCompileInfo.namedQName.toPrettyString,
+        bigDec.toString
+      )
+    }
+    if (bigDec.signum() == -1 && decimalSigned.isDefined && decimalSigned.get == YesNo.No) {
+      UnparseError(
+        One(e.schemaFileLocation),
+        Nope,
+        "Packed binary decimal value is negative (%s), but property dfdl:decimalSigned is no",
+        bigDec.toString
       )
     }
     bigDec.unscaledValue

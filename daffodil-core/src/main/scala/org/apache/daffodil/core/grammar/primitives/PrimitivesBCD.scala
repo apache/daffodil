@@ -93,8 +93,14 @@ class BCDDecimalKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
 class BCDDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser =
-    new BCDDecimalBitLimitLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint)
+    new BCDDecimalBitLimitLengthParser(
+      e.elementRuntimeData,
+      e.binaryDecimalVirtualPoint
+    )
 
   override lazy val unparser: Unparser =
-    new BCDDecimalMinimumLengthUnparser(e.elementRuntimeData, e.binaryDecimalVirtualPoint)
+    new BCDDecimalMinimumLengthUnparser(
+      e.elementRuntimeData,
+      e.binaryDecimalVirtualPoint
+    )
 }

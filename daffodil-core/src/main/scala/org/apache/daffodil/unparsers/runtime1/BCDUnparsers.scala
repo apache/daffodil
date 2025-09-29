@@ -70,7 +70,7 @@ final class BCDIntegerMinimumLengthUnparser(e: ElementRuntimeData)
 }
 
 abstract class BCDDecimalBaseUnparser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
-  extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint, None) {
 
   override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
     DecimalUtils.bcdFromBigInteger(bigInt, nBits)

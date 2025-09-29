@@ -21,6 +21,7 @@ import java.lang.Long as JLong
 import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
@@ -28,8 +29,9 @@ import org.apache.daffodil.runtime1.processors.Evaluatable
 class IBM4690PackedDecimalKnownLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  val lengthInBits: Int
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+  val lengthInBits: Int,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, Some(decimalSigned))
   with HasKnownLengthInBits {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
@@ -41,8 +43,9 @@ class IBM4690PackedDecimalRuntimeLengthParser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+  val lengthUnits: LengthUnits,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, Some(decimalSigned))
   with HasRuntimeExplicitLength {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
@@ -52,8 +55,9 @@ class IBM4690PackedDecimalRuntimeLengthParser(
 
 class IBM4690PackedDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, Some(decimalSigned))
   with BitLengthFromBitLimitMixin {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
