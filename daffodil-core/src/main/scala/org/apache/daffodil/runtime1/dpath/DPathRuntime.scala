@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.Number as JNumber
 import scala.collection.immutable.ArraySeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
@@ -31,6 +30,7 @@ import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
@@ -288,10 +288,10 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
   override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     left.run(dstate)
-    val leftValue = dstate.currentValue.getNumber
+    val leftValue = dstate.currentValue.getNonNullable
     dstate.setCurrentNode(savedNode)
     right.run(dstate)
-    val rightValue = dstate.currentValue.getNumber
+    val rightValue = dstate.currentValue.getNonNullable
     val result = nop.operate(leftValue, rightValue)
     dstate.setCurrentValue(result)
   }
@@ -299,11 +299,7 @@ case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledD
 
 trait NumericOp {
 
-  /**
-   * It is such a pain that there is no scala.math.Number base class above
-   * all the numeric types.
-   */
-  def operate(v1: JNumber, v2: JNumber): JNumber
+  def operate(v1: DataValuePrimitive, v2: DataValuePrimitive): DataValueNumber
 }
 
 abstract class Converter extends RecipeOp {

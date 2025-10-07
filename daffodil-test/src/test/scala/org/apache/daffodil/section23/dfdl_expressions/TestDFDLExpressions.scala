@@ -404,6 +404,18 @@ class TestDFDLExpressions extends TdmlTests {
   @Test def hexBinaryComparison_05 = test
 
   @Test def add01 = test
+  @Test def add02 = test
+  @Test def add03 = test
+  @Test def add04 = test
+
+  @Test def mul01 = test
+  @Test def mul02 = test
+  @Test def mul03 = test
+
+  @Test def mod01 = test
+  @Test def mod02 = test
+  @Test def mod03 = test
+  @Test def mod04 = test
 
   // DFDL-1617 - should detect errors due to query-style expressions
   @Test def query_style_01 = test

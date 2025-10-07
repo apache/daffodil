@@ -90,49 +90,68 @@ object NodeInfoUtils {
     Numeric.Kind // second result is generalized result type
   ) = {
 
-    /*
-     * Adjust for the Decimal result type when div/idiv is used
-     */
-    def divResult(resultType: NodeInfo.Numeric.Kind) = resultType match {
-      case ArrayIndex => ArrayIndex
-      case _: Decimal.Kind => Decimal
+    // When doing arithmetic, we first find the least upper bound of the left and right arg
+    // types. If the least upper bound can fit into a long, we promote both args to a long,
+    // which reduces the likelihood of accidental overflow/underflow during intermediate
+    // arithmetic operations, especially with smaller types like xs:byte. The long result will
+    // likely need to be downcast to the final result type at the end of the expression, at
+    // which point we check for overflow/underflow errors.
+    val lub = NodeInfoUtils.typeLeastUpperBound(leftArgType, rightArgType)
+    val argType = lub match {
+      case ArrayIndex => Long
+      case SignedNumeric => Decimal // lub of float/double and other types
+      case Decimal => Decimal
       case Double => Double
       case Float => Float
-      case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
+      case _: Long.Kind => Long
+      case _: UnsignedInt.Kind => Long
+      case _: Numeric.Kind => Integer
+      // $COVERAGE-OFF$
+      case _ =>
+        Assert.invariantFailed(
+          s"least upper bound of $leftArgType and $rightArgType was not a numeric: $lub"
+        )
+      // $COVERAGE-ON$
     }
 
-    def idivResult(resultType: NodeInfo.Numeric.Kind) = resultType match {
-      case Decimal => Integer
-      case Integer => Integer
-      case Double => Long
-      case Long => Long
-      case Float => Int
-      case Int => Int
-      case Short => Short
-      case ArrayIndex => ArrayIndex
-      case _ => Assert.usageError("Unsupported return type: %s".format(resultType))
+    // Determine the return type of the numeric operation.
+    //
+    // Division returns either Decimal, Double, or Float. Note that we return Double when the
+    // converged arg type is Long to ensure reasonable precision and performance. We avoid using
+    // Decimal since that has additional overhead that we try to avoid unless a schema
+    // explicitly uses larger Decimal/Integer/etc types.
+    //
+    // Integer division returns Integer or Long, again preferring Long for performance reasons
+    // unless a schema explicitly uses larger types.
+    //
+    // All other numeric operations return the same type as the converged args
+    val resultType = op match {
+      case "div" =>
+        argType match {
+          case Decimal => Decimal
+          case Integer => Decimal
+          case Double => Double
+          case Float => Float
+          case Long => Double
+          // $COVERAGE-OFF$
+          case _ => Assert.invariantFailed(s"unexpected arg type: $argType")
+          // $COVERAGE-ON$
+        }
+      case "idiv" =>
+        argType match {
+          case Decimal => Integer
+          case Integer => Integer
+          case Double => Long
+          case Float => Long
+          case Long => Long
+          // $COVERAGE-OFF$
+          case _ => Assert.invariantFailed(s"unexpected arg type: $argType")
+          // $COVERAGE-ON$
+        }
+      case _ => argType
     }
 
-    val (argType, resultType) = {
-      val lub = NodeInfoUtils.typeLeastUpperBound(leftArgType, rightArgType)
-      //
-      // For each abstract type that could be the least upper bound of the two
-      // arg types, we must pick a concrete type to convert everything into.
-      val lubImplementationType = lub match {
-        case SignedNumeric => NodeInfo.Double
-        case _ => lub
-      }
-      (lubImplementationType, lubImplementationType)
-    } match {
-      case (argType: Numeric.Kind, resultType: Numeric.Kind) => (argType, resultType)
-      case x => Assert.invariantFailed(s"Expected Numeric.Kind. Found ${x.getClass}")
-    }
-    val res = op match {
-      case "div" => (argType, divResult(resultType))
-      case "idiv" => (argType, idivResult(resultType))
-      case _ => (argType, resultType)
-    }
-    res
+    (argType, resultType)
   }
 
   def typeLeastUpperBound(left: NodeInfo.Kind, right: NodeInfo.Kind): NodeInfo.Kind = {
