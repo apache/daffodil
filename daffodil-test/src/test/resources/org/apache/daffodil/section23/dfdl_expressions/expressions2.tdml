@@ -218,7 +218,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>If-expression branches must have similar types</tdml:error>
-      <tdml:error>Double</tdml:error>
+      <tdml:error>Decimal</tdml:error>
       <tdml:error>String</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

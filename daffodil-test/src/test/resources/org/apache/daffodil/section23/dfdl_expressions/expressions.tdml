@@ -7390,7 +7390,7 @@ blastoff
     <xs:element name="div20" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float('INF') }" />
     <xs:element name="div21" type="xs:double" dfdl:inputValueCalc="{ 90.0 div 1234567.0 }" />
     <xs:element name="div22" type="xs:decimal" dfdl:inputValueCalc="{ (9 * xs:long(5)) div 1600 }" />
-    <xs:element name="div23" type="xs:double" dfdl:inputValueCalc="{ (9 * xs:long(5)) div 1600 }" />
+    <xs:element name="div23" type="xs:double" dfdl:inputValueCalc="{ (9 * xs:decimal(5)) div 1600 }" />
     <xs:element name="div24" type="xs:float" dfdl:inputValueCalc="{ (xs:int(5)) div xs:int(3) }" />
 
     <xs:element name="idiv01" type="xs:int" dfdl:inputValueCalc="{ xs:double(5) idiv xs:double(2) }" />
@@ -7415,6 +7415,18 @@ blastoff
     <xs:element name="idiv20" type="xs:int" dfdl:inputValueCalc="{ xs:float(5) idiv xs:float('INF') }" />
 
     <xs:element name="add01" type="xs:int" dfdl:inputValueCalc="{ xs:unsignedInt(5) + (-1) }" />
+    <xs:element name="add02" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(5) * xs:unsignedByte(2) }" />
+    <xs:element name="add03" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(255) + xs:unsignedByte(1) }" />
+    <xs:element name="add04" type="xs:unsignedByte" dfdl:inputValueCalc="{ xs:unsignedByte(255) + xs:unsignedByte(1) - xs:unsignedByte(1) }" />
+
+    <xs:element name="mul01" type="xs:long" dfdl:inputValueCalc="{ xs:unsignedByte(5) * xs:unsignedByte(3) }" />
+    <xs:element name="mul02" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(5.0) * xs:decimal(3) }" />
+    <xs:element name="mul03" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) * xs:double(3) }" />
+
+    <xs:element name="mod01" type="xs:long" dfdl:inputValueCalc="{ xs:int(10) mod xs:int(3) }" />
+    <xs:element name="mod02" type="xs:double" dfdl:inputValueCalc="{ xs:double(10.5) mod xs:double(3) }" />
+    <xs:element name="mod03" type="xs:float" dfdl:inputValueCalc="{ xs:float(10.5) mod xs:float(3) }" />
+    <xs:element name="mod04" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(10.5) mod xs:decimal(3) }" />
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="div01" root="div01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
@@ -7561,7 +7573,7 @@ blastoff
     <tdml:document></tdml:document>
       <tdml:errors>
         <tdml:error>result type</tdml:error>
-        <tdml:error>Decimal</tdml:error>
+        <tdml:error>Double</tdml:error>
         <tdml:error>must be manually cast</tdml:error>
         <tdml:error>Float</tdml:error>
       </tdml:errors>
@@ -7700,6 +7712,62 @@ blastoff
   <tdml:parserTestCase name="add01" root="add01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><add01>4</add01></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="add02" root="add02" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><add02>10</add02></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="add03" root="add03" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>256</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="add04" root="add04" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><add04>255</add04></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mul01" root="mul01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mul01>15</mul01></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mul02" root="mul02" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mul02>15.0</mul02></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mul03" root="mul03" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mul03>15.0</mul03></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mod01" root="mod01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mod01>1</mod01></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mod02" root="mod02" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mod02>1.5</mod02></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mod03" root="mod03" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mod03>1.5</mod03></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="mod04" root="mod04" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><mod04>1.5</mod04></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="DFDLCheckRange">

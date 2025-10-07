@@ -331,75 +331,12 @@ trait NumericExpression extends BinaryExpMixin {
       case ("idiv", Integer) => IDivInteger
       case ("mod", Integer) => ModInteger
 
-      case ("+", NonNegativeInteger) => PlusNonNegativeInteger
-      case ("-", NonNegativeInteger) => MinusNonNegativeInteger
-      case ("*", NonNegativeInteger) => TimesNonNegativeInteger
-      case ("div", NonNegativeInteger) => DivNonNegativeInteger
-      case ("idiv", NonNegativeInteger) => IDivNonNegativeInteger
-      case ("mod", NonNegativeInteger) => ModNonNegativeInteger
-
-      case ("+", UnsignedLong) => PlusUnsignedLong
-      case ("-", UnsignedLong) => MinusUnsignedLong
-      case ("*", UnsignedLong) => TimesUnsignedLong
-      case ("div", UnsignedLong) => DivUnsignedLong
-      case ("idiv", UnsignedLong) => IDivUnsignedLong
-      case ("mod", UnsignedLong) => ModUnsignedLong
-
       case ("+", Long) => PlusLong
       case ("-", Long) => MinusLong
       case ("*", Long) => TimesLong
       case ("div", Long) => DivLong
       case ("idiv", Long) => IDivLong
       case ("mod", Long) => ModLong
-
-      case ("+", UnsignedInt) => PlusUnsignedInt
-      case ("-", UnsignedInt) => MinusUnsignedInt
-      case ("*", UnsignedInt) => TimesUnsignedInt
-      case ("div", UnsignedInt) => DivUnsignedInt
-      case ("idiv", UnsignedInt) => IDivUnsignedInt
-      case ("mod", UnsignedInt) => ModUnsignedInt
-
-      case ("+", ArrayIndex) => PlusUnsignedInt
-      case ("-", ArrayIndex) => MinusUnsignedInt
-      case ("*", ArrayIndex) => TimesUnsignedInt
-      case ("div", ArrayIndex) => DivUnsignedInt
-      case ("idiv", ArrayIndex) => IDivUnsignedInt
-      case ("mod", ArrayIndex) => ModUnsignedInt
-
-      case ("+", Int) => PlusInt
-      case ("-", Int) => MinusInt
-      case ("*", Int) => TimesInt
-      case ("div", Int) => DivInt
-      case ("idiv", Int) => IDivInt
-      case ("mod", Int) => ModInt
-
-      case ("+", UnsignedShort) => PlusUnsignedShort
-      case ("-", UnsignedShort) => MinusUnsignedShort
-      case ("*", UnsignedShort) => TimesUnsignedShort
-      case ("div", UnsignedShort) => DivUnsignedShort
-      case ("idiv", UnsignedShort) => IDivUnsignedShort
-      case ("mod", UnsignedShort) => ModUnsignedShort
-
-      case ("+", Short) => PlusShort
-      case ("-", Short) => MinusShort
-      case ("*", Short) => TimesShort
-      case ("div", Short) => DivShort
-      case ("idiv", Short) => IDivShort
-      case ("mod", Short) => ModShort
-
-      case ("+", UnsignedByte) => PlusUnsignedByte
-      case ("-", UnsignedByte) => MinusUnsignedByte
-      case ("*", UnsignedByte) => TimesUnsignedByte
-      case ("div", UnsignedByte) => DivUnsignedByte
-      case ("idiv", UnsignedByte) => IDivUnsignedByte
-      case ("mod", UnsignedByte) => ModUnsignedByte
-
-      case ("+", Byte) => PlusByte
-      case ("-", Byte) => MinusByte
-      case ("*", Byte) => TimesByte
-      case ("div", Byte) => DivByte
-      case ("idiv", Byte) => IDivByte
-      case ("mod", Byte) => ModByte
 
       case ("+", Float) => PlusFloat
       case ("-", Float) => MinusFloat
@@ -414,7 +351,15 @@ trait NumericExpression extends BinaryExpMixin {
       case ("div", Double) => DivDouble
       case ("idiv", Double) => IDivDouble
       case ("mod", Double) => ModDouble
-      case _ => subsetError("Unsupported operation '%s' on type %s.", op, convergedArgType)
+
+      // Note that we intentionally do not match on all possible types here. Numeric operations
+      // should always converge/are promoted to one of the above types
+      // $COVERAGE-OFF$
+      case _ =>
+        Assert.invariantFailed(
+          "Numeric operands did not converge to a supported type: " + convergedArgType
+        )
+      // $COVERAGE-ON$
     }
   }
 
@@ -572,7 +517,7 @@ case class IfExpression(ifthenelse: List[Expression]) extends ExpressionLists(if
   override lazy val inherentType = {
     (thenPart.inherentType, elsePart.inherentType) match {
       case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
-        NodeInfoUtils.generalizeArgAndResultTypesForNumericOp(op, left, right)._2
+        NodeInfoUtils.typeLeastUpperBound(left, right)
       case (left, right) if left == right => left
       case (left, right) if right == NodeInfo.Nothing => left
       case (left, right) if left == NodeInfo.Nothing => right
