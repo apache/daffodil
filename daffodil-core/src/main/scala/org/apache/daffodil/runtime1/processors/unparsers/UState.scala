@@ -753,7 +753,6 @@ object UState {
     inputter: InfosetInputter,
     areDebugging: Boolean
   ): UStateMain = {
-    Assert.invariant(inputter.isInitialized)
 
     /**
      * This is a full deep copy as variableMap is mutable. Reusing

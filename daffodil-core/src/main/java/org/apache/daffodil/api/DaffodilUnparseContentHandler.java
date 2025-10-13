@@ -29,11 +29,18 @@ import org.xml.sax.Locator;
 public interface DaffodilUnparseContentHandler extends ContentHandler {
   /**
    * Returns the result of the SAX unparse containing diagnostic information. In the case of an
-   * DaffodilUnhandledSAXException, this will return null.
+   * DaffodilUnhandledSAXException, this will return null. The {@link finish()} method should be
+   * called prior to calling this function.
    *
    * @return result of the SAX unparse containing diagnostic information
    */
   UnparseResult getUnparseResult();
+
+  /**
+   * Ensure calls to {@link getUnparseResult} will return a value and clean up internal state. This
+   * should be called after XMLReader parsing has ended, even if the XMLReader throws an exception.
+   */
+  void finish();
 
   void setDocumentLocator(Locator locator);
 

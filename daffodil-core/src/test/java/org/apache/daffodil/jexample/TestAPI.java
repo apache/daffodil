@@ -954,6 +954,8 @@ public class TestAPI {
         unparseXMLReader.parse(new org.xml.sax.InputSource(is));
       } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
         fail("Error: " + e);
+      } finally {
+        unparseContentHandler.finish();
       }
 
       UnparseResult saxUr = unparseContentHandler.getUnparseResult();
@@ -1075,6 +1077,8 @@ public class TestAPI {
       // do nothing; UnparseError is handled below while we don't expect Unhandled in this test
     } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
       fail("Error: " + e);
+    } finally {
+      unparseContentHandler.finish();
     }
 
     UnparseResult res = unparseContentHandler.getUnparseResult();

@@ -64,6 +64,7 @@ class TestSAXParseUnparseAPI {
     val baisUnparse = new ByteArrayInputStream(baosParse.toByteArray)
     val inputSourceUnparse = new InputSource(baisUnparse)
     unparseXMLReader.parse(inputSourceUnparse)
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     val unparsedData = baosUnparse.toString
     assertTrue(!ur.isError)
@@ -91,6 +92,7 @@ class TestSAXParseUnparseAPI {
     val baisUnparse = new ByteArrayInputStream(parsedData.toString.getBytes)
     val inputSourceUnparse = new InputSource(baisUnparse)
     unparseXMLReader.parse(inputSourceUnparse)
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     val unparsedData = baosUnparse.toString
     assertTrue(!ur.isError)
@@ -110,6 +112,7 @@ class TestSAXParseUnparseAPI {
     val baisUnparse = new ByteArrayInputStream(testInfosetString.getBytes)
     val inputSourceUnparse = new InputSource(baisUnparse)
     unparseXMLReader.parse(inputSourceUnparse)
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     val unparsedData = baosUnparse.toString
     assertTrue(!ur.isError)
@@ -143,6 +146,7 @@ class TestSAXParseUnparseAPI {
     val baisUnparse = new ByteArrayInputStream(testInfosetString.getBytes)
     val inputSourceUnparse = new InputSource(baisUnparse)
     unparseXMLReader.parse(inputSourceUnparse)
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     val unparsedData = baosUnparse.toString
     assertTrue(!ur.isError)

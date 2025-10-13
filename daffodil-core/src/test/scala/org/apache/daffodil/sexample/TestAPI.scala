@@ -956,6 +956,7 @@ class TestAPI {
       // kickstart unparse
       unparseXMLReader.parse(new org.xml.sax.InputSource(is))
 
+      unparseContentHandler.finish()
       val saxUr = unparseContentHandler.getUnparseResult
       wbc.close()
 
@@ -1050,6 +1051,7 @@ class TestAPI {
       case _: DaffodilUnhandledSAXException => // do nothing; we don't expect this in this test
     }
 
+    unparseContentHandler.finish()
     val res = unparseContentHandler.getUnparseResult
     val err = res.isError()
     assertTrue(err)
