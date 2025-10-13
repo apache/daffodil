@@ -350,10 +350,12 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
         xmlReader.parse(new InputSource(saxInputStream))
       } catch {
         case e: DaffodilUnhandledSAXException =>
-          // In the case of an unexpected errors, catch and throw as TDMLException
+          // In the case of an unexpected error, which indicates a bug, catch and throw as TDMLException
           throw TDMLException("Unexpected error during SAX Unparse:" + e, None)
         case _: DaffodilUnparseErrorSAXException =>
         // do nothing as unparseResult and its diagnostics will be handled below
+      } finally {
+        unparseContentHandler.finish()
       }
 
       val actualSAX = unparseContentHandler.getUnparseResult.asInstanceOf[UnparseResult]

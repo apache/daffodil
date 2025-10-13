@@ -51,6 +51,7 @@ class TestSAXUnparseAPI {
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
     val bai = new ByteArrayInputStream(testInfosetString.getBytes)
     xmlReader.parse(new InputSource(bai))
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     assertTrue(!ur.isError)
     assertEquals(testData, bao.toString)
@@ -82,6 +83,7 @@ class TestSAXUnparseAPI {
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, false)
     val bai = new ByteArrayInputStream(testInfosetString.getBytes)
     xmlReader.parse(new InputSource(bai))
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     assertTrue(!ur.isError)
     assertEquals(testData, bao.toString)
@@ -100,6 +102,7 @@ class TestSAXUnparseAPI {
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
     val bai = new ByteArrayInputStream(testInfosetString.getBytes)
     xmlReader.parse(new InputSource(bai))
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     assertTrue(!ur.isError)
     assertEquals(testData, bao.toString)
@@ -122,6 +125,7 @@ class TestSAXUnparseAPI {
       <p:list xmlns:p="http://example.com" ignored="attr"><p:w>9</p:w><p:w>1</p:w><p:w>0</p:w></p:list>
     val bai = new ByteArrayInputStream(infoset.toString.getBytes)
     xmlReader.parse(new InputSource(bai))
+    unparseContentHandler.finish()
     val ur = unparseContentHandler.getUnparseResult
     assertTrue(!ur.isError)
     assertEquals(testData, bao.toString)
@@ -151,12 +155,21 @@ class TestSAXUnparseAPI {
     """
     val bai = new ByteArrayInputStream(xmlWithDocType.getBytes)
     val e = intercept[SAXParseException] {
-      xmlReader.parse(new InputSource(bai))
+      try {
+        xmlReader.parse(new InputSource(bai))
+      } finally {
+        unparseContentHandler.finish()
+      }
     }
-    // should be null since unparse never completed
-    assertEquals(null, unparseContentHandler.getUnparseResult)
     val m = e.getMessage()
     assertTrue(m.contains("DOCTYPE is disallowed"))
+    // the XMLReader never finished the parse because it found invalid XML. Because we still
+    // called unparseContentHandler.finish(), we should get an unparse result
+    val ur = unparseContentHandler.getUnparseResult
+    assertTrue(ur.isError)
+    assertTrue(
+      ur.getDiagnostics.get(0).getMessage.contains("does not start with StartDocument")
+    )
   }
 
   /**
@@ -179,6 +192,9 @@ class TestSAXUnparseAPI {
     assertTrue(m.contains("Mixed content"))
     assertTrue(m.contains("prior to start"))
     assertTrue(m.contains("{http://example.com}w"))
+    unparseContentHandler.finish()
+    val ur = unparseContentHandler.getUnparseResult()
+    assertTrue(ur.isError)
   }
 
   /**
@@ -201,6 +217,9 @@ class TestSAXUnparseAPI {
     assertTrue(m.contains("Mixed content"))
     assertTrue(m.contains("prior to end"))
     assertTrue(m.contains("{http://example.com}list"))
+    unparseContentHandler.finish()
+    val ur = unparseContentHandler.getUnparseResult
+    assertTrue(ur.isError)
   }
 
   @Test def testDaffodilUnhandledSAXException_creation_bothMessageAndCause(): Unit = {
@@ -222,8 +241,8 @@ class TestSAXUnparseAPI {
     val expectedException = new IllegalArgumentException("Illegal Argument Message")
     val actualException = new DaffodilUnhandledSAXException(expectedException)
     // when the detailMessage is null as is the case when no message is passed in,
-    // getMessage returns the detailMessage from the embedded exception
-    assertEquals(expectedException.getMessage, actualException.getMessage)
+    // getMessage returns null
+    assertNull(actualException.getMessage)
     assertEquals(expectedException, actualException.getCause)
   }
   @Test def testDaffodilUnhandledSAXException_creation_onlyCauseNoCauseMessage(): Unit = {
