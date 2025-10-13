@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.api;
 
-import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException;
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -28,26 +27,35 @@ import org.xml.sax.Locator;
  */
 public interface DaffodilUnparseContentHandler extends ContentHandler {
   /**
-   * Returns the result of the SAX unparse containing diagnostic information. In the case of an
-   * DaffodilUnhandledSAXException, this will return null.
+   * Returns the result of the SAX unparse containing diagnostic information. The {@link finish()}
+   * method should be called prior to calling this function.
+   *
+   * If the XMLReader parse method throws a DaffodilUnhandledSAXException, which generally indicates
+   * a bug, this will return null.
    *
    * @return result of the SAX unparse containing diagnostic information
    */
   UnparseResult getUnparseResult();
 
+  /**
+   * Ensure calls to {@link getUnparseResult()} return a value and clean up internal state. This
+   * should be called after XMLReader parsing has ended, even if the XMLReader throws an exception.
+   */
+  void finish();
+
   void setDocumentLocator(Locator locator);
 
-  void startDocument() throws DaffodilUnparseErrorSAXException, DaffodilUnhandledSAXException;
+  void startDocument() throws DaffodilUnparseErrorSAXException;
 
-  void endDocument() throws DaffodilUnparseErrorSAXException, DaffodilUnhandledSAXException;
+  void endDocument() throws DaffodilUnparseErrorSAXException;
 
   void startPrefixMapping(String prefix, String uri);
 
   void endPrefixMapping(String prefix);
 
-  void startElement(String uri, String localName, String qName, Attributes attributes) throws DaffodilUnparseErrorSAXException, DaffodilUnhandledSAXException;
+  void startElement(String uri, String localName, String qName, Attributes attributes) throws DaffodilUnparseErrorSAXException;
 
-  void endElement(String uri, String localName, String qName) throws DaffodilUnparseErrorSAXException, DaffodilUnhandledSAXException;
+  void endElement(String uri, String localName, String qName) throws DaffodilUnparseErrorSAXException;
 
   void characters(char[] ch, int start, int length);
 

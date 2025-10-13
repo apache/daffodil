@@ -250,41 +250,47 @@
  * data ought to be written to. Any XMLReader implementation is permissible, as long as they have
  * XML Namespace support.
  *
- * <pre>
- * {@code
- *  ByteArrayInputStream is = new ByteArrayInputStream(data);
- *  ByteArrayOutputStream os = new ByteArrayOutputStream();
- *  WritableByteChannel wbc = java.nio.channels.Channels.newChannel(os);
- *  DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
- *  try {
- *   XMLReader xmlReader = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
- *   xmlReader.setContentHandler(unparseContentHandler)
- *   xmlReader.parse(is)
- *  } catch (ParserConfigurationException | SAXException e) {
- *   ...
- *  } catch (DaffodilUnparseErrorSAXException | DaffodilUnhandledSAXException e) {
- *   ...
- *  }
- * }
- * </pre>
- *
- * The call to the XMLReader.parse method must be wrapped in a try/catch, as
+ * The call to the XMLReader.parse method must be wrapped in a try/catch, as the
  * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler} relies on throwing an exception to
- * end processing in the case of any errors/failures.
- * There are two kinds of errors to expect
- * {@link org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException}, for the case when the
- * {@link org.apache.daffodil.api.UnparseResult#isError()} is true, and
- * {@link org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException}, for any other errors.
+ * end processing in the case of any errors/failures. There are two kinds of exceptions it could throw:
+ * <ul>
+ * <li>{@link org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException} - thrown when a
+ * processing error is encountered while unparsing. In this case,
+ * {@link org.apache.daffodil.api.UnparseResult#isError()} is true.
+ * </li>
+ * <li>{@link org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException} - usually indicates
+ * a bug in Daffodil. This is an unchecked RuntimeException and should usually not be explicitly
+ * caught--it should be handled like one would handle any other RuntimeException. Note that if this
+ * is thrown
+ * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#getUnparseResult()} returns null.
+ * </li>
+ * </ul>
  *
- * In the case of an {@link org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException},
- * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#getUnparseResult()} will return null.
+ * After the XMLReader parse has completed, either successfully or via a thrown exception, the
+ * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#finish()} method should be called--this
+ * allows content handler state to be cleaned up and ensures the
+ * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#getUnparseResult()} returns an
+ * {@link org.apache.daffodil.api.UnparseResult} even in cases where the XMLReader encounters an
+ * error. For example:
  *
  * <pre>
  * {@code
+ *  InputSource input = ...
+ *  OutputStream output = ...
+ *  WritableByteChannel wbc = Channels.newChannel(output);
+ *  DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
+ *
+ *  XMLReader xmlReader = ...
+ *  xmlReader.setContentHandler(unparseContentHandler)
  *  try {
- *    xmlReader.parse(new InputSource(is));
- *  } catch (DaffodilUnparseErrorSAXException | DaffodilUnhandledSAXException e) {
+ *    xmlReader.parse(input);
+ *  } catch (DaffodilUnparseErrorSAXException e) {
+ *    // generally can be ignored, use getUnparseResult() instead
+ *  } catch (SAXException e) {
+ *    // non-Daffodil related exceptions created by the XMLReader, for example invalid XML
  *    ...
+ *  } finally {
+ *    unparseContentHandler.finish();
  *  }
  *  UnparseResult ur = unparseContentHandler.getUnparseResult();
  * }

@@ -180,9 +180,13 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
    * coroutine is still unparsing), or if an unexpected exception occurred that
    * prevented unparse from completing. Otherwise returns the UnparseResult.
    */
-  def getUnparseResult: DFDL.UnparseResult = unparseResult.orNull
+  def getUnparseResult: DFDL.UnparseResult =
+    if (maybeUnparseResultOrException.isDefined)
+      maybeUnparseResultOrException.get.toOption.orNull
+    else
+      null
 
-  private var unparseResult: Maybe[DFDL.UnparseResult] = Nope
+  private var maybeUnparseResultOrException: Maybe[Either[Exception, DFDL.UnparseResult]] = Nope
 
   /**
    * Enable support for converting relative URIs in xs:anyURI blobs to absolute URIs
@@ -385,7 +389,7 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
       // We completely fill up the batched events buffer or we have reached the
       // EndDocument event. Send everything we've batched to be unparsed by the
       // SAXInfosetInputter subroutine.
-      val maybeUnparseResultOrException = this.resume(inputter, batchedInfosetEvents)
+      maybeUnparseResultOrException = this.resume(inputter, batchedInfosetEvents)
 
       if (maybeUnparseResultOrException.isEmpty) {
         // no error and not finished, the SAXInfosetInputter just needs more events. The
@@ -401,7 +405,6 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
             // getUnparseResult() function. If the unparse failed, we also throw the
             // UnparseResult as a SAX Exception since that is generally what SAX API
             // users expect on failure
-            unparseResult = One(ur)
             if (ur.isError) {
               throw new DaffodilUnparseErrorSAXException(ur)
             }
@@ -409,7 +412,8 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
           // $COVERAGE-OFF$
           case Left(e) => {
             // unparse threw an unexpected exception, this is likely a bug. We don't
-            // have an UnparseResult so just rethrow the exception as a SAXException.
+            // have an UnparseResult so just rethrow the exception as an unchecked
+            // RuntimeException
             throw new DaffodilUnhandledSAXException(e)
           }
           // $COVERAGE-ON$
@@ -472,4 +476,20 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
     // do nothing
   }
 
+  def finish(): Unit = {
+    if (maybeUnparseResultOrException.isEmpty) {
+      // The XMLReader could potentially stop sending events to this ContentHandler (e.g.
+      // invalid XML).This leaves the SAXInfosetInputter coroutine active waiting for more
+      // events that it will never get, resulting in a dangling thread and without an
+      // UnparseResult. The user of this content handler should call this finish function, which
+      // allows us to let the coroutine finish and give us an UnparseResult. We do this by
+      // setting the first infoset event to null (i.e. the next one the SAXInfosetInputter will
+      // see)nulling out and resume the SAXInfosetInputter coroutine. The coroutine should see
+      // this null event and tell the unparse that there are no more events, which should
+      // eventually lead to the coroutine calling resumeFinal with a failed UnparseResult.
+      batchedInfosetEvents(0) = null
+      maybeUnparseResultOrException = this.resume(inputter, batchedInfosetEvents)
+      Assert.invariant(maybeUnparseResultOrException.isDefined)
+    }
+  }
 }

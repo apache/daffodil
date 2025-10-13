@@ -441,11 +441,11 @@ class DataProcessor(
 
   def unparse(actualInputter: api.infoset.InfosetInputter, outStream: java.io.OutputStream) = {
     val inputter = new InfosetInputter(actualInputter)
-    inputter.initialize(ssrd.elementRuntimeData, tunables)
     val unparserState =
       UState.createInitialUState(outStream, this, inputter, areDebugging)
     val res =
       try {
+        inputter.initialize(ssrd.elementRuntimeData, tunables)
         if (areDebugging) {
           Assert.invariant(optDebugger.isDefined)
           addEventHandler(debugger)

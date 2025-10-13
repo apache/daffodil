@@ -126,9 +126,14 @@ class SAXInfosetInputter(
   }
 
   override def hasNext(): Boolean = {
-    // If we haven't reached an EndDocument event yet, there must be more
-    // events on their way, even if we don't know for sure yet.
-    currentEvent.eventType.get ne EndDocument
+    // If we haven't reached an EndDocument event yet, there must be more events on their way,
+    // even if we don't know for sure yet. The exception to this is when the XMLReader ends a
+    // parse without reaching the end of the document (e.g. invalid XML). When this happens, the
+    // DaffodilUnparseContentHandler.finish() method sets the current event to null, and resume
+    // this coroutine. This indicates there are no more events and hasNext() returns false--this
+    // causes us to end the unparse, end this coroutine, and return an UnparseResult back to the
+    // main coroutine.
+    currentEvent != null && (currentEvent.eventType.get ne EndDocument)
   }
 
   override def next(): Unit = {
