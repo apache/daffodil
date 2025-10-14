@@ -77,4 +77,6 @@ class TestUnparserGeneral extends TdmlTests {
 
   // DFDL-1589
   @Test def emptyOutputNewLine1 = test
+
+  @Test def unparseIgnorableContent = test
 }

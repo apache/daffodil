@@ -987,5 +987,11 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
+  <tdml:unparserTestCase name="unparseIgnorableContent" root="e2" model="fixedLengthStrings">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosetIgnorableContent.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>a</tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
