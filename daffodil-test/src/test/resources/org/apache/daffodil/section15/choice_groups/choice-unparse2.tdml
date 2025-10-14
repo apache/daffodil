@@ -217,7 +217,7 @@
 
     <tdml:warnings>
       <tdml:warning>deprecatedLastUpStepToResolveToArray</tdml:warning>
-      <tdml:warning>fn:count(..)</tdml:warning>
+      <tdml:warning>resolving to an array is deprecated</tdml:warning>
     </tdml:warnings>
   </tdml:unparserTestCase>
 

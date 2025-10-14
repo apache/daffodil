@@ -780,23 +780,6 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     )
   }
 
-  def checkIfTargetIsLastStepAndArray(): Unit = {
-    if (isLastStep && isArray) {
-      if (tunable.allowLastUpStepToResolveToArray) {
-        SDW(
-          WarnID.DeprecatedLastUpStepToResolveToArray,
-          ".. resolving to an array is deprecated. Try ../../$array_name instead. Offending expression: '%s'.",
-          this.wholeExpressionText
-        )
-      } else {
-        SDE(
-          ".. cannot resolve to an array. Try ../../$array_name instead. Offending expression: '%s'.",
-          this.wholeExpressionText
-        )
-      }
-    }
-  }
-
   def relPathErr() = {
     // This path expression cannot be compiled because we went past the root. This normally
     // should be an SDE with a RelativePathPastRootError. However, if we don't have any element
@@ -1081,14 +1064,25 @@ sealed abstract class UpStepExpression(s: String, predArg: Option[PredicateExpre
   final override lazy val compiledDPath = {
     checkIfNodeIndexedLikeArray()
     checkIfTargetIsLastStepAndArray()
-    lazy val areAllArrays = isLastStep && stepElements.forall {
-      _.isArray
-    } && targetType == NodeInfo.Array
-    checkIfNodeIndexedLikeArray()
-    if (tunable.allowLastUpStepToResolveToArray && areAllArrays) {
+    if (isLastStep && isArray && targetType == NodeInfo.Array) {
       new CompiledDPath(UpMoveArray)
     } else {
       new CompiledDPath(UpMove)
+    }
+  }
+
+  def checkIfTargetIsLastStepAndArray(): Unit = {
+    if (isLastStep && isArray) {
+      if (tunable.allowLastUpStepToResolveToArray) {
+        SDW(
+          WarnID.DeprecatedLastUpStepToResolveToArray,
+          "Last step path '..' resolving to an array is deprecated. Try ../../<array_name> instead."
+        )
+      } else {
+        SDE(
+          "Last step path '..' cannot resolve to an array. Try ../../<array_name> instead."
+        )
+      }
     }
   }
 
