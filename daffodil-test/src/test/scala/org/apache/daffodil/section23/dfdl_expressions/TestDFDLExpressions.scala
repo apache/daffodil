@@ -417,6 +417,9 @@ class TestDFDLExpressions extends TdmlTests {
   @Test def mod03 = test
   @Test def mod04 = test
 
+  @Test def precision01 = test
+  @Test def precision02 = test
+
   // DFDL-1617 - should detect errors due to query-style expressions
   @Test def query_style_01 = test
   @Test def query_style_02 = test
