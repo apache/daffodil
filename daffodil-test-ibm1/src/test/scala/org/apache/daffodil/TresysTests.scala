@@ -208,9 +208,7 @@ class TestAZ extends TdmlTests {
 class TestBA extends TdmlTests {
   val tdmlSuite = TestBA
 
-  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
-  // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
-  @Ignore @Test def BA000 = test
+  @Test def BA000 = test
 }
 
 class TestBB extends TdmlTests {

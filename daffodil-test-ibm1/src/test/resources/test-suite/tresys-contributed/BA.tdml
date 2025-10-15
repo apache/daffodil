@@ -18,7 +18,8 @@
 
 <testSuite suiteName="BA" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  defaultImplementations="ibm daffodil">
+  defaultImplementations="ibm daffodil"
+  xmlns:ex="http://example.com">
 
   <parserTestCase name="BA000" root="list" model="BA.dfdl.xsd"
     description="Schema Escaping: escape escape character, variable length">
@@ -30,7 +31,7 @@
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <list xmlns="http://www.example.org/example1">
+        <ex:list xmlns="http://www.example.org/example1">
           <character1>item1</character1>
           <character1>item,2</character1>
           <character1>item#3</character1>
@@ -58,7 +59,7 @@
           <!-- So according to the DFDL Spec 13.2.1 discussion of the dfdl:escapeKind property, this escapeEscape should be preserved in the data. -->
           <block2>,,6</block2>
           <block2>START777END</block2>
-        </list>
+        </ex:list>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

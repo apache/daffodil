@@ -413,8 +413,10 @@ class TextDelimitedParserWithEscapeBlock(
     Assert.invariant(endBlock != null)
 
     removeLeftPadding(state, input, delimIter)
+    val beforeStartBlock = input.markPos
     val foundStartBlock = parseStartBlock(state, input, startBlock, delimIter)
     val res = if (!foundStartBlock) {
+      input.resetPos(beforeStartBlock)
       super.parse(state, input, field, delimIter, isDelimRequired)
     } else {
       parseRemainder(state, input, fieldEsc, startBlock, endBlock, delimIter, isDelimRequired)
