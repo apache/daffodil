@@ -125,17 +125,55 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
     priorResultOfTry: ParseAttemptStatus
   ): Unit = {
 
-    if ((sscb eq PositionalTrailingStrict)) {
-      val resultToTest = priorResultOfTry
-      resultToTest match {
-        case ParseAttemptStatus.AbsentRep | ParseAttemptStatus.EmptyRep =>
-          parser.PE(
-            pstate,
-            "Empty trailing optional elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'"
-          )
-        case _ => // ok
+    if (sscb eq PositionalTrailingStrict) {
+      //  We need to check both the last and second to last element for missing,
+      //  absent or empty status; depending on the data, the resultOfTry might
+      //  only address the status of the separator.
+      //
+      //  A missing separator for the resultOfTry doesn't tell us enough about
+      //  what is going on, because in the case the priorResultOfTry is normal,
+      //  then a failure due to missing separator may be the normal way
+      //  speculative parsing detects the end of an array. Backtracking will
+      //  suppress the missing separator error.  If however, the case is the
+      //  priorResultOfTry is missing, empty or absent, then
+      //  this detects a trailing empty, and when ssp=trailingEmptyStrict we
+      //  should issue a processing error.
+      //
+      //  Note that in the case of ssp=never we address that in the
+      //  arrayCompleteChecks.
+      //
+      //  We don't need to check sscb=lax since that can have missing, absent
+      //  or empty trailing elements
+      if (
+        checkTrailingOptionalElements(resultOfTry)
+        || checkTrailingOptionalElements(priorResultOfTry)
+      ) {
+        parser.PE(
+          pstate,
+          "Empty trailing optional elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'"
+        )
+      } else {
+        // ok
       }
     }
+  }
+
+  /**
+   * Checks if the resultToTest is a missing, absent or empty element.
+   * In essence, this is a check for trailing optional elements with
+   * zero length representation. MissingItem is very similar to AbsentRep, in
+   * that it subsumes it except the difference seems to be AbsentRep is
+   * for zero length optional elements, and MissingItem is for zero length
+   * non-optional elements.
+   */
+  private def checkTrailingOptionalElements(
+    resultToTest: ParseAttemptStatus
+  ): Boolean = {
+    Seq(
+      ParseAttemptStatus.MissingItem,
+      ParseAttemptStatus.AbsentRep,
+      ParseAttemptStatus.EmptyRep
+    ).contains(resultToTest)
   }
 }
 

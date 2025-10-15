@@ -20,7 +20,6 @@ package org.apache.daffodil.usertests
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.Ignore
 import org.junit.Test
 
 object TestSepTests extends TdmlSuite {
@@ -36,8 +35,7 @@ class TestSepTests extends TdmlTests {
   // DAFFODIL-2498 anyEmpty with minOccurs '0', and empty as first occurrence.
   @Test def test_sep_anyEmpty_2 = test
 
-  // DAFFODIL-2217 - trailingEmptyStrict violation not detected when maxOccurs is '3'
-  @Ignore @Test def test_sep_trailingEmptyStrict_1 = test
+  @Test def test_sep_trailingEmptyStrict_1 = test
   @Test def test_sep_trailingEmptyStrict_2 = test
 
   @Test def test_sep_ssp_never_1 = test
