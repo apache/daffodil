@@ -64,7 +64,7 @@
             else fn:true() 
             }]]></dfdl:discriminator>
           <dfdl:element
-            outputValueCalc='{ if (dfdl:occursIndex() eq fn:count(..)) then 0 else 1}' />
+            outputValueCalc='{ if (dfdl:occursIndex() eq fn:count(../../ex:A1)) then 0 else 1}' />
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
@@ -191,4 +191,3 @@
 
   </tdml:parserTestCase>
 </tdml:testSuite>
- 

@@ -214,6 +214,11 @@
         </ex:r>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+    <tdml:warnings>
+      <tdml:warning>deprecatedLastUpStepToResolveToArray</tdml:warning>
+      <tdml:warning>resolving to an array is deprecated</tdml:warning>
+    </tdml:warnings>
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="c3" elementFormDefault="unqualified">

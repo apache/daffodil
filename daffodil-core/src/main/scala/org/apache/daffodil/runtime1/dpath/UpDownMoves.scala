@@ -50,6 +50,11 @@ case object UpMove extends RecipeOp {
   }
 }
 
+/**
+ * Deprecated; UpStep should only return a single node
+ * not an array, we're keeping it, but use of it is gated by
+ * tunable.allowLastUpStepToResolveToArray
+ */
 case object UpMoveArray extends RecipeOp {
   override def run(dstate: DState): Unit = {
     val now = dstate.currentElement
