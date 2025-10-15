@@ -99,7 +99,24 @@ object NodeInfoUtils {
     val lub = NodeInfoUtils.typeLeastUpperBound(leftArgType, rightArgType)
     val argType = lub match {
       case ArrayIndex => Long
-      case SignedNumeric => Decimal // lub of float/double and other types
+      case SignedNumeric => {
+        // SignedNumeric is the least upper bound of float, double, and decimal/subtypes. One of
+        // the args must be a float or double, so we must promote to either Double or Decimal.
+        // If one of the args is arbitrary width/precision (i.e. non-negative integer or a
+        // parent type) then we promote the args to Decimal to maintain that level of precision.
+        // Otherwise, it means both args are finite width/precision and we promote both args to
+        // Double. This provides efficient math and maintains limited precision operations while
+        // still having reasonably good precision. This also maintains compatibility with older
+        // version of Daffodil that did most math using Doubles
+        if (
+          NonNegativeInteger.isSubtypeOf(leftArgType) ||
+          NonNegativeInteger.isSubtypeOf(rightArgType)
+        ) {
+          Decimal
+        } else {
+          Double
+        }
+      }
       case Decimal => Decimal
       case Double => Double
       case Float => Float

@@ -7427,6 +7427,9 @@ blastoff
     <xs:element name="mod02" type="xs:double" dfdl:inputValueCalc="{ xs:double(10.5) mod xs:double(3) }" />
     <xs:element name="mod03" type="xs:float" dfdl:inputValueCalc="{ xs:float(10.5) mod xs:float(3) }" />
     <xs:element name="mod04" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(10.5) mod xs:decimal(3) }" />
+
+    <xs:element name="precision01" type="xs:double" dfdl:inputValueCalc="{ xs:int(3) + xs:double(xs:int(34) div xs:double(60.0)) }" />
+    <xs:element name="precision02" type="xs:double" dfdl:inputValueCalc="{ xs:integer(3) + xs:double(xs:integer(34) div xs:double(60.0)) }" />
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="div01" root="div01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
@@ -7768,6 +7771,16 @@ blastoff
   <tdml:parserTestCase name="mod04" root="mod04" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><mod04>1.5</mod04></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="precision01" root="precision01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><precision01>3.5666666666666664</precision01></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="precision02" root="precision02" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><precision02>3.566666666666667</precision02></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="DFDLCheckRange">
