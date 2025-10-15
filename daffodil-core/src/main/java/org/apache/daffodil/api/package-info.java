@@ -250,23 +250,28 @@
  * data ought to be written to. Any XMLReader implementation is permissible, as long as they have
  * XML Namespace support.
  *
- * The call to the XMLReader.parse method must be wrapped in a try/catch, as
+ * The call to the XMLReader.parse method must be wrapped in a try/catch, as the
  * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler} relies on throwing an exception to
- * end processing in the case of any errors/failures.
- * There are two kinds of errors to expect
- * {@link org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException}, for the case when the
- * {@link org.apache.daffodil.api.UnparseResult#isError()} is true, and
- * {@link org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException}, for any other errors,
- * which generally indicate a bug in Daffodil
- *
- * In the case of a {@link org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException},
- * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#getUnparseResult()} will return null.
+ * end processing in the case of any errors/failures. There are two kinds of exceptions it could throw:
+ * <ul>
+ * <li>{@link org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException} - thrown when a
+ * processing error is encountered while unparsing. In this case,
+ * {@link org.apache.daffodil.api.UnparseResult#isError()} is true.
+ * </li>
+ * <li>{@link org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException} - usually indicates
+ * a bug in Daffodil. This is an unchecked RuntimeException and should usually not be explicitly
+ * caught--it should be handled like one would handle any other RuntimeException. Note that if this
+ * is thrown
+ * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#getUnparseResult()} returns null.
+ * </li>
+ * </ul>
  *
  * After the XMLReader parse has completed, either successfully or via a thrown exception, the
  * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#finish()} method should be called--this
  * allows content handler state to be cleaned up and ensures the
  * {@link org.apache.daffodil.api.DaffodilUnparseContentHandler#getUnparseResult()} returns an
- * {@link org.apache.daffodil.api.UnparseResult} even in cases where the XMLReader runs into an error.
+ * {@link org.apache.daffodil.api.UnparseResult} even in cases where the XMLReader encounters an
+ * error. For example:
  *
  * <pre>
  * {@code
@@ -279,11 +284,10 @@
  *  xmlReader.setContentHandler(unparseContentHandler)
  *  try {
  *    xmlReader.parse(input);
- *  } catch (DaffodilUnparseErrorSAXException e)
+ *  } catch (DaffodilUnparseErrorSAXException e) {
  *    // generally can be ignored, use getUnparseResult() instead
- *  } catch (DaffodilUnhandledSAXException e) {
- *    // should never happen, indicates a bug in daffodil
  *  } catch (SAXException e) {
+ *    // non-Daffodil related exceptions created by the XMLReader, for example invalid XML
  *    ...
  *  } finally {
  *    unparseContentHandler.finish();

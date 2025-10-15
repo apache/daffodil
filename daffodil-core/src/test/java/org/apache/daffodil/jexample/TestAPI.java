@@ -55,7 +55,6 @@ import org.apache.daffodil.api.validation.ValidatorNotRegisteredException;
 import org.apache.daffodil.japi.SAXErrorHandlerForAPITest;
 import org.apache.daffodil.api.UnparseResult;
 import org.apache.daffodil.api.ProcessorFactory;
-import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException;
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException;
 import org.apache.daffodil.api.exceptions.ExternalVariableException;
 import org.apache.daffodil.api.infoset.InfosetInputter;
@@ -1073,8 +1072,8 @@ public class TestAPI {
       unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
       // kickstart unparse
       unparseXMLReader.parse(new org.xml.sax.InputSource(fis));
-    } catch (DaffodilUnparseErrorSAXException | DaffodilUnhandledSAXException ignored) {
-      // do nothing; UnparseError is handled below while we don't expect Unhandled in this test
+    } catch (DaffodilUnparseErrorSAXException e) {
+      // do nothing; UnparseError is handled below
     } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
       fail("Error: " + e);
     } finally {

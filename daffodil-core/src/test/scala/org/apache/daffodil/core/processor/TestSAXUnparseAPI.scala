@@ -241,8 +241,8 @@ class TestSAXUnparseAPI {
     val expectedException = new IllegalArgumentException("Illegal Argument Message")
     val actualException = new DaffodilUnhandledSAXException(expectedException)
     // when the detailMessage is null as is the case when no message is passed in,
-    // getMessage returns the detailMessage from the embedded exception
-    assertEquals(expectedException.getMessage, actualException.getMessage)
+    // getMessage returns null
+    assertNull(actualException.getMessage)
     assertEquals(expectedException, actualException.getCause)
   }
   @Test def testDaffodilUnhandledSAXException_creation_onlyCauseNoCauseMessage(): Unit = {

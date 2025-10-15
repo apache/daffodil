@@ -26,7 +26,7 @@ import org.xml.sax.SAXException;
  * the {@code DaffodilUnparseContentHandler.getUnparseResult} returns null. This most
  * likely represents a bug in Daffodil.
  */
-public class DaffodilUnhandledSAXException extends SAXException {
+public class DaffodilUnhandledSAXException extends RuntimeException {
   /**
    * constructor for error message only
    *

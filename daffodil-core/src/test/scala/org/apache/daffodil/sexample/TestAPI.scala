@@ -37,7 +37,6 @@ import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.api.DaffodilParseXMLReader
 import org.apache.daffodil.api.DataProcessor
 import org.apache.daffodil.api.ParseResult
-import org.apache.daffodil.api.exceptions.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.exceptions.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.exceptions.ExternalVariableException
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
@@ -1048,10 +1047,10 @@ class TestAPI {
       unparseXMLReader.parse(new org.xml.sax.InputSource(is))
     } catch {
       case _: DaffodilUnparseErrorSAXException => // do nothing; handled below
-      case _: DaffodilUnhandledSAXException => // do nothing; we don't expect this in this test
+    } finally {
+      unparseContentHandler.finish()
     }
 
-    unparseContentHandler.finish()
     val res = unparseContentHandler.getUnparseResult
     val err = res.isError()
     assertTrue(err)
