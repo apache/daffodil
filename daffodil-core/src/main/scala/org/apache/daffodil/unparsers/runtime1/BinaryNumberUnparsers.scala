@@ -261,6 +261,15 @@ abstract class BinaryDecimalUnparserBase(
     val isSigned: Boolean = signed == Yes
     val minWidth: Int = if (isSigned) 2 else 1
     checkMinWidth(state, isSigned, nBits, minWidth)
-    dos.putBigInt(asBigInt(value), nBits, isSigned, finfo)
+    val bigInt = asBigInt(value)
+    if (!isSigned && bigInt.signum() == -1) {
+      UnparseError(
+        One(state.schemaFileLocation),
+        One(state.currentLocation),
+        "Binary decimal value is negative (%s), but property dfdl:decimalSigned is no",
+        bigInt.toString
+      )
+    }
+    dos.putBigInt(bigInt, nBits, isSigned, finfo)
   }
 }

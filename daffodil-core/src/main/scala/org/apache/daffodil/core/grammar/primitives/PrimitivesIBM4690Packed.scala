@@ -71,14 +71,16 @@ class IBM4690PackedDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, 
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     e.lengthEv,
-    e.lengthUnits
+    e.lengthUnits,
+    e.decimalSigned
   )
 
   override lazy val unparser: Unparser = new IBM4690PackedDecimalRuntimeLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     e.lengthEv,
-    e.lengthUnits
+    e.lengthUnits,
+    e.decimalSigned
   )
 
 }
@@ -88,24 +90,28 @@ class IBM4690PackedDecimalKnownLength(val e: ElementBase, lengthInBits: Long)
   override lazy val parser = new IBM4690PackedDecimalKnownLengthParser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    lengthInBits.toInt
+    lengthInBits.toInt,
+    e.decimalSigned
   )
 
   override lazy val unparser: Unparser = new IBM4690PackedDecimalKnownLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    lengthInBits.toInt
+    lengthInBits.toInt,
+    e.decimalSigned
   )
 }
 
 class IBM4690PackedDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new IBM4690PackedDecimalBitLimitLengthParser(
     e.elementRuntimeData,
-    e.binaryDecimalVirtualPoint
+    e.binaryDecimalVirtualPoint,
+    e.decimalSigned
   )
 
   override lazy val unparser: Unparser = new IBM4690PackedDecimalMinimumLengthUnparser(
     e.elementRuntimeData,
-    e.binaryDecimalVirtualPoint
+    e.binaryDecimalVirtualPoint,
+    e.decimalSigned
   )
 }

@@ -46,6 +46,9 @@
 
     <element name="r4" type="xs:decimal" dfdl:decimalSigned="no" dfdl:length="2" dfdl:binaryNumberRep="ibm4690Packed"/>
 
+    <element name="r5" type="xs:decimal" dfdl:decimalSigned="no" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1"
+      dfdl:binaryNumberRep="packed" />
+
 
   </tdml:defineSchema>
 
@@ -70,10 +73,13 @@
       </dfdlInfoset>
       <!-- representation of this as 2s complement would be 0xFF85 -->
     </infoset>
-     <errors>
-      <error>Unparse Error</error>
-      <error>unsigned</error>
-    </errors>
+      <errors>
+        <error>Unparse Error</error>
+        <error>Binary</error>
+        <error>negative</error>
+        <error>decimalSigned</error>
+        <error>no</error>
+      </errors>
   </unparserTestCase>
 
   <parserTestCase name="parseTestdecimalSigned_no_bcd" root="r2" model="s"
@@ -94,11 +100,12 @@
         <ex:r2>-1.23</ex:r2>
       </dfdlInfoset>
     </infoset>
-    <!-- This should unparse error. Instead it unparses as D123, where that D is a sign digit.
-    This is not allowed in BCD which is unsigned only -->
-    <document>
-      <documentPart type="byte">0123</documentPart><!-- unparses as packed -->
-    </document>
+    <errors>
+      <error>Signed</error>
+      <error>bcd</error>
+      <error>only positive</error>
+      <error>r2 cannot be negative</error>
+    </errors>
   </unparserTestCase>
 
   <parserTestCase name="parseTestDecimalSigned_no_packed" root="r3" model="s"
@@ -110,7 +117,10 @@
     </document>
     <errors>
       <error>Parse Error</error>
-      <error>unsigned</error>
+      <error>Packed binary</error>
+      <error>negative</error>
+      <error>decimalSigned</error>
+      <error>no</error>
     </errors>
   </parserTestCase>
 
@@ -123,7 +133,10 @@
     </infoset>
     <errors>
       <error>Unparse Error</error>
-      <error>unsigned</error>
+      <error>Packed binary</error>
+      <error>negative</error>
+      <error>decimalSigned</error>
+      <error>no</error>
     </errors>
   </unparserTestCase>
 
@@ -136,7 +149,10 @@
     </document>
     <errors>
       <error>Parse Error</error>
-      <error>unsigned</error>
+      <error>Packed binary</error>
+      <error>negative</error>
+      <error>decimalSigned</error>
+      <error>no</error>
     </errors>
   </parserTestCase>
 
@@ -149,9 +165,42 @@
     </infoset>
     <errors>
       <error>Unparse Error</error>
-      <error>unsigned</error>
+      <error>Packed binary</error>
+      <error>negative</error>
+      <error>decimalSigned</error>
+      <error>no</error>
     </errors>
   </unparserTestCase>
 
+    <parserTestCase name="parseTestDecimalSigned_no_packed_delimited" root="r5" model="s"
+      description="negative packed representation should fail to parse as decimal when decimalSigned='no'">
+    <document>
+      <documentPart type="byte">
+        123D
+      </documentPart>
+    </document>
+    <errors>
+      <error>Parse Error</error>
+      <error>Packed binary</error>
+      <error>negative</error>
+      <error>decimalSigned</error>
+      <error>no</error>
+    </errors>
+  </parserTestCase>
 
+    <unparserTestCase name="unparseTestDecimalSigned_no_packed_delimited" model="s"
+      description="negative values cannot unparse as decimal when decimalSigned is 'no'" >
+    <infoset>
+      <dfdlInfoset>
+        <ex:r5>-1.23</ex:r5>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Unparse Error</error>
+      <error>Packed binary</error>
+      <error>negative</error>
+      <error>decimalSigned</error>
+      <error>no</error>
+    </errors>
+  </unparserTestCase>
 </testSuite>

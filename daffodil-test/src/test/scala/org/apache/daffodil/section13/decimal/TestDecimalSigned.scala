@@ -20,7 +20,6 @@ package org.apache.daffodil.section13.decimal
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.Ignore
 import org.junit.Test
 
 object TestDecimalSigned extends TdmlSuite {
@@ -32,13 +31,13 @@ class TestDecimalSigned extends TdmlTests {
 
   @Test def parseTestDecimalSigned_no_binary = test
   @Test def parseTestdecimalSigned_no_bcd = test
+  @Test def unparseTestDecimalSigned_no_binary = test
+  @Test def unparseTestdecimalSigned_no_bcd = test
+  @Test def parseTestDecimalSigned_no_packed = test
+  @Test def unparseTestDecimalSigned_no_packed = test
+  @Test def parseTestDecimalSigned_no_ibm4690Packed = test
+  @Test def unparseTestDecimalSigned_no_ibm4690Packed = test
 
-  // DAFFODIL-2957 - the tests below all failing
-  // Abort with usage error. Should be unparse error.
-  @Ignore @Test def unparseTestDecimalSigned_no_binary = test
-  @Ignore @Test def unparseTestdecimalSigned_no_bcd = test
-  @Ignore @Test def parseTestDecimalSigned_no_packed = test
-  @Ignore @Test def unparseTestDecimalSigned_no_packed = test
-  @Ignore @Test def parseTestDecimalSigned_no_ibm4690Packed = test
-  @Ignore @Test def unparseTestDecimalSigned_no_ibm4690Packed = test
+  @Test def parseTestDecimalSigned_no_packed_delimited = test
+  @Test def unparseTestDecimalSigned_no_packed_delimited = test
 }
