@@ -20,6 +20,7 @@ package org.apache.daffodil.usertests
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
 
+import org.junit.Ignore
 import org.junit.Test
 
 object TestSepTests extends TdmlSuite {
@@ -47,6 +48,10 @@ class TestSepTests extends TdmlTests {
 
   @Test def test_sep_ssp_never_6 = test
   @Test def test_sep_ssp_never_7 = test
+
+  // DAFFODIL-2205 - EmptyValueDelimiterPolicy only works with 'both'
+  @Test def test_sep_evdp_1 = test
+  @Ignore @Test def test_sep_evdp_2 = test
 
   // DAFFODIL-2791
   @Test def test_treatAsAbsent_occursIndex = test
