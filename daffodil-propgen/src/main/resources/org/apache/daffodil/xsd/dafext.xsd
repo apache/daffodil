@@ -726,6 +726,7 @@
           <xs:enumeration value="discouragedDiscriminatorPlacement" />
           <xs:enumeration value="discouragedAssertPlacement" />
           <xs:enumeration value="emptyElementParsePolicyError" />
+          <xs:enumeration value="emptyValueDelimiterPolicyWarning"/>
           <xs:enumeration value="encodingErrorPolicyError" />
           <xs:enumeration value="escapeSchemeRefUndefined" />
           <xs:enumeration value="expressionCompilationSkipped" />
