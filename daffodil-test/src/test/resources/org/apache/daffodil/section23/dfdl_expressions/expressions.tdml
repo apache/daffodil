@@ -7430,6 +7430,9 @@ blastoff
 
     <xs:element name="precision01" type="xs:double" dfdl:inputValueCalc="{ xs:int(3) + xs:double(xs:int(34) div xs:double(60.0)) }" />
     <xs:element name="precision02" type="xs:double" dfdl:inputValueCalc="{ xs:integer(3) + xs:double(xs:integer(34) div xs:double(60.0)) }" />
+
+    <xs:element name="if01" type="xs:int" dfdl:inputValueCalc="{ fn:round-half-to-even(if (fn:true()) then xs:double(10.5) else xs:int(1)) }" />
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="div01" root="div01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
@@ -7781,6 +7784,11 @@ blastoff
   <tdml:parserTestCase name="precision02" root="precision02" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><precision02>3.566666666666667</precision02></tdml:dfdlInfoset></tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="if01" root="if01" model="XPathMath" description="Section 23 - DFDL Expressions - div">
+    <tdml:document></tdml:document>
+    <tdml:infoset><tdml:dfdlInfoset><if01>10</if01></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="DFDLCheckRange">

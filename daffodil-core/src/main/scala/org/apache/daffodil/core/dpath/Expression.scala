@@ -516,8 +516,16 @@ case class IfExpression(ifthenelse: List[Expression]) extends ExpressionLists(if
 
   override lazy val inherentType = {
     (thenPart.inherentType, elsePart.inherentType) match {
-      case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
-        NodeInfoUtils.typeLeastUpperBound(left, right)
+      case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) => {
+        // if-expressions aren't technically numeric operations, but we still need the same
+        // logic as numeric operations used to promote both the left and right branches to the
+        // same primitive numeric type. Note that if we instead use something like
+        // typeLeastUpperBound, we could end up with a non-primitive type (e.g. SignedNumeric),
+        // which can break other parts of DPath that require primitive types.
+        val (_, resultType) =
+          NodeInfoUtils.generalizeArgAndResultTypesForNumericOp(op, left, right)
+        resultType
+      }
       case (left, right) if left == right => left
       case (left, right) if right == NodeInfo.Nothing => left
       case (left, right) if left == NodeInfo.Nothing => right
