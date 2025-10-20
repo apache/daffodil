@@ -1992,12 +1992,6 @@
         </root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Multiple choice branches</tdml:warning>
-      <tdml:warning>no required elements</tdml:warning>
-      <tdml:warning>infoset does not specify</tdml:warning>
-      <tdml:warning>selecting the first branch</tdml:warning>
-    </tdml:warnings>
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>

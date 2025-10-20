@@ -1178,13 +1178,13 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_diff_04(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml"
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input20.txt.xml"
     )
 
-    runCLI(args"unparse -d -s $schema -r matrix -o $devNull $input", fork = true, envs = envs) {
+    runCLI(args"unparse -d -s $schema -r c_2 -o $devNull $input", fork = true, envs = envs) {
       cli =>
         cli.expect("(debug)")
         cli.sendLine("display info diff")
@@ -1192,26 +1192,27 @@ class TestCLIDebugger {
         cli.sendLine("set diffExcludes childIndex")
         cli.expect("(debug)")
         cli.sendLine("step")
-        cli.expect("bitPosition: 0 -> 8")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.expect("bitPosition: 16 -> 0")
+        cli.expect(regexp("\\+ Suppressable.* for group"))
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
-        cli.expect(regexp("\\+ Suppressable.* for cell"))
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
-        cli.sendLine("step")
-        cli.sendLine("step")
-        cli.sendLine("step")
-        cli.sendLine("step")
-        cli.expect(regexp("RegionSplit.* for cell"))
+        cli.expect(regexp("RegionSplit.* for group"))
         cli.sendLine("info suspensions")
-        cli.expect(regexp("Suppressable.* for cell"))
-        cli.expect(regexp("RegionSplit.* for cell"))
+        cli.expect(regexp("Suppressable.* for group"))
+        cli.expect(regexp("RegionSplit.* for group"))
         cli.sendLine("quit")
     }(ExitCode.Failure)
   }
