@@ -511,23 +511,32 @@ trait Term
    * Note that this currently only requires OVC and Optionality since defaults
    * aren't fully implemented everywhere. This function may need to change when
    * defaults are fully implemented.
+   *
+   * Note that even though inputValueCalc elements are essentially ignored for unparsing,
+   * they are still considered required elements (canBeAbssentFromUnparseInfoset returns false)
+   * and so cannot be unparsed if they do not appear in the infoset (e.g. inside a hidden group ref).
+   * This does not necessarily exclude inputValueCalc elements from appearing in hidden groups,
+   * but they must be in the non-default branch of a choice, or a child to an optional
+   * complex type or non-required array.
    */
-  lazy val canUnparseIfHidden: Boolean = {
+  lazy val canUnparseIfNoEvents: Boolean = {
     val res = this match {
       case s: SequenceTermBase => {
         s.groupMembers.forall { member =>
-          val res = member.canUnparseIfHidden
+          val res = member.canUnparseIfNoEvents
           res
         }
       }
       case c: ChoiceTermBase => {
-        c.groupMembers.exists { _.canUnparseIfHidden }
+        c.groupMembers.exists { _.canUnparseIfNoEvents }
       }
       case e: ElementBase if e.isComplexType => {
-        e.complexType.group.canUnparseIfHidden
+        //  it's either not required in the infoset, or it is and we can unparse
+        //  all of its children with no events
+        e.canBeAbsentFromUnparseInfoset || e.complexType.group.canUnparseIfNoEvents
       }
       case e: ElementBase => {
-        !e.isRepresented || e.canBeAbsentFromUnparseInfoset
+        e.canBeAbsentFromUnparseInfoset
       }
     }
     res

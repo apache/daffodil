@@ -37,6 +37,7 @@ class TestHiddenChoices extends TdmlTests {
   @Test def parseSeqOfHiddenAndRegularRef = test
   @Test def parseNestedHiddenAndRegularRef = test
   @Test def parseNestedHiddenGroupRefs = test
+  @Test def parseIVCHiddenGroupRefs = test
 
   @Test def unparseHiddenGroupRef = test
   @Test def unparseRegularGroupRef = test
@@ -46,4 +47,5 @@ class TestHiddenChoices extends TdmlTests {
   @Test def unparseNestedHiddenGroupRefs = test
   @Test def noOVCinHiddenContext = test
   @Test def nestedNoOVCinHiddenContext = test
+  @Test def unparseIVCinHiddenContext = test
 }

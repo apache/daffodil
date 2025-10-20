@@ -102,6 +102,20 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="parseIVCHiddenGroupRefs" root="e10"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:document>
+      <tdml:documentPart type="text">[~9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10>
+          <g1>9</g1>
+        </e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:unparserTestCase name="unparseHiddenGroupRef" root="e1"
     model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
     <tdml:infoset>
@@ -227,6 +241,18 @@
       <tdml:error>defaultable</tdml:error>
       <tdml:error>dfdl:outputValueCalc</tdml:error>
     </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseIVCinHiddenContext" root="e10"
+    model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e10/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text">g1~g1</tdml:documentPart>
+    </tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

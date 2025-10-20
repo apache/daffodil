@@ -1661,13 +1661,13 @@
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[3]]></tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e>
-          <value>7</value>
-        </e>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>hidden group</tdml:error>
+      <tdml:error>must define</tdml:error>
+      <tdml:error>outputValueCalc</tdml:error>
+      <tdml:error>defaultable</tdml:error>
+      <tdml:error>optional</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="multipleElemSameName" xmlns:u="USMTF" elementFormDefault="unqualified">

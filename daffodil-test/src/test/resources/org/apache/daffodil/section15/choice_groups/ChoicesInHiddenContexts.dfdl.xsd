@@ -203,4 +203,29 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <xs:group name="c5">
+    <xs:choice>
+      <xs:choice>
+        <xs:sequence dfdl:initiator="[">
+          <xs:element name="e1" type="xs:string"
+            dfdl:inputValueCalc="{ 'hello' }"/>
+        </xs:sequence>
+        <xs:sequence dfdl:initiator="]">
+          <xs:element name="f1" type="xs:int" dfdl:inputValueCalc="{ 1 }"/>
+        </xs:sequence>
+      </xs:choice>
+      <xs:sequence>
+          <xs:element name="g1" type="xs:string" dfdl:outputValueCalc="{ 'g1' }"/>
+      </xs:sequence>
+    </xs:choice>
+  </xs:group>
+  <xs:element name="e10" dfdl:lengthKind="delimited">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="~">
+        <xs:sequence dfdl:hiddenGroupRef="ex:c5"/>
+        <xs:group ref="ex:c5"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

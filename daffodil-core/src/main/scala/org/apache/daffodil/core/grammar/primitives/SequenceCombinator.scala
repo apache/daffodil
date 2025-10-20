@@ -94,10 +94,10 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
          * This is a requirement for all descendants of a hidden sequence, so we
          * SDE if all descendants are not fully defaultable, optional or OVC.
          */
-        val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
+        val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfNoEvents)
         if (nonUnparseableIfHidden.nonEmpty) {
           SDE(
-            "Element(s) of hidden group must define dfdl:outputValueCalc, dfdl:inputValueCalc, be defaultable or be optional:\n%s",
+            "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
             nonUnparseableIfHidden.mkString("\n")
           )
         }
@@ -186,10 +186,10 @@ class UnorderedSequence(
          * This is a requirement for all descendants of a hidden sequence, so we
          * SDE if all descendants are not fully defaultable, optional or OVC.
          */
-        val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
+        val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfNoEvents)
         if (nonUnparseableIfHidden.nonEmpty) {
           SDE(
-            "Element(s) of hidden group must define dfdl:outputValueCalc, dfdl:inputValueCalc, be defaultable or be optional:\n%s",
+            "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
             nonUnparseableIfHidden.mkString("\n")
           )
         }
