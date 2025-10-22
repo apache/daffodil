@@ -101,6 +101,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:choice>
+            <xs:sequence dfdl:hiddenGroupRef="ex:PI_false"/>
             <xs:sequence>
               <xs:sequence dfdl:hiddenGroupRef="ex:PI_true" />
               <xs:element maxOccurs="unbounded" minOccurs="1" name="rag">
@@ -123,7 +124,6 @@
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
-            <xs:sequence dfdl:hiddenGroupRef="ex:PI_false" />
           </xs:choice>
           <xs:element maxOccurs="unbounded" minOccurs="1" name="mhg">
             <xs:complexType>

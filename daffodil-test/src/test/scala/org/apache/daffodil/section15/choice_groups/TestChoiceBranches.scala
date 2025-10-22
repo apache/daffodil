@@ -35,11 +35,16 @@ class TestChoiceBranches extends TdmlTests {
 
   val tdmlSuite = TestChoiceBranches
 
-  @Test def choiceBranch_e1_empty_selectFirst(): Unit = test
-
-  @Test def choiceBranch_e1_notEmpty_selectSecond(): Unit = test
-
-  @Test def choiceBranch_e2_notEmpty_selectFirst(): Unit = test
-
-  @Test def choiceBranch_e2_empty_selectFirst(): Unit = test
+  @Test def choiceBranch_e1(): Unit = test
+  @Test def choiceBranch_e2(): Unit = test
+  @Test def choiceBranch_e3(): Unit = test
+  @Test def choiceBranch_e1_req(): Unit = test
+  @Test def choiceBranch_e2_req(): Unit = test
+  @Test def choiceBranch_e3_req(): Unit = test
+  @Test def choiceBranch_e1_opt(): Unit = test
+  @Test def choiceBranch_e2_opt(): Unit = test
+  @Test def choiceBranch_e3_opt(): Unit = test
+  @Test def choiceBranch_e1_reqElements(): Unit = test
+  @Test def choiceBranch_e2_reqElements(): Unit = test
+  @Test def choiceBranch_e3_reqElements(): Unit = test
 }

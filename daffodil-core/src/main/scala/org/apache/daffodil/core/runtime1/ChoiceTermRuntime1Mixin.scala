@@ -80,35 +80,25 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     // element event to be in the infoset (for round-tripping from parse). It's value will
     // get recomputed, but it can appear with a stale value (left-over from parse)
     // in the arriving infoset for unparse.
-    //
-    val optDefaultBranch = {
-      val optEmpty: Option[Term] = {
-        val emptyBranches = groupMembers.filter { gm =>
-          val ies = gm.identifyingEventsForChoiceBranch
-          ies.pnes.isEmpty // empty event list makes it the default, not simply isOpen
-        }
-        if (emptyBranches.length > 1)
-          SDW(
-            WarnID.MultipleChoiceBranches,
-            "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing"
-          )
-        emptyBranches.headOption
-      }
-      val optOpen: Option[Term] =
-        optEmpty.orElse {
-          groupMembers.find { gm =>
-            val ies = gm.identifyingEventsForChoiceBranch
-            ies.isOpen // first open one is used if there is no branch that has empty event list. (test ptg_1u)
-          }
-        }
-      val optDefault: Option[Term] =
-        optOpen.orElse {
-          groupMembers.find {
-            _.canUnparseIfHidden
-          } // optional, defaultable, OVC, or IVC
-        }
-      optDefault
+    // Rather than defaulting to the first empty branch, we instead default to the first
+    // empty, open or defaultable branch.
+    val emptyOpenOrDefault = groupMembers.filter {
+      case gm if gm.identifyingEventsForChoiceBranch.pnes.isEmpty => true
+      case gm if gm.identifyingEventsForChoiceBranch.isOpen => true
+      case gm if gm.canUnparseIfHidden => true
+      case _ => false
     }
+    if (
+      emptyOpenOrDefault.length > 1 && emptyOpenOrDefault.forall(
+        _.identifyingEventsForChoiceBranch.pnes.isEmpty
+      )
+    ) {
+      SDW(
+        WarnID.MultipleChoiceBranches,
+        "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing"
+      )
+    }
+    val optDefaultBranch = emptyOpenOrDefault.headOption
 
     // converts a sequence of tuples into a multi-map
     val eventMap =
