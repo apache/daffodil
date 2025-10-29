@@ -39,6 +39,19 @@
       </xs:sequence>
     </xs:group>
 
+    <xs:group name="choice_a">
+      <xs:choice>
+        <xs:element name="req_a" dfdl:initiator="first_required" type="xs:string"
+          dfdl:lengthKind="explicit"
+          dfdl:outputValueCalc="{'a'}"
+          dfdl:length="1"/>
+        <xs:element name="req_b" dfdl:initiator="second_required" type="xs:string"
+          dfdl:lengthKind="explicit"
+          dfdl:outputValueCalc="{'b'}"
+          dfdl:length="1"/>
+      </xs:choice>
+    </xs:group>
+
     <xs:group name="optElement">
       <xs:sequence>
         <xs:element name="opt" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="1"/>
@@ -118,6 +131,64 @@
             <xs:group dfdl:initiator="third_defaultable" ref="ex:optElement"/>  <!-- canUnparseIfHidden/isOpen -->
 
             <xs:element name="req" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          </xs:choice>
+          <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:element name="req_a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="req_b" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          </xs:choice>
+          <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:element name="req_1"
+              maxOccurs="unbounded"
+              dfdl:initiator="first_required"
+              type="xs:string"
+              dfdl:lengthKind="explicit"
+              dfdl:length="1"/>
+            <xs:element name="req_2"
+              maxOccurs="unbounded"
+              dfdl:initiator="second_required"
+              type="xs:string"
+              dfdl:lengthKind="explicit"
+              dfdl:length="1"/>
+          </xs:choice>
+          <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:element name="req_1"
+              maxOccurs="unbounded"
+              dfdl:initiator="first_required"
+              default="1"
+              type="xs:string"
+              dfdl:lengthKind="explicit"
+              dfdl:length="1"/>
+            <xs:element name="req_2"
+              maxOccurs="unbounded"
+              dfdl:initiator="second_required"
+              default="2"
+              type="xs:string"
+              dfdl:lengthKind="explicit"
+              dfdl:length="1"/>
           </xs:choice>
           <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
         </xs:sequence>
@@ -229,13 +300,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>third_defaultable01</tdml:document>
-
-    <tdml:warnings>
-      <tdml:warning>MultipleChoiceBranches</tdml:warning>
-      <tdml:warning>selecting</tdml:warning>
-      <tdml:warning>first branch</tdml:warning>
-      <tdml:warning>for unparsing</tdml:warning>
-    </tdml:warnings>
   </tdml:unparserTestCase>
 
 
@@ -273,6 +337,53 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>second_openabc1</tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choiceBranch_e4" model="choiceBranches" root="e4">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <after>1</after>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>expected one of</tdml:error>
+      <tdml:error>req_a</tdml:error>
+      <tdml:error>req_b</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choiceBranch_e5" model="choiceBranches" root="e5">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <after>1</after>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Found</tdml:error>
+      <tdml:error>after</tdml:error>
+      <tdml:error>expected one of</tdml:error>
+      <tdml:error>req_1</tdml:error>
+      <tdml:error>req_2</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="choiceBranch_e6" model="choiceBranches" root="e6">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <after>1</after>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>subset</tdml:error>
+      <tdml:error>default</tdml:error>
+      <tdml:error>not implemented</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

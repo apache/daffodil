@@ -436,6 +436,9 @@ trait ElementBase
     else MustExist
   }
 
+  /**
+   * is OVC, optional, or an array with no required elements
+   */
   lazy val canBeAbsentFromUnparseInfoset: Boolean = {
     import UnparserInfo.*
     unparserInfosetElementDefaultingBehavior !=:= MustExist
@@ -1290,6 +1293,12 @@ trait ElementBase
               )
             case _ => // ok
           }
+        }
+        if (isArrayWithAtLeastOneRequiredArrayElement && hasDefaultValue) {
+          subsetError(
+            "XSD default='%s' is not implemented.",
+            defaultValueAsString
+          )
         }
         Assert.invariant(hasDefaultValue)
         !isOptional &&

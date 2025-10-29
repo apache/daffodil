@@ -80,26 +80,15 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     // element event to be in the infoset (for round-tripping from parse). It's value will
     // get recomputed, but it can appear with a stale value (left-over from parse)
     // in the arriving infoset for unparse.
-    // Rather than defaulting to the first empty branch, we instead default to the first
-    // empty, open or defaultable branch.
-    val emptyOpenOrDefault = groupMembers.filter {
-      case gm if gm.identifyingEventsForChoiceBranch.pnes.isEmpty => true
-      case gm if gm.identifyingEventsForChoiceBranch.isOpen => true
-      case gm if gm.canUnparseIfHidden => true
+    // Rather than defaulting to the first empty (i.e no possible next elements) branch,
+    // we instead default to the first defaultable element (i.e has a defined dfdl:outputValueCalc,
+    // dfdl:inputValueCalc, an optional branch or an array branch with no required elements).
+    // It is important to note that canUnparseIfNoEvent subsumes empty branches, as well as
+    // open/optional branches, so we don't need to explicitly check for those
+    val optDefaultBranch = groupMembers.find {
+      case gm if gm.canUnparseIfNoEvents => true
       case _ => false
     }
-    if (
-      emptyOpenOrDefault.length > 1 && emptyOpenOrDefault.forall(
-        _.identifyingEventsForChoiceBranch.pnes.isEmpty
-      )
-    ) {
-      SDW(
-        WarnID.MultipleChoiceBranches,
-        "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing"
-      )
-    }
-    val optDefaultBranch = emptyOpenOrDefault.headOption
-
     // converts a sequence of tuples into a multi-map
     val eventMap =
       eventTuples

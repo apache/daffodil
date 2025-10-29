@@ -126,7 +126,7 @@ trait TermRuntime1Mixin { self: Term =>
       //
       // An array may be required in the infoset, but the array
       // may also be terminated by finding the next element after the array,
-      // so we get closed only if required and not an array.
+      // so we get closed only if required.
       //
       case eb: ElementBase if (eb.isRequiredStreamingUnparserEvent) =>
         Closed(Seq(PNE(eb, true)))
@@ -234,6 +234,9 @@ trait TermRuntime1Mixin { self: Term =>
       case stb: SequenceTermBase => {
         followingLexicalSiblingStreamingUnparserElements
       }
+      // if it's an array, we want itself and its following lexical siblings
+      case e: ElementBase if isArray =>
+        possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
       case _: ElementBase | _: ChoiceTermBase => {
         // If this element is closed, we only want it and not it's siblings
         if (possibleThisTermNextStreamingUnparserElements.isClosed)
@@ -280,7 +283,7 @@ trait TermRuntime1Mixin { self: Term =>
         //
         // An array may be required in the infoset, but the array
         // may also be terminated by finding the next element after the array,
-        // so we get closed only if required and not an array.
+        // so we get closed only if required.
         //
         case eb: ElementBase if (eb.isRequiredStreamingUnparserEvent) =>
           Closed(Seq(PNE(eb, true)))
@@ -354,6 +357,10 @@ trait TermRuntime1Mixin { self: Term =>
           }
           case (Closed(pnes1), Open(List())) => {
             thisItself // case of Closed(...) followed by empty list, which is default for nothing
+          }
+          case (Closed(pnes1), Closed(pnes2)) if isArray => {
+            // if it's an array, it should return itself, and its following lexical siblings
+            Closed((pnes1 ++ pnes2).distinct)
           }
           case (Closed(pnes1), Closed(pnes2)) => {
             thisItself // When everything is closed, we only want thisItself and not the entire list of Closed possibilities
@@ -451,6 +458,13 @@ trait TermRuntime1Mixin { self: Term =>
       case _ => {
         val trd = context.termRuntimeData
         val (sibs, isRequiredStreamingUnparserEvent) = possibles match {
+          // if it's a required array, we have to account for the fact that the array
+          // can be terminated by finding the next element after the array. In that case,
+          // we wouldn't want isRequiredStreamingUnparserEvent to be true, because that would
+          // cause the resolver to return an UnexpectedElementError when the next element is found,
+          // and it wouldn't backtrack like we'd expect it to, so for required arrays,
+          // we override the isRequiredStreamingUnparserEvent to be false.
+          case PossibleNextElements.Closed(sibs) if isArray => (sibs, false)
           case PossibleNextElements.Closed(sibs) => (sibs, true)
           case PossibleNextElements.Open(sibs) => (sibs, false)
           case PossibleNextElements.DoNotUse =>

@@ -91,8 +91,15 @@ trait RequiredOptionalMixin { self: ElementBase =>
     val res = {
       if (isScalar) !this.isOutputValueCalc
       else if (isOptional) false
-      // Treat all arrays as non-required so that we can tolerate invalid
-      // infosets where the number of events is fewer than the array minimum occurrences.
+      // Treat all arrays as non-required if it has a default value or is optional
+      // so that we can tolerate invalid infosets where the number of events is
+      // fewer than the array minimum occurrences.
+      // But we don't want to unparse malformed data, so we only return true (required) if it is
+      // not defaultable (not yet implemented, so it will never be true at this point, but will
+      // produce a subset error with required arrays so people don't depend on broken/nyi behavior)
+      // and minOCcurs > 0
+      else if (isArray && isDefaultable) false
+      else if (isArrayWithAtLeastOneRequiredArrayElement) true
       else if (isArray) false
       else if (minOccurs == 0 && maxOccurs == 0) false
       else {

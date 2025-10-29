@@ -179,11 +179,11 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     poss(a) match {
-      case Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, true))) =>
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, true), PNE(`c`, true))) =>
       case _ => fail()
     }
     poss(b) match {
-      case Closed(Seq(PNE(`b`, false), PNE(`c`, true))) =>
+      case Closed(Seq(PNE(`b`, true), PNE(`c`, true))) =>
       case _ => fail()
     }
     poss(c) match {
@@ -220,11 +220,11 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail(); null
     }
     poss(a) match {
-      case Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) =>
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, true), PNE(`c`, false), PNE(`d`, false))) =>
       case _ => fail()
     }
     poss(b) match {
-      case Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) =>
+      case Closed(Seq(PNE(`b`, true), PNE(`c`, false), PNE(`d`, false))) =>
       case _ => fail()
     }
     poss(gr) match {
@@ -282,11 +282,11 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     poss(a) match {
-      case Open(Seq(PNE(`a`, false), PNE(`b`, false))) =>
+      case Closed(Seq(PNE(`a`, false), PNE(`b`, true))) =>
       case _ => fail()
     }
     poss(b) match {
-      case Open(Seq(PNE(`b`, false))) =>
+      case Closed(Seq(PNE(`b`, true))) =>
       case _ => fail()
     }
     poss(cgr) match {
@@ -437,7 +437,7 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     poss(rg) match {
-      case Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
       case _ => fail()
     }
     poss(c) match {
@@ -588,7 +588,7 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     poss(cgr) match {
-      case Open(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
+      case Closed(Seq(PNE(`c`, false), PNE(`d`, false), PNE(`e`, false))) =>
       case _ => fail()
     }
     poss(gr) match {
@@ -627,7 +627,7 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     poss(b) match {
-      case Closed(Seq(PNE(`b`, false), PNE(`c`, true))) =>
+      case Closed(Seq(PNE(`b`, true), PNE(`c`, true))) =>
       case _ => fail()
     }
     poss(c) match {
@@ -685,7 +685,7 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     val (vg_inty, vg_stringy) = poss(g2c3) match {
-      case Closed(Seq(PNE(`g2c3`, false), PNE(vg_inty, false), PNE(vg_stringy, false))) =>
+      case Closed(Seq(PNE(`g2c3`, true), PNE(vg_inty, false), PNE(vg_stringy, false))) =>
         (vg_inty, vg_stringy)
       case _ => fail(); null
     }
@@ -1047,7 +1047,7 @@ class TestStreamingUnparserCompilerAttributes {
       case _ => fail()
     }
     poss(pg) match {
-      case Open(Seq(PNE(`b`, false))) =>
+      case Closed(Seq(PNE(`b`, true))) =>
       case _ => fail()
     }
     poss(ag) match {

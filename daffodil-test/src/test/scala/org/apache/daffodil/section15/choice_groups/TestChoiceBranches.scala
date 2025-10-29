@@ -19,32 +19,45 @@ package org.apache.daffodil.section15.choice_groups
 
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
-import org.apache.daffodil.tdml.Runner
 
 import org.junit.Test
 
 object TestChoiceBranches extends TdmlSuite {
   val tdmlResource =
     "/org/apache/daffodil/section15/choice_groups/ChoiceBranches.tdml"
-
-  override def createRunner() =
-    Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
 }
 
 class TestChoiceBranches extends TdmlTests {
 
   val tdmlSuite = TestChoiceBranches
 
-  @Test def choiceBranch_e1(): Unit = test
-  @Test def choiceBranch_e2(): Unit = test
-  @Test def choiceBranch_e3(): Unit = test
-  @Test def choiceBranch_e1_req(): Unit = test
-  @Test def choiceBranch_e2_req(): Unit = test
-  @Test def choiceBranch_e3_req(): Unit = test
-  @Test def choiceBranch_e1_opt(): Unit = test
-  @Test def choiceBranch_e2_opt(): Unit = test
-  @Test def choiceBranch_e3_opt(): Unit = test
-  @Test def choiceBranch_e1_reqElements(): Unit = test
-  @Test def choiceBranch_e2_reqElements(): Unit = test
-  @Test def choiceBranch_e3_reqElements(): Unit = test
+  @Test def choiceBranch_e1 = test
+
+  @Test def choiceBranch_e2 = test
+
+  @Test def choiceBranch_e3 = test
+
+  @Test def choiceBranch_e1_req = test
+
+  @Test def choiceBranch_e2_req = test
+
+  @Test def choiceBranch_e3_req = test
+
+  @Test def choiceBranch_e1_opt = test
+
+  @Test def choiceBranch_e2_opt = test
+
+  @Test def choiceBranch_e3_opt = test
+
+  @Test def choiceBranch_e1_reqElements = test
+
+  @Test def choiceBranch_e2_reqElements = test
+
+  @Test def choiceBranch_e3_reqElements = test
+
+  @Test def choiceBranch_e4 = test
+
+  @Test def choiceBranch_e5 = test
+
+  @Test def choiceBranch_e6 = test
 }

@@ -351,7 +351,11 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
         if (!e.isRepresented)
           NotRepresentedZeroLengthDetector
-        else if (e.isArray && !e.isRequiredStreamingUnparserEvent)
+        else if (
+          e.isArray
+          && (!e.isRequiredStreamingUnparserEvent || e.isEmptyAnObservableConcept)
+        )
+          // optional or empty array
           PossiblyZeroArrayOccurrencesDetector
         else {
           Assert.invariant(e.isRepresented)
