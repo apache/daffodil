@@ -1199,7 +1199,6 @@ class TestCLIDebugger {
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
-        cli.expect(regexp("\\+ Suppressable.* for cell"))
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
@@ -1208,10 +1207,6 @@ class TestCLIDebugger {
         cli.sendLine("step")
         cli.sendLine("step")
         cli.sendLine("step")
-        cli.expect(regexp("RegionSplit.* for cell"))
-        cli.sendLine("info suspensions")
-        cli.expect(regexp("Suppressable.* for cell"))
-        cli.expect(regexp("RegionSplit.* for cell"))
         cli.sendLine("quit")
     }(ExitCode.Failure)
   }

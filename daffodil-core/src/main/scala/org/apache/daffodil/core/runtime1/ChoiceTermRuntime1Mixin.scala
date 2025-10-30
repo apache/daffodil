@@ -80,11 +80,9 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     // element event to be in the infoset (for round-tripping from parse). It's value will
     // get recomputed, but it can appear with a stale value (left-over from parse)
     // in the arriving infoset for unparse.
-    // Rather than defaulting to the first empty (i.e no possible next elements) branch,
-    // we instead default to the first defaultable element (i.e has a defined dfdl:outputValueCalc,
-    // dfdl:inputValueCalc, an optional branch or an array branch with no required elements).
-    // It is important to note that canUnparseIfNoEvent subsumes empty branches, as well as
-    // open/optional branches, so we don't need to explicitly check for those
+    // We default to the first branch can be unparsed entirely without any infoset events
+    // (i.e. made up of elements that are dfdl:outputValueCalc, dfdl:inputValueCalc,
+    // optional branches, zero length arrays, or defaultable elements)
     val optDefaultBranch = groupMembers.find {
       case gm if gm.canUnparseIfNoEvents => true
       case _ => false
