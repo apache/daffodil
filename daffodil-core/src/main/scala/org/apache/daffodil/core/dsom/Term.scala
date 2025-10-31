@@ -512,19 +512,19 @@ trait Term
    * aren't fully implemented everywhere. This function may need to change when
    * defaults are fully implemented.
    */
-  lazy val canUnparseIfHidden: Boolean = {
+  lazy val canUnparseIfNoEvents: Boolean = {
     val res = this match {
       case s: SequenceTermBase => {
         s.groupMembers.forall { member =>
-          val res = member.canUnparseIfHidden
+          val res = member.canUnparseIfNoEvents
           res
         }
       }
       case c: ChoiceTermBase => {
-        c.groupMembers.exists { _.canUnparseIfHidden }
+        c.groupMembers.exists { _.canUnparseIfNoEvents }
       }
       case e: ElementBase if e.isComplexType => {
-        e.complexType.group.canUnparseIfHidden
+        e.complexType.group.canUnparseIfNoEvents
       }
       case e: ElementBase => {
         !e.isRepresented || e.canBeAbsentFromUnparseInfoset
