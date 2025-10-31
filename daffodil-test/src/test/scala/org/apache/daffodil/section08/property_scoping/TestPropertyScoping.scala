@@ -79,6 +79,7 @@ class TestPropertyScoping01 extends TdmlTests {
   @Test def unparse_property_scoping_11 = test
   @Test def unparse_property_scoping_12 = test
   @Test def NearestEnclosingSequenceElementRef = test
+  @Test def property_scoping_12 = test
 
   @Test def refElementFormFail = test
 }

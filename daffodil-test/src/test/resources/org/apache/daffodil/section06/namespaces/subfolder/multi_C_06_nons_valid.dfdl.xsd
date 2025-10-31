@@ -33,6 +33,6 @@
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:element name="cElem" type="xs:string" dfdl:initiator="c:" dfdl:outputValueCalc="{ 'done' }" />
+  <xs:element name="cElem" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="c:" dfdl:outputValueCalc="{ 'done' }" />
 
 </xs:schema>

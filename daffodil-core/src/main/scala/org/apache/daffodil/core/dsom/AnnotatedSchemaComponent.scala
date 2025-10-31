@@ -107,10 +107,24 @@ trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
   private def findDefaultProperty(pname: String): PropertyLookupResult = {
     val result = findPropertyInSources(pname, defaultPropertySources)
     val fixup = result match {
-      case Found(value, loc, pname, _) =>
+      case Found(value, loc, pname, _) => {
+        // we found the property in default format annotation. Daffodil 4.1.0 correct the order
+        // we resolve default property sources to match the DFDL specification. Fortunately,
+        // this does not affect most schemas, but for those that it does, it can be very
+        // difficult to determine what the old value was. So we lookup property sources in the
+        // old incorrect reversed order and see if we find the same value and warn if not
+        val oldResult = findPropertyInSources(pname, defaultPropertySourcesReversed)
+        val oldValue = oldResult.toOption.get
+        schemaDefinitionWarningWhen(
+          WarnID.ChangedDefaultPropertyResolution,
+          oldValue != value,
+          s"""Value of property $pname changed from "$oldValue" to "$value" due to corrections in default property resolution."""
+        )
+
         // found as a default property.
         // supply constructor's last arg is boolean indicating it's a default property
         Found(value, loc, pname, true)
+      }
       case NotFound(nd, d, pn) =>
         Assert.invariant(d.isEmpty)
         NotFound(
@@ -357,14 +371,31 @@ trait AnnotatedSchemaComponent
       }
     }.value
 
-  final protected lazy val defaultPropertySources: Seq[ChainPropProvider] =
-    LV(Symbol("defaultPropertySources")) {
+  /**
+   * The default property sources we should use for resolving property values are calculated by
+   * combining the default chain of referred components with our own default chain. We do this
+   * by prepending our own defaultFormatChain to the chain of referred components. Prepends are
+   * efficient, but this creates the chain in the reverse order, since we want to give
+   * precedence to the innermost referred components (see section 8.1.4 of the DFDL
+   * specification). We could reverse it now, but the reversed list is actually useful to keep
+   * around. For example, Daffodil 4.1.0 fixed a bug to correctly use the non-reversed order,
+   * but some schemas relied on this buggy behavior. By storing the old reversed order, we can
+   * use this to detect and warn if schemas are relying on the buggy behavior.
+   */
+  final protected lazy val defaultPropertySourcesReversed: Seq[ChainPropProvider] =
+    LV(Symbol("defaultPropertySourcesReversed")) {
       val refTo = refersToForPropertyCombining
-      val chainFromReferredTo = refTo.toSeq.map { _.defaultPropertySources }.distinct.flatten
+      val chainFromReferredTo =
+        refTo.toSeq.map { _.defaultPropertySourcesReversed }.distinct.flatten
       val completeDefaultFormatChain =
         defaultFormatChain +: chainFromReferredTo
       val seq = completeDefaultFormatChain.distinct
       seq
+    }.value
+
+  final protected lazy val defaultPropertySources: Seq[ChainPropProvider] =
+    LV(Symbol("defaultPropertySources")) {
+      defaultPropertySourcesReversed.reverse
     }.value
 
   final protected lazy val nonDefaultFormatChain: ChainPropProvider = {

@@ -686,4 +686,18 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="property_scoping_12"
+    model="PropertyScoping_06a.dfdl.xsd"
+    description="Section 8 Default properties inherited from referenced components">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00000001</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:int01>1</tns:int01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
