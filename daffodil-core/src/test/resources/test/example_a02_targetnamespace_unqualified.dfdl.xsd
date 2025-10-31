@@ -43,7 +43,7 @@
   </xs:annotation>
 
   <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited"/>
-  <xs:element name="intx" type="xs:int" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="^"/>
+  <xs:element name="intx" type="xs:int" dfdl:lengthKind="delimited" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="^"/>
 
 
 </xs:schema>

@@ -713,6 +713,7 @@
               <xs:documentation>Deprecated.</xs:documentation>
             </xs:annotation>
           </xs:enumeration>
+          <xs:enumeration value="changedDefaultPropertyResolution" />
           <xs:enumeration value="deprecatedBuiltInFormats" />
           <xs:enumeration value="deprecatedEncodingNameUSASCII7BitPacked" />
           <xs:enumeration value="deprecatedExpressionResultCoercion" />

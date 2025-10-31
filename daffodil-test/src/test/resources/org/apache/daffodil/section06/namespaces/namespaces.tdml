@@ -744,18 +744,18 @@
     as a restriction base.
     - In Schema B, an element is declared of the simpleType in C.
     - In Schema A, a sequence of B elements is declared
-    In this case, each Schema file in the chain, starting at F, imposes its 
-    own terminator value, named
-    after the schema itself (Schema E's terminator is "E", B's is "B", etc.). 
-    Each time a new schema is used
-    in the chain, the separator is overwritten. Schema B is the last schema 
-    in the chain to set this value,
-    so the terminator for our data set will be "B".
+    In this case, each Schema file in the chain, starting at F, sets a default
+    terminator value, named after the schema itself (Schema E's terminator is
+    "E", B's is "B", etc.). 
+    Each time a new schema is used in the chain, the separator is overwritten.
+    Default properties are resolved from the defaults of the innermost schema
+    components, which in this case is schema E, so the terminator for our data
+    set will be "E"
   -->
 
   <tdml:parserTestCase name="long_chain_06" root="nestSequence6"
     model="multi_A_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
-    <tdml:document><![CDATA[5632B]]></tdml:document>
+    <tdml:document><![CDATA[5632E]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <nestSequence6>
