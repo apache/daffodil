@@ -51,6 +51,7 @@ trait ElementBaseGrammarMixin
   with ElementBaseRuntime1Mixin { self: ElementBase =>
 
   requiredEvaluationsIfActivated(checkPrefixedLengthElementDecl)
+  requiredEvaluationsIfActivated(checkDelimitedLengthEVDP)
 
   private val context = this
 
@@ -78,6 +79,20 @@ trait ElementBaseGrammarMixin
       case Pattern => true
       case Prefixed => true
       case _ => false
+    }
+  }
+
+  final lazy val checkDelimitedLengthEVDP: Unit = {
+    if (
+      optionEmptyValueDelimiterPolicy.isDefined
+      && emptyValueDelimiterPolicy != EmptyValueDelimiterPolicy.Both
+      && (hasInitiator || hasTerminator)
+    ) {
+      SDW(
+        WarnID.EmptyValueDelimiterPolicyWarning,
+        "dfdl:emptyValueDelimiterPolicy='%s' will be ignored as it's only implemented for 'both'",
+        emptyValueDelimiterPolicy
+      )
     }
   }
 

@@ -609,4 +609,75 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s7" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      emptyValueDelimiterPolicy="none"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      separatorSuppressionPolicy="trailingEmpty"
+    />
+
+    <xs:element name="input">
+      <xs:complexType>
+        <xs:sequence
+          dfdl:separator=","
+          dfdl:separatorPosition="infix"
+          dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element
+            name="FirstName"
+            type="xs:string"/>
+          <xs:element
+            name="MiddleName"
+            type="xs:string"
+            dfdl:initiator="("
+            dfdl:terminator=")"
+            dfdl:emptyValueDelimiterPolicy="none"/>
+          <xs:element
+            name="LastName"
+            type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_evdp_1" root="input" model="s7"
+    implementations="daffodil" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">John,(),Doe</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <input>
+          <FirstName>John</FirstName>
+          <MiddleName></MiddleName>
+          <LastName>Doe</LastName>
+        </input>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>emptyValueDelimiterPolicyWarning</tdml:warning>
+      <tdml:warning>none</tdml:warning>
+      <tdml:warning>ignored</tdml:warning>
+      <tdml:warning>both</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_evdp_2" root="input" model="s7"
+    implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">John,,Doe</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <input>
+          <FirstName>John</FirstName>
+          <MiddleName></MiddleName>
+          <LastName>Doe</LastName>
+        </input>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 </tdml:testSuite>
