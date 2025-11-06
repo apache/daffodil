@@ -39,7 +39,7 @@ jobs:
       fail-fast: false
       matrix:
         java_distribution: [ temurin ]
-        java_version: [ 17, 21, 24 ]
+        java_version: [ 17, 21, 25 ]
         scala_version: [ 3.3.6 ]
         os: [ ubuntu-22.04, windows-2022, macos-14 ]
         exclude:
@@ -47,7 +47,7 @@ jobs:
           - os: macos-14
             java_version: 21
           - os: macos-14
-            java_version: 24
+            java_version: 25
         include:
           # configure shell/cc/ar for all OSes
           - os: ubuntu-22.04
