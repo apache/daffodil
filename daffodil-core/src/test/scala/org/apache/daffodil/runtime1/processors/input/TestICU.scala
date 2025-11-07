@@ -270,8 +270,8 @@ class TestICU {
 
   // shows that with parseStrict and decimalPatternMatch required, that ICU requires or
   // disallows a decimal point in the data based on whether or not a decimal point appears in
-  // the pattern. Also shows ICU failing to parse infinity/nan when decimalPatternMatchRequired
-  // is true and the pattern contains a decimal.
+  // the pattern. Also shows that ICU 78.1 fixed ICU-22303, now correctly parsing infinity/nan
+  // when decimalPatternMatchRequired is true and the pattern contains a decimal.
   @Test def test_decimalPatternMatchRequired(): Unit = {
     val dfs = new DecimalFormatSymbols(ULocale.US)
 
@@ -283,8 +283,8 @@ class TestICU {
 
     assertEquals(JLong.valueOf(1), df.parse("1.0", pp))
     assertEquals(null, df.parse("1", pp))
-    assertEquals(null, df.parse(dfs.getInfinity, pp)) // see ICU-22303
-    assertEquals(null, df.parse(dfs.getNaN, pp)) // see ICU-22303
+    assertEquals(JDouble.POSITIVE_INFINITY, df.parse(dfs.getInfinity, pp)) // see ICU-22303
+    assertEquals(JDouble.NaN, df.parse(dfs.getNaN, pp)) // see ICU-22303
 
     assertEquals("1.0", df.format(1L))
     assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
@@ -305,8 +305,8 @@ class TestICU {
 
     assertEquals(JLong.valueOf(1), df.parse("1.0", pp))
     assertEquals(null, df.parse("1", pp))
-    assertEquals(null, df.parse(dfs.getInfinity, pp)) // see ICU-22303
-    assertEquals(null, df.parse(dfs.getNaN, pp)) // see ICU-22303
+    assertEquals(JDouble.POSITIVE_INFINITY, df.parse(dfs.getInfinity, pp)) // see ICU-22303
+    assertEquals(JDouble.NaN, df.parse(dfs.getNaN, pp)) // see ICU-22303
 
     assertEquals("1", df.format(1L))
     assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))

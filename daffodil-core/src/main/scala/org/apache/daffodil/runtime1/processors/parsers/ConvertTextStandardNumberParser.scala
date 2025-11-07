@@ -192,43 +192,22 @@ case class ConvertTextStandardNumberParser(
         val pos = new ParsePosition(0)
         val icuNum: JNumber = df.parse(strToParse, pos) match {
           case null => {
-            val infNaN: JDouble =
-              if (df.isDecimalPatternMatchRequired) {
-                // ICU failed to parse. But there is a bug in ICU4J (ICU-22303) that if there is
-                // a decimal in the pattern and we've set that decimal to be required (due to
-                // strict mode), then it will fail to parse Inf/NaN representations. As a
-                // workaround, we clone the DecimalFormat, disable requiring the decimal, and
-                // reparse. We only accept successful Inf/NaN parses though--everything else is
-                // considered a parse error since it meant the decimal point was missing or
-                // wasn't either inf/nan or a valid number. If ICU fixes this bug, we should
-                // remove this infNan variable and its use, as it is likely pretty expensive to
-                // clone, change a setting, and reparse. Fortunately, it is only in the error
-                // case of strict parsing so should be rare.
-                pos.setIndex(0)
-                val newDF = df.clone().asInstanceOf[DecimalFormat]
-                newDF.setDecimalPatternMatchRequired(false)
-                newDF.parse(strToParse, pos) match {
-                  case d: JDouble => {
-                    Assert.invariant(d.isNaN || d.isInfinite)
-                    d
-                  }
-                  case _ => null
-                }
-              } else {
-                null
-              }
-
-            if (infNaN != null) {
-              infNaN
-            } else {
-              PE(
-                start,
-                "Unable to parse %s from text: %s",
-                context.optPrimType.get.globalQName,
-                str
-              )
-              return
-            }
+            // null indicates that ICU4J was unable to parse the string to a number matching the
+            // pattern and properties (e.g. grouping separator, decimal separator)--this is a
+            // processing error. Note that we do not need to consider that the string might have
+            // been textStandardInfinityRep or textStandardNaNRep like we had to do for
+            // textStandardZeroRep above. This is because those are handle by ICU4J--the
+            // textNumberFormatEv is built with a DecimalFormatSymbols instance that has the
+            // infinity and NaN representations set based on those properties. This means that
+            // if df.parse() returns null then we know it was not infinity, NaN, or a number
+            // matching the pattern/properties
+            PE(
+              start,
+              "Unable to parse %s from text: %s",
+              context.optPrimType.get.globalQName,
+              str
+            )
+            return
           }
           case d: JDouble => {
             // ICU returns a Double only if it parsed NaN, Infinity, -Infinity, or negative
