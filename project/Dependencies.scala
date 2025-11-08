@@ -28,7 +28,7 @@ object Dependencies {
     "com.ibm.icu" % "icu4j" % "77.1",
     ("xerces" % "xercesImpl" % "2.12.2").exclude("xml-apis", "xml-apis"),
     "xml-resolver" % "xml-resolver" % "1.2",
-    "commons-io" % "commons-io" % "2.20.0",
+    "commons-io" % "commons-io" % "2.21.0",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
   )
 
