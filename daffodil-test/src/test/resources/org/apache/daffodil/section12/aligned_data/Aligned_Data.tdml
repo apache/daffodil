@@ -603,6 +603,438 @@
     </xs:element>
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="s2" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      lengthUnits="bits"
+      alignmentUnits="bits"
+      encoding="US-ASCII"
+    />
+
+    <xs:element name="postfix_init">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:initiator="I"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfix_init_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:fillByte="1" dfdl:initiator="I">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e2" type="xs:string"
+            dfdl:length="16" dfdl:fillByte="2"
+            dfdl:lengthKind="explicit" dfdl:alignment="16"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+     <xs:element name="postfix_term">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A" dfdl:terminator="T"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfix_term_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:fillByte="1" dfdl:terminator="T">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e2" type="xs:string"
+            dfdl:length="16" dfdl:fillByte="2"
+            dfdl:lengthKind="explicit" dfdl:alignment="16"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="prefixType" dfdl:lengthKind="explicit" dfdl:length="8">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:element name="prefixed_element">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+                      dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="c" type="xs:string"
+                            dfdl:length="16"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="16"
+                            dfdl:fillByte="C"/>
+                <xs:element name="a" type="xs:string"
+                            dfdl:prefixLengthType="ex:prefixType"
+                            dfdl:prefixIncludesPrefixLength="no"
+                            dfdl:lengthKind="prefixed"
+                            dfdl:alignment="16"
+                            dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="16"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="16"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s3" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format
+        ref="ex:GeneralFormat"
+        representation="text"
+        lengthKind="delimited"
+        separatorPosition="infix"
+        lengthUnits="bytes"
+        alignmentUnits="bytes"
+        encoding="US-ASCII"
+    />
+    <xs:simpleType name="prefixType" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:element name="prefixed_element">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+                      dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="c" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="C"/>
+                <xs:element name="a" type="xs:string"
+                            dfdl:prefixLengthType="ex:prefixType"
+                            dfdl:prefixIncludesPrefixLength="no"
+                            dfdl:lengthKind="prefixed"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+    <xs:simpleType name="prefixType_bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="16">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="deep_prefixed_inner" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="16">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="deep_prefixed_outer"
+      dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixType_bits"
+      dfdl:prefixIncludesPrefixLength="no">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:element name="prefixed_element_bits">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+                      dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="c" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="C"/>
+                <xs:element name="a" type="xs:string"
+                            dfdl:lengthUnits="bits"
+                            dfdl:prefixLengthType="ex:prefixType_bits"
+                            dfdl:prefixIncludesPrefixLength="no"
+                            dfdl:lengthKind="prefixed"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="prefixed_element_nested">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+                      dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="c" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="C"/>
+                <xs:element name="a" type="xs:string"
+                            dfdl:lengthUnits="bits"
+                            dfdl:prefixLengthType="ex:deep_prefixed_outer"
+                            dfdl:prefixIncludesPrefixLength="no"
+                            dfdl:lengthKind="prefixed"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s4" elementFormDefault="unqualified">
+
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+  <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      lengthUnits="bytes"
+      alignmentUnits="bytes"
+      encoding="US-ASCII"
+  />
+
+    <xs:element name="elem">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+                      dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                            dfdl:encoding="X-DFDL-BITS-MSBF"
+                            dfdl:lengthUnits="bits"
+                            dfdl:fillByte="%#r00;"
+                            dfdl:length="4"
+                            dfdl:lengthKind="explicit"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="0"
+                            dfdl:lengthKind="explicit"
+                            dfdl:trailingSkip="4"
+                            dfdl:fillByte="%#rFF;"/>
+                <xs:element name="c" type="xs:string"
+                            dfdl:encoding="X-DFDL-BITS-MSBF"
+                            dfdl:lengthUnits="bits"
+                            dfdl:fillByte="%#r00;"
+                            dfdl:length="4"
+                            dfdl:lengthKind="explicit"
+                />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s5" elementFormDefault="unqualified">
+
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+  <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="explicit"
+      lengthUnits="bytes"
+      alignmentUnits="bytes"
+      encoding="US-ASCII"
+  />
+
+    <xs:element name="elem1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e0" type="xs:string" dfdl:length="1"/>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:alignment="2"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:fillByte="A"
+                  dfdl:length="1"
+                  dfdl:alignment="2"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="1"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="elem2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+<!--          <xs:element name="e0" type="xs:string" dfdl:length="1"/>-->
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:alignment="2"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:int"
+                  dfdl:representation="binary"
+                  dfdl:fillByte="%#rFF;"
+                  dfdl:encoding="X-DFDL-BITS-MSBF"
+                  dfdl:lengthUnits="bits"
+                  dfdl:alignmentUnits="bits"
+                  dfdl:length="4"/>
+                <xs:element name="b" type="xs:int"
+                  minOccurs="0"
+                  dfdl:representation="binary"
+                  dfdl:initiator="-"
+                  dfdl:fillByte="%#r00;"
+                  dfdl:length="1"
+                  dfdl:alignment="1"/>
+                <xs:element name="c" type="xs:int"
+                  dfdl:representation="binary"
+                            dfdl:length="1"
+                            dfdl:alignment="1"
+                            dfdl:fillByte="%#rFF;"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="elem3" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e0" type="xs:string" dfdl:length="1"/>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:alignment="2"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="opt" type="xs:string"
+                  minOccurs="0"
+                  dfdl:initiator="-"
+                  dfdl:fillByte="O"
+                  dfdl:length="1"
+                  dfdl:alignment="2"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="1"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="innerPrefixType" dfdl:lengthKind="explicit" dfdl:representation="binary" dfdl:length="1">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="outerPrefixType" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:innerPrefixType"
+      dfdl:prefixIncludesPrefixLength="no"
+      dfdl:representation="binary">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+
+
+    <xs:element name="elem4" type="xs:int"
+      dfdl:representation="binary" dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:outerPrefixType"
+      dfdl:prefixIncludesPrefixLength="no"
+      dfdl:initiator="FOO:" dfdl:encoding="US-ASCII" />
+  </tdml:defineSchema>
+
   <!--
      Test Name: impAlignmentHexBinary
         Schema: implicitAlignmentSchema
@@ -3908,6 +4340,277 @@
       <tdml:documentPart type="bits">00101100</tdml:documentPart> <!-- us-ascii comma separator -->
       <tdml:documentPart type="bits">01</tdml:documentPart> <!-- base-4 "1" string (no mta fill bits)-->
     </tdml:document>
+  </tdml:unparserTestCase>
+  
+    <tdml:unparserTestCase name="test_init_alignment_1" root="postfix_init" model="s2" roundTrip="onePass">
+    <tdml:document>IaaBbb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_init xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:postfix_init>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_init_alignment_2" root="postfix_init_2" model="s2" roundTrip="onePass">
+    <tdml:document>IAaabbee</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_init_2 xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+          <e2>ee</e2>
+        </ex:postfix_init_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_term_alignment_1" root="postfix_term" model="s2" roundTrip="onePass">
+    <tdml:document>aaTBbb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_term xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:postfix_term>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_term_alignment_2" root="postfix_term_2" model="s2" roundTrip="onePass">
+    <tdml:document>aabbT2ee</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_term_2 xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+          <e2>ee</e2>
+        </ex:postfix_term_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_prefix_alignment_0" root="prefixed_element" model="s2" roundTrip="onePass">
+    <!-- can't be 1 bit aligned, and no way to set to 8 bits without it complaining -->
+    <!--    <tdml:document>cc16aaBbb</tdml:document>-->
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>1 bits</tdml:error>
+      <tdml:error>must be a multiple</tdml:error>
+      <tdml:error>8 bits</tdml:error>
+      <tdml:error>US-ASCII</tdml:error>
+    </tdml:errors>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefixed_element xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:prefixed_element>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_prefix_alignment_1" root="prefixed_element" model="s3" roundTrip="onePass">
+    <tdml:document>cc2aaBbb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefixed_element xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:prefixed_element>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_prefix_alignment_2" root="prefixed_element_bits" model="s3" roundTrip="onePass">
+    <tdml:document>cc16aabb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefixed_element_bits xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:prefixed_element_bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_prefix_alignment_3" root="prefixed_element_nested" model="s3" roundTrip="onePass">
+    <tdml:document>cc16aabb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefixed_element_nested xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:prefixed_element_nested>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Nested</tdml:error>
+      <tdml:error>prefixed</tdml:error>
+      <tdml:error>not supported</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_prefix_alignment_4" root="elem4" model="s5" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="text">FOO:</tdml:documentPart>
+      <tdml:documentPart type="byte">040000FFFF</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem4 xmlns:ex="http://example.com">65535</ex:elem4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Nested</tdml:error>
+      <tdml:error>prefixed</tdml:error>
+      <tdml:error>not supported</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_valueMTA_alignment_1" root="elem" model="s4" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="bits">1110</tdml:documentPart>
+      <tdml:documentPart type="bits">1111</tdml:documentPart> <!-- pre b alignment -->
+      <tdml:documentPart type="byte">FFFFFFFF</tdml:documentPart> <!-- post b trailing skip -->
+      <tdml:documentPart type="bits">0111</tdml:documentPart><!-- c -->
+      <tdml:documentPart type="bits">0000</tdml:documentPart><!-- c -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem xmlns:ex="http://example.com">
+          <e1>
+            <a>1110</a>
+            <b></b>
+            <c>0111</c>
+          </e1>
+        </ex:elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="prior_siblings_1" root="elem1" model="s5" roundTrip="onePass">
+    <tdml:document>eEaBb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem1 xmlns:ex="http://example.com">
+          <e0>e</e0>
+          <e1>
+            <a>a</a>
+            <b>b</b>
+          </e1>
+        </ex:elem1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="prior_siblings_2" root="elem2" model="s5" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="bits">0011</tdml:documentPart>
+      <tdml:documentPart type="bits">1111</tdml:documentPart> <!-- pre c alignment -->
+      <tdml:documentPart type="bits">0000</tdml:documentPart> <!-- c -->
+      <tdml:documentPart type="bits">0100</tdml:documentPart> <!-- c -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem2 xmlns:ex="http://example.com">
+          <e1>
+            <a>3</a>
+            <c>4</c>
+          </e1>
+        </ex:elem2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="prior_siblings_3" root="elem2" model="s5" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="bits">0011</tdml:documentPart>
+      <tdml:documentPart type="bits">0000</tdml:documentPart> <!-- pre b alignment -->
+      <tdml:documentPart type="text">-</tdml:documentPart> <!-- b initiator-->
+      <tdml:documentPart type="bits">00000101</tdml:documentPart> <!-- b -->
+      <tdml:documentPart type="bits">00000100</tdml:documentPart> <!-- c -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem2 xmlns:ex="http://example.com">
+          <e1>
+            <a>3</a>
+            <b>5</b>
+            <c>4</c>
+          </e1>
+        </ex:elem2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="prior_siblings_4" root="elem3" model="s5" roundTrip="onePass">
+    <tdml:document>eE-ob</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem3 xmlns:ex="http://example.com">
+          <e0>e</e0>
+          <e1>
+            <opt>o</opt>
+            <b>b</b>
+          </e1>
+        </ex:elem3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="prior_siblings_5" root="elem3" model="s5" roundTrip="onePass">
+    <tdml:document>eEb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:elem3 xmlns:ex="http://example.com">
+          <e0>e</e0>
+          <e1>
+            <b>b</b>
+          </e1>
+        </ex:elem3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
