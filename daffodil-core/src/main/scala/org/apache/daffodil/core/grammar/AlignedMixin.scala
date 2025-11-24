@@ -21,17 +21,24 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ModelGroup
 import org.apache.daffodil.core.dsom.QuasiElementDeclBase
 import org.apache.daffodil.core.dsom.Root
+import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind.Explicit
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind.Prefixed
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.util.Math
 
 case class AlignmentMultipleOf(nBits: Long) {
+  // To combine AlignmentMultipleOfs, use *
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
   def %(that: AlignmentMultipleOf) = nBits % that.nBits
+
+  // To combine AlignmentMultipleOfs and lengths, use +
   def +(that: LengthApprox) = AlignmentMultipleOf(Math.gcd(nBits, nBits + that.nBits))
 }
 
@@ -134,17 +141,17 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     LengthExact(trailingSkipInBits)
   }
 
-  // FIXME: DAFFODIL-2295
-  // Does not take into account that in a sequence, what may be prior may be a separator.
-  // The separator is text in some encoding, might not be the same as this term's encoding, and
-  // the alignment will be left where that text leaves it.
-  //
+  /**
+   * The priorAlignmentApprox doesn't need to take into account the separator
+   * alignment/length as that comes after the priorAlignmentApprox, but before
+   * the leadingSkip.
+   */
   private lazy val priorAlignmentApprox: AlignmentMultipleOf =
     LV(Symbol("priorAlignmentApprox")) {
       if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
         AlignmentMultipleOf(
           0
-        ) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
+        ) // root and quasi elements are aligned with anything (quasi elements are always 1 aligned)
       } else {
         val priorSibs = potentialPriorTerms
         val arraySelfAlignment =
@@ -201,7 +208,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
             // Return 0 here, unordered alignment will be handled by unorderedSequenceSelfAlignment
             AlignmentMultipleOf(0)
           } else {
-            ps.endingAlignmentApprox
+            ps.endingAlignmentWithRightFramingApprox
           }
           eaa
         }
@@ -228,29 +235,161 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       }
     }.value
 
-  private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
-    priorAlignmentApprox + leadingSkipApprox
+  private lazy val separatorPrefixMTAApprox =
+    this.optLexicalParent match {
+      case Some(s: SequenceTermBase) if s.hasSeparator =>
+        import SeparatorPosition.*
+        s.separatorPosition match {
+          case Prefix | Infix => LengthMultipleOf(s.knownEncodingAlignmentInBits)
+          case Postfix => LengthMultipleOf(0)
+        }
+      case _ => LengthMultipleOf(0)
+    }
+
+  private lazy val separatorPostfixMTAApprox =
+    this.optLexicalParent match {
+      case Some(s: SequenceTermBase) if s.hasSeparator =>
+        import SeparatorPosition.*
+        s.separatorPosition match {
+          case Prefix | Infix => LengthMultipleOf(0)
+          case Postfix => LengthMultipleOf(s.knownEncodingAlignmentInBits)
+        }
+      case _ => LengthMultipleOf(0)
+    }
+
+  private lazy val separatorLengthApprox = this.optLexicalParent match {
+    case Some(s: SequenceTermBase) if s.hasSeparator =>
+      getEncodingLengthApprox(s)
+    case _ => LengthMultipleOf(0)
   }
 
-  protected lazy val contentStartAlignment: AlignmentMultipleOf = {
-    if (priorAlignmentWithLeadingSkipApprox % alignmentApprox == 0) {
-      // alignment won't be needed, continue using prior alignment as start alignment
-      priorAlignmentWithLeadingSkipApprox
+  private lazy val initiatorMTAApprox =
+    if (this.hasInitiator) {
+      AlignmentMultipleOf(this.knownEncodingAlignmentInBits)
     } else {
-      // alignment will be needed, it will be forced to be aligned to alignmentApprox
-      alignmentApprox
+      AlignmentMultipleOf(0)
+    }
+
+  private lazy val initiatorLengthApprox = if (this.hasInitiator) {
+    getEncodingLengthApprox(this)
+  } else {
+    LengthMultipleOf(0)
+  }
+
+  private lazy val terminatorMTAApprox =
+    if (this.hasTerminator) {
+      AlignmentMultipleOf(this.knownEncodingAlignmentInBits)
+    } else {
+      AlignmentMultipleOf(0)
+    }
+
+  private lazy val terminatorLengthApprox = if (this.hasTerminator) {
+    getEncodingLengthApprox(this)
+  } else {
+    LengthMultipleOf(0)
+  }
+
+  private def getEncodingLengthApprox(t: Term) = {
+    if (t.isKnownEncoding) {
+      val dfdlCharset = t.charsetEv.optConstant.get
+      val fixedWidth =
+        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
+      LengthMultipleOf(fixedWidth)
+    } else {
+      // runtime encoding, which must be a byte-length encoding
+      LengthMultipleOf(8)
     }
   }
 
+  /**
+   * prior alignment with leading skip includes the prefix/infix separator MTA and length,
+   * any leading skips
+   */
+  private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
+    val priorAlignmentWithSeparatorApprox = priorAlignmentApprox
+      + separatorPrefixMTAApprox
+      + separatorLengthApprox
+    val leadingAlignmentApprox = (priorAlignmentWithSeparatorApprox
+      + leadingSkipApprox)
+    leadingAlignmentApprox
+  }
+
+  /**
+   * The length of the prefix length quasi element.
+   *
+   * This is only relevant for quasi elements, or prefixed terms.
+   */
+  private lazy val prefixLengthElementLength = {
+    this match {
+      case eb: ElementBase => {
+        if (eb.isInstanceOf[QuasiElementDeclBase])
+          LengthExact(
+            eb.asInstanceOf[QuasiElementDeclBase].elementLengthInBitsEv.constValue.get
+          )
+        else if (eb.lengthKind == Prefixed)
+          LengthExact(
+            this
+              .asInstanceOf[ElementBase]
+              .prefixedLengthElementDecl
+              .elementLengthInBitsEv
+              .constValue
+              .get
+          )
+        else
+          LengthExact(0)
+      }
+      case _ => LengthExact(0)
+    }
+  }
+
+  /**
+   * The alignment of the value of the term.
+   *
+   * This is only relevant for simple elements.
+   */
+  private lazy val valueMTAApprox = {
+    this match {
+      case eb: ElementBase if eb.isSimpleType => {
+        AlignmentMultipleOf(eb.knownEncodingAlignmentInBits)
+      }
+      case _ => AlignmentMultipleOf(0)
+    }
+  }
+
+  /**
+   * This alignment is made up of the alignment of the term itself,
+   * the initiator MTA and length, the prefix length quasi
+   * element length, and the value MTA (we add it for optimization
+   * but is extremely difficult to test, as other things such
+   * as unparsers will provide MTA, even elementSpecifiedLengthApprox
+   * considers the encoding also).
+   */
+  protected lazy val contentStartAlignment: AlignmentMultipleOf = {
+    val leftFramingApprox =
+      alignmentApprox
+        * initiatorMTAApprox
+        + initiatorLengthApprox
+    val csa = (leftFramingApprox + prefixLengthElementLength) * valueMTAApprox
+    csa
+  }
+
+  /**
+   * Accounts for the start of the content alignment, element length,
+   * terminator MTA/Length and trailing skip
+   */
   protected lazy val endingAlignmentApprox: AlignmentMultipleOf = {
     this match {
       case eb: ElementBase => {
-        if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
-          eb.complexType.group.endingAlignmentApprox + trailingSkipApprox
+        val res = if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
+          eb.complexType.group.endingAlignmentApprox
         } else {
           // simple type or complex type with specified length
-          contentStartAlignment + (elementSpecifiedLengthApprox + trailingSkipApprox)
+          contentStartAlignment + elementSpecifiedLengthApprox
         }
+        val cea = res * terminatorMTAApprox
+          + terminatorLengthApprox
+          + trailingSkipApprox
+        cea
       }
       case mg: ModelGroup => {
         //
@@ -260,35 +399,51 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         //
         val (lastChildren, couldBeLast) = mg.potentialLastChildren
         val lastApproxesConsideringChildren: Seq[AlignmentMultipleOf] = lastChildren.map { lc =>
-          //
-          // for each possible last child, add its ending alignment
-          // to our trailing skip to get where it would leave off were
-          // it the actual last child.
-          //
+          // for each possible last child, gather its endingAlignmentApprox
           val lceaa = lc.endingAlignmentApprox
-          val res = lceaa + trailingSkipApprox
-          res
+          lceaa
         }
         val optApproxIfNoChildren =
           //
           // gather possibilities for this item itself
           //
-          if (couldBeLast)
+          if (couldBeLast) {
             //
             // if this model group could be last, then consider
             // if none of its content was present.
-            // We'd just have the contentStart, nothing, and the trailing Skip.
+            // We'd just have the contentStart
             //
-            Some(contentStartAlignment + trailingSkipApprox)
-          else
+            val res = Some(contentStartAlignment)
+            res
+          } else
             // can't be last, no possibilities to gather.
             None
         val lastApproxes = lastApproxesConsideringChildren ++ optApproxIfNoChildren
-        Assert.invariant(lastApproxes.nonEmpty)
-        val res = lastApproxes.reduce { _ * _ }
+        // take all the gathered possibilities and add the ending alignment
+        // to terminator MTA/length and our trailing skip to get where it would leave off were
+        // each the actual last child.
+        val lastApproxesFinal = lastApproxes.map {
+          _ * terminatorMTAApprox
+            + terminatorLengthApprox
+            + trailingSkipApprox
+        }
+        Assert.invariant(lastApproxesFinal.nonEmpty)
+        val res = lastApproxesFinal.reduce {
+          _ * _
+        }
         res
       }
     }
+  }
+
+  /**
+   * The postfix separator MTA/length needs to be added after the trailing skip
+   */
+  protected lazy val endingAlignmentWithRightFramingApprox: AlignmentMultipleOf = {
+    val res = endingAlignmentApprox
+      + separatorPostfixMTAApprox
+      + separatorLengthApprox
+    res
   }
 
   protected lazy val elementSpecifiedLengthApprox: LengthApprox = {
@@ -321,7 +476,16 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Delimited => encodingLengthApprox
           case LengthKind.Pattern => encodingLengthApprox
           case LengthKind.EndOfParent => LengthMultipleOf(1) // NYI
-          case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
+          case LengthKind.Prefixed => {
+            val prefixElem = eb.prefixedLengthElementDecl
+            if (prefixElem.lengthKind == Explicit) {
+              LengthExact(
+                prefixElem.elementLengthInBitsEv.optConstant.get.get
+              ) + prefixLengthElementLength
+            } else {
+              getEncodingLengthApprox(prefixElem)
+            }
+          }
         }
       }
       case _: ModelGroup => Assert.usageError("Only for elements")
@@ -329,15 +493,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val encodingLengthApprox: LengthApprox = {
-    if (isKnownEncoding) {
-      val dfdlCharset = charsetEv.optConstant.get
-      val fixedWidth =
-        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
-      LengthMultipleOf(fixedWidth)
-    } else {
-      // runtime encoding, which must be a byte-length encoding
-      LengthMultipleOf(8)
-    }
+    getEncodingLengthApprox(this)
   }
 
   protected lazy val isKnownToBeByteAlignedAndByteLength: Boolean = {

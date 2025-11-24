@@ -143,14 +143,6 @@
       separatorPosition="infix"
       emptyElementParsePolicy="treatAsEmpty"/>
 
-    <!-- DAFFODIL-2217
-      These additional tests give another case where trailingEmptyStrict should be causing a
-      parse error, but it does not in a case where maxOccurs="3" but works correctly when maxOccurs="4".
-      -->
-
-    <!-- maxOccurs='3' fails to detect the trailing "/" i.e., this should fail with a parse error
-    due to trailingEmptyStrict -->
-
     <xs:element name="file1">
       <xs:complexType>
         <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
@@ -160,7 +152,6 @@
       </xs:complexType>
     </xs:element>
 
-    <!-- same, but maxOccurs is 4. This works, as in detects the error. -->
     <xs:element name="file2">
       <xs:complexType>
         <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix"
@@ -680,4 +671,180 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s8" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      lengthUnits="bits"
+      alignmentUnits="bits"
+    />
+
+    <xs:element name="infix">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:fillByte="E">
+            <xs:complexType>
+                <xs:sequence
+                  dfdl:separator="/"
+                  dfdl:separatorPosition="infix" dfdl:fillByte="S">
+                  <xs:element name="a" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="A"/>
+                  <xs:element name="b" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="B"/>
+                </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="prefix">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:fillByte="E">
+            <xs:complexType>
+                <xs:sequence
+                  dfdl:separator="/"
+                  dfdl:separatorPosition="prefix" dfdl:fillByte="S">
+                  <xs:element name="a" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="A"/>
+                  <xs:element name="b" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="B"/>
+                </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfix">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:fillByte="E">
+            <xs:complexType>
+                <xs:sequence
+                  dfdl:separator="/"
+                  dfdl:separatorPosition="postfix" dfdl:fillByte="S">
+                  <xs:element name="a" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="A"/>
+                  <xs:element name="b" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="B"/>
+                </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfix_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="-" dfdl:separatorPosition="postfix" dfdl:fillByte="0">
+                <xs:element name="c" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="C"/>
+                <xs:sequence
+                  dfdl:separator="/"
+                  dfdl:separatorPosition="postfix" dfdl:fillByte="1">
+                  <xs:element name="a" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="A"/>
+                  <xs:element name="b" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="B"/>
+                </xs:sequence>
+                <xs:element name="d" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="D"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+   <tdml:unparserTestCase name="test_sep_alignment_1" root="infix" model="s8" roundTrip="onePass">
+    <tdml:document>aa/Bbb</tdml:document>
+     <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:infix xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:infix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+   <tdml:unparserTestCase name="test_sep_alignment_2" root="prefix" model="s8" roundTrip="onePass">
+    <tdml:document>/Aaa/Bbb</tdml:document>
+     <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefix xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:prefix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+   <tdml:unparserTestCase name="test_sep_alignment_3" root="postfix" model="s8" roundTrip="onePass">
+    <tdml:document>aa/Bbb/</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:postfix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_sep_alignment_4" root="postfix_2" model="s8" roundTrip="onePass">
+    <tdml:document>cc-Aaa/Bbb/-dd-</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_2 xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+            <d>dd</d>
+          </e1>
+        </ex:postfix_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>
