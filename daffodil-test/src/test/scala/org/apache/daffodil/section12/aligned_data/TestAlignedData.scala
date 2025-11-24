@@ -186,6 +186,29 @@ class TestAlignedData extends TdmlTests {
   @Test def alignmentFillByteDefined = test
 
   @Test def separatorMTA_01 = test
+
+  // DAFFODIL-3056
+  @Test def test_init_alignment_1 = test
+  @Test def test_init_alignment_2 = test
+  @Test def test_prefix_alignment_1 = test
+  @Test def test_prefix_alignment_2 = test
+  @Test def test_prefix_alignment_3 = test
+  @Test def test_prefix_alignment_4 = test
+  @Test def test_valueMTA_alignment_1 = test
+
+  // DAFFODIL-3057
+  @Test def test_term_alignment_1 = test
+  @Test def test_term_alignment_2 = test
+
+  // DAFFODIL-3059
+  @Test def test_prefix_alignment_0 = test
+
+  // DAFFODIL-3060
+  @Test def prior_siblings_1 = test
+  @Test def prior_siblings_2 = test
+  @Test def prior_siblings_3 = test
+  @Test def prior_siblings_4 = test
+  @Test def prior_siblings_5 = test
 }
 
 class TestBinaryInput extends TdmlTests {
