@@ -21,12 +21,14 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ModelGroup
 import org.apache.daffodil.core.dsom.QuasiElementDeclBase
 import org.apache.daffodil.core.dsom.Root
+import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.util.Math
 
 case class AlignmentMultipleOf(nBits: Long) {
@@ -134,11 +136,14 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     LengthExact(trailingSkipInBits)
   }
 
-  // FIXME: DAFFODIL-2295
-  // Does not take into account that in a sequence, what may be prior may be a separator.
-  // The separator is text in some encoding, might not be the same as this term's encoding, and
-  // the alignment will be left where that text leaves it.
-  //
+  /**
+   * The priorAlignmentApprox doesn't need to take into account the separator
+   * alignment/length as that comes after the priorAlignmentApprox, but before
+   * the leadingSkip.
+   *
+   * TODO: DAFFODIL-3056 We need to consider the initiator MTA/length,
+   * as well as the prefix length
+   */
   private lazy val priorAlignmentApprox: AlignmentMultipleOf =
     LV(Symbol("priorAlignmentApprox")) {
       if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
@@ -228,8 +233,53 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       }
     }.value
 
+  private lazy val separatorPrefixMTAApprox =
+    this.optLexicalParent match {
+      case Some(s: SequenceTermBase) if s.hasSeparator =>
+        import SeparatorPosition.*
+        s.separatorPosition match {
+          case Prefix | Infix => LengthMultipleOf(s.knownEncodingAlignmentInBits)
+          case Postfix => LengthMultipleOf(0)
+        }
+      case _ => LengthMultipleOf(0)
+    }
+
+  private lazy val separatorPostfixMTAApprox =
+    this.optLexicalParent match {
+      case Some(s: SequenceTermBase) if s.hasSeparator =>
+        import SeparatorPosition.*
+        s.separatorPosition match {
+          case Prefix | Infix => LengthMultipleOf(0)
+          case Postfix => LengthMultipleOf(s.knownEncodingAlignmentInBits)
+        }
+      case _ => LengthMultipleOf(0)
+    }
+
+  private lazy val separatorLengthApprox = this.optLexicalParent match {
+    case Some(s: SequenceTermBase) if s.hasSeparator =>
+      getEncodingLengthApprox(s)
+    case _ => LengthMultipleOf(0)
+  }
+
+  private def getEncodingLengthApprox(t: Term) = {
+    if (t.isKnownEncoding) {
+      val dfdlCharset = t.charsetEv.optConstant.get
+      val fixedWidth =
+        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
+      LengthMultipleOf(fixedWidth)
+    } else {
+      // runtime encoding, which must be a byte-length encoding
+      LengthMultipleOf(8)
+    }
+  }
+
   private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
-    priorAlignmentApprox + leadingSkipApprox
+    val pawls =
+      priorAlignmentApprox
+        + separatorPrefixMTAApprox
+        + separatorLengthApprox
+        + leadingSkipApprox
+    pawls
   }
 
   protected lazy val contentStartAlignment: AlignmentMultipleOf = {
@@ -242,15 +292,24 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
+  /**
+   * The postfix separator MTA/length needs to be added after the trailing skip
+   *
+   * TODO: DAFFODIL-3057 needs to consider terminator MTA/length before trailingSkip
+   */
   protected lazy val endingAlignmentApprox: AlignmentMultipleOf = {
     this match {
       case eb: ElementBase => {
-        if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
+        val ea = if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
           eb.complexType.group.endingAlignmentApprox + trailingSkipApprox
         } else {
           // simple type or complex type with specified length
           contentStartAlignment + (elementSpecifiedLengthApprox + trailingSkipApprox)
         }
+        val endingAlignmentWithSeparatorApprox = ea
+          + separatorPostfixMTAApprox
+          + separatorLengthApprox
+        endingAlignmentWithSeparatorApprox
       }
       case mg: ModelGroup => {
         //
@@ -329,15 +388,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val encodingLengthApprox: LengthApprox = {
-    if (isKnownEncoding) {
-      val dfdlCharset = charsetEv.optConstant.get
-      val fixedWidth =
-        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
-      LengthMultipleOf(fixedWidth)
-    } else {
-      // runtime encoding, which must be a byte-length encoding
-      LengthMultipleOf(8)
-    }
+    getEncodingLengthApprox(this)
   }
 
   protected lazy val isKnownToBeByteAlignedAndByteLength: Boolean = {
