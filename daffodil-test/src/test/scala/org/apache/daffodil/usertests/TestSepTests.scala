@@ -60,4 +60,6 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_alignment_1 = test
   @Test def test_sep_alignment_2 = test
   @Test def test_sep_alignment_3 = test
+
+  @Test def test_sep_alignment_4 = test
 }

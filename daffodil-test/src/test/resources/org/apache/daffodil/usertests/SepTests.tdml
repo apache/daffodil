@@ -730,7 +730,7 @@
       </xs:complexType>
     </xs:element>
 
-        <xs:element name="postfix">
+    <xs:element name="postfix">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:fillByte="E">
@@ -747,6 +747,39 @@
                     dfdl:lengthKind="explicit" dfdl:alignment="16"
                     dfdl:fillByte="B"/>
                 </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfix_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="-" dfdl:separatorPosition="postfix" dfdl:fillByte="0">
+                <xs:element name="c" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="C"/>
+                <xs:sequence
+                  dfdl:separator="/"
+                  dfdl:separatorPosition="postfix" dfdl:fillByte="1">
+                  <xs:element name="a" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="A"/>
+                  <xs:element name="b" type="xs:string"
+                    dfdl:length="16"
+                    dfdl:lengthKind="explicit" dfdl:alignment="16"
+                    dfdl:fillByte="B"/>
+                </xs:sequence>
+                <xs:element name="d" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="D"/>
+              </xs:sequence>
             </xs:complexType>
           </xs:element>
         </xs:sequence>
@@ -793,6 +826,23 @@
             <b>bb</b>
           </e1>
         </ex:postfix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_sep_alignment_4" root="postfix_2" model="s8" roundTrip="onePass">
+    <tdml:document>cc-Aaa/Bbb/-dd-</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_2 xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+            <d>dd</d>
+          </e1>
+        </ex:postfix_2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>

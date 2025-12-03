@@ -67,7 +67,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   final lazy val isKnownToBeAligned: Boolean = LV(Symbol("isKnownToBeAligned")) {
     if (!isRepresented || (alignmentKindDefaulted == AlignmentKind.Manual)) true
     else {
-      val pa = priorAlignmentWithLeadingSkipApprox
+      val pa = priorAlignmentWithLeftFramingApprox
       val aa = alignmentApprox
       val res = (pa % aa) == 0
       res
@@ -87,7 +87,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     else if (isKnownEncoding) {
       if (knownEncodingAlignmentInBits == 1)
         true
-      else if (priorAlignmentWithLeadingSkipApprox.nBits % knownEncodingAlignmentInBits == 0)
+      else if (priorAlignmentWithLeftFramingApprox.nBits % knownEncodingAlignmentInBits == 0)
         true
       else
         false
@@ -206,7 +206,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
             // Return 0 here, unordered alignment will be handled by unorderedSequenceSelfAlignment
             AlignmentMultipleOf(0)
           } else {
-            ps.endingAlignmentApprox
+            ps.endingAlignmentWithRightFramingApprox
           }
           eaa
         }
@@ -273,7 +273,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val priorAlignmentWithLeadingSkipApprox: AlignmentMultipleOf = {
+  private lazy val priorAlignmentWithLeftFramingApprox: AlignmentMultipleOf = {
     val pawls =
       priorAlignmentApprox
         + separatorPrefixMTAApprox
@@ -283,33 +283,24 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   protected lazy val contentStartAlignment: AlignmentMultipleOf = {
-    if (priorAlignmentWithLeadingSkipApprox % alignmentApprox == 0) {
+    if (priorAlignmentWithLeftFramingApprox % alignmentApprox == 0) {
       // alignment won't be needed, continue using prior alignment as start alignment
-      priorAlignmentWithLeadingSkipApprox
+      priorAlignmentWithLeftFramingApprox
     } else {
       // alignment will be needed, it will be forced to be aligned to alignmentApprox
       alignmentApprox
     }
   }
 
-  /**
-   * The postfix separator MTA/length needs to be added after the trailing skip
-   *
-   * TODO: DAFFODIL-3057 needs to consider terminator MTA/length before trailingSkip
-   */
   protected lazy val endingAlignmentApprox: AlignmentMultipleOf = {
     this match {
       case eb: ElementBase => {
-        val ea = if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
+        if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
           eb.complexType.group.endingAlignmentApprox + trailingSkipApprox
         } else {
           // simple type or complex type with specified length
           contentStartAlignment + (elementSpecifiedLengthApprox + trailingSkipApprox)
         }
-        val endingAlignmentWithSeparatorApprox = ea
-          + separatorPostfixMTAApprox
-          + separatorLengthApprox
-        endingAlignmentWithSeparatorApprox
       }
       case mg: ModelGroup => {
         //
@@ -348,6 +339,18 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         res
       }
     }
+  }
+
+  /**
+   * The postfix separator MTA/length needs to be added after the trailing skip
+   *
+   * TODO: DAFFODIL-3057 needs to consider terminator MTA/length before trailingSkip
+   */
+  protected lazy val endingAlignmentWithRightFramingApprox: AlignmentMultipleOf = {
+    val res = endingAlignmentApprox
+      + separatorPostfixMTAApprox
+      + separatorLengthApprox
+    res
   }
 
   protected lazy val elementSpecifiedLengthApprox: LengthApprox = {
