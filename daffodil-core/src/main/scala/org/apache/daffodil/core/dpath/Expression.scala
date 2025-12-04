@@ -2467,14 +2467,21 @@ case class DFDLXBitBinaryExpr(
   override lazy val inherentType = {
     val arg0Type = args(0).inherentType
     val arg1Type = args(1).inherentType
+
+    (arg0Type, arg1Type) match {
+      case (_: NodeInfo.Long.Kind, _: NodeInfo.Long.Kind) => // noop
+      case (_: NodeInfo.UnsignedLong.Kind, _: NodeInfo.UnsignedLong.Kind) => // noop
+      case _ => {
+        SDE(
+          "Both arguments for %s must be either xs:unsignedLong or xs:long or a subtype of those, and must match in signedness, but was %s and %s",
+          nameAsParsed,
+          arg0Type.globalQName,
+          arg1Type.globalQName
+        )
+      }
+    }
+
     val argInherentType = if (arg1Type.isSubtypeOf(arg0Type)) arg0Type else arg1Type
-    schemaDefinitionUnless(
-      argInherentType.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) || argInherentType
-        .isSubtypeOf(NodeInfo.PrimType.Long),
-      "Both arguments for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
-      nameAsParsed,
-      argInherentType.globalQName
-    )
     argInherentType
   }
   override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = inherentType

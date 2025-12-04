@@ -84,6 +84,10 @@ class TestBitFunctionsXor extends TdmlTests {
   @Test def testUnsignedLongXor = test
   @Test def testUnsignedShortXor = test
   @Test def testUnsignedByteXor = test
+  @Test def testIntegerXor = test
+  @Test def testNonNegativeIntegerXor = test
+  @Test def testDifferentSignednessXor = test
+  @Test def testPromotionXor = test
 }
 
 class TestBitFunctionsOr extends TdmlTests {
@@ -97,6 +101,10 @@ class TestBitFunctionsOr extends TdmlTests {
   @Test def testUnsignedLongOr = test
   @Test def testUnsignedShortOr = test
   @Test def testUnsignedByteOr = test
+  @Test def testIntegerOr = test
+  @Test def testNonNegativeIntegerOr = test
+  @Test def testDifferentSignednessOr = test
+  @Test def testPromotionOr = test
 }
 
 class TestBitFunctionsAnd extends TdmlTests {
@@ -110,6 +118,10 @@ class TestBitFunctionsAnd extends TdmlTests {
   @Test def testUnsignedLongAnd = test
   @Test def testUnsignedShortAnd = test
   @Test def testUnsignedByteAnd = test
+  @Test def testIntegerAnd = test
+  @Test def testNonNegativeIntegerAnd = test
+  @Test def testDifferentSignednessAnd = test
+  @Test def testPromotionAnd = test
 }
 
 class TestBitFunctionsNot extends TdmlTests {

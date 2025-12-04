@@ -164,6 +164,18 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="testIntegerOr" type="xs:integer"
+    dfdl:inputValueCalc="{ dfdlx:bitOr(xs:integer(1), xs:long(1)) }" />
+
+  <xs:element name="testNonNegativeIntegerOr" type="xs:nonNegativeInteger"
+    dfdl:inputValueCalc="{ dfdlx:bitOr(xs:nonNegativeInteger(1), xs:unsignedLong(1)) }" />
+
+  <xs:element name="testDifferentSignednessOr" type="xs:long"
+    dfdl:inputValueCalc="{ dfdlx:bitOr(xs:long(1), xs:unsignedLong(1)) }" />
+
+  <xs:element name="testPromotionOr" type="xs:long"
+    dfdl:inputValueCalc="{ dfdlx:bitOr(xs:byte(1), xs:short(256)) }" />
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="testIntOr" root="testIntOr" model="BitFunctions">
@@ -326,4 +338,35 @@
         </tdml:dfdlInfoset>
       </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testIntegerOr" root="testIntegerOr" model="BitFunctions">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testNonNegativeIntegerOr" root="testNonNegativeIntegerOr" model="BitFunctions">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>xs:unsignedLong or xs:long or a subtype of those</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testDifferentSignednessOr" root="testDifferentSignednessOr" model="BitFunctions">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>must match in signedness</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testPromotionOr" root="testPromotionOr" model="BitFunctions">
+    <tdml:document></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:testPromotionOr>257</ex:testPromotionOr>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
