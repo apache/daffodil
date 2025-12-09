@@ -134,11 +134,14 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     LengthExact(trailingSkipInBits)
   }
 
-  // FIXME: DAFFODIL-2295
-  // Does not take into account that in a sequence, what may be prior may be a separator.
-  // The separator is text in some encoding, might not be the same as this term's encoding, and
-  // the alignment will be left where that text leaves it.
-  //
+  /**
+   * The priorAlignmentApprox doesn't need to take into account the separator
+   * alignment/length as that comes after the priorAlignmentApprox, but before
+   * the leadingSkip.
+   *
+   * TODO: DAFFODIL-3056 We need to consider the initiator MTA/length,
+   * as well as the prefix length
+   */
   private lazy val priorAlignmentApprox: AlignmentMultipleOf =
     LV(Symbol("priorAlignmentApprox")) {
       if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
@@ -232,6 +235,31 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     priorAlignmentApprox + leadingSkipApprox
   }
 
+  private lazy val terminatorMTAApprox =
+    this match {
+      case t if t.hasTerminator =>
+        LengthMultipleOf(t.knownEncodingAlignmentInBits)
+      case _ => LengthMultipleOf(0)
+    }
+
+  private lazy val terminatorLengthApprox = this match {
+    case t if t.hasTerminator =>
+      getEncodingLengthApprox(t)
+    case _ => LengthMultipleOf(0)
+  }
+
+  private def getEncodingLengthApprox(t: Term) = {
+    if (t.isKnownEncoding) {
+      val dfdlCharset = t.charsetEv.optConstant.get
+      val fixedWidth =
+        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
+      LengthMultipleOf(fixedWidth)
+    } else {
+      // runtime encoding, which must be a byte-length encoding
+      LengthMultipleOf(8)
+    }
+  }
+
   protected lazy val contentStartAlignment: AlignmentMultipleOf = {
     if (priorAlignmentWithLeadingSkipApprox % alignmentApprox == 0) {
       // alignment won't be needed, continue using prior alignment as start alignment
@@ -242,15 +270,25 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     }
   }
 
+  /**
+   * Accounts for the terminator MTA/Length and trailing skip
+   */
   protected lazy val endingAlignmentApprox: AlignmentMultipleOf = {
     this match {
       case eb: ElementBase => {
-        if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
-          eb.complexType.group.endingAlignmentApprox + trailingSkipApprox
+        val res = if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
+          eb.complexType.group.endingAlignmentApprox
+            + terminatorMTAApprox
+            + terminatorLengthApprox
+            + trailingSkipApprox
         } else {
           // simple type or complex type with specified length
-          contentStartAlignment + (elementSpecifiedLengthApprox + trailingSkipApprox)
+          contentStartAlignment + (elementSpecifiedLengthApprox
+            + terminatorMTAApprox
+            + terminatorLengthApprox
+            + trailingSkipApprox)
         }
+        res
       }
       case mg: ModelGroup => {
         //
@@ -266,21 +304,30 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           // it the actual last child.
           //
           val lceaa = lc.endingAlignmentApprox
-          val res = lceaa + trailingSkipApprox
+          val res = lceaa
+            + terminatorMTAApprox
+            + terminatorLengthApprox
+            + trailingSkipApprox
           res
         }
         val optApproxIfNoChildren =
           //
           // gather possibilities for this item itself
           //
-          if (couldBeLast)
+          if (couldBeLast) {
             //
             // if this model group could be last, then consider
             // if none of its content was present.
             // We'd just have the contentStart, nothing, and the trailing Skip.
             //
-            Some(contentStartAlignment + trailingSkipApprox)
-          else
+            val res = Some(
+              contentStartAlignment
+                + terminatorMTAApprox
+                + terminatorLengthApprox
+                + trailingSkipApprox
+            )
+            res
+          } else
             // can't be last, no possibilities to gather.
             None
         val lastApproxes = lastApproxesConsideringChildren ++ optApproxIfNoChildren
@@ -329,15 +376,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val encodingLengthApprox: LengthApprox = {
-    if (isKnownEncoding) {
-      val dfdlCharset = charsetEv.optConstant.get
-      val fixedWidth =
-        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
-      LengthMultipleOf(fixedWidth)
-    } else {
-      // runtime encoding, which must be a byte-length encoding
-      LengthMultipleOf(8)
-    }
+    getEncodingLengthApprox(this)
   }
 
   protected lazy val isKnownToBeByteAlignedAndByteLength: Boolean = {

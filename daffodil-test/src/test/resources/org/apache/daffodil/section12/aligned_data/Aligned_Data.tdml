@@ -602,6 +602,66 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="s2" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      lengthUnits="bits"
+      alignmentUnits="bits"
+    />
+
+    <xs:element name="postfix_term">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A" dfdl:terminator="T"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfix_term_2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+            dfdl:fillByte="1" dfdl:terminator="T">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e2" type="xs:string"
+            dfdl:length="16" dfdl:fillByte="2"
+            dfdl:lengthKind="explicit" dfdl:alignment="16"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
   <!--
      Test Name: impAlignmentHexBinary
@@ -3909,5 +3969,37 @@
       <tdml:documentPart type="bits">01</tdml:documentPart> <!-- base-4 "1" string (no mta fill bits)-->
     </tdml:document>
   </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="test_term_alignment_1" root="postfix_term" model="s2" roundTrip="onePass">
+    <tdml:document>aaTBbb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_term xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:postfix_term>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_term_alignment_2" root="postfix_term_2" model="s2" roundTrip="onePass">
+    <tdml:document>aabbT2ee</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_term_2 xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+          <e2>ee</e2>
+        </ex:postfix_term_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
 
 </tdml:testSuite>

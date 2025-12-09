@@ -186,6 +186,10 @@ class TestAlignedData extends TdmlTests {
   @Test def alignmentFillByteDefined = test
 
   @Test def separatorMTA_01 = test
+
+  // DAFFODIL-3057
+  @Test def test_term_alignment_1 = test
+  @Test def test_term_alignment_2 = test
 }
 
 class TestBinaryInput extends TdmlTests {
