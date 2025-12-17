@@ -236,16 +236,16 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val terminatorMTAApprox =
-    this match {
-      case t if t.hasTerminator =>
-        LengthMultipleOf(t.knownEncodingAlignmentInBits)
-      case _ => LengthMultipleOf(0)
+    if (this.hasTerminator) {
+      AlignmentMultipleOf(this.knownEncodingAlignmentInBits)
+    } else {
+      AlignmentMultipleOf(0)
     }
 
-  private lazy val terminatorLengthApprox = this match {
-    case t if t.hasTerminator =>
-      getEncodingLengthApprox(t)
-    case _ => LengthMultipleOf(0)
+  private lazy val terminatorLengthApprox = if (this.hasTerminator) {
+    getEncodingLengthApprox(this)
+  } else {
+    LengthMultipleOf(0)
   }
 
   private def getEncodingLengthApprox(t: Term) = {
@@ -278,17 +278,14 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       case eb: ElementBase => {
         val res = if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
           eb.complexType.group.endingAlignmentApprox
-            + terminatorMTAApprox
-            + terminatorLengthApprox
-            + trailingSkipApprox
         } else {
           // simple type or complex type with specified length
-          contentStartAlignment + (elementSpecifiedLengthApprox
-            + terminatorMTAApprox
-            + terminatorLengthApprox
-            + trailingSkipApprox)
+          contentStartAlignment + elementSpecifiedLengthApprox
         }
-        res
+        val cea = res * terminatorMTAApprox
+          + terminatorLengthApprox
+          + trailingSkipApprox
+        cea
       }
       case mg: ModelGroup => {
         //
@@ -299,16 +296,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         val (lastChildren, couldBeLast) = mg.potentialLastChildren
         val lastApproxesConsideringChildren: Seq[AlignmentMultipleOf] = lastChildren.map { lc =>
           //
-          // for each possible last child, add its ending alignment
-          // to our trailing skip to get where it would leave off were
-          // it the actual last child.
-          //
+          // for each possible last child, gather its endingAlignmentApprox
           val lceaa = lc.endingAlignmentApprox
-          val res = lceaa
-            + terminatorMTAApprox
-            + terminatorLengthApprox
-            + trailingSkipApprox
-          res
+          lceaa
         }
         val optApproxIfNoChildren =
           //
@@ -318,21 +308,24 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
             //
             // if this model group could be last, then consider
             // if none of its content was present.
-            // We'd just have the contentStart, nothing, and the trailing Skip.
+            // We'd just have the contentStart
             //
-            val res = Some(
-              contentStartAlignment
-                + terminatorMTAApprox
-                + terminatorLengthApprox
-                + trailingSkipApprox
-            )
+            val res = Some(contentStartAlignment)
             res
           } else
             // can't be last, no possibilities to gather.
             None
         val lastApproxes = lastApproxesConsideringChildren ++ optApproxIfNoChildren
-        Assert.invariant(lastApproxes.nonEmpty)
-        val res = lastApproxes.reduce { _ * _ }
+        // take all the gathered possibilities and add the ending alignment
+        // to terminator MTA/length and our trailing skip to get where it would leave off were
+        // each the actual last child.
+        val lastApproxesFinal = lastApproxes.map {
+          _ * terminatorMTAApprox
+            + terminatorLengthApprox
+            + trailingSkipApprox
+        }
+        Assert.invariant(lastApproxesFinal.nonEmpty)
+        val res = lastApproxesFinal.reduce { _ * _ }
         res
       }
     }
