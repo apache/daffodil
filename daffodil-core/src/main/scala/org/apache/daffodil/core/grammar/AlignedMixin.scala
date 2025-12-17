@@ -238,10 +238,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       case Some(s: SequenceTermBase) if s.hasSeparator =>
         import SeparatorPosition.*
         s.separatorPosition match {
-          case Prefix | Infix => LengthMultipleOf(s.knownEncodingAlignmentInBits)
-          case Postfix => LengthMultipleOf(0)
+          case Prefix | Infix => AlignmentMultipleOf(s.knownEncodingAlignmentInBits)
+          case Postfix => AlignmentMultipleOf(0)
         }
-      case _ => LengthMultipleOf(0)
+      case _ => AlignmentMultipleOf(0)
     }
 
   private lazy val separatorPostfixMTAApprox =
@@ -249,10 +249,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       case Some(s: SequenceTermBase) if s.hasSeparator =>
         import SeparatorPosition.*
         s.separatorPosition match {
-          case Prefix | Infix => LengthMultipleOf(0)
-          case Postfix => LengthMultipleOf(s.knownEncodingAlignmentInBits)
+          case Prefix | Infix => AlignmentMultipleOf(0)
+          case Postfix => AlignmentMultipleOf(s.knownEncodingAlignmentInBits)
         }
-      case _ => LengthMultipleOf(0)
+      case _ => AlignmentMultipleOf(0)
     }
 
   private lazy val separatorLengthApprox = this.optLexicalParent match {
@@ -275,8 +275,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
   private lazy val priorAlignmentWithLeftFramingApprox: AlignmentMultipleOf = {
     val pawls =
-      priorAlignmentApprox
-        + separatorPrefixMTAApprox
+      (priorAlignmentApprox
+        * separatorPrefixMTAApprox)
         + separatorLengthApprox
         + leadingSkipApprox
     pawls
@@ -347,8 +347,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * TODO: DAFFODIL-3057 needs to consider terminator MTA/length before trailingSkip
    */
   protected lazy val endingAlignmentWithRightFramingApprox: AlignmentMultipleOf = {
-    val res = endingAlignmentApprox
-      + separatorPostfixMTAApprox
+    val res = (endingAlignmentApprox
+      * separatorPostfixMTAApprox)
       + separatorLengthApprox
     res
   }
