@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.CharsetEv
@@ -86,8 +87,32 @@ trait StringOfSpecifiedLengthMixin extends PaddingRuntimeMixin with CaptureParsi
 
   protected final def parseString(start: PState): String = {
     val dis = start.dataInputStream
-    val maxLen = start.tunable.maximumSimpleElementSizeInCharacters
     val startBitPos0b = dis.bitPos0b
+    val bitLimit0b = dis.bitLimit0b
+
+    // We want to limit the maximum length passed into getSomeString since that function can
+    // pre-allocate a buffer that size even if it won't find that many characters. So we
+    // calculate the maximum number of characters that we could possibly decode from the
+    // available bits and the character set.
+    //
+    // For fixed-width encodings, that is just the number of available bits divided by the
+    // fixed width of the encoding.
+    //
+    // For variable length encodings (e.g. UTF-8), the maximum number of characters that the
+    // available bits could possibly decode to is if every decoded character was the smallest
+    // possible representation. That smallest representation for variable-width encodings is
+    // bitWidthOfACodeUnit. So we divide the available bits but bitWidthOfACodeUnit.
+    //
+    // Note that the bitLimit should always be defined because bitLimit is how string of
+    // specified lengths limit lengths
+    Assert.invariant(bitLimit0b.isDefined)
+    val availableBits = bitLimit0b.get - startBitPos0b
+    val charset = charsetEv.evaluate(start)
+    val optWidth = charset.maybeFixedWidth
+    val bitsPerChar = if (optWidth.isDefined) optWidth.get else charset.bitWidthOfACodeUnit
+    // add one to allow for partial bytes at the end that could parse to a replacement char
+    val maxPossibleChars = (availableBits / bitsPerChar) + 1
+    val maxLen = math.min(maxPossibleChars, start.tunable.maximumSimpleElementSizeInCharacters)
 
     val strOpt =
       try {

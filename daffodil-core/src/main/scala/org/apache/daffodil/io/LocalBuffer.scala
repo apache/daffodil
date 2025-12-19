@@ -33,7 +33,13 @@ abstract class LocalBuffer[T <: java.nio.Buffer] {
   def getBuf(length: Long) = {
     Assert.usage(length <= Int.MaxValue)
     if (tempBuf.isEmpty || tempBuf.get.capacity < length) {
-      tempBuf = Maybe(allocate(length.toInt))
+      // allocate a buffer that can store the required length, but with a minimum size. The
+      // majority of LocalBuffers should be smaller than this minimum size and so should avoid
+      // costly reallocations, while still being small enough that the JVM should have no
+      // problem quickly allocating it
+      val minBufferSize = 1024
+      val allocationSize = math.max(length.toInt, minBufferSize)
+      tempBuf = Maybe(allocate(allocationSize))
     }
     val buf = tempBuf.get
     buf.clear
