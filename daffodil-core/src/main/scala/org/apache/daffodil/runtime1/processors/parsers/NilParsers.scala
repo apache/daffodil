@@ -40,21 +40,40 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(erd: ElementRuntimeData)
   def isFieldNilLit(field: String): Boolean
 
   override def parse(start: PState): Unit = {
-
-    val field = parseString(start)
-
-    val isFieldEmpty = field.length() == 0
-
-    if (isFieldEmpty && isEmptyAllowed) {
-      // Valid! Success ParseResult indicates nilled
-    } else if (isFieldEmpty && !isEmptyAllowed) {
-      // Fail!
-      PE(start, "%s - Empty field found but not allowed!", eName)
-    } else if (isFieldNilLit(field)) {
-      // Contains a nilValue, Success ParseResult indicates nilled
+    if (erd.isComplexType) {
+      // nillable complex types must have a nilValue of %ES;. For a literal nil specified length
+      // complex to be nilled, that means either there must be a specified length that is zero
+      // or there isn't a specified length and we have reached the end of the data. If neither
+      // of these conditions are true, then there is non-empty data for this complex element and
+      // it cannot be nilled.
+      val bitLimit0b = start.bitLimit0b
+      val hasSpecifiedLength = bitLimit0b.isDefined
+      if (
+        (hasSpecifiedLength && (bitLimit0b.get - start.bitPos0b) > 0) ||
+        (!hasSpecifiedLength && start.dataInputStream.hasData)
+      ) {
+        // Fail!
+        PE(start, "%s - Does not contain a nil literal", eName)
+      } else {
+        // Valid! Success ParseResult indicates nilled
+      }
     } else {
-      // Fail!
-      PE(start, "%s - Does not contain a nil literal!", eName)
+      // Simple element, read a string up to the bitLimit and see if it matches the nilValue
+      val field = parseString(start)
+
+      val isFieldEmpty = field.length() == 0
+
+      if (isFieldEmpty && isEmptyAllowed) {
+        // Valid! Success ParseResult indicates nilled
+      } else if (isFieldEmpty && !isEmptyAllowed) {
+        // Fail!
+        PE(start, "%s - Empty field found but not allowed", eName)
+      } else if (isFieldNilLit(field)) {
+        // Contains a nilValue, Success ParseResult indicates nilled
+      } else {
+        // Fail!
+        PE(start, "%s - Does not contain a nil literal", eName)
+      }
     }
   }
 
