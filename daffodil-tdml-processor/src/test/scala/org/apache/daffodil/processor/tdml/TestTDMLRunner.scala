@@ -342,7 +342,9 @@ class TestTDMLRunner {
       fileWriter.write(testSchema.toString())
     }
 
-    val testSuite = <testSuite xmlns={tdml} suiteName="theSuiteName">
+    val testSuite = <testSuite xmlns={
+      tdml
+    } suiteName="theSuiteName">
                       <parserTestCase name="testRunTDMLFileReferencingModelFile" root="data" model={
       tmpSchemaFile.toURI.toString
     }>
