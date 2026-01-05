@@ -81,7 +81,7 @@ class TestSpace1 extends TdmlTests {
 }
 
 object TestSpace2 extends TdmlSuite {
-  val tdmlResource = "/test space/test 1/namespaces.tdml"
+  val tdmlResource = "/test space/test 1/spaceInNames.tdml"
 }
 
 class TestSpace2 extends TdmlTests {
@@ -91,7 +91,7 @@ class TestSpace2 extends TdmlTests {
     val e = intercept[Exception] { test }
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("required resource"))
-    assertTrue(m.contains("/test%20space/test%201/namespaces.tdml"))
+    assertTrue(m.contains("/test%20space/test%201/spaceInNames.tdml"))
     assertTrue(m.toLowerCase.contains("not found"))
   }
 }
