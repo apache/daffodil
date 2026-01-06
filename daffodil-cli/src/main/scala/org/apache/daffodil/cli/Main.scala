@@ -30,14 +30,13 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import java.util.Scanner
-import java.util.concurrent.Executors
+import java.util.concurrent.ConcurrentLinkedQueue
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
-import scala.collection.immutable.ArraySeq
 import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters.*
@@ -1456,104 +1455,98 @@ class Main(
               forPerformance = true
             )
 
-            val dataSeq: Seq[Either[AnyRef, Array[Byte]]] =
-              ArraySeq
-                .unsafeWrapArray(files)
-                .map { filePath =>
-                  // For performance testing, we want everything in memory so as to
-                  // remove I/O from consideration. Additionally, for both parse
-                  // and unparse we need immutable inputs since we could parse the
-                  // same input data multiple times in different performance runs.
-                  // So read the file data into an Array[Byte], and use that for
-                  // everything.
-                  val input = (new FileInputStream(filePath))
-                  val dataSize = filePath.length()
-                  val bytes = new Array[Byte](dataSize.toInt)
-                  input.read(bytes)
-                  val data = performanceOpts.unparse() match {
-                    case true => Left(infosetHandler.dataToInfoset(bytes))
-                    case false => Right(bytes)
+            val isUnparse = performanceOpts.unparse()
+
+            val dataArray: Array[AnyRef] = files
+              .map { filePath =>
+                // For performance testing, we want everything in memory so as to
+                // remove I/O from consideration. Additionally, for both parse
+                // and unparse we need immutable inputs since we could parse the
+                // same input data multiple times in different performance runs.
+                // So read the file data into an Array[Byte], and use that for
+                // everything.
+                val input = (new FileInputStream(filePath))
+                val dataSize = filePath.length()
+                val bytes = new Array[Byte](dataSize.toInt)
+                input.read(bytes)
+                val data =
+                  if (isUnparse) {
+                    infosetHandler.dataToInfoset(bytes)
+                  } else {
+                    bytes
                   }
-                  data
-                }
-
-            val inputs = (0 until performanceOpts.number()).map { n =>
-              val index = n % dataSeq.length
-              dataSeq(index)
-            }
-            val inputsWithIndex = inputs.zipWithIndex
-
-            implicit val executionContext = new ExecutionContext {
-              val threadPool = Executors.newFixedThreadPool(performanceOpts.threads())
-
-              def execute(runnable: Runnable): Unit = {
-                threadPool.submit(runnable)
+                data
               }
 
-              def reportFailure(t: Throwable): Unit = {
-                // do nothing
-              }
+            val inputQueue = new ConcurrentLinkedQueue[AnyRef]()
+            (0 until performanceOpts.number()).foreach { n =>
+              val index = n % dataArray.length
+              inputQueue.add(dataArray(index))
             }
 
             val nullChannelForUnparse = Channels.newChannel(NullOutputStream.INSTANCE)
             val nullOutputStreamForParse = NullOutputStream.INSTANCE
 
-            val NSConvert = 1000000000.0
-            val (totalTime, results) = Timer.getTimeResult({
-              val tasks = inputsWithIndex.map { case (inData, n) =>
-                val task: Future[(Int, Long, Boolean)] = Future {
-                  val (time, result) = inData match {
-                    case Left(anyRef) =>
-                      Timer.getTimeResult({
-                        val unparseResult =
-                          infosetHandler.unparse(anyRef, nullChannelForUnparse)
-                        unparseResult
-                      })
-                    case Right(bytes) =>
-                      Timer.getTimeResult({
-                        Using.resource(InputSourceDataInputStream(bytes)) { input =>
-                          val infosetResult =
-                            infosetHandler.parse(input, nullOutputStreamForParse)
-                          val parseResult = infosetResult.parseResult
-                          parseResult
-                        }
-                      })
+            val totalTimeStart = System.nanoTime
+
+            val tasks = (0 until performanceOpts.threads()).map { id =>
+              Future {
+                var threadLatencyNS: Long = 0
+                var threadFiles: Long = 0
+
+                var input: AnyRef = null
+                while ({ input = inputQueue.poll(); input != null }) {
+                  val latencyTimeStart = System.nanoTime
+                  if (isUnparse) {
+                    val unparseResult = infosetHandler.unparse(input, nullChannelForUnparse)
+                    if (unparseResult.isError) throw Exception("Failed to unparse")
+                  } else {
+                    val isdis = InputSourceDataInputStream(input.asInstanceOf[Array[Byte]])
+                    val infosetResult = infosetHandler.parse(isdis, nullOutputStreamForParse)
+                    if (infosetResult.parseResult.isError)
+                      throw new Exception("Failed to parse")
                   }
-
-                  (n, time, result.isError)
+                  val latencyTimeEnd = System.nanoTime
+                  threadLatencyNS += latencyTimeEnd - latencyTimeStart
+                  threadFiles += 1
                 }
-                task
+
+                (threadLatencyNS, threadFiles)
               }
-              val results = tasks.map { Await.result(_, Duration.Inf) }
-              results
-            })
+            }
 
-            val rates = results.map { results =>
-              val (runNum: Int, nsTime: Long, error: Boolean) = results
-              val rate = 1 / (nsTime / NSConvert)
-              val status = if (error) "fail" else "pass"
-              Logger.log.info(
-                s"run: ${runNum}, seconds: ${nsTime / NSConvert}, rate: ${rate}, status: ${status}"
+            val results =
+              try {
+                tasks.map { Await.result(_, Duration.Inf) }
+              } catch {
+                // if a future throws an exception, we return an empty seq to indicate failure
+                case _: Exception => Seq()
+              }
+
+            val totalTimeEnd = System.nanoTime
+
+            if (results.length == 0) {
+              Logger.log.error("one or more files failed to parse/unparse")
+              ExitCode.PerformanceTestError
+            } else {
+              val action = performanceOpts.unparse() match {
+                case true => "unparse"
+                case false => "parse"
+              }
+              val (totalLatencyNS, totalFiles) = results.reduce { case ((a1, a2), (b1, b2)) =>
+                (a1 + b1, a2 + b2)
+              }
+              val totalTimeNS = totalTimeEnd - totalTimeStart
+              val totalTimeSec = totalTimeNS.toDouble / 1_000_000_000
+              val averageThroughputFilesPerSec = (totalFiles.toDouble / totalTimeSec)
+              val averageLatencyMS = (totalLatencyNS.toDouble / totalFiles / 1_000_000)
+              STDOUT.println(f"total $action time (sec): $totalTimeSec%.3f")
+              STDOUT.println(
+                f"average throughput (files/sec): $averageThroughputFilesPerSec%.3f"
               )
-              rate
+              STDOUT.println(f"average latency (ms): $averageLatencyMS%.3f")
+              ExitCode.Success
             }
-
-            val numFailures = results.map { _._3 }.filter { e => e }.length
-            if (numFailures > 0) {
-              Logger.log.error(s"${numFailures} failures found\n")
-            }
-
-            val sec = totalTime / NSConvert
-            val action = performanceOpts.unparse() match {
-              case true => "unparse"
-              case false => "parse"
-            }
-            STDOUT.println(s"total $action time (sec): $sec")
-            STDOUT.println(s"min rate (files/sec): ${rates.min.toFloat}")
-            STDOUT.println(s"max rate (files/sec): ${rates.max.toFloat}")
-            STDOUT.println(s"avg rate (files/sec): ${(performanceOpts.number() / sec).toFloat}")
-
-            if (numFailures == 0) ExitCode.Success else ExitCode.PerformanceTestError
           }
 
         }
