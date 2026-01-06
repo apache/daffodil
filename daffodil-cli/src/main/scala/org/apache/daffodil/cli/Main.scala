@@ -1541,7 +1541,9 @@ class Main(
               val averageThroughputFilesPerSec = (totalFiles.toDouble / totalTimeSec)
               val averageLatencyMS = (totalLatencyNS.toDouble / totalFiles / 1_000_000)
               STDOUT.println(f"total $action time (sec): $totalTimeSec%.3f")
-              STDOUT.println(f"average throughput (files/sec): $averageThroughputFilesPerSec%.3f")
+              STDOUT.println(
+                f"average throughput (files/sec): $averageThroughputFilesPerSec%.3f"
+              )
               STDOUT.println(f"average latency (ms): $averageLatencyMS%.3f")
               ExitCode.Success
             }
