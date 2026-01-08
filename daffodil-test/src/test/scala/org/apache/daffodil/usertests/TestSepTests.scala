@@ -55,4 +55,11 @@ class TestSepTests extends TdmlTests {
 
   // DAFFODIL-2791
   @Test def test_treatAsAbsent_occursIndex = test
+
+  // DAFFODIL-2295
+  @Test def test_sep_alignment_1 = test
+  @Test def test_sep_alignment_2 = test
+  @Test def test_sep_alignment_3 = test
+
+  @Test def test_sep_alignment_4 = test
 }
