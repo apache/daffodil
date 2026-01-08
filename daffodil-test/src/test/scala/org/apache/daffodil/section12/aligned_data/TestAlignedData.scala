@@ -192,6 +192,7 @@ class TestAlignedData extends TdmlTests {
   @Test def test_init_alignment_2 = test
   @Test def test_prefix_alignment_1 = test
   @Test def test_prefix_alignment_2 = test
+  @Test def test_prefix_alignment_3 = test
   @Test def test_valueMTA_alignment_1 = test
 
   // DAFFODIL-3057

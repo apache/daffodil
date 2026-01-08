@@ -798,6 +798,17 @@
       <xs:restriction base="xs:int"/>
     </xs:simpleType>
 
+    <xs:simpleType name="deep_prefixed_inner" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="16">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="deep_prefixed_outer"
+      dfdl:lengthKind="prefixed"
+      dfdl:prefixLengthType="ex:prefixType_bits"
+      dfdl:prefixIncludesPrefixLength="no">
+      <xs:restriction base="xs:int"/>
+    </xs:simpleType>
+
     <xs:element name="prefixed_element_bits">
       <xs:complexType>
         <xs:sequence>
@@ -813,6 +824,37 @@
                 <xs:element name="a" type="xs:string"
                             dfdl:lengthUnits="bits"
                             dfdl:prefixLengthType="ex:prefixType_bits"
+                            dfdl:prefixIncludesPrefixLength="no"
+                            dfdl:lengthKind="prefixed"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="prefixed_element_nested">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="implicit"
+                      dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="c" type="xs:string"
+                            dfdl:length="2"
+                            dfdl:lengthKind="explicit"
+                            dfdl:alignment="2"
+                            dfdl:fillByte="C"/>
+                <xs:element name="a" type="xs:string"
+                            dfdl:lengthUnits="bits"
+                            dfdl:prefixLengthType="ex:deep_prefixed_outer"
                             dfdl:prefixIncludesPrefixLength="no"
                             dfdl:lengthKind="prefixed"
                             dfdl:alignment="2"
@@ -4398,6 +4440,28 @@
         </ex:prefixed_element_bits>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="test_prefix_alignment_3" root="prefixed_element_nested" model="s3" roundTrip="onePass">
+    <tdml:document>cc16aabb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefixed_element_nested xmlns:ex="http://example.com">
+          <e1>
+            <c>cc</c>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:prefixed_element_nested>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Nested</tdml:error>
+      <tdml:error>prefixed</tdml:error>
+      <tdml:error>not supported</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
   <tdml:unparserTestCase name="test_valueMTA_alignment_1" root="elem" model="s4" roundTrip="onePass">
