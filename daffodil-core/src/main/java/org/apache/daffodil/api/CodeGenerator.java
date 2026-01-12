@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.api;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -30,7 +31,7 @@ public interface CodeGenerator extends WithDiagnostics {
    * @param outputDir output directory in which to create code directory (codeDir)
    * @return path of newly created directory (codeDir) containing generated code
    */
-  Path generateCode(String outputDir);
+  Path generateCode(String outputDir) throws IOException;
 
   /**
    * Compiles the generated code in order to run it in a TDML test

@@ -19,6 +19,7 @@ package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.SequenceTermBase
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
@@ -74,17 +75,24 @@ trait SchemaSetRuntime1Mixin {
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     checkNotError()
-    if (xpath != "/")
-      root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
-    val rootERD = root.elementRuntimeData
-    root.schemaDefinitionUnless(
-      !rootERD.dpathElementCompileInfo.isOutputValueCalc,
-      "The root element cannot have the dfdl:outputValueCalc property."
-    )
-    val p = if (!root.isError) parser else null
-    val u = if (!root.isError) unparser else null
+    if (xpath != "/") {
+      root.notYetImplemented(
+        """Path must be "/". Other path support is not yet implemented."""
+      )
+    }
+    // we want to ensure that it's impossible for SchemaSetRuntimeData to get a
+    // null parser/unparser, and that it's impossible for a DataProcessor
+    // to have an error
+    Assert.invariant(!root.isError)
     val ssrd =
-      new SchemaSetRuntimeData(p, u, rootERD, variableMap, allLayers, layerRuntimeCompiler)
+      new SchemaSetRuntimeData(
+        parser,
+        unparser,
+        root.elementRuntimeData,
+        variableMap,
+        allLayers,
+        layerRuntimeCompiler
+      )
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
         s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}."

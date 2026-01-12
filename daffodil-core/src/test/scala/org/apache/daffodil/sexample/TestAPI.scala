@@ -226,6 +226,7 @@ class TestAPI {
       assertEquals("42", bos.toString())
     }
   }
+
   @Test
   def testAPI2(): Unit = {
     val c = Daffodil.compiler()

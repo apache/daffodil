@@ -85,7 +85,8 @@ class MultiException[T <: Throwable] private (causes: java.util.List[T], msg: St
 }
 
 // $COVERAGE-OFF$ These exception objects should never be created by tests.
-abstract class UnsuppressableException(m: String, th: Throwable) extends Exception(m, th) {
+abstract class UnsuppressableException(m: String, th: Throwable)
+  extends RuntimeException(m, th) {
   def this(msg: String) = this(msg, null)
   def this(th: Throwable) = this(null, th)
 }

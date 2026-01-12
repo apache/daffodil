@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.api;
 
+import org.apache.daffodil.api.exceptions.InvalidGeneratorException;
 /**
  * Factory to create {@link DataProcessor}s, used for parsing data
  */
@@ -46,5 +47,5 @@ public interface ProcessorFactory extends WithDiagnostics {
    * @return a {@link CodeGenerator} to generate code from a DFDL schema to parse or unparse data
    */
   @Experimental
-  CodeGenerator forLanguage(String language);
+  CodeGenerator forLanguage(String language) throws InvalidGeneratorException;
 }
