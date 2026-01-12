@@ -190,6 +190,19 @@ class DataProcessor(
     copy(variableMap = newVariableMap)
   }
 
+  /**
+   * It is impossible for this to ever return true, because the ProcessorFactory
+   * compiles everything and any failures there will be captured on the ProcessorFactory.
+   * 
+   * If ProcessorFactory.isError == true, then calling ProcessorFactory.onPath() should 
+   * throw n usage exception, and we should never get a DataProcessor.
+   *
+   * If ProcessorFactory.isError == false, then it's virtually impossible to 
+   * create a DataProcessor since onPath doesn't do any new logic that could
+   * lead to any errors. The requiredEvaluates at the top of SchemaSetRuntime1Mixin 
+   * ensures everything (e.g. parser, unparser) is evaluated when the SchemaSet
+   * is created in the ProcessorFactory.compile()
+   */
   override def isError = false
 
   override def getDiagnostics: java.util.List[api.Diagnostic] =

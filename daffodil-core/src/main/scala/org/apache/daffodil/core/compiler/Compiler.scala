@@ -33,6 +33,7 @@ import scala.util.Try
 import scala.xml.Node
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.exceptions.InvalidGeneratorException
 import org.apache.daffodil.api.exceptions.InvalidParserException
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
@@ -129,7 +130,7 @@ final class ProcessorFactory private (
     val className = language match {
       case "c" => "org.apache.daffodil.codegen.c.DaffodilCCodeGenerator"
       case _ =>
-        throw new InvalidParserException(
+        throw new InvalidGeneratorException(
           s"code generator; source language $language is not supported"
         )
     }
@@ -140,7 +141,7 @@ final class ProcessorFactory private (
       _.newInstance(sset.root).asInstanceOf[api.CodeGenerator]
     }
     val codeGenerator = tryInstance.recover { case ex =>
-      throw new InvalidParserException(s"Error creating $className", ex)
+      throw new InvalidGeneratorException(s"Error creating $className", ex)
     }.get
 
     codeGenerator

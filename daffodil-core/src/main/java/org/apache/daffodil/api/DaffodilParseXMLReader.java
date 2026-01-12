@@ -23,8 +23,12 @@ import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -61,7 +65,7 @@ public interface DaffodilParseXMLReader extends XMLReader {
    * @param name feature flag whose value is to be retrieved
    * @return value of the feature flag
    */
-  boolean getFeature(String name);
+  boolean getFeature(String name) throws SAXNotRecognizedException, SAXNotSupportedException;;
 
   /**
    * Set the value of the feature flag
@@ -69,7 +73,7 @@ public interface DaffodilParseXMLReader extends XMLReader {
    * @param name  feature flag to be set
    * @param value value to be assigned to feature flag
    */
-  void setFeature(String name, boolean value);
+  void setFeature(String name, boolean value) throws SAXNotRecognizedException, SAXNotSupportedException;;
 
   /**
    * Get the value of the property
@@ -77,7 +81,7 @@ public interface DaffodilParseXMLReader extends XMLReader {
    * @param name property whose value is to be retrieved
    * @return value of the property
    */
-  Object getProperty(String name);
+  Object getProperty(String name) throws SAXNotRecognizedException, SAXNotSupportedException;;
 
   /**
    * Set the value of the property
@@ -85,7 +89,7 @@ public interface DaffodilParseXMLReader extends XMLReader {
    * @param name  property whose value is to be set
    * @param value value to be assigned to the property
    */
-  void setProperty(String name, Object value);
+  void setProperty(String name, Object value) throws SAXNotRecognizedException, SAXNotSupportedException;
 
   /**
    * Register an entity resolver
@@ -149,14 +153,14 @@ public interface DaffodilParseXMLReader extends XMLReader {
    *
    * @param input data to be parsed
    */
-  void parse(InputSource input);
+  void parse(InputSource input) throws IOException, SAXException;
 
   /**
    * Parse data from a system identifier/URI. This method is not supported by the API.
    *
    * @param systemId URI for data to be parsed
    */
-  void parse(String systemId);
+  void parse(String systemId) throws IOException, SAXException;
 
   /**
    * Parse input data from an InputSourceDataInputStream. Infoset can retrieved via the registered
@@ -164,7 +168,7 @@ public interface DaffodilParseXMLReader extends XMLReader {
    *
    * @param isdis data to be parsed
    */
-  void parse(InputSourceDataInputStream isdis);
+  void parse(InputSourceDataInputStream isdis) throws IOException, SAXException;
 
   /**
    * Parse input data from an InputStream. Infoset can retrieved via the registered contentHandler
@@ -172,7 +176,7 @@ public interface DaffodilParseXMLReader extends XMLReader {
    *
    * @param stream data to be parsed
    */
-  void parse(InputStream stream);
+  void parse(InputStream stream) throws IOException, SAXException;
 
   /**
    * Parse input data from an array of bytes. Infoset can be retrieved via the registered
@@ -180,5 +184,5 @@ public interface DaffodilParseXMLReader extends XMLReader {
    *
    * @param arr data to be parsed
    */
-  void parse(byte[] arr);
+  void parse(byte[] arr) throws IOException, SAXException;
 }

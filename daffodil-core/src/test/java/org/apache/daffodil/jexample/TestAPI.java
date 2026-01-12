@@ -21,6 +21,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -67,6 +68,7 @@ import org.apache.commons.io.FileUtils;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
@@ -968,7 +970,7 @@ public class TestAPI {
   }
 
   @Test
-  public void testAPI21() throws IOException, ClassNotFoundException {
+  public void testAPI21() throws IOException, ClassNotFoundException, SAXException {
     // Test SAX parsing with errors
     org.apache.daffodil.api.Compiler c = Daffodil.compiler();
     java.io.File schemaFile = getResource("/test/api/mySchema1.dfdl.xsd");
