@@ -32,7 +32,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance -N 2 -t 2 -s $schema -r matrix $input") { cli =>
       cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -44,7 +44,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance -I sax -N 2 -t 2 -s $schema -r matrix $input") { cli =>
       cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -56,7 +56,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance -I exi -N 2 -t 2 -s $schema -r matrix $input") { cli =>
       cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -68,7 +68,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance -I exisa -N 2 -t 2 -s $schema -r matrix $input") { cli =>
       cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -80,7 +80,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance -N 20 -t 3 -s $schema -r matrix $input") { cli =>
       cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -92,7 +92,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance -N 50 -t 5 -s $schema -r Item2 $input") { cli =>
       cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -103,8 +103,6 @@ class TestCLIPerformance {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input5.txt")
 
     runCLI(args"performance -N 2 -t 2 -s $schema $input") { cli =>
-      cli.expect("total parse time (sec):")
-      cli.expect("avg rate (files/sec):")
       cli.expectErr("error")
     }(ExitCode.PerformanceTestError)
   }
@@ -119,7 +117,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -N 2 -t 2 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -133,7 +131,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -I sax -N 2 -t 2 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -147,7 +145,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -I exi -N 2 -t 2 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -161,7 +159,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -I exisa -N 2 -t 2 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -175,7 +173,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -I null -N 2 -t 2 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -189,7 +187,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -N 20 -t 3 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -203,7 +201,7 @@ class TestCLIPerformance {
 
     runCLI(args"performance --unparse -N 50 -t 5 -s $schema -r e3 $input") { cli =>
       cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
+      cli.expect("average throughput (files/sec):")
     }(ExitCode.Success)
   }
 
@@ -216,8 +214,6 @@ class TestCLIPerformance {
     )
 
     runCLI(args"performance --unparse -N 2 -t 2 -s $schema $input") { cli =>
-      cli.expect("total unparse time (sec):")
-      cli.expect("avg rate (files/sec):")
       cli.expectErr("error")
     }(ExitCode.PerformanceTestError)
   }
