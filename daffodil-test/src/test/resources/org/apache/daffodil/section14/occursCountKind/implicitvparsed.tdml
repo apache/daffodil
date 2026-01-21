@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:ex="http://example.com" suiteName="rothrsreq" description="testing otg gold schemas" defaultRoundTrip="true">
+  <tdml:defineSchema name="otg-schema" elementFormDefault="unqualified" useDefaultNamespace="false">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:defineFormat name="DefaultPropertiesFormat">
+      <dfdl:format ref="ex:GeneralFormat"
+        emptyValueDelimiterPolicy="none"
+        fillByte="0"
+        lengthKind="delimited"
+        lengthUnits="characters"
+        nilKind="literalValue"
+        nilValue="%ES;"
+        nilValueDelimiterPolicy="none"
+        representation="text"
+        separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty"
+        textNumberPadCharacter="0"
+        textNumberPattern="###0.###;-###0.###"
+        textPadKind="none"
+        textStandardZeroRep="" />
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:DefaultPropertiesFormat"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="se1" type="xs:int"/>
+          <xs:element name="se2" type="xs:int"/>
+          <xs:element name="arre1" maxOccurs="3" dfdl:occursCountKind="parsed">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="-">
+                <xs:choice>
+                  <xs:element name="ie1" type="xs:int"/>
+                  <xs:element name="ie2" type="xs:float"/>
+                </xs:choice>
+                <xs:element name="ie3" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="se5" type="xs:string"/>
+          <xs:element name="se6" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="se1" type="xs:int"/>
+          <xs:element name="se2" type="xs:int"/>
+          <xs:element name="arre1" maxOccurs="3" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="-">
+                <xs:choice>
+                  <xs:element name="ie1" type="xs:int"/>
+                  <xs:element name="ie2" type="xs:float"/>
+                </xs:choice>
+                <xs:element name="ie3" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="se5" type="xs:string"/>
+          <xs:element name="se6" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_array_parsed" root="e1" model="otg-schema" roundTrip="none">
+    <tdml:document><![CDATA[/1/2/3.5-one/4-two/a/6
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <se1>1</se1>
+          <se2>2</se2>
+          <arre1>
+            <ie2>3.5</ie2>
+            <ie3>one</ie3>
+          </arre1>
+          <arre1>
+            <ie1>4</ie1>
+            <ie3>two</ie3>
+          </arre1>
+          <se5>a</se5>
+          <se6>6</se6>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_array_implicit" root="e2" model="otg-schema" roundTrip="none">
+    <tdml:document><![CDATA[/1/2/3.5-one/4-two/a/6
+]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <se1>1</se1>
+          <se2>2</se2>
+          <arre1>
+            <ie2>3.5</ie2>
+            <ie3>one</ie3>
+          </arre1>
+          <arre1>
+            <ie1>4</ie1>
+            <ie3>two</ie3>
+          </arre1>
+          <se5>a</se5>
+          <se6>6</se6>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

@@ -755,6 +755,7 @@
           <xs:enumeration value="patternEncodingSlashW" />
           <xs:enumeration value="queryStylePathExpression" />
           <xs:enumeration value="regexPatternZeroLength" />
+          <xs:enumeration value="separatorSuppressionPolicyError" />
           <xs:enumeration value="signedBinaryIntegerLength1Bit" />
           <xs:enumeration value="textBidiError" />
           <xs:enumeration value="textNumberPatternWarning" />

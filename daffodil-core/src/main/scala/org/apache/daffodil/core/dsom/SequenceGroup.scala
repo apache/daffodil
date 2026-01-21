@@ -102,6 +102,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
+  requiredEvaluationsIfActivated(checkValidityOccursCountKind)
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
   requiredEvaluationsIfActivated(checkIfMultipleChildrenWithSameName)
 
@@ -160,6 +161,24 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     }
   }.value
 
+  lazy val checkValidityOccursCountKind: Unit = {
+    if (hasSeparator && (separatorSuppressionPolicy ne SeparatorSuppressionPolicy.AnyEmpty)) {
+      val optInvalidChild = groupMembers.find {
+        case e: ElementBase => e.occursCountKind == OccursCountKind.Parsed
+        case _ => false
+      }
+      if (optInvalidChild.isDefined) {
+        optInvalidChild.get.SDW(
+          WarnID.SeparatorSuppressionPolicyError,
+          "Member of a sequence with dfdl:occursCountKind='parsed' must have a " +
+            "containing sequence with dfdl:separatorSuppressionPolicy='anyEmpty', " +
+            "but was %s. This may be changed to an error in a future version of Daffodil.",
+          separatorSuppressionPolicy
+        )
+      }
+    }
+  }
+
   /**
    * Provides validation for assert and discriminator placement
    */
@@ -181,12 +200,12 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   protected final lazy val checkIfValidUnorderedSequence: Unit = {
     if (!isOrdered) {
       checkMembersAreAllElementOrElementRef
-      checkMembersHaveValidOccursCountKind
+      checkUnorderedSequenceMembersHaveValidOccursCountKind
       checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces
     }
   }
 
-  private lazy val checkMembersHaveValidOccursCountKind: Unit = {
+  private lazy val checkUnorderedSequenceMembersHaveValidOccursCountKind: Unit = {
     val validChildren: Seq[ElementBase] =
       groupMembers
         .filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef] }

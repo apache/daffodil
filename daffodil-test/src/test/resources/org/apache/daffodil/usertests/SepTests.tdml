@@ -456,11 +456,11 @@
 
     <xs:element name="root" dfdl:initiator="RECORD">
       <xs:complexType>
-        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;" dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="field1" type="xs:string" />
           <xs:element name="field2" type="xs:string" minOccurs="0" />
           <xs:element name="field3" type="xs:string" minOccurs="0" />
-          <xs:element name="groupOfFields" minOccurs="1" maxOccurs="3" dfdl:occursCountKind="parsed">
+          <xs:element name="groupOfFields" minOccurs="1" maxOccurs="3">
             <xs:complexType>
               <xs:sequence>
                 <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="never">

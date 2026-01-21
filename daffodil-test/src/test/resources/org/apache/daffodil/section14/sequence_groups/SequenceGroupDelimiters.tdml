@@ -296,8 +296,15 @@
 
     <tdml:document><![CDATA[1,2,3,4,5,6
 		]]></tdml:document>
+
+    <tdml:warnings>
+      <tdml:warning>occursCountKind='parsed'</tdml:warning>
+      <tdml:warning>must have</tdml:warning>
+      <tdml:warning>separatorSuppressionPolicy='anyEmpty'</tdml:warning>
+      <tdml:warning>but was never</tdml:warning>
+    </tdml:warnings>
     <tdml:errors>
-      <tdml:error></tdml:error>
+      <tdml:error>left over data</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
