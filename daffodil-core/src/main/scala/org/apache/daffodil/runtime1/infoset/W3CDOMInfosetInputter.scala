@@ -19,7 +19,6 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.lang.Boolean as JBoolean
 import javax.xml.XMLConstants
-import scala.jdk.OptionConverters.*
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.Daffodil.InfosetInputterEventType

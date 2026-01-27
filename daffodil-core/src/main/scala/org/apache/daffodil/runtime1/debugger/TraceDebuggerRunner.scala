@@ -19,7 +19,6 @@ package org.apache.daffodil.runtime1.debugger
 
 import java.io.PrintStream
 
-import org.apache.daffodil.api
 import org.apache.daffodil.api.debugger.DaffodilDebuggerRunner
 
 class TraceDebuggerRunner(out: PrintStream = System.out) extends DaffodilDebuggerRunner {
