@@ -44,7 +44,7 @@ object Dependencies {
 
   lazy val cli = Seq(
     "org.jline" % "jline" % "3.30.6",
-    "org.rogach" %% "scallop" % "5.3.0",
+    "org.rogach" %% "scallop" % "6.0.0",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "test"
   )
 
