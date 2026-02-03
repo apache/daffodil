@@ -37,6 +37,7 @@ jobs:
     name: Java ${{ matrix.java_version }}, Scala ${{ matrix.scala_version }}, ${{ matrix.os }}
     strategy:
       fail-fast: false
+      max-parallel: 7
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 17, 21, 25 ]
@@ -236,6 +237,7 @@ jobs:
     name: Lint Checks
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 17 ]
