@@ -335,7 +335,12 @@ sealed abstract class InfosetNoDataExceptionBase(
 case class InfosetNoDataException(
   override val diElement: DIElement,
   override val erd: ElementRuntimeData
-) extends InfosetNoDataExceptionBase(diElement, erd, "Element does not have a value.")
+) extends InfosetNoDataExceptionBase(
+    diElement,
+    erd,
+    "Element does not have a value. " +
+      "This may indicate a circular dependency in the schema."
+  )
 
 case class InfosetSelfReferencingException(
   override val diElement: DIElement,
