@@ -994,4 +994,127 @@
     <tdml:document>a</tdml:document>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="truncatedString1">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii"
+      lengthUnits="bytes"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:outputValueCalc="{ if (dfdl:valueLength(../ex:data , 'bytes') gt 5) then 5 else dfdl:valueLength(../ex:data , 'bytes')  }" />
+          <xs:element name="data" type="xs:string" dfdl:lengthKind='explicit'
+            dfdl:length='{../ex:len}' dfdl:truncateSpecifiedLengthString='yes'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="truncatedString_1" root="e1" model="truncatedString1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:len>0</ex:len>
+          <ex:data>ABCDEFG</ex:data>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>not have a value</tdml:error>
+      <tdml:error>circular dependency</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+    <tdml:defineSchema name="truncatedString2">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii"
+      lengthUnits="bytes"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:outputValueCalc="{ if (fn:string-length(../ex:data) gt 5) then 5 else fn:string-length(../ex:data) }" />
+          <xs:element name="data" type="xs:string" dfdl:lengthKind='explicit'
+            dfdl:length='{../ex:len}' dfdl:truncateSpecifiedLengthString='yes'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="truncatedString_2" root="e1" model="truncatedString2">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:len>0</ex:len>
+          <ex:data>ABCDEFG</ex:data>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>not have a value</tdml:error>
+      <tdml:error>circular dependency</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+    <tdml:defineSchema name="truncatedString3">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii"
+      lengthUnits="bytes"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data" type="xs:string" dfdl:lengthKind='explicit'
+            dfdl:length='{ if (fn:string-length(.) gt 5) then 5 else fn:string-length(.) }' dfdl:truncateSpecifiedLengthString='yes'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="truncatedString_3" root="e1" model="truncatedString3">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:data>ABCDEFG</ex:data>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>ABCDE</tdml:document>
+  </tdml:unparserTestCase>
+
+    <tdml:defineSchema name="truncatedString4">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii"
+      lengthUnits="bytes"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data" type="xs:string" dfdl:lengthKind='explicit'
+            dfdl:length="{ if (dfdl:valueLength(. , 'bytes') gt 5) then 5 else dfdl:valueLength(. , 'bytes') }" dfdl:truncateSpecifiedLengthString='yes'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="truncatedString_4" root="e1" model="truncatedString4">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:data>ABCDEFG</ex:data>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Value length unknown</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>

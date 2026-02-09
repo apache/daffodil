@@ -79,4 +79,10 @@ class TestUnparserGeneral extends TdmlTests {
   @Test def emptyOutputNewLine1 = test
 
   @Test def unparseIgnorableContent = test
+
+  // DFDL-1598
+  @Test def truncatedString_1 = test
+  @Test def truncatedString_2 = test
+  @Test def truncatedString_3 = test
+  @Test def truncatedString_4 = test
 }
