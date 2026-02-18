@@ -214,11 +214,17 @@ jobs:
       - name: Prepare for SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
         run: |
-          SCALA_VERSION=${{ matrix.scala_version }}
-          SCALA_BINARY_VERSION=$(echo "$SCALA_VERSION" | cut -d. -f1,2)
+          SONAR_SCALA_VERSION=${{ matrix.scala_version }}
+          JAVA_JARS=$(sbt -batch -no-colors -error "export Compile/dependencyClasspath" 2>/dev/null)
+          TEST_JAVA_JARS=$(sbt -batch -no-colors -error "export Test/dependencyClasspath" 2>/dev/null)
+          SONAR_JAVA_JARS=$(echo "$JAVA_JARS" | grep -v dependencyClasspath | tr ':;' '\n'| sort -u | paste -sd ',' -)
+          SONAR_TEST_JAVA_JARS=$(echo "$TEST_JAVA_JARS" | grep -v dependencyClasspath | tr ':;' '\n'| sort -u | paste -sd ',' -)
           # NOTE: This is needed by .sonar-project.properties so it can 
-          # have the right reportPath per version
-          echo "SCALA_BINARY_VERSION=$SCALA_BINARY_VERSION" >> $GITHUB_ENV
+          # have the right reportPath per version, as well as the proper 
+          # path to jar dependencies
+          echo "SONAR_SCALA_VERSION=$SONAR_SCALA_VERSION" >> $GITHUB_ENV
+          echo "SONAR_JAVA_JARS=$SONAR_JAVA_JARS" >> $GITHUB_ENV
+          echo "SONAR_TEST_JAVA_JARS=$SONAR_TEST_JAVA_JARS" >> $GITHUB_ENV
           $SBT coverageReport
           find . -name scoverage.xml -exec sed -i 's#/home/runner/work/daffodil/daffodil#/github/workspace#g' {} +
 
