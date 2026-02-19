@@ -226,7 +226,6 @@ jobs:
           echo "SONAR_JAVA_JARS=$SONAR_JAVA_JARS" >> $GITHUB_ENV
           echo "SONAR_TEST_JAVA_JARS=$SONAR_TEST_JAVA_JARS" >> $GITHUB_ENV
           $SBT coverageReport
-          find . -name scoverage.xml -exec sed -i 's#/home/runner/work/daffodil/daffodil#/github/workspace#g' {} +
 
       - name: Run SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
