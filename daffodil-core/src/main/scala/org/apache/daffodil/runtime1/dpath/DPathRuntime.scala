@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import scala.collection.immutable.ArraySeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
 import org.apache.daffodil.lib.exceptions.Assert
@@ -42,9 +41,10 @@ import org.apache.daffodil.runtime1.processors.VariableException
 import org.apache.daffodil.runtime1.processors.VariableHasNoValue
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
-class CompiledDPath(val ops: RecipeOp*) extends Serializable {
+class CompiledDPath(val ops: Array[RecipeOp]) extends Serializable {
 
-  def this(ops: List[RecipeOp]) = this(ArraySeq.unsafeWrapArray(ops.toArray)*)
+  def this(ops: RecipeOp*) = this(ops.toArray)
+  def this(ops: List[RecipeOp]) = this(ops.toArray)
 
   override def toString =
     toXML.toString
