@@ -23,6 +23,7 @@ import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.MultiException
 import org.apache.daffodil.lib.util.Misc.getAMessage
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
@@ -146,7 +147,11 @@ class FuzzParseTester(
 
   val okParses = new mutable.HashSet[(Node, Array[Byte], XMLDifferenceException)]
 
-  protected def handleParseError(p: ParseError, testData: Array[Byte], i: Int) = {
+  protected def handleKnownException(
+    ex: Exception,
+    testData: Array[Byte],
+    i: Int
+  ) = {
     // do nothing by default
   }
 
@@ -175,8 +180,8 @@ class FuzzParseTester(
         try {
           TestUtils.runDataProcessorOnInputStream(p, bais, areTracing = false)
         } catch {
-          case p: ParseError => {
-            handleParseError(p, testData, i)
+          case ex @ (_: MultiException[Throwable] @unchecked | _: ParseError) => {
+            handleKnownException(ex, testData, i)
             (null, null)
           }
           case t: Throwable => {
@@ -207,13 +212,17 @@ class LayerParseTester(
 
   var shouldFail = false
 
-  override def handleParseError(p: ParseError, data: Array[Byte], nth: Int): Unit = {
-    val msg = getAMessage(p)
+  override def handleKnownException(
+    ex: Exception,
+    data: Array[Byte],
+    nth: Int
+  ): Unit = {
+    val msg = getAMessage(ex)
     if (excludes.exists { msg.contains(_) }) {
       // we know about this one
     } else {
       // new parse error type
-      println(s"trial $nth produced $p")
+      println(s"trial $nth produced $ex")
       shouldFail = true
     }
   }
