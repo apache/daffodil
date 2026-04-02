@@ -72,5 +72,31 @@
       </sequence>
     </complexType>
   </element>
-  
+
+  <element name="binMessageA" dfdl:terminator="%#r00;%#r0A;">
+    <complexType>
+      <sequence>
+        <element name="record" maxOccurs="unbounded">
+          <complexType>
+            <sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+              <element name="id" type="xs:int" />
+              <sequence dfdl:hiddenGroupRef="b:strLenHG" />
+              <element name="xmlStr"
+                       dfdl:lengthKind="explicit" dfdl:length="{ ../strLen }"
+                       dfdlx:runtimeProperties="stringAsXml=true">
+                <simpleType>
+                  <restriction base="xs:string">
+                    <maxLength value="0" />
+                  </restriction>
+                </simpleType>
+              </element>
+              <element name="priority" type="xs:int" />
+            </sequence>
+          </complexType>
+        </element>
+      </sequence>
+    </complexType>
+  </element>
+
+
 </schema>

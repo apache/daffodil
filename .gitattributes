@@ -14,4 +14,8 @@
 # limitations under the License.
 
 # Do not include KEYS in archived source releases
-/KEYS export-ignore 
+/KEYS export-ignore
+# ensure stringAsXml file line endings are not normalized in windows
+/daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml -text
+/daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01a.dat.xml -text
+/daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat.xml -text

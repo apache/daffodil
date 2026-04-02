@@ -48,7 +48,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:c_2>
-          <d xsi:type="xsd:int">42</d>
+          <d xsi:type="xsd:string">42</d>
         </ex:c_2>
       </tdml:dfdlInfoset>
     </tdml:infoset>

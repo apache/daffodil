@@ -77,6 +77,18 @@ validate XML embedded in data and subsequently embedded into the infoset.
       </element>
     </sequence>
   </group>
+
+  <group name="stringAsXmlGroupA">
+    <sequence>
+      <element name="stringAsXml">
+        <complexType>
+          <sequence>
+            <element xmlns:p="urn:payload" ref="p:rootA" />
+          </sequence>
+        </complexType>
+      </element>
+    </sequence>
+  </group>
   
 </schema>
 

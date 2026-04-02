@@ -42,6 +42,8 @@ import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.infoset.InvalidInfosetException
+import org.apache.daffodil.runtime1.infoset.XMLTextInfoset
 
 import org.apache.commons.io.IOUtils
 import org.xml.sax.XMLReader
@@ -599,6 +601,7 @@ object XMLUtils {
 
   def removeComments(e: Node): Node = {
     e match {
+      case x: Elem if isStringAsXmlElem(x) => x
       case Elem(prefix, label, attribs, scope, child*) => {
         val newChildren = child.filterNot { _.isInstanceOf[Comment] }.map { removeComments(_) }
         Elem(prefix, label, attribs, scope, true, newChildren*)
@@ -638,40 +641,108 @@ object XMLUtils {
     res
   }
 
+  private def isStringAsXmlElem(ns: Node): Boolean = {
+    ns match {
+      case e @ Elem(
+            null,
+            XMLTextInfoset.stringAsXml,
+            Null,
+            NamespaceBinding(null, null | "", _),
+            _*
+          ) =>
+        true
+      case _ => false
+    }
+  }
+
+  /**
+   * normalizes CRLF to LF within text nodes in non-stringAsXML elements
+   *
+   * Some fields in infosets could contain LFs, but could be changed to CRLF
+   * in Windows due to git's autocrlf feature. And since infoset outputters
+   * always output LF we need to undo with git might do and normalize those CRLF's
+   * to LF.
+   */
+  private def normalizeCRLFtoLF(ns: Node): Node = {
+    ns match {
+      // NOTE: this is specifically for the stringAsXml feature as we avoid
+      // making changes to any of its children requiring that stringAsXml in
+      // the infoset match results exactly.
+      case e: Elem if isStringAsXmlElem(e) => e
+      case e: Elem => {
+        val children = e.child
+        val normalized = children.map(normalizeCRLFtoLF)
+        val res = {
+          if (normalized eq children) e
+          else e.copy(child = normalized)
+        }
+        res
+      }
+      case Text(data) if data.contains("\r") => {
+        val replaced = data.replaceAll("\r\n", "\n").replaceAll("\r", "\n")
+        Text(replaced)
+      }
+      case _ => ns
+    }
+  }
+
   /**
    * removes insignificant whitespace from between elements
    */
 
   private def removeMixedWhitespace(ns: Node): Node = {
-    if (!ns.isInstanceOf[Elem]) return ns
-    val e = ns.asInstanceOf[Elem]
-    val children = e.child
-    val noMixedChildren =
-      if (children.exists(_.isInstanceOf[Elem])) {
-        children
-          .filter {
-            case Text(data) if data.matches("""\s*""") => false
-            case Text(data) =>
-              throw new Exception("Element %s contains mixed data: %s".format(e.label, data))
-            case _ => true
-          }
-          .map(removeMixedWhitespace)
-      } else {
-        children.filter {
-          //
-          // So this is a bit strange, but we're dropping nodes that are Empty String.
-          //
-          // In XML we cannot tell <foo></foo> where there is a Text("") child, from <foo></foo> with Nil children
-          //
-          case Text("") => false // drop empty strings
-          case _ => true
+    ns match {
+      // NOTE: this is specifically for the stringAsXml feature as we avoid
+      // making changes to any of its children except removing any surrounding
+      // whitespace, requiring that stringAsXml in the infoset match results exactly.
+      case e: Elem if isStringAsXmlElem(e) => {
+        val (elemChildren, nonElemChildren) = e.child.partition {
+          _.isInstanceOf[Elem]
         }
+        if (elemChildren.length != 1)
+          throw new InvalidInfosetException("stringAsXml must contain a single child element.")
+        nonElemChildren.foreach {
+          case Text(data) if data.matches("""\s*""") => // no-op, empty text siblings are fine
+          case x =>
+            throw new Exception(
+              "%s is some kind of mixed content not allowed as a stringAsXml child".format(x)
+            )
+        }
+        e.asInstanceOf[Elem].copy(child = elemChildren)
       }
+      case e: Elem => {
+        val children = e.child
+        val noMixedChildren =
+          if (children.exists(_.isInstanceOf[Elem])) {
+            children
+              .filter {
+                case Text(data) if data.matches("""\s*""") => false
+                case Text(data) =>
+                  throw new Exception(
+                    "Element %s contains mixed data: %s".format(e.label, data)
+                  )
+                case _ => true
+              }
+              .map(removeMixedWhitespace)
+          } else {
+            children.filter {
+              //
+              // So this is a bit strange, but we're dropping nodes that are Empty String.
+              //
+              // In XML we cannot tell <foo></foo> where there is a Text("") child, from <foo></foo> with Nil children
+              //
+              case Text("") => false // drop empty strings
+              case _ => true
+            }
+          }
 
-    val res =
-      if (noMixedChildren eq children) e
-      else e.copy(child = noMixedChildren)
-    res
+        val res =
+          if (noMixedChildren eq children) e
+          else e.copy(child = noMixedChildren)
+        res
+      }
+      case _ => ns
+    }
   }
 
   /**
@@ -699,6 +770,15 @@ object XMLUtils {
     parentScope: Option[NamespaceBinding]
   ): NodeSeq = {
     val res = n match {
+
+      case e @ Elem(
+            null,
+            XMLTextInfoset.stringAsXml,
+            Null,
+            NamespaceBinding(null, null | "", _),
+            _*
+          ) =>
+        e
 
       case e @ Elem(prefix, label, attributes, scope, children*) => {
 
@@ -808,7 +888,8 @@ object XMLUtils {
     val noPCData = convertPCDataToText(noComments)
     val combinedText = coalesceAllAdjacentTextNodes(noPCData)
     val noMixedWS = removeMixedWhitespace(combinedText)
-    noMixedWS
+    val noCRLFs = normalizeCRLFtoLF(noMixedWS)
+    noCRLFs
   }
 
   class XMLDifferenceException(message: String) extends Exception(message)
@@ -973,6 +1054,15 @@ Differences were (path, expected, actual):
         } else if (checkPrefixes && prefixA != prefixB) {
           // different prefix
           List((zPath + "/" + labelA + "@prefix", prefixA, prefixB))
+        } else if (checkPrefixes && a.scope.getURI(prefixA) != b.scope.getURI(prefixB)) {
+          // prefixes doesn't resolve to same namespace
+          List(
+            (
+              zPath + "/" + labelA + "@prefix-namespace",
+              a.scope.getURI(prefixA),
+              b.scope.getURI(prefixB)
+            )
+          )
         } else if (checkNamespaces && mappingsA != mappingsB) {
           // different namespace bindings
           List((zPath + "/" + labelA + "@xmlns", mappingsA, mappingsB))
@@ -1053,6 +1143,28 @@ Differences were (path, expected, actual):
       case (tA: Text, tB: Text) => {
         val thisDiff =
           computeTextDiff(zPath, tA, tB, maybeType, maybeFloatEpsilon, maybeDoubleEpsilon)
+        thisDiff
+      }
+      case (cA: Comment, cB: Comment) => {
+        val thisDiff = computeTextDiff(
+          zPath + "/@comment",
+          cA.toString,
+          cB.toString,
+          None,
+          None,
+          None
+        )
+        thisDiff
+      }
+      case (pcA: PCData, pcB: PCData) => {
+        val thisDiff = computeTextDiff(
+          zPath + "/@PCDATA",
+          pcA.toString,
+          pcB.toString,
+          None,
+          None,
+          None
+        )
         thisDiff
       }
       case (pA: ProcInstr, pB: ProcInstr) => {
