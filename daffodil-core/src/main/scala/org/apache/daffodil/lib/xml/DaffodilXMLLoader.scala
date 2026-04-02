@@ -702,14 +702,23 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * @param optSchemaURI Optional URI for XML schema for the XML source document.
    * @param addPositionAttributes True to add dafint:file dafint:line attributes to all elements.
    *                              Defaults to false.
+   * @param noNormalizations True to not remove comments and processing instructions and to not normalize
+   *                       CRLF/CR to LF. This is used to keep the XML as close to the original as possible
    * @return an scala.xml.Node (Element actually) which is the document element of the source.
    */
   def load(
     source: DaffodilSchemaSource,
     optSchemaURI: Option[URI],
-    addPositionAttributes: Boolean = false
+    addPositionAttributes: Boolean = false,
+    noNormalizations: Boolean = false
   ): scala.xml.Node =
-    load(source, optSchemaURI, addPositionAttributes, normalizeCRLFtoLF = true)
+    load(
+      source,
+      optSchemaURI,
+      addPositionAttributes,
+      normalizeCRLFtoLF = true,
+      noNormalizations
+    )
 
   /**
    * package private constructor gives access to normalizeCRLFtoLF feature.
@@ -720,13 +729,16 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    *                              Defaults to false.
    * @param normalizeCRLFtoLF True to normalize CRLF and isolated CR to LF. This should usually be true,
    *                          but some special case situations may require preservation of CRLF/CR.
+   * @param noNormalizations True to not remove comments and processing instructions and to not normalize
+   *                       CRLF/CR to LF. This is used to keep the XML as close to the original as possible
    * @return an scala.xml.Node (Element actually) which is the document element of the source.
    */
   private[xml] def load(
     source: DaffodilSchemaSource,
     optSchemaURI: Option[URI],
     addPositionAttributes: Boolean,
-    normalizeCRLFtoLF: Boolean
+    normalizeCRLFtoLF: Boolean,
+    noNormalizations: Boolean
   ): scala.xml.Node = {
     //
     // First we invoke the validator to explicitly validate the XML against
@@ -819,7 +831,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
         source.uriForLoading,
         errorHandler,
         addPositionAttributes,
-        normalizeCRLFtoLF
+        normalizeCRLFtoLF,
+        noNormalizations
       )
     val res =
       try {

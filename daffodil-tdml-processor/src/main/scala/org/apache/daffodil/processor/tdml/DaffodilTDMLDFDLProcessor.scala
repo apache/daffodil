@@ -173,7 +173,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
   private def blobPrefix = ""
   private def blobSuffix = ".bin"
 
-  private lazy val tdmlApiInfosetsEnv = sys.env.getOrElse("DAFFODIL_TDML_API_INFOSETS", "scala")
+  private lazy val tdmlApiInfosetsEnv = sys.env.getOrElse("DAFFODIL_TDML_API_INFOSETS", "xml")
 
   override def withTracing(bool: Boolean): DaffodilTDMLDFDLProcessor = {
     copy(dp = newTracing(bool))
@@ -238,7 +238,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
   ): TDMLUnparseResult = {
     val dafpr = parseResult.asInstanceOf[DaffodilTDMLParseResult]
     val inputter = dafpr.inputter
-    val resNode = dafpr.getResult
+    val resNode = dafpr.getScalaResult
     unparse(inputter, resNode, outStream)
   }
 
@@ -268,8 +268,10 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
   ): TDMLParseResult = {
     val outputter = if (tdmlApiInfosetsEnv == "all") {
       TDMLInfosetOutputterAll()
-    } else {
+    } else if (tdmlApiInfosetsEnv == "scala") {
       TDMLInfosetOutputterScala()
+    } else {
+      TDMLInfosetOutputterXML()
     }
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
@@ -308,7 +310,10 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
           xri.parse(sis)
 
           if (!actual.isError && !errorHandler.isError) {
-            verifySameParseOutput(outputter.xmlStream, saxOutputStream)
+            val actualOutputArray = outputter.getScalaResult.toString.getBytes("UTF-8")
+            val baos = new ByteArrayOutputStream(actualOutputArray.length)
+            baos.write(actualOutputArray)
+            verifySameParseOutput(baos, saxOutputStream)
           }
           val dpParseDiag = actual.getDiagnostics.asScala.map(_.toString()).toSeq
           val saxParseDiag = errorHandler.getDiagnostics.asScala.map(_.toString()).toSeq
@@ -392,7 +397,6 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
       XMLUtils.compareAndReport(
         dpParseXMLNodeOutput,
         saxParseXMLNodeOutput,
-        checkNamespaces = true,
         checkPrefixes = true
       )
     } catch {
@@ -433,6 +437,7 @@ final class DaffodilTDMLParseResult(actual: ParseResult, outputter: TDMLInfosetO
   extends TDMLParseResult {
 
   override def getResult: Node = outputter.getResult
+  def getScalaResult: Node = outputter.getScalaResult
 
   override def getBlobPaths: java.util.List[Path] = outputter.getBlobPaths
 

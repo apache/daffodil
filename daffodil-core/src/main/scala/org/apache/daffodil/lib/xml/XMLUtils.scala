@@ -42,6 +42,7 @@ import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.infoset.XMLTextInfoset
 
 import org.apache.commons.io.IOUtils
 import org.xml.sax.XMLReader
@@ -644,34 +645,70 @@ object XMLUtils {
 
   private def removeMixedWhitespace(ns: Node): Node = {
     if (!ns.isInstanceOf[Elem]) return ns
-    val e = ns.asInstanceOf[Elem]
-    val children = e.child
-    val noMixedChildren =
-      if (children.exists(_.isInstanceOf[Elem])) {
-        children
-          .filter {
-            case Text(data) if data.matches("""\s*""") => false
-            case Text(data) =>
-              throw new Exception("Element %s contains mixed data: %s".format(e.label, data))
-            case _ => true
-          }
-          .map(removeMixedWhitespace)
-      } else {
-        children.filter {
+
+    def dropWhitespace(e: Node): Node = {
+      val children = e.child
+      val noWhitespace = children
+        .filter {
           //
           // So this is a bit strange, but we're dropping nodes that are Empty String.
           //
           // In XML we cannot tell <foo></foo> where there is a Text("") child, from <foo></foo> with Nil children
           //
           case Text("") => false // drop empty strings
+          case Text(data) if data.matches("""\s*""") => false
           case _ => true
         }
+        .map(dropWhitespace)
+      e match {
+        case elem: Elem => elem.copy(child = noWhitespace)
+        case _ => e
       }
+    }
 
-    val res =
-      if (noMixedChildren eq children) e
-      else e.copy(child = noMixedChildren)
-    res
+    ns match {
+      case e @ Elem(
+            null,
+            XMLTextInfoset.stringAsXml,
+            Null,
+            NamespaceBinding(null, null | "", _),
+            _*
+          ) =>
+        dropWhitespace(e)
+      case _ => {
+        val e = ns.asInstanceOf[Elem]
+        val children = e.child
+        val noMixedChildren =
+          if (children.exists(_.isInstanceOf[Elem])) {
+            children
+              .filter {
+                case Text(data) if data.matches("""\s*""") => false
+                case Text(data) =>
+                  throw new Exception(
+                    "Element %s contains mixed data: %s".format(e.label, data)
+                  )
+                case _ => true
+              }
+              .map(removeMixedWhitespace)
+          } else {
+            children.filter {
+              //
+              // So this is a bit strange, but we're dropping nodes that are Empty String.
+              //
+              // In XML we cannot tell <foo></foo> where there is a Text("") child, from <foo></foo> with Nil children
+              //
+              case Text("") => false // drop empty strings
+              case _ => true
+            }
+          }
+
+        val res =
+          if (noMixedChildren eq children) e
+          else e.copy(child = noMixedChildren)
+        res
+      }
+    }
+
   }
 
   /**
@@ -699,6 +736,15 @@ object XMLUtils {
     parentScope: Option[NamespaceBinding]
   ): NodeSeq = {
     val res = n match {
+
+      case e @ Elem(
+            null,
+            XMLTextInfoset.stringAsXml,
+            Null,
+            NamespaceBinding(null, null | "", _),
+            _*
+          ) =>
+        e
 
       case e @ Elem(prefix, label, attributes, scope, children*) => {
 
@@ -804,11 +850,23 @@ object XMLUtils {
    * - Removes unnecessary whitespace
    */
   def normalize(n: Node): Node = {
-    val noComments = removeComments(n)
-    val noPCData = convertPCDataToText(noComments)
-    val combinedText = coalesceAllAdjacentTextNodes(noPCData)
-    val noMixedWS = removeMixedWhitespace(combinedText)
-    noMixedWS
+    n match {
+      case x @ Elem(
+            null,
+            XMLTextInfoset.stringAsXml,
+            Null,
+            NamespaceBinding(null, null | "", _),
+            _*
+          ) =>
+        x
+      case _ => {
+        val noComments = removeComments(n)
+        val noPCData = convertPCDataToText(noComments)
+        val combinedText = coalesceAllAdjacentTextNodes(noPCData)
+        val noMixedWS = removeMixedWhitespace(combinedText)
+        noMixedWS
+      }
+    }
   }
 
   class XMLDifferenceException(message: String) extends Exception(message)
@@ -973,6 +1031,28 @@ Differences were (path, expected, actual):
         } else if (checkPrefixes && prefixA != prefixB) {
           // different prefix
           List((zPath + "/" + labelA + "@prefix", prefixA, prefixB))
+        } else if (
+          checkPrefixes && prefixA != null && a.getNamespace(prefixA) != nsbA.getURI(prefixA)
+        ) {
+          // prefix doesn't resolve to namespace
+          List(
+            (
+              zPath + "/" + labelA + "@prefix-uri",
+              nsbA.getURI(prefixA),
+              a.getNamespace(prefixA)
+            )
+          )
+        } else if (
+          checkPrefixes && prefixB != null && b.getNamespace(prefixB) != nsbB.getURI(prefixB)
+        ) {
+          // prefix doesn't resolve to namespace
+          List(
+            (
+              zPath + "/" + labelA + "@prefix-uri",
+              nsbB.getURI(prefixB),
+              b.getNamespace(prefixB)
+            )
+          )
         } else if (checkNamespaces && mappingsA != mappingsB) {
           // different namespace bindings
           List((zPath + "/" + labelA + "@xmlns", mappingsA, mappingsB))

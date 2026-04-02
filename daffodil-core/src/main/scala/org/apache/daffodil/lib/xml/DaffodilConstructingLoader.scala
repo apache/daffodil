@@ -94,13 +94,15 @@ object Position {
  *                          behavior of normalizing CRLF to LF, and solitary CR to LF.
  *                          Defaults to true. Should only be changed in special circumstances
  *                          as not normalizing CRLFs is non-standard for XML.
- *
+ * @param noNormalizations True to not remove comments and processing instructions and to not normalize
+ *                       CRLF/CR to LF. This is used to keep the XML as close to the original as possible
  */
 class DaffodilConstructingLoader private[xml] (
   uri: URI,
   errorHandler: org.xml.sax.ErrorHandler,
   addPositionAttributes: Boolean,
-  normalizeCRLFtoLF: Boolean
+  normalizeCRLFtoLF: Boolean,
+  noNormalizations: Boolean
 ) extends ConstructingParser(
     {
       // Note: we must open the XML carefully since it might be in some non
@@ -122,7 +124,13 @@ class DaffodilConstructingLoader private[xml] (
     errorHandler: org.xml.sax.ErrorHandler,
     addPositionAttributes: Boolean = false
   ) =
-    this(uri, errorHandler, addPositionAttributes, normalizeCRLFtoLF = true)
+    this(
+      uri,
+      errorHandler,
+      addPositionAttributes,
+      normalizeCRLFtoLF = true,
+      noNormalizations = false
+    )
 
   /**
    * Ensures that DOCTYPES aka DTDs, if encountered, are rejected.
@@ -316,19 +324,26 @@ class DaffodilConstructingLoader private[xml] (
   }
 
   /**
-   * Drops comments
+   * Drops comments if noNormalizations is false
    */
   override def comment(pos: Int, s: String): Comment = {
-    // returning null drops comments
-    null
+    if (noNormalizations) {
+      super.comment(pos, s)
+    } else {
+      // returning null drops comments
+      null
+    }
   }
 
   /**
-   * Drops processing instructions
+   * Drops processing instructions if noNormalizations is false
    */
   override def procInstr(pos: Int, target: String, txt: String) = {
-    // returning null drops processing instructions
-    null
+    if (noNormalizations) {
+      super.procInstr(pos, target, txt)
+    } else { // returning null drops processing instructions
+      null
+    }
   }
 
   private def parseXMLPrologAttributes(
