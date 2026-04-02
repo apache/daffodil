@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<b:binMessage xmlns:b="urn:bin">
+<b:binMessageA xmlns:b="urn:bin">
   <record>
     <id>1</id>
     <xmlStr>
@@ -28,11 +28,14 @@
     <id>2</id>
     <xmlStr>
       <stringAsXml xmlns="">
-<r:root xmlns:r="urn:payload">
-  <field>second record</field>
-</r:root>
+        <r:root xmlns:r="urn:payload">
+          <foo  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xs:int">
+            <!-- inline comment -->
+            5
+          </foo>
+        </r:root>
       </stringAsXml>
     </xmlStr>
     <priority>1</priority>
   </record>
-</b:binMessage>
+</b:binMessageA>

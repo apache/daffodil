@@ -50,6 +50,33 @@
       </sequence>
     </complexType>
   </element>
+
+  <element name="binMessageA">
+    <complexType>
+      <sequence>
+        <element name="record" maxOccurs="unbounded">
+          <complexType>
+            <sequence>
+              <element name="id" type="xs:int" />
+              <!--
+              The XMLTextInfosetOutputter converts this xmlStr element, which used to be a
+              simple element with xs:string type, to a complex element. This complex element
+              contains a "wrapper" element defined in the stringAsXmlWrapper.xsd schema file,
+              which references the schema that defines the payload XML. See the
+              stringAsXMLWrapper.xsd file for more information.
+              -->
+              <element name="xmlStr">
+                <complexType>
+                  <group xmlns:s="urn:stringAsXml" ref="s:stringAsXmlGroupA" />
+                </complexType>
+              </element>
+              <element name="priority" type="xs:int" />
+            </sequence>
+          </complexType>
+        </element>
+      </sequence>
+    </complexType>
+  </element>
   
 </schema>
 

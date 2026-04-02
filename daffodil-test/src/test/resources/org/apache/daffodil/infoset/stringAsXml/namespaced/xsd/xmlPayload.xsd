@@ -42,5 +42,13 @@
       <attribute name="attr2" type="xs:int" />
     </complexType>
   </element>
+
+  <element name="rootA">
+    <complexType mixed="true">
+      <sequence>
+        <element name="foo" type="xs:int"/>
+      </sequence>
+    </complexType>
+  </element>
   
 </schema>

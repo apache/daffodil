@@ -124,7 +124,13 @@ object Rat {
       "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat"
     ),
     file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01a.dat"
+    ),
+    file(
       "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml"
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01a.dat.xml"
     ),
     file(
       "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml.dat"

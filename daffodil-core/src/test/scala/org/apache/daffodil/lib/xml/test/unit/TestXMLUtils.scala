@@ -98,6 +98,17 @@ class TestXMLUtils {
     assertEquals("ns2", b)
   }
 
+  @Test def testPrefixNSDiff(): Unit = {
+    // different prefix should error, even though the namespace is the same
+    val d1 = <ns1:a xmlns:ns1="someprefix">a</ns1:a>
+    val d2 = <ns1:a xmlns:ns1="someotherprefix">a</ns1:a>
+    val diffs = XMLUtils.computeDiff(d1, d2, checkPrefixes = true)
+    val Seq((path, a, b)) = diffs
+    assertEquals("/a@prefix-namespace", path)
+    assertEquals("someprefix", a)
+    assertEquals("someotherprefix", b)
+  }
+
   @Test def testNamespaceDiff(): Unit = {
     // different namespace mappings should error
     val d1 = <ns1:a xmlns:ns1="someprefixA">a</ns1:a>
