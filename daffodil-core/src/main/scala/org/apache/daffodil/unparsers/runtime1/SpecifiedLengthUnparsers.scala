@@ -72,6 +72,20 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   }
 }
 
+final class SpecifiedLengthEndOfParentUnparser(
+  eUnparser: Unparser,
+  erd: ElementRuntimeData
+) extends CombinatorUnparser(erd) {
+
+  override def runtimeDependencies = Vector()
+
+  override def childProcessors = Vector(eUnparser)
+
+  override final def unparse(state: UState): Unit = {
+    eUnparser.unparse1(state)
+  }
+}
+
 /**
  * This trait is to be used with prefixed length unparsers where the length
  * must be calculated based on the content length of the data. This means the
