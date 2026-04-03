@@ -84,11 +84,8 @@ final class HexBinarySpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: Le
 }
 
 final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
-  extends HexBinaryLengthParser(erd) {
+  extends HexBinaryLengthParser(erd),
+    BitLengthFromBitLimitMixin {
 
   override def runtimeDependencies = Vector()
-
-  override def getLengthInBits(pstate: PState): Long = {
-    pstate.bitLimit0b.get - pstate.bitPos0b
-  }
 }

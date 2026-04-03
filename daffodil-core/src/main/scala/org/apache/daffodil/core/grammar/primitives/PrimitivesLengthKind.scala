@@ -191,6 +191,16 @@ case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
     new HexBinaryMinLengthInBytesUnparser(e.minLength.longValue, e.elementRuntimeData)
 }
 
+case class HexBinaryLengthEndOfParent(e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
+    e.elementRuntimeData
+  )
+
+  override lazy val unparser: DaffodilUnparser =
+    new HexBinaryMinLengthInBytesUnparser(e.minLength.longValue, e.elementRuntimeData)
+}
+
 abstract class PackedIntegerDelimited(
   e: ElementBase,
   packedSignCodes: PackedSignCodes
