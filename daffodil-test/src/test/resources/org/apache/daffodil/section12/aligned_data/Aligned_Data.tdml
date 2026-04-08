@@ -639,6 +639,28 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="postfix_init_eop">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="48"
+            dfdl:fillByte="E">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:initiator="I"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:lengthKind="endOfParent" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="postfix_init_2">
       <xs:complexType>
         <xs:sequence>
@@ -653,6 +675,30 @@
                 <xs:element name="b" type="xs:string"
                   dfdl:length="16"
                   dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="B"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e2" type="xs:string"
+            dfdl:length="16" dfdl:fillByte="2"
+            dfdl:lengthKind="explicit" dfdl:alignment="16"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  <xs:element name="postfix_init_2_eop">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="40"
+            dfdl:fillByte="1" dfdl:initiator="I">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a" type="xs:string"
+                  dfdl:length="16"
+                  dfdl:lengthKind="explicit" dfdl:alignment="16"
+                  dfdl:fillByte="A"/>
+                <xs:element name="b" type="xs:string"
+                  dfdl:lengthKind="endOfParent" dfdl:alignment="16"
                   dfdl:fillByte="B"/>
               </xs:sequence>
             </xs:complexType>
@@ -4357,6 +4403,21 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
+  <tdml:unparserTestCase name="test_init_alignment_1_eop" root="postfix_init_eop" model="s2" roundTrip="onePass">
+    <tdml:document>IaaBbb</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_init_eop xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+        </ex:postfix_init_eop>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
   <tdml:unparserTestCase name="test_init_alignment_2" root="postfix_init_2" model="s2" roundTrip="onePass">
     <tdml:document>IAaabbee</tdml:document>
 
@@ -4369,6 +4430,22 @@
           </e1>
           <e2>ee</e2>
         </ex:postfix_init_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+ <tdml:unparserTestCase name="test_init_alignment_2_eop" root="postfix_init_2_eop" model="s2" roundTrip="onePass">
+    <tdml:document>IAaabbee</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix_init_2_eop xmlns:ex="http://example.com">
+          <e1>
+            <a>aa</a>
+            <b>bb</b>
+          </e1>
+          <e2>ee</e2>
+        </ex:postfix_init_2_eop>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
@@ -4612,5 +4689,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
+
+
 
 </tdml:testSuite>

@@ -132,6 +132,17 @@ class SpecifiedLengthPatternParser(
   }
 }
 
+class SpecifiedLengthEndOfParentParser(
+  eParser: Parser,
+  erd: ElementRuntimeData
+) extends SpecifiedLengthParserBase(eParser, erd),
+    BitLengthFromBitLimitMixin {
+
+  override protected def getBitLength(s: PState): MaybeULong = {
+    MaybeULong(super[BitLengthFromBitLimitMixin].getBitLength(s))
+  }
+}
+
 class SpecifiedLengthExplicitParser(
   eParser: Parser,
   erd: ElementRuntimeData,
