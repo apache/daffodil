@@ -31,6 +31,9 @@ import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
+import org.codehaus.stax2.XMLStreamReader2
+import org.codehaus.stax2.XMLStreamWriter2
+
 /**
  * Writes the infoset to a java.io.BufferedWriter as XML text.
  *
@@ -148,11 +151,12 @@ class XMLTextInfosetOutputter private (
     // logic also skips the START_DOCUMENT event so that the XML declaration is
     // not written in the middle of our XML infoset
     val sr = new StringReader(str)
-    val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(sr)
-    val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(
-      writer,
-      StandardCharsets.UTF_8.toString
-    )
+    val xsr = XMLTextInfoset.xmlInputFactory
+      .createXMLStreamReader(sr)
+      .asInstanceOf[XMLStreamReader2]
+    val xsw = XMLTextInfoset.xmlOutputFactory
+      .createXMLStreamWriter(writer, StandardCharsets.UTF_8.toString)
+      .asInstanceOf[XMLStreamWriter2]
     Assert.invariant(xsr.getEventType() == START_DOCUMENT)
     while (xsr.hasNext()) {
       xsr.next()

@@ -24,8 +24,6 @@ import javax.xml.XMLConstants
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants.*
 import javax.xml.stream.XMLStreamException
-import javax.xml.stream.XMLStreamReader
-import javax.xml.stream.XMLStreamWriter
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
@@ -34,7 +32,9 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
-import com.ctc.wstx.cfg.ErrorConsts;
+import com.ctc.wstx.cfg.ErrorConsts
+import org.codehaus.stax2.XMLStreamReader2
+import org.codehaus.stax2.XMLStreamWriter2
 
 object XMLTextInfoset {
   lazy val xmlInputFactory = {
@@ -140,10 +140,14 @@ object XMLTextInfoset {
    *
    * Both a lone CR and CRLF are converted to LF.
    */
-  def writeXMLStreamEvent(xsr: XMLStreamReader, xsw: XMLStreamWriter): Unit = {
+  def writeXMLStreamEvent(xsr: XMLStreamReader2, xsw: XMLStreamWriter2): Unit = {
     xsr.getEventType() match {
       case START_ELEMENT => {
-        xsw.writeStartElement(xsr.getPrefix(), xsr.getLocalName(), xsr.getNamespaceURI())
+        if (xsr.isEmptyElement()) {
+          xsw.writeEmptyElement(xsr.getPrefix(), xsr.getLocalName(), xsr.getNamespaceURI())
+        } else {
+          xsw.writeStartElement(xsr.getPrefix(), xsr.getLocalName(), xsr.getNamespaceURI())
+        }
         for (i <- 0 until xsr.getNamespaceCount()) {
           xsw.writeNamespace(xsr.getNamespacePrefix(i), xsr.getNamespaceURI(i))
         }
@@ -155,8 +159,13 @@ object XMLTextInfoset {
             xsr.getAttributeValue(i)
           )
         }
+        if (xsr.isEmptyElement()) {
+          // skip the next END_ELEMENT event since writeEmptyElement above causes the
+          // XMLStreamWriter to handle closing the empty element
+          xsr.next()
+        }
       }
-      case END_ELEMENT => xsw.writeEndElement()
+      case END_ELEMENT => xsw.writeFullEndElement()
       case CHARACTERS => xsw.writeCharacters(xsr.getText())
       case COMMENT => xsw.writeComment(xsr.getText())
       case CDATA => xsw.writeCData(xsr.getText())
@@ -189,8 +198,10 @@ object XMLTextInfoset {
 
 class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.InfosetInputter {
 
-  private lazy val xsr: XMLStreamReader = {
-    val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(input)
+  private lazy val xsr: XMLStreamReader2 = {
+    val xsr = XMLTextInfoset.xmlInputFactory
+      .createXMLStreamReader(input)
+      .asInstanceOf[XMLStreamReader2]
 
     // no need for UnparseError here. If the XML syntax is bad, parser catches it before we get here.
     Assert.invariant(xsr.hasNext())
@@ -256,8 +267,9 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.Inf
     // wrapper tag. We trim the result to remove whitespace that the outputter
     // may have written with pretty mode enabled.
     val sw = new StringWriter()
-    val xsw =
-      XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(sw, StandardCharsets.UTF_8.toString)
+    val xsw = XMLTextInfoset.xmlOutputFactory
+      .createXMLStreamWriter(sw, StandardCharsets.UTF_8.toString)
+      .asInstanceOf[XMLStreamWriter2]
     xsw.writeStartDocument()
     while (
       xsr.getEventType() != END_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml
