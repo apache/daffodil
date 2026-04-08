@@ -57,6 +57,7 @@ class TDMLInfosetOutputterScala(scalaOut: ScalaXMLInfosetOutputter)
 object TDMLInfosetOutputterScala {
   def apply(): TDMLInfosetOutputterScala = {
     val scalaOut = new ScalaXMLInfosetOutputter()
+    scalaOut.setIncludeDataType(true)
     new TDMLInfosetOutputterScala(scalaOut)
   }
 }
@@ -98,6 +99,10 @@ object TDMLInfosetOutputterAll {
     val w3cdomOut = new W3CDOMInfosetOutputter()
     val jsonOut = new JsonInfosetOutputter(jsonStream, false)
     val xmlOut = new XMLTextInfosetOutputter(xmlStream, false)
+
+    Seq(scalaOut, jdomOut, w3cdomOut, jsonOut, xmlOut).foreach { out =>
+      out.setIncludeDataType(true)
+    }
 
     new TDMLInfosetOutputterAll(
       jsonStream,

@@ -82,9 +82,12 @@ class XMLTextInfosetOutputter private (
    */
   private var inScopeComplexElementHasChildren = false
 
+  private var hasStartedRoot = false
+
   override def reset(): Unit = {
     resetIndentation()
     inScopeComplexElementHasChildren = false
+    hasStartedRoot = false
   }
 
   private def outputTagName(elem: DIElement): Unit = {
@@ -109,6 +112,16 @@ class XMLTextInfosetOutputter private (
         nsbStart.buildString(sb, nsbEnd)
         writer.write(sb.toString)
       }
+      // if including xsi:type is enabled, ensure the xsi namespace is defined on the root
+      // element
+      if (getIncludeDataType() && !hasStartedRoot && nsbStart.getURI("xsi") == null) {
+        writer.write(" xmlns:xsi=\"" + XMLUtils.XSI_NAMESPACE + "\"")
+      }
+    }
+
+    if (getIncludeDataType() && elem.isSimple) {
+      val primName = elem.erd.optPrimType.get.name
+      writer.write(" xsi:type=\"xs:" + primName + "\"")
     }
 
     if (elem.isNilled) {
@@ -223,6 +236,7 @@ class XMLTextInfosetOutputter private (
 
     outputEndTag(simple)
     inScopeComplexElementHasChildren = true
+    hasStartedRoot = true
   }
 
   override def endSimple(simple: InfosetSimpleElement): Unit = {
@@ -238,6 +252,7 @@ class XMLTextInfosetOutputter private (
     outputStartTag(complex)
     incrementIndentation()
     inScopeComplexElementHasChildren = false
+    hasStartedRoot = true
   }
 
   override def endComplex(ce: InfosetComplexElement): Unit = {

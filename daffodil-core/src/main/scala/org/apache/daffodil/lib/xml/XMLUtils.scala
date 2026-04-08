@@ -912,6 +912,18 @@ Differences were (path, expected, actual):
     res
   }
 
+  // Normalize xmlns mappings to improve comparisons. Avoids differences in whitespace,
+  // namespace ordering, and bindings like xmlns:xsi which is optionally added by some infoset
+  // outputters that have support for xsi:type
+  private def normalizeMappings(mappings: String): String = {
+    mappings
+      .trim()
+      .split("\\s+")
+      .filterNot(_.startsWith("xmlns:xsi="))
+      .sorted
+      .mkString(" ")
+  }
+
   def computeDiffOne(
     an: Node,
     bn: Node,
@@ -939,13 +951,21 @@ Differences were (path, expected, actual):
             (prefixB, labelB, attribsB, nsbB, childrenB)
           case x => Assert.invariantFailed(s"Expected elem, found $x")
         }
-        val typeA: Option[String] = getXSIType(a)
-        val typeB: Option[String] = getXSIType(b)
+        // some TDML files use xsd prefixes for xsi:type values. Instead of trying to resolve
+        // the prefix, just replace "xsd:" with "xs:"--the rest of our code assumes xs prefixes
+        val typeA: Option[String] = getXSIType(a).map { t =>
+          if (t.startsWith("xsd:")) "xs:" + t.substring(4) else t
+        }
+        val typeB: Option[String] = getXSIType(b).map { t =>
+          if (t.startsWith("xsd:")) "xs:" + t.substring(4) else t
+        }
         val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))
         val nilledA = a.attribute(XSI_NAMESPACE.toString, "nil")
         val nilledB = b.attribute(XSI_NAMESPACE.toString, "nil")
-        val mappingsA = if (checkNamespaces) nsbA.buildString(aParentScope).trim else ""
-        val mappingsB = if (checkNamespaces) nsbB.buildString(bParentScope).trim else ""
+        val mappingsA =
+          if (checkNamespaces) normalizeMappings(nsbA.buildString(aParentScope)) else ""
+        val mappingsB =
+          if (checkNamespaces) normalizeMappings(nsbB.buildString(bParentScope)) else ""
 
         if (labelA != labelB) {
           // different label
@@ -965,15 +985,9 @@ Differences were (path, expected, actual):
               nilledB.map(_.toString).getOrElse("")
             )
           )
-        } else if (typeA != typeB && typeA.isDefined && typeB.isDefined) {
+        } else if (typeA.isDefined && typeB.isDefined && typeA.get != typeB.get) {
           // different xsi:type (if both suppplied)
-          List(
-            (
-              zPath + "/" + labelA + "@xsi:type",
-              typeA.map(_.toString).getOrElse(""),
-              typeA.map(_.toString).getOrElse("")
-            )
-          )
+          List((zPath + "/" + labelA + "@xsi:type", typeA.get, typeB.get))
         } else {
           val pathLabel = labelA + maybeIndex.map("[" + _ + "]").getOrElse("")
           val thisPathStep = pathLabel +: parentPathSteps

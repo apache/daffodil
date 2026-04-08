@@ -47,18 +47,27 @@ public abstract class InfosetOutputter {
    * blob directory path which defaults to java temp dir
    */
   private Path blobDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
+
   /**
    * blob prefix which defaults to daffodil-
    */
   private String blobPrefix = "daffodil-";
+
   /**
    * blob suffix which defaults to .blob
    */
   private String blobSuffix = ".blob";
+
   /**
    * list of blob paths output in the infoset
    */
   private List<Path> blobPaths;
+
+  /**
+   * whether or not to enable the dataType infoset member. It is up to
+   * InfosetOutputter implementations if and how to include member.
+   */
+  private boolean includeDataType = false;
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
@@ -204,5 +213,23 @@ public abstract class InfosetOutputter {
    */
   final public void setBlobPaths(List<Path> blobPaths) {
     this.blobPaths = blobPaths;
+  }
+
+  /**
+   * Set whether the InfosetOutputter should include the dataType member when
+   * it outputs infoset elements. It is up to InfosetOutputter implementations
+   * if and how to output the dataType
+   */
+  final public void setIncludeDataType(boolean includeDataType) {
+    this.includeDataType = includeDataType;
+  }
+
+  /**
+   * Get whether the InfosetOutputter should include the dataType member when
+   * it outputs infoset elements. It is up to InfosetOutputter implementations
+   * if and how to output this dataType
+   */
+  final public boolean getIncludeDataType() {
+    return includeDataType;
   }
 }

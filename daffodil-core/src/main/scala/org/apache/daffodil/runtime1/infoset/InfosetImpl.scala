@@ -1543,6 +1543,10 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           else if (f == Float.NegativeInfinity) XMLUtils.NegativeInfinityString
           else f.toString
         }
+        case d: java.math.BigDecimal => {
+          // scientific notation is not allowed by XSD for xs:decimal
+          d.toPlainString
+        }
         case x => x.toString
       }
     }
