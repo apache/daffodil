@@ -287,6 +287,11 @@ class DataProcessor(
     output: api.infoset.InfosetOutputter
   ): DFDL.ParseResult = {
     checkNotError()
+
+    if (tunables.infosetIncludeDataType) {
+      output.setIncludeDataType(true)
+    }
+
     // If full validation is enabled, tee all the infoset events to a second
     // infoset outputter that writes the infoset to a byte array, and then
     // we'll validate that byte array upon a successful parse.

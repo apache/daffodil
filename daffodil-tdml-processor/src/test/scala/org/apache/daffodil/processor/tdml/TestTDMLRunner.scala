@@ -690,7 +690,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     runner.runOneTest("testTDMLHexBinaryTypeAwareSuccess")
   }
 
-  @Test def testTDMLHexBinaryTypeAwareFailure(): Unit = {
+  @Test def testTDMLHexBinaryTypeAwareSuccess_03(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
       xsd
     } xmlns:dfdl={dfdl} xmlns:tns={example}>
@@ -699,7 +699,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         <dfdl:format ref="tns:GeneralFormat"/>
                         <xs:element name="data" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4"/>
                       </ts:defineSchema>
-                      <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareFailure"
+                      <ts:parserTestCase ID="some identifier" name="testTDMLHexBinaryTypeAwareSuccess"
                         root="data" model="mySchema">
                         <ts:document>
                           <ts:documentPart type="byte">A1B2C3D4</ts:documentPart>
@@ -712,13 +712,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                       </ts:parserTestCase>
                     </ts:testSuite>
     val runner = new Runner(testSuite)
-    val e = intercept[Exception] {
-      runner.runOneTest("testTDMLHexBinaryTypeAwareFailure")
-    }
-    val msg = e.getMessage()
-    assertTrue(msg.contains("Comparison failed"))
-    assertTrue(msg.contains("a1b2c3d4"))
-    assertTrue(msg.contains("A1B2C3D4"))
+    runner.runOneTest("testTDMLHexBinaryTypeAwareSuccess")
   }
 
   @Test def testTDMLDateTimeTypeAwareSuccess_01(): Unit = {
@@ -825,7 +819,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     runner.runOneTest("testTDMLDateTimeTypeAwareSuccess")
   }
 
-  @Test def testTDMLDateTimeTypeAwareFailure(): Unit = {
+  @Test def testTDMLDateTimeTypeAwareSuccess_05(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
       xsd
     } xmlns:dfdl={dfdl} xmlns:tns={example}>
@@ -836,7 +830,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                           dfdl:calendarPatternKind="explicit"
                           dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx" />
                       </ts:defineSchema>
-                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareFailure"
+                      <ts:parserTestCase ID="some identifier" name="testTDMLDateTimeTypeAwareSuccess"
                         root="data" model="mySchema">
                         <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
                         <ts:infoset>
@@ -847,13 +841,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                       </ts:parserTestCase>
                     </ts:testSuite>
     val runner = new Runner(testSuite)
-    val e = intercept[Exception] {
-      runner.runOneTest("testTDMLDateTimeTypeAwareFailure")
-    }
-    val msg = e.getMessage()
-    assertTrue(msg.contains("Comparison failed"))
-    assertTrue(msg.contains("1995-03-24T01:30:00Z"))
-    assertTrue(msg.contains("1995-03-24T01:30:00+00:00"))
+    runner.runOneTest("testTDMLDateTimeTypeAwareSuccess")
   }
 
   /**

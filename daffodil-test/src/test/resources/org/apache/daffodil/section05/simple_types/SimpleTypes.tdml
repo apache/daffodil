@@ -3345,7 +3345,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dec_03 xsi:type="xs:double">1.23456789E+13</dec_03>
+        <dec_03 xsi:type="xs:decimal">12345678900000</dec_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -3357,7 +3357,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dec_04 xsi:type="xs:double">1E-200</dec_04>
+        <dec_04 xsi:type="xs:decimal">0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001</dec_04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -3369,7 +3369,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dec_05 xsi:type="xs:double">1E+200</dec_05>
+        <dec_05 xsi:type="xs:decimal">100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</dec_05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
