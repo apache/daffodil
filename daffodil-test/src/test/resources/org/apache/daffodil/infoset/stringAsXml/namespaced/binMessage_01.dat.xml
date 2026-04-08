@@ -9,8 +9,8 @@
   <?processing instruction?>
   <field><![CDATA[Field ]]> with <![CDATA[cdata]]> </field> here is mixed content
   <field>spaces</field>    <field>   spaces   </field> and more mixed content
-  <field/> and more mixed content
-  <field/>
+  <field attr="foo"/> and more mixed content
+  <field attr="bar"></field>
   <field>entity references: &lt; > &amp; " ' ©</field>
   <field>CR</field>&#xd;<field>LF</field>
 <field>CRLF</field>&#xd;
