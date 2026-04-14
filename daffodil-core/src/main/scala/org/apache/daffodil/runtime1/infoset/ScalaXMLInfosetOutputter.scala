@@ -19,9 +19,7 @@ package org.apache.daffodil.runtime1.infoset
 
 import scala.collection.mutable.ListBuffer
 import scala.xml.MetaData
-import scala.xml.NamespaceBinding
 import scala.xml.Null
-import scala.xml.PrefixedAttribute
 import scala.xml.UnprefixedAttribute
 
 import org.apache.daffodil.api.DFDLPrimType
@@ -56,16 +54,6 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
     resultNode = Maybe(root(0))
   }
 
-  private def getScope(diElem: DIElement): NamespaceBinding = {
-    val minScope = diElem.metadata.minimizedScope
-    // if including xsi:type is enabled, ensure the xsi namespace is defined on the root element
-    if (getIncludeDataType() && stack.length == 1 && minScope.getURI("xsi") == null) {
-      NamespaceBinding("xsi", XMLUtils.XSI_NAMESPACE, minScope)
-    } else {
-      minScope
-    }
-  }
-
   private def getAttributes(diElem: DIElement): MetaData = {
     val nilAttr = if (diElem.isNilled) XMLUtils.xmlNilAttribute else Null
     val freedAttr =
@@ -92,14 +80,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
       } else {
         nilAttr
       }
-    val typedAttr =
-      if (getIncludeDataType() && diElem.isSimple) {
-        val primName = diElem.erd.optPrimType.get.name
-        new PrefixedAttribute("xsi", "type", "xs:" + primName, freedAttr)
-      } else {
-        freedAttr
-      }
-    typedAttr
+    freedAttr
   }
 
   override def startSimple(se: InfosetSimpleElement): Unit = {
@@ -124,7 +105,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
         diSimple.metadata.prefix,
         diSimple.metadata.name,
         attributes,
-        getScope(diSimple),
+        diSimple.metadata.minimizedScope,
         minimizeEmpty = true,
         children*
       )
@@ -149,7 +130,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
         diComplex.metadata.prefix,
         diComplex.metadata.name,
         attributes,
-        getScope(diComplex),
+        diComplex.metadata.minimizedScope,
         minimizeEmpty = true,
         children*
       )

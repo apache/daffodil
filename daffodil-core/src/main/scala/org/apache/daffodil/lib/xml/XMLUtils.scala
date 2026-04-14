@@ -600,6 +600,14 @@ object XMLUtils {
 
   def removeComments(e: Node): Node = {
     e match {
+      case x @ Elem(
+            null,
+            XMLTextInfoset.stringAsXml,
+            Null,
+            NamespaceBinding(null, null | "", _),
+            _*
+          ) =>
+        x
       case Elem(prefix, label, attribs, scope, child*) => {
         val newChildren = child.filterNot { _.isInstanceOf[Comment] }.map { removeComments(_) }
         Elem(prefix, label, attribs, scope, true, newChildren*)
@@ -646,35 +654,31 @@ object XMLUtils {
   private def removeMixedWhitespace(ns: Node): Node = {
     if (!ns.isInstanceOf[Elem]) return ns
 
-    def dropWhitespace(e: Node): Node = {
-      val children = e.child
-      val noWhitespace = children
-        .filter {
-          //
-          // So this is a bit strange, but we're dropping nodes that are Empty String.
-          //
-          // In XML we cannot tell <foo></foo> where there is a Text("") child, from <foo></foo> with Nil children
-          //
-          case Text("") => false // drop empty strings
-          case Text(data) if data.matches("""\s*""") => false
-          case _ => true
-        }
-        .map(dropWhitespace)
-      e match {
-        case elem: Elem => elem.copy(child = noWhitespace)
-        case _ => e
-      }
-    }
-
     ns match {
+      // NOTE: this is specifically for the stringAsXml feature as we avoid
+      // making changes to any of its children except removing any surrounding
+      // whitespace, requiring that stringAsXml in the infoset match results exactly.
       case e @ Elem(
             null,
             XMLTextInfoset.stringAsXml,
             Null,
             NamespaceBinding(null, null | "", _),
             _*
-          ) =>
-        dropWhitespace(e)
+          ) => {
+        val (elemChildren, nonElemChildren) = e.child.partition {
+          _.isInstanceOf[Elem]
+        }
+        if (elemChildren.length != 1)
+          throw new Exception("stringAsXml must contain a single child element.")
+        nonElemChildren.foreach {
+          case Text(data) if data.matches("""\s*""") => // no-op, empty text siblings are fine
+          case x =>
+            throw new Exception(
+              "%s is some kind of mixed content not allowed as a stringAsXml child".format(x)
+            )
+        }
+        e.asInstanceOf[Elem].copy(child = elemChildren)
+      }
       case _ => {
         val e = ns.asInstanceOf[Elem]
         val children = e.child
@@ -850,23 +854,11 @@ object XMLUtils {
    * - Removes unnecessary whitespace
    */
   def normalize(n: Node): Node = {
-    n match {
-      case x @ Elem(
-            null,
-            XMLTextInfoset.stringAsXml,
-            Null,
-            NamespaceBinding(null, null | "", _),
-            _*
-          ) =>
-        x
-      case _ => {
-        val noComments = removeComments(n)
-        val noPCData = convertPCDataToText(noComments)
-        val combinedText = coalesceAllAdjacentTextNodes(noPCData)
-        val noMixedWS = removeMixedWhitespace(combinedText)
-        noMixedWS
-      }
-    }
+    val noComments = removeComments(n)
+    val noPCData = convertPCDataToText(noComments)
+    val combinedText = coalesceAllAdjacentTextNodes(noPCData)
+    val noMixedWS = removeMixedWhitespace(combinedText)
+    noMixedWS
   }
 
   class XMLDifferenceException(message: String) extends Exception(message)
@@ -1031,26 +1023,13 @@ Differences were (path, expected, actual):
         } else if (checkPrefixes && prefixA != prefixB) {
           // different prefix
           List((zPath + "/" + labelA + "@prefix", prefixA, prefixB))
-        } else if (
-          checkPrefixes && prefixA != null && a.getNamespace(prefixA) != nsbA.getURI(prefixA)
-        ) {
-          // prefix doesn't resolve to namespace
+        } else if (checkPrefixes && a.scope.getURI(prefixA) != b.scope.getURI(prefixB)) {
+          // prefixes doesn't resolve to same namespace
           List(
             (
-              zPath + "/" + labelA + "@prefix-uri",
-              nsbA.getURI(prefixA),
-              a.getNamespace(prefixA)
-            )
-          )
-        } else if (
-          checkPrefixes && prefixB != null && b.getNamespace(prefixB) != nsbB.getURI(prefixB)
-        ) {
-          // prefix doesn't resolve to namespace
-          List(
-            (
-              zPath + "/" + labelA + "@prefix-uri",
-              nsbB.getURI(prefixB),
-              b.getNamespace(prefixB)
+              zPath + "/" + labelA + "@prefix-namespace",
+              a.scope.getURI(prefixA),
+              b.scope.getURI(prefixB)
             )
           )
         } else if (checkNamespaces && mappingsA != mappingsB) {
@@ -1133,6 +1112,28 @@ Differences were (path, expected, actual):
       case (tA: Text, tB: Text) => {
         val thisDiff =
           computeTextDiff(zPath, tA, tB, maybeType, maybeFloatEpsilon, maybeDoubleEpsilon)
+        thisDiff
+      }
+      case (cA: Comment, cB: Comment) => {
+        val thisDiff = computeTextDiff(
+          zPath,
+          cA.toString,
+          cB.toString,
+          maybeType,
+          maybeFloatEpsilon,
+          maybeDoubleEpsilon
+        )
+        thisDiff
+      }
+      case (pcA: PCData, pcB: PCData) => {
+        val thisDiff = computeTextDiff(
+          zPath,
+          pcA.toString,
+          pcB.toString,
+          maybeType,
+          maybeFloatEpsilon,
+          maybeDoubleEpsilon
+        )
         thisDiff
       }
       case (pA: ProcInstr, pB: ProcInstr) => {

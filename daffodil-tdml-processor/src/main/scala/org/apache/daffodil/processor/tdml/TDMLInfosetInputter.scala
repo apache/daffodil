@@ -39,14 +39,20 @@ class TDMLInfosetInputter(
   override def getEventType(): InfosetInputterEventType = {
     val res = inputter.getEventType()
     if (!others.forall(_.getEventType() == res))
-      throw TDMLException("getEventType does not match", Some(implString))
+      throw TDMLException(
+        s"getEventType does not match\n${others.zip(others.map(_.getEventType)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
   override def getLocalName(): String = {
     val res = inputter.getLocalName()
     if (!others.forall(_.getLocalName() == res))
-      throw TDMLException("getLocalName does not match", Some(implString))
+      throw TDMLException(
+        s"getLocalName does not match\n${others.zip(others.map(_.getLocalName)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
@@ -65,7 +71,10 @@ class TDMLInfosetInputter(
       }
     }
     if (!othersMatch)
-      throw TDMLException("getNamespaceURI does not match", Some(implString))
+      throw TDMLException(
+        s"getNamespaceURI does not match\n${others.filter(_.getSupportsNamespaces).map(o => (o, o.getNamespaceURI)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
@@ -100,7 +109,7 @@ class TDMLInfosetInputter(
 
     if (!othersmatch)
       throw TDMLException(
-        s"getSimpleText does not match for $res ${others.zip(otherStrings).mkString("\n")}",
+        s"getSimpleText does not match for $res\n${others.zip(otherStrings).mkString("\n")}",
         Some(implString)
       )
 
@@ -130,14 +139,20 @@ class TDMLInfosetInputter(
   override def isNilled(): JBoolean = {
     val res = inputter.isNilled()
     if (!others.forall(_.isNilled() == res))
-      throw TDMLException("isNilled does not match", Some(implString))
+      throw TDMLException(
+        s"isNilled does not match\n${others.zip(others.map(_.isNilled)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
   override def hasNext(): Boolean = {
     val res = inputter.hasNext()
     if (!others.forall(_.hasNext() == res))
-      throw TDMLException("hasNext does not match", Some(implString))
+      throw TDMLException(
+        s"hasNext does not match\n${others.zip(others.map(_.hasNext)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 

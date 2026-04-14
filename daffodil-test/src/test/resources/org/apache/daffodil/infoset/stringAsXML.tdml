@@ -23,11 +23,11 @@
                 xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
                 xmlns:xs="http://www.w3.org/2001/XMLSchema"
                 xmlns:ex="http://example.com"
-                defaultValidation="off">
+                defaultValidation="on">
 
   <parserTestCase name="stringAsXml_01_a" root="binMessage"
                        model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
-                       validation="TestStringAsXmlNamespacedValidator">
+                       validation="TestStringAsXmlValidator">
     <document>
       <documentPart type="file">stringAsXml/namespaced/binMessage_01.dat</documentPart>
     </document>
@@ -37,8 +37,7 @@
   </parserTestCase>
   
   <parserTestCase name="stringAsXml_01_b" root="binMessage"
-                       model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
-                       validation="on">
+                       model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd">
     <document>
       <documentPart type="file">stringAsXml/namespaced/binMessage_01.dat</documentPart>
     </document>
@@ -51,8 +50,7 @@
   </parserTestCase>
 
   <parserTestCase name="stringAsXml_04" root="binMessage"
-                  model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
-                  validation="on">
+                  model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd">
     <document>
       <documentPart type="file">stringAsXml/namespaced/binMessage_03.dat</documentPart>
     </document>
@@ -62,8 +60,7 @@
   </parserTestCase>
 
   <parserTestCase name="stringAsXml_09" root="binMessage"
-                  model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
-                  validation="on">
+                  model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd">
     <document>
       <documentPart type="file">stringAsXml/namespaced/binMessage_08.dat</documentPart>
     </document>
@@ -75,7 +72,7 @@
 
   <parserTestCase name="stringAsXml_10" root="binMessage"
                   model="/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessage.dfdl.xsd"
-                  validation="TestStringAsXmlNoNamespaceValidator">
+                  validation="TestStringAsXmlValidator">
     <document>
       <documentPart type="file">stringAsXml/nonamespace/binMessage_01.dat</documentPart>
     </document>

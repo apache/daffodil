@@ -176,16 +176,14 @@ class TestXMLLoader {
         ss,
         None,
         addPositionAttributes = false,
-        normalizeCRLFtoLF = false,
-        noNormalizations = false
+        normalizeCRLFtoLF = false
       )
     val xmlFromDafLoaderNormalized =
       loader.load(
         ss,
         None,
         addPositionAttributes = false,
-        normalizeCRLFtoLF = true,
-        noNormalizations = false
+        normalizeCRLFtoLF = true
       )
 
     {

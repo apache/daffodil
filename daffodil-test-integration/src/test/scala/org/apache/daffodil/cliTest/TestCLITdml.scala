@@ -45,7 +45,7 @@ class TestCLITdml {
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
-    val envs = Map("DAFFODIL_TDML_API_INFOSETS" -> "scala")
+    val envs = Map("DAFFODIL_TDML_API_INFOSETS" -> "xml")
 
     runCLI(args"test -i -t $tdml byte_entities_6_08", envs = envs) { cli =>
       // parse

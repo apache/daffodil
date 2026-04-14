@@ -18,44 +18,33 @@ package org.apache.daffodil.infoset
 
 import java.io.InputStream
 import java.net.URL
+import java.util.Properties
 
 import org.apache.daffodil.api.validation.ValidationHandler
 import org.apache.daffodil.api.validation.Validator
-import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.api.validation.ValidatorFactory
 import org.apache.daffodil.validation.XercesValidator
 
-object TestStringAsXmlNamespacedValidator {
-  val name = "TestStringAsXmlNamespacedValidator"
+object TestStringAsXmlValidator {
+  val name = "TestStringAsXmlValidator"
 }
 
-class TestStringAsXmlNamespacedValidator extends Validator {
-
-  val schemaURL: URL = Misc
-    .getRequiredResource(
-      "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessageWithXmlPayload.xsd"
-    )
-    .toURL
+class TestStringAsXmlValidator(schemaURL: String) extends Validator {
+  private lazy val xercesValidator = XercesValidator.fromURL(new URL(schemaURL))
 
   override def validateXML(document: InputStream, vh: ValidationHandler): Unit = {
-    val v = XercesValidator.fromURL(schemaURL)
-    v.validateXML(document, vh)
+    xercesValidator.validateXML(document, vh)
   }
 }
 
-object TestStringAsXmlNoNamespaceValidator {
-  val name = "TestStringAsXmlNoNamespaceValidator"
-}
+class TestStringAsXmlValidatorFactory extends ValidatorFactory {
 
-class TestStringAsXmlNoNamespaceValidator extends Validator {
+  override def name: String = TestStringAsXmlValidator.name
 
-  val schemaURL: URL = Misc
-    .getRequiredResource(
-      "/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessageWithXmlPayload.xsd"
-    )
-    .toURL
-
-  override def validateXML(document: InputStream, vh: ValidationHandler): Unit = {
-    val v = XercesValidator.fromURL(schemaURL)
-    v.validateXML(document, vh)
+  override def make(config: Properties) = {
+    val dfdlSchema = config.getProperty(name)
+    // assumes the validation XSD path is in the same as the DFDL schema but with a different suffix
+    val xsdSchema = dfdlSchema.replace(".dfdl.xsd", "WithXmlPayload.xsd")
+    new TestStringAsXmlValidator(xsdSchema)
   }
 }

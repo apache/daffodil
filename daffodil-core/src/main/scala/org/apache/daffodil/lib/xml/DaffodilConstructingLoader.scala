@@ -94,15 +94,16 @@ object Position {
  *                          behavior of normalizing CRLF to LF, and solitary CR to LF.
  *                          Defaults to true. Should only be changed in special circumstances
  *                          as not normalizing CRLFs is non-standard for XML.
- * @param noNormalizations True to not remove comments and processing instructions and to not normalize
- *                       CRLF/CR to LF. This is used to keep the XML as close to the original as possible
+ * @param removeComments True to remove comments. This is used to keep the XML as close to the original as possible
+ * @param removeProcInstr True to remove processing instructions. This is used to keep the XML as close to the original as possible
  */
 class DaffodilConstructingLoader private[xml] (
   uri: URI,
   errorHandler: org.xml.sax.ErrorHandler,
   addPositionAttributes: Boolean,
   normalizeCRLFtoLF: Boolean,
-  noNormalizations: Boolean
+  removeComments: Boolean,
+  removeProcInstr: Boolean
 ) extends ConstructingParser(
     {
       // Note: we must open the XML carefully since it might be in some non
@@ -129,7 +130,8 @@ class DaffodilConstructingLoader private[xml] (
       errorHandler,
       addPositionAttributes,
       normalizeCRLFtoLF = true,
-      noNormalizations = false
+      removeComments = true,
+      removeProcInstr = true
     )
 
   /**
@@ -324,25 +326,29 @@ class DaffodilConstructingLoader private[xml] (
   }
 
   /**
-   * Drops comments if noNormalizations is false
+   * Drops comments if removeComments is true
+   *
+   * This is optional controlled by a constructor parameter.
    */
   override def comment(pos: Int, s: String): Comment = {
-    if (noNormalizations) {
-      super.comment(pos, s)
-    } else {
+    if (removeComments) {
       // returning null drops comments
       null
+    } else {
+      super.comment(pos, s)
     }
   }
 
   /**
-   * Drops processing instructions if noNormalizations is false
+   * Drops processing instructions if removeProcInstr is false
+   *
+   * This is optional controlled by a constructor parameter.
    */
   override def procInstr(pos: Int, target: String, txt: String) = {
-    if (noNormalizations) {
-      super.procInstr(pos, target, txt)
-    } else { // returning null drops processing instructions
+    if (removeProcInstr) { // returning null drops processing instructions
       null
+    } else {
+      super.procInstr(pos, target, txt)
     }
   }
 

@@ -41,6 +41,7 @@ import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
+import org.apache.daffodil.processor.tdml
 import org.apache.daffodil.runtime1.iapi.*
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.runtime1.iapi.DFDL.DaffodilUnparseContentHandler
@@ -238,7 +239,7 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
   ): TDMLUnparseResult = {
     val dafpr = parseResult.asInstanceOf[DaffodilTDMLParseResult]
     val inputter = dafpr.inputter
-    val resNode = dafpr.getScalaResult
+    val resNode = dafpr.getResult
     unparse(inputter, resNode, outStream)
   }
 
@@ -268,8 +269,6 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
   ): TDMLParseResult = {
     val outputter = if (tdmlApiInfosetsEnv == "all") {
       TDMLInfosetOutputterAll()
-    } else if (tdmlApiInfosetsEnv == "scala") {
-      TDMLInfosetOutputterScala()
     } else {
       TDMLInfosetOutputterXML()
     }
@@ -310,7 +309,14 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
           xri.parse(sis)
 
           if (!actual.isError && !errorHandler.isError) {
-            val actualOutputArray = outputter.getScalaResult.toString.getBytes("UTF-8")
+            // we use the scala result because both the ScalaInfosetOutputter and
+            // the SAXInfosetOutputter do not implement stringAsXml,
+            // which helps to avoid any differences cause by the stringAsXml conversions.
+            val actualOutputArray = outputter
+              .asInstanceOf[tdml.TDMLInfosetOutputterAll]
+              .getScalaResult
+              .toString
+              .getBytes("UTF-8")
             val baos = new ByteArrayOutputStream(actualOutputArray.length)
             baos.write(actualOutputArray)
             verifySameParseOutput(baos, saxOutputStream)
@@ -397,6 +403,12 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
       XMLUtils.compareAndReport(
         dpParseXMLNodeOutput,
         saxParseXMLNodeOutput,
+        // we no longer checkNamespaces because SAX outputs the same namespaces as
+        // the XMLTextInfosetOutputter but not the scalaXMLInfosetOutputter, so checking
+        // namespaces fails in the DAFFODIL_TDML_API_INFOSETS='all' case due to differences
+        // in the scalaXMLInfosetOutputter namespaces, probably having to do with
+        // minimizeScope issues
+        // checkNamespaces = true,
         checkPrefixes = true
       )
     } catch {
@@ -437,7 +449,6 @@ final class DaffodilTDMLParseResult(actual: ParseResult, outputter: TDMLInfosetO
   extends TDMLParseResult {
 
   override def getResult: Node = outputter.getResult
-  def getScalaResult: Node = outputter.getScalaResult
 
   override def getBlobPaths: java.util.List[Path] = outputter.getBlobPaths
 

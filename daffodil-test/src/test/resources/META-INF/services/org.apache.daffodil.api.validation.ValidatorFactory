@@ -13,5 +13,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-org.apache.daffodil.infoset.TestStringAsXmlNamespacedValidatorFactory
-org.apache.daffodil.infoset.TestStringAsXmlNoNamespaceValidatorFactory
+org.apache.daffodil.infoset.TestStringAsXmlValidatorFactory

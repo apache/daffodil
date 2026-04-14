@@ -35,49 +35,19 @@ import org.apache.daffodil.runtime1.infoset.W3CDOMInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetInputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 
-class TDMLInfosetOutputterScala(
-  scalaOut: ScalaXMLInfosetOutputter,
-  override val xmlStream: ByteArrayOutputStream,
-  xmlOut: XMLTextInfosetOutputter
-) extends TeeInfosetOutputter(Seq(scalaOut, xmlOut)*)
-  with TDMLInfosetOutputter {
-
-  override def getResult: Node =
-    scala.xml.XML.load(new ByteArrayInputStream(xmlStream.toByteArray))
-
-  override def toInfosetInputter: TDMLInfosetInputter = {
-    val scalaIn = new ScalaXMLInfosetInputter(scalaOut.getResult())
-    new TDMLInfosetInputter(scalaIn, Seq())
-  }
-
-  override def getScalaResult: Node = scalaOut.getResult()
-}
-
-object TDMLInfosetOutputterScala {
-  def apply(): TDMLInfosetOutputterScala = {
-    val scalaOut = new ScalaXMLInfosetOutputter()
-    scalaOut.setIncludeDataType(true)
-    val baos = new ByteArrayOutputStream()
-    val xmlOut = new XMLTextInfosetOutputter(baos, true)
-    new TDMLInfosetOutputterScala(scalaOut, baos, xmlOut)
-  }
-}
-
 object TDMLInfosetOutputterXML {
   def apply(): TDMLInfosetOutputterXML = {
     val baos = new ByteArrayOutputStream()
-    val xmlOut = new XMLTextInfosetOutputter(baos, true)
+    val xmlOut = new XMLTextInfosetOutputter(baos, false)
     xmlOut.setIncludeDataType(true)
-    val scalaOut = new ScalaXMLInfosetOutputter()
-    new TDMLInfosetOutputterXML(baos, xmlOut, scalaOut)
+    new TDMLInfosetOutputterXML(baos, xmlOut)
   }
 }
 
 class TDMLInfosetOutputterXML(
   override val xmlStream: ByteArrayOutputStream,
-  xmlOut: XMLTextInfosetOutputter,
-  scalaOut: ScalaXMLInfosetOutputter
-) extends TeeInfosetOutputter(Seq(xmlOut, scalaOut)*)
+  xmlOut: XMLTextInfosetOutputter
+) extends TeeInfosetOutputter(Seq(xmlOut)*)
   with TDMLInfosetOutputter {
 
   override def getResult: Node =
@@ -87,8 +57,6 @@ class TDMLInfosetOutputterXML(
     val xmlIn = new XMLTextInfosetInputter(new ByteArrayInputStream(xmlStream.toByteArray))
     new TDMLInfosetInputter(xmlIn, Seq())
   }
-
-  override def getScalaResult: Node = scalaOut.getResult()
 }
 
 class TDMLInfosetOutputterAll(
@@ -133,9 +101,9 @@ object TDMLInfosetOutputterAll {
     val jdomOut = new JDOMInfosetOutputter()
     val w3cdomOut = new W3CDOMInfosetOutputter()
     val jsonOut = new JsonInfosetOutputter(jsonStream, false)
-    val xmlOut = new XMLTextInfosetOutputter(xmlStream, true)
+    val xmlOut = new XMLTextInfosetOutputter(xmlStream, false)
 
-    Seq(scalaOut, jdomOut, w3cdomOut, jsonOut, xmlOut).foreach { out =>
+    Seq(jdomOut, w3cdomOut, jsonOut, xmlOut).foreach { out =>
       out.setIncludeDataType(true)
     }
 
@@ -156,7 +124,6 @@ trait TDMLInfosetOutputter extends api.infoset.InfosetOutputter {
   def xmlStream: ByteArrayOutputStream
 
   def getResult: Node
-  def getScalaResult: Node
 
   def toInfosetInputter: TDMLInfosetInputter
 }
