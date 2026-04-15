@@ -27,32 +27,37 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.JsonInfosetInputter
-import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.tdml.TDMLException
 
 class TDMLInfosetInputter(
-  val scalaInputter: ScalaXMLInfosetInputter,
+  val inputter: api.infoset.InfosetInputter,
   others: Seq[api.infoset.InfosetInputter]
 ) extends api.infoset.InfosetInputter {
 
   private def implString: String = "daffodil"
 
   override def getEventType(): InfosetInputterEventType = {
-    val res = scalaInputter.getEventType()
+    val res = inputter.getEventType()
     if (!others.forall(_.getEventType() == res))
-      throw TDMLException("getEventType does not match", Some(implString))
+      throw TDMLException(
+        s"getEventType does not match\n${others.zip(others.map(_.getEventType)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
   override def getLocalName(): String = {
-    val res = scalaInputter.getLocalName()
+    val res = inputter.getLocalName()
     if (!others.forall(_.getLocalName() == res))
-      throw TDMLException("getLocalName does not match", Some(implString))
+      throw TDMLException(
+        s"getLocalName does not match\n${others.zip(others.map(_.getLocalName)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
   override def getNamespaceURI(): String = {
-    val res = scalaInputter.getNamespaceURI()
+    val res = inputter.getNamespaceURI()
     val resIsEmpty = res == null || res == ""
     val othersMatch = others.forall { i =>
       if (!i.getSupportsNamespaces) {
@@ -66,7 +71,10 @@ class TDMLInfosetInputter(
       }
     }
     if (!othersMatch)
-      throw TDMLException("getNamespaceURI does not match", Some(implString))
+      throw TDMLException(
+        s"getNamespaceURI does not match\n${others.filter(_.getSupportsNamespaces).map(o => (o, o.getNamespaceURI)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
@@ -74,7 +82,7 @@ class TDMLInfosetInputter(
     primType: NodeInfo.Kind,
     runtimeProperties: java.util.Map[String, String]
   ): String = {
-    val res = scalaInputter.getSimpleText(primType, runtimeProperties)
+    val res = inputter.getSimpleText(primType, runtimeProperties)
     val resIsEmpty = res == null || res == ""
     val otherStrings = others.map { i =>
       // Note in an unparserTestCase, there are no others (infoset inputters), because the input infoset is
@@ -100,7 +108,10 @@ class TDMLInfosetInputter(
     }
 
     if (!othersmatch)
-      throw TDMLException("getSimpleText does not match", Some(implString))
+      throw TDMLException(
+        s"getSimpleText does not match for $res\n${others.zip(otherStrings).mkString("\n")}",
+        Some(implString)
+      )
 
     if (primType.isInstanceOf[NodeInfo.AnyURI.Kind]) {
       try {
@@ -126,26 +137,32 @@ class TDMLInfosetInputter(
   }
 
   override def isNilled(): JBoolean = {
-    val res = scalaInputter.isNilled()
+    val res = inputter.isNilled()
     if (!others.forall(_.isNilled() == res))
-      throw TDMLException("isNilled does not match", Some(implString))
+      throw TDMLException(
+        s"isNilled does not match\n${others.zip(others.map(_.isNilled)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
   override def hasNext(): Boolean = {
-    val res = scalaInputter.hasNext()
+    val res = inputter.hasNext()
     if (!others.forall(_.hasNext() == res))
-      throw TDMLException("hasNext does not match", Some(implString))
+      throw TDMLException(
+        s"hasNext does not match\n${others.zip(others.map(_.hasNext)).mkString("\n")}",
+        Some(implString)
+      )
     res
   }
 
   override def next(): Unit = {
-    scalaInputter.next()
+    inputter.next()
     others.foreach(_.next())
   }
 
   override def fini(): Unit = {
-    scalaInputter.fini()
+    inputter.fini()
     others.foreach(_.fini())
   }
 

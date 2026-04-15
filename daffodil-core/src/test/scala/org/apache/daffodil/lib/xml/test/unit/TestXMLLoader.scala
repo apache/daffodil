@@ -172,9 +172,19 @@ class TestXMLLoader {
     // and toString will print them out into the text with the <![CDATA[...]]> preserved.
     //
     val xmlFromDafLoaderNonNormalized =
-      loader.load(ss, None, addPositionAttributes = false, normalizeCRLFtoLF = false)
+      loader.load(
+        ss,
+        None,
+        addPositionAttributes = false,
+        normalizeCRLFtoLF = false
+      )
     val xmlFromDafLoaderNormalized =
-      loader.load(ss, None, addPositionAttributes = false, normalizeCRLFtoLF = true)
+      loader.load(
+        ss,
+        None,
+        addPositionAttributes = false,
+        normalizeCRLFtoLF = true
+      )
 
     {
       // compare to the regular scala XML loader

@@ -2800,7 +2800,13 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
     val testSuite = testCase.parent
     val before = testSuite.loadingExceptions.clone()
 
-    val elem = loader.load(infosetSrc, None) // no schema
+    val elem = loader.load(
+      infosetSrc,
+      None,
+      normalizeCRLFtoLF = false,
+      removeComments = false,
+      removeProcInstr = false
+    ) // no schema
     //
     // TODO: DAFFODIL-288 validate the infoset also
     // You can pass the optDataSchema, which appears to be the correct thing

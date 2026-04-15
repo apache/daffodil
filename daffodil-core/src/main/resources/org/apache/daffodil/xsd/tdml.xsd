@@ -224,11 +224,21 @@
   </simpleType>
 
   <simpleType name="validationType">
-    <restriction base="xs:token">
-      <enumeration value="on"/>
-      <enumeration value="limited"/>
-      <enumeration value="off"/>
-    </restriction>
+    <union>
+      <simpleType>
+        <restriction base="xs:token">
+          <enumeration value="on"/>
+          <enumeration value="limited"/>
+          <enumeration value="off"/>
+        </restriction>
+      </simpleType>
+
+      <simpleType>
+        <restriction base="xs:token">
+          <pattern value="[A-Za-z0-9_]+"/>
+        </restriction>
+      </simpleType>
+    </union>
   </simpleType>
 
   <element name="document" type="tns:documentType"/>

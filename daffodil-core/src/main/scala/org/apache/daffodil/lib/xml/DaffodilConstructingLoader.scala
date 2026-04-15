@@ -94,13 +94,16 @@ object Position {
  *                          behavior of normalizing CRLF to LF, and solitary CR to LF.
  *                          Defaults to true. Should only be changed in special circumstances
  *                          as not normalizing CRLFs is non-standard for XML.
- *
+ * @param removeComments True to remove comments. This is used to keep the XML as close to the original as possible
+ * @param removeProcInstr True to remove processing instructions. This is used to keep the XML as close to the original as possible
  */
 class DaffodilConstructingLoader private[xml] (
   uri: URI,
   errorHandler: org.xml.sax.ErrorHandler,
   addPositionAttributes: Boolean,
-  normalizeCRLFtoLF: Boolean
+  normalizeCRLFtoLF: Boolean,
+  removeComments: Boolean,
+  removeProcInstr: Boolean
 ) extends ConstructingParser(
     {
       // Note: we must open the XML carefully since it might be in some non
@@ -122,7 +125,14 @@ class DaffodilConstructingLoader private[xml] (
     errorHandler: org.xml.sax.ErrorHandler,
     addPositionAttributes: Boolean = false
   ) =
-    this(uri, errorHandler, addPositionAttributes, normalizeCRLFtoLF = true)
+    this(
+      uri,
+      errorHandler,
+      addPositionAttributes,
+      normalizeCRLFtoLF = true,
+      removeComments = true,
+      removeProcInstr = true
+    )
 
   /**
    * Ensures that DOCTYPES aka DTDs, if encountered, are rejected.
@@ -316,19 +326,30 @@ class DaffodilConstructingLoader private[xml] (
   }
 
   /**
-   * Drops comments
+   * Drops comments if removeComments is true
+   *
+   * This is optional controlled by a constructor parameter.
    */
   override def comment(pos: Int, s: String): Comment = {
-    // returning null drops comments
-    null
+    if (removeComments) {
+      // returning null drops comments
+      null
+    } else {
+      super.comment(pos, s)
+    }
   }
 
   /**
-   * Drops processing instructions
+   * Drops processing instructions if removeProcInstr is false
+   *
+   * This is optional controlled by a constructor parameter.
    */
   override def procInstr(pos: Int, target: String, txt: String) = {
-    // returning null drops processing instructions
-    null
+    if (removeProcInstr) { // returning null drops processing instructions
+      null
+    } else {
+      super.procInstr(pos, target, txt)
+    }
   }
 
   private def parseXMLPrologAttributes(

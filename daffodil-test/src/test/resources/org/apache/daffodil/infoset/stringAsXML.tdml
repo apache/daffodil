@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite suiteName="StringAsXML" description="StringAsXML TDML tests"
+                xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+                xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:ex="http://example.com"
+                defaultValidation="on">
+
+  <parserTestCase name="stringAsXml_01_a" root="binMessage"
+                       model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+                       validation="TestStringAsXmlValidator">
+    <document>
+      <documentPart type="file">stringAsXml/namespaced/binMessage_01.dat</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset type="file">stringAsXml/namespaced/binMessage_01.dat.xml</dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <parserTestCase name="stringAsXml_01_b" root="binMessage"
+                       model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd">
+    <document>
+      <documentPart type="file">stringAsXml/namespaced/binMessage_01.dat</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset type="file">stringAsXml/namespaced/binMessage_01.dat.xml</dfdlInfoset>
+    </infoset>
+    <validationErrors>
+      <error>Element 'xmlStr' is a simple type</error>
+    </validationErrors>
+  </parserTestCase>
+
+  <parserTestCase name="stringAsXml_04" root="binMessage"
+                  model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd">
+    <document>
+      <documentPart type="file">stringAsXml/namespaced/binMessage_03.dat</documentPart>
+    </document>
+    <errors>
+      <error>Unexpected character</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="stringAsXml_09" root="binMessage"
+                  model="/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd">
+    <document>
+      <documentPart type="file">stringAsXml/namespaced/binMessage_08.dat</documentPart>
+    </document>
+    <errors>
+      <error>Undeclared general entity "name"</error>
+    </errors>
+  </parserTestCase>
+
+
+  <parserTestCase name="stringAsXml_10" root="binMessage"
+                  model="/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessage.dfdl.xsd"
+                  validation="TestStringAsXmlValidator">
+    <document>
+      <documentPart type="file">stringAsXml/nonamespace/binMessage_01.dat</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset type="file">stringAsXml/nonamespace/binMessage_01.dat.xml</dfdlInfoset>
+    </infoset>
+    <validationErrors>
+      <error>Value '=invalid field' is not facet-valid</error>
+    </validationErrors>
+  </parserTestCase>
+</testSuite>
