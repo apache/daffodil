@@ -315,6 +315,15 @@
 			</xs:complexType>
 		</xs:element>
 
+		<xs:element name="err_05">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="err1" type="xs:string"
+						dfdl:outputValueCalc="{fn:round-half-to-even(fn:error('This is the error string'))}" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
         <xs:element name="refSimpleElementWithOvc">
           <xs:complexType>
             <xs:sequence>
@@ -762,6 +771,26 @@
 		    <tdml:error>http://www.error.org</tdml:error>
 		    <tdml:error>This is the error string</tdml:error>
 		    <tdml:error>Error object</tdml:error>
+	    </tdml:errors>
+
+	</tdml:unparserTestCase>
+
+	<tdml:unparserTestCase name="errorInRoundHalfToEven"
+	    root="err_05" model="outputValueCalc-Embedded.dfdl.xsd"
+	    description="Calling fn:error() inside fn:round-half-to-even()">
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<ex:err_05>
+					<err1>a</err1>
+				</ex:err_05>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:document />
+
+	    <tdml:errors>
+		    <tdml:error>Unparse Error</tdml:error>
+		    <tdml:error>This is the error string</tdml:error>
 	    </tdml:errors>
 
 	</tdml:unparserTestCase>

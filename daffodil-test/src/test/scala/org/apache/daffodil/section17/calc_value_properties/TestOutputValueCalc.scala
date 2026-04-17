@@ -58,6 +58,7 @@ class TestOutputValueCalc1 extends TdmlTests {
   @Test def errorOneArg = test
   @Test def errorTwoArg = test
   @Test def errorThreeArg = test
+  @Test def errorInRoundHalfToEven = test
 
   // DAFFODIL-1701
   @Test def refSimpleTypeElemWithOvc = test
