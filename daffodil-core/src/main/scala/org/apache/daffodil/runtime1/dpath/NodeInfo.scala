@@ -297,29 +297,32 @@ object NodeInfo extends Enum {
   /**
    * Nothing is the bottom of the type lattice.
    *
-   * It is the return type of the dfdlx:error() function. It's a subtype of
+   * It is the return type of the fn:error() function. It's a subtype of
    * every type (except some special singletons like ArrayType).
    */
-  lazy val Nothing = new TypeNode(
-    Seq(
-      Boolean,
-      Complex,
-      Array,
-      ArrayIndex,
-      Double,
-      Float,
-      Date,
-      Time,
-      DateTime,
-      UnsignedByte,
-      Byte,
-      HexBinary,
-      AnyURI,
-      String,
-      NonEmptyString
-    ),
-    Nil
-  ) with Boolean.Kind
+  protected sealed trait NothingKind extends NodeInfo.Kind
+  case object Nothing
+    extends TypeNode(
+      Seq(
+        Boolean,
+        Complex,
+        Array,
+        ArrayIndex,
+        Double,
+        Float,
+        Date,
+        Time,
+        DateTime,
+        UnsignedByte,
+        Byte,
+        HexBinary,
+        AnyURI,
+        String,
+        NonEmptyString
+      ),
+      Nil
+    )
+    with Boolean.Kind
     with Complex.Kind
     with Array.Kind
     with ArrayIndex.Kind
@@ -332,7 +335,9 @@ object NodeInfo extends Enum {
     with Byte.Kind
     with HexBinary.Kind
     with NonEmptyString.Kind
-    with AnyURI.Kind
+    with AnyURI.Kind {
+    sealed trait Kind extends NothingKind
+  }
 
   /**
    * All complex types are represented by this one type object.
