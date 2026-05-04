@@ -238,4 +238,38 @@ class TestFacetsValidate extends TdmlTests {
   @Test def fractionDigitsFailNotInt = test
   @Test def totalDigits09 = test
   @Test def totalDigits10 = test
+
+  @Test def floatMinInclusiveNaNFail = test
+  @Test def floatMinInclusivePosINFPass = test
+  @Test def floatMinInclusiveNegINFFail = test
+  @Test def floatMinInclusiveNegativeZeroPass = test
+  @Test def floatMaxInclusiveNaNFail = test
+  @Test def floatMaxInclusivePosINFFail = test
+  @Test def floatMaxInclusiveNegINFPass = test
+  @Test def floatMaxInclusiveNegativeZeroPass = test
+  @Test def floatMinExclusiveNaNFail = test
+  @Test def floatMinExclusivePosINFPass = test
+  @Test def floatMinExclusiveNegINFFail = test
+  @Test def floatMinExclusiveNegativeZeroFail = test
+  @Test def floatMaxExclusiveNaNFail = test
+  @Test def floatMaxExclusivePosINFFail = test
+  @Test def floatMaxExclusiveNegINFPass = test
+  @Test def floatMaxExclusiveNegativeZeroFail = test
+
+  @Test def doubleMinInclusiveNaNFail = test
+  @Test def doubleMinInclusivePosINFPass = test
+  @Test def doubleMinInclusiveNegINFFail = test
+  @Test def doubleMinInclusiveNegativeZeroPass = test
+  @Test def doubleMaxInclusiveNaNFail = test
+  @Test def doubleMaxInclusivePosINFFail = test
+  @Test def doubleMaxInclusiveNegINFPass = test
+  @Test def doubleMaxInclusiveNegativeZeroPass = test
+  @Test def doubleMinExclusiveNaNFail = test
+  @Test def doubleMinExclusivePosINFPass = test
+  @Test def doubleMinExclusiveNegINFFail = test
+  @Test def doubleMinExclusiveNegativeZeroFail = test
+  @Test def doubleMaxExclusiveNaNFail = test
+  @Test def doubleMaxExclusivePosINFFail = test
+  @Test def doubleMaxExclusiveNegINFPass = test
+  @Test def doubleMaxExclusiveNegativeZeroFail = test
 }

@@ -522,9 +522,12 @@ final class SimpleTypeRuntimeData(
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
+    // we must also use native float/double comparison, not compareTo. Float|Double.compareTo
+    // define +0.0f|d > -0.0f|d (total order) and NaN > all values, but XSD requires math
+    // equality (-0.0 == +0.0) and NaN incomparable (fails all facets).
     diNode.dataValue.getAnyRef match {
-      case f: JFloat => f.compareTo(minValue.floatValue) >= 0
-      case d: JDouble => d.compareTo(minValue.doubleValue) >= 0
+      case f: JFloat => f >= minValue.floatValue
+      case d: JDouble => d >= minValue.doubleValue
       case _ => diNode.dataValueAsBigDecimal.compareTo(minValue) >= 0
     }
   }
@@ -537,9 +540,12 @@ final class SimpleTypeRuntimeData(
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
+    // we must also use native float/double comparison, not compareTo. Float|Double.compareTo
+    // define +0.0f|d > -0.0f|d (total order) and NaN > all values, but XSD requires math
+    // equality (-0.0 == +0.0) and NaN incomparable (fails all facets).
     diNode.dataValue.getAnyRef match {
-      case f: JFloat => f.compareTo(minValue.floatValue) > 0
-      case d: JDouble => d.compareTo(minValue.doubleValue) > 0
+      case f: JFloat => f > minValue.floatValue
+      case d: JDouble => d > minValue.doubleValue
       case _ => diNode.dataValueAsBigDecimal.compareTo(minValue) > 0
     }
   }
@@ -552,9 +558,12 @@ final class SimpleTypeRuntimeData(
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
+    // we must also use native float/double comparison, not compareTo. Float|Double.compareTo
+    // define +0.0f|d > -0.0f|d (total order) and NaN > all values, but XSD requires math
+    // equality (-0.0 == +0.0) and NaN incomparable (fails all facets).
     diNode.dataValue.getAnyRef match {
-      case f: JFloat => f.compareTo(maxValue.floatValue) <= 0
-      case d: JDouble => d.compareTo(maxValue.doubleValue) <= 0
+      case f: JFloat => f <= maxValue.floatValue
+      case d: JDouble => d <= maxValue.doubleValue
       case _ => diNode.dataValueAsBigDecimal.compareTo(maxValue) <= 0
     }
   }
@@ -567,9 +576,12 @@ final class SimpleTypeRuntimeData(
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
+    // we must also use native float/double comparison, not compareTo. Float|Double.compareTo
+    // define +0.0f|d > -0.0f|d (total order) and NaN > all values, but XSD requires math
+    // equality (-0.0 == +0.0) and NaN incomparable (fails all facets).
     diNode.dataValue.getAnyRef match {
-      case f: JFloat => f.compareTo(maxValue.floatValue) < 0
-      case d: JDouble => d.compareTo(maxValue.doubleValue) < 0
+      case f: JFloat => f < maxValue.floatValue
+      case d: JDouble => d < maxValue.doubleValue
       case _ => diNode.dataValueAsBigDecimal.compareTo(maxValue) < 0
     }
   }
