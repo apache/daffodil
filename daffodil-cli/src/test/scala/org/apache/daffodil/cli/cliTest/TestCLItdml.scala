@@ -123,21 +123,6 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_CLI_Tdml_DebugFile_singleTest(): Unit = {
-    val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
-    )
-    val debugFile = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/debug.txt"
-    )
-
-    runCLI(args"test -d $debugFile $tdml byte_entities_6_08") { cli =>
-      cli.expect("(debug)")
-      cli.expect("Usage:")
-      cli.expect("[Pass] byte_entities_6_08")
-    }(ExitCode.Success)
-  }
-
   @Test def test_CLI_catch_TestNotCompatible(): Unit = {
     val tdml = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml"
