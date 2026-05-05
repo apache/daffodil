@@ -7016,5 +7016,753 @@
         <tdml:error>'.3' is not a valid value for 'integer'</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
-  
+
+
+  <tdml:defineSchema name="binaryFloatFacetSchema">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="tns:GeneralFormat" representation="binary"/>,
+
+    <xs:element name="floatMinInc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:float">
+          <xs:minInclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="floatMaxInc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:float">
+          <xs:maxInclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="floatMinExc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:float">
+          <xs:minExclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="floatMaxExc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:float">
+          <xs:maxExclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="doubleMinInc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:minInclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="doubleMaxInc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:maxInclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="doubleMinExc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:minExclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="doubleMaxExc0" dfdl:lengthKind="implicit">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:maxExclusive value="0.0"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test name: floatMinInclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD — must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="floatMinInclusiveNaNFail" root="floatMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - floatMinInclusiveNaNFail">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f c0 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinInc0>NaN</floatMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinInclusivePosINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because +INF >= 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMinInclusivePosINFPass" root="floatMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets -float minInclusive +INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinInc0>INF</floatMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinInclusiveNegINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -INF < 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMinInclusiveNegINFFail" root="floatMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float minInclusive -INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinInc0>-INF</floatMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinInclusiveNegativeZeroPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -0.0 equals +0.0 per XSD.
+  -->
+
+  <tdml:parserTestCase name="floatMinInclusiveNegativeZeroPass" root="floatMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float minInclusive -0.0 passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinInc0>-0.0</floatMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxInclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD and must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="floatMaxInclusiveNaNFail" root="floatMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxInclusive NaN fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f c0 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxInc0>NaN</floatMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxInclusivePosINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because +INF > 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMaxInclusivePosINFFail" root="floatMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxInclusive +INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxInc0>INF</floatMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxInclusiveNegINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -INF <= 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMaxInclusiveNegINFPass" root="floatMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxInclusive -INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxInc0>-INF</floatMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxInclusiveNegativeZeroPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -0.0 equals +0.0 per XSD.
+  -->
+  <tdml:parserTestCase name="floatMaxInclusiveNegativeZeroPass" root="floatMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxInclusive -0.0 passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxInc0>-0.0</floatMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <!--
+    Test name: floatMinExclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD and must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="floatMinExclusiveNaNFail" root="floatMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float minExclusive NaN fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f c0 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinExc0>NaN</floatMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinExclusivePosINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because +INF > 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMinExclusivePosINFPass" root="floatMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float minExclusive +INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinExc0>INF</floatMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinExclusiveNegINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -INF is not strictly greater than 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMinExclusiveNegINFFail" root="floatMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float minExclusive -INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinExc0>-INF</floatMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinExclusiveNegativeZeroFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -0.0 equals +0.0 per XSD and is not strictly greater than 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMinExclusiveNegativeZeroFail" root="floatMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float minExclusive -0.0 fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMinExc0>-0.0</floatMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxExclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD and must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="floatMaxExclusiveNaNFail" root="floatMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxExclusive NaN fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f c0 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxExc0>NaN</floatMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxExclusivePosINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because +INF is not strictly less than 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMaxExclusivePosINFFail" root="floatMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxExclusive +INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxExc0>INF</floatMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxExclusiveNegINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -INF is strictly less than 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMaxExclusiveNegINFPass" root="floatMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxExclusive -INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff 80 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxExc0>-INF</floatMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMaxExclusiveNegativeZeroFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -0.0 equals +0.0 per XSD and is not strictly less than 0.0.
+  -->
+
+  <tdml:parserTestCase name="floatMaxExclusiveNegativeZeroFail" root="floatMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - float maxExclusive -0.0 fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatMaxExc0>-0.0</floatMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMinInclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD — must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="doubleMinInclusiveNaNFail" root="doubleMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - doubleMinInclusiveNaNFail">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f8 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinInc0>NaN</doubleMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMinInclusivePosINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because +INF >= 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMinInclusivePosINFPass" root="doubleMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets -double minInclusive +INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinInc0>INF</doubleMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMinInclusiveNegINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -INF < 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMinInclusiveNegINFFail" root="doubleMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double minInclusive -INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinInc0>-INF</doubleMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: floatMinInclusiveNegativeZeroPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -0.0 equals +0.0 per XSD.
+  -->
+
+  <tdml:parserTestCase name="doubleMinInclusiveNegativeZeroPass" root="doubleMinInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double minInclusive -0.0 passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinInc0>-0.0</doubleMinInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxInclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD and must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxInclusiveNaNFail" root="doubleMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxInclusive NaN fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f8 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxInc0>NaN</doubleMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxInclusivePosINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because +INF > 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxInclusivePosINFFail" root="doubleMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxInclusive +INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxInc0>INF</doubleMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxInclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxInclusiveNegINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -INF <= 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxInclusiveNegINFPass" root="doubleMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxInclusive -INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxInc0>-INF</doubleMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxInclusiveNegativeZeroPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -0.0 equals +0.0 per XSD.
+  -->
+  <tdml:parserTestCase name="doubleMaxInclusiveNegativeZeroPass" root="doubleMaxInc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxInclusive -0.0 passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxInc0>-0.0</doubleMaxInc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <!--
+    Test name: doubleMinExclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD and must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="doubleMinExclusiveNaNFail" root="doubleMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double minExclusive NaN fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f8 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinExc0>NaN</doubleMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMinExclusivePosINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because +INF > 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMinExclusivePosINFPass" root="doubleMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double minExclusive +INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinExc0>INF</doubleMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMinExclusiveNegINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -INF is not strictly greater than 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMinExclusiveNegINFFail" root="doubleMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double minExclusive -INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinExc0>-INF</doubleMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMinExclusiveNegativeZeroFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -0.0 equals +0.0 per XSD and is not strictly greater than 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMinExclusiveNegativeZeroFail" root="doubleMinExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double minExclusive -0.0 fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMinExc0>-0.0</doubleMinExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        minExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxExclusiveNaNFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because NaN is incomparable to all values per XSD and must fail all facets.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxExclusiveNaNFail" root="doubleMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxExclusive NaN fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f8 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxExc0>NaN</doubleMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxExclusivePosINFFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because +INF is not strictly less than 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxExclusivePosINFFail" root="doubleMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxExclusive +INF fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">7f f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxExc0>INF</doubleMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxExclusiveNegINFPass
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should pass because -INF is strictly less than 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxExclusiveNegINFPass" root="doubleMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxExclusive -INF passes">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff f0 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxExc0>-INF</doubleMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: doubleMaxExclusiveNegativeZeroFail
+    Schema: binaryFloatFacetSchema
+    Purpose: This test should fail because -0.0 equals +0.0 per XSD and is not strictly less than 0.0.
+  -->
+
+  <tdml:parserTestCase name="doubleMaxExclusiveNegativeZeroFail" root="doubleMaxExc0" validation="limited"
+                       model="binaryFloatFacetSchema" description="Section 5 - Facets - double maxExclusive -0.0 fails">
+    <tdml:document>
+      <tdml:documentPart type="byte">80 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleMaxExc0>-0.0</doubleMaxExc0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>
+        maxExclusive
+      </tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+
 </tdml:testSuite>
