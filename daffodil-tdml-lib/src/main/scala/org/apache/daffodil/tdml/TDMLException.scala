@@ -34,8 +34,6 @@ object TDMLException {
     new TDMLExceptionImpl(msg, implementation)
   def apply(cause: Throwable, implementation: Option[String]) =
     new TDMLExceptionImpl(cause, implementation)
-  def apply(causes: Iterable[Throwable], implementation: Option[String]) =
-    new TDMLExceptionImpl(causes, implementation)
 }
 
 /**
@@ -46,7 +44,6 @@ object TDMLException {
  */
 trait TDMLException { self: Exception =>
   def msg: String
-  def causes: Iterable[Throwable]
   def implementation: Option[String]
 
   /**
@@ -63,27 +60,20 @@ trait TDMLException { self: Exception =>
 
 class TDMLExceptionImpl(
   override val msg: String,
-  override val causes: Iterable[Throwable],
+  cause: Throwable,
   override val implementation: Option[String]
 ) extends Exception(
     TDMLException.msgWithImpl(msg, implementation),
-    if (causes.nonEmpty) causes.head else null
+    cause
   )
   with TDMLException {
-
+  // message-only constructor
   def this(msg: String, implementation: Option[String]) =
-    this(msg, Nil, implementation)
+    this(msg, null, implementation)
 
+  // cause-based constructor
   def this(cause: Throwable, implementation: Option[String]) =
-    this(Misc.getNameFromClass(cause) + ": " + cause.getMessage(), List(cause), implementation)
-
-  def this(causes: Iterable[Throwable], implementation: Option[String]) = this(
-    causes
-      .map { cause => Misc.getNameFromClass(cause) + ": " + cause.getMessage() }
-      .mkString("\n"),
-    causes,
-    implementation
-  )
+    this(Misc.getNameFromClass(cause), cause, implementation)
 }
 
 /**
@@ -105,7 +95,7 @@ class TDMLDiagnostic(diag: String, implementation: Option[String])
  * with the implementation. Useful since this isn't necessarily a failure and
  * may want to be treated differently in some cases.
  *
- * Carries causes because a failure to detect compatibility can be due to
+ * Carries a cause because a failure to detect compatibility can be due to
  * failures to reflectively create a junit org.junit.AssumptionViolatedException, and
  * if that is the case, we may need the exception to figure out the reason why
  * the reflective access failed.
@@ -116,6 +106,6 @@ class TDMLTestNotCompatibleException(
   cause: Option[Throwable] = None
 ) extends TDMLExceptionImpl(
     "Test '%s' not compatible with implementation.".format(testName),
-    cause.toSeq,
+    cause.orNull,
     implementation
   )
