@@ -75,6 +75,7 @@ import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
 import org.apache.daffodil.tdml.DiagnosticType.DiagnosticType
 import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
 import org.apache.daffodil.tdml.processor.TDML
@@ -139,6 +140,13 @@ private[tdml] object DFDLTestSuite {
     }
 
 }
+
+private[tdml] def aggregateExceptionMessages(
+  exceptions: Iterable[Throwable]
+): String =
+  exceptions
+    .map(_.getMessage)
+    .mkString("\n")
 
 /**
  * TDML test suite runner
@@ -375,7 +383,7 @@ class DFDLTestSuite private[tdml] (
   }
 
   def reportLoadingErrors(): Nothing = {
-    throw TDMLException(loadingExceptions, None)
+    throw TDMLException(aggregateExceptionMessages(loadingExceptions), None)
   }
 
   var checkAllTopLevel: Boolean = compileAllTopLevel
@@ -819,7 +827,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           Some(XMLUtils.dafextURI)
         )
         if (node eq null)
-          throw TDMLException(parent.loadingExceptions, None)
+          throw TDMLException(aggregateExceptionMessages(parent.loadingExceptions), None)
+
         val definedConfig = DefinedConfig(node, parent)
         Some(definedConfig)
       }
@@ -1212,9 +1221,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     if (actual.isProcessingError) {
       // Means there was an error, not just warnings.
-      if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
-      val diags = actual.getDiagnostics.asScala.map(_.toString()).mkString("\n")
-      throw TDMLException(diags, implString)
+      throw TDMLException(aggregateExceptionMessages(diagObjs), implString)
     } else {
       // If we think we've succeeded, verify there are no errors
       // captured in the diagnostics. Otherwise there's probably
@@ -1283,8 +1290,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val unparseResult = processor.unparse(parseResult, outStream)
     if (unparseResult.isProcessingError) {
       val diagObjs = unparseResult.getDiagnostics.asScala
-      if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
-      throw TDMLException(diagObjs, implString)
+      throw TDMLException(aggregateExceptionMessages(diagObjs), implString)
     }
     unparseResult
   }
@@ -1545,7 +1551,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
         compileResult match {
-          case Left(diags) => throw TDMLException(diags.asScala, implString)
+          case Left(diags) =>
+            throw TDMLException(aggregateExceptionMessages(diags.asScala), implString)
           case Right((diags, proc)) => {
             processor = proc
             runUnparserExpectSuccess(
@@ -1614,7 +1621,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         case t: Throwable => toss(t, implString)
       }
     if (actual.isProcessingError)
-      throw TDMLException(actual.getDiagnostics.asScala, implString)
+      throw TDMLException(aggregateExceptionMessages(actual.getDiagnostics.asScala), implString)
 
     //
     // Test that we are getting the number of full bytes needed.
@@ -1662,9 +1669,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       if (parseActual.isProcessingError) {
         // Means there was an error, not just warnings.
-        val diagObjs = parseActual.getDiagnostics
-        if (diagObjs.size == 1) throw diagObjs.get(0)
-        val diags = parseActual.getDiagnostics.asScala.map(_.toString()).mkString("\n")
+        val diags = aggregateExceptionMessages(parseActual.getDiagnostics.asScala)
         throw TDMLException(diags, implString)
       }
       val loc: api.DataLocation = parseActual.currentLocation
@@ -1784,8 +1789,8 @@ object VerifyTestCase {
     try {
       XMLUtils.compareAndReport(expected, actual)
     } catch {
-      case e: Exception =>
-        throw TDMLException(e, implString)
+      case e: XMLDifferenceException =>
+        throw TDMLException(e.getMessage, implString)
     }
   }
 
@@ -2819,7 +2824,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
     val hasMoreExceptions = before.size < nAfter
     if (hasMoreExceptions) {
       val newExceptions = (testSuite.loadingExceptions.diff(before))
-      testCase.toss(TDMLException(newExceptions, None), None)
+      testCase.toss(TDMLException(aggregateExceptionMessages(newExceptions), None), None)
     }
     elem.asInstanceOf[Elem]
   }
