@@ -457,10 +457,10 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Delimited => encodingLengthApprox
           case LengthKind.Pattern => encodingLengthApprox
           case LengthKind.EndOfParent =>
-            eb.immediatelyEnclosingElementParent match {
-              case Some(parent) => parent.elementSpecifiedLengthApprox
-              case _ => LengthMultipleOf(1)
-            }
+            // technically the alignment of an EndOfParent element would be the
+            // alignment of its parent minus our current alignment (i.e alignment of
+            // prior sibs) but since nothing can follow
+            LengthMultipleOf(1)
           // If an element is lengthKind="prefixed", the element's length is the length
           // of the value of the prefix element, which can't be known till runtime
           case LengthKind.Prefixed => LengthMultipleOf(1) // NYI (see DAFFODIL-3066)

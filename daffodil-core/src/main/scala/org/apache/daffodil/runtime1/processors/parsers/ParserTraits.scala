@@ -171,7 +171,7 @@ trait PrefixedLengthParserMixin {
  * An example of this is prefix length parsers. This trait can be used by those
  * parsers to do determine the length based on the bitLimit and position.
  */
-trait BitLengthFromBitLimitMixin {
+trait BitLengthFromBitLimitMixin(val isEndOfParent: Boolean = false) {
 
   def getBitLength(s: ParseOrUnparseState): Long = {
     val pState = s.asInstanceOf[PState]
@@ -179,7 +179,14 @@ trait BitLengthFromBitLimitMixin {
   }
 
   def getLengthInBits(pstate: PState): Long = {
-    val len = pstate.bitLimit0b.get - pstate.bitPos0b
-    len
+    if (pstate.bitLimit0b.isDefined) {
+      val len = pstate.bitLimit0b.get - pstate.bitPos0b
+      len
+    } else if (isEndOfParent) {
+      val byteLimit = pstate.dataInputStream.bytesTillEndOfDataStream
+      byteLimit * 8
+    } else {
+      Assert.invariantFailed("BitLimit not set for parser.")
+    }
   }
 }

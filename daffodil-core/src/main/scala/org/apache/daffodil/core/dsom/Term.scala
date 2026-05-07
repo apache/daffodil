@@ -27,9 +27,7 @@ import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -95,6 +93,17 @@ trait Term
   requiredEvaluationsIfActivated(nonDefaultPropertySources)
   requiredEvaluationsIfActivated(defaultPropertySources)
   requiredEvaluationsIfActivated(termChecks)
+
+  final lazy val childrenEndOfParent: Seq[ElementBase] = LV(Symbol("childrenEndOfParent")) {
+    val gms = termChildren
+    val chls = gms.flatMap {
+      case eb: ElementBase if eb.lengthKind == LengthKind.EndOfParent => Seq(eb)
+      case eb: ElementBase => Nil
+      case c: Choice => Nil
+      case mg: ModelGroup => mg.childrenEndOfParent
+    }
+    chls
+  }.value
 
   private lazy val termChecks = {
     statements.foreach { _.checkTerm(this) }
@@ -269,12 +278,12 @@ trait Term
       .getOrElse(false)
   }
 
-  final lazy val immediatelyEnclosingElementParent: Option[ElementBase] = {
+  final lazy val immediatelyEnclosingParentForEOPElem: Option[Term] = {
     val p = optLexicalParent.flatMap {
       case e: ElementBase => Some(e)
       case ge: GlobalElementDecl => Some(ge.asRoot)
-      case s: SequenceTermBase => s.immediatelyEnclosingElementParent
-      case c: ChoiceTermBase => c.immediatelyEnclosingElementParent
+      case s: SequenceTermBase => s.immediatelyEnclosingParentForEOPElem
+      case c: ChoiceTermBase => Some(c)
       case ct: ComplexTypeBase => {
         ct.optLexicalParent.flatMap {
           case e: ElementBase => Some(e)
@@ -582,4 +591,21 @@ trait Term
     }
   }
 
+  final protected lazy val realElementChildren: Seq[ElementBase] = {
+    termChildren.flatMap {
+      case eb: ElementBase => Seq(eb)
+      case c: Choice => Nil
+      case mg: ModelGroup => mg.realElementChildren
+    }
+  }
+
+  lazy val flattenedChildren: IndexedSeq[Term] = termChildren.flatMap { c =>
+    c match {
+      case eb: ElementBase => IndexedSeq(eb)
+      case mg: ModelGroup if mg.groupMembers.isEmpty => IndexedSeq(mg)
+      case s: SequenceTermBase => s.flattenedChildren
+      case c: ChoiceTermBase => c.flattenedChildren
+      case _ => Nil
+    }
+  }.toIndexedSeq
 }

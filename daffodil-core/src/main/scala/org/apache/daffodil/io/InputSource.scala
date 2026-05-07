@@ -182,6 +182,12 @@ abstract class InputSource {
   def releasePosition(bytePos0b: Long): Unit
 
   /**
+   * Get the number of bytes that are available to be read until the end of
+   * the data stream.
+   */
+  lazy val bytesTillEndOfDataStream: Long = -1L
+
+  /**
    * Alerts the implementation to attempt to free data that is no longer used,
    * if possible. If possible, this should free any unlocked bytes.
    */
@@ -564,6 +570,22 @@ class BucketingInputSource(
     headBucketBytePosition0b += bytesRemoved
     oldestBucketIndex = 0
   }
+
+  override lazy val bytesTillEndOfDataStream: Long = {
+    val initialBytePosition = position()
+    val endOfDataNotReached = fillBucketsToIndex(maxNumberOfNonNullBuckets, 8)
+    if (!endOfDataNotReached) {
+      val numBytesFilled = totalBytesBucketed - initialBytePosition
+      // reset the byte position to the initial byte position
+      position(initialBytePosition)
+      numBytesFilled
+    } else {
+      position(initialBytePosition)
+      throw new Exception(
+        s"Attempted to fill to end of data stream, but did not reach end of data stream before maxCacheSizeInBytes: ${maxCacheSizeInBytes}."
+      )
+    }
+  }
 }
 
 /**
@@ -644,5 +666,12 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer) extends InputSource {
 
   override def close(): Unit = {
     // do nothing. No resources to release.
+  }
+
+  override lazy val bytesTillEndOfDataStream: Long = {
+    val initialPosition = position()
+    val br = byteBuffer.remaining
+    position(initialPosition)
+    br
   }
 }
