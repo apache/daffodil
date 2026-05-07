@@ -52,7 +52,18 @@ class BCDIntegerKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
 
 class BCDIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser = new BCDIntegerBitLimitLengthParser(e.elementRuntimeData)
+  override lazy val parser =
+    new BCDIntegerBitLimitLengthParser(e.elementRuntimeData, isEndOfParent = false)
+
+  override lazy val unparser: Unparser = new BCDIntegerMinimumLengthUnparser(
+    e.elementRuntimeData
+  )
+}
+
+class BCDIntegerEndOfParentLength(val e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser =
+    new BCDIntegerBitLimitLengthParser(e.elementRuntimeData, isEndOfParent = true)
 
   override lazy val unparser: Unparser = new BCDIntegerMinimumLengthUnparser(
     e.elementRuntimeData
@@ -95,7 +106,24 @@ class BCDDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser =
     new BCDDecimalBitLimitLengthParser(
       e.elementRuntimeData,
+      e.binaryDecimalVirtualPoint,
+      isEndOfParent = false
+    )
+
+  override lazy val unparser: Unparser =
+    new BCDDecimalMinimumLengthUnparser(
+      e.elementRuntimeData,
       e.binaryDecimalVirtualPoint
+    )
+}
+
+class BCDDecimalEndOfParentLength(val e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser =
+    new BCDDecimalBitLimitLengthParser(
+      e.elementRuntimeData,
+      e.binaryDecimalVirtualPoint,
+      isEndOfParent = true
     )
 
   override lazy val unparser: Unparser =

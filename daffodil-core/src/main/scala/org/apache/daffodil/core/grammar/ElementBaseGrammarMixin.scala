@@ -19,14 +19,12 @@ package org.apache.daffodil.core.grammar
 
 import java.lang.Long as JLong
 
-import org.apache.daffodil.core.dsom.ChoiceTermBase
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.core.dsom.ModelGroup
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.core.dsom.Root
-import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.grammar.primitives.*
 import org.apache.daffodil.core.runtime1.ElementBaseRuntime1Mixin
 import org.apache.daffodil.lib.exceptions.Assert
@@ -56,7 +54,6 @@ trait ElementBaseGrammarMixin
 
   requiredEvaluationsIfActivated(checkPrefixedLengthElementDecl)
   requiredEvaluationsIfActivated(checkDelimitedLengthEVDP)
-  requiredEvaluationsIfActivated(checkEndOfParentElem)
 
   private val context = this
 
@@ -257,131 +254,124 @@ trait ElementBaseGrammarMixin
   }
   final lazy val prefixedLengthBody = prefixedLengthElementDecl.parsedValue
 
-  final lazy val parentEffectiveLengthUnits: LengthUnits =
-    immediatelyEnclosingElementParent match {
-      case Some(parent: ElementBase) => {
-        parent.lengthKind match {
-          case LengthKind.Explicit | LengthKind.Prefixed => parent.lengthUnits
-          case LengthKind.Pattern => LengthUnits.Characters
-          case _
-              if parent.isInstanceOf[ChoiceTermBase] && (parent
-                .asInstanceOf[ChoiceTermBase]
-                .choiceLengthKind == ChoiceLengthKind.Explicit) =>
-            LengthUnits.Bytes
-          case LengthKind.EndOfParent => parent.parentEffectiveLengthUnits
-          case _ =>
-            Assert.invariantFailed(
-              s"Could not figure effective length unit of parents of ${context}"
-            )
-        }
-      }
-      case None if this.isInstanceOf[Root] => LengthUnits.Characters
+  def myEffectiveLengthUnits(lastNonEOPLU: LengthUnits): LengthUnits = {
+    lengthKind match {
+      case LengthKind.EndOfParent => lastNonEOPLU
+      case LengthKind.Explicit | LengthKind.Prefixed => lengthUnits
+      case LengthKind.Pattern => LengthUnits.Characters
       case _ =>
         Assert.invariantFailed(
-          s"Could not figure effective length unit of parents of ${context}"
+          "Delimited and Implicit are illegal for the parent of EndOfParent element"
         )
     }
-  final lazy val checkEndOfParentElem: Unit = {
-    if (lengthKind != LengthKind.EndOfParent) ()
+  }
+
+  def checkChildrenForSiblingsAfterEOPElement(
+    parent: ElementBase,
+    specificChild: ElementBase
+  ) = {
+    lazy val foundPosition = flattenedChildren.indexOf(specificChild)
+    lazy val lastIndexOfChildren = flattenedChildren.length - 1
+    if (flattenedChildren.isEmpty || foundPosition < 0) {
+      // not found amongst children
+      Assert.impossible("EndOfParent element not found amongst term children of parent")
+    } else if (foundPosition != lastIndexOfChildren) {
+      // get the following children after the EOP element+ 1
+      val followingChildrenAfter =
+        flattenedChildren.slice(foundPosition + 1, lastIndexOfChildren + 1)
+      followingChildrenAfter.foreach {
+        case m: ModelGroup => {
+          specificChild.SDE(
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but a model group is defined between this element and the end of the enclosing component"
+          )
+        }
+        case r if r.isRepresented => {
+          specificChild.SDE(
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but a represented element is defined between this element and the end of the enclosing component"
+          )
+        }
+        case _ => // do nothing
+      }
+    }
+  }
+
+  def checkEndOfParentRestrictions(lastNonEOPLU: LengthUnits): Unit = {
+    val parent = this
+    val eopChildren = this.childrenEndOfParent
+    // checks
+    this match {
+      case rootElem: Root if lengthKind == LengthKind.EndOfParent => {
+        rootElem.checkEndOfParentRestrictionsOnCurrentElement(lastNonEOPLU)
+      }
+      case _ => // do nothing
+    }
+
+    if (eopChildren.isEmpty)
+      (
+        this.elementChildren.foreach(_.checkEndOfParentRestrictions(lastNonEOPLU))
+      )
     else {
-      schemaDefinitionWhen(
-        hasTerminator,
-        "%s is specified as dfdl:lengthKind=\"endOfParent\", but specifies a dfdl:terminator.",
-        context
-      )
-      schemaDefinitionWhen(
-        trailingSkip != 0,
-        "%s is specified as dfdl:lengthKind=\"endOfParent\", but specifies a non-zero dfdl:trailingSkip.",
-        context
-      )
-      schemaDefinitionWhen(
-        maxOccurs > 1,
-        "%s is specified as dfdl:lengthKind=\"endOfParent\", but specifies a maxOccurs greater than 1.",
-        context
-      )
-      schemaDefinitionWhen(
-        nextSibling.isDefined && nextSibling.get.isInstanceOf[ModelGroup],
-        "%s is specified as dfdl:lengthKind=\"endOfParent\", but a model group is defined between this element and the end of the enclosing component",
-        context
-      )
-      schemaDefinitionWhen(
-        nextSibling.isDefined && nextSibling.get.isRepresented,
-        "%s is specified as dfdl:lengthKind=\"endOfParent\", but a represented element is defined between this element and the end of the enclosing component",
-        context
-      )
-      immediatelyEnclosingElementParent match {
-        case Some(parent: ElementBase) =>
-          parent.lengthKind match {
-            case LengthKind.Implicit | LengthKind.Delimited =>
-              schemaDefinitionError(
-                "%s is specified as dfdl:lengthKind=\"endOfParent\", but its parent is an element with dfdl:lengthKind 'implicit' or 'delimited'.",
-                context
-              )
-            case _ => // do nothing
-          }
-        case _ => // do nothing
-      }
-      schemaDefinitionWhen(
-        representation == Representation.Text && knownEncodingWidthInBits != 8 && parentEffectiveLengthUnits != LengthUnits.Characters,
-        "%s is specified as dfdl:lengthKind=\"endOfParent\", but the element has text representation, does not have a single-byte character set encoding, and the effective length units of the parent is not 'characters'.",
-        context
-      )
-
-      immediatelyEnclosingModelGroup match {
-        case Some(s: SequenceTermBase) => {
-          schemaDefinitionWhen(
-            s.separatorPosition == SeparatorPosition.Postfix,
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:separatorPosition defined as 'postfix'.",
-            context
-          )
-          schemaDefinitionWhen(
-            s.sequenceKind != SequenceKind.Ordered,
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:sequenceKind defined as 'unordered'.",
-            context
-          )
-          schemaDefinitionWhen(
-            s.hasTerminator,
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a dfdl:terminator.",
-            context
-          )
-          schemaDefinitionWhen(
-            s.elementChildren.exists(e => e.floating == YesNo.Yes),
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with elements defining dfdl:floating='yes'.",
-            context
-          )
-          schemaDefinitionWhen(
-            s.trailingSkip != 0,
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a non-zero dfdl:trailingSkip."
-          )
+      eopChildren.foreach { eopChild =>
+        lazy val parentELU = myEffectiveLengthUnits(lastNonEOPLU)
+        checkChildrenForSiblingsAfterEOPElement(parent, eopChild)
+        parent.lengthKind match {
+          case LengthKind.Implicit | LengthKind.Delimited =>
+            schemaDefinitionError(
+              "element is specified as dfdl:lengthKind=\"endOfParent\", but its parent is an element with dfdl:lengthKind 'implicit' or 'delimited'."
+            )
+          case _ => // do nothing
         }
-        case Some(c: ChoiceTermBase) if c.choiceLengthKind == ChoiceLengthKind.Implicit => {
-          schemaDefinitionWhen(
-            c.hasTerminator,
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a choice with a dfdl:terminator.",
-            context
-          )
-          schemaDefinitionWhen(
-            c.trailingSkip != 0,
-            "%s is specified as dfdl:lengthKind=\"endOfParent\", but is in a choice with a non-zero dfdl:trailingSkip.",
-            context
-          )
+        eopChild.checkEndOfParentRestrictionsOnCurrentElement(parentELU)
+        if (parent.lengthKind != LengthKind.EndOfParent) {
+          eopChild.checkEndOfParentRestrictions(parentELU)
+        } else {
+          eopChild.checkEndOfParentRestrictions(lastNonEOPLU)
         }
-        case _ => // do nothing
       }
+    }
+    // end checks
+  }
 
-      if (isSimpleType) {
+  def checkEndOfParentRestrictionsOnCurrentElement(parentELU: LengthUnits): Unit = {
+    val currentElement: ElementBase = this
+    if (currentElement.lengthKind != LengthKind.EndOfParent) {} else {
+      schemaDefinitionWhen(
+        currentElement.hasTerminator,
+        "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a dfdl:terminator."
+      )
+      schemaDefinitionWhen(
+        currentElement.trailingSkip != 0,
+        "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a non-zero dfdl:trailingSkip."
+      )
+      schemaDefinitionWhen(
+        currentElement.maxOccurs > 1,
+        "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a maxOccurs greater than 1."
+      )
+      schemaDefinitionWhen(
+        currentElement.impliedRepresentation == Representation.Text
+          && (!currentElement.isKnownEncoding || !currentElement.knownEncodingIsFixedWidth || currentElement.knownEncodingWidthInBits != 8)
+          && (parentELU != LengthUnits.Characters),
+        "element is specified as dfdl:lengthKind=\"endOfParent\", but the element has text representation, and does not have a single-byte character set encoding, and the effective length units of the parent is not 'characters'."
+      )
+      if (currentElement.isSimpleType) {
         schemaDefinitionUnless(
-          (primType eq PrimType.String)
-            || (representation == Representation.Text)
-            || (primType eq PrimType.HexBinary)
-            || (representation == Representation.Binary
+          (currentElement.primType eq PrimType.String)
+            || (currentElement.representation == Representation.Text)
+            || (currentElement.primType eq PrimType.HexBinary)
+            || (currentElement.representation == Representation.Binary
               && Seq(BinaryNumberRep.Packed, BinaryNumberRep.Bcd, BinaryNumberRep.Ibm4690Packed)
-                .contains(binaryNumberRep)),
-          "%s is a simple type specified as dfdl:lengthKind=\"endOfParent\", but isn't a string type, doesn't have text representation, isn't a hexbinary type, or doesn't have binary representation with packed decimal representation.",
-          context
+                .contains(currentElement.binaryNumberRep))
+            || (currentElement.representation == Representation.Binary
+              && optionBinaryCalendarRep.isDefined
+              && Seq(
+                BinaryCalendarRep.Packed,
+                BinaryCalendarRep.Bcd,
+                BinaryCalendarRep.Ibm4690Packed
+              )
+                .contains(currentElement.binaryCalendarRep)),
+          "element is a simple type specified as dfdl:lengthKind=\"endOfParent\", but isn't a string type, doesn't have text representation, isn't a hexbinary type, or doesn't have binary representation with packed decimal representation."
         )
       }
-
     }
   }
 
@@ -738,7 +728,19 @@ trait ElementBaseGrammarMixin
     case LengthKind.Pattern =>
       schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
     case LengthKind.EndOfParent =>
-      schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
+      // only for packed binary data, length must be computed at runtime.
+      if (
+        representation == Representation.Binary
+        && optionBinaryCalendarRep.isDefined
+        && Seq(BinaryCalendarRep.Packed, BinaryCalendarRep.Bcd, BinaryCalendarRep.Ibm4690Packed)
+          .contains(binaryCalendarRep)
+        || representation == Representation.Binary
+        && optionBinaryNumberRep.isDefined
+        && Seq(BinaryNumberRep.Packed, BinaryNumberRep.Bcd, BinaryNumberRep.Ibm4690Packed)
+          .contains(binaryNumberRep)
+      ) -1
+      else
+        SDE("lengthKind='endOfParent' only supported for packed binary formats.")
   }
 
   private def explicitBinaryLengthInBits() = {
@@ -924,6 +926,10 @@ trait ElementBaseGrammarMixin
     prod("bcdPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
       ConvertZonedCombinator(this, new BCDIntegerPrefixedLength(this), textConverter)
     }
+  private lazy val bcdEndOfParentLengthCalendar =
+    prod("bcdEndOfParentLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Bcd) {
+      ConvertZonedCombinator(this, new BCDIntegerEndOfParentLength(this), textConverter)
+    }
 
   private lazy val ibm4690PackedKnownLengthCalendar = prod(
     "ibm4690PackedKnownLengthCalendar",
@@ -965,6 +971,16 @@ trait ElementBaseGrammarMixin
       textConverter
     )
   }
+  private lazy val ibm4690PackedEndOfParentLengthCalendar = prod(
+    "ibm4690PackedEndOfParentLengthCalendar",
+    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed
+  ) {
+    ConvertZonedCombinator(
+      this,
+      new IBM4690PackedIntegerEndOfParentLength(this),
+      textConverter
+    )
+  }
 
   private lazy val packedKnownLengthCalendar =
     prod("packedKnownLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
@@ -999,6 +1015,14 @@ trait ElementBaseGrammarMixin
       ConvertZonedCombinator(
         this,
         new PackedIntegerPrefixedLength(this, packedSignCodes),
+        textConverter
+      )
+    }
+  private lazy val packedEndOfParentLengthCalendar =
+    prod("packedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
+      ConvertZonedCombinator(
+        this,
+        new PackedIntegerEndOfParentLength(this, packedSignCodes),
         textConverter
       )
     }
@@ -1053,6 +1077,8 @@ trait ElementBaseGrammarMixin
       byteOrderRaw // must be defined or SDE
     }
     (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
+      case (BinaryNumberRep.Binary, LengthKind.EndOfParent, _) =>
+        SDE("lengthKind='endOfParent' is not allowed with binary number representation")
       case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) =>
         new BinaryIntegerPrefixedLength(this)
       case (BinaryNumberRep.Binary, _, -1) => new BinaryIntegerRuntimeLength(this)
@@ -1070,6 +1096,8 @@ trait ElementBaseGrammarMixin
         new PackedIntegerDelimitedEndOfData(this, packedSignCodes)
       case (BinaryNumberRep.Packed, LengthKind.Prefixed, -1) =>
         new PackedIntegerPrefixedLength(this, packedSignCodes)
+      case (BinaryNumberRep.Packed, LengthKind.EndOfParent, -1) =>
+        new PackedIntegerEndOfParentLength(this, packedSignCodes)
       case (BinaryNumberRep.Packed, _, -1) =>
         new PackedIntegerRuntimeLength(this, packedSignCodes)
       case (BinaryNumberRep.Packed, _, _) =>
@@ -1082,6 +1110,8 @@ trait ElementBaseGrammarMixin
         new IBM4690PackedIntegerDelimitedEndOfData(this)
       case (BinaryNumberRep.Ibm4690Packed, LengthKind.Prefixed, -1) =>
         new IBM4690PackedIntegerPrefixedLength(this)
+      case (BinaryNumberRep.Ibm4690Packed, LengthKind.EndOfParent, -1) =>
+        new IBM4690PackedIntegerEndOfParentLength(this)
       case (BinaryNumberRep.Ibm4690Packed, _, -1) =>
         new IBM4690PackedIntegerRuntimeLength(this)
       case (BinaryNumberRep.Ibm4690Packed, _, _) =>
@@ -1094,6 +1124,7 @@ trait ElementBaseGrammarMixin
             (lengthKind, binaryNumberKnownLengthInBits) match {
               case (LengthKind.Delimited, -1) => new BCDIntegerDelimitedEndOfData(this)
               case (LengthKind.Prefixed, -1) => new BCDIntegerPrefixedLength(this)
+              case (LengthKind.EndOfParent, -1) => new BCDIntegerEndOfParentLength(this)
               case (_, -1) => new BCDIntegerRuntimeLength(this)
               case (_, _) => new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits)
             }
@@ -1161,6 +1192,8 @@ trait ElementBaseGrammarMixin
         ) byteOrderRaw // must have or SDE
 
         (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
+          case (BinaryNumberRep.Binary, LengthKind.EndOfParent, _) =>
+            SDE("lengthKind='endOfParent' is not allowed with binary number representation")
           case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) =>
             new BinaryDecimalPrefixedLength(this)
           case (BinaryNumberRep.Binary, _, -1) => new BinaryDecimalRuntimeLength(this)
@@ -1178,6 +1211,8 @@ trait ElementBaseGrammarMixin
             new PackedDecimalDelimitedEndOfData(this, packedSignCodes)
           case (BinaryNumberRep.Packed, LengthKind.Prefixed, _) =>
             new PackedDecimalPrefixedLength(this, packedSignCodes)
+          case (BinaryNumberRep.Packed, LengthKind.EndOfParent, _) =>
+            new PackedDecimalEndOfParentLength(this, packedSignCodes)
           case (BinaryNumberRep.Packed, _, -1) =>
             new PackedDecimalRuntimeLength(this, packedSignCodes)
           case (BinaryNumberRep.Packed, _, _) =>
@@ -1186,6 +1221,8 @@ trait ElementBaseGrammarMixin
             new BCDDecimalDelimitedEndOfData(this)
           case (BinaryNumberRep.Bcd, LengthKind.Prefixed, _) =>
             new BCDDecimalPrefixedLength(this)
+          case (BinaryNumberRep.Bcd, LengthKind.EndOfParent, _) =>
+            new BCDDecimalEndOfParentLength(this)
           case (BinaryNumberRep.Bcd, _, -1) => new BCDDecimalRuntimeLength(this)
           case (BinaryNumberRep.Bcd, _, _) =>
             new BCDDecimalKnownLength(this, binaryNumberKnownLengthInBits)
@@ -1193,6 +1230,8 @@ trait ElementBaseGrammarMixin
             new IBM4690PackedDecimalDelimitedEndOfData(this)
           case (BinaryNumberRep.Ibm4690Packed, LengthKind.Prefixed, _) =>
             new IBM4690PackedDecimalPrefixedLength(this)
+          case (BinaryNumberRep.Ibm4690Packed, LengthKind.EndOfParent, _) =>
+            new IBM4690PackedDecimalEndOfParentLength(this)
           case (BinaryNumberRep.Ibm4690Packed, _, -1) =>
             new IBM4690PackedDecimalRuntimeLength(this)
           case (BinaryNumberRep.Ibm4690Packed, _, _) =>
@@ -1203,6 +1242,7 @@ trait ElementBaseGrammarMixin
       case PrimType.Boolean => {
         lengthKind match {
           case LengthKind.Prefixed => new BinaryBooleanPrefixedLength(this)
+          case LengthKind.EndOfParent => new BinaryBooleanEndOfParentLength(this)
           case _ => new BinaryBoolean(this)
         }
       }
@@ -1256,6 +1296,7 @@ trait ElementBaseGrammarMixin
                 (lengthKind, binaryNumberKnownLengthInBits) match {
                   case (LengthKind.Delimited, -1) => bcdDelimitedLengthCalendar
                   case (LengthKind.Prefixed, -1) => bcdPrefixedLengthCalendar
+                  case (LengthKind.EndOfParent, -1) => bcdEndOfParentLengthCalendar
                   case (_, -1) => bcdRuntimeLengthCalendar
                   case (_, _) => bcdKnownLengthCalendar
                 }
@@ -1264,6 +1305,7 @@ trait ElementBaseGrammarMixin
                 (lengthKind, binaryNumberKnownLengthInBits) match {
                   case (LengthKind.Delimited, -1) => ibm4690PackedDelimitedLengthCalendar
                   case (LengthKind.Prefixed, -1) => ibm4690PackedPrefixedLengthCalendar
+                  case (LengthKind.EndOfParent, -1) => ibm4690PackedEndOfParentLengthCalendar
                   case (_, -1) => ibm4690PackedRuntimeLengthCalendar
                   case (_, _) => ibm4690PackedKnownLengthCalendar
                 }
@@ -1272,6 +1314,7 @@ trait ElementBaseGrammarMixin
                 (lengthKind, binaryNumberKnownLengthInBits) match {
                   case (LengthKind.Delimited, -1) => packedDelimitedLengthCalendar
                   case (LengthKind.Prefixed, -1) => packedPrefixedLengthCalendar
+                  case (LengthKind.EndOfParent, -1) => packedEndOfParentLengthCalendar
                   case (_, -1) => packedRuntimeLengthCalendar
                   case (_, _) => packedKnownLengthCalendar
                 }
@@ -1474,13 +1517,15 @@ trait ElementBaseGrammarMixin
     // processor to calculate the length and set the bit limit which this processor will use as
     // the length. The following determines if this element requires another processor to
     // calculate and set the bit limit, and if so adds the appropriate grammar to do that
-    val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited && (
-      isSimpleType && impliedRepresentation == Representation.Text ||
-        isSimpleType && isNillable ||
-        isComplexType && lengthKind != LengthKind.Implicit ||
-        lengthKind == LengthKind.Prefixed ||
-        isSimpleType && primType == PrimType.HexBinary && lengthKind == LengthKind.Pattern
-    )
+    val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited
+      && !(isSimpleType && lengthKind == LengthKind.EndOfParent && !this.isInstanceOf[Root])
+      && (
+        isSimpleType && impliedRepresentation == Representation.Text ||
+          isSimpleType && isNillable ||
+          isComplexType && lengthKind != LengthKind.Implicit ||
+          lengthKind == LengthKind.Prefixed ||
+          isSimpleType && primType == PrimType.HexBinary && lengthKind == LengthKind.Pattern
+      )
     if (!bodyRequiresSpecifiedLengthBitLimit) {
       body
     } else {
@@ -1524,8 +1569,9 @@ trait ElementBaseGrammarMixin
         case LengthKind.Implicit
             if isSimpleType && impliedRepresentation == Representation.Binary =>
           new SpecifiedLengthImplicit(this, body, implicitBinaryLengthInBits)
-        case LengthKind.EndOfParent => new SpecifiedLengthEndOfParent(this, body)
-        case LengthKind.Delimited | LengthKind.Implicit =>
+        case LengthKind.EndOfParent if (isComplexType || this.isInstanceOf[Root]) =>
+          new SpecifiedLengthEndOfParent(this, body)
+        case LengthKind.Delimited | LengthKind.Implicit | LengthKind.EndOfParent =>
           Assert.impossibleCase(
             "Delimited and ComplexType Implicit cases should not be reached"
           )

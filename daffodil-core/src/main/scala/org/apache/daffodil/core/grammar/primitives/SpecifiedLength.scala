@@ -146,14 +146,8 @@ class SpecifiedLengthEndOfParent(e: ElementBase, eGram: => Gram)
       )
   }
 
-  lazy val unparser: Unparser = {
-    if (eUnparser.isEmpty) eUnparser
-    else
-      new SpecifiedLengthEndOfParentUnparser(
-        eUnparser,
-        e.elementRuntimeData
-      )
-  }
+  lazy val unparser: Unparser = eUnparser
+
 }
 
 class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)

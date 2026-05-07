@@ -61,7 +61,7 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
           else if (representation =:= Representation.Binary) true
           else false
         }
-        // per DFDL Spec 9.3.2, endOfParent is already positioned at parent's end so length is zero
+        // we can rarely statically know if an endOfParent element must have non-zero length
         case LengthKind.EndOfParent => false
       }
       res

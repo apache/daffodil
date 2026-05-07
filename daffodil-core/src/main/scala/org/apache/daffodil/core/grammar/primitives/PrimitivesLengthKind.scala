@@ -174,7 +174,8 @@ case class HexBinaryDelimitedEndOfData(e: ElementBase) extends HexBinaryDelimite
 case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
-    e.elementRuntimeData
+    e.elementRuntimeData,
+    isEndOfParent = false
   )
 
   override lazy val unparser: DaffodilUnparser =
@@ -184,7 +185,8 @@ case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
 case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
-    e.elementRuntimeData
+    e.elementRuntimeData,
+    isEndOfParent = false
   )
 
   override lazy val unparser: DaffodilUnparser =
@@ -194,7 +196,8 @@ case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
 case class HexBinaryLengthEndOfParent(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
-    e.elementRuntimeData
+    e.elementRuntimeData,
+    isEndOfParent = true
   )
 
   override lazy val unparser: DaffodilUnparser =

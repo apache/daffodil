@@ -109,9 +109,10 @@ class BinaryBooleanBitLimitLengthParser(
   override val context: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
-  lengthUnits: LengthUnits
+  lengthUnits: LengthUnits,
+  isEndOfParent: Boolean
 ) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
-  with BitLengthFromBitLimitMixin {
+  with BitLengthFromBitLimitMixin(isEndOfParent) {
 
   override def runtimeDependencies = Vector()
 

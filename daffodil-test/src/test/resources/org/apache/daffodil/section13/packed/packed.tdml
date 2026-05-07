@@ -259,6 +259,68 @@
 
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="s15">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="endOfParent" encoding="ISO-8859-1" occursCountKind="implicit"
+    textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
+    lengthUnits="bytes" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
+    binaryDecimalVirtualPoint="2"/>
+
+    <xs:element name="packedIntSeq">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="packed" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="num2" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="packed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="packedDecSeq">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="packed" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="num2" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="packed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="bcdIntSeq">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:unsignedInt" dfdl:representation="binary" dfdl:binaryNumberRep="bcd" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="num2" type="xs:unsignedInt" dfdl:representation="binary" dfdl:binaryNumberRep="bcd"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="bcdDecSeq">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="bcd" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="num2" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="bcd"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ibmIntSeq">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="num2" type="xs:int" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ibmDecSeq">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num1" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="num2" type="xs:decimal" dfdl:representation="binary" dfdl:binaryNumberRep="ibm4690Packed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
 
   <tdml:parserTestCase name="hexCharset01" root="int01" model="s1"
     description="hex works as a charset encoding">
@@ -1049,5 +1111,188 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="EOPPackedIntSeq" root="packedIntSeq" model="s15">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">003C 123D</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedIntSeq>
+          <num1>3</num1>
+          <num2>-123</num2>
+        </packedIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="EOPPackedDecSeq" root="packedDecSeq" model="s15">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">003C 123D</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedDecSeq>
+          <num1>0.03</num1>
+          <num2>-1.23</num2>
+        </packedDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="EOPPackedIntSeqUnparser" root="packedIntSeq" model="s15">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedIntSeq>
+          <num1>3</num1>
+          <num2>-123</num2>
+        </packedIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">003C 123D</tdml:documentPart>
+    </tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="EOPPackedDecSeqUnparser" root="packedDecSeq" model="s15">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <packedDecSeq>
+          <num1>0.03</num1>
+          <num2>-1.23</num2>
+        </packedDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">003C 123D</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="EOPBCDIntSeq" root="bcdIntSeq" model="s15">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0003 0123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdIntSeq>
+          <num1>3</num1>
+          <num2>123</num2>
+        </bcdIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="EOPBCDDecSeq" root="bcdDecSeq" model="s15">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0003 0123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdDecSeq>
+          <num1>0.03</num1>
+          <num2>1.23</num2>
+        </bcdDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="EOPBCDIntSeqUnparser" root="bcdIntSeq" model="s15">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdIntSeq>
+          <num1>3</num1>
+          <num2>123</num2>
+        </bcdIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0003 0123</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="EOPBCDDecSeqUnparser" root="bcdDecSeq" model="s15">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdDecSeq>
+          <num1>0.03</num1>
+          <num2>1.23</num2>
+        </bcdDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0003 0123</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+
+  <tdml:parserTestCase name="EOPIBM4690IntSeq" root="ibmIntSeq" model="s15">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFF3 D123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmIntSeq>
+          <num1>3</num1>
+          <num2>-123</num2>
+        </ibmIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="EOPIBM4690DecSeq" root="ibmDecSeq" model="s15">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFF3 D123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmDecSeq>
+          <num1>0.03</num1>
+          <num2>-1.23</num2>
+        </ibmDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="EOPIBM4690IntSeqUnparser" root="ibmIntSeq" model="s15">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmIntSeq>
+          <num1>3</num1>
+          <num2>-123</num2>
+        </ibmIntSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFF3 D123</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="EOPIBM4690DecSeqUnparser" root="ibmDecSeq" model="s15">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ibmDecSeq>
+          <num1>0.03</num1>
+          <num2>-1.23</num2>
+        </ibmDecSeq>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFF3 D123</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

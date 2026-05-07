@@ -78,7 +78,27 @@ class PackedIntegerPrefixedLength(
 ) extends Terminal(e, true) {
 
   override lazy val parser =
-    new PackedIntegerBitLimitLengthParser(e.elementRuntimeData, packedSignCodes)
+    new PackedIntegerBitLimitLengthParser(
+      e.elementRuntimeData,
+      packedSignCodes,
+      isEndOfParent = false
+    )
+
+  override lazy val unparser: Unparser =
+    new PackedIntegerMinimumLengthUnparser(e.elementRuntimeData, packedSignCodes)
+}
+
+class PackedIntegerEndOfParentLength(
+  val e: ElementBase,
+  packedSignCodes: PackedSignCodes
+) extends Terminal(e, true) {
+
+  override lazy val parser =
+    new PackedIntegerBitLimitLengthParser(
+      e.elementRuntimeData,
+      packedSignCodes,
+      isEndOfParent = true
+    )
 
   override lazy val unparser: Unparser =
     new PackedIntegerMinimumLengthUnparser(e.elementRuntimeData, packedSignCodes)
@@ -135,7 +155,27 @@ class PackedDecimalPrefixedLength(val e: ElementBase, packedSignCodes: PackedSig
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     packedSignCodes,
+    e.decimalSigned,
+    isEndOfParent = false
+  )
+
+  override lazy val unparser: Unparser = new PackedDecimalMinimumLengthUnparser(
+    e.elementRuntimeData,
+    e.binaryDecimalVirtualPoint,
+    packedSignCodes,
     e.decimalSigned
+  )
+}
+
+class PackedDecimalEndOfParentLength(val e: ElementBase, packedSignCodes: PackedSignCodes)
+  extends Terminal(e, true) {
+
+  override lazy val parser = new PackedDecimalBitLimitLengthParser(
+    e.elementRuntimeData,
+    e.binaryDecimalVirtualPoint,
+    packedSignCodes,
+    e.decimalSigned,
+    isEndOfParent = true
   )
 
   override lazy val unparser: Unparser = new PackedDecimalMinimumLengthUnparser(

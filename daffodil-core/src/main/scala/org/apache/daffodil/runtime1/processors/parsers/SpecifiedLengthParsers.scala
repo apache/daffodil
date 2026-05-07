@@ -136,7 +136,7 @@ class SpecifiedLengthEndOfParentParser(
   eParser: Parser,
   erd: ElementRuntimeData
 ) extends SpecifiedLengthParserBase(eParser, erd),
-    BitLengthFromBitLimitMixin {
+    BitLengthFromBitLimitMixin(true) {
 
   override protected def getBitLength(s: PState): MaybeULong = {
     MaybeULong(super[BitLengthFromBitLimitMixin].getBitLength(s))
