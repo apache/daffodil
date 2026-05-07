@@ -384,6 +384,7 @@
 
   <tdml:defineConfig name="infosetWalkerNoSkip">
     <daf:tunables>
+      <daf:infosetWalkerMode>streaming</daf:infosetWalkerMode>
       <daf:infosetWalkerSkipMin>0</daf:infosetWalkerSkipMin>
     </daf:tunables>
   </tdml:defineConfig>

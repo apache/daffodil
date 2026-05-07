@@ -33,4 +33,6 @@ class TestInfosetWalker extends TdmlTests {
   // DAFFODIL-2755
   @Test def infosetWalker_02 = test
   @Test def infosetWalker_03 = test
+  // DAFFODIL-3070
+  @Test def infosetWalker_04 = test
 }

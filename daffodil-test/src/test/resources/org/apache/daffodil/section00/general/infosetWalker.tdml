@@ -30,6 +30,7 @@
   -->
   <tdml:defineConfig name="cfg_infosetWalker_01">
     <daf:tunables>
+      <daf:infosetWalkerMode>streaming</daf:infosetWalkerMode>
       <daf:infosetWalkerSkipMin>0</daf:infosetWalkerSkipMin>
     </daf:tunables>
   </tdml:defineConfig>
@@ -41,8 +42,16 @@
   -->
   <tdml:defineConfig name="cfg_infosetWalker_02">
     <daf:tunables>
+      <daf:infosetWalkerMode>streaming</daf:infosetWalkerMode>
       <daf:infosetWalkerSkipMin>0</daf:infosetWalkerSkipMin>
       <daf:releaseUnneededInfoset>false</daf:releaseUnneededInfoset>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <!--uses streaming walker -->
+  <tdml:defineConfig name="cfg_infosetWalker_03">
+    <daf:tunables>
+      <daf:infosetWalkerMode>streaming</daf:infosetWalkerMode>
     </daf:tunables>
   </tdml:defineConfig>
 
@@ -65,7 +74,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="infosetWalker_01" model="schema_01">
+  <tdml:parserTestCase name="infosetWalker_01" model="schema_01" config="cfg_infosetWalker_01">
     <tdml:document>
       <tdml:documentPart type="text">|header;body1;body2;body3;|</tdml:documentPart>
     </tdml:document>
@@ -113,5 +122,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--uses non-streaming walker -->
+  <tdml:parserTestCase name="infosetWalker_04" model="schema_01">
+    <tdml:document>
+      <tdml:documentPart type="text">|header;body1;body2;body3;|</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_01 xmlns:ex="http://example.com">
+          <first>header</first>
+          <field>body1</field>
+          <field>body2</field>
+          <field>body3</field>
+        </ex:root_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

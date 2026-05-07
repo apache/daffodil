@@ -53,6 +53,7 @@ object TestInfosetFree {
 
     val compiler = Compiler()
       .withTunable("releaseUnneededInfoset", "false")
+      .withTunable("infosetWalkerMode", "streaming")
 
     val pf = compiler.compileNode(schema)
     if (pf.isError) {
@@ -92,7 +93,7 @@ object TestInfosetFree {
       val detailedOutputter =
         new ScalaXMLInfosetOutputter(showFreedInfo = true)
 
-      val infosetWalker = InfosetWalker(
+      val infosetWalker = StreamingInfosetWalker(
         doc,
         detailedOutputter,
         walkHidden = true, // let's ensure any hidden elements are free
