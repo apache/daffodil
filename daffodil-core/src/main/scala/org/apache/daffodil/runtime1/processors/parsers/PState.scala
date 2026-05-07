@@ -32,6 +32,7 @@ import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.InfosetWalkerMode
 import org.apache.daffodil.lib.util.MStack
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MStackOfInt
@@ -52,6 +53,8 @@ import org.apache.daffodil.runtime1.infoset.DISimpleState
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.Infoset
 import org.apache.daffodil.runtime1.infoset.InfosetWalker
+import org.apache.daffodil.runtime1.infoset.NonStreamingInfosetWalker
+import org.apache.daffodil.runtime1.infoset.StreamingInfosetWalker
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -750,15 +753,19 @@ object PState {
     val diagnostics = Nil
     val mutablePState = MPState()
     val tunables = dataProc.tunables
-    val infosetWalker = InfosetWalker(
-      doc.asInstanceOf[DIElement],
-      output,
-      walkHidden = false,
-      ignoreBlocks = false,
-      releaseUnneededInfoset = !areDebugging && tunables.releaseUnneededInfoset,
-      walkSkipMin = tunables.infosetWalkerSkipMin,
-      walkSkipMax = tunables.infosetWalkerSkipMax
-    )
+    val infosetWalker = if (tunables.infosetWalkerMode == InfosetWalkerMode.Streaming) {
+      StreamingInfosetWalker(
+        doc.asInstanceOf[DIElement],
+        output,
+        walkHidden = false,
+        ignoreBlocks = false,
+        releaseUnneededInfoset = !areDebugging && tunables.releaseUnneededInfoset,
+        walkSkipMin = tunables.infosetWalkerSkipMin,
+        walkSkipMax = tunables.infosetWalkerSkipMax
+      )
+    } else {
+      new NonStreamingInfosetWalker(doc.asInstanceOf[DIElement], output)
+    }
 
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(

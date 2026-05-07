@@ -212,7 +212,6 @@ abstract class SequenceParserBase(
                 // should not increment the group index.
                 pstate.mpstate.moveOverOneGroupIndexOnly()
               }
-
               // we might have added a new instance to the array. Attempt to project it to an
               // infoset if there are no PoU's or anything blocking it
               pstate.walker.walk()

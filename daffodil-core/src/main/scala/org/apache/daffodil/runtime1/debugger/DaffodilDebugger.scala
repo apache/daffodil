@@ -471,7 +471,7 @@ class DaffodilDebugger(
   private def infosetToString(ie: InfosetElement): String = {
     val bos = new java.io.ByteArrayOutputStream()
     val xml = new XMLTextInfosetOutputter(bos, pretty = true, minimal = true)
-    val iw = InfosetWalker(
+    val iw = StreamingInfosetWalker(
       ie.asInstanceOf[DIElement],
       xml,
       walkHidden = !DebuggerConfig.removeHidden,

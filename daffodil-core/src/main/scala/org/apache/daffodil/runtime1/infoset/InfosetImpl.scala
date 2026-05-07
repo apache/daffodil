@@ -32,10 +32,12 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import scala.collection.mutable.ArrayBuffer
 
+import org.apache.daffodil.api
 import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetDocument
 import org.apache.daffodil.api.infoset.InfosetElement
+import org.apache.daffodil.api.infoset.InfosetOutputter
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.InfosetTypeException
 import org.apache.daffodil.api.metadata.ComplexElementMetadata
@@ -48,6 +50,7 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.equality.ViewEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
+import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.ThinDiagnostic
@@ -193,6 +196,33 @@ sealed trait DINode {
    * Array or Complex exception.
    */
   def requireFinal(): Unit
+
+  /**
+   * Eagerly walk the entire subtree rooted at this node, emitting
+   * start/end events to `outputter` in document order. Hidden nodes are
+   * skipped. The walk is complete and blocking — all events for this node
+   * and its descendants are emitted before the method returns.
+   *
+   * Used by [[NonStreamingInfosetWalker]] to project the whole infoset in
+   * one pass after parsing is finished.
+   */
+  def walk(outputter: api.infoset.InfosetOutputter): Unit
+
+  protected def doOutputter(outputterFunc: => Unit, desc: String, context: ThrowsSDE): Unit = {
+    try {
+      outputterFunc
+    } catch {
+      case e: Exception => {
+        // FIXME: DAFFODIL-2884 This escalates a parser data exception to an SDE
+        //  Which breaks if string-as-xml encounters a string that is malformed XML.
+        //  We get the error thrown by the xml parser here outside of parsing, which is
+        //  too late.
+        val cause = e.getCause
+        val msg = if (cause == null) e.toString else cause.toString
+        context.SDE("Failed to %s: %s", desc, msg)
+      }
+    }
+  }
 }
 
 /**
@@ -1313,6 +1343,16 @@ final class DIArray(
       }
     }
   }
+
+  override def walk(outputter: InfosetOutputter): Unit = {
+    if (!isHidden) {
+      doOutputter(outputter.startArray(this), "start infoset array", erd)
+      _contents.foreach { child =>
+        child.walk(outputter)
+      }
+      doOutputter(outputter.endArray(this), "end infoset array", erd)
+    }
+  }
 }
 
 /**
@@ -1666,6 +1706,13 @@ sealed class DISimple(override val erd: ElementRuntimeData)
   }
 
   override def getObject: Object = getAnyRef
+
+  override def walk(outputter: api.infoset.InfosetOutputter): Unit = {
+    if (!isHidden) {
+      doOutputter(outputter.startSimple(this), "start infoset simple element", erd)
+      doOutputter(outputter.endSimple(this), "end infoset simple element", erd)
+    }
+  }
 }
 
 /**
@@ -1710,7 +1757,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     if (!isFinal) throw nfe
   }
 
-  private val childNodes = new ArrayBuffer[DINode]
+  protected val childNodes = new ArrayBuffer[DINode]
 
   private lazy val nameToChildNodeLookup =
     new java.util.HashMap[NamedQName, ArrayBuffer[DINode]]
@@ -2008,6 +2055,15 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
     }
   }
 
+  override def walk(outputter: InfosetOutputter): Unit = {
+    if (!isHidden) {
+      doOutputter(outputter.startComplex(this), "start infoset complex element", erd)
+      childNodes.foreach { child =>
+        child.walk(outputter)
+      }
+      doOutputter(outputter.endComplex(this), "end infoset complex element", erd)
+    }
+  }
 }
 
 /*
@@ -2022,6 +2078,14 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd) with Info
    * a constant value
    */
   var isCompileExprFalseRoot: Boolean = false
+
+  override def walk(outputter: InfosetOutputter): Unit = {
+    doOutputter(outputter.startDocument(), "start infoset document", erd)
+    childNodes.foreach { child =>
+      child.walk(outputter)
+    }
+    doOutputter(outputter.endDocument(), "end infoset document", erd)
+  }
 }
 
 object Infoset {
