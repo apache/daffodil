@@ -17,17 +17,30 @@ github:
   description: "Apache Daffodil"
   homepage: https://daffodil.apache.org/
   features:
-    wiki:     false
-    issues:   false
+    wiki: false
+    issues: false
     projects: false
   enabled_merge_buttons:
-    squash:   false
-    merge:    false
-    rebase:   true
+    squash: false
+    merge: false
+    rebase: true
   autolink_jira:
     - DAFFODIL
+  rulesets:
+    - name: "Default Branch Protection"
+      type: branch
+      branches:
+        includes:
+          - "~DEFAULT_BRANCH"
+          - "release/*"
+          - "rel/*"
+        excludes: []
+      bypass_teams:
+        - root
+      restrict_deletion: true
+      restrict_force_push: true
 notifications:
-    commits:      commits@daffodil.apache.org
-    issues:       commits@daffodil.apache.org
-    pullrequests: commits@daffodil.apache.org
-    jira_options: link label
+  commits: commits@daffodil.apache.org
+  issues: commits@daffodil.apache.org
+  pullrequests: commits@daffodil.apache.org
+  jira_options: link label
