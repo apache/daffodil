@@ -27,6 +27,7 @@ import org.apache.daffodil.core.util.FuzzRandomSingleByte
 import org.apache.daffodil.core.util.FuzzZeroBits
 import org.apache.daffodil.core.util.LayerParseTester
 import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.layers.runtime1.DeterministicGZIPOutputStream
 import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -85,7 +86,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   def makeGZIPData(text: String) = {
     val baos = new ByteArrayOutputStream()
-    val gzos = new java.util.zip.GZIPOutputStream(baos)
+    val gzos = new DeterministicGZIPOutputStream(baos)
     IOUtils.write(text, gzos, StandardCharsets.UTF_8)
     gzos.close()
     val data = baos.toByteArray()

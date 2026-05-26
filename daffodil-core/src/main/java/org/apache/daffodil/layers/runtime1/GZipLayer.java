@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 public final class GZipLayer extends Layer {
 
@@ -63,7 +62,7 @@ public final class GZipLayer extends Layer {
   @Override
   public OutputStream wrapLayerOutput(OutputStream jos) throws Exception {
     OutputStream fixedOS = fixIsNeeded() ? new GZIPFixedOutputStream(jos) : jos;
-    return new GZIPOutputStream(fixedOS);
+    return new DeterministicGZIPOutputStream(fixedOS);
   }
 
 }
@@ -149,3 +148,4 @@ class GZIPFixedOutputStream extends OutputStream {
     }
   }
 }
+
