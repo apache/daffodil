@@ -19,6 +19,7 @@ package org.apache.daffodil.core.layers
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
+import java.util.zip.Deflater
 import scala.xml.Elem
 
 import org.apache.daffodil.core.util.FuzzOneBits
@@ -27,6 +28,7 @@ import org.apache.daffodil.core.util.FuzzRandomSingleByte
 import org.apache.daffodil.core.util.FuzzZeroBits
 import org.apache.daffodil.core.util.LayerParseTester
 import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.layers.runtime1.ConfigurableGZIPOutputStream
 import org.apache.daffodil.lib.util.*
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -85,14 +87,15 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   def makeGZIPData(text: String) = {
     val baos = new ByteArrayOutputStream()
-    val gzos = new java.util.zip.GZIPOutputStream(baos)
+    // Level 9 happens to produce identical deflate output on both stock zlib and
+    // zlib-ng for this particular test data, letting the hardcoded baselines below
+    // match regardless of which implementation the JVM uses. This is empirical and
+    // could break with different inputs or future zlib versions.
+    val gzos = new ConfigurableGZIPOutputStream(baos, Deflater.BEST_COMPRESSION)
+
     IOUtils.write(text, gzos, StandardCharsets.UTF_8)
     gzos.close()
-    val data = baos.toByteArray()
-    // Java 16+ sets the 9th byte to 0xFF, but previous Java versions set the
-    // value to 0x00. Daffodil always unparses with 0xFF regardless of Java
-    // version, so force the gzip data to 0xFF to make sure tests round trip
-    data(9) = 0xff.toByte
+    val data = baos.toByteArray
     data
   }
 

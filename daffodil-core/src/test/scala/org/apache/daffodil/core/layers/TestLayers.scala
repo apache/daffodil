@@ -177,11 +177,7 @@ class TestLayers {
     val gzos = new java.util.zip.GZIPOutputStream(baos)
     IOUtils.write(text, gzos, StandardCharsets.UTF_8)
     gzos.close()
-    val data = baos.toByteArray()
-    // Java 16+ sets the 9th byte to 0xFF, but previous Java versions set the
-    // value to 0x00. Daffodil always unparses with 0xFF regardless of Java
-    // version, so force the gzip data to 0xFF to make sure tests round trip
-    data(9) = 0xff.toByte
+    val data = baos.toByteArray
     data
   }
 

@@ -26,8 +26,8 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <!-- the gzip layer has no parameter variables
-      nor return result variables. -->
+      <!-- gzip layer variable-->
+      <dfdl:defineVariable name="compressionLevel" type="xs:int" defaultValue="-1" external="true"/>
 
     </appinfo>
   </annotation>
