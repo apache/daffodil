@@ -59,6 +59,17 @@
               <element name="contents">
                 <complexType>
                   <sequence dfdlx:layer="gz:gzip">
+                    <annotation>
+                      <documentation>
+                        Level 9 (slowest) is used here only to improve the likelihood of
+                        deterministic gzip output across different JVMs and zlib implementations
+                        during testing. Real-world users should either omit this newVariableInstance
+                        to use the default level (6) or choose a level appropriate for their needs.
+                      </documentation>
+                      <appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:newVariableInstance ref="gz:compressionLevel" defaultValue="9"/>
+                      </appinfo>
+                    </annotation>
                     <group ref="ex:compressedGroupContents"/>
                   </sequence>
                 </complexType>

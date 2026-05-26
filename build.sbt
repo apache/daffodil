@@ -247,6 +247,10 @@ def buildJavacOptions() = {
     "-deprecation",
     "-Xlint:dep-ann",
     "-Xlint:unchecked",
+    // Preserve Java parameter names in bytecode so Daffodil's reflection-based
+    // layer parameter resolution can match method parameters to DFDL variables
+    // by name (otherwise they appear as arg0/arg1/...).
+    "-parameters",
     "--release",
     minSupportedJavaVersion
   )
