@@ -22,7 +22,6 @@ import java.lang.Long as JLong
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.InitiatedTerminatedMixin
-import org.apache.daffodil.core.dsom.ModelGroup
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.grammar.primitives.*
@@ -254,85 +253,7 @@ trait ElementBaseGrammarMixin
   }
   final lazy val prefixedLengthBody = prefixedLengthElementDecl.parsedValue
 
-  def myEffectiveLengthUnits(lastNonEOPLU: LengthUnits): LengthUnits = {
-    lengthKind match {
-      case LengthKind.EndOfParent => lastNonEOPLU
-      case LengthKind.Explicit | LengthKind.Prefixed => lengthUnits
-      case LengthKind.Pattern => LengthUnits.Characters
-      case _ =>
-        Assert.invariantFailed(
-          "Delimited and Implicit are illegal for the parent of EndOfParent element"
-        )
-    }
-  }
-
-  def checkChildrenForSiblingsAfterEOPElement(
-    parent: ElementBase,
-    specificChild: ElementBase
-  ) = {
-    lazy val foundPosition = flattenedChildren.indexOf(specificChild)
-    lazy val lastIndexOfChildren = flattenedChildren.length - 1
-    if (flattenedChildren.isEmpty || foundPosition < 0) {
-      // not found amongst children
-      Assert.impossible("EndOfParent element not found amongst term children of parent")
-    } else if (foundPosition != lastIndexOfChildren) {
-      // get the following children after the EOP element+ 1
-      val followingChildrenAfter =
-        flattenedChildren.slice(foundPosition + 1, lastIndexOfChildren + 1)
-      followingChildrenAfter.foreach {
-        case m: ModelGroup => {
-          specificChild.SDE(
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but a model group is defined between this element and the end of the enclosing component"
-          )
-        }
-        case r if r.isRepresented => {
-          specificChild.SDE(
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but a represented element is defined between this element and the end of the enclosing component"
-          )
-        }
-        case _ => // do nothing
-      }
-    }
-  }
-
-  def checkEndOfParentRestrictions(lastNonEOPLU: LengthUnits): Unit = {
-    val parent = this
-    val eopChildren = this.childrenEndOfParent
-    // checks
-    this match {
-      case rootElem: Root if lengthKind == LengthKind.EndOfParent => {
-        rootElem.checkEndOfParentRestrictionsOnCurrentElement(lastNonEOPLU)
-      }
-      case _ => // do nothing
-    }
-
-    if (eopChildren.isEmpty)
-      (
-        this.elementChildren.foreach(_.checkEndOfParentRestrictions(lastNonEOPLU))
-      )
-    else {
-      eopChildren.foreach { eopChild =>
-        lazy val parentELU = myEffectiveLengthUnits(lastNonEOPLU)
-        checkChildrenForSiblingsAfterEOPElement(parent, eopChild)
-        parent.lengthKind match {
-          case LengthKind.Implicit | LengthKind.Delimited =>
-            schemaDefinitionError(
-              "element is specified as dfdl:lengthKind=\"endOfParent\", but its parent is an element with dfdl:lengthKind 'implicit' or 'delimited'."
-            )
-          case _ => // do nothing
-        }
-        eopChild.checkEndOfParentRestrictionsOnCurrentElement(parentELU)
-        if (parent.lengthKind != LengthKind.EndOfParent) {
-          eopChild.checkEndOfParentRestrictions(parentELU)
-        } else {
-          eopChild.checkEndOfParentRestrictions(lastNonEOPLU)
-        }
-      }
-    }
-    // end checks
-  }
-
-  def checkEndOfParentRestrictionsOnCurrentElement(parentELU: LengthUnits): Unit = {
+  def checkEndOfParentRestrictionsOnCurrentElement(optParentELU: Option[LengthUnits]): Unit = {
     val currentElement: ElementBase = this
     if (currentElement.lengthKind != LengthKind.EndOfParent) {} else {
       schemaDefinitionWhen(
@@ -350,7 +271,7 @@ trait ElementBaseGrammarMixin
       schemaDefinitionWhen(
         currentElement.impliedRepresentation == Representation.Text
           && (!currentElement.isKnownEncoding || !currentElement.knownEncodingIsFixedWidth || currentElement.knownEncodingWidthInBits != 8)
-          && (parentELU != LengthUnits.Characters),
+          && (!optParentELU.contains(LengthUnits.Characters)),
         "element is specified as dfdl:lengthKind=\"endOfParent\", but the element has text representation, and does not have a single-byte character set encoding, and the effective length units of the parent is not 'characters'."
       )
       if (currentElement.isSimpleType) {
@@ -362,7 +283,7 @@ trait ElementBaseGrammarMixin
               && Seq(BinaryNumberRep.Packed, BinaryNumberRep.Bcd, BinaryNumberRep.Ibm4690Packed)
                 .contains(currentElement.binaryNumberRep))
             || (currentElement.representation == Representation.Binary
-              && optionBinaryCalendarRep.isDefined
+              && currentElement.optionBinaryCalendarRep.isDefined
               && Seq(
                 BinaryCalendarRep.Packed,
                 BinaryCalendarRep.Bcd,

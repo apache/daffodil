@@ -117,7 +117,7 @@ final class SchemaSet private (
 
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
-  requiredEvaluationsAlways(root.checkEndOfParentRestrictions(LengthUnits.Characters))
+  requiredEvaluationsAlways(root.checkEndOfParentRestrictions(Some(LengthUnits.Characters)))
 
   lazy val resolver = DFDLCatalogResolver.get
 
