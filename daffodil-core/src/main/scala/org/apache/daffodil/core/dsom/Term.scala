@@ -94,17 +94,6 @@ trait Term
   requiredEvaluationsIfActivated(defaultPropertySources)
   requiredEvaluationsIfActivated(termChecks)
 
-  final lazy val childrenEndOfParent: Seq[ElementBase] = LV(Symbol("childrenEndOfParent")) {
-    val gms = termChildren
-    val chls = gms.flatMap {
-      case eb: ElementBase if eb.lengthKind == LengthKind.EndOfParent => Seq(eb)
-      case eb: ElementBase => Nil
-      case c: Choice => Nil
-      case mg: ModelGroup => mg.childrenEndOfParent
-    }
-    chls
-  }.value
-
   private lazy val termChecks = {
     statements.foreach { _.checkTerm(this) }
   }
@@ -591,7 +580,7 @@ trait Term
     }
   }
 
-  final protected lazy val realElementChildren: Seq[ElementBase] = {
+  final lazy val realElementChildren: Seq[ElementBase] = {
     termChildren.flatMap {
       case eb: ElementBase => Seq(eb)
       case c: Choice => Nil

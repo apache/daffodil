@@ -34,7 +34,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
@@ -106,7 +105,6 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   requiredEvaluationsIfActivated(checkValidityOccursCountKind)
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
   requiredEvaluationsIfActivated(checkIfMultipleChildrenWithSameName)
-  requiredEvaluationsIfActivated(checkEndOfParentRestrictions())
 
   protected def apparentXMLChildren: Seq[Node]
 
@@ -271,39 +269,6 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     case SequenceKind.Ordered => true
     case SequenceKind.Unordered => false
   }
-
-  def checkEndOfParentRestrictions() = {
-    val parent = this
-    val eopChildren = this.childrenEndOfParent
-    if (eopChildren.isEmpty) {} else {
-      parent match {
-        case s: SequenceTermBase => {
-          schemaDefinitionWhen(
-            s.separatorPosition == SeparatorPosition.Postfix,
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:separatorPosition defined as 'postfix'."
-          )
-          schemaDefinitionWhen(
-            s.sequenceKind != SequenceKind.Ordered,
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:sequenceKind defined as 'unordered'."
-          )
-          schemaDefinitionWhen(
-            s.hasTerminator,
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a dfdl:terminator."
-          )
-          schemaDefinitionWhen(
-            s.realElementChildren.exists(e => e.floating == YesNo.Yes),
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with elements defining dfdl:floating='yes'."
-          )
-          schemaDefinitionWhen(
-            s.trailingSkip != 0,
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a non-zero dfdl:trailingSkip."
-          )
-        }
-        case null => // do nothing
-      }
-    }
-  }
-
 }
 
 /**

@@ -64,10 +64,10 @@ class TestLengthKindEndOfParent extends TdmlTests {
   @Test def TestEndOfParentSimpleTypes10 = test
   @Test def TestEndOfParentComplexTypes11 = test
   @Test def TestEndOfParentSimpleTypes11 = test
-//  @Test def TestEndOfParentComplexTypesRootChoice = test
-//  @Test def TestEndOfParentSimpleTypesRootChoice = test
   @Test def TestEndOfParentComplexTypes12 = test
   @Test def TestEndOfParentSimpleTypes12 = test
+  @Test def TestEndOfParentComplexTypes12Implicit = test
+  @Test def TestEndOfParentSimpleTypes12Implicit = test
   @Test def TestEndOfParentComplexTypes13 = test
   @Test def TestEndOfParentSimpleTypes13 = test
   @Test def TestEndOfParentSimpleTypes14 = test
@@ -114,6 +114,7 @@ class TestLengthKindEndOfParent extends TdmlTests {
   @Test def nested_01 = test
   @Test def nested_02 = test
   @Test def nested_03 = test
+  @Test def nested_04 = test
   @Test def checks_01 = test
   @Test def checks_02 = test
 }

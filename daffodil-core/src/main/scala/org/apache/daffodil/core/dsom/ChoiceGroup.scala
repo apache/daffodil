@@ -24,9 +24,7 @@ import org.apache.daffodil.core.dsom.walker.ChoiceView
 import org.apache.daffodil.core.grammar.ChoiceGrammarMixin
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceAGMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Choice_AnnotationMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 
 /**
@@ -105,7 +103,6 @@ abstract class ChoiceTermBase(
   requiredEvaluationsIfActivated(noBranchesFound)
   requiredEvaluationsIfActivated(branchesAreNonOptional)
   requiredEvaluationsIfActivated(branchesAreNotIVCElements)
-  requiredEvaluationsIfActivated(checkEndOfParentRestrictions())
 
   final protected lazy val optionChoiceDispatchKeyRaw =
     findPropertyOption("choiceDispatchKey", expressionAllowed = true)
@@ -192,33 +189,6 @@ abstract class ChoiceTermBase(
     }
     assuming(branchesOk.forall { x => x })
   }.value
-
-  lazy val optMyEffectiveLengthUnits: Option[LengthUnits] =
-    this match {
-      case self: ChoiceTermBase if self.choiceLengthKind == ChoiceLengthKind.Explicit =>
-        Some(LengthUnits.Bytes)
-      case _ => None
-    }
-
-  def checkEndOfParentRestrictions() = {
-    val parent = this
-    val eopChildren = this.childrenEndOfParent
-    if (eopChildren.isEmpty) {} else {
-      parent match {
-        case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Implicit => {
-          schemaDefinitionWhen(
-            c.hasTerminator,
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a choice with a dfdl:terminator."
-          )
-          schemaDefinitionWhen(
-            c.trailingSkip != 0,
-            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a choice with a non-zero dfdl:trailingSkip."
-          )
-        }
-        case _ => // do nothing
-      }
-    }
-  }
 }
 
 object Choice {
