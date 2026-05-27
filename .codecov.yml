@@ -19,5 +19,9 @@ coverage:
     patch: 
       default:
         target: auto
+      main:
+        branches:
+          - main
+        informational: true
 
 comment: false
