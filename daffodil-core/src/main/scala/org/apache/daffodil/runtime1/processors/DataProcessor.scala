@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Properties
-import java.util.zip.GZIPOutputStream
 import scala.jdk.CollectionConverters.*
 
 import org.apache.daffodil.api
@@ -37,6 +36,7 @@ import org.apache.daffodil.api.layers.exceptions.LayerFatalException
 import org.apache.daffodil.api.metadata.MetadataHandler
 import org.apache.daffodil.api.validation.ValidatorInitializationException
 import org.apache.daffodil.api.validation.Validators
+import org.apache.daffodil.layers.runtime1.DeterministicGZIPOutputStream
 import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.WithDiagnostics
@@ -227,7 +227,7 @@ class DataProcessor(
     os.write(headerString.getBytes(StandardCharsets.UTF_8))
 
     // serialize and compress the data processor to the outputstream
-    val oos = new ObjectOutputStream(new GZIPOutputStream(os))
+    val oos = new ObjectOutputStream(new DeterministicGZIPOutputStream(os))
 
     //
     // Make a copy of this object so that we can make its saved state

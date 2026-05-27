@@ -18,7 +18,6 @@
 package org.apache.daffodil.layers.runtime1
 
 import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPOutputStream
 
 import org.apache.commons.io.IOUtils
 import org.junit.Assert.*
@@ -40,7 +39,7 @@ class TestGzipLayer {
     val baos = new ByteArrayOutputStream()
     val baosRaw = new ByteArrayOutputStream()
     val gzos = gl.wrapLayerOutput(baos)
-    val gzosRaw = new GZIPOutputStream(baosRaw)
+    val gzosRaw = new DeterministicGZIPOutputStream(baosRaw)
     val data = "testing 1, 2, 3"
     IOUtils.write(data, gzos, "ascii")
     IOUtils.write(data, gzosRaw, "ascii")

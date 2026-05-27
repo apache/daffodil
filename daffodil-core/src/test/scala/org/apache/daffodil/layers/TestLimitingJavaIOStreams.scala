@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
 import org.apache.daffodil.io.RegexLimitingInputStream
+import org.apache.daffodil.layers.runtime1.DeterministicGZIPOutputStream
 import org.apache.daffodil.lib.exceptions.Assert
 
 import org.apache.commons.io.IOUtils
@@ -70,7 +71,7 @@ ZyBzb2x1dGlvbnMuCg=="""
 
   val zipped = {
     val baos = new ByteArrayOutputStream()
-    val gzs = new java.util.zip.GZIPOutputStream(baos)
+    val gzs = new DeterministicGZIPOutputStream(baos)
     IOUtils.write(text, gzs, iso8859)
     gzs.close()
     val bytes = baos.toByteArray()

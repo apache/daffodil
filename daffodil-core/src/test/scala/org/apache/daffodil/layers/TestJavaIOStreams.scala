@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Scanner
 import scala.jdk.CollectionConverters.*
 
+import org.apache.daffodil.layers.runtime1.DeterministicGZIPOutputStream
 import org.apache.daffodil.lib.exceptions.Assert
 
 import org.apache.commons.io.IOUtils
@@ -73,7 +74,7 @@ ZyBzb2x1dGlvbnMuCg=="""
 
   val zipped = {
     val baos = new ByteArrayOutputStream()
-    val gzs = new java.util.zip.GZIPOutputStream(baos)
+    val gzs = new DeterministicGZIPOutputStream(baos)
     IOUtils.write(text, gzs, StandardCharsets.ISO_8859_1)
     gzs.close()
     val bytes = baos.toByteArray()
