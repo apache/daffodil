@@ -36,7 +36,7 @@ class ExplicitLengthEv(expr: CompiledExpression[JLong], ci: DPathCompileInfo)
   extends EvaluatableExpression[JLong](expr, ci)
   with LengthEv
   with InfosetCachedEvaluatable[JLong] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   /**
    * Length is special. For the dfdl:length property, when it's an expression
@@ -61,7 +61,7 @@ class ImplicitLengthEv(lengthValue: Long, ci: DPathElementCompileInfo)
   with LengthEv
   with NoCacheEvaluatable[JLong] {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   private val jLength = JLong.valueOf(lengthValue)
 
@@ -161,7 +161,7 @@ class LengthInBitsEv(
   ci: DPathCompileInfo
 ) extends LengthInBitsEvBase(ci, lengthUnits, lengthKind) {
 
-  override def runtimeDependencies = maybeCharsetEv.toList :+ lengthEv
+  override val runtimeDependencies = Array(lengthEv) ++ maybeCharsetEv.toList
 
   override protected def lengthInLengthUnits(state: ParseOrUnparseState) =
     lengthEv.evaluate(state).longValue()
@@ -183,7 +183,7 @@ class MinLengthInBitsEv(
   ci: DPathCompileInfo
 ) extends LengthInBitsEvBase(ci, lengthUnits, lengthKind) {
 
-  override def runtimeDependencies = maybeCharsetEv.toList
+  override val runtimeDependencies = maybeCharsetEv.toList.toArray
 
   override protected def lengthInLengthUnits(state: ParseOrUnparseState) = minLen
 }
@@ -206,7 +206,7 @@ class UnparseTargetLengthInBitsEv(
 ) extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
-  override def runtimeDependencies = Vector(this.lengthInBitsEv, this.minLengthInBitsEv)
+  override val runtimeDependencies = Array(this.lengthInBitsEv, this.minLengthInBitsEv)
 
   /**
    * Note: use of MaybeJULong type. New Maybe type added which can be stored in
@@ -242,7 +242,7 @@ class UnparseTargetLengthInCharactersEv(
 ) extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
-  override def runtimeDependencies = Vector(this.lengthEv, charsetEv)
+  override val runtimeDependencies = Array(this.lengthEv, charsetEv)
 
   /**
    * Note: use of MaybeJULong type. New Maybe type added which can be stored in
@@ -268,17 +268,17 @@ class UnparseTargetLengthInCharactersEv(
 class OccursCountEv(expr: CompiledExpression[JLong], ci: DPathElementCompileInfo)
   extends EvaluatableExpression[JLong](expr, ci)
   with InfosetCachedEvaluatable[JLong] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 class OutputNewLineEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](expr, OutputNewLineCooker, ci)
   with InfosetCachedEvaluatable[String] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 class ChoiceDispatchKeyEv(expr: CompiledExpression[String], ci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, String](expr, ChoiceDispatchKeyCooker, ci)
   with InfosetCachedEvaluatable[String] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }

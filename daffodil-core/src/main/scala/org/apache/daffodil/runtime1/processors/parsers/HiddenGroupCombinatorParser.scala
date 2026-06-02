@@ -30,7 +30,7 @@ class HiddenGroupCombinatorParser(ctxt: ModelGroupRuntimeData, bodyParser: Parse
 
   override def childProcessors = Vector(bodyParser)
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def parse(start: PState): Unit = {
     try {

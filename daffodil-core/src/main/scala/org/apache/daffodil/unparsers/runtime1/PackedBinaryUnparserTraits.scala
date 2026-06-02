@@ -41,7 +41,7 @@ abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData
   extends PrimUnparser
   with PackedBinaryConversion {
 
-  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override val runtimeDependencies: Array[Evaluatable[AnyRef]] = Array()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 

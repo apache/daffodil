@@ -60,7 +60,7 @@ final class SetVariableUnparser(
   referencingContext: NonTermRuntimeData
 ) extends PrimUnparserNoData {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector()
 
@@ -95,7 +95,7 @@ class NewVariableInstanceStartUnparser(vrd: VariableRuntimeData, trd: TermRuntim
   extends PrimUnparserNoData {
 
   override def context = trd
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector()
 
@@ -120,7 +120,7 @@ class NewVariableInstanceEndUnparser(vrd: VariableRuntimeData, trd: TermRuntimeD
   extends PrimUnparserNoData {
 
   override def context = trd
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector()
 

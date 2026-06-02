@@ -66,7 +66,7 @@ case class ChoiceBranchMap(
  */
 class ChoiceBranchEmptyUnparser(val context: RuntimeData) extends PrimUnparserNoData {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def unparse(state: UState): Unit = {
     // do nothing
@@ -81,7 +81,7 @@ class ChoiceCombinatorUnparser(
   with ToBriefXMLImpl {
   override def nom = "Choice"
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = choiceBranchMap.childProcessors
 
@@ -160,8 +160,8 @@ class DelimiterStackUnparser(
 
   override def childProcessors = Vector(bodyUnparser)
 
-  override def runtimeDependencies =
-    (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toVector
+  override val runtimeDependencies =
+    (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toArray
 
   def unparse(state: UState): Unit = {
     // Evaluate Delimiters
@@ -194,7 +194,7 @@ class DynamicEscapeSchemeUnparser(
 
   override def childProcessors = Vector(bodyUnparser)
 
-  override def runtimeDependencies = Vector(escapeScheme)
+  override val runtimeDependencies = Array(escapeScheme)
 
   def unparse(state: UState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting

@@ -626,21 +626,21 @@ final class UStateMain private (
    * that is what has gone wrong.
    */
   override def inspectOrError = {
-    val m = inspectMaybe
-    if (m.isEmpty)
+    if (inspect)
+      inspectAccessor
+    else
       Assert.invariantFailed(
         "An InfosetEvent was required for unparsing, but no InfosetEvent was available."
       )
-    m.get
   }
 
   override def advanceOrError = {
-    val m = advanceMaybe
-    if (m.isEmpty)
+    if (advance)
+      advanceAccessor
+    else
       Assert.invariantFailed(
         "An InfosetEvent was required for unparsing, but no InfosetEvent was available."
       )
-    m.get
   }
 
   override def isInspectArrayEnd = {
@@ -668,24 +668,24 @@ final class UStateMain private (
   override val arrayIterationIndexStack = MStackOfLong()
   arrayIterationIndexStack.push(1L)
   override def moveOverOneArrayIterationIndexOnly() =
-    arrayIterationIndexStack.push(arrayIterationIndexStack.pop() + 1)
+    arrayIterationIndexStack.setTop(arrayIterationIndexStack.top + 1)
   override def arrayIterationPos = arrayIterationIndexStack.top
 
   override val occursIndexStack = MStackOfLong()
   occursIndexStack.push(1L)
-  override def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop() + 1)
+  override def moveOverOneOccursIndexOnly() = occursIndexStack.setTop(occursIndexStack.top + 1)
   override def occursPos = occursIndexStack.top
 
   override val groupIndexStack = MStackOfLong()
   groupIndexStack.push(1L)
-  override def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop() + 1)
+  override def moveOverOneGroupIndexOnly() = groupIndexStack.setTop(groupIndexStack.top + 1)
   override def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
   override val childIndexStack = MStackOfLong()
   childIndexStack.push(1L)
-  override def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop() + 1)
+  override def moveOverOneElementChildOnly() = childIndexStack.setTop(childIndexStack.top + 1)
   override def childPos = childIndexStack.top
 
   override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]

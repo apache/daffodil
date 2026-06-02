@@ -31,7 +31,7 @@ class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: U
 
   override def childProcessors = Vector(bodyUnparser)
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def unparse(start: UState): Unit = {
     try {

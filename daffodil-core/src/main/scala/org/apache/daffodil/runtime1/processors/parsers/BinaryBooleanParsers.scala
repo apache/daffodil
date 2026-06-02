@@ -93,7 +93,7 @@ class BinaryBooleanParser(
   lengthKind: LengthKind
 ) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits) {
 
-  override def runtimeDependencies = Vector(lengthEv)
+  override val runtimeDependencies = Array(lengthEv)
 
   override def getBitLength(state: PState): Int = {
     val nBytesAsJLong = lengthEv.evaluate(state)
@@ -113,7 +113,7 @@ class BinaryBooleanBitLimitLengthParser(
 ) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
   with BitLengthFromBitLimitMixin {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def getBitLength(state: PState): Int = {
     getLengthInBits(state).toInt

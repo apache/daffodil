@@ -125,7 +125,7 @@ class OrderedSeparatedSequenceUnparser(
   // have been optimized away
   Assert.invariant(childUnparsers.length > 0)
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = childUnparsers.toVector
 

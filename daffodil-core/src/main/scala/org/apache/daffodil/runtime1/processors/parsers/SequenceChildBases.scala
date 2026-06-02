@@ -202,7 +202,7 @@ abstract class SequenceChildParser(
 
   override def childProcessors: Vector[Processor] = Vector(childParser)
 
-  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override val runtimeDependencies: Array[Evaluatable[AnyRef]] = Array()
 
   final override def parse(pstate: PState): Unit =
     Assert.usageError("Not to be called on sequence child parsers")
@@ -473,7 +473,7 @@ abstract class OccursCountExpressionParser(
 
   final override def pouStatus = PoUStatus.NoPoU
 
-  final override def runtimeDependencies = Vector(occursCountEv)
+  final override val runtimeDependencies = Array(occursCountEv)
 
   final override def isBoundedMax = true
 

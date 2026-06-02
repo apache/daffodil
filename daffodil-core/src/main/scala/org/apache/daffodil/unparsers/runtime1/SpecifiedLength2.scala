@@ -210,7 +210,7 @@ class SimpleTypeRetryUnparser(
 ) extends PrimUnparser
   with SuspendableUnparser {
 
-  override final def runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toSeq.toVector
+  override final val runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toList.toArray
 
   final override def childProcessors = Vector(vUnparser)
 
@@ -225,7 +225,7 @@ class SimpleTypeRetryUnparser(
 class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def unparse(state: UState): Unit = {
     val dos = state.getDataOutputStream
@@ -243,7 +243,7 @@ class CaptureEndOfContentLengthUnparser(
   maybeFixedLengthInBits: MaybeULong
 ) extends PrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def unparse(state: UState): Unit = {
     val dos = state.getDataOutputStream
@@ -274,7 +274,7 @@ class CaptureEndOfContentLengthUnparser(
 class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def unparse(state: UState): Unit = {
     val dos = state.getDataOutputStream
@@ -290,7 +290,7 @@ class CaptureStartOfValueLengthUnparser(override val context: ElementRuntimeData
 class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def unparse(state: UState): Unit = {
     val dos = state.getDataOutputStream
@@ -479,7 +479,7 @@ class ElementUnusedUnparser(
 ) extends PrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Vector(targetLengthEv)
+  override val runtimeDependencies = Array(targetLengthEv)
 
   override def suspendableOperation =
     new ElementUnusedUnparserSuspendableOperation(
@@ -583,7 +583,7 @@ class ChoiceUnusedUnparser(
 ) extends PrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def suspendableOperation = suspendableOp
 }
@@ -677,7 +677,7 @@ class OnlyPaddingUnparser(
 ) extends TextPrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Vector(targetLengthEv)
+  override val runtimeDependencies = Array(targetLengthEv)
 
   override def suspendableOperation =
     new OnlyPaddingUnparserSuspendableOperation(
@@ -734,7 +734,7 @@ class NilLiteralCharacterUnparser(
 ) extends TextPrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Vector(targetLengthEv)
+  override val runtimeDependencies = Array(targetLengthEv)
 
   override def suspendableOperation = new NilLiteralCharacterUnparserSuspendableOperation(
     context,

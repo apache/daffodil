@@ -34,7 +34,7 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser) extends CombinatorParser(rd) {
   override def nom = "ComplexType"
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(bodyParser)
 
@@ -61,7 +61,7 @@ class DelimiterStackParser(
 
   override def childProcessors = Vector(bodyParser)
 
-  override def runtimeDependencies = delimiters.toVector
+  override val runtimeDependencies = delimiters.toArray
 
   def parse(start: PState): Unit = {
 
@@ -105,7 +105,7 @@ class DynamicEscapeSchemeParser(
 
   override def childProcessors = Vector(bodyParser)
 
-  override def runtimeDependencies = Vector(escapeScheme)
+  override val runtimeDependencies = Array(escapeScheme)
 
   def parse(start: PState): Unit = {
     // evaluate the dynamic escape scheme in the correct scope. the resulting
@@ -131,7 +131,7 @@ class DynamicEscapeSchemeParser(
  */
 class ChoiceBranchEmptyParser(val context: RuntimeData) extends PrimParserNoData {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def parse(state: PState): Unit = {
     // do nothing
@@ -150,7 +150,7 @@ abstract class ChoiceDispatchCombinatorParserBase(
 
   override def nom = "ChoiceDispatch"
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors =
     dispatchBranchKeyMap.values.iterator.asScala.map(_._1).toVector ++

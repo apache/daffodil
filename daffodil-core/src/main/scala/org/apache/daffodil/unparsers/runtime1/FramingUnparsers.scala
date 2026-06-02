@@ -26,7 +26,7 @@ import org.apache.daffodil.runtime1.processors.unparsers.*
 class SkipRegionUnparser(skipInBits: Int, override val context: TermRuntimeData)
   extends AlignmentPrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def unparse(state: UState) = {
     val dos = state.getDataOutputStream
@@ -73,7 +73,7 @@ class AlignmentFillUnparser(alignmentInBits: Int, override val context: TermRunt
   extends AlignmentPrimUnparser
   with SuspendableUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def suspendableOperation =
     new AlignmentFillUnparserSuspendableOperation(alignmentInBits, context)

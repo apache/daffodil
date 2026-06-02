@@ -83,7 +83,7 @@ class OrderedUnseparatedSequenceParser(
   override val childParsers: Array[SequenceChildParser]
 ) extends SequenceParserBase(rd, isOrdered = true) {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors: Vector[Processor] = childParsers.toVector
 }
@@ -92,7 +92,7 @@ class UnorderedUnseparatedSequenceParser(
   rd: SequenceRuntimeData,
   override val childParsers: Array[SequenceChildParser]
 ) extends SequenceParserBase(rd, isOrdered = false) {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors: Vector[Processor] = childParsers.toVector
 }

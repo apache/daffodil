@@ -55,14 +55,13 @@ class ElementUnspecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array[Evaluatable[AnyRef]]()
 
 }
 
 sealed trait RepMoveMixin {
   def move(start: UState): Unit = {
-    val childIndex = start.childIndexStack.pop()
-    start.childIndexStack.push(childIndex + 1)
+    start.childIndexStack.setTop(start.childIndexStack.top + 1)
   }
 }
 
@@ -79,15 +78,14 @@ class ElementUnparserInputValueCalc(erd: ElementRuntimeData, setVarUnparsers: Ar
   extends ElementUnparserBase(erd, setVarUnparsers, Nope, Nope, Nope, Nope)
   with RegularElementUnparserStartEndStrategy {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   /**
    * Move over in the element children, but not in the group.
    * This avoids separators for this IVC element.
    */
   override def move(state: UState): Unit = {
-    val childIndex = state.childIndexStack.pop()
-    state.childIndexStack.push(childIndex + 1)
+    state.childIndexStack.setTop(state.childIndexStack.top + 1)
   }
 }
 
@@ -108,7 +106,7 @@ class ElementOVCUnspecifiedLengthUnparser(
   with OVCStartEndStrategy
   with RepMoveMixin {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
 }
 
@@ -298,7 +296,7 @@ class ElementSpecifiedLengthUnparser(
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
-  override def runtimeDependencies = maybeTargetLengthEv.toList.toVector
+  override val runtimeDependencies = maybeTargetLengthEv.toList.toArray
 
   override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(
@@ -357,7 +355,7 @@ class ElementOVCSpecifiedLengthUnparser(
   with OVCStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
-  override def runtimeDependencies = maybeTargetLengthEv.toList.toVector
+  override val runtimeDependencies = maybeTargetLengthEv.toList.toArray
 
   private def suspendableExpression =
     new ElementOVCSpecifiedLengthUnparserSuspendableExpression(this, expr)
@@ -396,7 +394,7 @@ sealed trait ElementUnparserStartEndStrategy {
 
   protected def erd: ElementRuntimeData
 
-  def runtimeDependencies: Vector[Evaluatable[AnyRef]]
+  val runtimeDependencies: Array[Evaluatable[AnyRef]]
 }
 
 sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStartEndStrategy {

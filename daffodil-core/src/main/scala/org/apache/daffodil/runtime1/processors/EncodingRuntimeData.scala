@@ -122,7 +122,7 @@ final class EncodingRuntimeData(
   with ImplementsThrowsSDE
   with Serializable {
 
-  def runtimeDependencies = Vector(charsetEv)
+  val runtimeDependencies = Array[Evaluatable[AnyRef]](charsetEv)
 
   def getDecoderInfo(state: ParseOrUnparseState) = {
     val cs = charsetEv.evaluate(state)

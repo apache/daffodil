@@ -40,7 +40,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   protected def putNumber(
     dos: DataOutputStream,

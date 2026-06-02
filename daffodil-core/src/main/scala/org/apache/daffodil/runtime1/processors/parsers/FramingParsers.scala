@@ -23,7 +23,7 @@ import org.apache.daffodil.runtime1.processors.TextProcessor
 class SkipRegionParser(skipInBits: Int, override val context: TermRuntimeData)
   extends PrimParser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def parse(pstate: PState) = {
     val dis = pstate.dataInputStream
@@ -34,7 +34,7 @@ class SkipRegionParser(skipInBits: Int, override val context: TermRuntimeData)
 class AlignmentFillParser(alignmentInBits: Int, override val context: TermRuntimeData)
   extends PrimParser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def parse(pstate: PState): Unit = {
     val dis = pstate.dataInputStream

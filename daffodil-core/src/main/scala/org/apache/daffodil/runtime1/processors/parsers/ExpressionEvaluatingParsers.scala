@@ -42,7 +42,7 @@ abstract class ExpressionEvaluationParser(
 
   override val context: RuntimeData = contextParam
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector()
 
@@ -90,7 +90,7 @@ final class NewVariableInstanceStartParser(vrd: VariableRuntimeData, trd: TermRu
 
   override def context = trd
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def parse(start: PState): Unit = {
     val nvi = start.newVariableInstance(vrd)
@@ -111,7 +111,7 @@ final class NewVariableInstanceEndParser(vrd: VariableRuntimeData, trd: TermRunt
   extends PrimParser {
 
   override def context = trd
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def parse(start: PState) = {
     start.removeVariableInstance(vrd)

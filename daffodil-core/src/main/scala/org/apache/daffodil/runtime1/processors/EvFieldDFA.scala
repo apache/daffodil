@@ -26,7 +26,7 @@ class FieldDFAParseEv(val escapeSchemeEv: Maybe[EscapeSchemeParseEv], ci: DPathC
   extends Evaluatable[DFAField](ci)
   with InfosetCachedEvaluatable[DFAField] {
 
-  override def runtimeDependencies = escapeSchemeEv.toList
+  override val runtimeDependencies = escapeSchemeEv.toList.toArray
 
   def compute(state: ParseOrUnparseState) = {
 

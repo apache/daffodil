@@ -175,7 +175,7 @@ abstract class Evaluatable[+T <: AnyRef](
    * Important - Evalutables MUST declare all evaluatables they depend on. But only those
    * they directly depend on. (Not the dependents of the dependents...)
    */
-  def runtimeDependencies: Seq[Evaluatable[AnyRef]]
+  val runtimeDependencies: Array[Evaluatable[AnyRef]]
 
   /**
    * Been compiled yet?
@@ -453,7 +453,7 @@ abstract class EvaluatableExpression[ExprType <: AnyRef](
 ) extends Evaluatable[ExprType](ci)
   with ExprEvalMixin[ExprType] {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override final def toBriefXML(depth: Int = -1) =
     "<EvaluatableExpression eName='" + ci.diagnosticDebugName + "' expr=" + expr
@@ -475,7 +475,7 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 
   protected def converter: Converter[ExprType, ConvertedType]
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array[Evaluatable[AnyRef]]()
 
   override final def toBriefXML(depth: Int = -1) =
     if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)

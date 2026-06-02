@@ -45,7 +45,7 @@ class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], tci: DPat
     tci
   )
   with InfosetCachedEvaluatable[List[String]] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
@@ -55,7 +55,7 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPa
     tci
   )
   with InfosetCachedEvaluatable[String] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
@@ -65,7 +65,7 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathComp
     tci
   )
   with InfosetCachedEvaluatable[String] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 class TextNumberFormatEv(
@@ -86,8 +86,8 @@ class TextNumberFormatEv(
 ) extends Evaluatable[DecimalFormat](tci)
   with InfosetCachedEvaluatable[DecimalFormat] {
 
-  override def runtimeDependencies =
-    (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toVector
+  override val runtimeDependencies =
+    (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toArray
 
   private def checkUnique(
     decimalSep: MaybeChar,
@@ -245,7 +245,7 @@ class TextBooleanTrueRepEv(
     tci
   )
   with InfosetCachedEvaluatable[List[String]] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override final protected def compute(state: ParseOrUnparseState): List[String] = {
     if (mustBeSameLength) {
@@ -279,5 +279,5 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], tci: DPathCompileI
     tci
   )
   with InfosetCachedEvaluatable[List[String]] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
