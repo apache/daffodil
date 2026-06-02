@@ -36,7 +36,7 @@ class RepTypeUnparser(
 
   override def childProcessors = Vector(repTypeUnparser)
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   protected def unparse(ustate: UState): Unit = {
     Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)

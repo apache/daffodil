@@ -40,7 +40,7 @@ final class StringOfSpecifiedLengthParser(
 ) extends TextPrimParser
   with StringOfSpecifiedLengthMixin {
 
-  override def runtimeDependencies = Vector(erd.encInfo.charsetEv)
+  override val runtimeDependencies = Array(erd.encInfo.charsetEv)
 
   override lazy val charsetEv = erd.encInfo.charsetEv
 

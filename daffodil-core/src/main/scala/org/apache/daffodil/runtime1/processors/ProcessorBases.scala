@@ -51,7 +51,7 @@ trait Processor extends ToBriefXMLImpl with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData
   override def childProcessors: Vector[Processor]
-  def runtimeDependencies: Vector[Evaluatable[AnyRef]]
+  val runtimeDependencies: Array[Evaluatable[AnyRef]]
 
   var isInitialized: Boolean = false
 

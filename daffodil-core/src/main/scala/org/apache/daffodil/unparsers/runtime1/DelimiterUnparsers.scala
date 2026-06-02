@@ -35,7 +35,7 @@ class DelimiterTextUnparser(
 
   private def erd = context
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"

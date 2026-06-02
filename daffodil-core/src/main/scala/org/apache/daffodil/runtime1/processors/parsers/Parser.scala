@@ -212,7 +212,7 @@ trait TextPrimParser extends PrimParser with TextProcessor
  * optimized out.
  */
 final class NadaParser(override val context: RuntimeData) extends PrimParserNoData {
-  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override val runtimeDependencies: Array[Evaluatable[AnyRef]] = Array()
 
   override def isEmpty = true
 
@@ -232,7 +232,7 @@ final class SeqCompParser(
   val childParsers: Array[Parser],
   testAssert: Array[Parser]
 ) extends CombinatorParser(context) {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
   override def childProcessors = childParsers.toVector
 
   override def nom = "seq"
@@ -265,7 +265,7 @@ final class SeqCompParser(
 
 class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
   extends CombinatorParser(ctxt) {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
   override def childProcessors = childParsers.toVector
 
   override def nom = "choice"
@@ -325,7 +325,7 @@ class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
 }
 
 case class DummyParser(override val context: TermRuntimeData) extends PrimParserNoData {
-  override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
+  override val runtimeDependencies: Array[Evaluatable[AnyRef]] = Array()
 
   def parse(pstate: PState): Unit =
     pstate.SDE("Parser for " + context + " is not yet implemented.")
@@ -349,5 +349,5 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
   }
 
   override def childProcessors = Vector()
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }

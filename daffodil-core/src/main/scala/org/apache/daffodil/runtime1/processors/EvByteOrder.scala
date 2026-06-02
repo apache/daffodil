@@ -28,7 +28,7 @@ import org.apache.daffodil.runtime1.dsom.*
 class ByteOrderEv(override val expr: CompiledExpression[String], eci: DPathElementCompileInfo)
   extends EvaluatableConvertedExpression[String, ByteOrder](expr, ByteOrder, eci)
   with InfosetCachedEvaluatable[ByteOrder] {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
 }
 
@@ -48,7 +48,7 @@ class CheckByteAndBitOrderEv(
 ) extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override final protected def compute(state: ParseOrUnparseState): Ok = {
     t match {
@@ -78,7 +78,7 @@ class CheckBitOrderAndCharsetEv(t: DPathCompileInfo, bitOrder: BitOrder, charset
   extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
-  override def runtimeDependencies = Vector(charsetEv)
+  override val runtimeDependencies = Array(charsetEv)
 
   override final protected def compute(state: ParseOrUnparseState): Ok = {
     val bitsCharset = charsetEv.evaluate(state)

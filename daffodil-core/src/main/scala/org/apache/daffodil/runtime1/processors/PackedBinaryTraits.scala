@@ -93,7 +93,7 @@ abstract class PackedBinaryDecimalBaseParser(
 ) extends PrimParser
   with PackedBinaryConversion[JBigDecimal]
   with PackedBinaryLengthCheck {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
@@ -138,7 +138,7 @@ abstract class PackedBinaryIntegerBaseParser(
 ) extends PrimParser
   with PackedBinaryConversion[JBigInteger]
   with PackedBinaryLengthCheck {
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 

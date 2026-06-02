@@ -28,7 +28,7 @@ case class SimpleNilOrValueUnparser(
   valueUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(nilUnparser, valueUnparser)
 
@@ -54,7 +54,7 @@ case class ComplexNilOrContentUnparser(
   contentUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(nilUnparser, contentUnparser)
 

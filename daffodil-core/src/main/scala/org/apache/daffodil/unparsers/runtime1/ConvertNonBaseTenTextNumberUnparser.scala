@@ -29,7 +29,7 @@ case class ConvertNonBaseTenTextNumberUnparser(
   base: Int
 ) extends TextPrimUnparser {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def unparse(state: UState): Unit = {
 

@@ -24,7 +24,7 @@ abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueP
   extends CombinatorParser(ctxt) {
 
   override def childProcessors = Vector(nilParser, valueParser)
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def parse(pstate: PState): Unit = {
 

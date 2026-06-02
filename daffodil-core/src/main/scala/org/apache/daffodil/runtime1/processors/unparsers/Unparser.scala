@@ -30,7 +30,7 @@ sealed trait Unparser extends Processor {
 
   protected def unparse(ustate: UState): Unit
 
-  final def unparse1(ustate: UState, ignore: AnyRef = null) = {
+  final def unparse1(ustate: UState) = {
     Assert.invariant(isInitialized)
     val savedProc = ustate.maybeProcessor
     ustate.setProcessor(this)
@@ -134,7 +134,7 @@ trait SuspendableUnparser extends PrimUnparser {
 final class ErrorUnparser(override val context: TermRuntimeData = null)
   extends PrimUnparserNoData {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   def unparse(ustate: UState): Unit = {
     Assert.abort("Error Unparser")
@@ -149,7 +149,7 @@ final class SeqCompUnparser(context: RuntimeData, val childUnparsers: Array[Unpa
   extends CombinatorUnparser(context)
   with ToBriefXMLImpl {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = childUnparsers.toVector
 
@@ -174,7 +174,7 @@ case class DummyUnparser(primitiveName: String) extends PrimUnparserNoData {
 
   override def context = null
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def isEmpty = true
 
@@ -202,5 +202,5 @@ case class NotUnparsableUnparser(override val context: ElementRuntimeData)
   }
 
   override def childProcessors = Vector()
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }

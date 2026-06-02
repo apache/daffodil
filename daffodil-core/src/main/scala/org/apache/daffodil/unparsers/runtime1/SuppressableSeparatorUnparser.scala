@@ -205,7 +205,7 @@ final class SuppressableSeparatorUnparser private (
 
   override def childProcessors: Vector[Processor] = Vector(sepUnparser)
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 object SuppressableSeparatorUnparser {

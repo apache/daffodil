@@ -100,7 +100,7 @@ class RepTypeParser(
   with WithDetachedParser {
 
   override def childProcessors = Vector(repTypeParser)
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def parse(pstate: PState): Unit = {
     val repValue =

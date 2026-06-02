@@ -60,7 +60,7 @@ abstract class DelimiterParseEv(
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[UState]) {
@@ -85,7 +85,7 @@ abstract class DelimiterUnparseEv(
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
 
-  override def runtimeDependencies = Seq(outputNewLine)
+  override val runtimeDependencies = Array(outputNewLine)
 
   override protected def compute(state: ParseOrUnparseState): Array[DFADelimiter] = {
     if (state.isInstanceOf[PState]) {

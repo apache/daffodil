@@ -121,7 +121,7 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
   }
 
   override def toString: String =
-    "VariableInstance(%s,%s,%s,%s)".format(state, value, rd, rd.maybeDefaultValueExpr)
+    s"VariableInstance($state,$value,$rd,${rd.maybeDefaultValueExpr})"
 
   def copy(
     state: VariableState = state,
@@ -164,8 +164,7 @@ class VariableHasNoValue(qname: NamedQName, context: VariableRuntimeData)
   extends VariableException(
     qname,
     context,
-    "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
-      .format(qname)
+    s"Variable map (runtime): variable $qname has no value. It was not set, and has no default value."
   )
   with RetryableException
 
@@ -173,7 +172,7 @@ class VariableSuspended(qname: NamedQName, context: VariableRuntimeData)
   extends VariableException(
     qname,
     context,
-    "Variable map (runtime): variable %s is currently suspended".format(qname)
+    s"Variable map (runtime): variable $qname is currently suspended"
   )
   with RetryableException
 
@@ -186,8 +185,7 @@ class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData
   extends VariableException(
     qname,
     context,
-    "Variable map (runtime): variable %s is part of a circular definition with other variables"
-      .format(qname)
+    s"Variable map (runtime): variable $qname is part of a circular definition with other variables"
   )
 
 /**
@@ -367,15 +365,11 @@ class VariableMap private (
     vrd.direction match {
       case VariableDirection.ParseOnly if (!state.isInstanceOf[PState]) =>
         state.SDE(
-          "Attempting to read variable %s which is marked as parseOnly during unparsing".format(
-            varQName
-          )
+          s"Attempting to read variable $varQName which is marked as parseOnly during unparsing"
         )
       case VariableDirection.UnparseOnly if (!state.isInstanceOf[UState]) =>
         state.SDE(
-          "Attempting to read variable %s which is marked as unparseOnly during parsing".format(
-            varQName
-          )
+          s"Attempting to read variable $varQName which is marked as unparseOnly during parsing"
         )
       case _ => // Do nothing
     }
@@ -538,8 +532,7 @@ class VariableMap private (
           case 1 => Some(vTable(candidates.head.vmapIndex))
           case _ => {
             val msg =
-              "External variable binding %s is ambiguous. A namespace is required to resolve the ambiguity. Found variables: %s"
-                .format(bindingQName, candidates.map(_.globalQName.toString).mkString(", "))
+              s"External variable binding $bindingQName is ambiguous. A namespace is required to resolve the ambiguity. Found variables: ${candidates.map(_.globalQName.toString).mkString(", ")}"
             throw new ExternalVariableException(msg)
           }
         }
@@ -570,11 +563,8 @@ class VariableMap private (
                 variable.rd.primType.fromXMLString(newValue)
               } catch {
                 case e: InvalidPrimitiveDataException => {
-                  val msg = "Value for variable %s is not a valid %s: %s".format(
-                    variable.rd.globalQName,
-                    variable.rd.primType.globalQName,
-                    newValue
-                  )
+                  val msg =
+                    s"Value for variable ${variable.rd.globalQName} is not a valid ${variable.rd.primType.globalQName}: $newValue"
                   throw new ExternalVariableException(msg)
                 }
               }

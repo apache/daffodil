@@ -37,7 +37,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv
 ) extends CombinatorUnparser(erd) {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(eUnparser)
 
@@ -141,7 +141,7 @@ class SpecifiedLengthPrefixedUnparser(
 ) extends CombinatorUnparser(erd)
   with CalculatedPrefixedLengthUnparserMixin {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(prefixedLengthUnparser, eUnparser)
 

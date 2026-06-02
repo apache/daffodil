@@ -37,7 +37,7 @@ case class ConvertZonedCombinatorParser(
   converterParser: Parser
 ) extends CombinatorParser(rd) {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(valueParser, converterParser)
 
@@ -58,7 +58,7 @@ case class ConvertZonedNumberParser(
 ) extends TextPrimParser
   with TextDecimalVirtualPointMixin {
 
-  override def runtimeDependencies = Vector(textNumberFormatEv)
+  override val runtimeDependencies = Array(textNumberFormatEv)
 
   private val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
