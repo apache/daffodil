@@ -75,7 +75,6 @@ import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
 import org.apache.daffodil.tdml.DiagnosticType.DiagnosticType
 import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
 import org.apache.daffodil.tdml.processor.TDML
@@ -1789,7 +1788,9 @@ object VerifyTestCase {
     try {
       XMLUtils.compareAndReport(expected, actual)
     } catch {
-      case e: XMLDifferenceException =>
+      // compareAndReport can throw various exceptions transitively;
+      // catch broadly so all are wrapped as a TDMLException.
+      case e: Exception =>
         throw TDMLException(e.getMessage, implString)
     }
   }

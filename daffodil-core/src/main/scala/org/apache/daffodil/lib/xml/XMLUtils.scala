@@ -26,6 +26,8 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import javax.xml.XMLConstants
+import javax.xml.datatype.DatatypeConstants
+import javax.xml.datatype.DatatypeFactory
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
@@ -33,9 +35,6 @@ import scala.math.abs
 import scala.util.matching.Regex
 import scala.xml.*
 
-import org.apache.daffodil.lib.calendar.DFDLDateConversion
-import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
-import org.apache.daffodil.lib.calendar.DFDLTimeConversion
 import org.apache.daffodil.lib.exceptions.*
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -53,6 +52,9 @@ import org.xml.sax.XMLReader
  */
 
 object XMLUtils {
+
+  // DatatypeFactory creation is relatively expensive, so create it once and reuse.
+  private lazy val datatypeFactory = DatatypeFactory.newInstance()
 
   lazy val schemaForDFDLSchemas =
     Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd")
@@ -1301,6 +1303,30 @@ Differences were (path, expected, actual):
   }
 
   /**
+   * Compares two XSD date/time lexical strings (`xs:date`, `xs:time`, or
+   * `xs:dateTime`) for value equality by parsing both into `XMLGregorianCalendar`
+   * and comparing via the XSD `·order·` relation.
+   *
+   * Note that we intentionally do not use Daffodil's DFDL*Conversion.fromXMLString
+   * classes which keeps ICU off the comparison path entirely and allows the
+   * IBM DFDL cross tester (pinned to an older ICU version) to share this code without
+   * hitting newer-ICU-only methods (DAFFODIL-3077).
+   *
+   * @param dataA the first value's lexical string
+   * @param dataB the second value's lexical string
+   * @return true if the two values are equal under the XSD order relation
+   * @throws IllegalArgumentException if either string is not a valid lexical
+   *                                  representation of an XSD 1.0 date/time.
+   *
+   * @throws NullPointerException     if either string is null
+   */
+  private def dateTimeIsSame(dataA: String, dataB: String): Boolean = {
+    val a = datatypeFactory.newXMLGregorianCalendar(dataA)
+    val b = datatypeFactory.newXMLGregorianCalendar(dataB)
+    a.compare(b) == DatatypeConstants.EQUAL
+  }
+
+  /**
    * Compares two strings of xml text, optionally using type information to tolerate insignificant differences, and
    * optionally using a tolerance amount for floating point comparison.
    *
@@ -1326,20 +1352,8 @@ Differences were (path, expected, actual):
 
     maybeType match {
       case Some("xs:hexBinary") => dataA.equalsIgnoreCase(dataB)
-      case Some("xs:date") => {
-        val a = DFDLDateConversion.fromXMLString(dataA)
-        val b = DFDLDateConversion.fromXMLString(dataB)
-        a == b
-      }
-      case Some("xs:time") => {
-        val a = DFDLTimeConversion.fromXMLString(dataA)
-        val b = DFDLTimeConversion.fromXMLString(dataB)
-        a == b
-      }
-      case Some("xs:dateTime") => {
-        val a = DFDLDateTimeConversion.fromXMLString(dataA)
-        val b = DFDLDateTimeConversion.fromXMLString(dataB)
-        a == b
+      case Some("xs:date") | Some("xs:time") | Some("xs:dateTime") => {
+        dateTimeIsSame(dataA, dataB)
       }
       case Some("xs:double") => {
         val a = strToDouble(dataA)
