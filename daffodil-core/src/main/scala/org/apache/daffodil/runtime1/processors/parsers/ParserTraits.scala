@@ -21,6 +21,7 @@ import java.lang.Long as JLong
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.infoset.DIComplex
@@ -170,25 +171,82 @@ trait PrefixedLengthParserMixin {
  * Some parsers do not calculate their own length, but instead expect another parser
  * to set the bit limit, and then they use that bit limit as the length.
  * An example of this is prefix length parsers. This trait can be used by those
- * parsers to do determine the length based on the bitLimit and position.
+ * parsers to determine the length based on the bitLimit and position.
+ *
+ * For dfdl:lengthKind='endOfParent' parsers that need to scan to end-of-stream
+ * when no bit limit is set, mix in [[EndOfParentBitLengthMixin]] instead.
  */
-trait BitLengthFromBitLimitMixin(val isEndOfParent: Boolean = false) {
+trait BitLengthFromBitLimitMixin {
 
-  def getBitLength(s: ParseOrUnparseState): Int = {
-    val pState = s.asInstanceOf[PState]
-    val len = getLengthInBits(pState)
-    len.toInt
+  def getBitLength(s: ParseOrUnparseState): Int = getBitLengthAsInt(s.asInstanceOf[PState])
+
+  /**
+   * getLengthInBits converted to Int with a parse error on overflow.
+   *
+   * The default maxCacheSizeInBytes (256 MiB) yields a maximum bit length of
+   * exactly Int.MaxValue + 1, so a bare .toInt without this guard can overflow
+   * by one bit on a full-cache EOP element.
+   */
+  def getBitLengthAsInt(pstate: PState): Int = {
+    val len = getLengthInBits(pstate)
+    if (pstate.processorStatus ne Success) return 0
+    if (len > Int.MaxValue) {
+      pstate.setFailed(
+        new ParseError(
+          One(pstate.schemaFileLocation),
+          One(pstate.currentLocation),
+          "Bit length %d exceeds maximum (%d) for this parser.",
+          len,
+          Int.MaxValue
+        )
+      )
+      0
+    } else {
+      len.toInt
+    }
   }
 
   def getLengthInBits(pstate: PState): Long = {
     if (pstate.bitLimit0b.isDefined) {
-      val len = pstate.bitLimit0b.get - pstate.bitPos0b
-      len
-    } else if (isEndOfParent) {
-      val byteLimit = pstate.dataInputStream.bytesTillEndOfDataStream
-      byteLimit * 8
+      pstate.bitLimit0b.get - pstate.bitPos0b
     } else {
       Assert.invariantFailed("BitLimit not set for parser.")
+    }
+  }
+}
+
+/**
+ * Extends [[BitLengthFromBitLimitMixin]] with dfdl:lengthKind='endOfParent' support.
+ * When no bit limit is set (i.e., the parser is at the root or outermost EOP element),
+ * falls back to [[org.apache.daffodil.io.InputSource#optEndOfDataPosition]] to locate
+ * the end of the data stream.
+ *
+ * Only mix this in for parsers that are instantiated specifically for EOP elements.
+ * Parsers for prefixed or explicitly-bounded elements should use the plain
+ * [[BitLengthFromBitLimitMixin]]; mixing in this trait by mistake would silently
+ * consume the entire remaining stream instead of failing at the missing bit limit.
+ */
+trait EndOfParentBitLengthMixin extends BitLengthFromBitLimitMixin {
+
+  override def getLengthInBits(pstate: PState): Long = {
+    if (pstate.bitLimit0b.isDefined) {
+      pstate.bitLimit0b.get - pstate.bitPos0b
+    } else {
+      val dis = pstate.dataInputStream
+      dis.optEndOfDataPosition match {
+        case Some(endOfDataPosition) =>
+          (endOfDataPosition * 8) - dis.bitPos0b
+        case None =>
+          pstate.setFailed(
+            new ParseError(
+              One(pstate.schemaFileLocation),
+              One(pstate.currentLocation),
+              "Cannot determine end-of-data position for dfdl:lengthKind='endOfParent': " +
+                "data stream exceeds the maximum cache size. Consider increasing maxCacheSizeInBytes."
+            )
+          )
+          0L // callers check pstate.processorStatus before using this value
+      }
     }
   }
 }

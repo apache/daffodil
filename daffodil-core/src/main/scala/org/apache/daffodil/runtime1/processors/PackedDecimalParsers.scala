@@ -58,10 +58,21 @@ class PackedDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
-  decimalSigned: YesNo,
-  isEndOfParent: Boolean
+  decimalSigned: YesNo
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, Some(decimalSigned))
-  with BitLengthFromBitLimitMixin(isEndOfParent) {
+  with BitLengthFromBitLimitMixin {
+
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, binaryDecimalVirtualPoint, packedSignCodes)
+}
+
+class PackedDecimalEndOfParentLengthParser(
+  e: ElementRuntimeData,
+  binaryDecimalVirtualPoint: Int,
+  packedSignCodes: PackedSignCodes,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, Some(decimalSigned))
+  with EndOfParentBitLengthMixin {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
     DecimalUtils.packedToBigDecimal(num, binaryDecimalVirtualPoint, packedSignCodes)
@@ -94,10 +105,20 @@ class PackedIntegerKnownLengthParser(
 
 class PackedIntegerBitLimitLengthParser(
   e: ElementRuntimeData,
-  packedSignCodes: PackedSignCodes,
-  isEndOfParent: Boolean
+  packedSignCodes: PackedSignCodes
 ) extends PackedBinaryIntegerBaseParser(e)
-  with BitLengthFromBitLimitMixin(isEndOfParent) {
+  with BitLengthFromBitLimitMixin {
+
+  override def toNumber(num: Array[Byte]): JBigInteger =
+    DecimalUtils.packedToBigInteger(num, packedSignCodes)
+
+}
+
+class PackedIntegerEndOfParentLengthParser(
+  e: ElementRuntimeData,
+  packedSignCodes: PackedSignCodes
+) extends PackedBinaryIntegerBaseParser(e)
+  with EndOfParentBitLengthMixin {
 
   override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)

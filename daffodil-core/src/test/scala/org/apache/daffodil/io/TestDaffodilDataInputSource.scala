@@ -256,6 +256,41 @@ class TestBucketingInputSource {
     assertEquals(6, bis.get())
     assertEquals(-1, bis.get())
   }
+
+  /**
+   * Regression for: optEndOfDataPosition must not evict a bucket that has an
+   * active backtracking mark (refCount > 0).
+   *
+   * Configuration: bucketSize=2 bytes, maxNumberOfNonNullBuckets=2 (4 bytes total
+   * cache). Locking position 0 pins bucket 0. When optEndOfDataPosition tries to
+   * scan beyond the 2-bucket window it would need to evict bucket 0 — which is
+   * forbidden. The fix stops the scan and returns None rather than nulling the
+   * locked bucket.
+   *
+   * Before fix: fillBucketsToIndex evicted bucket 0 unconditionally; the
+   * subsequent bis.position(0)/bis.get() threw BacktrackingException.
+   * After fix: optEndOfDataPosition returns None; the locked position is still
+   * readable after the scan.
+   */
+  @Test def testOptEndOfDataPositionDoesNotEvictLockedBucket(): Unit = {
+    // bucketSizeExponent=1 -> bucketSize=2; maxCacheSizeInBytes=4 -> maxNumberOfNonNullBuckets=2
+    val tis = new TestInputStream()
+    tis.setEOF(12)
+    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
+
+    bis.lockPosition(0) // simulates a choice-parser mark at the start of the stream
+
+    // The oldest bucket (index 0) is locked. fillBucketsToIndex would exceed
+    // maxNumberOfNonNullBuckets after filling 2 buckets and be unable to evict
+    // bucket 0, so it stops the scan and returns None.
+    assertEquals(None, bis.optEndOfDataPosition)
+
+    // Bucket 0 must still be live: backtracking to position 0 must succeed.
+    bis.position(0)
+    assertEquals(0, bis.get())
+
+    bis.releasePosition(0)
+  }
 }
 
 class TestByteBufferInputSource {

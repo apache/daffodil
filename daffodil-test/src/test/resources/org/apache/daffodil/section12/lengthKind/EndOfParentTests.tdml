@@ -41,10 +41,9 @@
 				<xs:sequence>
 					<xs:element name="parentCT" dfdl:initiator="{{" dfdl:terminator="}">
 						<xs:complexType>
-							<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-								<xs:element name="child" maxOccurs="unbounded"
-														dfdl:lengthKind="endOfParent" dfdl:representation="text"
-														dfdl:occursCountKind="parsed">
+							<xs:sequence>
+								<xs:element name="child"
+														dfdl:lengthKind="endOfParent" dfdl:representation="text">
 									<xs:complexType>
 										<xs:sequence>
 											<xs:element name="X" type="xs:integer"
@@ -67,10 +66,9 @@
 				<xs:sequence>
 					<xs:element name="parentST" dfdl:initiator="{{" dfdl:terminator="}">
 						<xs:complexType>
-							<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-								<xs:element name="child" type="xs:string" maxOccurs="unbounded"
-									dfdl:lengthKind="endOfParent" dfdl:representation="text"
-									dfdl:occursCountKind="parsed" />
+							<xs:sequence>
+								<xs:element name="child" type="xs:string"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text" />
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
@@ -120,10 +118,9 @@
 				<xs:sequence>
 					<xs:element name="parentCT">
 						<xs:complexType>
-							<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-								<xs:element name="child" maxOccurs="unbounded"
-									dfdl:lengthKind="endOfParent" dfdl:representation="text"
-									dfdl:occursCountKind="parsed">
+							<xs:sequence>
+								<xs:element name="child"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text">
 									<xs:complexType>
 										<xs:sequence>
 											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
@@ -146,10 +143,9 @@
 				<xs:sequence>
 					<xs:element name="parentST">
 						<xs:complexType>
-							<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-								<xs:element name="child" type="xs:string" maxOccurs="unbounded"
-									dfdl:lengthKind="endOfParent" dfdl:representation="text"
-									dfdl:occursCountKind="parsed" />
+							<xs:sequence>
+								<xs:element name="child" type="xs:string"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text" />
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
@@ -211,8 +207,7 @@
 										</xs:sequence>
 									</xs:complexType>
 								</xs:element>
-								<xs:element name="rest"
-									dfdl:lengthKind="endOfParent" dfdl:representation="text">
+								<xs:element name="rest" dfdl:lengthKind="endOfParent" dfdl:representation="text">
 									<xs:complexType>
 										<xs:sequence>
 											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
@@ -1955,6 +1950,245 @@
 		</tdml:errors>
 	</tdml:parserTestCase>
 
+	<!--
+	  eopBranchFirstInExplicitChoice: EOP element is branch 1 in an explicit-length choice;
+	  a non-EOP element is branch 2. Before the sawEOP fold fix, the fold treated choice
+	  branches as sequential siblings, causing a false SDE on the non-EOP branch.
+	-->
+	<tdml:defineSchema name="eopBranchFirstInExplicitChoice">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bytes"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<!-- Simple type: EOP branch first, fixed-length branch second.
+		     choiceLength=5: initiator(1) + content(4) = 5 bytes for each branch. -->
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="5">
+						<xs:element name="eopBranch" type="xs:string"
+							dfdl:lengthKind="endOfParent" dfdl:initiator="E"/>
+						<xs:element name="fixedBranch" type="xs:string"
+							dfdl:length="4" dfdl:initiator="F"/>
+					</xs:choice>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- Complex type: EOP branch first (complex element with X/Y children), fixed-length branch second.
+		     choiceLength=7: initiator(1) + X<n>.(3) + Y<n>.(3) = 7 bytes for EOP branch;
+		                     initiator(1) + content(6) = 7 bytes for fixed branch. -->
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="7">
+						<xs:element name="eopBranch" dfdl:lengthKind="endOfParent"
+							dfdl:initiator="E" dfdl:representation="text">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+										dfdl:initiator="X" dfdl:terminator="." />
+									<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+										dfdl:initiator="Y" dfdl:terminator="." />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="fixedBranch" type="xs:string"
+							dfdl:length="6" dfdl:initiator="F"/>
+					</xs:choice>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!-- ST: take the EOP branch (initiator 'E'). -->
+	<tdml:parserTestCase name="eopBranchFirst_ST_eopBranch"
+	                     root="rootST" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP branch is branch 1 in explicit choice; EOP branch taken — no false SDE on fixedBranch">
+		<tdml:document><![CDATA[ExyzwA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<ex:eopBranch>xyzw</ex:eopBranch>
+					<ex:after>A</ex:after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- ST: take the non-EOP branch (initiator 'F'). -->
+	<tdml:parserTestCase name="eopBranchFirst_ST_fixedBranch"
+	                     root="rootST" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP branch is branch 1 in explicit choice; non-EOP branch taken — proves fixedBranch is not erroneously SDE'd">
+		<tdml:document><![CDATA[FxyzwA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<ex:fixedBranch>xyzw</ex:fixedBranch>
+					<ex:after>A</ex:after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- CT: take the EOP branch (initiator 'E'). -->
+	<tdml:parserTestCase name="eopBranchFirst_CT_eopBranch"
+	                     root="rootCT" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP complex branch is branch 1 in explicit choice; EOP branch taken">
+		<tdml:document><![CDATA[EX1.Y1.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<ex:eopBranch>
+						<ex:X>1</ex:X>
+						<ex:Y>1</ex:Y>
+					</ex:eopBranch>
+					<ex:after>A</ex:after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- CT: take the non-EOP branch (initiator 'F'). -->
+	<tdml:parserTestCase name="eopBranchFirst_CT_fixedBranch"
+	                     root="rootCT" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP complex branch is branch 1 in explicit choice; non-EOP branch taken — proves fixedBranch is not erroneously SDE'd">
+		<tdml:document><![CDATA[FabcdefA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<ex:fixedBranch>abcdef</ex:fixedBranch>
+					<ex:after>A</ex:after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  eopFollowedByIVC: IVC element follows the EOP element in a sequence. IVC elements
+	  are not represented (dfdl:isRepresented='false'), so the sawEOP fold must not raise
+	  an SDE for them. All EOP elements below have maxOccurs=1 (the default) as required
+	  by the spec ("maxOccurs > 1" on an EOP element is an SDE).
+	-->
+	<tdml:defineSchema name="eopFollowedByIVC">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bytes"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<!-- ST: firstChild(1) + rest(EOP string, 2) = 3-byte explicit parent;
+		         ivc computes a constant and consumes no input. -->
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:length="1"/>
+								<xs:element name="rest" type="xs:string" dfdl:lengthKind="endOfParent"/>
+								<xs:element name="ivc" type="xs:string" dfdl:inputValueCalc="{ 'COMPUTED' }"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- CT: firstChild(6) + rest(EOP complex with single X/Y pair, 6) = 12-byte explicit parent.
+		         rest has maxOccurs=1 (default) and its children also have maxOccurs=1 (default),
+		         satisfying the spec requirement that EOP elements must not have maxOccurs > 1. -->
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="12">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest" dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="ivc" type="xs:string" dfdl:inputValueCalc="{ 'COMPUTED' }"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!-- ST: firstChild="X", rest="YZ" (EOP reads remaining 2 of 3 bytes), ivc="COMPUTED", after="A". -->
+	<tdml:parserTestCase name="eopFollowedByIVC_ST"
+	                     root="rootST" model="eopFollowedByIVC"
+	                     description="IVC after EOP in sequence is legal — IVC is not represented so sawEOP must not SDE">
+		<tdml:document><![CDATA[XYZA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+						<ivc>COMPUTED</ivc>
+					</parentST>
+					<after>A</after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- CT: firstChild X=1,Y=1 (6 bytes); rest X=2,Y=2 (EOP reads remaining 6 bytes); ivc="COMPUTED"; after="A". -->
+	<tdml:parserTestCase name="eopFollowedByIVC_CT"
+	                     root="rootCT" model="eopFollowedByIVC"
+	                     description="IVC after EOP in sequence is legal — IVC is not represented so sawEOP must not SDE">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<X>2</X>
+							<Y>2</Y>
+						</rest>
+						<ivc>COMPUTED</ivc>
+					</parentCT>
+					<after>A</after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 	<tdml:defineSchema name="STChecks">
 
 		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -2219,6 +2453,21 @@
 			</xs:complexType>
 		</xs:element>
 
+		<xs:element name="baz">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="text_string_txt_ref2" dfdl:lengthKind="explicit" dfdl:length="4">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element ref="ex:text_string_txt_bytes"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
 		<xs:element name="text_int_txt_bytes" type="xs:int" dfdl:lengthUnits="bytes" />
 		<xs:element name="text_int_txt_bits" type="xs:int" dfdl:lengthUnits="bits" />
 		<xs:element name="text_int_txt_chars" type="xs:int" dfdl:lengthUnits="characters" />
@@ -2233,8 +2482,7 @@
 
 		<xs:element name="text_bool_txt_bytes" type="xs:boolean" dfdl:lengthUnits="bytes" />
 		<xs:element name="text_bool_txt_bits" type="xs:boolean" dfdl:lengthUnits="bits" />
-		<xs:element name="text_bool_txt_chars" type="xs:boolean" dfdl:lengthUnits="characters"
-		            dfdlx:parseUnparsePolicy="parseOnly" />
+		<xs:element name="text_bool_txt_chars" type="xs:boolean" dfdl:lengthUnits="characters"/>
 
 		<xs:element name="complex_bin_bytes">
 			<xs:complexType>
@@ -2576,11 +2824,7 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<!--
-    DAFFODIL-2029: Cannot roundTrip due to unimplemented unparsing with
-    dfdl:lengthKind="prefixed" and dfdl:lengthUnits="characters"
-  -->
-	<tdml:parserTestCase name="text_bool_txt_chars" roundTrip="false"
+	<tdml:parserTestCase name="text_bool_txt_chars"
 	                     root="text_bool_txt_chars"
 	                     model="lengthKindEOPPrimitives">
 		<tdml:document>
@@ -2592,6 +2836,51 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+
+	<!--
+	Does not roundtrip because the spec decrees any remaining data that isn't
+	parsed by the last element in the parent should be ignored on parsing
+	-->
+	<tdml:parserTestCase name="check_eop_simple_elem_01" roundTrip="none"
+	                     root="baz"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcdefg</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:baz>
+					<ex:text_string_txt_ref2>
+						<ex:text_string_txt_bytes>abcd</ex:text_string_txt_bytes>
+					</ex:text_string_txt_ref2>
+					<after>e</after>
+				</ex:baz>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	Does not roundtrip because the spec decrees any remaining data that isn't
+	parsed by the last element in the parent should be filled with the fillbyte
+	on unparsing
+	-->
+	<tdml:unparserTestCase name="check_eop_simple_elem_02" roundTrip="none"
+	                     root="baz"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcd </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:baz>
+					<ex:text_string_txt_ref2>
+						<ex:text_string_txt_bytes>abcd</ex:text_string_txt_bytes>
+					</ex:text_string_txt_ref2>
+					<ex:after></ex:after>
+				</ex:baz>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
 
 	<tdml:defineSchema name="lengthKindEOPPrimitives_bin">
 
@@ -2754,8 +3043,8 @@
 		</tdml:document>
 		<tdml:errors>
 			<tdml:error>endOfParent</tdml:error>
-			<tdml:error>doesn't have</tdml:error>
-			<tdml:error>packed decimal representation</tdml:error>
+			<tdml:error>not supported</tdml:error>
+			<tdml:error>boolean with binary representation</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
@@ -2978,6 +3267,21 @@
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
+
+		<!-- foo2: explicit-length choice containing an EOP element, followed by a sibling.
+		     Verifies that sawEOP does not propagate past the choice's length boundary. -->
+		<xs:element name="foo2" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="5">
+						<xs:element name="foz" type="xs:string"/>
+						<xs:sequence/>
+					</xs:choice>
+					<xs:element name="after" type="xs:string"
+						dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
 	</tdml:defineSchema>
 
 	<tdml:unparserTestCase name="checks_01"
@@ -3005,4 +3309,207 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:unparserTestCase>
+
+	<tdml:parserTestCase name="checks_03"
+	                     root="foo2"
+	                     model="lengthKindEOPChecks"
+	                     description="EOP element inside explicit-length choice followed by a sibling element">
+		<tdml:document>
+			<tdml:documentPart type="text">helloA</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:foo2><ex:foz>hello</ex:foz><ex:after>A</ex:after></ex:foo2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="eopNotByteAligned">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat"
+		             byteOrder="bigEndian"
+		             binaryNumberRep="binary"
+		             representation="binary"
+		             lengthUnits="bits"
+		             alignment="1"
+		             alignmentUnits="bits"
+								 encoding="X-DFDL-BITS-MSBF"
+		/>
+
+		<!--
+		  A complex element with explicit bit-length of 12 bits. The first child
+		  'foo' occupies 4 bits (one nibble), so 'leftOver' begins at bit position 4
+		  — a non-byte-aligned start. 'leftOver' reads the remaining 8 bits (1 byte)
+		  of the parent via dfdl:lengthKind="endOfParent".
+		-->
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="12">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="foo" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
+								<xs:element name="leftOver" type="xs:hexBinary" dfdl:lengthKind="endOfParent"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!--
+		  All three elements (rootEOP, parent, leftOver) are dfdl:lengthKind="endOfParent",
+		  which causes SpecifiedLengthEndOfParent to call optEndOfDataPosition() for both
+		  rootEOP and parent. 'foo' (explicit 4 bits) is the only non-EOP element, so
+		  'leftOver' starts at bit 4 — a non-byte-aligned position. Because X-DFDL-BITS-MSBF
+		  encodes one bit per character, leftOver (xs:string) can consume any number of bits,
+		  unlike xs:hexBinary which requires a whole-byte count.
+		-->
+		<xs:element name="rootEOP" dfdl:lengthKind="endOfParent">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="endOfParent">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="foo" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
+								<xs:element name="leftOver" type="xs:string" dfdl:lengthKind="endOfParent"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="eop_not_byte_aligned_01"
+	                     root="root"
+	                     model="eopNotByteAligned"
+	                     description="EOP hexBinary element starting at a non-byte-aligned (bit 4) position inside an explicit-length parent">
+		<tdml:document>
+			<!--
+			  Bits 0–3  : foo = 0111 = 7
+			  Bits 4–11 : leftOver = 1010 1011 = 0xAB  (starts at bit 4, not byte-aligned)
+			-->
+			<tdml:documentPart type="bits">0111</tdml:documentPart>
+			<tdml:documentPart type="bits">10101011</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<parent>
+						<foo>7</foo>
+						<leftOver>AB</leftOver>
+					</parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="eop_not_byte_aligned_02"
+	                     root="rootEOP"
+	                     model="eopNotByteAligned"
+	                     roundTrip="none"
+	                     description="Nested EOP elements exercise optEndOfDataPosition; xs:string EOP starts at non-byte-aligned bit 4">
+		<tdml:document>
+			<!--
+			  0x7A = 0111 1010
+			  Bits 0–3 : foo = 0111 = 7
+			  Bits 4–15 : leftOver = 1010 1011 1010 = ABA  (starts at bit 4, not byte-aligned)
+			-->
+			<tdml:documentPart type="bits">0111</tdml:documentPart>
+			<tdml:documentPart type="bits">10101011 1010</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootEOP>
+					<parent>
+						<foo>7</foo>
+						<leftOver>101010111010</leftOver>
+					</parent>
+				</ex:rootEOP>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="eopUnparserFill">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat"
+		             lengthKind="explicit"
+		             lengthUnits="bytes"
+		             representation="binary"
+		             fillByte="%NUL;"
+		             byteOrder="bigEndian"/>
+
+		<!--
+		  A 5-byte explicit-length parent containing a single EOP hexBinary child.
+		  Used to verify that SpecifiedLengthEndOfParent.unparser (which delegates
+		  bare to eUnparser) relies correctly on the parent's SpecifiedLengthExplicit
+		  unparser to fill any unused trailing bytes with fillByte.
+		-->
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val" type="xs:hexBinary"
+								            dfdl:lengthKind="endOfParent"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<!-- val fills the parent exactly: no fill bytes needed, confirms the basic EOP unparse path -->
+	<tdml:parserTestCase name="eop_unparse_fill_exact"
+	                     root="root"
+	                     model="eopUnparserFill"
+	                     roundTrip="onePass"
+	                     description="EOP hexBinary exactly fills its 5-byte explicit-length parent on parse and unparse">
+		<tdml:document>
+			<tdml:documentPart type="byte">AA BB CC DD EE</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<parent>
+						<val>AABBCCDDEE</val>
+					</parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  val is 2 bytes but parent expects 5. The parent's SpecifiedLengthExplicit
+	  unparser must fill the 3 trailing bytes with fillByte (%NUL; = 0x00).
+	  This verifies that SpecifiedLengthEndOfParent.unparser = eUnparser is correct:
+	  the EOP child just writes its content; the parent handles the unused space.
+	-->
+	<tdml:unparserTestCase name="eop_unparse_fill_short"
+	                       root="root"
+												 roundTrip="none"
+	                       model="eopUnparserFill"
+	                       description="EOP hexBinary shorter than its explicit-length parent; parent fills trailing bytes with fillByte">
+		<tdml:document>
+			<tdml:documentPart type="byte">AA BB 00 00 00</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:parent>
+						<ex:val>AABB</ex:val>
+					</ex:parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
 </tdml:testSuite>

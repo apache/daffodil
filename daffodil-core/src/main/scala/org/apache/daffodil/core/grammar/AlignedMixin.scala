@@ -457,9 +457,13 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Delimited => encodingLengthApprox
           case LengthKind.Pattern => encodingLengthApprox
           case LengthKind.EndOfParent =>
-            // technically the alignment of an EndOfParent element would be the
-            // alignment of its parent minus our current alignment (i.e alignment of
-            // prior sibs) but since nothing can follow
+            // Technically, the approximate length of an EndOfParent element is the length
+            // of its parent minus the length of prior siblings. However, this value is only
+            // used to compute the ending alignment available to subsequent represented terms.
+            // Per spec (12.3.6), no represented element or model group may follow an
+            // EndOfParent element (only unrepresented elements such as IVC elements are
+            // permitted), so the ending alignment is never consumed. LengthMultipleOf(1)
+            // is a safe conservative value to return.
             LengthMultipleOf(1)
           // If an element is lengthKind="prefixed", the element's length is the length
           // of the value of the prefix element, which can't be known till runtime

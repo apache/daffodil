@@ -136,7 +136,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
    */
   def hasReachedEndOfData: Boolean = inputSource.hasReachedEndOfData
 
-  lazy val bytesTillEndOfDataStream: Long = inputSource.bytesTillEndOfDataStream
+  def optEndOfDataPosition: Option[Long] = inputSource.optEndOfDataPosition
 
   /**
    * Return the number of currently available bytes.

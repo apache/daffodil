@@ -146,6 +146,9 @@ class SpecifiedLengthEndOfParent(e: ElementBase, eGram: => Gram)
       )
   }
 
+  // No length-management wrapper needed: the enclosing element's
+  // unparser handles RightFill/ElementUnused for any space
+  // the EOP child doesn't fill
   lazy val unparser: Unparser = eUnparser
 
 }

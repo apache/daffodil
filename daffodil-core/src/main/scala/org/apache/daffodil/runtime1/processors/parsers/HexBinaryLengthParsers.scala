@@ -83,9 +83,16 @@ final class HexBinarySpecifiedLengthParser(erd: ElementRuntimeData, lengthEv: Le
 
 }
 
-final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData, isEndOfParent: Boolean)
+final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
   extends HexBinaryLengthParser(erd),
-    BitLengthFromBitLimitMixin(isEndOfParent) {
+    BitLengthFromBitLimitMixin {
+
+  override def runtimeDependencies = Vector()
+}
+
+final class HexBinaryEndOfParentParser(erd: ElementRuntimeData)
+  extends HexBinaryLengthParser(erd),
+    EndOfParentBitLengthMixin {
 
   override def runtimeDependencies = Vector()
 }

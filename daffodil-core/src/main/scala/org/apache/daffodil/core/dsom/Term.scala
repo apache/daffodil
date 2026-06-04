@@ -267,26 +267,6 @@ trait Term
       .getOrElse(false)
   }
 
-  final lazy val immediatelyEnclosingParentForEOPElem: Option[Term] = {
-    val p = optLexicalParent.flatMap {
-      case e: ElementBase => Some(e)
-      case ge: GlobalElementDecl => Some(ge.asRoot)
-      case s: SequenceTermBase => s.immediatelyEnclosingParentForEOPElem
-      case c: ChoiceTermBase => Some(c)
-      case ct: ComplexTypeBase => {
-        ct.optLexicalParent.flatMap {
-          case e: ElementBase => Some(e)
-          case ge: GlobalElementDecl => Some(ge.asRoot)
-          case _ => {
-            None
-          }
-        }
-      }
-      case _ => None
-    }
-    p
-  }
-
   final lazy val immediatelyEnclosingGroupDef: Option[GroupDefLike] = {
     optLexicalParent.flatMap { lexicalParent =>
       val res: Option[GroupDefLike] = lexicalParent match {
@@ -587,14 +567,4 @@ trait Term
       case mg: ModelGroup => mg.realElementChildren
     }
   }
-
-  lazy val flattenedChildren: IndexedSeq[Term] = termChildren.flatMap { c =>
-    c match {
-      case eb: ElementBase => IndexedSeq(eb)
-      case mg: ModelGroup if mg.groupMembers.isEmpty => IndexedSeq(mg)
-      case s: SequenceTermBase => s.flattenedChildren
-      case c: ChoiceTermBase => c.flattenedChildren
-      case _ => Nil
-    }
-  }.toIndexedSeq
 }

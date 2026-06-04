@@ -30,7 +30,6 @@ import org.apache.daffodil.lib.iapi.Diagnostic
 import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.TransitiveClosure
 import org.apache.daffodil.lib.xml.*
 
@@ -117,7 +116,6 @@ final class SchemaSet private (
 
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
-  requiredEvaluationsAlways(root.checkEndOfParentRestrictions(Some(LengthUnits.Characters)))
 
   lazy val resolver = DFDLCatalogResolver.get
 
