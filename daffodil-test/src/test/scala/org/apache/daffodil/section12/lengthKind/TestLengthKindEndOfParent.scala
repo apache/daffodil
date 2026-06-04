@@ -70,6 +70,12 @@ class TestLengthKindEndOfParent extends TdmlTests {
   @Test def TestEndOfParentSimpleTypes12Implicit = test
   @Test def TestEndOfParentComplexTypes13 = test
   @Test def TestEndOfParentSimpleTypes13 = test
+  @Test def eopBranchFirst_ST_eopBranch = test
+  @Test def eopBranchFirst_ST_fixedBranch = test
+  @Test def eopBranchFirst_CT_eopBranch = test
+  @Test def eopBranchFirst_CT_fixedBranch = test
+  @Test def eopFollowedByIVC_ST = test
+  @Test def eopFollowedByIVC_CT = test
   @Test def TestEndOfParentSimpleTypes14 = test
   @Test def TestEndOfParentSimpleTypes16 = test
   @Test def TestEndOfParentSimpleTypes17 = test
@@ -98,6 +104,8 @@ class TestLengthKindEndOfParent extends TdmlTests {
   @Test def text_bool_txt_bytes = test
   @Test def text_bool_txt_bits = test
   @Test def text_bool_txt_chars = test
+  @Test def check_eop_simple_elem_01 = test
+  @Test def check_eop_simple_elem_02 = test
   @Test def bin_int_bin_bytes_packed = test
   @Test def bin_int_bin_bytes_bcd = test
   @Test def bin_int_bin_bytes_ibm4690 = test
@@ -117,4 +125,11 @@ class TestLengthKindEndOfParent extends TdmlTests {
   @Test def nested_04 = test
   @Test def checks_01 = test
   @Test def checks_02 = test
+  @Test def checks_03 = test
+
+  @Test def eop_not_byte_aligned_01 = test
+  @Test def eop_not_byte_aligned_02 = test
+
+  @Test def eop_unparse_fill_exact = test
+  @Test def eop_unparse_fill_short = test
 }

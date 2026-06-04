@@ -50,25 +50,7 @@ class BinaryBooleanPrefixedLength(val e: ElementBase) extends Terminal(e, true) 
     e.elementRuntimeData,
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
-    e.lengthUnits,
-    isEndOfParent = false
-  )
-
-  override lazy val unparser: Unparser = new BinaryBooleanMinimumLengthUnparser(
-    e.elementRuntimeData,
-    e.binaryBooleanTrueRep,
-    e.binaryBooleanFalseRep,
     e.lengthUnits
-  )
-}
-
-class BinaryBooleanEndOfParentLength(val e: ElementBase) extends Terminal(e, true) {
-  override lazy val parser = new BinaryBooleanBitLimitLengthParser(
-    e.elementRuntimeData,
-    e.binaryBooleanTrueRep,
-    e.binaryBooleanFalseRep,
-    e.lengthUnits,
-    isEndOfParent = true
   )
 
   override lazy val unparser: Unparser = new BinaryBooleanMinimumLengthUnparser(

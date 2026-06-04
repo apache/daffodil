@@ -254,45 +254,55 @@ trait ElementBaseGrammarMixin
   final lazy val prefixedLengthBody = prefixedLengthElementDecl.parsedValue
 
   def checkEndOfParentRestrictionsOnCurrentElement(optParentELU: Option[LengthUnits]): Unit = {
+    Assert.invariant(optParentELU.isDefined)
+    val parentELU = optParentELU.get
     val currentElement: ElementBase = this
-    if (currentElement.lengthKind != LengthKind.EndOfParent) {} else {
+    Assert.invariant(currentElement.lengthKind == LengthKind.EndOfParent)
+    schemaDefinitionWhen(
+      currentElement.hasTerminator,
+      "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a dfdl:terminator."
+    )
+    schemaDefinitionWhen(
+      currentElement.trailingSkip != 0,
+      "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a non-zero dfdl:trailingSkip."
+    )
+    schemaDefinitionWhen(
+      currentElement.maxOccurs > 1,
+      "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a maxOccurs greater than 1."
+    )
+    schemaDefinitionWhen(
+      currentElement.impliedRepresentation == Representation.Text
+        && (!currentElement.isKnownEncoding || !currentElement.knownEncodingIsFixedWidth || currentElement.knownEncodingWidthInBits != 8)
+        && (parentELU != LengthUnits.Characters),
+      "element is specified as dfdl:lengthKind=\"endOfParent\", but the element has text representation, and does not have a single-byte character set encoding, and the effective length units of the parent is not 'characters'."
+    )
+    if (currentElement.isSimpleType) {
+      val meetsSimpleTypeRestrictions = (currentElement.primType eq PrimType.String)
+        || (currentElement.representation == Representation.Text)
+        || (currentElement.primType eq PrimType.HexBinary)
+        || (currentElement.representation == Representation.Binary
+          && ((currentElement.binaryNumberRep match {
+            case BinaryNumberRep.Packed => true
+            case BinaryNumberRep.Bcd => true
+            case BinaryNumberRep.Ibm4690Packed => true
+            case _ => false
+          }) || (
+            currentElement.optionBinaryCalendarRep match {
+              case Some(bcr) =>
+                bcr match {
+                  case BinaryCalendarRep.Packed => true
+                  case BinaryCalendarRep.Bcd => true
+                  case BinaryCalendarRep.Ibm4690Packed => true
+                  case _ => false
+                }
+              case None =>
+                false // if no binary calendar rep, then we dont care about what it returns
+            }
+          )))
       schemaDefinitionWhen(
-        currentElement.hasTerminator,
-        "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a dfdl:terminator."
+        !meetsSimpleTypeRestrictions,
+        "element is a simple type specified as dfdl:lengthKind=\"endOfParent\", but isn't a string type, doesn't have text representation, isn't a hexbinary type, or doesn't have binary representation with packed decimal representation."
       )
-      schemaDefinitionWhen(
-        currentElement.trailingSkip != 0,
-        "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a non-zero dfdl:trailingSkip."
-      )
-      schemaDefinitionWhen(
-        currentElement.maxOccurs > 1,
-        "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a maxOccurs greater than 1."
-      )
-      schemaDefinitionWhen(
-        currentElement.impliedRepresentation == Representation.Text
-          && (!currentElement.isKnownEncoding || !currentElement.knownEncodingIsFixedWidth || currentElement.knownEncodingWidthInBits != 8)
-          && (!optParentELU.contains(LengthUnits.Characters)),
-        "element is specified as dfdl:lengthKind=\"endOfParent\", but the element has text representation, and does not have a single-byte character set encoding, and the effective length units of the parent is not 'characters'."
-      )
-      if (currentElement.isSimpleType) {
-        schemaDefinitionUnless(
-          (currentElement.primType eq PrimType.String)
-            || (currentElement.representation == Representation.Text)
-            || (currentElement.primType eq PrimType.HexBinary)
-            || (currentElement.representation == Representation.Binary
-              && Seq(BinaryNumberRep.Packed, BinaryNumberRep.Bcd, BinaryNumberRep.Ibm4690Packed)
-                .contains(currentElement.binaryNumberRep))
-            || (currentElement.representation == Representation.Binary
-              && currentElement.optionBinaryCalendarRep.isDefined
-              && Seq(
-                BinaryCalendarRep.Packed,
-                BinaryCalendarRep.Bcd,
-                BinaryCalendarRep.Ibm4690Packed
-              )
-                .contains(currentElement.binaryCalendarRep)),
-          "element is a simple type specified as dfdl:lengthKind=\"endOfParent\", but isn't a string type, doesn't have text representation, isn't a hexbinary type, or doesn't have binary representation with packed decimal representation."
-        )
-      }
     }
   }
 
@@ -648,20 +658,20 @@ trait ElementBaseGrammarMixin
       }
     case LengthKind.Pattern =>
       schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
+    case LengthKind.EndOfParent if optionBinaryCalendarRep.isDefined =>
+      binaryCalendarRep match {
+        case BinaryCalendarRep.BinaryMilliseconds | BinaryCalendarRep.BinarySeconds =>
+          SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+        case _ => -1
+      }
+    case LengthKind.EndOfParent if optionBinaryNumberRep.isDefined =>
+      binaryNumberRep match {
+        case BinaryNumberRep.Binary =>
+          SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+        case _ => -1
+      }
     case LengthKind.EndOfParent =>
-      // only for packed binary data, length must be computed at runtime.
-      if (
-        representation == Representation.Binary
-        && optionBinaryCalendarRep.isDefined
-        && Seq(BinaryCalendarRep.Packed, BinaryCalendarRep.Bcd, BinaryCalendarRep.Ibm4690Packed)
-          .contains(binaryCalendarRep)
-        || representation == Representation.Binary
-        && optionBinaryNumberRep.isDefined
-        && Seq(BinaryNumberRep.Packed, BinaryNumberRep.Bcd, BinaryNumberRep.Ibm4690Packed)
-          .contains(binaryNumberRep)
-      ) -1
-      else
-        SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+      SDE("lengthKind='endOfParent' only supported for packed binary formats.")
   }
 
   private def explicitBinaryLengthInBits() = {
@@ -998,8 +1008,6 @@ trait ElementBaseGrammarMixin
       byteOrderRaw // must be defined or SDE
     }
     (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
-      case (BinaryNumberRep.Binary, LengthKind.EndOfParent, _) =>
-        SDE("lengthKind='endOfParent' is not allowed with binary number representation")
       case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) =>
         new BinaryIntegerPrefixedLength(this)
       case (BinaryNumberRep.Binary, _, -1) => new BinaryIntegerRuntimeLength(this)
@@ -1163,7 +1171,13 @@ trait ElementBaseGrammarMixin
       case PrimType.Boolean => {
         lengthKind match {
           case LengthKind.Prefixed => new BinaryBooleanPrefixedLength(this)
-          case LengthKind.EndOfParent => new BinaryBooleanEndOfParentLength(this)
+          case LengthKind.EndOfParent =>
+            // xs:boolean is not one of the allowed simple types for lengthKind='endOfParent'
+            // (spec 12.3.6: only xs:string, text representation, xs:hexBinary, or binary
+            // with packed decimal representation are permitted).
+            SDE(
+              "lengthKind='endOfParent' is not supported for xs:boolean with binary representation."
+            )
           case _ => new BinaryBoolean(this)
         }
       }
@@ -1433,13 +1447,22 @@ trait ElementBaseGrammarMixin
     // non-explicit lengthKind
     val body = bodyArg
 
+    val eopSimpleTypeElementThatNeedsBitLimit =
+      (isSimpleType && lengthKind == LengthKind.EndOfParent)
+        && !this.isInstanceOf[Root]
+        && impliedRepresentation != Representation.Text
+        && !isNillable
+        && primType != PrimType.HexBinary
     // there are essentially two categories of processors that read/write data input/output
-    // stream: those that calculate lengths themselves and those that expect another
-    // processor to calculate the length and set the bit limit which this processor will use as
-    // the length. The following determines if this element requires another processor to
-    // calculate and set the bit limit, and if so adds the appropriate grammar to do that
+    // stream: those that calculate lengths themselves (ex: binary numeric parsers) and those
+    // that expect another processor to calculate the length and set the bit limit which
+    // this processor will use as the length (such as text parsers). The following determines
+    // if this element requires another processor to calculate and set the bit limit, and if so
+    // adds the appropriate grammar to do that
     val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited
-      && !(isSimpleType && lengthKind == LengthKind.EndOfParent && !this.isInstanceOf[Root])
+    // Note for non-root EndOfParent simple types, we don't wish to duplicate the length
+    // calculation efforts unless we know it needs the bit limit set by a parent
+      && !eopSimpleTypeElementThatNeedsBitLimit
       && (
         isSimpleType && impliedRepresentation == Representation.Text ||
           isSimpleType && isNillable ||
@@ -1490,9 +1513,9 @@ trait ElementBaseGrammarMixin
         case LengthKind.Implicit
             if isSimpleType && impliedRepresentation == Representation.Binary =>
           new SpecifiedLengthImplicit(this, body, implicitBinaryLengthInBits)
-        case LengthKind.EndOfParent if (isComplexType || this.isInstanceOf[Root]) =>
+        case LengthKind.EndOfParent =>
           new SpecifiedLengthEndOfParent(this, body)
-        case LengthKind.Delimited | LengthKind.Implicit | LengthKind.EndOfParent =>
+        case LengthKind.Delimited | LengthKind.Implicit =>
           Assert.impossibleCase(
             "Delimited and ComplexType Implicit cases should not be reached"
           )

@@ -34,6 +34,7 @@ import org.apache.daffodil.runtime1.processors.parsers.BCDIntegerDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.BlobSpecifiedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.HexBinaryDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.HexBinaryEndOfBitLimitParser
+import org.apache.daffodil.runtime1.processors.parsers.HexBinaryEndOfParentParser
 import org.apache.daffodil.runtime1.processors.parsers.HexBinarySpecifiedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedDecimalDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerDelimitedParser
@@ -174,8 +175,7 @@ case class HexBinaryDelimitedEndOfData(e: ElementBase) extends HexBinaryDelimite
 case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
-    e.elementRuntimeData,
-    isEndOfParent = false
+    e.elementRuntimeData
   )
 
   override lazy val unparser: DaffodilUnparser =
@@ -185,8 +185,7 @@ case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
 case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
-    e.elementRuntimeData,
-    isEndOfParent = false
+    e.elementRuntimeData
   )
 
   override lazy val unparser: DaffodilUnparser =
@@ -195,9 +194,8 @@ case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
 
 case class HexBinaryLengthEndOfParent(e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
-    e.elementRuntimeData,
-    isEndOfParent = true
+  override lazy val parser: DaffodilParser = new HexBinaryEndOfParentParser(
+    e.elementRuntimeData
   )
 
   override lazy val unparser: DaffodilUnparser =

@@ -182,10 +182,10 @@ abstract class InputSource {
   def releasePosition(bytePos0b: Long): Unit
 
   /**
-   * Get the number of bytes that are available to be read until the end of
-   * the data stream.
+   * Returns the 0-based exclusive byte position of the end of the data stream,
+   * or None if the end of data is not reachable within the implementation's cache size limit.
    */
-  lazy val bytesTillEndOfDataStream: Long = -1L
+  def optEndOfDataPosition: Option[Long]
 
   /**
    * Alerts the implementation to attempt to free data that is no longer used,
@@ -356,9 +356,19 @@ class BucketingInputSource(
           bytesFilledInLastBucket = 0
           lastBucketIndex += 1
           if ((lastBucketIndex - oldestBucketIndex) >= maxNumberOfNonNullBuckets) {
-            // This frees the oldest bucket, allowing it to be garbage collected.
-            buckets(oldestBucketIndex) = null
-            oldestBucketIndex += 1
+            if (buckets(oldestBucketIndex).refCount == 0) {
+              // This frees the oldest bucket, allowing it to be garbage collected.
+              buckets(oldestBucketIndex) = null
+              oldestBucketIndex += 1
+            } else {
+              // The oldest bucket has an active backtracking mark. We cannot evict
+              // it, and we cannot advance oldestBucketIndex past it (that would
+              // break the invariant checked in releasePosition). Stop filling here
+              // to prevent the window from growing without bound. Callers that need
+              // more data (e.g. optEndOfDataPosition) will receive a "goal not
+              // reached" result and handle the limitation appropriately.
+              needsMoreData = false
+            }
           }
         }
 
@@ -571,19 +581,25 @@ class BucketingInputSource(
     oldestBucketIndex = 0
   }
 
-  override lazy val bytesTillEndOfDataStream: Long = {
-    val initialBytePosition = position()
-    val endOfDataNotReached = fillBucketsToIndex(maxNumberOfNonNullBuckets, 8)
-    if (!endOfDataNotReached) {
-      val numBytesFilled = totalBytesBucketed - initialBytePosition
-      // reset the byte position to the initial byte position
-      position(initialBytePosition)
-      numBytesFilled
+  /**
+   * Returns the 0-based exclusive byte position of the end of the data stream
+   * by reading and bucketing data until EOF is reached. Does not affect the
+   * current read position.
+   *
+   * The scan window extends [[maxCacheSizeInBytes]] bytes beyond the last
+   * already-filled bucket (not from the current read position), maximising
+   * coverage without invalidating backtracking state.
+   *
+   * Returns None if EOF is not reached within that window.
+   */
+  override lazy val optEndOfDataPosition: Option[Long] = {
+    val lastFilledBucketIndex = buckets.length - 1
+    val goalBucketIndex = lastFilledBucketIndex + maxNumberOfNonNullBuckets - 1
+    val endOfDataNotReached = fillBucketsToIndex(goalBucketIndex, bucketSize)
+    if (endOfDataNotReached) {
+      None
     } else {
-      position(initialBytePosition)
-      throw new Exception(
-        s"Attempted to fill to end of data stream, but did not reach end of data stream before maxCacheSizeInBytes: ${maxCacheSizeInBytes}."
-      )
+      Some(totalBytesBucketed)
     }
   }
 }
@@ -668,10 +684,11 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer) extends InputSource {
     // do nothing. No resources to release.
   }
 
-  override lazy val bytesTillEndOfDataStream: Long = {
-    val initialPosition = position()
-    val br = byteBuffer.remaining
-    position(initialPosition)
-    br
+  /**
+   * Returns the 0-based exclusive byte position of the end of the buffer data.
+   */
+  override def optEndOfDataPosition: Option[Long] = {
+    val finalPosition = position() + bb.remaining
+    Some(finalPosition)
   }
 }

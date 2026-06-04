@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 import java.lang.Long as JLong
 import java.util.regex.Matcher
 
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
@@ -52,29 +53,18 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
    */
   protected def getBitLength(s: PState): MaybeULong
 
-  final def parse(pState: PState): Unit = {
-
-    val maybeNBits = getBitLength(pState)
-
-    if (pState.processorStatus._ne_(Success)) return
-    val nBits = maybeNBits.get
-    val dis = pState.dataInputStream
-
-    val shouldCheckDefinedForLength = erd match {
+  def parse(pState: PState): Unit = {
+    lazy val shouldCheckDefinedForLength = erd match {
       case erd: ElementRuntimeData => !erd.isComplexType
       case _: ChoiceRuntimeData => false
       case _ => true
     }
 
-    if (shouldCheckDefinedForLength && !dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(pState, nBits, dis)
-      return
-    }
-
-    val startingBitPos0b = dis.bitPos0b
-    dis.withBitLengthLimit(nBits) {
-      eParser.parse1(pState)
-    }
+    val (nBits: Long, dis: InputSourceDataInputStream, startingBitPos0b: Long) =
+      checkLengthAndParseWithinBitLimits(pState, shouldCheckDefinedForLength) match {
+        case Some(result) => result
+        case None => return
+      }
 
     // at this point the recursive parse of the children is finished
     // so if we're still successful we need to advance the position
@@ -87,12 +77,39 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
 
     // we want to capture the length before we do any skipping
     // value length of simple types is captured by the eParser if needed
-    // the SpecifiedLengthParserBase is extended by SpecifiedLengthChoiceParser which should not have its valueLength captured here
+    // the SpecifiedLengthParserBase is extended by SpecifiedLengthChoiceParser
+    // which should not have its valueLength captured here
     if (pState.infoset.isComplex && !erd.isInstanceOf[ChoiceRuntimeData])
       captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))
 
     Assert.invariant(dis eq pState.dataInputStream)
     val bitsToSkip = finalEndPos0b - dis.bitPos0b
+    skipBits(pState, bitsToSkip, dis)
+  }
+
+  protected def checkLengthAndParseWithinBitLimits(
+    pState: PState,
+    shouldCheckDefinedForLength: Boolean
+  ): Option[(Long, InputSourceDataInputStream, Long)] = {
+    val maybeNBits = getBitLength(pState)
+
+    if (pState.processorStatus._ne_(Success)) return None
+    val nBits = maybeNBits.get
+    val dis = pState.dataInputStream
+
+    if (shouldCheckDefinedForLength && !dis.isDefinedForLength(nBits)) {
+      PENotEnoughBits(pState, nBits, dis)
+      return None
+    }
+
+    val startingBitPos0b = dis.bitPos0b
+    dis.withBitLengthLimit(nBits) {
+      eParser.parse1(pState)
+    }
+    Some((nBits, dis, startingBitPos0b))
+  }
+
+  def skipBits(pState: PState, bitsToSkip: Long, dis: InputSourceDataInputStream): Unit = {
     Assert.invariant(
       bitsToSkip >= 0
     ) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
@@ -104,6 +121,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
       }
     }
   }
+
 }
 
 class SpecifiedLengthPatternParser(
@@ -136,11 +154,79 @@ class SpecifiedLengthEndOfParentParser(
   eParser: Parser,
   erd: ElementRuntimeData
 ) extends SpecifiedLengthParserBase(eParser, erd),
-    BitLengthFromBitLimitMixin(true) {
+    EndOfParentBitLengthMixin {
 
   override protected def getBitLength(s: PState): MaybeULong = {
-    MaybeULong(super[BitLengthFromBitLimitMixin].getBitLength(s))
+    MaybeULong(getLengthInBits(s))
   }
+
+  override def parse(pState: PState): Unit = {
+    val dis = pState.dataInputStream
+
+    if (erd.isComplexType) {
+      if (dis.bitLimit0b.isDefined) {
+        val (nBits: Long, dis: InputSourceDataInputStream, startingBitPos0b: Long) =
+          checkLengthAndParseWithinBitLimits(
+            pState,
+            shouldCheckDefinedForLength = false
+          ) match {
+            case Some(result) => result
+            case None => return
+          }
+
+        // at this point the recursive parse of the children is finished
+        // so if we're still successful we need to advance the position
+        // to skip past any bits that the recursive child parse did not
+        // consume at the end. That is, the specified length can be an
+        // outer constraint, but the children may not use it all up, leaving
+        // a section at the end.
+        if (pState.processorStatus ne Success) return
+        val finalEndPos0b = startingBitPos0b + nBits
+
+        // we want to capture the length before we do any skipping
+        // value length of simple types is captured by the eParser
+        if (pState.infoset.isComplex)
+          captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))
+
+        Assert.invariant(dis eq pState.dataInputStream)
+        val bitsToSkip = finalEndPos0b - dis.bitPos0b
+        // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
+        skipBits(pState, bitsToSkip, dis)
+      } else {
+        val startingBitPos0b = dis.bitPos0b
+
+        eParser.parse1(pState)
+
+        // at this point the recursive parse of the children is finished
+        // so if we're still successful we need to advance the position
+        // to skip past any bits that the recursive child parse did not
+        // consume at the end. That is, the specified length can be an
+        // outer constraint, but the children may not use it all up, leaving
+        // a section at the end.
+        if (pState.processorStatus ne Success) return
+
+        // we want to capture the length before we do any skipping
+        // value length of simple types is captured by the eParser
+        if (pState.infoset.isComplex) {
+          captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))
+        }
+
+        val maybeNBits = getBitLength(pState)
+
+        if (pState.processorStatus._ne_(Success)) return
+        val nBits = maybeNBits.get
+
+        if (!dis.isDefinedForLength(nBits)) {
+          PENotEnoughBits(pState, nBits, dis)
+          return
+        }
+        skipBits(pState, nBits, dis)
+      }
+    } else {
+      super.parse(pState)
+    }
+  }
+
 }
 
 class SpecifiedLengthExplicitParser(
