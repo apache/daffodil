@@ -18,6 +18,7 @@
 package org.apache.daffodil.validation
 
 import java.io.IOException
+import java.net.URI
 import java.net.URL
 import java.util.Properties
 import javax.xml.XMLConstants
@@ -60,7 +61,7 @@ object XercesValidatorFactory {
           "invalid configuration: xerces property is empty or not defined"
         )
     }
-    val url = new URL(schemaFile)
+    val url = new URI(schemaFile).toURL
     XercesValidator.fromURL(url)
   }
 }

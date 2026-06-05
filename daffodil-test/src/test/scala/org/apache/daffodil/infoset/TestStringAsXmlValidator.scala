@@ -17,7 +17,7 @@
 package org.apache.daffodil.infoset
 
 import java.io.InputStream
-import java.net.URL
+import java.net.URI
 import java.util.Properties
 
 import org.apache.daffodil.api.validation.ValidationHandler
@@ -30,7 +30,7 @@ object TestStringAsXmlValidator {
 }
 
 class TestStringAsXmlValidator(schemaURL: String) extends Validator {
-  private lazy val xercesValidator = XercesValidator.fromURL(new URL(schemaURL))
+  private lazy val xercesValidator = XercesValidator.fromURL(new URI(schemaURL).toURL)
 
   override def validateXML(document: InputStream, vh: ValidationHandler): Unit = {
     xercesValidator.validateXML(document, vh)
