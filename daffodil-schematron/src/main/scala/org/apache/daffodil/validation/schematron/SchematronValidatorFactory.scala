@@ -19,7 +19,6 @@ package org.apache.daffodil.validation.schematron
 
 import java.io.InputStream
 import java.net.URI
-import java.net.URL
 import java.util.Properties
 
 import org.apache.daffodil.api
@@ -44,13 +43,13 @@ import net.sf.saxon.TransformerFactoryImpl
 object SchematronValidatorFactory {
   def makeValidator(config: Properties): SchematronValidator = {
     val schPathValue = config.getProperty(SchematronValidator.name)
-    val schUrl = new URL({
+    val schUrl = new URI({
       if (!Misc.isNullOrBlank(schPathValue)) schPathValue
       else
         throw new api.validation.ValidatorInitializationException(
           "invalid configuration: schematron property is empty or not defined"
         )
-    })
+    }).toURL
     val schStream =
       try {
         schUrl.openStream()

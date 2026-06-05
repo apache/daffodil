@@ -65,7 +65,7 @@
  *     <p><b>Example:</b></p>
  *     <pre>{@code
  * // enable XML schema validation, setting the "xerces" property to the schema.xsd file
- * dataProcessor.withValidation("xerces", new URL("file:///path/to/schema.xsd"))
+ * dataProcessor.withValidation("xerces", new URI("file:///path/to/schema.xsd").toURL)
  * }</pre>
  *   </dd>
  *
@@ -92,10 +92,10 @@
  *     <p><b>Example:</b></p>
  *     <pre>{@code
  * // enable schematron validation, setting the "schematron" property to the schematron.sch file
- * dataProcessor.withValidation("schematron", new URL("file:///path/to/schematron.sch"))
+ * dataProcessor.withValidation("schematron", new URI("file:///path/to/schematron.sch").toURL)
  *
  * // use schematron validation, reading the schematron.properties file to set "schematron" or other schematron properties
- * dataProcessor.withValidation("schematron", new URL("file:///path/to/schematron.properties"))
+ * dataProcessor.withValidation("schematron", new URI("file:///path/to/schematron.properties").toURL)
  * }</pre>
  *   </dd>
  * </dl>

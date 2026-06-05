@@ -291,9 +291,6 @@ object XMLLoaderFactory {
     val loader = new SchemaAwareFactoryAdapter()
     loader
   }
-
-  //  val doc = loader.load(new URL("http://horstmann.com/index.html"))
-  //  println(doc);
 }
 
 // From http://stackoverflow.com/questions/1627111/how-does-one-validate-the-schema-of-an-xml-file-using-scala
