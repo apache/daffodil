@@ -93,7 +93,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
   ): Option[(Long, InputSourceDataInputStream, Long)] = {
     val maybeNBits = getBitLength(pState)
 
-    if (pState.processorStatus._ne_(Success)) return None
+    if (pState.processorStatus ne Success) return None
     val nBits = maybeNBits.get
     val dis = pState.dataInputStream
 
@@ -213,7 +213,7 @@ class SpecifiedLengthEndOfParentParser(
 
         val maybeNBits = getBitLength(pState)
 
-        if (pState.processorStatus._ne_(Success)) return
+        if (pState.processorStatus ne Success) return
         val nBits = maybeNBits.get
 
         if (!dis.isDefinedForLength(nBits)) {
