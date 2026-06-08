@@ -281,24 +281,25 @@ trait ElementBaseGrammarMixin
         || (currentElement.representation == Representation.Text)
         || (currentElement.primType eq PrimType.HexBinary)
         || (currentElement.representation == Representation.Binary
-          && ((currentElement.binaryNumberRep match {
-            case BinaryNumberRep.Packed => true
-            case BinaryNumberRep.Bcd => true
-            case BinaryNumberRep.Ibm4690Packed => true
+          && ((
+            currentElement.binaryNumberRep,
+            currentElement.optionBinaryCalendarRep
+          ) match {
+            case (
+                  BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed,
+                  _
+                ) =>
+              true
+            case (
+                  _,
+                  Some(
+                    BinaryCalendarRep.Packed | BinaryCalendarRep.Bcd |
+                    BinaryCalendarRep.Ibm4690Packed
+                  )
+                ) =>
+              true
             case _ => false
-          }) || (
-            currentElement.optionBinaryCalendarRep match {
-              case Some(bcr) =>
-                bcr match {
-                  case BinaryCalendarRep.Packed => true
-                  case BinaryCalendarRep.Bcd => true
-                  case BinaryCalendarRep.Ibm4690Packed => true
-                  case _ => false
-                }
-              case None =>
-                false // if no binary calendar rep, then we dont care about what it returns
-            }
-          )))
+          }))
       schemaDefinitionWhen(
         !meetsSimpleTypeRestrictions,
         "element is a simple type specified as dfdl:lengthKind=\"endOfParent\", but isn't a string type, doesn't have text representation, isn't a hexbinary type, or doesn't have binary representation with packed decimal representation."
@@ -629,6 +630,7 @@ trait ElementBaseGrammarMixin
       )
   }
 
+  private lazy val unsupportedLengthKindEOPMessage = "lengthKind='endOfParent' only supported for packed binary formats."
   /**
    * Property consistency check for called for all binary numbers
    *
@@ -661,17 +663,17 @@ trait ElementBaseGrammarMixin
     case LengthKind.EndOfParent if optionBinaryCalendarRep.isDefined =>
       binaryCalendarRep match {
         case BinaryCalendarRep.BinaryMilliseconds | BinaryCalendarRep.BinarySeconds =>
-          SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+          SDE(unsupportedLengthKindEOPMessage)
         case _ => -1
       }
     case LengthKind.EndOfParent if optionBinaryNumberRep.isDefined =>
       binaryNumberRep match {
         case BinaryNumberRep.Binary =>
-          SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+          SDE(unsupportedLengthKindEOPMessage)
         case _ => -1
       }
     case LengthKind.EndOfParent =>
-      SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+      SDE(unsupportedLengthKindEOPMessage)
   }
 
   private def explicitBinaryLengthInBits() = {
