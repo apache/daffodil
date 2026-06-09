@@ -258,22 +258,23 @@ abstract class SequenceParserBase(
             resultOfTry = nextResultOfTry
             resultOfTry match {
               case AbsentRep => {
-                // a scalar element, or a model group is absent. That means no separator
-                // was found for it.
-                //
-                // That means were at the end of the representation of this sequence,
-                // This is only returned as resultOfTry if it is
-                // OK for us to act on it. I.e., we know that the situation is
-                // Positional trailing, with a group that can have zero-length representation.
-                // and no separator was found for it.
-                //
-                // So we mask the failure, and exit the sequence successfully
-                pstate.setSuccess()
-                isDone = true
-                // If we're masking the failure, we don't want the error dianostics
-                // to flow up. Restore the diagnostics from before the parse
-                // attempt
-                pstate.diagnostics = diagnosticsBeforeAttempt
+                // A scalar element is absent. For positional trailing, this means no
+                // separator was found, so we mask the failure and exit the sequence
+                // successfully. For non-positional separated sequences (e.g., anyEmpty
+                // postfix), the postfix separator was found and position has already
+                // been advanced past it by parseOneInstanceWithMaybePoU, so we
+                // continue parsing the next sequence child instead.
+                val continueSequence = scalarParser match {
+                  case sep: Separated => !sep.isPositional
+                  case _ => false
+                }
+                if (continueSequence) {
+                  pstate.mpstate.moveOverOneGroupIndexOnly()
+                } else {
+                  pstate.setSuccess()
+                  isDone = true
+                  pstate.diagnostics = diagnosticsBeforeAttempt
+                }
               }
 
               // This child alternative of an unordered sequence failed, and that

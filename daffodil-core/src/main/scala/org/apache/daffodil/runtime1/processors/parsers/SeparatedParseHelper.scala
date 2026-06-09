@@ -185,7 +185,6 @@ final class PostfixSeparatorHelper(
   scParserArg: Separated,
   isSimpleDelimited: Boolean
 ) extends SeparatorParseHelper(sep, child, scParserArg) {
-  import ParseAttemptStatus.*
 
   override def parseOneWithSeparator(
     pstate: PState,
@@ -227,8 +226,13 @@ final class PostfixSeparatorHelper(
           // usually (except first one in infix case) don't run the child parser
           val failure = pstate.processorStatus.asInstanceOf[Failure]
 
-          Assert.invariant(!pstate.isPointOfUncertaintyResolved(pou))
-          pstate.resetToPointOfUncertainty(pou)
+          if (!pstate.isPointOfUncertaintyResolved(pou)) {
+            pstate.resetToPointOfUncertainty(pou)
+          } else {
+            // pou was resolved by a discriminator somewhere, so
+            // we need to resolve the outer POU here
+            pstate.resolvePointOfUncertainty()
+          }
 
           pstate.setFailed(failure.cause)
           failedSeparator(pstate, "postfix")
@@ -257,33 +261,34 @@ final class PostfixSeparatorHelper(
         // If the type is simple, and lengthKind 'delimited' we can proceed.
         // Otherwise we punt and call it missing.
         //
-        if (isSimpleDelimited) {
+        if (isSimpleDelimited && !pstate.isPointOfUncertaintyResolved(pou)) {
           val failure = pstate.processorStatus.asInstanceOf[Failure]
 
-          Assert.invariant(!pstate.isPointOfUncertaintyResolved(pou))
           pstate.resetToPointOfUncertainty(pou)
 
           sep.parse1(pstate)
           if (pstate.isSuccess) {
-            val posAfterSep = pstate.bitPos0b
-            // failed child, but success on postfix sep.
-            // behave here just like a prefix separator that was then followed by a child failure
+            // child failed, but postfix sep found immediately after reset
+            // marking this as ZL content.
+            // Use hasZLChildAttempt (captured before sep.parse1) so isZL reflects
+            // the child bit position, not the post-separator position.
             pstate.setFailed(failure.cause)
-            val pas =
-              prh.computeParseAttemptStatus(
-                scParser,
-                prevBitPosBeforeChild,
-                pstate,
-                requiredOptional
-              )
-            val res = pas match {
-              case AbsentRep => {
-                pstate.dataInputStream.setBitPos0b(posAfterSep)
-                MissingSeparator
-              }
+            val pas = prh.computeFailedParseAttemptStatus(
+              scParser,
+              prevBitPosBeforeChild,
+              pstate,
+              hasZLChildAttempt,
+              requiredOptional
+            )
+            // For non-positional (anyEmpty) sequences, the child result helper returns
+            // MissingItem for optional ZL elements, but since the postfix separator WAS
+            // found this is AbsentRep per DFDL spec 9.2.4.
+            pas match {
+              case ParseAttemptStatus.MissingItem
+                  if requiredOptional.isInstanceOf[RequiredOptionalStatus.Optional] =>
+                ParseAttemptStatus.AbsentRep
               case _ => pas
             }
-            res
           } else {
             // the separator failed on ZL data
             // so no chance on a ZL representation here.
