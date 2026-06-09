@@ -21,7 +21,6 @@ import java.lang.Long as JLong
 import java.util.regex.Matcher
 
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.MaybeULong

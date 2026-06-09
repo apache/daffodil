@@ -630,7 +630,9 @@ trait ElementBaseGrammarMixin
       )
   }
 
-  private lazy val unsupportedLengthKindEOPMessage = "lengthKind='endOfParent' only supported for packed binary formats."
+  private lazy val unsupportedLengthKindEOPMessage =
+    "lengthKind='endOfParent' only supported for packed binary formats."
+
   /**
    * Property consistency check for called for all binary numbers
    *
