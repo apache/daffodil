@@ -31,6 +31,11 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.runtime1.processors.ImplicitLengthEv
+import org.apache.daffodil.runtime1.processors.LengthInBitsEv
+import org.apache.daffodil.runtime1.processors.MinLengthInBitsEv
+import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 
 /////////////////////////////////////////////////////////////////
 // Common to all Terms (Elements and ModelGroups)
@@ -110,6 +115,70 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
       // Sequences are transparent — the ELU is inherited from the nearest enclosing box.
       case _: SequenceTermBase => optLastNonEOPELU
       case _: ChoiceTermBase => None // implicit-length choice; SDE fires separately
+    }
+  }
+
+  /**
+   * Top-down map from each EOP element to a tuple of:
+   *   _1: Boolean - whether padding is suppressed (parent has expression-based dfdl:length)
+   *   _2: Option[UnparseTargetLengthInBitsEv] - the box target ev when the EOP is inside a
+   *       constant-length element or explicit-length choice; None otherwise.
+   *
+   * Built in one pass from this term's descendant tree. Call on the schema root
+   * to get the complete picture for all EOP elements in the schema.
+   */
+  final lazy val eopElementInfoMap
+    : Map[ElementBase, (Boolean, Option[UnparseTargetLengthInBitsEv])] = {
+    type Info = (Boolean, Option[UnparseTargetLengthInBitsEv])
+
+    def elementInfo(e: ElementBase): (Boolean, Option[UnparseTargetLengthInBitsEv]) = {
+      val suppresses = e.suppressesEOPChildPadding
+      val optBoxEv: Option[UnparseTargetLengthInBitsEv] =
+        if (e.lengthKind == LengthKind.Explicit && e.lengthEv.isConstant)
+          Some(e.unparseTargetLengthInBitsEv)
+        else
+          None
+      (suppresses, optBoxEv)
+    }
+
+    def choiceBoxEv(c: ChoiceTermBase, eop: ElementBase): UnparseTargetLengthInBitsEv = {
+      // we use ImplicitLengthEv because it exists for lengths that are
+      // schema-compile-time constants with no expression to evaluate.
+      val constLenEv = new ImplicitLengthEv(c.choiceLength.toLong, eop.eci)
+      constLenEv.compile(eop.tunable)
+      // dfdl:choiceLength is specified by the DFDL spec to always be in bytes
+      val lenInBitsEv =
+        new LengthInBitsEv(LengthUnits.Bytes, LengthKind.Explicit, Nope, constLenEv, eop.eci)
+      lenInBitsEv.compile(eop.tunable)
+      val zeroMinEv =
+        new MinLengthInBitsEv(LengthUnits.Bytes, LengthKind.Explicit, Nope, 0L, eop.eci)
+      zeroMinEv.compile(eop.tunable)
+      val boxEv = new UnparseTargetLengthInBitsEv(lenInBitsEv, zeroMinEv, eop.eci)
+      boxEv.compile(eop.tunable)
+      boxEv
+    }
+
+    def collectFromTerms(terms: Seq[Term]): Seq[(ElementBase, Info)] =
+      terms.flatMap {
+        case e: ElementBase if e.lengthKind == LengthKind.EndOfParent =>
+          Nil // EOP child; its enclosing parent/choice already added the entry
+        case e: ElementBase =>
+          val info = elementInfo(e)
+          e.childrenEndOfParent.map(_ -> info) ++ collectFromTerms(e.termChildren)
+        case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
+          val eops = c.childrenEndOfParent
+          val entries = eops.map(eop => eop -> (false, Some(choiceBoxEv(c, eop))))
+          entries ++ collectFromTerms(c.termChildren)
+        case other =>
+          collectFromTerms(other.termChildren)
+      }
+
+    this match {
+      case e: ElementBase =>
+        val info = elementInfo(e)
+        (e.childrenEndOfParent.map(_ -> info) ++ collectFromTerms(e.termChildren)).toMap
+      case other =>
+        collectFromTerms(other.termChildren).toMap
     }
   }
 

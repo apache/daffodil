@@ -3512,4 +3512,560 @@
 		</tdml:infoset>
 	</tdml:unparserTestCase>
 
+	<!--
+	  EOP text elements with padding properties.
+  -->
+	<tdml:defineSchema name="eopTextPadding">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" fillByte="%NUL;"/>
+
+		<!-- xs:string, right-justified, padChar='_', minLength=5, inside 5-byte explicit parent -->
+		<xs:element name="root_str_right">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textStringPadCharacter="_"
+								            dfdl:textStringJustification="right">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:minLength value="5"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- xs:string, left-justified, padChar=' ', minLength=5, inside 5-byte explicit parent -->
+		<xs:element name="root_str_left">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textStringPadCharacter="%SP;"
+								            dfdl:textStringJustification="left">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:minLength value="5"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!--
+		  xs:int text rep, right-justified, padChar=' ', textOutputMinLength=5,
+		  inside 5-byte explicit parent.  Uses textOutputMinLength instead of
+		  xs:minLength because xs:int does not have a minLength facet.
+		-->
+		<xs:element name="root_int_right">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            type="xs:int"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textNumberPadCharacter="%SP;"
+								            dfdl:textNumberJustification="right"
+								            dfdl:textOutputMinLength="5"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  Direct unparse test: value "hi" is shorter than minLength=5.
+	  Before fix: outputs "hi\x00\x00\x00" (no padding, NUL fill from parent).
+	  After fix:  outputs "___hi" (3 leading '_' pad chars fill to minLength).
+	-->
+	<tdml:unparserTestCase name="eop_text_pad_str_right_unparse"
+	                       root="root_str_right"
+	                       model="eopTextPadding"
+	                       description="EOP xs:string right-justified: LeftPadding fills to minLength on unparse">
+		<tdml:document>
+			<tdml:documentPart type="text">___hi</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_str_right>
+					<ex:parent>
+						<ex:val>hi</ex:val>
+					</ex:parent>
+				</ex:root_str_right>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  Round-trip: parse "__abc" -> infoset "abc" -> unparse back to "__abc".
+	-->
+	<tdml:parserTestCase name="eop_text_pad_str_right_roundtrip"
+	                     root="root_str_right"
+	                     model="eopTextPadding"
+	                     roundTrip="onePass"
+	                     description="EOP xs:string right-justified: round-trip preserves leading pad chars">
+		<tdml:document>
+			<tdml:documentPart type="text">__abc</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_str_right>
+					<parent>
+						<val>abc</val>
+					</parent>
+				</ex:root_str_right>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  Round-trip: parse "abc  " -> infoset "abc" -> unparse back to "abc  ".
+	-->
+	<tdml:parserTestCase name="eop_text_pad_str_left_roundtrip"
+	                     root="root_str_left"
+	                     model="eopTextPadding"
+	                     roundTrip="onePass"
+	                     description="EOP xs:string left-justified: round-trip preserves trailing pad chars">
+		<tdml:document>
+			<tdml:documentPart type="text">abc  </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_str_left>
+					<parent>
+						<val>abc</val>
+					</parent>
+				</ex:root_str_left>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  Round-trip: parse "   42" -> infoset 42 -> unparse back to "   42".
+	  Uses textOutputMinLength (not xs:minLength) which is the mechanism for
+	  non-string text types.
+	-->
+	<tdml:parserTestCase name="eop_text_pad_num_right_roundtrip"
+	                     root="root_int_right"
+	                     model="eopTextPadding"
+	                     roundTrip="onePass"
+	                     description="EOP xs:int text right-justified: round-trip with textOutputMinLength padding">
+		<tdml:document>
+			<tdml:documentPart type="text">   42</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_int_right>
+					<parent>
+						<val>42</val>
+					</parent>
+				</ex:root_int_right>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  Per DFDL spec 12.3.6, EOP padding (LeftPadding/RightPad) must NOT be
+	  applied when the parent's dfdl:length is an expression (not a literal
+	  constant). The parent is sized at runtime by evaluating '../len'.
+	-->
+	<tdml:defineSchema name="eopPaddingExprParent">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" fillByte="%NUL;"/>
+
+		<!--
+		  len: 1-byte unsigned integer carrying the byte length of 'parent'
+		  parent: explicit-length box sized by runtime expression '../len'
+		  val: EOP xs:int, right-justified, space pad, textOutputMinLength=5.
+		-->
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="len" type="xs:unsignedByte"
+					            dfdl:representation="binary" dfdl:lengthKind="implicit"/>
+					<xs:element name="parent"
+					            dfdl:lengthKind="explicit"
+					            dfdl:length="{ xs:int(../ex:len) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            type="xs:int"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textNumberPadCharacter="%SP;"
+								            dfdl:textNumberJustification="right"
+								            dfdl:textOutputMinLength="5"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  Direct unparse: len=2, val=42.  The parent box is 2 bytes (from expression).
+	  Per spec there's no padding and '42' is written as-is
+	-->
+	<tdml:unparserTestCase name="eop_no_pad_when_expr_parent_unparse"
+	                       root="root" model="eopPaddingExprParent"
+	                       description="G2: EOP xs:int in expression-length parent — no padding on unparse">
+		<tdml:document>
+			<tdml:documentPart type="byte">02 34 32</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:len>2</ex:len>
+					<ex:parent>
+						<ex:val>42</ex:val>
+					</ex:parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  Round-trip: 0x02 '4' '2' -> parse len=2 val=42 -> unparse back to 0x02 '4' '2'.
+	  Before the gate fix unparse fails (overflow), so the round-trip fails.
+	-->
+	<tdml:parserTestCase name="eop_no_pad_when_expr_parent_roundtrip"
+	                     root="root" model="eopPaddingExprParent"
+	                     roundTrip="onePass"
+	                     description="G2: EOP xs:int in expression-length parent — onePass round-trip without padding">
+		<tdml:document>
+			<tdml:documentPart type="byte">02 34 32</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<len>2</len>
+					<parent>
+						<val>42</val>
+					</parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  EOP elements should pad to the FULL available box length, not just
+	  dfdl:textOutputMinLength / xs:minLength (DFDL spec 12.3.6 and 13.2).
+
+	  Schema: 8-byte explicit-length parent (eopParent) or 8-byte explicit-length choice (eopChoice).
+	  EOP xs:string, right-justified, padChar=space, fillByte=NUL, minLength=3.
+	  Value "ab" (2 bytes) is shorter than minLength AND shorter than the box.
+
+	  Without the fix: padding fills only to minLength (3 bytes) -> " ab" + 5 NUL bytes.
+	  With the fix   : padding fills to the full box (8 bytes)    -> "      ab".
+	-->
+	<tdml:defineSchema name="eopPadToBoxTests">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat"
+		             lengthKind="endOfParent"
+		             encoding="US-ASCII"
+		             fillByte="%NUL;"
+		             textPadKind="padChar"
+		             textStringPadCharacter="%SP;"
+		             textStringJustification="right"
+		             textTrimKind="padChar"/>
+
+		<!-- EOP string as sole content of an 8-byte constant explicit-length parent -->
+		<xs:element name="eopParent" dfdl:lengthKind="explicit"
+		            dfdl:length="8" dfdl:lengthUnits="bytes">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="str" dfdl:lengthKind="endOfParent" dfdl:lengthUnits="bytes">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="3"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- EOP string as a branch of an 8-byte explicit-length choice -->
+		<xs:element name="eopChoice">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="8">
+						<xs:element name="str" dfdl:lengthKind="endOfParent" dfdl:lengthUnits="bytes">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="3"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  value "ab" in 8-byte box -> "      ab" (6 spaces + ab).
+	  Before fix: " ab\x00\x00\x00\x00\x00" (pad to minLen=3, rest fillByte=NUL).
+	-->
+	<tdml:unparserTestCase name="eop_pad_to_parent_box_01"
+	                       root="eopParent" model="eopPadToBoxTests"
+	                       description="EOP string pads to full 8-byte parent box on unparse">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopParent>
+					<ex:str>ab</ex:str>
+				</ex:eopParent>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  parse "      ab" -> str="ab"; unparse "ab" -> "      ab".
+	  Before fix: unparse produces " ab\x00\x00\x00\x00\x00" -> round-trip fails.
+	-->
+	<tdml:parserTestCase name="eop_pad_to_parent_box_02"
+	                     root="eopParent" model="eopPadToBoxTests"
+	                     roundTrip="onePass"
+	                     description="EOP string round-trips through full 8-byte parent box">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopParent>
+					<ex:str>ab</ex:str>
+				</ex:eopParent>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  EOP branch of 8-byte explicit-length choice.
+	  Value "ab" -> "      ab" (6 spaces + ab, filling full choice box).
+	  Before fix: " ab\x00\x00\x00\x00\x00" (pad to minLen=3, choice ChoiceUnused fills rest with NUL).
+	-->
+	<tdml:unparserTestCase name="eop_pad_to_choice_box_01"
+	                       root="eopChoice" model="eopPadToBoxTests"
+	                       description="EOP choice branch pads to full 8-byte choice box on unparse">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopChoice>
+					<ex:str>ab</ex:str>
+				</ex:eopChoice>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  parse "      ab" through the choice -> str="ab";
+	  unparse "ab" -> "      ab".
+	-->
+	<tdml:parserTestCase name="eop_pad_to_choice_box_02"
+	                     root="eopChoice" model="eopPadToBoxTests"
+	                     roundTrip="onePass"
+	                     description="EOP choice branch round-trips through full 8-byte choice box">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopChoice>
+					<ex:str>ab</ex:str>
+				</ex:eopChoice>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
+	<!--
+	  12.3.2.1 Delimiter scanning suspension.
+	  Parent has lengthKind="explicit" and a terminator character "|".
+	  The EOP child's content intentionally embeds that same "|" character to
+	  confirm that delimiter scanning is suspended while the EOP element is
+	  being processed: the embedded "|" is treated as data, not as the parent's
+	  terminator.
+	-->
+	<tdml:defineSchema name="eopDelimSuspension">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" representation="text"
+		             lengthKind="explicit" lengthUnits="bytes"/>
+
+		<!--
+		  8-byte explicit content box terminated by "|".
+		  'pre' occupies the first 3 bytes; 'eop' fills the remaining 5 bytes.
+		  The eop value "de|fg" contains the parent's terminator character.
+		-->
+		<xs:element name="root" dfdl:lengthKind="explicit" dfdl:length="8"
+		            dfdl:terminator="|">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="pre" type="xs:string" dfdl:length="3"/>
+					<xs:element name="eop" type="xs:string" dfdl:lengthKind="endOfParent"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  parse "abcde|fg|":
+	    pre = "abc" (3 bytes)
+	    eop = "de|fg" (5 bytes; the embedded "|" is data, not the parent's terminator)
+	    final "|" is consumed as root's terminator
+	  12.3.2.1: delimiter scanning is suspended inside the EOP element.
+	-->
+	<tdml:parserTestCase name="eop_delim_scan_suspended_01"
+	                     root="root" model="eopDelimSuspension"
+	                     roundTrip="onePass"
+	                     description="§12.3.2.1 delimiter scanning suspended inside EOP element">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde|fg|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:pre>abc</ex:pre>
+					<ex:eop>de|fg</ex:eop>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  unparse {pre="abc", eop="de|fg"} -> "abcde|fg|"
+	  Confirms the unparser writes the "|" in eop as literal data followed by
+	  the parent's own "|" terminator, not confused by delimiter context.
+	-->
+	<tdml:unparserTestCase name="eop_delim_scan_suspended_02"
+	                       root="root" model="eopDelimSuspension"
+	                       description="§12.3.2.1 unparse EOP whose value contains the parent terminator char">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde|fg|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:pre>abc</ex:pre>
+					<ex:eop>de|fg</ex:eop>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  9.3.2 Zero-length EOP.
+	  Spec: "endOfParent - already positioned at parent's end so length is zero."
+	  When a prior sibling exactly fills the parent's explicit-length box, the EOP
+	  element starts at the parent's end boundary and must parse/unparse as
+	  zero-length (empty value).
+	-->
+	<tdml:defineSchema name="eopZeroLength">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" representation="text"
+		             lengthKind="explicit" lengthUnits="bytes"/>
+
+		<!--
+		  Text case: pre fills all 5 bytes; eop starts at the parent boundary -> "".
+		-->
+		<xs:element name="rootST" dfdl:lengthKind="explicit" dfdl:length="5">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="pre" type="xs:string" dfdl:length="5"/>
+					<xs:element name="eop" type="xs:string" dfdl:lengthKind="endOfParent"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!--
+		  Binary case: pre fills all 4 bytes; eop starts at the parent boundary -> empty hexBinary.
+		-->
+		<xs:element name="rootBin" dfdl:lengthKind="explicit" dfdl:length="4"
+		            dfdl:representation="binary">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="pre" type="xs:hexBinary" dfdl:length="4"
+					            dfdl:representation="binary"/>
+					<xs:element name="eop" type="xs:hexBinary" dfdl:lengthKind="endOfParent"
+					            dfdl:representation="binary"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  9.3.2 zero-length EOP, simple-type string.
+	  "hello" (5 bytes) fills the entire 5-byte parent box.
+	  eop parses/unparses as "" (zero bytes, already at parent end).
+	-->
+	<tdml:parserTestCase name="eop_zero_length_st_01"
+	                     root="rootST" model="eopZeroLength"
+	                     roundTrip="onePass"
+	                     description="§9.3.2 EOP at parent boundary yields zero-length string">
+		<tdml:document>
+			<tdml:documentPart type="text">hello</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<ex:pre>hello</ex:pre>
+					<ex:eop/>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  9.3.2 zero-length EOP, hexBinary (exercises HexBinaryLengthEndOfParent).
+	  0xDEADBEEF (4 bytes) fills the entire 4-byte parent box.
+	  eop parses/unparses as "" (zero bytes, already at parent end).
+	-->
+	<tdml:parserTestCase name="eop_zero_length_bin_01"
+	                     root="rootBin" model="eopZeroLength"
+	                     roundTrip="onePass"
+	                     description="§9.3.2 EOP at parent boundary yields zero-length hexBinary">
+		<tdml:document>
+			<tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootBin>
+					<ex:pre>DEADBEEF</ex:pre>
+					<ex:eop/>
+				</ex:rootBin>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

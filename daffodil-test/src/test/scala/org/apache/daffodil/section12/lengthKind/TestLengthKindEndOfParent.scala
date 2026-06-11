@@ -132,4 +132,23 @@ class TestLengthKindEndOfParent extends TdmlTests {
 
   @Test def eop_unparse_fill_exact = test
   @Test def eop_unparse_fill_short = test
+
+  @Test def eop_text_pad_str_right_unparse = test
+  @Test def eop_text_pad_str_right_roundtrip = test
+  @Test def eop_text_pad_str_left_roundtrip = test
+  @Test def eop_text_pad_num_right_roundtrip = test
+
+  @Test def eop_no_pad_when_expr_parent_unparse = test
+  @Test def eop_no_pad_when_expr_parent_roundtrip = test
+
+  @Test def eop_pad_to_parent_box_01 = test
+  @Test def eop_pad_to_parent_box_02 = test
+  @Test def eop_pad_to_choice_box_01 = test
+  @Test def eop_pad_to_choice_box_02 = test
+
+  @Test def eop_delim_scan_suspended_01 = test
+  @Test def eop_delim_scan_suspended_02 = test
+
+  @Test def eop_zero_length_st_01 = test
+  @Test def eop_zero_length_bin_01 = test
 }

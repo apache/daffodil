@@ -72,13 +72,19 @@ trait ElementBaseGrammarMixin
 
   lazy val isPrefixed: Boolean = lengthKind == LengthKind.Prefixed
 
-  protected lazy val isDelimitedPrefixedPattern: Boolean = {
+  /**
+   * True for the length kinds where padding uses a minimum target length
+   * (textOutputMinLength or xs:minLength) rather than a fixed target length.
+   * These are: Delimited, Pattern, Prefixed, and EndOfParent.
+   */
+  protected lazy val isMinLengthKind: Boolean = {
     import LengthKind.*
     lengthKind match {
       case Delimited =>
         true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
       case Pattern => true
       case Prefixed => true
+      case EndOfParent => true
       case _ => false
     }
   }
@@ -97,13 +103,37 @@ trait ElementBaseGrammarMixin
   }
 
   /**
-   * true if padding will be inserted for this delimited element when unparsing.
+   * True when this element is explicit-length with a runtime-evaluated dfdl:length
+   * expression. Per DFDL spec 12.3.6, EOP children of such a parent must not receive
+   * padding grammar pieces on unparse; padding only applies when the parent has a
+   * constant dfdl:length.
    */
-  protected lazy val isDelimitedPrefixedPatternWithPadding = {
-    (isDelimitedPrefixedPattern &&
+  lazy val suppressesEOPChildPadding: Boolean =
+    lengthKind == LengthKind.Explicit && !lengthEv.isConstant
+
+  /**
+   * True when this EOP element's nearest enclosing explicit-length parent uses a
+   * runtime expression for dfdl:length. Queries the root-level eopElementInfoMap
+   * so the rule is established top-down from the root.
+   * Per spec 12.3.6, padding is only valid when the parent has constant dfdl:length.
+   */
+  private lazy val isEOPInsideExpressionLengthParent: Boolean =
+    (lengthKind eq LengthKind.EndOfParent) &&
+      schemaSet.root.eopElementInfoMap.get(this).exists(_._1)
+
+  /**
+   * True when this element requires min length padding to be inserted on
+   * unparse i.e the length kind is in the min length group, representation is
+   * text, justification is not none, and the min length is positive.
+   * Excludes EOP elements whose parent uses a runtime-expression dfdl:length
+   * (spec 12.3.6: padding is only valid when parent has constant dfdl:length).
+   */
+  protected lazy val isMinLengthKindWithPadding = {
+    (isMinLengthKind &&
     (impliedRepresentation eq Representation.Text) &&
     (justificationPad ne TextJustificationType.None) &&
-    minLen > 0)
+    minLen > 0 &&
+    !isEOPInsideExpressionLengthParent)
   }
 
   private lazy val prefixLengthTypeGSTD = LV(Symbol("prefixLengthTypeGSTD")) {
@@ -323,7 +353,7 @@ trait ElementBaseGrammarMixin
         (lengthUnits eq LengthUnits.Characters)
       )
         maybeUnparseTargetLengthInBitsEv.isDefined // "pad" complex types.
-      else if (isDelimitedPrefixedPatternWithPadding)
+      else if (isMinLengthKindWithPadding)
         true // simple type for unparse that needs to be padded.
       else
         // simple type, specified length.
@@ -364,7 +394,7 @@ trait ElementBaseGrammarMixin
   //   * This is about whether the box we're fitting it into is fixed or varying size.
   //   */
   //  final protected lazy val isVariableLengthRep: Boolean = {
-  //    isDelimitedPrefixedPattern ||
+  //    isMinLengthKind ||
   //      ((lengthKind eq LengthKind.Explicit) &&
   //        !lengthEv.optConstant.isDefined)
   //        //

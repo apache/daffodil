@@ -77,6 +77,14 @@ class TestLengthKindPattern extends TdmlTests {
   @Test def lengthPatternEncodingErrorReplace = test
 
   @Test def lengthPatternBinaryPatternLimit = test
+
+  @Test def pattern_pad_str_right_unparse = test
+  @Test def pattern_pad_str_right_roundtrip = test
+  @Test def pattern_pad_str_no_padding_needed = test
+
+  @Test def pattern_pad_utf16_str_right_unparse = test
+  @Test def pattern_pad_utf16_str_right_roundtrip = test
+  @Test def pattern_pad_utf16_str_no_padding_needed = test
 }
 
 class TestLengthKindPatternAI extends TdmlTests {

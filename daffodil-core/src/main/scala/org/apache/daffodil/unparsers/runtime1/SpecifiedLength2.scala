@@ -556,14 +556,23 @@ class ChoiceUnusedUnparserSuspendableOperation(
   }
 
   /**
-   * determine delta between value length and target length
+   * Fills the unused tail of the choice box with skip bits.
    *
-   * and skip that many bits.
+   * [[dosToCheck_]] is the DOS chain bracketing the branch content, from the
+   * RegionSplitUnparser capture at entry to the one at exit.  Each DOS in the
+   * chain either died (was collapsed into its successor via setFinished /
+   * deliverBufferContent), freezing its relBitPos0b at the bits it had absorbed
+   * at death, or is still live (dosForEnd), accumulating any remaining writes.
+   *
+   * Because deliverBufferContent only ever adds to the absorbing DOS, the DOS
+   * that was made direct most recently always holds the largest relBitPos0b,
+   * which equals the true total branch length in bits. Taking the max across
+   * the chain is therefore correct regardless of how many intermediate DOS
+   * splits were introduced by suspensions inside the branch (e.g.
+   * AlignmentFillUnparserSuspendableOperation, OnlyPaddingUnparserSuspendableOperation).
    */
   override def continuation(ustate: UState): Unit = {
-    val startPos0b = dosToCheck_(0).relBitPos0b
-    val endPos0b = dosToCheck_.last.relBitPos0b + startPos0b
-    val vl = (endPos0b - startPos0b).toLong
+    val vl = dosToCheck_.map(_.relBitPos0b.toLong).max
     val skipInBits = targetLengthInBits - vl
     if (skipInBits < 0)
       UE(
