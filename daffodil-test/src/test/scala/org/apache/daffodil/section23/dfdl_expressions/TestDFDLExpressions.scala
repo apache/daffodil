@@ -781,6 +781,9 @@ class TestDFDLFunctions extends TdmlTests {
   @Test def secondsfromdatetime_03 = test
   @Test def timezonefromdatetime_01 = test
   @Test def timezonefromdatetime_02 = test
+  @Test def datetimemicroseconds_01 = test
+  @Test def datetimemicroseconds_02 = test
+  @Test def datetimezeroMillis = test
 
   @Test def xfromdatetime_01 = test
   @Test def xfromdatetime_02 = test
