@@ -19,6 +19,7 @@ package org.apache.daffodil.lib.xml
 
 import java.io.File
 import java.io.IOException
+import java.math.RoundingMode
 import java.net.URI
 import java.net.URISyntaxException
 import java.nio.charset.StandardCharsets
@@ -28,6 +29,7 @@ import java.nio.file.StandardOpenOption
 import javax.xml.XMLConstants
 import javax.xml.datatype.DatatypeConstants
 import javax.xml.datatype.DatatypeFactory
+import javax.xml.datatype.XMLGregorianCalendar
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
@@ -1303,6 +1305,27 @@ Differences were (path, expected, actual):
   }
 
   /**
+   * Normalizes an XMLGregorianCalendar in place prior to comparison, so that
+   * values which are logically equal but differ in representation compare as
+   * equal. Mutates the calendar in place.
+   *
+   * Currently supported normalizations:
+   *   - Fractional seconds: truncated to millisecond precision (3 digits),
+   *     dropping sub-millisecond (microsecond) digits, since ICU calendars
+   *     are millisecond-precision.
+   *
+   * Additional normalizations may be added here as needed.
+   *
+   * @param cal the calendar to normalize in place
+   */
+  private def normalizeXmlCalendar(cal: XMLGregorianCalendar): Unit = {
+    val frac = cal.getFractionalSecond
+    if (frac != null) {
+      cal.setFractionalSecond(frac.setScale(3, RoundingMode.DOWN))
+    }
+  }
+
+  /**
    * Compares two XSD date/time lexical strings (`xs:date`, `xs:time`, or
    * `xs:dateTime`) for value equality by parsing both into `XMLGregorianCalendar`
    * and comparing via the XSD `·order·` relation.
@@ -1323,6 +1346,8 @@ Differences were (path, expected, actual):
   private def dateTimeIsSame(dataA: String, dataB: String): Boolean = {
     val a = datatypeFactory.newXMLGregorianCalendar(dataA)
     val b = datatypeFactory.newXMLGregorianCalendar(dataB)
+    normalizeXmlCalendar(a)
+    normalizeXmlCalendar(b)
     a.compare(b) == DatatypeConstants.EQUAL
   }
 

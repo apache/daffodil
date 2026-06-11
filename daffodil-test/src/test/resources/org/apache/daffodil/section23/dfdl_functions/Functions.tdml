@@ -14735,7 +14735,94 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+
+  <tdml:defineSchema name="MicrosecondsDateTime">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="text" lengthKind="delimited" />
+
+    <xs:element name="timestampNano" type="xs:dateTime"
+                dfdl:calendarPatternKind="explicit"
+                dfdl:calendarPattern="yyyy-MM-dd'T'HH:mm:ss.SSSXXX" />
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: datetimemicroseconds_01
+        Schema: MicrosecondsDateTime
+          Root: timestampNano
+       Purpose: Verifies the TDML runner ignores microsecond differences when
+                comparing xs:dateTime values. ICU calendars are
+                millisecond-precision, so microseconds are not preserved on
+                parse; the expected value here carries microsecond precision
+                that the parse drops. verifyParserTestData compares expected vs.
+                actual via dateTimeIsSame, which uses XMLGregorianCalendar.
+                XMLGregorianCalendar does not tolerate microsecond differences
+                by default, so dateTimeIsSame normalizes each calendar to
+                millisecond precision (truncating sub-millisecond digits) after
+                construction and before comparison. This satisfies DAFFODIL-3086.
+                Note: this value does not round-trip, since the dropped
+                microseconds cannot be reproduced on unparse.
+ -->
+  <tdml:parserTestCase name="datetimemicroseconds_01" root="timestampNano"
+                       model="MicrosecondsDateTime"
+                       description="TDML runner ignores fractional microseconds in dateTime comparison"
+                       roundTrip="none">
+    <tdml:document>2003-08-24T05:14:15.000-07:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:timestampNano>2003-08-24T05:14:15.000003-07:00</ex:timestampNano>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: datetimemicroseconds_02
+       Schema: MicrosecondsDateTime
+         Root: timestampNano
+      Purpose: Microsecond-precision xs:dateTime input parses and round-trips
+               under twoPass. ICU calendars are millisecond-precision, so the
+               sub-millisecond digits are not preserved: unparse emits the
+               millisecond value (differing from the original input, as twoPass
+               expects), and reparse yields the same infoset. Again, the TDML
+               Runner ignores the fractional-microsecond difference when comparing
+               via dateTimeIsSame which uses the XMLGregorianCalendar.
+-->
+  <tdml:parserTestCase name="datetimemicroseconds_02" root="timestampNano"
+                       model="MicrosecondsDateTime"
+                       description="Microsecond dateTime round-trips under twoPass;
+                       runner ignores fractional microseconds in comparison"
+                       roundTrip="twoPass">
+    <tdml:document>2003-08-24T05:14:15.000003-07:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:timestampNano>2003-08-24T05:14:15.000003-07:00</ex:timestampNano>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: datetimezeroMillis
+       Schema: MicrosecondsDateTime
+         Root: timestampNano
+      Purpose: A dateTime with all-zero milliseconds (.000) compares equal to
+               the same value with no fractional part. ICU renders zero
+               milliseconds as no fraction, so the TDML runner must treat
+               "...15.000-07:00" and "...15-07:00" as the same instant.
+               Verifies XMLGregorianCalendar treats .000 milliseconds and no
+               fractional part as the same instant; native behavior, independent
+               of fractional-second truncation.
+-->
+  <tdml:parserTestCase name="datetimezeroMillis" root="timestampNano"
+                       model="MicrosecondsDateTime"
+                       description="dateTime with .000 milliseconds compares equal to no fractional seconds">
+    <tdml:document>2003-08-24T05:14:15.000-07:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:timestampNano>2003-08-24T05:14:15-07:00</ex:timestampNano>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test Name: timezonefromdate_01
        Schema: Functions.dfdl.xsd
