@@ -23,6 +23,7 @@ import scala.xml.Node
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.InvalidRestrictionPolicy
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.*
 
@@ -388,15 +389,15 @@ trait Facets { self: Restriction =>
   ): java.math.BigDecimal = {
     val remoteFacets = getRemoteFacetValues(theType)
     if (!exists) SDE("The facet %s was not found.", theType)
-    else if (theLocalValue != "" && remoteFacets.size > 0) {
-      val (_, remoteValue) = getRemoteFacetValues(theType)(0)
+    else if (theLocalValue != "" && remoteFacets.nonEmpty) {
+      val (_, remoteValue) = remoteFacets.head
       val resFacet = doNumericFacetNarrowing(theLocalValue, remoteValue, theType)
       new java.math.BigDecimal(resFacet)
     } else if (theLocalValue != "") {
       checkValueSpaceFacetRange(theLocalValue, theType)
     } else {
-      val (_, remoteValue) = remoteFacets(0)
-      checkValueSpaceFacetRange(remoteValue, theType)
+      val (_, remoteValue) = remoteFacets.head
+      checkValueSpaceFacetRange(remoteValue, theType, isBigDecimalStr = true)
     }
   }
 
@@ -482,31 +483,49 @@ trait Facets { self: Restriction =>
     localFacet
   }
 
-  private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
-    self.primType match {
-      case PrimType.DateTime =>
-        dateToBigDecimal(
-          facet,
-          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
-          PrimType.DateTime.toString(),
-          this
-        )
-      case PrimType.Date =>
-        dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), this)
-      case PrimType.Time =>
-        dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), this)
-      case _ => new java.math.BigDecimal(facet)
+  /**
+   * Returns true when the current primitive type is a date/time type and the
+   * input is not already a BigDecimal-formatted numeric string.
+   */
+  private def isValidDateFacetInput(isBigDecimalStr: Boolean): Boolean = {
+    primType match {
+      case PrimType.DateTime | PrimType.Date | PrimType.Time => !isBigDecimalStr
+      case _ => false
+    }
+  }
+
+  protected def convertFacetToBigDecimal(
+    facet: String,
+    isBigDecimalStr: Boolean = false
+  ): java.math.BigDecimal = {
+    try {
+      // value-space facets (min/max Inclusive/Exclusive, enumeration):
+      // parse in the element's own value space
+      if (isValidDateFacetInput(isBigDecimalStr)) {
+        try {
+          primType.fromXMLString(facet).getCalendar.toJBigDecimal
+        } catch {
+          case e: InvalidPrimitiveDataException =>
+            SDE("Failed to parse (%s) to %s.", facet, primType.toString())
+        }
+      } else {
+        new java.math.BigDecimal(facet)
+      }
+    } catch {
+      case e: IllegalArgumentException =>
+        SDE("invalid facet restriction: %s", e.getMessage)
     }
   }
 
   private def checkValueSpaceFacetRange(
     localFacet: String,
-    facetType: Facet.Type
+    facetType: Facet.Type,
+    isBigDecimalStr: Boolean = false
   ): java.math.BigDecimal = {
     // Necessary for min/max Inclusive/Exclusive Facets
 
     // Perform conversions once
-    val theLocalFacet = convertFacetToBigDecimal(localFacet)
+    val theLocalFacet = convertFacetToBigDecimal(localFacet, isBigDecimalStr)
 
     facetType match {
       case Facet.maxExclusive | Facet.maxInclusive | Facet.minExclusive | Facet.minInclusive |

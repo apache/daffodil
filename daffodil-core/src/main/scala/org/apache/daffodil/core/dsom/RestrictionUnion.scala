@@ -24,7 +24,6 @@ import scala.xml.Node
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -32,10 +31,6 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.runtime1.dsom.FacetTypes.FacetValue
-
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.GregorianCalendar
-import com.ibm.icu.util.TimeZone
 
 object Restriction {
   def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
@@ -48,6 +43,7 @@ object Restriction {
 /**
  * A schema component for simple type restrictions
  */
+
 final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
   extends SchemaComponentImpl(xmlArg, simpleTypeDef)
   with Facets
@@ -306,64 +302,6 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
 }
 
 sealed trait TypeChecks { self: Restriction =>
-  protected def dateToBigDecimal(
-    date: String,
-    format: String,
-    dateType: String,
-    context: ThrowsSDE
-  ): JBigDecimal = {
-    val df = new SimpleDateFormat(format)
-    df.setCalendar(new GregorianCalendar())
-    df.setTimeZone(TimeZone.GMT_ZONE)
-    val bd =
-      try {
-        val dt = df.parse(date)
-        new JBigDecimal(dt.getTime())
-      } catch {
-        case s: scala.util.control.ControlThrowable => throw s
-        case u: UnsuppressableException => throw u
-        case e1: Exception => {
-          try {
-            // Could already be a BigDecimal
-            new JBigDecimal(date)
-          } catch {
-            case s: scala.util.control.ControlThrowable => throw s
-            case u: UnsuppressableException => throw u
-            case e2: Exception =>
-              context.SDE(
-                "Failed to parse (%s) to %s (%s) due to %s (after %s).",
-                date,
-                dateType,
-                format,
-                e2.getMessage(),
-                e1.getMessage()
-              )
-          }
-        }
-      }
-    bd
-  }
-
-  private def convertStringToBigDecimal(
-    value: String,
-    primType: PrimType,
-    context: ThrowsSDE
-  ): JBigDecimal = {
-    primType match {
-      case PrimType.DateTime =>
-        dateToBigDecimal(
-          value,
-          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
-          PrimType.DateTime.toString(),
-          context
-        )
-      case PrimType.Date =>
-        dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
-      case PrimType.Time =>
-        dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
-      case _ => new JBigDecimal(value)
-    }
-  }
 
   def checkRangeReturnsValue(
     value: String,
@@ -394,7 +332,7 @@ sealed trait TypeChecks { self: Restriction =>
         theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
       case (_, _) => {
         // Perform conversions once
-        val theValue = convertStringToBigDecimal(value, primType, theContext)
+        val theValue = convertFacetToBigDecimal(value)
 
         // Here we're just doing range checking for the
         // specified primitive type
