@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -801,7 +800,7 @@ object PState {
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean
   ): PState = {
-    val dis = InputSourceDataInputStream(Channels.newInputStream(input))
+    val dis = InputSourceDataInputStream(input)
     createInitialPState(root, dis, output, dataProc, areDebugging)
   }
 }

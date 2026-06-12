@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.core.grammar
 
+import scala.collection.mutable
+
 import org.apache.daffodil.core.dsom.ChoiceTermBase
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ModelGroup
@@ -158,20 +160,37 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
       boxEv
     }
 
-    def collectFromTerms(terms: Seq[Term]): Seq[(ElementBase, Info)] =
-      terms.flatMap {
-        case e: ElementBase if e.lengthKind == LengthKind.EndOfParent =>
-          Nil // EOP child; its enclosing parent/choice already added the entry
-        case e: ElementBase =>
-          val info = elementInfo(e)
-          e.childrenEndOfParent.map(_ -> info) ++ collectFromTerms(e.termChildren)
-        case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
-          val eops = c.childrenEndOfParent
-          val entries = eops.map(eop => eop -> (false, Some(choiceBoxEv(c, eop))))
-          entries ++ collectFromTerms(c.termChildren)
-        case other =>
-          collectFromTerms(other.termChildren)
+    // Iterative DFS over the schema term tree so that deeply-nested schemas
+    // (hundreds of levels) do not overflow the JVM stack the way a recursive
+    // implementation would.
+    def collectFromTerms(initialTerms: Seq[Term]): Seq[(ElementBase, Info)] = {
+      val result = new mutable.ArrayBuffer[(ElementBase, Info)]()
+      val work = new mutable.ArrayDeque[Term]()
+      work.appendAll(initialTerms)
+
+      while (work.nonEmpty) {
+        val term = work.removeHead()
+        term match {
+          case e: ElementBase if e.lengthKind == LengthKind.EndOfParent =>
+          // EOP child; its enclosing parent/choice already added the entry.
+
+          case e: ElementBase =>
+            val info = elementInfo(e)
+            e.childrenEndOfParent.foreach(eop => result += (eop -> info))
+            // Prepend in reverse so leftmost child is processed next (DFS order).
+            e.termChildren.reverseIterator.foreach(work.prepend)
+
+          case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
+            val eops = c.childrenEndOfParent
+            eops.foreach(eop => result += (eop -> (false, Some(choiceBoxEv(c, eop)))))
+            c.termChildren.reverseIterator.foreach(work.prepend)
+
+          case other =>
+            other.termChildren.reverseIterator.foreach(work.prepend)
+        }
       }
+      result.toSeq
+    }
 
     this match {
       case e: ElementBase =>

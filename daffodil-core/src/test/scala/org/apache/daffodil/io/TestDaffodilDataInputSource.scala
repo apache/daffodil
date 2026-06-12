@@ -20,6 +20,7 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -419,5 +420,94 @@ class TestByteBufferInputSource {
     assertEquals(5, bis.get())
     assertEquals(6, bis.get())
     assertEquals(-1, bis.get())
+  }
+}
+
+class TestBucketingInputSourceFileChannel {
+
+  /**
+   * Regression for fix 1: optEndOfDataPosition must short-circuit via the
+   * file size supplied by InputSourceDataInputStream.apply(InputStream) for a
+   * FileInputStream, rather than reading up to maxCacheSizeInBytes (256 MiB)
+   * of lookahead data to scan for EOF.
+   *
+   * Verified by asserting knownBytesAvailable() == 0 both before and after the
+   * call: if the scan path had run it would have loaded data into buckets,
+   * making knownBytesAvailable() > 0.
+   */
+  @Test def testOptEndOfDataPositionUsesFileSizeForFileInputStream(): Unit = {
+    val content = Array[Byte](1, 2, 3, 4, 5)
+    val tmpFile = java.nio.file.Files.createTempFile("daffodil-eop-test", ".bin")
+    try {
+      java.nio.file.Files.write(tmpFile, content)
+      val fis = new java.io.FileInputStream(tmpFile.toFile)
+      try {
+        // Size hint is supplied by the factory, not by BucketingInputSource directly.
+        val src = InputSourceDataInputStream(fis).inputSource
+        assertEquals(0L, src.knownBytesAvailable())
+        assertEquals(Some(5L), src.optEndOfDataPosition)
+        // Scan path would have populated buckets; verify it was not taken.
+        assertEquals(0L, src.knownBytesAvailable())
+      } finally {
+        fis.close()
+      }
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmpFile)
+    }
+  }
+
+  /**
+   * Verify that BucketingInputSource constructed directly (no optSizeHint) falls
+   * back to the scan path: optEndOfDataPosition reads the entire stream into
+   * buckets, so knownBytesAvailable() is positive after the call.
+   */
+  @Test def testBucketingInputSourceWithoutHintUsesScanner(): Unit = {
+    val content = Array[Byte](1, 2, 3, 4, 5)
+    val tmpFile = java.nio.file.Files.createTempFile("daffodil-eop-test", ".bin")
+    try {
+      java.nio.file.Files.write(tmpFile, content)
+      val fis = new java.io.FileInputStream(tmpFile.toFile)
+      try {
+        val bis = new BucketingInputSource(fis) // no optSizeHint
+        assertEquals(0L, bis.knownBytesAvailable())
+        assertEquals(Some(5L), bis.optEndOfDataPosition)
+        // Scan path was taken - data has been buffered.
+        assertTrue(bis.knownBytesAvailable() > 0)
+      } finally {
+        fis.close()
+      }
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmpFile)
+    }
+  }
+
+  /**
+   * Regression for compact() Int overflow: compact() must correctly update
+   * headBucketBytePosition0b when oldestBucketIndex is large. Uses tiny 2-byte
+   * buckets so the scenario exercises multiple compaction cycles without
+   * needing gigabytes of test data. Verifies that position() and subsequent
+   * reads are correct after compact() runs with a non-trivial oldestBucketIndex.
+   */
+  @Test def testCompactCorrectlyUpdatesPositionOffset(): Unit = {
+    // 2-byte buckets, 4-byte max cache (2 live buckets). Buckets are evicted
+    // quickly, driving oldestBucketIndex to a non-zero value before compact().
+    val tis = new TestInputStream
+    tis.setEOF(30)
+    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
+
+    // Read 20 bytes; with 2-byte buckets the eviction loop inside
+    // fillBucketsToIndex sets oldestBucketIndex > 0.
+    var i = 0
+    while (i < 20) { assertEquals(i % 10, bis.get()); i += 1 }
+
+    // compact() advances headBucketBytePosition0b.  Before the Int-overflow fix
+    // the multiplication oldestBucketIndex * bucketSize was Int×Int; with large
+    // oldestBucketIndex that would produce a wrong (potentially negative) offset.
+    bis.compact()
+    assertEquals(20L, bis.position())
+
+    // Reads after compact() must still produce the correct sequence.
+    while (i < 30) { assertEquals(i % 10, bis.get()); i += 1 }
+    assertEquals(30L, bis.position())
   }
 }

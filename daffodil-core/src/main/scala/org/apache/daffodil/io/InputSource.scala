@@ -19,7 +19,7 @@ package org.apache.daffodil.io
 
 import java.io.InputStream
 import java.nio.ByteBuffer
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayDeque
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
@@ -220,11 +220,19 @@ abstract class InputSource {
  * @param inputStream the java.io.Inputstream to read data from
  * @param bucketSizeExponent the exponent used to calculate the size of a single bucket, defined as 2^buckeSizeExponent bytes
  * @param maxCacheSizeInBytes the max memory allowed to be used for bucket storage (num buckets * bucketSize)
+ * @param optSizeHint if the total number of bytes available from this stream is known in advance,
+ *                    supply it here so that [[optEndOfDataPosition]] can short-circuit the
+ *                    256 MiB scan. Must reflect the bytes remaining from the stream's current
+ *                    position at the time this BucketingInputSource is constructed. Use the
+ *                    factory methods on [[InputSourceDataInputStream]] rather than constructing
+ *                    this class directly — they populate this hint automatically for file-backed
+ *                    streams.
  */
 class BucketingInputSource(
   inputStream: java.io.InputStream,
   bucketSizeExponent: Int = 13,
-  maxCacheSizeInBytes: Int = 256 * (1 << 20)
+  maxCacheSizeInBytes: Int = 256 * (1 << 20),
+  optSizeHint: Option[Long] = None
 ) extends InputSource {
 
   private final val bucketSize: Int = 1 << bucketSizeExponent
@@ -251,11 +259,17 @@ class BucketingInputSource(
   */
   private val maxNumberOfNonNullBuckets = Math.max(maxCacheSizeInBytes / bucketSize, 2)
 
+  // Compact the null-entry spine of the buckets ArrayBuffer after this many
+  // buckets have been freed, so that the ArrayBuffer length stays proportional
+  // to live buckets rather than total bytes ever read.  256 × 8 KiB = 2 MiB
+  // freed between compactions; the ArrayBuffer.remove call is O(live buckets).
+  private val compactThresholdBuckets = 256
+
   /**
    * Array of buckets
    */
   private val buckets = {
-    val b = new ArrayBuffer[Bucket]()
+    val b = new ArrayDeque[Bucket]()
     // initialize with an empty bucket
     b += new Bucket()
     b
@@ -545,6 +559,15 @@ class BucketingInputSource(
       // buckets as possible. Note that this might still not release anything
       // if the oldest bucket contains the current byte position.
       releaseBuckets()
+      // Periodically collapse the null-reference spine so that the ArrayBuffer
+      // length stays bounded by the live bucket count, not the total number of
+      // bytes ever read. Only reachable when oldestBucketIndex has actually
+      // advanced (i.e. refCount was 0), so no live mark covers any removed entry.
+      if (oldestBucketIndex >= compactThresholdBuckets) {
+        buckets.remove(0, oldestBucketIndex)
+        headBucketBytePosition0b += oldestBucketIndex.toLong * bucketSize
+        oldestBucketIndex = 0
+      }
     }
   }
 
@@ -576,32 +599,33 @@ class BucketingInputSource(
   def compact(): Unit = {
     releaseBuckets()
     buckets.remove(0, oldestBucketIndex)
-    val bytesRemoved = oldestBucketIndex * bucketSize
+    val bytesRemoved = oldestBucketIndex.toLong * bucketSize
     headBucketBytePosition0b += bytesRemoved
     oldestBucketIndex = 0
   }
 
   /**
-   * Returns the 0-based exclusive byte position of the end of the data stream
-   * by reading and bucketing data until EOF is reached. Does not affect the
-   * current read position.
+   * Returns the 0-based exclusive byte position of the end of the data stream.
    *
+   * When the total stream size was known at construction time (supplied via
+   * [[optSizeHint]]) this returns immediately without reading any additional
+   * data from the stream.
+   *
+   * Otherwise it falls back to the scan-based approach: reads and buckets data
+   * until EOF is found or the [[maxCacheSizeInBytes]] scan window is exhausted.
    * The scan window extends [[maxCacheSizeInBytes]] bytes beyond the last
    * already-filled bucket (not from the current read position), maximising
    * coverage without invalidating backtracking state.
    *
-   * Returns None if EOF is not reached within that window.
+   * Returns None if EOF is not reachable within the scan window.
    */
-  override lazy val optEndOfDataPosition: Option[Long] = {
-    val lastFilledBucketIndex = buckets.length - 1
-    val goalBucketIndex = lastFilledBucketIndex + maxNumberOfNonNullBuckets - 1
-    val endOfDataNotReached = fillBucketsToIndex(goalBucketIndex, bucketSize)
-    if (endOfDataNotReached) {
-      None
-    } else {
-      Some(totalBytesBucketed)
+  override lazy val optEndOfDataPosition: Option[Long] =
+    optSizeHint.orElse {
+      val lastFilledBucketIndex = buckets.length - 1
+      val goalBucketIndex = lastFilledBucketIndex + maxNumberOfNonNullBuckets - 1
+      val endOfDataNotReached = fillBucketsToIndex(goalBucketIndex, bucketSize)
+      if (endOfDataNotReached) None else Some(totalBytesBucketed)
     }
-  }
 }
 
 /**
