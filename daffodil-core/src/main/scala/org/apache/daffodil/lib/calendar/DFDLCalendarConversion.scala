@@ -20,6 +20,7 @@ package org.apache.daffodil.lib.calendar
 import java.lang.Integer
 
 import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 
@@ -51,7 +52,7 @@ object DFDLCalendarConversion {
 
   def datePartToXMLString(dfdlcal: DFDLCalendar): String = {
     val calendar = dfdlcal.calendar
-    val y = calendar.get(Calendar.EXTENDED_YEAR)
+    val y = DateTimeUtil.signedYear(calendar)
     val m = calendar.get(Calendar.MONTH) + 1
     val d = calendar.get(Calendar.DAY_OF_MONTH)
 
@@ -61,14 +62,16 @@ object DFDLCalendarConversion {
   }
 
   /**
-   * Parses a string that begins with the pattern "uuuu-MM-dd" and sets the
+   * Parses a string that begins with the pattern "yyyy-MM-dd" and sets the
    * appropriate values in the calendar. The year part may be 1 or more digits
-   * (including an optional sign) and must be a valid postive or negative
-   * integer. The month and day parts must be zero padded digits.
+   * (including an optional leading minus sign for BCE) and must be a valid
+   * integer in XSD 1.0 numbering (no year zero; -0001 is 1 BCE). A negative
+   * year is stored as ERA=BC with a positive YEAR. The month and day parts must
+   * be zero padded digits.
    *
    * If the pattern is not followed, an IllegalArgumentException is thrown.
    *
-   * @return if the date part was succesfully parsed, returns a substring of
+   * @return if the date part was successfully parsed, returns a substring of
    *         the remaining characters
    */
   def datePartFromXMLString(string: String, calendar: Calendar): String = {
@@ -95,7 +98,16 @@ object DFDLCalendarConversion {
     val d = string.substring(endYear + 4, endYear + 6)
 
     try {
-      calendar.set(Calendar.EXTENDED_YEAR, Integer.parseInt(y))
+      // Use YEAR + ERA rather than EXTENDED_YEAR to match XSD 1.0 numbering:
+      // a negative lexical year is BCE, stored as ERA=BC with positive YEAR.
+      val yInt = Integer.parseInt(y)
+      if (yInt < 0) {
+        calendar.set(Calendar.ERA, GregorianCalendar.BC)
+        calendar.set(Calendar.YEAR, -yInt)
+      } else {
+        calendar.set(Calendar.ERA, GregorianCalendar.AD)
+        calendar.set(Calendar.YEAR, yInt)
+      }
       calendar.set(Calendar.MONTH, Integer.parseInt(m) - 1)
       calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(d))
     } catch {
@@ -298,12 +310,17 @@ object DFDLDateTimeConversion extends DFDLCalendarConversion {
 
   /**
    * Supported patterns:
-   *   uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx
-   *   uuuu-MM-dd'T'HH:mm:ss.SSSSSS
-   *   uuuu-MM-dd'T'HH:mm:ssxxxxx
-   *   uuuu-MM-dd'T'HH:mm:ss
-   *   uuuu-MM-ddxxxxx
-   *   uuuu-MM-dd
+   *   [-]yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxxxx
+   *   [-]yyyy-MM-dd'T'HH:mm:ss.SSSSSS
+   *   [-]yyyy-MM-dd'T'HH:mm:ssxxxxx
+   *   [-]yyyy-MM-dd'T'HH:mm:ss
+   *   [-]yyyy-MM-ddxxxxx
+   *   [-]yyyy-MM-dd
+   *
+   * Negative (BCE) years are also supported: the year may carry a leading minus
+   * (e.g. -0001 = 1 BCE). These are XSD 1.0 lexical strings parsed directly, not
+   * dfdl:calendarPattern tokens, so the minus is part of the lexical year rather
+   * than what the yyyy-MM-dd calendar pattern would generally imply.
    */
   def fromXMLString(string: String): DFDLDateTime = {
     val calendar = emptyCalendar.clone().asInstanceOf[Calendar]
@@ -344,8 +361,8 @@ object DFDLDateConversion extends DFDLCalendarConversion {
 
   /**
    * Supported patterns:
-   *   uuuu-MM-ddxxxxx
-   *   uuuu-MM-dd
+   *   yyyy-MM-ddxxxxx
+   *   yyyy-MM-dd
    */
   def fromXMLString(string: String): DFDLDate = {
     val calendar = emptyCalendar.clone().asInstanceOf[Calendar]

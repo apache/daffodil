@@ -33,10 +33,6 @@ import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.runtime1.dsom.FacetTypes.FacetValue
 
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.GregorianCalendar
-import com.ibm.icu.util.TimeZone
-
 object Restriction {
   def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
     val r = new Restriction(xmlArg, simpleTypeDef)
@@ -306,61 +302,43 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
 }
 
 sealed trait TypeChecks { self: Restriction =>
-  protected def dateToBigDecimal(
-    date: String,
-    format: String,
-    dateType: String,
-    context: ThrowsSDE
-  ): JBigDecimal = {
-    val df = new SimpleDateFormat(format)
-    df.setCalendar(new GregorianCalendar())
-    df.setTimeZone(TimeZone.GMT_ZONE)
-    val bd =
-      try {
-        val dt = df.parse(date)
-        new JBigDecimal(dt.getTime())
-      } catch {
-        case s: scala.util.control.ControlThrowable => throw s
-        case u: UnsuppressableException => throw u
-        case e1: Exception => {
-          try {
-            // Could already be a BigDecimal
-            new JBigDecimal(date)
-          } catch {
-            case s: scala.util.control.ControlThrowable => throw s
-            case u: UnsuppressableException => throw u
-            case e2: Exception =>
-              context.SDE(
-                "Failed to parse (%s) to %s (%s) due to %s (after %s).",
-                date,
-                dateType,
-                format,
-                e2.getMessage(),
-                e1.getMessage()
-              )
-          }
-        }
-      }
-    bd
-  }
 
-  private def convertStringToBigDecimal(
+  /**
+   * Converts a lexical date/time/dateTime string to its numeric (epoch millis)
+   * BigDecimal, parsing via DFDLCalendarConversion (XSD 1.0, YEAR+ERA) rather
+   * than calendar patterns. Non-calendar types are parsed as plain BigDecimals.
+   *
+   * If the calendar parse fails, the value is retried as a plain BigDecimal
+   * before giving up with an SDE. This handles the narrowing round-trip where a
+   * date facet has already been converted to its numeric (millis) form and
+   * stored back as a string, but it will also accept any other numeric string.
+   * UnsuppressableException always propagates.
+   *
+   * NOTE: the retry exists because converted facet values are stored back as
+   * strings rather than original lexical values, so conversion is not idempotent
+   * (see the related performance TODO on checkValueSpaceFacetRange). Storing the
+   * original lexical strings (or the evaluated values) would let the retry be
+   * removed.
+   */
+  protected def calendarStringToBigDecimal(
     value: String,
     primType: PrimType,
     context: ThrowsSDE
   ): JBigDecimal = {
     primType match {
-      case PrimType.DateTime =>
-        dateToBigDecimal(
-          value,
-          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
-          PrimType.DateTime.toString(),
-          context
-        )
-      case PrimType.Date =>
-        dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
-      case PrimType.Time =>
-        dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
+      case PrimType.DateTime | PrimType.Date | PrimType.Time =>
+        try {
+          primType.fromXMLString(value).getCalendar.toJBigDecimal
+        } catch {
+          case u: UnsuppressableException => throw u
+          case _: Exception =>
+            try {
+              new JBigDecimal(value)
+            } catch {
+              case _: NumberFormatException =>
+                context.SDE("Failed to parse (%s) to %s.", value, primType.toString())
+            }
+        }
       case _ => new JBigDecimal(value)
     }
   }
@@ -394,7 +372,7 @@ sealed trait TypeChecks { self: Restriction =>
         theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
       case (_, _) => {
         // Perform conversions once
-        val theValue = convertStringToBigDecimal(value, primType, theContext)
+        val theValue = calendarStringToBigDecimal(value, primType, theContext)
 
         // Here we're just doing range checking for the
         // specified primitive type

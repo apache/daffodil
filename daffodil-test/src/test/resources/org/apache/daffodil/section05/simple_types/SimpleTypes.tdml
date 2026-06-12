@@ -2652,7 +2652,7 @@
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Failed to parse binaryCalendarEpoch - Format must match the pattern 'uuuu-MM-dd'T'HH:mm:ss' or 'uuuu-MM-dd'T'HH:mm:ssZZZZ'</tdml:error>
+      <tdml:error>Schema Definition Error: Failed to parse binaryCalendarEpoch '2000-1-1T00:00' as an xs:dateTime.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2663,7 +2663,7 @@
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Failed to parse binaryCalendarEpoch: DAY_OF_MONTH=2000, valid range=1..31</tdml:error>
+      <tdml:error>Schema Definition Error: Failed to parse binaryCalendarEpoch '01-01-2000T00:00:00' as an xs:dateTime.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -5673,7 +5673,7 @@
     <tdml:document><![CDATA[02-13-2013 BC]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <date13>-2012-02-13</date13>
+        <date13>-2013-02-13</date13>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

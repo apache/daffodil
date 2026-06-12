@@ -707,6 +707,24 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e_yearfromdatetime3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"
+                      dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd'T'HH:mm:ss G" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e_yearfromdatetime4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"
+                      dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="e_monthfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
     <xs:element name="e_monthfromdatetime2">
@@ -802,8 +820,30 @@
     <xs:element name="e_xfromdatetime3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="date" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
-            dfdl:lengthKind="explicit" dfdl:length="20" dfdl:calendarTimeZone="UTC-08:00" />
+          <xs:element name="date" type="xs:dateTime" dfdl:calendarCheckPolicy="lax"
+                      dfdl:calendarPatternKind="explicit"
+                      dfdl:calendarPattern="yyyy-MM-dd'T'HH:mm:ss G"
+                      dfdl:lengthKind="explicit" dfdl:length="22"
+                      dfdl:calendarTimeZone="UTC-08:00"/>
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+          <xs:element name="timeZone" type="xs:string" dfdl:inputValueCalc="{ dfdl:timeZoneFromDateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromdatetime4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:calendarCheckPolicy="lax"
+                      dfdl:calendarPatternKind="explicit"
+                      dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ssxxx"
+                      dfdl:lengthKind="delimited"
+                      dfdl:calendarTimeZone="UTC-08:00"/>
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
           <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
@@ -820,6 +860,15 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e_yearfromdate3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"
+                      dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd G" />
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
@@ -857,12 +906,23 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
     <xs:element name="e_xfromdate2">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="date" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
             dfdl:lengthKind="explicit" dfdl:length="10" dfdl:calendarTimeZone="UTC+01:00" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(../ex:date) }"/>
+          <xs:element name="timeZone" type="xs:string" dfdl:inputValueCalc="{ dfdl:timeZoneFromDate(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e_xfromdate3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit"
+                      dfdl:calendarPattern="yyyy-MM-dd G" dfdl:lengthKind="explicit" dfdl:length="13" />
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
           <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(../ex:date) }"/>
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(../ex:date) }"/>
@@ -2257,20 +2317,44 @@
 <!--
     Test Name: yearfromdatetime_03
        Schema: Functions.dfdl.xsd
-         Root: e_yearfromdatetime2
+         Root: e_yearfromdatetime3
       Purpose: This test demonstrates the use of the year-from-dateTime function to return the year as an xs:integer from an xs:dateTime.
 -->
 
-  <tdml:parserTestCase name="yearfromdatetime_03" root="e_yearfromdatetime2"
+  <tdml:parserTestCase name="yearfromdatetime_03" root="e_yearfromdatetime3"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R">
+
+    <tdml:document>0001-01-01T23:00:00 BC</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdatetime3>
+          <date>-0001-01-01T23:00:00</date>
+          <year>-1</year>
+        </e_yearfromdatetime3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: yearfromdatetime_04
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdatetime4
+      Purpose: Same instant as the "BC"/yyyy BCE test (1 BCE), expressed with an
+               explicit astronomical uuuu pattern. 1 BCE is astronomical year 0
+               (0000, unsigned); fn:year-from-dateTime re-expresses it in XSD 1.0
+               numbering, yielding -1 and an infoset dateTime of -0001.
+-->
+
+  <tdml:parserTestCase name="yearfromdatetime_04" root="e_yearfromdatetime4"
+                       model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R">
 
     <tdml:document>0000-01-01T23:00:00</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_yearfromdatetime2>
-          <date>0000-01-01T23:00:00</date>
-          <year>0</year>
-        </e_yearfromdatetime2>
+        <e_yearfromdatetime4>
+          <date>-0001-01-01T23:00:00</date>
+          <year>-1</year>
+        </e_yearfromdatetime4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2584,7 +2668,7 @@
   <tdml:parserTestCase name="xfromdatetime_04" root="e_xfromdatetime3"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
 
-    <tdml:document>-1234-01-30T10:01:02</tdml:document>
+    <tdml:document>1234-01-30T10:01:02 BC</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdatetime3>
@@ -2597,6 +2681,36 @@
           <seconds>2</seconds>
           <timeZone>-08:00</timeZone>
         </e_xfromdatetime3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: xfromdatetime_05
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdatetime4
+      Purpose: Same instant as xfromdatetime_04 (1234 BCE), expressed with an explicit
+               signed astronomical uuuu pattern. 1234 BCE is astronomical year -1233
+               (1 - 1234), so the document carries -1233; fn:* re-express it in XSD 1.0
+               numbering, yielding year -1234 and an infoset dateTime of -1234.
+-->
+
+  <tdml:parserTestCase name="xfromdatetime_05" root="e_xfromdatetime4"
+                       model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>-1233-01-30T10:01:02-08:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdatetime4>
+          <date>-1234-01-30T10:01:02-08:00</date>
+          <year>-1234</year>
+          <month>1</month>
+          <day>30</day>
+          <hours>10</hours>
+          <minutes>1</minutes>
+          <seconds>2</seconds>
+          <timeZone>-08:00</timeZone>
+        </e_xfromdatetime4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2643,20 +2757,20 @@
 <!--
     Test Name: yearfromdate_03
        Schema: Functions.dfdl.xsd
-         Root: e_yearfromdate2
+         Root: e_yearfromdate3
       Purpose: This test demonstrates the use of the year-from-date function to return the year as an xs:integer from an xs:date.
 -->
 
-  <tdml:parserTestCase name="yearfromdate_03" root="e_yearfromdate2"
+  <tdml:parserTestCase name="yearfromdate_03" root="e_yearfromdate3"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R">
 
-    <tdml:document>0000-01-01</tdml:document>
+    <tdml:document>0001-01-01 BC</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_yearfromdate2>
-          <date>0000-01-01</date>
-          <year>0</year>
-        </e_yearfromdate2>
+        <e_yearfromdate3>
+          <date>-0001-01-01</date>
+          <year>-1</year>
+        </e_yearfromdate3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2793,24 +2907,24 @@
 <!--
     Test Name: xfromdate_03
        Schema: Functions.dfdl.xsd
-         Root: e_xfromdate1
+         Root: e_xfromdate3
       Purpose: This test demonstrates the use of the x-from-date functions to return the value as an xs:integer from an xs:date.
 -->
 
-  <tdml:parserTestCase name="xfromdate_03" root="e_xfromdate1"
+  <tdml:parserTestCase name="xfromdate_03" root="e_xfromdate3"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R"
     roundTrip="twoPass">
 
-    <tdml:document>-0020-01-99</tdml:document>
+    <tdml:document>0020-01-99 BC</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e_xfromdate1>
-          <date>-0020-04-08</date>
+        <e_xfromdate3>
+          <date>-0020-04-09</date>
           <year>-20</year>
           <month>4</month>
-          <day>8</day>
+          <day>9</day>
           <timeZone></timeZone>
-        </e_xfromdate1>
+        </e_xfromdate3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
