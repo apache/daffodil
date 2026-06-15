@@ -560,11 +560,11 @@ trait Term
     }
   }
 
-  final lazy val realElementChildren: Seq[ElementBase] = {
+  final lazy val realEOPElementChildren: Seq[ElementBase] = {
     termChildren.flatMap {
       case eb: ElementBase => Seq(eb)
       case c: Choice => Nil
-      case mg: ModelGroup => mg.realElementChildren
+      case mg: ModelGroup => mg.realEOPElementChildren
     }
   }
 }

@@ -23,7 +23,6 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
-import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.grammar.primitives.*
 import org.apache.daffodil.core.runtime1.ElementBaseRuntime1Mixin
 import org.apache.daffodil.lib.exceptions.Assert
@@ -1480,30 +1479,24 @@ trait ElementBaseGrammarMixin
     // so it can do any internal checks for example blobValue's check for
     // non-explicit lengthKind
     val body = bodyArg
-
-    val eopSimpleTypeElementThatNeedsBitLimit =
-      (isSimpleType && lengthKind == LengthKind.EndOfParent)
-        && !this.isInstanceOf[Root]
-        && impliedRepresentation != Representation.Text
-        && !isNillable
-        && primType != PrimType.HexBinary
     // there are essentially two categories of processors that read/write data input/output
     // stream: those that calculate lengths themselves (ex: binary numeric parsers) and those
     // that expect another processor to calculate the length and set the bit limit which
     // this processor will use as the length (such as text parsers). The following determines
     // if this element requires another processor to calculate and set the bit limit, and if so
     // adds the appropriate grammar to do that
-    val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited
-    // Note for non-root EndOfParent simple types, we don't wish to duplicate the length
-    // calculation efforts unless we know it needs the bit limit set by a parent
-      && !eopSimpleTypeElementThatNeedsBitLimit
-      && (
-        isSimpleType && impliedRepresentation == Representation.Text ||
-          isSimpleType && isNillable ||
-          isComplexType && lengthKind != LengthKind.Implicit ||
-          lengthKind == LengthKind.Prefixed ||
-          isSimpleType && primType == PrimType.HexBinary && lengthKind == LengthKind.Pattern
-      )
+    val bodyRequiresSpecifiedLengthBitLimit = {
+      lengthKind match {
+        case LengthKind.Delimited => false
+        case LengthKind.Implicit if isComplexType => false
+        case LengthKind.Prefixed => true
+        case LengthKind.Pattern if isSimpleType && primType == PrimType.HexBinary => true
+        case _ if isComplexType => true
+        case _ if isSimpleType =>
+          impliedRepresentation == Representation.Text || isNillable
+        case _ => false
+      }
+    }
     if (!bodyRequiresSpecifiedLengthBitLimit) {
       body
     } else {

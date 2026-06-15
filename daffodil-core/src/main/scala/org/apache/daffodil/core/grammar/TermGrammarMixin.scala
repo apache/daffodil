@@ -173,18 +173,15 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
         term match {
           case e: ElementBase if e.lengthKind == LengthKind.EndOfParent =>
           // EOP child; its enclosing parent/choice already added the entry.
-
           case e: ElementBase =>
             val info = elementInfo(e)
             e.childrenEndOfParent.foreach(eop => result += (eop -> info))
             // Prepend in reverse so leftmost child is processed next (DFS order).
             e.termChildren.reverseIterator.foreach(work.prepend)
-
           case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
             val eops = c.childrenEndOfParent
             eops.foreach(eop => result += (eop -> (false, Some(choiceBoxEv(c, eop)))))
             c.termChildren.reverseIterator.foreach(work.prepend)
-
           case other =>
             other.termChildren.reverseIterator.foreach(work.prepend)
         }
@@ -248,7 +245,7 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
             "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a dfdl:terminator."
           )
           child.schemaDefinitionWhen(
-            s.realElementChildren.exists(e => e.floating == YesNo.Yes),
+            s.realEOPElementChildren.exists(e => e.floating == YesNo.Yes),
             "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with elements defining dfdl:floating='yes'."
           )
           child.schemaDefinitionWhen(

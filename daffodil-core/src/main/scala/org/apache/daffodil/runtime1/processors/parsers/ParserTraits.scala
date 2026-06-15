@@ -21,7 +21,6 @@ import java.lang.Long as JLong
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.infoset.DIComplex
@@ -183,22 +182,17 @@ trait BitLengthFromBitLimitMixin {
   /**
    * getLengthInBits converted to Int with a parse error on overflow.
    *
-   * The default maxCacheSizeInBytes (256 MiB) yields a maximum bit length of
-   * exactly Int.MaxValue + 1, so a bare .toInt without this guard can overflow
-   * by one bit on a full-cache EOP element.
+   * A bare .toInt without this guard can overflow
+   * for a bit length over 4GB.
    */
   def getBitLengthAsInt(pstate: PState): Int = {
     val len = getLengthInBits(pstate)
     if (pstate.processorStatus ne Success) return 0
     if (len > Int.MaxValue) {
-      pstate.setFailed(
-        new ParseError(
-          One(pstate.schemaFileLocation),
-          One(pstate.currentLocation),
-          "Bit length %d exceeds maximum (%d) for this parser.",
-          len,
-          Int.MaxValue
-        )
+      pstate.SDE(
+        "Length exceeds maximum of %s bits: %s",
+        Int.MaxValue,
+        len
       )
       0
     } else {
@@ -237,13 +231,9 @@ trait EndOfParentBitLengthMixin extends BitLengthFromBitLimitMixin {
         case Some(endOfDataPosition) =>
           (endOfDataPosition * 8) - dis.bitPos0b
         case None =>
-          pstate.setFailed(
-            new ParseError(
-              One(pstate.schemaFileLocation),
-              One(pstate.currentLocation),
-              "Cannot determine end-of-data position for dfdl:lengthKind='endOfParent': " +
-                "data stream exceeds the maximum cache size. Consider increasing maxCacheSizeInBytes."
-            )
+          pstate.SDE(
+            "Cannot determine end-of-data position for dfdl:lengthKind='endOfParent': %s bytes read",
+            dis.knownBytesAvailable
           )
           0L // callers check pstate.processorStatus before using this value
       }
