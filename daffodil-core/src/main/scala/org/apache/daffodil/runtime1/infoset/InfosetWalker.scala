@@ -31,15 +31,17 @@ import org.apache.daffodil.lib.util.MStackOfInt
  * Two concrete implementations exist, selectable via the `infosetWalkerMode`
  * tunable:
  *
- *  - [[StreamingInfosetWalker]] (`infosetWalkerMode = "streaming"`): emits events
- *    incrementally as elements are finalized during parsing. Keeps memory usage
- *    bounded for large or deeply-nested infosets, but incurs overhead from
+ *  - [[StreamingInfosetWalker]] (`infosetWalkerMode = "streaming"`, default): emits
+ *    events incrementally as elements are finalized during parsing. Keeps memory
+ *    usage bounded for large or deeply-nested infosets, but incurs overhead from
  *    repeated speculative walk attempts.
  *
- *  - [[NonStreamingInfosetWalker]] (`infosetWalkerMode = "nonStreaming"`, default):
- *    defers all output until the entire infoset is available, then walks it in
- *    one pass. Faster for schemas where the infoset fits comfortably in memory,
- *    because it avoids the overhead of incremental walk attempts.
+ *  - [[NonStreamingInfosetWalker]] (`infosetWalkerMode = "nonStreaming"`): defers
+ *    all output until the entire infoset is available, then walks it in one pass.
+ *    Faster for schemas where the infoset fits comfortably in memory because it
+ *    avoids the overhead of incremental walk attempts. If you want potentially
+ *    better performance, set this tunable to "nonStreaming", but there may be
+ *    a significant memory impact.
  *
  * Callers invoke [[walk]] periodically during parsing. When `lastWalk = true`
  * the walker must flush any remaining events before returning. [[isFinished]]
@@ -77,11 +79,11 @@ trait InfosetWalker {
  * then walks the entire infoset in a single pass when `walk(lastWalk = true)`
  * is called. Intermediate `walk()` calls are no-ops.
  *
- * This is the default walker (tunable `infosetWalkerMode = "nonStreaming"`).
- * It is faster than [[StreamingInfosetWalker]] for most schemas because it
- * avoids the overhead of repeated speculative walk attempts, at the cost of
- * holding the full infoset in memory until parsing finishes. For very large
- * infosets or memory-constrained environments, prefer [[StreamingInfosetWalker]].
+ * If you want potentially better performance, set `infosetWalkerMode = "nonStreaming"`
+ * (which uses this walker), but there may be a significant memory impact. It is faster than
+ * [[StreamingInfosetWalker]] for most schemas because it avoids the overhead of
+ * repeated speculative walk attempts, at the cost of holding the full infoset in
+ * memory until parsing finishes.
  *
  * @param root      The root [[DIElement]] of the infoset to walk.
  * @param outputter The [[api.infoset.InfosetOutputter]] that receives events.

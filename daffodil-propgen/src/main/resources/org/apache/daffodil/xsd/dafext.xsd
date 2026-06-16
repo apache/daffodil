@@ -239,15 +239,14 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
-        <xs:element name="infosetWalkerMode" type="daf:TunableInfosetWalkerMode" default="nonStreaming" minOccurs="0">
+        <xs:element name="infosetWalkerMode" type="daf:TunableInfosetWalkerMode" default="streaming" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Daffodil can periodically walk the internal infoset to send events to the configured
               InfosetOutputter (streaming) or it can walk the internal infoset once at the end of
-              parsing (nonStreaming). The idea being that simple schemas or schemas with lots of
-              points of uncertainty would benefit from the nonStreaming infoset walker, while
-              very large schemas or situations where memory is contrained would benefit
-              from the streaming infoset walker.
+              parsing (nonStreaming). The default is "streaming", which keeps memory usage bounded
+              for large infosets. If you want potentially better performance, set this tunable to
+              "nonStreaming", but there may be a significant memory impact.
             </xs:documentation>
           </xs:annotation>
         </xs:element>
