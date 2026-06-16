@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.OccursCountEv
 import org.apache.daffodil.runtime1.processors.Processor
@@ -27,7 +28,8 @@ trait Unseparated { self: SequenceChildParser =>
 
   final def parseOne(
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    maybePOU: Maybe[PState.Mark]
   ): ParseAttemptStatus = {
     val prevBitPosBeforeChild = pstate.bitPos0b
     self.childParser.parse1(pstate)

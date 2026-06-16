@@ -226,7 +226,10 @@ abstract class SequenceParserBase(
             // should never have non-represented children in unordered sequences
             Assert.invariant(isOrdered)
 
-            nonRepresentedParser.parseOne(pstate, null)
+            // non-represented children by definition can never be absent or
+            // optional, so there is no speculative parsing and no need for
+            // a point of uncertainty.
+            nonRepresentedParser.parseOne(pstate, null, Nope)
             // don't need to digest result from this. All
             // information about success/failure is in the pstate.
             //
@@ -386,7 +389,7 @@ abstract class SequenceParserBase(
     checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
     val priorPos = pstate.bitPos0b
 
-    var resultOfTry = parser.parseOne(pstate, roStatus)
+    var resultOfTry = parser.parseOne(pstate, roStatus, maybePoU)
 
     val currentPos = pstate.bitPos0b
 
