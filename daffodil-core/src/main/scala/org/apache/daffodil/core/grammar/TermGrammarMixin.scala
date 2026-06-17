@@ -17,9 +17,27 @@
 
 package org.apache.daffodil.core.grammar
 
+import scala.collection.mutable
+
+import org.apache.daffodil.core.dsom.ChoiceTermBase
+import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.core.dsom.ModelGroup
+import org.apache.daffodil.core.dsom.Root
+import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.core.grammar.primitives.MandatoryTextAlignment
 import org.apache.daffodil.core.runtime1.TermRuntime1Mixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.runtime1.processors.ImplicitLengthEv
+import org.apache.daffodil.runtime1.processors.LengthInBitsEv
+import org.apache.daffodil.runtime1.processors.MinLengthInBitsEv
+import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 
 /////////////////////////////////////////////////////////////////
 // Common to all Terms (Elements and ModelGroups)
@@ -84,4 +102,227 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
     MandatoryTextAlignment(this, knownEncodingAlignmentInBits, true)
   }
 
+  def optEffectiveLengthUnits(optLastNonEOPELU: Option[LengthUnits]): Option[LengthUnits] = {
+    this match {
+      case e: ElementBase =>
+        e.lengthKind match {
+          case LengthKind.EndOfParent => optLastNonEOPELU
+          case LengthKind.Explicit | LengthKind.Prefixed => Some(e.lengthUnits)
+          case LengthKind.Pattern => Some(LengthUnits.Characters)
+          case LengthKind.Implicit | LengthKind.Delimited =>
+            None // invalid parent; SDE fires separately
+        }
+      case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
+        Some(LengthUnits.Bytes)
+      // Sequences are transparent — the ELU is inherited from the nearest enclosing box.
+      case _: SequenceTermBase => optLastNonEOPELU
+      case _: ChoiceTermBase => None // implicit-length choice; SDE fires separately
+    }
+  }
+
+  /**
+   * Top-down map from each EOP element to a tuple of:
+   *   _1: Boolean - whether padding is suppressed (parent has expression-based dfdl:length)
+   *   _2: Option[UnparseTargetLengthInBitsEv] - the box target ev when the EOP is inside a
+   *       constant-length element or explicit-length choice; None otherwise.
+   *
+   * Built in one pass from this term's descendant tree. Call on the schema root
+   * to get the complete picture for all EOP elements in the schema.
+   */
+  final lazy val eopElementInfoMap
+    : Map[ElementBase, (Boolean, Option[UnparseTargetLengthInBitsEv])] = {
+    type Info = (Boolean, Option[UnparseTargetLengthInBitsEv])
+
+    def elementInfo(e: ElementBase): (Boolean, Option[UnparseTargetLengthInBitsEv]) = {
+      val suppresses = e.suppressesEOPChildPadding
+      val optBoxEv: Option[UnparseTargetLengthInBitsEv] =
+        if (e.lengthKind == LengthKind.Explicit && e.lengthEv.isConstant)
+          Some(e.unparseTargetLengthInBitsEv)
+        else
+          None
+      (suppresses, optBoxEv)
+    }
+
+    def choiceBoxEv(c: ChoiceTermBase, eop: ElementBase): UnparseTargetLengthInBitsEv = {
+      // we use ImplicitLengthEv because it exists for lengths that are
+      // schema-compile-time constants with no expression to evaluate.
+      val constLenEv = new ImplicitLengthEv(c.choiceLength.toLong, eop.eci)
+      constLenEv.compile(eop.tunable)
+      // dfdl:choiceLength is specified by the DFDL spec to always be in bytes
+      val lenInBitsEv =
+        new LengthInBitsEv(LengthUnits.Bytes, LengthKind.Explicit, Nope, constLenEv, eop.eci)
+      lenInBitsEv.compile(eop.tunable)
+      val zeroMinEv =
+        new MinLengthInBitsEv(LengthUnits.Bytes, LengthKind.Explicit, Nope, 0L, eop.eci)
+      zeroMinEv.compile(eop.tunable)
+      val boxEv = new UnparseTargetLengthInBitsEv(lenInBitsEv, zeroMinEv, eop.eci)
+      boxEv.compile(eop.tunable)
+      boxEv
+    }
+
+    // Iterative DFS over the schema term tree so that deeply-nested schemas
+    // (hundreds of levels) do not overflow the JVM stack the way a recursive
+    // implementation would.
+    def collectFromTerms(initialTerms: Seq[Term]): Seq[(ElementBase, Info)] = {
+      val result = new mutable.ArrayBuffer[(ElementBase, Info)]()
+      val work = new mutable.ArrayDeque[Term]()
+      work.appendAll(initialTerms)
+
+      while (work.nonEmpty) {
+        val term = work.removeHead()
+        term match {
+          case e: ElementBase if e.lengthKind == LengthKind.EndOfParent =>
+          // EOP child; its enclosing parent/choice already added the entry.
+          case e: ElementBase =>
+            val info = elementInfo(e)
+            e.childrenEndOfParent.foreach(eop => result += (eop -> info))
+            // Prepend in reverse so leftmost child is processed next (DFS order).
+            e.termChildren.reverseIterator.foreach(work.prepend)
+          case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
+            val eops = c.childrenEndOfParent
+            eops.foreach(eop => result += (eop -> (false, Some(choiceBoxEv(c, eop)))))
+            c.termChildren.reverseIterator.foreach(work.prepend)
+          case other =>
+            other.termChildren.reverseIterator.foreach(work.prepend)
+        }
+      }
+      result.toSeq
+    }
+
+    this match {
+      case e: ElementBase =>
+        val info = elementInfo(e)
+        (e.childrenEndOfParent.map(_ -> info) ++ collectFromTerms(e.termChildren)).toMap
+      case other =>
+        collectFromTerms(other.termChildren).toMap
+    }
+  }
+
+  final lazy val childrenEndOfParent: Seq[ElementBase] = LV(Symbol("childrenEndOfParent")) {
+    val gms = termChildren
+    val chls = gms.flatMap {
+      case eb: ElementBase if eb.lengthKind == LengthKind.EndOfParent => Seq(eb)
+      case eb: ElementBase => Nil
+      case c: ChoiceTermBase => Nil
+      case mg: ModelGroup => mg.childrenEndOfParent
+    }
+    chls
+  }.value
+
+  def checkEndOfParentRestrictions(lastNonEOPELU: Option[LengthUnits]): Boolean = {
+    val term = this
+    lazy val eopChildren = this.childrenEndOfParent
+    lazy val optParentELU = term.optEffectiveLengthUnits(lastNonEOPELU)
+    // checks
+    term match {
+      case rootElem: Root if rootElem.lengthKind == LengthKind.EndOfParent => {
+        rootElem.checkEndOfParentRestrictionsOnCurrentElement(Some(LengthUnits.Characters))
+        eopChildren.foreach { child =>
+          child.checkEndOfParentRestrictionsOnCurrentElement(lastNonEOPELU)
+        }
+      }
+      case e: ElementBase if eopChildren.nonEmpty => {
+        eopChildren.foreach { child =>
+          child.schemaDefinitionWhen(
+            e.lengthKind == LengthKind.Implicit || e.lengthKind == LengthKind.Delimited,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but its parent is an element with dfdl:lengthKind 'implicit' or 'delimited'."
+          )
+          child.checkEndOfParentRestrictionsOnCurrentElement(optParentELU)
+        }
+      }
+      case s: SequenceTermBase if eopChildren.nonEmpty => {
+        eopChildren.foreach { child =>
+          child.schemaDefinitionWhen(
+            s.separatorPosition == SeparatorPosition.Postfix,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:separatorPosition defined as 'postfix'."
+          )
+          child.schemaDefinitionWhen(
+            s.sequenceKind != SequenceKind.Ordered,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:sequenceKind defined as 'unordered'."
+          )
+          child.schemaDefinitionWhen(
+            s.hasTerminator,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a dfdl:terminator."
+          )
+          child.schemaDefinitionWhen(
+            s.realEOPElementChildren.exists(e => e.floating == YesNo.Yes),
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with elements defining dfdl:floating='yes'."
+          )
+          child.schemaDefinitionWhen(
+            s.trailingSkip != 0,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a non-zero dfdl:trailingSkip."
+          )
+        }
+
+      }
+      case c: ChoiceTermBase if eopChildren.nonEmpty => {
+        // TODO: The DFDL spec (12.3.6) explicitly mentions that an EndOfParent element
+        // can be terminated by a choice with choiceLengthKind='explicit', with no reference
+        // to implicit length choices. Later on in 12.3.6, it specified what the parent Effective
+        // Length Units would be for an explicit length choice, again with no reference to
+        // implicit length choices. The only way to get an EndOfParent element within an
+        // implicit length choice would be to have it actually be terminated by the choice's
+        // parent, similar to how we treat elements within an element that is also EndOfParent.
+        // The only mention of implicit length choices in the DFDL Spec is to mention SDEs when
+        // an EndOfParent element is enclosed by a choice with choiceLengthKind='implicit'. We
+        // think that may be a typo, so for now we disallow ChoiceLengthKind.Implicit
+        // enclosing an EndOfParent element.
+        // See Daffodil-3080
+        eopChildren.foreach { child =>
+          child.schemaDefinitionWhen(
+            c.choiceLengthKind == ChoiceLengthKind.Implicit,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but its parent is a choice with dfdl:choiceLengthKind 'implicit'."
+          )
+          child.schemaDefinitionWhen(
+            c.hasTerminator,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a choice with a dfdl:terminator."
+          )
+          child.schemaDefinitionWhen(
+            c.trailingSkip != 0,
+            "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a choice with a non-zero dfdl:trailingSkip."
+          )
+          child.checkEndOfParentRestrictionsOnCurrentElement(optParentELU)
+        }
+      }
+      case _ => // do nothing
+    }
+    // end checks
+    val sawEOP = term.termChildren.foldLeft(false) { case (sawEOP, child) =>
+      if (sawEOP) {
+        // Choice branches are alternatives, not sequential data — the after-EOP SDE must
+        // not fire across branches. Only sequences and elements have sequential ordering.
+        term match {
+          case _: ChoiceTermBase => // has alternatives which can all be EOP; skip
+          case _ =>
+            child.schemaDefinitionWhen(
+              child.isInstanceOf[ModelGroup],
+              "element is specified as dfdl:lengthKind=\"endOfParent\", but a model group is defined between this element and the end of the enclosing component"
+            )
+            child.schemaDefinitionWhen(
+              child.isRepresented,
+              "element is specified as dfdl:lengthKind=\"endOfParent\", but a represented element is defined between this element and the end of the enclosing component"
+            )
+        }
+      }
+      val res = child.checkEndOfParentRestrictions(optParentELU)
+      term match {
+        // Branches of a choice are alternatives, so should never carry sawEOP from one branch to the next.
+        case _: ChoiceTermBase => false
+        case _ =>
+          child match {
+            case e: ElementBase if e.lengthKind == LengthKind.EndOfParent => true
+            // A non-EOP element forms a hard length boundary. EOP elements nested inside it are
+            // scoped to that element's length, so they must not affect sibling scanning here.
+            case _: ElementBase => false
+            // An explicit-length choice owns a fixed byte span, so EOP elements inside it are
+            // scoped to that span. After the choice ends the parent continues normally.
+            case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit => false
+            // Sequences are transparent (no own length boundary),
+            // so EOP state propagates through them.
+            case _ => res
+          }
+      }
+    }
+    sawEOP
+  }
 }

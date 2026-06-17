@@ -95,4 +95,18 @@ class TestPacked extends TdmlTests {
 
   // Daffodil-2961
   @Test def bcdBigIntToLongExpr = test
+
+  // Daffodil-238
+  @Test def EOPPackedIntSeq = test
+  @Test def EOPPackedDecSeq = test
+  @Test def EOPPackedIntSeqUnparser = test
+  @Test def EOPPackedDecSeqUnparser = test
+  @Test def EOPBCDIntSeq = test
+  @Test def EOPBCDDecSeq = test
+  @Test def EOPBCDIntSeqUnparser = test
+  @Test def EOPBCDDecSeqUnparser = test
+  @Test def EOPIBM4690IntSeq = test
+  @Test def EOPIBM4690DecSeq = test
+  @Test def EOPIBM4690IntSeqUnparser = test
+  @Test def EOPIBM4690DecSeqUnparser = test
 }

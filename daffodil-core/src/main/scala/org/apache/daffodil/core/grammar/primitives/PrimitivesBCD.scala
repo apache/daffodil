@@ -20,9 +20,11 @@ package org.apache.daffodil.core.grammar.primitives
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.runtime1.processors.parsers.BCDDecimalBitLimitLengthParser
+import org.apache.daffodil.runtime1.processors.parsers.BCDDecimalEndOfParentLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BCDDecimalKnownLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BCDDecimalRuntimeLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BCDIntegerBitLimitLengthParser
+import org.apache.daffodil.runtime1.processors.parsers.BCDIntegerEndOfParentLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BCDIntegerKnownLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BCDIntegerRuntimeLengthParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
@@ -52,7 +54,18 @@ class BCDIntegerKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
 
 class BCDIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser = new BCDIntegerBitLimitLengthParser(e.elementRuntimeData)
+  override lazy val parser =
+    new BCDIntegerBitLimitLengthParser(e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = new BCDIntegerMinimumLengthUnparser(
+    e.elementRuntimeData
+  )
+}
+
+class BCDIntegerEndOfParentLength(val e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser =
+    new BCDIntegerEndOfParentLengthParser(e.elementRuntimeData)
 
   override lazy val unparser: Unparser = new BCDIntegerMinimumLengthUnparser(
     e.elementRuntimeData
@@ -93,10 +106,19 @@ class BCDDecimalKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
 class BCDDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser =
-    new BCDDecimalBitLimitLengthParser(
+    new BCDDecimalBitLimitLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint)
+
+  override lazy val unparser: Unparser =
+    new BCDDecimalMinimumLengthUnparser(
       e.elementRuntimeData,
       e.binaryDecimalVirtualPoint
     )
+}
+
+class BCDDecimalEndOfParentLength(val e: ElementBase) extends Terminal(e, true) {
+
+  override lazy val parser =
+    new BCDDecimalEndOfParentLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint)
 
   override lazy val unparser: Unparser =
     new BCDDecimalMinimumLengthUnparser(

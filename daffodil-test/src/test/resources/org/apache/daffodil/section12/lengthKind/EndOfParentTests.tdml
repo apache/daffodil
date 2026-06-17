@@ -20,9 +20,10 @@
 	description="Section 12 - lengthKind=endOfParent" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:fn="http://www.w3.org/2005/xpath-functions"
-	xmlns:ex="http://example.com" defaultRoundTrip="true">
+	xmlns:ex="http://example.com" defaultRoundTrip="onePass"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions">
 
-	<tdml:defineSchema name="endOfParent-Embedded.dfdl.xsd">
+	<tdml:defineSchema name="parentIsLKDelimited">
 
 		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
@@ -35,20 +36,566 @@
 		<!-- END OF PARENT, simplest case -->
 		<!-- { child,child,child } -->
 
-
-		<xs:element name="parentCT" dfdl:representation="text"
-			dfdl:initiator="{{" dfdl:terminator="}">
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
 			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:element name="child" maxOccurs="unbounded"
-						dfdl:lengthKind="endOfParent" dfdl:representation="text"
-						dfdl:occursCountKind="parsed">
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:initiator="{{" dfdl:terminator="}">
 						<xs:complexType>
 							<xs:sequence>
-								<xs:element name="X" type="xs:integer"
+								<xs:element name="child"
+														dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer"
+																	dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer"
+																	dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:initiator="{{" dfdl:terminator="}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="child" type="xs:string"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesDelimited"
+		root="rootCT" model="parentIsLKDelimited" description="lengthKind is endOfParent">
+		<tdml:document><![CDATA[{{X1.Y1.,X2.Y2.,X3.Y3.}Z]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>but its parent</tdml:error>
+			<tdml:error>lengthKind</tdml:error>
+			<tdml:error>delimited</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesDelimited"
+		root="rootST" model="parentIsLKDelimited" description="lengthKind is endOfParent">
+		<tdml:document><![CDATA[{{X,Y,Z}A]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>but its parent</tdml:error>
+			<tdml:error>lengthKind</tdml:error>
+			<tdml:error>delimited</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="parentIsLKImplicit">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
+			separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+			initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+			separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+			binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="child"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="child" type="xs:string"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesImplicit"
+		root="rootCT" model="parentIsLKImplicit">
+		<tdml:document><![CDATA[X1.Y1.,X2.Y2.,X3.Y3.Z]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>but its parent</tdml:error>
+			<tdml:error>lengthKind</tdml:error>
+			<tdml:error>implicit</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesImplicit"
+		root="rootST" model="parentIsLKImplicit">
+		<tdml:document><![CDATA[X,Y,ZA]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>but its parent</tdml:error>
+			<tdml:error>lengthKind</tdml:error>
+			<tdml:error>implicit</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="parentIsLKExplicit">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bytes"
+			separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+			initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+			separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+			binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="18">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild"
+									dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest" dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+																				dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+																				dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="firstChild" type="xs:string"
+						dfdl:length="1" dfdl:representation="text"/>
+					<xs:element name="rest" type="xs:string"
+						dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="file" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:terminator="%NL;" dfdl:encoding="{$dfdl:encoding}">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="field" type="xs:string" dfdl:lengthKind="endOfParent" dfdl:encoding="{$dfdl:encoding}"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesExplicit"
+		root="rootCT" model="parentIsLKExplicit">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<child>
+								<X>2</X>
+								<Y>2</Y>
+							</child>
+							<child>
+								<X>3</X>
+								<Y>3</Y>
+							</child>
+						</rest>
+					</parentCT>
+					<after>A</after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesExplicit"
+		root="rootST" model="parentIsLKExplicit">
+		<tdml:document><![CDATA[XYZA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+					</parentST>
+					<after>A</after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentCSVExplicit"
+		root="file" model="parentIsLKExplicit">
+		<tdml:document><![CDATA[0123456789
+]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>does not have</tdml:error>
+			<tdml:error>single-byte character set encoding</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="parentIsLKPrefixed">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+			separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+			initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+			separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+			binaryNumberRep='binary' />
+
+		<xs:simpleType name="prefixedType2B" dfdl:length="2">
+			<xs:restriction base="xs:int"/>
+		</xs:simpleType>
+		<xs:simpleType name="prefixedType1B" dfdl:length="1">
+			<xs:restriction base="xs:int"/>
+		</xs:simpleType>
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefixedType2B" dfdl:prefixIncludesPrefixLength="no">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="firstChild"
+						dfdl:length="6" dfdl:representation="text">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
 									dfdl:initiator="X" dfdl:terminator="." />
-								<xs:element name="Y" type="xs:integer"
+								<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
 									dfdl:initiator="Y" dfdl:terminator="." />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="rest"
+						dfdl:lengthKind="endOfParent" dfdl:representation="text">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefixedType1B" dfdl:prefixIncludesPrefixLength="no">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="firstChild" type="xs:string"
+						dfdl:length="1" dfdl:representation="text"/>
+					<xs:element name="rest" type="xs:string"
+						dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesPrefixed"
+		root="rootCT" model="parentIsLKPrefixed">
+		<tdml:document><![CDATA[18X1.Y1.X2.Y2.X3.Y3.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<child>
+								<X>2</X>
+								<Y>2</Y>
+							</child>
+							<child>
+								<X>3</X>
+								<Y>3</Y>
+							</child>
+						</rest>
+					</parentCT>
+					<after>A</after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesPrefixed"
+		root="rootST" model="parentIsLKPrefixed">
+		<tdml:document><![CDATA[3XYZA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+					</parentST>
+					<after>A</after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="parentIsLKPattern">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+			separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+			initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+			separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+			binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								dfdl:length="6" dfdl:representation="text">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											dfdl:initiator="X" dfdl:terminator="." />
+										<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											dfdl:initiator="Y" dfdl:terminator="." />
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+							<xs:element name="rest"
+								dfdl:lengthKind="endOfParent" dfdl:representation="text">
+								<xs:complexType>
+									<xs:sequence>
+										<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+											<xs:complexType>
+												<xs:sequence>
+													<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+																			dfdl:initiator="X" dfdl:terminator="." />
+													<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+																			dfdl:initiator="Y" dfdl:terminator="." />
+												</xs:sequence>
+											</xs:complexType>
+										</xs:element>
+									</xs:sequence>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								dfdl:length="1" dfdl:representation="text"/>
+							<xs:element name="rest" type="xs:string"
+								dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesPattern"
+		root="rootCT" model="parentIsLKPattern">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<child>
+								<X>2</X>
+								<Y>2</Y>
+							</child>
+							<child>
+								<X>3</X>
+								<Y>3</Y>
+							</child>
+						</rest>
+					</parentCT>
+					<after>A</after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesPattern"
+		root="rootST" model="parentIsLKPattern">
+		<tdml:document><![CDATA[XYZA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+					</parentST>
+					<after>A</after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="parentIsLKEOP">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="endOfParent"
+			separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+			initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+			separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+			documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+			binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="18">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+									dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+																				dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+																				dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
@@ -56,43 +603,3469 @@
 			</xs:complexType>
 		</xs:element>
 
-		<xs:element name="parentST" dfdl:representation="text"
-			dfdl:initiator="{{" dfdl:terminator="}">
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="3">
 			<xs:complexType>
-				<xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
-					<xs:element name="child" type="xs:string" maxOccurs="unbounded"
-						dfdl:lengthKind="endOfParent" dfdl:representation="text"
-						dfdl:occursCountKind="parsed" />
+				<xs:sequence>
+					<xs:element name="parentST">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+									dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+									dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesEOP"
+		root="rootCT" model="parentIsLKEOP">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<child>
+								<X>2</X>
+								<Y>2</Y>
+							</child>
+							<child>
+								<X>3</X>
+								<Y>3</Y>
+							</child>
+						</rest>
+					</parentCT>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesEOP"
+		root="rootST" model="parentIsLKEOP">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+					</parentST>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="hasNextSiblingST">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+								<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes1"
+	                     root="rootCT" model="hasNextSiblingST">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.A]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>represented element</tdml:error>
+			<tdml:error>between this element and</tdml:error>
+			<tdml:error>end of the enclosing component</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes1"
+	                     root="rootST" model="hasNextSiblingST">
+		<tdml:document><![CDATA[XYZA]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>represented element</tdml:error>
+			<tdml:error>between this element and</tdml:error>
+			<tdml:error>end of the enclosing component</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="hasNextSiblingMG">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:sequence/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+								<xs:sequence/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes2"
+	                     root="rootCT" model="hasNextSiblingMG">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.A]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>model group</tdml:error>
+			<tdml:error>between this element and</tdml:error>
+			<tdml:error>end of the enclosing component</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes2"
+	                     root="rootST" model="hasNextSiblingMG">
+		<tdml:document><![CDATA[XYZA]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>model group</tdml:error>
+			<tdml:error>between this element and</tdml:error>
+			<tdml:error>end of the enclosing component</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="hasNextSiblingIVC">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="after" type="xs:string" dfdl:inputValueCalc="{'A'}"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+								<xs:element name="after" type="xs:string" dfdl:inputValueCalc="{'A'}"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes3"
+	                     root="rootCT" model="hasNextSiblingIVC">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<child>
+								<X>2</X>
+								<Y>2</Y>
+							</child>
+							<child>
+								<X>3</X>
+								<Y>3</Y>
+							</child>
+						</rest>
+						<after>A</after>
+					</parentCT>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes3"
+	                     root="rootST" model="hasNextSiblingIVC">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+						<after>A</after>
+					</parentST>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	<tdml:defineSchema name="hasTerminator">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text" dfdl:terminator="}">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string" dfdl:terminator="}"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes4"
+	                     root="rootCT" model="hasTerminator">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>specifies</tdml:error>
+			<tdml:error>terminator</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes4"
+	                     root="rootST" model="hasTerminator">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>specifies</tdml:error>
+			<tdml:error>terminator</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+<tdml:defineSchema name="hasNonZeroTrailingSkip">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text" dfdl:trailingSkip="1">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string" dfdl:trailingSkip="1"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes5"
+	                     root="rootCT" model="hasNonZeroTrailingSkip">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>specifies</tdml:error>
+			<tdml:error>non-zero</tdml:error>
+			<tdml:error>trailingSkip</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes5"
+	                     root="rootST" model="hasNonZeroTrailingSkip">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>specifies</tdml:error>
+			<tdml:error>non-zero</tdml:error>
+			<tdml:error>trailingSkip</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+<tdml:defineSchema name="hasMaxOccursGreaterThanOne">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:lengthPattern="[^\r\n]{18}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text" maxOccurs="2">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string" maxOccurs="2"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes6"
+	                     root="rootCT" model="hasMaxOccursGreaterThanOne">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>specifies</tdml:error>
+			<tdml:error>maxOccurs</tdml:error>
+			<tdml:error>greater than 1</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes6"
+	                     root="rootST" model="hasMaxOccursGreaterThanOne">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>specifies</tdml:error>
+			<tdml:error>maxOccurs</tdml:error>
+			<tdml:error>greater than 1</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="hasNonSingleByteEncoding">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="18">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text" dfdl:encoding="UTF-8">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string" dfdl:encoding="UTF-8"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes7"
+	                     root="rootCT" model="hasNonSingleByteEncoding">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>does not have</tdml:error>
+			<tdml:error>single-byte character set encoding</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes7"
+	                     root="rootST" model="hasNonSingleByteEncoding">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>does not have</tdml:error>
+			<tdml:error>single-byte character set encoding</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="inSequenceWithPostfixSeparator">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="18">
+						<xs:complexType>
+							<xs:sequence  dfdl:separator="," dfdl:separatorPosition="postfix">
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence dfdl:separator="," dfdl:separatorPosition="postfix">
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes8"
+	                     root="rootCT" model="inSequenceWithPostfixSeparator">
+		<tdml:document><![CDATA[X1.Y1.,X2.Y2.,X3.Y3.,]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>separatorPosition</tdml:error>
+			<tdml:error>postfix</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes8"
+	                     root="rootST" model="inSequenceWithPostfixSeparator">
+		<tdml:document><![CDATA[X,Y,Z]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>separatorPosition</tdml:error>
+			<tdml:error>postfix</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="inUnorderedSequence">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="18">
+						<xs:complexType>
+							<xs:sequence dfdl:sequenceKind="unordered">
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence dfdl:sequenceKind="unordered">
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes9"
+	                     root="rootCT" model="inUnorderedSequence">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>sequenceKind</tdml:error>
+			<tdml:error>unordered</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes9"
+	                     root="rootST" model="inUnorderedSequence">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>sequenceKind</tdml:error>
+			<tdml:error>unordered</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="hasFloatingSiblings">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="18">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+														dfdl:floating="yes"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+														dfdl:floating="yes"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes10"
+	                     root="rootCT" model="hasFloatingSiblings">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>elements</tdml:error>
+			<tdml:error>floating='yes</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes10"
+	                     root="rootST" model="hasFloatingSiblings">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>elements</tdml:error>
+			<tdml:error>floating='yes</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+
+	<tdml:defineSchema name="inSequenceWithNonZeroTrailingSkip">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="18">
+						<xs:complexType>
+							<xs:sequence dfdl:trailingSkip="1">
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence dfdl:trailingSkip="1">
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes11"
+	                     root="rootCT" model="inSequenceWithNonZeroTrailingSkip">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>non-zero</tdml:error>
+			<tdml:error>trailingSkip</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes11"
+	                     root="rootST" model="inSequenceWithNonZeroTrailingSkip">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a sequence with</tdml:error>
+			<tdml:error>non-zero</tdml:error>
+			<tdml:error>trailingSkip</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="inChoiceWithNonZeroTrailingSkip">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCTImplicit" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="6">
+						<xs:complexType>
+							<xs:choice dfdl:trailingSkip="1">
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootSTImplicit" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="1">
+						<xs:complexType>
+							<xs:choice dfdl:trailingSkip="1">
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="6">
+						<xs:complexType>
+							<xs:choice dfdl:choiceLength="6" dfdl:choiceLengthKind="explicit" dfdl:trailingSkip="1">
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="1">
+						<xs:complexType>
+							<xs:choice dfdl:choiceLength="1" dfdl:choiceLengthKind="explicit" dfdl:trailingSkip="1">
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes12"
+	                     root="rootCT" model="inChoiceWithNonZeroTrailingSkip">
+		<tdml:document><![CDATA[X1.Y1.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a choice with</tdml:error>
+			<tdml:error>non-zero</tdml:error>
+			<tdml:error>trailingSkip</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes12"
+	                     root="rootST" model="inChoiceWithNonZeroTrailingSkip">
+		<tdml:document><![CDATA[X]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a choice with</tdml:error>
+			<tdml:error>non-zero</tdml:error>
+			<tdml:error>trailingSkip</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes12Implicit"
+	                     root="rootCTImplicit" model="inChoiceWithNonZeroTrailingSkip">
+		<tdml:document><![CDATA[X1.Y1.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>a choice with</tdml:error>
+			<tdml:error>choiceLengthKind</tdml:error>
+			<tdml:error>implicit</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes12Implicit"
+	                     root="rootSTImplicit" model="inChoiceWithNonZeroTrailingSkip">
+		<tdml:document><![CDATA[X]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>a choice with</tdml:error>
+			<tdml:error>choiceLengthKind</tdml:error>
+			<tdml:error>implicit</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+ 	<tdml:defineSchema name="inChoiceWithTerminator">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="6">
+						<xs:complexType>
+							<xs:choice dfdl:choiceLength="6" dfdl:choiceLengthKind="explicit" dfdl:terminator="}">
+								<xs:element name="firstChild" dfdl:lengthKind="explicit"
+								            dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+											            dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+												<xs:complexType>
+													<xs:sequence>
+														<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="X" dfdl:terminator="." />
+														<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+														            dfdl:initiator="Y" dfdl:terminator="." />
+													</xs:sequence>
+												</xs:complexType>
+											</xs:element>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="1">
+						<xs:complexType>
+							<xs:choice dfdl:choiceLength="1" dfdl:choiceLengthKind="explicit" dfdl:terminator="}">
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:choice>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypes13"
+	                     root="rootCT" model="inChoiceWithTerminator">
+		<tdml:document><![CDATA[X1.Y1.]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a choice with</tdml:error>
+			<tdml:error>terminator</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes13"
+	                     root="rootST" model="inChoiceWithTerminator">
+		<tdml:document><![CDATA[X]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>in a choice with</tdml:error>
+			<tdml:error>terminator</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<!--
+	  eopBranchFirstInExplicitChoice: EOP element is branch 1 in an explicit-length choice;
+	  a non-EOP element is branch 2. Before the sawEOP fold fix, the fold treated choice
+	  branches as sequential siblings, causing a false SDE on the non-EOP branch.
+	-->
+	<tdml:defineSchema name="eopBranchFirstInExplicitChoice">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bytes"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<!-- Simple type: EOP branch first, fixed-length branch second.
+		     choiceLength=5: initiator(1) + content(4) = 5 bytes for each branch. -->
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="5">
+						<xs:element name="eopBranch" type="xs:string"
+							dfdl:lengthKind="endOfParent" dfdl:initiator="E"/>
+						<xs:element name="fixedBranch" type="xs:string"
+							dfdl:length="4" dfdl:initiator="F"/>
+					</xs:choice>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- Complex type: EOP branch first (complex element with X/Y children), fixed-length branch second.
+		     choiceLength=7: initiator(1) + X<n>.(3) + Y<n>.(3) = 7 bytes for EOP branch;
+		                     initiator(1) + content(6) = 7 bytes for fixed branch. -->
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="7">
+						<xs:element name="eopBranch" dfdl:lengthKind="endOfParent"
+							dfdl:initiator="E" dfdl:representation="text">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+										dfdl:initiator="X" dfdl:terminator="." />
+									<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+										dfdl:initiator="Y" dfdl:terminator="." />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="fixedBranch" type="xs:string"
+							dfdl:length="6" dfdl:initiator="F"/>
+					</xs:choice>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!-- ST: take the EOP branch (initiator 'E'). -->
+	<tdml:parserTestCase name="eopBranchFirst_ST_eopBranch"
+	                     root="rootST" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP branch is branch 1 in explicit choice; EOP branch taken — no false SDE on fixedBranch">
+		<tdml:document><![CDATA[ExyzwA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<ex:eopBranch>xyzw</ex:eopBranch>
+					<ex:after>A</ex:after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- ST: take the non-EOP branch (initiator 'F'). -->
+	<tdml:parserTestCase name="eopBranchFirst_ST_fixedBranch"
+	                     root="rootST" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP branch is branch 1 in explicit choice; non-EOP branch taken — proves fixedBranch is not erroneously SDE'd">
+		<tdml:document><![CDATA[FxyzwA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<ex:fixedBranch>xyzw</ex:fixedBranch>
+					<ex:after>A</ex:after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- CT: take the EOP branch (initiator 'E'). -->
+	<tdml:parserTestCase name="eopBranchFirst_CT_eopBranch"
+	                     root="rootCT" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP complex branch is branch 1 in explicit choice; EOP branch taken">
+		<tdml:document><![CDATA[EX1.Y1.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<ex:eopBranch>
+						<ex:X>1</ex:X>
+						<ex:Y>1</ex:Y>
+					</ex:eopBranch>
+					<ex:after>A</ex:after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- CT: take the non-EOP branch (initiator 'F'). -->
+	<tdml:parserTestCase name="eopBranchFirst_CT_fixedBranch"
+	                     root="rootCT" model="eopBranchFirstInExplicitChoice"
+	                     description="EOP complex branch is branch 1 in explicit choice; non-EOP branch taken — proves fixedBranch is not erroneously SDE'd">
+		<tdml:document><![CDATA[FabcdefA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<ex:fixedBranch>abcdef</ex:fixedBranch>
+					<ex:after>A</ex:after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  eopFollowedByIVC: IVC element follows the EOP element in a sequence. IVC elements
+	  are not represented (dfdl:isRepresented='false'), so the sawEOP fold must not raise
+	  an SDE for them. All EOP elements below have maxOccurs=1 (the default) as required
+	  by the spec ("maxOccurs > 1" on an EOP element is an SDE).
+	-->
+	<tdml:defineSchema name="eopFollowedByIVC">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" lengthUnits="bytes"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<!-- ST: firstChild(1) + rest(EOP string, 2) = 3-byte explicit parent;
+		         ivc computes a constant and consumes no input. -->
+		<xs:element name="rootST" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:length="1"/>
+								<xs:element name="rest" type="xs:string" dfdl:lengthKind="endOfParent"/>
+								<xs:element name="ivc" type="xs:string" dfdl:inputValueCalc="{ 'COMPUTED' }"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- CT: firstChild(6) + rest(EOP complex with single X/Y pair, 6) = 12-byte explicit parent.
+		         rest has maxOccurs=1 (default) and its children also have maxOccurs=1 (default),
+		         satisfying the spec requirement that EOP elements must not have maxOccurs > 1. -->
+		<xs:element name="rootCT" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentCT" dfdl:length="12">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" dfdl:length="6" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="rest" dfdl:lengthKind="endOfParent" dfdl:representation="text">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="X" dfdl:terminator="." />
+											<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+												dfdl:initiator="Y" dfdl:terminator="." />
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+								<xs:element name="ivc" type="xs:string" dfdl:inputValueCalc="{ 'COMPUTED' }"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!-- ST: firstChild="X", rest="YZ" (EOP reads remaining 2 of 3 bytes), ivc="COMPUTED", after="A". -->
+	<tdml:parserTestCase name="eopFollowedByIVC_ST"
+	                     root="rootST" model="eopFollowedByIVC"
+	                     description="IVC after EOP in sequence is legal — IVC is not represented so sawEOP must not SDE">
+		<tdml:document><![CDATA[XYZA]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>YZ</rest>
+						<ivc>COMPUTED</ivc>
+					</parentST>
+					<after>A</after>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- CT: firstChild X=1,Y=1 (6 bytes); rest X=2,Y=2 (EOP reads remaining 6 bytes); ivc="COMPUTED"; after="A". -->
+	<tdml:parserTestCase name="eopFollowedByIVC_CT"
+	                     root="rootCT" model="eopFollowedByIVC"
+	                     description="IVC after EOP in sequence is legal — IVC is not represented so sawEOP must not SDE">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.A]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<parentCT>
+						<firstChild>
+							<X>1</X>
+							<Y>1</Y>
+						</firstChild>
+						<rest>
+							<X>2</X>
+							<Y>2</Y>
+						</rest>
+						<ivc>COMPUTED</ivc>
+					</parentCT>
+					<after>A</after>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="STChecks">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian" />
+
+		<xs:element name="rootST1" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:int"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="binary"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes14"
+	                     root="rootST1" model="STChecks">
+		<tdml:document><![CDATA[X12]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>supported for</tdml:error>
+			<tdml:error>packed binary</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="hexBinary_StringEOP">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="explicit"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootST1" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:hexBinary"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="binary"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST2" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:length="3">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes16"
+	                     root="rootST1" model="hexBinary_StringEOP">
+		<tdml:document><![CDATA[X12]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST1>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>3132</rest>
+					</parentST>
+				</ex:rootST1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypes17"
+	                     root="rootST2" model="hexBinary_StringEOP">
+		<tdml:document><![CDATA[X12]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST2>
+					<parentST>
+						<firstChild>X</firstChild>
+						<rest>12</rest>
+					</parentST>
+				</ex:rootST2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="rootIsLKEOP">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="endOfParent"
+		             separator="" leadingSkip='0' encoding="US-ASCII" ignoreCase='no'
+		             initiator="" terminator="" initiatedContent="no" textNumberRep="standard"
+		             separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+		             documentFinalTerminatorCanBeMissing='yes' byteOrder="bigEndian"
+		             binaryNumberRep='binary' />
+
+		<xs:element name="rootCT" dfdl:representation="text">
+			<xs:complexType>
+				<xs:sequence>
+						<xs:element name="firstChild" dfdl:lengthKind="explicit"
+												dfdl:length="6" dfdl:representation="text">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+															dfdl:initiator="X" dfdl:terminator="." />
+									<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+															dfdl:initiator="Y" dfdl:terminator="." />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="rest"
+												dfdl:lengthKind="endOfParent" dfdl:representation="text">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="child" dfdl:lengthKind="implicit" maxOccurs="unbounded" dfdl:occursCountKind="parsed">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:element name="X" type="xs:integer" dfdl:lengthKind="delimited"
+																		dfdl:initiator="X" dfdl:terminator="." />
+												<xs:element name="Y" type="xs:integer" dfdl:lengthKind="delimited"
+																		dfdl:initiator="Y" dfdl:terminator="." />
+											</xs:sequence>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+		</xs:element>
+
+		<xs:element name="rootST" dfdl:representation="text">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+											dfdl:length="1" dfdl:representation="text"/>
+					<xs:element name="rest" type="xs:string"
+											dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="TestEndOfParentComplexTypesRootEOP"
+	                     root="rootCT" model="rootIsLKEOP">
+		<tdml:document><![CDATA[X1.Y1.X2.Y2.X3.Y3.]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootCT>
+					<firstChild>
+						<X>1</X>
+						<Y>1</Y>
+					</firstChild>
+					<rest>
+						<child>
+							<X>2</X>
+							<Y>2</Y>
+						</child>
+						<child>
+							<X>3</X>
+							<Y>3</Y>
+						</child>
+					</rest>
+				</ex:rootCT>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="TestEndOfParentSimpleTypesRootEOP"
+	                     root="rootST" model="rootIsLKEOP">
+		<tdml:document><![CDATA[XYZ]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<firstChild>X</firstChild>
+					<rest>YZ</rest>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="lengthKindEOPPrimitives">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+		<dfdl:format ref="ex:GeneralFormat"
+								 lengthKind="endOfParent"
+		             representation="text"
+		             encoding="ASCII"
+		             binaryDecimalVirtualPoint="2"
+		             nilKind="literalValue"
+		             nilValue="%WSP+;"
+		             textBooleanTrueRep="TRUE"
+		             textBooleanFalseRep="FALSE"
+		             prefixIncludesPrefixLength="no" />
+
+		<xs:element name="text_string_txt_bytes" type="xs:string" dfdl:lengthUnits="bytes" nillable="true" />
+		<xs:element name="text_string_txt_bits"  type="xs:string" dfdl:lengthUnits="bits" nillable="true" />
+		<xs:element name="text_string_txt_chars" type="xs:string" dfdl:lengthUnits="characters"
+		            nillable="true" />
+		<xs:element name="text_string_txt_ref1">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element ref="ex:text_string_txt_bytes"/>
+					<xs:element ref="ex:text_string_txt_bits"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		<xs:element name="text_string_txt_ref2">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element ref="ex:text_string_txt_bytes"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+		<xs:element name="text_string_txt_ref3">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element ref="ex:text_string_txt_ref2"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:group name="foo">
+			<xs:sequence>
+				<xs:element name="text_int_txt_bytes" type="xs:int" dfdl:lengthUnits="bytes" />
+			</xs:sequence>
+		</xs:group>
+
+		<xs:element name="bar">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:group ref="ex:foo" />
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="baz">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="text_string_txt_ref2" dfdl:lengthKind="explicit" dfdl:length="4">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element ref="ex:text_string_txt_bytes"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="after" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="text_int_txt_bytes" type="xs:int" dfdl:lengthUnits="bytes" />
+		<xs:element name="text_int_txt_bits" type="xs:int" dfdl:lengthUnits="bits" />
+		<xs:element name="text_int_txt_chars" type="xs:int" dfdl:lengthUnits="characters" />
+
+		<xs:element name="text_dec_txt_bytes" type="xs:decimal" dfdl:lengthUnits="bytes" />
+		<xs:element name="text_dec_txt_bits" type="xs:decimal" dfdl:lengthUnits="bits" />
+		<xs:element name="text_dec_txt_chars" type="xs:decimal" dfdl:lengthUnits="characters" />
+
+		<xs:element name="text_date_txt_bytes" type="xs:dateTime" dfdl:lengthUnits="bytes" />
+		<xs:element name="text_date_txt_bits" type="xs:dateTime" dfdl:lengthUnits="bits" />
+		<xs:element name="text_date_txt_chars" type="xs:dateTime" dfdl:lengthUnits="characters" />
+
+		<xs:element name="text_bool_txt_bytes" type="xs:boolean" dfdl:lengthUnits="bytes" />
+		<xs:element name="text_bool_txt_bits" type="xs:boolean" dfdl:lengthUnits="bits" />
+		<xs:element name="text_bool_txt_chars" type="xs:boolean" dfdl:lengthUnits="characters"/>
+
+		<xs:element name="complex_bin_bytes">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="strings">
+						<xs:complexType>
+							<xs:sequence dfdl:separator=",">
+								<xs:element name="str" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="remaining" type="xs:string" dfdl:lengthKind="endOfParent" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="complex_bin_bits">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="strings">
+						<xs:complexType>
+							<xs:sequence dfdl:separator=",">
+								<xs:element name="str" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="remaining" type="xs:string" dfdl:lengthKind="endOfParent" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="complex_bin_bytes_suspension">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="lenValue">
+						<xs:complexType>
+							<xs:sequence dfdl:separator=",">
+								<xs:element name="len" type="xs:int" dfdl:lengthKind="delimited"
+								            dfdl:outputValueCalc="{ dfdl:valueLength(../ex:value, 'bytes') + 3 }" />
+								<xs:element name="value" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="{ ../ex:len }" dfdl:textStringJustification="right"
+								            dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringPadCharacter="X" />
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="remaining" type="xs:string" dfdl:lengthKind="endOfParent" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="text_string_txt_bytes_includes_backtrack">
+			<xs:complexType>
+				<xs:choice>
+					<xs:element ref="ex:text_string_txt_bytes" />
+					<xs:element name="alldata" type="xs:string" dfdl:lengthKind="endOfParent" />
+				</xs:choice>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_string_txt_bytes"
+	                     root="text_string_txt_bytes"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:text_string_txt_bytes>abcde</ex:text_string_txt_bytes>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_ref1"
+	                     root="text_string_txt_ref1"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">ábcde</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>represented element</tdml:error>
+			<tdml:error>between this element and</tdml:error>
+			<tdml:error>end of the enclosing component</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_ref2"
+	                     root="text_string_txt_ref2"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:text_string_txt_ref2>
+					<ex:text_string_txt_bytes>abcde</ex:text_string_txt_bytes>
+				</ex:text_string_txt_ref2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_ref3"
+	                     root="text_string_txt_ref3"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:text_string_txt_ref3>
+					<ex:text_string_txt_ref2>
+						<ex:text_string_txt_bytes>abcde</ex:text_string_txt_bytes>
+					</ex:text_string_txt_ref2>
+				</ex:text_string_txt_ref3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_bits"
+	                     root="text_string_txt_bits"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_string_txt_bits>abcde</text_string_txt_bits>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_chars"
+	                     root="text_string_txt_chars"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_string_txt_chars>abcde</text_string_txt_chars>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_bytes_nil" roundTrip="twoPass"
+	                     root="text_string_txt_bytes"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">      </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_string_txt_bytes xsi:nil="true" />
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_string_txt_bits_nil" roundTrip="twoPass"
+	                     root="text_string_txt_bits"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">      </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_string_txt_bits xsi:nil="true" />
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="text_string_txt_chars_nil" roundTrip="twoPass"
+	                     root="text_string_txt_chars"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">     </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_string_txt_chars xsi:nil="true" />
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_int_txt_bytes"
+	                     root="text_int_txt_bytes"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">12</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_int_txt_bytes>12</text_int_txt_bytes>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_int_txt_bytes_group_ref"
+	                     root="bar"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">123</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>represented element</tdml:error>
+			<tdml:error>between this element and</tdml:error>
+			<tdml:error>end of the enclosing component</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_int_txt_bits"
+	                     root="text_int_txt_bits"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">12</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_int_txt_bits>12</text_int_txt_bits>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_int_txt_chars"
+	                     root="text_int_txt_chars"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">12</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_int_txt_chars>12</text_int_txt_chars>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_dec_txt_bytes"
+	                     root="text_dec_txt_bytes"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">123.45</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_dec_txt_bytes>123.45</text_dec_txt_bytes>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_dec_txt_bits"
+	                     root="text_dec_txt_bits"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">123.45</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_dec_txt_bits>123.45</text_dec_txt_bits>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="text_dec_txt_chars"
+	                     root="text_dec_txt_chars"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">123.45</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_dec_txt_chars>123.45</text_dec_txt_chars>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_date_txt_bytes"
+	                     root="text_date_txt_bytes"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_date_txt_bytes>2017-08-28T18:29:00</text_date_txt_bytes>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_date_txt_bits"
+	                     root="text_date_txt_bits"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_date_txt_bits>2017-08-28T18:29:00</text_date_txt_bits>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+	
+	<tdml:parserTestCase name="text_date_txt_chars"
+	                     root="text_date_txt_chars"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">2017-08-28T18:29:00</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_date_txt_chars>2017-08-28T18:29:00</text_date_txt_chars>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_bool_txt_bytes"
+	                     root="text_bool_txt_bytes"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">TRUE</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_bool_txt_bytes>true</text_bool_txt_bytes>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_bool_txt_bits"
+	                     root="text_bool_txt_bits"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">TRUE</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_bool_txt_bits>true</text_bool_txt_bits>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_bool_txt_chars"
+	                     root="text_bool_txt_chars"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">TRUE</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<text_bool_txt_chars>true</text_bool_txt_chars>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	Does not roundtrip because the spec decrees any remaining data that isn't
+	parsed by the last element in the parent should be ignored on parsing
+	-->
+	<tdml:parserTestCase name="check_eop_simple_elem_01" roundTrip="none"
+	                     root="baz"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcdefg</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:baz>
+					<ex:text_string_txt_ref2>
+						<ex:text_string_txt_bytes>abcd</ex:text_string_txt_bytes>
+					</ex:text_string_txt_ref2>
+					<after>e</after>
+				</ex:baz>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	Does not roundtrip because the spec decrees any remaining data that isn't
+	parsed by the last element in the parent should be filled with the fillbyte
+	on unparsing
+	-->
+	<tdml:unparserTestCase name="check_eop_simple_elem_02" roundTrip="none"
+	                     root="baz"
+	                     model="lengthKindEOPPrimitives">
+		<tdml:document>
+			<tdml:documentPart type="text">abcd </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:baz>
+					<ex:text_string_txt_ref2>
+						<ex:text_string_txt_bytes>abcd</ex:text_string_txt_bytes>
+					</ex:text_string_txt_ref2>
+					<ex:after></ex:after>
+				</ex:baz>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<tdml:defineSchema name="lengthKindEOPPrimitives_bin">
+
+	<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+	<dfdl:format ref="ex:GeneralFormat"
+							 lengthKind="endOfParent"
+	             representation="binary"
+	             encoding="ASCII"
+	             binaryDecimalVirtualPoint="2"
+	             binaryBooleanTrueRep=""
+	             binaryBooleanFalseRep="0"
+	             binaryPackedSignCodes="C D F C"
+	             binaryNumberCheckPolicy="strict"
+	             calendarPatternKind="explicit"
+	             calendarPattern="MMddyyyyHHmmss"
+	             lengthUnits="bytes" />
+		
+	<xs:element name="bin_int_bin_bytes_packed" type="xs:int" dfdl:binaryNumberRep="packed" />
+
+	<xs:element name="bin_int_bin_bytes_bcd" type="xs:unsignedInt" dfdl:binaryNumberRep="bcd" />
+
+	<xs:element name="bin_int_bin_bytes_ibm4690" type="xs:int" dfdl:binaryNumberRep="ibm4690Packed" />
+
+
+	<xs:element name="bin_dec_bin_bytes" type="xs:decimal" />
+
+	<xs:element name="bin_dec_bin_bytes_packed" type="xs:decimal" dfdl:binaryNumberRep="packed" />
+
+	<xs:element name="bin_dec_bin_bytes_bcd" type="xs:decimal" dfdl:binaryNumberRep="bcd" />
+
+
+	<xs:element name="bin_dec_bin_bytes_ibm4690" type="xs:decimal" dfdl:binaryNumberRep="ibm4690Packed" />
+
+	<xs:element name="bin_hex_bytes" type="xs:hexBinary" />
+
+	<xs:element name="bin_bool_bin_bytes" type="xs:boolean" />
+
+	<xs:element name="bin_date_bin_bytes_packed" type="xs:dateTime"	dfdl:binaryCalendarRep="packed" />
+
+
+	<xs:element name="bin_date_bin_bytes_bcd" type="xs:dateTime" dfdl:binaryCalendarRep="bcd" />
+
+	<xs:element name="bin_date_bin_bytes_ibm4690" type="xs:dateTime" dfdl:binaryCalendarRep="ibm4690Packed" />
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="bin_int_bin_bytes_packed"
+	                     root="bin_int_bin_bytes_packed"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">01234C</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_int_bin_bytes_packed>1234</bin_int_bin_bytes_packed>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="bin_int_bin_bytes_bcd"
+	                     root="bin_int_bin_bytes_bcd"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">1234</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_int_bin_bytes_bcd>1234</bin_int_bin_bytes_bcd>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_int_bin_bytes_ibm4690"
+	                     root="bin_int_bin_bytes_ibm4690"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">1234</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_int_bin_bytes_ibm4690>1234</bin_int_bin_bytes_ibm4690>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_dec_bin_bytes"
+	                     root="bin_dec_bin_bytes"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">30 39</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>only supported</tdml:error>
+			<tdml:error>packed binary formats</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_dec_bin_bytes_packed"
+	                     root="bin_dec_bin_bytes_packed"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">01234C</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_dec_bin_bytes_packed>12.34</bin_dec_bin_bytes_packed>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_dec_bin_bytes_bcd"
+	                     root="bin_dec_bin_bytes_bcd"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">1234</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_dec_bin_bytes_bcd>12.34</bin_dec_bin_bytes_bcd>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_dec_bin_bytes_ibm4690"
+	                     root="bin_dec_bin_bytes_ibm4690"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">1234</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_dec_bin_bytes_ibm4690>12.34</bin_dec_bin_bytes_ibm4690>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="bin_hex_bytes"
+	                     root="bin_hex_bytes"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_hex_bytes>DEADBEEF</bin_hex_bytes>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="bin_bool_bin_bytes"
+	                     root="bin_bool_bin_bytes"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">01</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>not supported</tdml:error>
+			<tdml:error>boolean with binary representation</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+
+	<tdml:parserTestCase name="bin_date_bin_bytes_packed"
+	                     root="bin_date_bin_bytes_packed"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">01 22 51 64 51 93 65 0C</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_date_bin_bytes_packed>1645-12-25T19:36:50</bin_date_bin_bytes_packed>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_date_bin_bytes_bcd"
+	                     root="bin_date_bin_bytes_bcd"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">06 14 20 04 18 56 03</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_date_bin_bytes_bcd>2004-06-14T18:56:03</bin_date_bin_bytes_bcd>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="bin_date_bin_bytes_ibm4690"
+	                     root="bin_date_bin_bytes_ibm4690"
+	                     model="lengthKindEOPPrimitives_bin">
+		<tdml:document>
+			<tdml:documentPart type="byte">11 30 20 07 04 15 08</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bin_date_bin_bytes_ibm4690>2007-11-30T04:15:08</bin_date_bin_bytes_ibm4690>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="lengthKindEOPNested">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+		<dfdl:format ref="ex:GeneralFormat"
+		             lengthKind="endOfParent"
+		             representation="text"
+		             encoding="ASCII"
+		             binaryDecimalVirtualPoint="2"
+		             nilKind="literalValue"
+		             nilValue="%WSP+;"
+		             textBooleanTrueRep="TRUE"
+		             textBooleanFalseRep="FALSE"
+		             prefixIncludesPrefixLength="no" />
+
+		<xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="bar">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name ="baz">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="foz" type="xs:string"/>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="foo1" dfdl:lengthKind="implicit" >
+			<xs:complexType>
+				<xs:sequence>
+					<xs:sequence>
+						<xs:sequence>
+							<xs:sequence>
+								<xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes">
+									<xs:complexType>
+										<xs:sequence>
+											<xs:element name="foz" type="xs:string"/>
+										</xs:sequence>
+									</xs:complexType>
+								</xs:element>
+							</xs:sequence>
+						</xs:sequence>
+					</xs:sequence>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes">
+			<xs:complexType>
+				<xs:sequence dfdl:terminator="}">
+					<xs:element name="foz" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="bar1" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice>
+						<xs:sequence/>
+						<xs:element name="nonEOP" dfdl:initiator="{{" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+					</xs:choice>
+					<xs:sequence>
+						<xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="foz" type="xs:string"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+
+	<tdml:parserTestCase name="nested_01"
+	                     root="foo"
+	                     model="lengthKindEOPNested">
+		<tdml:document>
+			<tdml:documentPart type="text">hello</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<foo><bar><baz><foz>hello</foz></baz></bar></foo>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="nested_02"
+	                     root="foo1"
+	                     model="lengthKindEOPNested">
+		<tdml:document>
+			<tdml:documentPart type="text">hello</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<foo1><bar><foz>hello</foz></bar></foo1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="nested_03"
+	                     root="bar"
+	                     model="lengthKindEOPNested">
+		<tdml:document>
+			<tdml:documentPart type="text">hello}</tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>sequence with</tdml:error>
+			<tdml:error>terminator</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="nested_04"
+	                     root="bar1"
+	                     model="lengthKindEOPNested">
+		<tdml:document>
+			<tdml:documentPart type="text">hello</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<bar1><bar><foz>hello</foz></bar></bar1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="lengthKindEOPChecks">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+		<dfdl:format ref="ex:GeneralFormat"
+		             lengthKind="endOfParent"
+								 fillByte="f"
+		             representation="text"
+		             encoding="ASCII"
+		             binaryDecimalVirtualPoint="2"
+		             nilKind="literalValue"
+		             nilValue="%WSP+;"
+		             textBooleanTrueRep="TRUE"
+		             textBooleanFalseRep="FALSE"
+		             prefixIncludesPrefixLength="no" />
+
+		<xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="foz" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="foo1" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="5">
+						<xs:sequence/>
+						<xs:element name="foz" type="xs:string"/>
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes">
+			<xs:complexType>
+				<xs:sequence dfdl:terminator="}">
+					<xs:element name="foz" type="xs:string"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- foo2: explicit-length choice containing an EOP element, followed by a sibling.
+		     Verifies that sawEOP does not propagate past the choice's length boundary. -->
+		<xs:element name="foo2" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="5">
+						<xs:element name="foz" type="xs:string"/>
+						<xs:sequence/>
+					</xs:choice>
+					<xs:element name="after" type="xs:string"
+						dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:unparserTestCase name="checks_01"
+	                     root="foo"
+	                     model="lengthKindEOPChecks" roundTrip="none">
+		<tdml:document>
+			<tdml:documentPart type="text">helff</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:foo><ex:foz>hel</ex:foz></ex:foo>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+	
+	<tdml:unparserTestCase name="checks_02"
+	                     root="foo1"
+	                     model="lengthKindEOPChecks" roundTrip="none">
+		<tdml:document>
+			<tdml:documentPart type="text">helff</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:foo1><ex:foz>hel</ex:foz></ex:foo1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<tdml:parserTestCase name="checks_03"
+	                     root="foo2"
+	                     model="lengthKindEOPChecks"
+	                     description="EOP element inside explicit-length choice followed by a sibling element">
+		<tdml:document>
+			<tdml:documentPart type="text">helloA</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:foo2><ex:foz>hello</ex:foz><ex:after>A</ex:after></ex:foo2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="eopNotByteAligned">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat"
+		             byteOrder="bigEndian"
+		             binaryNumberRep="binary"
+		             representation="binary"
+		             lengthUnits="bits"
+		             alignment="1"
+		             alignmentUnits="bits"
+								 encoding="X-DFDL-BITS-MSBF"
+		/>
+
+		<!--
+		  A complex element with explicit bit-length of 12 bits. The first child
+		  'foo' occupies 4 bits (one nibble), so 'leftOver' begins at bit position 4
+		  — a non-byte-aligned start. 'leftOver' reads the remaining 8 bits (1 byte)
+		  of the parent via dfdl:lengthKind="endOfParent".
+		-->
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="12">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="foo" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
+								<xs:element name="leftOver" type="xs:hexBinary" dfdl:lengthKind="endOfParent"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!--
+		  All three elements (rootEOP, parent, leftOver) are dfdl:lengthKind="endOfParent",
+		  which causes SpecifiedLengthEndOfParent to call optEndOfDataPosition() for both
+		  rootEOP and parent. 'foo' (explicit 4 bits) is the only non-EOP element, so
+		  'leftOver' starts at bit 4 — a non-byte-aligned position. Because X-DFDL-BITS-MSBF
+		  encodes one bit per character, leftOver (xs:string) can consume any number of bits,
+		  unlike xs:hexBinary which requires a whole-byte count.
+		-->
+		<xs:element name="rootEOP" dfdl:lengthKind="endOfParent">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="endOfParent">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="foo" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"/>
+								<xs:element name="leftOver" type="xs:string" dfdl:lengthKind="endOfParent"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="eop_not_byte_aligned_01"
+	                     root="root"
+	                     model="eopNotByteAligned"
+	                     description="EOP hexBinary element starting at a non-byte-aligned (bit 4) position inside an explicit-length parent">
+		<tdml:document>
+			<!--
+			  Bits 0–3  : foo = 0111 = 7
+			  Bits 4–11 : leftOver = 1010 1011 = 0xAB  (starts at bit 4, not byte-aligned)
+			-->
+			<tdml:documentPart type="bits">0111</tdml:documentPart>
+			<tdml:documentPart type="bits">10101011</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<parent>
+						<foo>7</foo>
+						<leftOver>AB</leftOver>
+					</parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="eop_not_byte_aligned_02"
+	                     root="rootEOP"
+	                     model="eopNotByteAligned"
+	                     roundTrip="none"
+	                     description="Nested EOP elements exercise optEndOfDataPosition; xs:string EOP starts at non-byte-aligned bit 4">
+		<tdml:document>
+			<!--
+			  0x7A = 0111 1010
+			  Bits 0–3 : foo = 0111 = 7
+			  Bits 4–15 : leftOver = 1010 1011 1010 = ABA  (starts at bit 4, not byte-aligned)
+			-->
+			<tdml:documentPart type="bits">0111</tdml:documentPart>
+			<tdml:documentPart type="bits">10101011 1010</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootEOP>
+					<parent>
+						<foo>7</foo>
+						<leftOver>101010111010</leftOver>
+					</parent>
+				</ex:rootEOP>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<tdml:defineSchema name="eopUnparserFill">
+
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat"
+		             lengthKind="explicit"
+		             lengthUnits="bytes"
+		             representation="binary"
+		             fillByte="%NUL;"
+		             byteOrder="bigEndian"/>
+
+		<!--
+		  A 5-byte explicit-length parent containing a single EOP hexBinary child.
+		  Used to verify that SpecifiedLengthEndOfParent.unparser (which delegates
+		  bare to eUnparser) relies correctly on the parent's SpecifiedLengthExplicit
+		  unparser to fill any unused trailing bytes with fillByte.
+		-->
+		<xs:element name="root" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val" type="xs:hexBinary"
+								            dfdl:lengthKind="endOfParent"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
 
 	</tdml:defineSchema>
 
-	<tdml:parserTestCase name="TestEndOfParentNYIComplexTypes"
-		root="parentCT" model="endOfParent-Embedded.dfdl.xsd" description="lengthKind is endOfParent">
-		<tdml:document><![CDATA[{X1.Y1.,X2.Y2.,X3.Y3.}]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
-			<tdml:error>not</tdml:error>
-			<tdml:error>implemented</tdml:error>
-			<tdml:error>endOfParent</tdml:error>
-			<tdml:error>complex</tdml:error>
-			<tdml:error>type</tdml:error>
-		</tdml:errors>
+	<!-- val fills the parent exactly: no fill bytes needed, confirms the basic EOP unparse path -->
+	<tdml:parserTestCase name="eop_unparse_fill_exact"
+	                     root="root"
+	                     model="eopUnparserFill"
+	                     roundTrip="onePass"
+	                     description="EOP hexBinary exactly fills its 5-byte explicit-length parent on parse and unparse">
+		<tdml:document>
+			<tdml:documentPart type="byte">AA BB CC DD EE</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<parent>
+						<val>AABBCCDDEE</val>
+					</parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<tdml:parserTestCase name="TestEndOfParentNYISimpleTypes"
-		root="parentST" model="endOfParent-Embedded.dfdl.xsd" description="lengthKind is endOfParent">
-		<tdml:document><![CDATA[{X,Y,Z}]]></tdml:document>
-		<tdml:errors>
-			<tdml:error>Schema Definition Error</tdml:error>
-			<tdml:error>not</tdml:error>
-			<tdml:error>implemented</tdml:error>
-			<tdml:error>endOfParent</tdml:error>
-			<tdml:error>simple</tdml:error>
-			<tdml:error>type</tdml:error>
-		</tdml:errors>
+	<!--
+	  val is 2 bytes but parent expects 5. The parent's SpecifiedLengthExplicit
+	  unparser must fill the 3 trailing bytes with fillByte (%NUL; = 0x00).
+	  This verifies that SpecifiedLengthEndOfParent.unparser = eUnparser is correct:
+	  the EOP child just writes its content; the parent handles the unused space.
+	-->
+	<tdml:unparserTestCase name="eop_unparse_fill_short"
+	                       root="root"
+												 roundTrip="none"
+	                       model="eopUnparserFill"
+	                       description="EOP hexBinary shorter than its explicit-length parent; parent fills trailing bytes with fillByte">
+		<tdml:document>
+			<tdml:documentPart type="byte">AA BB 00 00 00</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:parent>
+						<ex:val>AABB</ex:val>
+					</ex:parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  EOP text elements with padding properties.
+  -->
+	<tdml:defineSchema name="eopTextPadding">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" fillByte="%NUL;"/>
+
+		<!-- xs:string, right-justified, padChar='_', minLength=5, inside 5-byte explicit parent -->
+		<xs:element name="root_str_right">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textStringPadCharacter="_"
+								            dfdl:textStringJustification="right">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:minLength value="5"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- xs:string, left-justified, padChar=' ', minLength=5, inside 5-byte explicit parent -->
+		<xs:element name="root_str_left">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textStringPadCharacter="%SP;"
+								            dfdl:textStringJustification="left">
+									<xs:simpleType>
+										<xs:restriction base="xs:string">
+											<xs:minLength value="5"/>
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:element>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!--
+		  xs:int text rep, right-justified, padChar=' ', textOutputMinLength=5,
+		  inside 5-byte explicit parent.  Uses textOutputMinLength instead of
+		  xs:minLength because xs:int does not have a minLength facet.
+		-->
+		<xs:element name="root_int_right">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parent" dfdl:lengthKind="explicit" dfdl:length="5">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            type="xs:int"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textNumberPadCharacter="%SP;"
+								            dfdl:textNumberJustification="right"
+								            dfdl:textOutputMinLength="5"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  Direct unparse test: value "hi" is shorter than minLength=5.
+	  Before fix: outputs "hi\x00\x00\x00" (no padding, NUL fill from parent).
+	  After fix:  outputs "___hi" (3 leading '_' pad chars fill to minLength).
+	-->
+	<tdml:unparserTestCase name="eop_text_pad_str_right_unparse"
+	                       root="root_str_right"
+	                       model="eopTextPadding"
+	                       description="EOP xs:string right-justified: LeftPadding fills to minLength on unparse">
+		<tdml:document>
+			<tdml:documentPart type="text">___hi</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_str_right>
+					<ex:parent>
+						<ex:val>hi</ex:val>
+					</ex:parent>
+				</ex:root_str_right>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  Round-trip: parse "__abc" -> infoset "abc" -> unparse back to "__abc".
+	-->
+	<tdml:parserTestCase name="eop_text_pad_str_right_roundtrip"
+	                     root="root_str_right"
+	                     model="eopTextPadding"
+	                     roundTrip="onePass"
+	                     description="EOP xs:string right-justified: round-trip preserves leading pad chars">
+		<tdml:document>
+			<tdml:documentPart type="text">__abc</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_str_right>
+					<parent>
+						<val>abc</val>
+					</parent>
+				</ex:root_str_right>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  Round-trip: parse "abc  " -> infoset "abc" -> unparse back to "abc  ".
+	-->
+	<tdml:parserTestCase name="eop_text_pad_str_left_roundtrip"
+	                     root="root_str_left"
+	                     model="eopTextPadding"
+	                     roundTrip="onePass"
+	                     description="EOP xs:string left-justified: round-trip preserves trailing pad chars">
+		<tdml:document>
+			<tdml:documentPart type="text">abc  </tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_str_left>
+					<parent>
+						<val>abc</val>
+					</parent>
+				</ex:root_str_left>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  Round-trip: parse "   42" -> infoset 42 -> unparse back to "   42".
+	  Uses textOutputMinLength (not xs:minLength) which is the mechanism for
+	  non-string text types.
+	-->
+	<tdml:parserTestCase name="eop_text_pad_num_right_roundtrip"
+	                     root="root_int_right"
+	                     model="eopTextPadding"
+	                     roundTrip="onePass"
+	                     description="EOP xs:int text right-justified: round-trip with textOutputMinLength padding">
+		<tdml:document>
+			<tdml:documentPart type="text">   42</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root_int_right>
+					<parent>
+						<val>42</val>
+					</parent>
+				</ex:root_int_right>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  Per DFDL spec 12.3.6, EOP padding (LeftPadding/RightPad) must NOT be
+	  applied when the parent's dfdl:length is an expression (not a literal
+	  constant). The parent is sized at runtime by evaluating '../len'.
+	-->
+	<tdml:defineSchema name="eopPaddingExprParent">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" fillByte="%NUL;"/>
+
+		<!--
+		  len: 1-byte unsigned integer carrying the byte length of 'parent'
+		  parent: explicit-length box sized by runtime expression '../len'
+		  val: EOP xs:int, right-justified, space pad, textOutputMinLength=5.
+		-->
+		<xs:element name="root">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="len" type="xs:unsignedByte"
+					            dfdl:representation="binary" dfdl:lengthKind="implicit"/>
+					<xs:element name="parent"
+					            dfdl:lengthKind="explicit"
+					            dfdl:length="{ xs:int(../ex:len) }">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="val"
+								            type="xs:int"
+								            dfdl:lengthKind="endOfParent"
+								            dfdl:textPadKind="padChar"
+								            dfdl:textTrimKind="padChar"
+								            dfdl:textNumberPadCharacter="%SP;"
+								            dfdl:textNumberJustification="right"
+								            dfdl:textOutputMinLength="5"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  Direct unparse: len=2, val=42.  The parent box is 2 bytes (from expression).
+	  Per spec there's no padding and '42' is written as-is
+	-->
+	<tdml:unparserTestCase name="eop_no_pad_when_expr_parent_unparse"
+	                       root="root" model="eopPaddingExprParent"
+	                       description="G2: EOP xs:int in expression-length parent — no padding on unparse">
+		<tdml:document>
+			<tdml:documentPart type="byte">02 34 32</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:len>2</ex:len>
+					<ex:parent>
+						<ex:val>42</ex:val>
+					</ex:parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  Round-trip: 0x02 '4' '2' -> parse len=2 val=42 -> unparse back to 0x02 '4' '2'.
+	  Before the gate fix unparse fails (overflow), so the round-trip fails.
+	-->
+	<tdml:parserTestCase name="eop_no_pad_when_expr_parent_roundtrip"
+	                     root="root" model="eopPaddingExprParent"
+	                     roundTrip="onePass"
+	                     description="G2: EOP xs:int in expression-length parent — onePass round-trip without padding">
+		<tdml:document>
+			<tdml:documentPart type="byte">02 34 32</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<len>2</len>
+					<parent>
+						<val>42</val>
+					</parent>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  EOP elements should pad to the FULL available box length, not just
+	  dfdl:textOutputMinLength / xs:minLength (DFDL spec 12.3.6 and 13.2).
+
+	  Schema: 8-byte explicit-length parent (eopParent) or 8-byte explicit-length choice (eopChoice).
+	  EOP xs:string, right-justified, padChar=space, fillByte=NUL, minLength=3.
+	  Value "ab" (2 bytes) is shorter than minLength AND shorter than the box.
+
+	  Without the fix: padding fills only to minLength (3 bytes) -> " ab" + 5 NUL bytes.
+	  With the fix   : padding fills to the full box (8 bytes)    -> "      ab".
+	-->
+	<tdml:defineSchema name="eopPadToBoxTests">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat"
+		             lengthKind="endOfParent"
+		             encoding="US-ASCII"
+		             fillByte="%NUL;"
+		             textPadKind="padChar"
+		             textStringPadCharacter="%SP;"
+		             textStringJustification="right"
+		             textTrimKind="padChar"/>
+
+		<!-- EOP string as sole content of an 8-byte constant explicit-length parent -->
+		<xs:element name="eopParent" dfdl:lengthKind="explicit"
+		            dfdl:length="8" dfdl:lengthUnits="bytes">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="str" dfdl:lengthKind="endOfParent" dfdl:lengthUnits="bytes">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="3"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!-- EOP string as a branch of an 8-byte explicit-length choice -->
+		<xs:element name="eopChoice">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="8">
+						<xs:element name="str" dfdl:lengthKind="endOfParent" dfdl:lengthUnits="bytes">
+							<xs:simpleType>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="3"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:choice>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  value "ab" in 8-byte box -> "      ab" (6 spaces + ab).
+	  Before fix: " ab\x00\x00\x00\x00\x00" (pad to minLen=3, rest fillByte=NUL).
+	-->
+	<tdml:unparserTestCase name="eop_pad_to_parent_box_01"
+	                       root="eopParent" model="eopPadToBoxTests"
+	                       description="EOP string pads to full 8-byte parent box on unparse">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopParent>
+					<ex:str>ab</ex:str>
+				</ex:eopParent>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  parse "      ab" -> str="ab"; unparse "ab" -> "      ab".
+	  Before fix: unparse produces " ab\x00\x00\x00\x00\x00" -> round-trip fails.
+	-->
+	<tdml:parserTestCase name="eop_pad_to_parent_box_02"
+	                     root="eopParent" model="eopPadToBoxTests"
+	                     roundTrip="onePass"
+	                     description="EOP string round-trips through full 8-byte parent box">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopParent>
+					<ex:str>ab</ex:str>
+				</ex:eopParent>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  EOP branch of 8-byte explicit-length choice.
+	  Value "ab" -> "      ab" (6 spaces + ab, filling full choice box).
+	  Before fix: " ab\x00\x00\x00\x00\x00" (pad to minLen=3, choice ChoiceUnused fills rest with NUL).
+	-->
+	<tdml:unparserTestCase name="eop_pad_to_choice_box_01"
+	                       root="eopChoice" model="eopPadToBoxTests"
+	                       description="EOP choice branch pads to full 8-byte choice box on unparse">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopChoice>
+					<ex:str>ab</ex:str>
+				</ex:eopChoice>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  parse "      ab" through the choice -> str="ab";
+	  unparse "ab" -> "      ab".
+	-->
+	<tdml:parserTestCase name="eop_pad_to_choice_box_02"
+	                     root="eopChoice" model="eopPadToBoxTests"
+	                     roundTrip="onePass"
+	                     description="EOP choice branch round-trips through full 8-byte choice box">
+		<tdml:document>
+			<tdml:documentPart type="text">      ab</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopChoice>
+					<ex:str>ab</ex:str>
+				</ex:eopChoice>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+
+	<!--
+	  12.3.2.1 Delimiter scanning suspension.
+	  Parent has lengthKind="explicit" and a terminator character "|".
+	  The EOP child's content intentionally embeds that same "|" character to
+	  confirm that delimiter scanning is suspended while the EOP element is
+	  being processed: the embedded "|" is treated as data, not as the parent's
+	  terminator.
+	-->
+	<tdml:defineSchema name="eopDelimSuspension">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" representation="text"
+		             lengthKind="explicit" lengthUnits="bytes"/>
+
+		<!--
+		  8-byte explicit content box terminated by "|".
+		  'pre' occupies the first 3 bytes; 'eop' fills the remaining 5 bytes.
+		  The eop value "de|fg" contains the parent's terminator character.
+		-->
+		<xs:element name="root" dfdl:lengthKind="explicit" dfdl:length="8"
+		            dfdl:terminator="|">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="pre" type="xs:string" dfdl:length="3"/>
+					<xs:element name="eop" type="xs:string" dfdl:lengthKind="endOfParent"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  parse "abcde|fg|":
+	    pre = "abc" (3 bytes)
+	    eop = "de|fg" (5 bytes; the embedded "|" is data, not the parent's terminator)
+	    final "|" is consumed as root's terminator
+	  12.3.2.1: delimiter scanning is suspended inside the EOP element.
+	-->
+	<tdml:parserTestCase name="eop_delim_scan_suspended_01"
+	                     root="root" model="eopDelimSuspension"
+	                     roundTrip="onePass"
+	                     description="§12.3.2.1 delimiter scanning suspended inside EOP element">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde|fg|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:pre>abc</ex:pre>
+					<ex:eop>de|fg</ex:eop>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  unparse {pre="abc", eop="de|fg"} -> "abcde|fg|"
+	  Confirms the unparser writes the "|" in eop as literal data followed by
+	  the parent's own "|" terminator, not confused by delimiter context.
+	-->
+	<tdml:unparserTestCase name="eop_delim_scan_suspended_02"
+	                       root="root" model="eopDelimSuspension"
+	                       description="§12.3.2.1 unparse EOP whose value contains the parent terminator char">
+		<tdml:document>
+			<tdml:documentPart type="text">abcde|fg|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:root>
+					<ex:pre>abc</ex:pre>
+					<ex:eop>de|fg</ex:eop>
+				</ex:root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:unparserTestCase>
+
+	<!--
+	  9.3.2 Zero-length EOP.
+	  Spec: "endOfParent - already positioned at parent's end so length is zero."
+	  When a prior sibling exactly fills the parent's explicit-length box, the EOP
+	  element starts at the parent's end boundary and must parse/unparse as
+	  zero-length (empty value).
+	-->
+	<tdml:defineSchema name="eopZeroLength">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII" representation="text"
+		             lengthKind="explicit" lengthUnits="bytes"/>
+
+		<!--
+		  Text case: pre fills all 5 bytes; eop starts at the parent boundary -> "".
+		-->
+		<xs:element name="rootST" dfdl:lengthKind="explicit" dfdl:length="5">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="pre" type="xs:string" dfdl:length="5"/>
+					<xs:element name="eop" type="xs:string" dfdl:lengthKind="endOfParent"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<!--
+		  Binary case: pre fills all 4 bytes; eop starts at the parent boundary -> empty hexBinary.
+		-->
+		<xs:element name="rootBin" dfdl:lengthKind="explicit" dfdl:length="4"
+		            dfdl:representation="binary">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="pre" type="xs:hexBinary" dfdl:length="4"
+					            dfdl:representation="binary"/>
+					<xs:element name="eop" type="xs:hexBinary" dfdl:lengthKind="endOfParent"
+					            dfdl:representation="binary"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<!--
+	  9.3.2 zero-length EOP, simple-type string.
+	  "hello" (5 bytes) fills the entire 5-byte parent box.
+	  eop parses/unparses as "" (zero bytes, already at parent end).
+	-->
+	<tdml:parserTestCase name="eop_zero_length_st_01"
+	                     root="rootST" model="eopZeroLength"
+	                     roundTrip="onePass"
+	                     description="§9.3.2 EOP at parent boundary yields zero-length string">
+		<tdml:document>
+			<tdml:documentPart type="text">hello</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootST>
+					<ex:pre>hello</ex:pre>
+					<ex:eop/>
+				</ex:rootST>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  9.3.2 zero-length EOP, hexBinary (exercises HexBinaryLengthEndOfParent).
+	  0xDEADBEEF (4 bytes) fills the entire 4-byte parent box.
+	  eop parses/unparses as "" (zero bytes, already at parent end).
+	-->
+	<tdml:parserTestCase name="eop_zero_length_bin_01"
+	                     root="rootBin" model="eopZeroLength"
+	                     roundTrip="onePass"
+	                     description="§9.3.2 EOP at parent boundary yields zero-length hexBinary">
+		<tdml:document>
+			<tdml:documentPart type="byte">DE AD BE EF</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:rootBin>
+					<ex:pre>DEADBEEF</ex:pre>
+					<ex:eop/>
+				</ex:rootBin>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>

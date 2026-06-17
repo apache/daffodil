@@ -78,6 +78,15 @@ class TestLengthKindDelimited extends TdmlTests {
   @Test def Lesson1_lengthKind_delimited = test
   @Test def Lesson4_delimited_fixed_length = test
   @Test def delimited_construct = test
+
+  @Test def delim_pad_str_right_unparse = test
+  @Test def delim_pad_str_right_roundtrip = test
+  @Test def delim_pad_str_no_padding_needed = test
+  @Test def delim_pad_num_right_roundtrip = test
+
+  @Test def delim_pad_utf16_str_right_unparse = test
+  @Test def delim_pad_utf16_str_right_roundtrip = test
+  @Test def delim_pad_utf16_str_no_padding_needed = test
 }
 
 class TestLengthKindDelimitedAB extends TdmlTests {

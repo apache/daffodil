@@ -449,10 +449,12 @@ trait ElementRuntimeValuedPropertiesMixin
         case (Explicit, Text, AnySimpleType) => (lengthUnits, 0L)
         case (Prefixed, _, String) => (lengthUnits, minLengthLong)
         case (Prefixed, Text, _) => (lengthUnits, textOutputMinLength)
-        case (Pattern, _, String) => (lengthUnits, minLengthLong)
-        case (Pattern, Text, _) => (lengthUnits, textOutputMinLength)
-        case (Delimited, _, String) => (lengthUnits, minLengthLong)
-        case (Delimited, Text, _) => (lengthUnits, textOutputMinLength)
+        case (Pattern, _, String) => (LengthUnits.Characters, minLengthLong)
+        case (Pattern, Text, _) => (LengthUnits.Characters, textOutputMinLength)
+        case (Delimited, _, String) => (LengthUnits.Characters, minLengthLong)
+        case (Delimited, Text, _) => (LengthUnits.Characters, textOutputMinLength)
+        case (EndOfParent, _, String) => (LengthUnits.Characters, minLengthLong)
+        case (EndOfParent, Text, _) => (LengthUnits.Characters, textOutputMinLength)
         case _ => (LengthUnits.Bits, 0L) // anything else. This shuts off checking a min.
       }
     res
@@ -521,10 +523,18 @@ trait ElementRuntimeValuedPropertiesMixin
       ((repElement.lengthKind._eq_(LengthKind.Implicit)) && repElement.isSimpleType)
     ) {
       repElement.maybeUnparseTargetLengthInBitsEv
-    } else if (this.isDelimitedPrefixedPatternWithPadding) {
+    } else if (this.lengthKind == LengthKind.EndOfParent) {
+      // Per spec 12.3.6/13.2: EOP elements pad to the full "available length" of the
+      // enclosing box (constant-length element or explicit-length choice) when one is known.
+      // Fall back to minLength only when no constant box is found.
+      schemaSet.root.eopElementInfoMap.get(this).flatMap(_._2) match {
+        case Some(boxEv) => One(boxEv)
+        case None => if (isMinLengthKindWithPadding) One(minLengthInBitsEv) else Nope
+      }
+    } else if (this.isMinLengthKindWithPadding) {
       //
-      // if delimited but there is a min length, we just need the min
-      // length. There is no target length other than it.
+      // if delimited/pattern/prefixed but there is a min length,
+      // we just need the min length. There is no target length other than it.
       //
       val ev = minLengthInBitsEv
       One(ev)

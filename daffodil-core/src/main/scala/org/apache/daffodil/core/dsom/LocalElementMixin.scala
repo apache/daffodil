@@ -61,10 +61,8 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
           else if (representation =:= Representation.Binary) true
           else false
         }
-        case LengthKind.EndOfParent if isComplexType =>
-          notYetImplemented("lengthKind='endOfParent' for complex type")
-        case LengthKind.EndOfParent =>
-          notYetImplemented("lengthKind='endOfParent' for simple type")
+        // we can rarely statically know if an endOfParent element must have non-zero length
+        case LengthKind.EndOfParent => false
       }
       res
     }.value

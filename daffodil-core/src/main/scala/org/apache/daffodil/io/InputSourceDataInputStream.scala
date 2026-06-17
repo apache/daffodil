@@ -17,11 +17,16 @@
 
 package org.apache.daffodil.io
 
+import java.io.FileInputStream
 import java.io.InputStream
 import java.math.BigInteger as JBigInt
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
+import java.nio.channels.Channels
+import java.nio.channels.FileChannel
+import java.nio.channels.ReadableByteChannel
+import scala.util.Try
 
 import org.apache.daffodil.api
 import org.apache.daffodil.lib.exceptions.Assert
@@ -54,7 +59,42 @@ object InputSourceDataInputStream {
   }
 
   def apply(in: InputStream): InputSourceDataInputStream = {
-    new InputSourceDataInputStream(new BucketingInputSource(in))
+    new InputSourceDataInputStream(
+      new BucketingInputSource(in, optSizeHint = sizeHintForStream(in))
+    )
+  }
+
+  /**
+   * Create an InputSourceDataInputStream from a ReadableByteChannel.
+   * When the channel is a FileChannel its size is captured up front so that
+   * dfdl:lengthKind='endOfParent' parsers can skip the 256 MiB scan
+   * normally required to locate end-of-data.
+   */
+  def apply(channel: ReadableByteChannel): InputSourceDataInputStream = {
+    new InputSourceDataInputStream(
+      new BucketingInputSource(
+        Channels.newInputStream(channel),
+        optSizeHint = sizeHintForChannel(channel)
+      )
+    )
+  }
+
+  /**
+   * Returns the number of bytes remaining in a FileInputStream at the moment
+   * of the call, or None for any other stream type or on I/O error.
+   */
+  private def sizeHintForStream(in: InputStream): Option[Long] = in match {
+    case fis: FileInputStream => sizeHintForChannel(fis.getChannel)
+    case _ => None
+  }
+
+  /**
+   * Returns the number of bytes remaining in a FileChannel at the moment of
+   * the call, or None for any other channel type or on I/O error.
+   */
+  private def sizeHintForChannel(channel: ReadableByteChannel): Option[Long] = channel match {
+    case fc: FileChannel => Try(fc.size() - fc.position()).toOption
+    case _ => None
   }
 }
 
@@ -135,6 +175,8 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
    * the data to an earlier position.
    */
   def hasReachedEndOfData: Boolean = inputSource.hasReachedEndOfData
+
+  def optEndOfDataPosition: Option[Long] = inputSource.optEndOfDataPosition
 
   /**
    * Return the number of currently available bytes.

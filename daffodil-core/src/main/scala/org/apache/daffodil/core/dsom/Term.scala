@@ -27,9 +27,7 @@ import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.*
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -562,4 +560,11 @@ trait Term
     }
   }
 
+  final lazy val realEOPElementChildren: Seq[ElementBase] = {
+    termChildren.flatMap {
+      case eb: ElementBase => Seq(eb)
+      case c: Choice => Nil
+      case mg: ModelGroup => mg.realEOPElementChildren
+    }
+  }
 }

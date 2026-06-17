@@ -999,6 +999,181 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="patternTextPadding">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="ascii" />
 
+    <!--
+      xs:string, right-justified, '_' pad, xs:minLength=5, pattern "[^|]+", terminator="|".
+      Demonstrates that pattern lengthKind applies LeftPadding on unparse.
+    -->
+    <xs:element name="root_str_right">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val"
+                      dfdl:lengthKind="pattern"
+                      dfdl:lengthPattern="[^|]+"
+                      dfdl:terminator="|"
+                      dfdl:textPadKind="padChar"
+                      dfdl:textTrimKind="padChar"
+                      dfdl:textStringPadCharacter="_"
+                      dfdl:textStringJustification="right">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="5"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="rest" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!--
+      xs:string, right-justified, '_' pad, xs:minLength=5, pattern "[^|]+", terminator="|",
+      encoding="utf-16BE" (2 bytes per char = 16 bits per char).
+      Exercises the LengthUnits.Characters fix: same rationale as the delimited utf-16BE case.
+      With the old code minLen used dfdl:lengthUnits (bytes) * 5 bytes = 40 bits; "hi" (32 bits)
+      exceeded that, so at most 1 pad char was added. The fix uses LengthUnits.Characters
+      -> 5 chars * 16 bits = 80 bits, so "hi" correctly receives 3 pad chars -> "___hi".
+    -->
+    <xs:element name="root_str_right_utf16">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val"
+                      dfdl:encoding="utf-16BE"
+                      dfdl:lengthKind="pattern"
+                      dfdl:lengthPattern="[^|]+"
+                      dfdl:terminator="|"
+                      dfdl:textPadKind="padChar"
+                      dfdl:textTrimKind="padChar"
+                      dfdl:textStringPadCharacter="_"
+                      dfdl:textStringJustification="right">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="5"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+    Direct unparse test: value "hi" is shorter than xs:minLength=5.
+    Verifies that LeftPadding fills to minLength for pattern lengthKind.
+  -->
+  <tdml:unparserTestCase name="pattern_pad_str_right_unparse"
+    root="root_str_right" model="patternTextPadding"
+    description="Pattern xs:string right-justified: LeftPadding fills to xs:minLength on unparse">
+    <tdml:document><![CDATA[___hi|after]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_str_right>
+          <ex:val>hi</ex:val>
+          <ex:rest>after</ex:rest>
+        </ex:root_str_right>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!--
+    Round-trip: parse "__abc|rest" -> infoset "abc" -> unparse back to "__abc|rest".
+    Verifies trim on parse and LeftPadding on unparse for pattern xs:string.
+  -->
+  <tdml:parserTestCase name="pattern_pad_str_right_roundtrip"
+    root="root_str_right" model="patternTextPadding"
+    roundTrip="onePass"
+    description="Pattern xs:string right-justified: round-trip preserves leading pad chars">
+    <tdml:document><![CDATA[__abc|rest]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_str_right>
+          <val>abc</val>
+          <rest>rest</rest>
+        </ex:root_str_right>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Negative padding test: value "abcde" already meets xs:minLength=5; no padding emitted.
+    Verifies that LeftPadding is not added when the value length is at or above minLength.
+  -->
+  <tdml:parserTestCase name="pattern_pad_str_no_padding_needed"
+    root="root_str_right" model="patternTextPadding"
+    roundTrip="onePass"
+    description="Pattern xs:string: no padding when value length >= minLength">
+    <tdml:document><![CDATA[abcde|rest]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_str_right>
+          <val>abcde</val>
+          <rest>rest</rest>
+        </ex:root_str_right>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    UTF-16BE unparse test: value "hi" (2 chars, 32 bits) padded to xs:minLength=5.
+    Expected document is "___hi|" encoded as UTF-16BE (12 bytes).
+    The LengthUnits.Characters fix ensures 5 chars * 16 bits = 80 bits minimum,
+    producing 3 pad chars instead of the <= 1 that the old bytes-based code would add.
+  -->
+  <tdml:unparserTestCase name="pattern_pad_utf16_str_right_unparse"
+    root="root_str_right_utf16" model="patternTextPadding"
+    description="Pattern utf-16BE xs:string: LengthUnits.Characters fix produces correct 3 pad chars">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 5F 00 5F 00 5F 00 68 00 69 00 7C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_str_right_utf16>
+          <ex:val>hi</ex:val>
+        </ex:root_str_right_utf16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!--
+    UTF-16BE round-trip: parse "___hi|" -> infoset "hi" -> unparse "___hi|".
+  -->
+  <tdml:parserTestCase name="pattern_pad_utf16_str_right_roundtrip"
+    root="root_str_right_utf16" model="patternTextPadding"
+    roundTrip="onePass"
+    description="Pattern utf-16BE xs:string: round-trip preserves 3 leading pad chars">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 5F 00 5F 00 5F 00 68 00 69 00 7C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_str_right_utf16>
+          <val>hi</val>
+        </ex:root_str_right_utf16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    UTF-16BE negative test: "abcde" already has 5 chars; no padding emitted on unparse.
+    "abcde|" in UTF-16BE = 12 bytes.
+  -->
+  <tdml:parserTestCase name="pattern_pad_utf16_str_no_padding_needed"
+    root="root_str_right_utf16" model="patternTextPadding"
+    roundTrip="onePass"
+    description="Pattern utf-16BE xs:string: no padding when value length >= minLength">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 61 00 62 00 63 00 64 00 65 00 7C</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root_str_right_utf16>
+          <val>abcde</val>
+        </ex:root_str_right_utf16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

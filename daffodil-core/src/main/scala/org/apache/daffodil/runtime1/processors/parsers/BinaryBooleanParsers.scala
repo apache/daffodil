@@ -115,7 +115,5 @@ class BinaryBooleanBitLimitLengthParser(
 
   override def runtimeDependencies = Vector()
 
-  override def getBitLength(state: PState): Int = {
-    getLengthInBits(state).toInt
-  }
+  override def getBitLength(state: PState): Int = super.getBitLengthAsInt(state)
 }

@@ -209,6 +209,10 @@ class TestAlignedData extends TdmlTests {
   @Test def prior_siblings_3 = test
   @Test def prior_siblings_4 = test
   @Test def prior_siblings_5 = test
+
+  // DAFFODIL-238
+  @Test def test_init_alignment_1_eop = test
+  @Test def test_init_alignment_2_eop = test
 }
 
 class TestBinaryInput extends TdmlTests {
