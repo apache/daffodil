@@ -63,10 +63,12 @@ jobs:
           sudo apt-get install -y libmxml-dev rpm wine32 winetricks
           sudo locale-gen $LANG
 
+          INNO_SETUP_TAG="6_4_1"
           INNO_SETUP_EXE="innosetup-6.4.1.exe"
-          EXPECTED_SHA=5dfc9999e2feafa28754baaf80cf73ac96414228b94a1132a919554a822c892810197305d9355885b9ac408c214691cd45279fc2df3a891fbebc4f8eb86bac87
-          curl -L https://files.jrsoftware.org/is/6/$INNO_SETUP_EXE -o $INNO_SETUP_EXE
-          echo "$EXPECTED_SHA $INNO_SETUP_EXE" | sha512sum --quiet -c -
+          EXPECTED_SHA=f41760e1f1ae15d2089bb6ab162e21720b92ae7506ed70667b39200063d68e34
+          curl -L https://github.com/jrsoftware/issrc/releases/download/is-$INNO_SETUP_TAG/$INNO_SETUP_EXE -o $INNO_SETUP_EXE
+          echo "$EXPECTED_SHA $INNO_SETUP_EXE" | sha256sum --quiet -c -
+          
           winetricks -q win10
           xvfb-run wine $INNO_SETUP_EXE /VERYSILENT /SUPPRESSMSGBOXES /TASKS= '/DIR=C:\\Program Files (x86)\\Inno Setup 6'
           rm $INNO_SETUP_EXE
