@@ -482,20 +482,21 @@ trait Facets { self: Restriction =>
     localFacet
   }
 
-  private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
-    self.primType match {
-      case PrimType.DateTime =>
-        dateToBigDecimal(
-          facet,
-          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
-          PrimType.DateTime.toString(),
-          this
-        )
-      case PrimType.Date =>
-        dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), this)
-      case PrimType.Time =>
-        dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), this)
-      case _ => new java.math.BigDecimal(facet)
+  private def convertFacetToBigDecimal(
+    facet: String,
+    facetType: Facet.Type
+  ): java.math.BigDecimal = {
+    try {
+      if (Facet.isLengthFamilyFacet(facetType)) {
+        new java.math.BigDecimal(facet)
+      } else {
+        // value-space facets (min/max Inclusive/Exclusive, enumeration):
+        // parse in the element's own value space
+        calendarStringToBigDecimal(facet, primType, this)
+      }
+    } catch {
+      case e: IllegalArgumentException =>
+        SDE("invalid facet restriction: %s", e.getMessage)
     }
   }
 
@@ -506,7 +507,7 @@ trait Facets { self: Restriction =>
     // Necessary for min/max Inclusive/Exclusive Facets
 
     // Perform conversions once
-    val theLocalFacet = convertFacetToBigDecimal(localFacet)
+    val theLocalFacet = convertFacetToBigDecimal(localFacet, facetType)
 
     facetType match {
       case Facet.maxExclusive | Facet.maxInclusive | Facet.minExclusive | Facet.minInclusive |

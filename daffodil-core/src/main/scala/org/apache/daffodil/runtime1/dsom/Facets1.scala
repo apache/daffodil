@@ -34,6 +34,29 @@ object Facet extends Enum {
   case object pattern extends Type
   case object totalDigits extends Type
   case object whiteSpace extends Type
+
+  private val lengthFacets: Set[Facet.Type] = Set(
+    Facet.length,
+    Facet.minLength,
+    Facet.maxLength,
+    Facet.totalDigits,
+    Facet.fractionDigits
+  )
+
+  /**
+   * Returns true if the facet is a "length-family" facet: length, minLength,
+   * maxLength, totalDigits, or fractionDigits.
+   *
+   * These facets are always non-negative integer constraints, independent of
+   * the element's primitive type, so their values are parsed as plain integers
+   * rather than in the type's value space (which matters for date/time types,
+   * whose value-space facets parse as calendars).
+   *
+   * @param facetType the facet type to classify
+   * @return true if the facet is a length-family facet
+   */
+  def isLengthFamilyFacet(facetType: Facet.Type): Boolean =
+    lengthFacets.contains(facetType)
 }
 
 object FacetTypes {

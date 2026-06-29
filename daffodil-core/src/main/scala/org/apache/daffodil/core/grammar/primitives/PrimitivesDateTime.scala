@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import java.text.ParsePosition
 import scala.Boolean
 
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.TextCalendarConstants
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
@@ -37,10 +37,8 @@ import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCalendarParser
 import org.apache.daffodil.unparsers.runtime1.ConvertBinaryCalendarSecMilliUnparser
 import org.apache.daffodil.unparsers.runtime1.ConvertTextCalendarUnparser
 
-import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.ULocale
 
 abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {
@@ -54,7 +52,6 @@ abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends ConvertCalendarPrimBase(e, guard) {
 
-  protected def infosetPattern: String
   protected def implicitPattern: String
   protected def validFormatCharacters: Seq[Char]
 
@@ -241,8 +238,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val xsdType = "date"
   protected override val prettyType = "Date"
-  protected override val infosetPattern = "uuuu-MM-ddxxx"
-  protected override val implicitPattern = "uuuu-MM-dd"
+  protected override val implicitPattern = "yyyy-MM-dd"
   protected override val validFormatCharacters =
     if (e.representation == Representation.Binary) {
       "dDeFMuwWyY".toSeq
@@ -254,7 +250,6 @@ case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBa
 case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
   protected override val xsdType = "time"
   protected override val prettyType = "Time"
-  protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
   protected override val implicitPattern = "HH:mm:ssZ"
   protected override val validFormatCharacters =
     if (e.representation == Representation.Binary) {
@@ -268,8 +263,7 @@ case class ConvertTextDateTimePrim(e: ElementBase)
   extends ConvertTextCalendarPrimBase(e, true) {
   protected override val xsdType = "dateTime"
   protected override val prettyType = "DateTime"
-  protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
-  protected override val implicitPattern = "uuuu-MM-dd'T'HH:mm:ss"
+  protected override val implicitPattern = "yyyy-MM-dd'T'HH:mm:ss"
   protected override val validFormatCharacters =
     if (e.representation == Representation.Binary) {
       "dDeFhHkKmMsSuwWyY".toSeq
@@ -284,36 +278,18 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
   protected override val prettyType = "DateTime"
 
   lazy val epochCalendar: Calendar = {
-    val cal = Calendar.getInstance
-    cal.clear()
-    cal.setLenient(false)
-
-    val sdfWithTZ = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssZZZZ", ULocale.ENGLISH)
-    var pos = new ParsePosition(0)
-    sdfWithTZ.parse(e.binaryCalendarEpoch, cal, pos)
-
-    if (pos.getIndex != e.binaryCalendarEpoch.length || pos.getErrorIndex >= 0) {
-      // binaryCalendarEpoch didn't match the first format with timezone, so try without
-      cal.clear()
-      pos = new ParsePosition(0)
-      val sdf = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss", ULocale.ENGLISH)
-      cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
-      sdf.parse(e.binaryCalendarEpoch, cal, pos)
-
-      if (pos.getIndex != e.binaryCalendarEpoch.length || pos.getErrorIndex >= 0) {
-        SDE(
-          "Failed to parse binaryCalendarEpoch - Format must match the pattern 'uuuu-MM-dd'T'HH:mm:ss' or 'uuuu-MM-dd'T'HH:mm:ssZZZZ'"
-        )
+    val dfdlDateTime =
+      try {
+        DFDLDateTimeConversion.fromXMLString(e.binaryCalendarEpoch)
+      } catch {
+        case exception: IllegalArgumentException =>
+          SDE(
+            "Failed to parse binaryCalendarEpoch '%s' as an xs:dateTime.",
+            e.binaryCalendarEpoch,
+            exception.getMessage
+          )
       }
-    }
-
-    try {
-      cal.getTime
-    } catch {
-      case e: IllegalArgumentException => {
-        SDE("Failed to parse binaryCalendarEpoch: %s.", e.getMessage())
-      }
-    }
+    val cal = dfdlDateTime.calendar
 
     cal
   }

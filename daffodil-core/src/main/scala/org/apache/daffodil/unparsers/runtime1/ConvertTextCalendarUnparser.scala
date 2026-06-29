@@ -93,13 +93,14 @@ case class ConvertTextCalendarUnparser(
     // that. This ensures there are no locale specific issues related to
     // unparsing calendars.
     calendar.set(
-      infosetCalendar.get(Calendar.EXTENDED_YEAR),
+      infosetCalendar.get(Calendar.YEAR),
       infosetCalendar.get(Calendar.MONTH),
       infosetCalendar.get(Calendar.DAY_OF_MONTH),
       infosetCalendar.get(Calendar.HOUR_OF_DAY),
       infosetCalendar.get(Calendar.MINUTE),
       infosetCalendar.get(Calendar.SECOND)
     )
+    calendar.set(Calendar.ERA, infosetCalendar.get(Calendar.ERA))
     calendar.set(Calendar.MILLISECOND, infosetCalendar.get(Calendar.MILLISECOND))
     calendar.setTimeZone(infosetCalendar.getTimeZone)
 

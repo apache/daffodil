@@ -766,8 +766,8 @@ class TestDFDLFunctions extends TdmlTests {
 
   @Test def yearfromdatetime_01 = test
   @Test def yearfromdatetime_02 = test
-  // DAFFODIL-3084
-  @Ignore @Test def yearfromdatetime_03 = test
+  @Test def yearfromdatetime_03 = test
+  @Test def yearfromdatetime_04 = test
   @Test def monthfromdatetime_01 = test
   @Test def monthfromdatetime_02 = test
   @Test def dayfromdatetime_01 = test
@@ -789,11 +789,11 @@ class TestDFDLFunctions extends TdmlTests {
   @Test def xfromdatetime_02 = test
   @Test def xfromdatetime_03 = test
   @Test def xfromdatetime_04 = test
+  @Test def xfromdatetime_05 = test
 
   @Test def yearfromdate_01 = test
   @Test def yearfromdate_02 = test
-  // DAFFODIL-3084
-  @Ignore @Test def yearfromdate_03 = test
+  @Test def yearfromdate_03 = test
   @Test def monthfromdate_01 = test
   @Test def monthfromdate_02 = test
   @Test def dayfromdate_01 = test

@@ -22,6 +22,7 @@ import java.math.BigDecimal as JBigDecimal
 import org.apache.daffodil.lib.exceptions.Assert
 
 import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
 
 object DFDLCalendarOrder extends Enumeration {
@@ -29,13 +30,29 @@ object DFDLCalendarOrder extends Enumeration {
   val P_LESS_THAN_Q, P_GREATER_THAN_Q, P_EQUAL_Q, P_NOT_EQUAL_Q = Value
 
   val fieldsForComparison = Array(
-    Calendar.EXTENDED_YEAR,
+    Calendar.ERA,
+    Calendar.YEAR,
     Calendar.MONTH,
     Calendar.DAY_OF_MONTH,
     Calendar.HOUR_OF_DAY,
     Calendar.MINUTE,
     Calendar.SECOND
   )
+}
+
+object DateTimeUtil {
+
+  /**
+   * Returns the XSD 1.0 signed year of a calendar. YEAR is the positive
+   * year-of-era; a BCE year is returned negated.
+   *
+   * @param calendar the ICU calendar instance
+   * @return signed year (e.g. 1 BCE -> -1, 1 CE -> 1)
+   */
+  def signedYear(calendar: Calendar): Int = {
+    val y = calendar.get(Calendar.YEAR)
+    if (calendar.get(Calendar.ERA) == GregorianCalendar.BC) -y else y
+  }
 }
 
 trait OrderedCalendar { self: DFDLCalendar =>
@@ -242,7 +259,7 @@ case class DFDLTime(calendar: Calendar, override val hasTimeZone: Boolean)
     // values and achieve the same effect, but optimized
     //
     timeCal.clear(Calendar.YEAR)
-    timeCal.clear(Calendar.EXTENDED_YEAR)
+    timeCal.clear(Calendar.ERA)
     timeCal.clear(Calendar.MONTH)
     timeCal.clear(Calendar.DAY_OF_MONTH)
     DFDLDateTime(timeCal, hasTimeZone)
