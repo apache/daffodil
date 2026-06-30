@@ -102,11 +102,10 @@ object DFDLCalendarConversion {
       // a negative lexical year is BCE, stored as ERA=BC with positive YEAR.
       val yInt = Integer.parseInt(y)
 
-      // XSD 1.0 does not have a year zero — years start from -0001 (1 BCE)
-      // Explicitly rejecting year 0 here is both more efficient
-      // (fails immediately rather than after building the full calendar) and more
-      // precise than relying on the downstream IllegalArgumentException thrown by
-      // calendar.getTimeInMillis() during field validation in fromXMLString.
+      // calendar.getTimeInMillis() in fromXMLString would eventually catch year 0
+      // and call invalidCalendar anyway — explicitly rejecting it here is a bit more
+      // efficient as it skips all the calendar building steps and fails immediately.
+      // In addition, we do not have to rely on downstream validation.
       if (yInt == 0) invalidValue
       else if (yInt < 0) {
         calendar.set(Calendar.ERA, GregorianCalendar.BC)
