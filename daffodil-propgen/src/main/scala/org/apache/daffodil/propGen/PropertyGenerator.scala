@@ -36,6 +36,10 @@ class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
+  val enumLiteralTypes = List(
+    "CalendarFirstDayOfWeek"
+  )
+
   val excludedTypes = List(
     "AlignmentType",
     "BinaryBooleanFalseRepType",
@@ -70,6 +74,10 @@ class PropertyGenerator(arg: Node) {
 
   def excludeAttribute(name: String) = {
     excludedAttributes.exists { _.toUpperCase == name.toUpperCase() }
+  }
+
+  def replaceEnumClass(name: String) = {
+    enumLiteralTypes.exists { _.toUpperCase == name.toUpperCase() }
   }
 
   def generate() = {
@@ -380,7 +388,6 @@ class PropertyGenerator(arg: Node) {
    * }
    * </pre>
    */
-
   val templateStart =
     """sealed trait Currency extends EnumValue
 object Currency extends Enum[Currency] {
@@ -479,7 +486,12 @@ trait CurrencyMixin extends PropertyMixin {
     val pvalueIDs = pvalues.map(pvalue => initialUpperCase(pvalue))
     val mids = pvalueIDs.map(id => middle.replace("EUR", id))
     val values = pvalueIDs.mkString("  override lazy val values = Array(", ", ", ")\n")
-    val start = templateStart.replaceAll("Currency", traitName)
+    val start0 = templateStart.replaceAll("Currency", traitName)
+    val start = if (replaceEnumClass(traitName)) {
+      start0.replace("EnumValue", "EnumValueLiteral")
+    } else {
+      start0
+    }
     val end = templateEnd.replaceAll("Currency", traitName).replaceAll("currency", propName)
     val mixin =
       if (excludeRuntimeProperties(propName)) "\n"
