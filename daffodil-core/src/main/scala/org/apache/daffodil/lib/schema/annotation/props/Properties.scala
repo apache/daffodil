@@ -120,16 +120,13 @@ trait EnumValue extends EnumValueBase {
   override lazy val toString = {
     val theVal = this
     val cn = getNameFromClass(this)
-    val en = cn match {
-      //
-      // Special case for CalendarFirstDayOfWeek
-      //
-      case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" =>
-        cn
-      case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
-    }
+    val en = Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
     en
   }
+}
+
+trait EnumValueLiteral extends EnumValueBase {
+  override lazy val toString = getNameFromClass(this)
 }
 
 /**
