@@ -208,7 +208,19 @@ trait PositionalLikeElementSeparatedSequenceChildParseResultMixin
         //
         // PositionalTrailing is the question. There, a failure that is ZL we want to have
         // just be Absent.
-        ParseAttemptStatus.AbsentRep
+        //
+        // Exception: for a complex type whose content structurally cannot ever be
+        // zero-length (e.g. every branch of a choice requires a distinct non-empty
+        // initiator), a zero-length failure is not a legitimate empty occurrence --
+        // there is no occurrence at all. AbsentRep would retain the bit position,
+        // keeping a separator consumed for an occurrence that doesn't exist, so
+        // instead fall through to MissingItem, which forces a full backtrack
+        // (including that separator) via the caller's PoU handling.
+        if (erd.isComplexType && !isEmptyRepZeroLength) {
+          ParseAttemptStatus.MissingItem
+        } else {
+          ParseAttemptStatus.AbsentRep
+        }
       }
       case _ if isZL =>
         ParseAttemptStatus.MissingItem

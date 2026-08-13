@@ -600,6 +600,79 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+    DAFFODIL-3094: a maxOccurs-bounded occursCountKind='implicit' array whose
+    element is a complex type with no possible zero-length representation
+    (every branch of the choice requires a distinct non-empty initiator).
+    When the array has fewer real occurrences than maxOccurs, the speculative
+    attempt at the next occurrence parses its infix separator successfully,
+    then fails the choice entirely (zero bits consumed). That failure must
+    not retain the separator (AbsentRep), or it steals the separator that
+    belongs to the following 'baz' element.
+  -->
+  <tdml:defineSchema name="s9" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      emptyValueDelimiterPolicy="none"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      separatorSuppressionPolicy="trailingEmpty"
+    />
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="foo" type="xs:string"/>
+          <xs:element name="groupOfFields" maxOccurs="5" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="/" dfdl:separatorSuppressionPolicy="never">
+                <xs:element name="c">
+                  <xs:complexType>
+                    <xs:choice>
+                      <xs:element name="bar" type="xs:string" dfdl:initiator="R:"/>
+                      <xs:element name="ban" type="xs:string" dfdl:initiator="N:"/>
+                    </xs:choice>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="baz" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_8" root="r" model="s9"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/N:ABC/R:DEF/N:HIJ/R:LMN/2%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r xmlns:ex="http://example.com">
+          <foo>1</foo>
+          <groupOfFields>
+            <c><ban>ABC</ban></c>
+          </groupOfFields>
+          <groupOfFields>
+            <c><bar>DEF</bar></c>
+          </groupOfFields>
+          <groupOfFields>
+            <c><ban>HIJ</ban></c>
+          </groupOfFields>
+          <groupOfFields>
+            <c><bar>LMN</bar></c>
+          </groupOfFields>
+          <baz>2</baz>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="s7" elementFormDefault="unqualified">
 
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -846,5 +919,315 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
+
+  <!--
+    DAFFODIL-3094 follow-up: 'trailer', a genuinely absent non-array trailing
+    optional with its own initiator, is classified MissingItem (complex-typed,
+    non-zero-length) instead of AbsentRep, so its separator is fully discarded
+    rather than retained, breaking the terminator search that follows.
+  -->
+  <tdml:defineSchema name="s10" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      emptyValueDelimiterPolicy="none"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      separatorSuppressionPolicy="trailingEmpty"
+    />
+
+    <xs:group name="emptyElementDetectionAssertion">
+      <xs:sequence>
+        <xs:element name="emptyElementDetected" type="xs:string">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert test="{ fn:false() }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="foo" type="xs:string"/>
+          <xs:sequence dfdl:separator="/" dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="groupOfFields" maxOccurs="3" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:sequence dfdl:separator="/" dfdl:separatorSuppressionPolicy="never">
+                  <xs:element name="c">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:element name="bar" type="xs:string" dfdl:initiator="R:"/>
+                        <xs:element name="ban" type="xs:string" dfdl:initiator="N:"/>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="trailer" minOccurs="0" dfdl:initiator="FC:">
+            <xs:complexType>
+              <xs:choice>
+                <xs:group ref="ex:emptyElementDetectionAssertion"/>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" dfdl:initiator="C:"/>
+                </xs:sequence>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_9" root="r2" model="s10"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/R:X%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r2 xmlns:ex="http://example.com">
+          <foo>1</foo>
+          <groupOfFields>
+            <c><bar>X</bar></c>
+          </groupOfFields>
+        </ex:r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-3094 follow-up: 'group' (occursCountKind='implicit', maxOccurs=5,
+    not declared last) writes a separator for every unused slot, not just its
+    real occurrences. Only 2 of 5 are real; the extra separators corrupt
+    'line' on reparse.
+  -->
+  <tdml:defineSchema name="s11" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      emptyValueDelimiterPolicy="none"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      separatorSuppressionPolicy="trailingEmpty"
+    />
+
+    <xs:group name="emptyElementDetectionAssertion3">
+      <xs:sequence>
+        <xs:element name="emptyElementDetected" type="xs:string">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert test="{ fn:false() }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root2" dfdl:initiator="RECORD">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="line" minOccurs="0" maxOccurs="10" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="/">
+                <xs:element name="field1" type="xs:string"/>
+                <xs:sequence dfdl:separator="/" dfdl:separatorSuppressionPolicy="trailingEmpty">
+                  <xs:element name="group" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="implicit">
+                    <xs:complexType>
+                      <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="never">
+                        <xs:element name="item">
+                          <xs:complexType>
+                            <xs:choice>
+                              <xs:element name="itemA" dfdl:initiator="AA:">
+                                <xs:complexType>
+                                  <xs:choice>
+                                    <xs:group ref="ex:emptyElementDetectionAssertion3"/>
+                                    <xs:sequence>
+                                      <xs:element name="itemA1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3">
+                                        <xs:annotation>
+                                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                            <dfdl:assert test="{ fn:starts-with(., 'AA') }"/>
+                                          </xs:appinfo>
+                                        </xs:annotation>
+                                      </xs:element>
+                                      <xs:element name="itemA2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3">
+                                        <xs:annotation>
+                                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                            <dfdl:assert test="{ fn:starts-with(., 'AA') }"/>
+                                          </xs:appinfo>
+                                        </xs:annotation>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:choice>
+                                </xs:complexType>
+                              </xs:element>
+                              <xs:element name="itemB" dfdl:initiator="AA:">
+                                <xs:complexType>
+                                  <xs:choice>
+                                    <xs:group ref="ex:emptyElementDetectionAssertion3"/>
+                                    <xs:sequence>
+                                      <xs:element name="itemB1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3">
+                                        <xs:annotation>
+                                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                            <dfdl:assert test="{ fn:starts-with(., 'AA') }"/>
+                                          </xs:appinfo>
+                                        </xs:annotation>
+                                      </xs:element>
+                                      <xs:element name="itemB2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3">
+                                        <xs:annotation>
+                                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                            <dfdl:assert test="{ fn:starts-with(., 'AA') }"/>
+                                          </xs:appinfo>
+                                        </xs:annotation>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:choice>
+                                </xs:complexType>
+                              </xs:element>
+                              <xs:element name="itemC" dfdl:initiator="AA:">
+                                <xs:complexType>
+                                  <xs:choice>
+                                    <xs:group ref="ex:emptyElementDetectionAssertion3"/>
+                                    <xs:sequence>
+                                      <xs:element name="itemC1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3">
+                                        <xs:annotation>
+                                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                            <dfdl:assert test="{ fn:starts-with(., 'AA') }"/>
+                                          </xs:appinfo>
+                                        </xs:annotation>
+                                      </xs:element>
+                                      <xs:element name="itemC2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3">
+                                        <xs:annotation>
+                                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                                            <dfdl:assert test="{ fn:starts-with(., 'AA') }"/>
+                                          </xs:appinfo>
+                                        </xs:annotation>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:choice>
+                                </xs:complexType>
+                              </xs:element>
+                            </xs:choice>
+                          </xs:complexType>
+                        </xs:element>
+                        <xs:element name="itemMiddle" type="xs:string" minOccurs="0"/>
+                        <xs:element name="itemExtra" type="xs:string"/>
+                      </xs:sequence>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+                <xs:element name="field2" type="xs:string" minOccurs="0"/>
+                <xs:element name="field3" type="xs:string" minOccurs="0"/>
+                <xs:element name="field4" type="xs:string" minOccurs="0"/>
+                <xs:element name="field5" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="field6" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="test_sep_unparse_positional_implicit_array_extra_seps" root="root2" model="s11"
+                          implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">RECORD/1/AA:AAXAAY//EX/AA:AAXAAY//EX/AA:XXX//P4/P5%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root2 xmlns:ex="http://example.com">
+          <line>
+            <field1>1</field1>
+            <group><item><itemA><itemA1>AAX</itemA1><itemA2>AAY</itemA2></itemA></item><itemExtra>EX</itemExtra></group>
+            <group><item><itemA><itemA1>AAX</itemA1><itemA2>AAY</itemA2></itemA></item><itemExtra>EX</itemExtra></group>
+            <field2>AA:XXX</field2>
+            <field3/>
+            <field4>P4</field4>
+            <field5>P5</field5>
+          </line>
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!--
+    DAFFODIL-3094 follow-up: a bounded, occursCountKind='implicit' array
+    wrapped in its own declared-last sequence, followed by plain optional
+    siblings (no initiator) with real values. Confirms the array's failed
+    speculative occurrence discards its separator instead of leaking it.
+  -->
+  <tdml:defineSchema name="s12" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      separatorPosition="infix" separatorSuppressionPolicy="trailingEmpty"/>
+
+    <xs:element name="root12" dfdl:initiator="RECORD">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/ %NL;/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="foo" type="xs:string"/>
+          <xs:sequence dfdl:separator="/ %NL;/" dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="group" maxOccurs="5" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="item">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:element name="itemA" dfdl:initiator="AA:" type="xs:string"/>
+                        <xs:element name="itemB" dfdl:initiator="BB:" type="xs:string"/>
+                        <xs:element name="itemC" dfdl:initiator="CC:" type="xs:string"/>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="field1" type="xs:string" minOccurs="0"/>
+          <xs:element name="field2" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_10" root="root12" model="s12"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">RECORD/1/AA:X/AA:Y/1/C%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root12 xmlns:ex="http://example.com">
+          <foo>1</foo>
+          <group><item><itemA>X</itemA></item></group>
+          <group><item><itemA>Y</itemA></item></group>
+          <field1>1</field1>
+          <field2>C</field2>
+        </ex:root12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
