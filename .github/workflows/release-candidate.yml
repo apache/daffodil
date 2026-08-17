@@ -54,6 +54,8 @@ jobs:
           svn_password: ${{ secrets.DAFFODIL_SVN_DEV_PASSWORD }}
           nexus_username: ${{ secrets.NEXUS_STAGE_DEPLOYER_USER }}
           nexus_password: ${{ secrets.NEXUS_STAGE_DEPLOYER_PW }}
+          esigner_storepass: ${{ secrets.ESIGNER_ASF_STOREPASS  }}
+          esigner_keypass: ${{ secrets.ESIGNER_ASF_KEYPASS  }}
           publish: true
 
       - name: Install Dependencies
