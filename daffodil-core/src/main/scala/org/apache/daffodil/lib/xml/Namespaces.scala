@@ -28,7 +28,7 @@ import org.apache.daffodil.lib.util.UniquenessCache
  *
  * Import this object. I.e., import org.apache.daffodil.lib.xml.NS.*
  */
-object NS extends UniquenessCache[URI, NS] {
+object NS extends UniquenessCache[String, NS] {
 
   /**
    * Import these implicit conversions for convenience if you like
@@ -37,25 +37,31 @@ object NS extends UniquenessCache[URI, NS] {
   implicit def implicitNStoString(ns: NS): String = ns.toString
   implicit def implicitNStoURI(ns: NS): URI = ns.uri
 
-  override def apply(uri: URI): NS = {
+  def apply(uri: URI): NS = {
     Assert.usage(uri != null)
-    super.apply(uri)
+    apply(uri.toString)
   }
 
-  def apply(nsString: String): NS = {
-    // NoNamespace and UnspecifiedNamespace do not have a URI, and so they are
-    // not retrieved from the uniqueness cache
+  /**
+   * The cache is keyed directly by the namespace string (e.g. resolving
+   * next-elements during unparse, where the same handful of namespace URI
+   * strings recur once per element in a document), not by URI. A cache hit
+   * therefore never parses the string via URI.create, only a cache miss
+   * (the first time a given string is seen) pays that cost, in
+   * valueFromKey below.
+   */
+  override def apply(nsString: String): NS = {
     if (nsString == null || nsString == "" || nsString == NoNamespace.toString) {
       NoNamespace
     } else if (nsString == UnspecifiedNamespace.toString) {
       UnspecifiedNamespace
     } else {
-      apply(URI.create(nsString))
+      super.apply(nsString)
     }
   }
 
-  protected def valueFromKey(uri: URI): NS = new NS(uri)
-  protected def keyFromValue(ns: NS): Option[URI] = Some(ns.uri)
+  protected def valueFromKey(nsString: String): NS = new NS(URI.create(nsString))
+  protected def keyFromValue(ns: NS): Option[String] = Some(ns.uri.toString)
 
   /**
    * Finds all prefixes for a given namespace. Used to suggest
