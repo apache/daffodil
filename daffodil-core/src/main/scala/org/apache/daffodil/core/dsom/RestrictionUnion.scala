@@ -24,18 +24,11 @@ import scala.xml.Node
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.*
-import org.apache.daffodil.runtime1.dsom.FacetTypes.ElemFacets
-import org.apache.daffodil.runtime1.dsom.FacetTypes.FacetValue
-
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.GregorianCalendar
-import com.ibm.icu.util.TimeZone
 
 object Restriction {
   def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
@@ -48,11 +41,164 @@ object Restriction {
 /**
  * A schema component for simple type restrictions
  */
+
 final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefBase)
   extends SchemaComponentImpl(xmlArg, simpleTypeDef)
   with Facets
   with NestingLexicalMixin
   with TypeChecks {
+
+  private def checkValueSpaceFacetRange(
+    localFacet: java.math.BigDecimal,
+    facetType: Facet.Type
+  ): Unit = {
+    // Necessary for min/max Inclusive/Exclusive Facets
+    facetType match {
+      case Facet.maxExclusive | Facet.maxInclusive | Facet.minExclusive | Facet.minInclusive |
+          Facet.enumeration => {
+        // Here we're just doing range checking for the
+        // specified primitive type
+        primType match {
+          case PrimType.Int => {
+            if (!isInIntRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Int range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Byte => {
+            if (!isInByteRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Byte range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Short => {
+            if (!isInShortRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Short range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Long => {
+            if (!isInLongRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Long range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Integer => {
+            // Unbounded integer
+            if (!isInIntegerRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Integer range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.UnsignedInt => {
+            if (!isInUnsignedIntRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of unsigned int range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.UnsignedByte => {
+            if (!isInUnsignedByteRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of unsigned byte range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.UnsignedShort => {
+            if (!isInUnsignedShortRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of unsigned short range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.UnsignedLong => {
+            if (!isInUnsignedLongRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of unsigned long range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Double => {
+            if (!isInDoubleRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Double range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Float => {
+            if (!isInFloatRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of Float range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.NonNegativeInteger => {
+            // Unsigned Unbounded Integer
+            if (!isInNonNegativeIntegerRange(localFacet)) {
+              SDE(
+                "%s facet value (%s) was found to be outside of NonNegativeInteger range.",
+                facetType,
+                localFacet
+              )
+            }
+          }
+          case PrimType.Decimal => {
+            /* Nothing to do here */
+          }
+          case PrimType.DateTime => {
+            /* Nothing to do here */
+          }
+          case PrimType.Date => {
+            /* Nothing to do here */
+          }
+          case PrimType.Time => {
+            /* Nothing to do here */
+          }
+          case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
+          case PrimType.HexBinary => {
+            /* Nothing to do here */
+          }
+          case PrimType.String => {
+            /* Nothing to do here */
+          }
+          case _ =>
+            Assert.usageError(
+              "checkValueSpaceFacetRange - Unrecognized primitive type: " + primType.name
+            )
+        }
+      }
+      case _ => {
+        /* Nothing to do */
+      }
+    }
+  }
 
   protected[dsom] override def initialize() = {
     super.initialize()
@@ -121,92 +267,135 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
   }
 
   lazy val localBaseFacets: ElemFacets = {
-    val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
-    if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
-    if (localLengthValue.length > 0) {
-      myFacets.enqueue((Facet.length, localLengthValue))
-    }
-    if (localMinLengthValue.length > 0) {
-      myFacets.enqueue((Facet.minLength, localMinLengthValue))
-    }
-    if (localMaxLengthValue.length > 0) {
-      myFacets.enqueue((Facet.maxLength, localMaxLengthValue))
-    }
-    if (localMinInclusiveValue.length > 0) {
-      myFacets.enqueue((Facet.minInclusive, localMinInclusiveValue))
-    }
-    if (localMaxInclusiveValue.length > 0) {
-      myFacets.enqueue((Facet.maxInclusive, localMaxInclusiveValue))
-    }
-    if (localMinExclusiveValue.length > 0) {
-      myFacets.enqueue((Facet.minExclusive, localMinExclusiveValue))
-    }
-    if (localMaxExclusiveValue.length > 0) {
-      myFacets.enqueue((Facet.maxExclusive, localMaxExclusiveValue))
-    }
-    if (localTotalDigitsValue.length > 0) {
-      myFacets.enqueue((Facet.totalDigits, localTotalDigitsValue))
-    }
-    if (localFractionDigitsValue.length > 0) {
-      myFacets.enqueue((Facet.fractionDigits, localFractionDigitsValue))
-    }
-    if (localEnumerationValue.length > 0) {
-      myFacets.enqueue((Facet.enumeration, localEnumerationValue))
-    }
+    // val not var - it's a mutable collection
+    val myFacets: Queue[FacetOrdered] = Queue.empty[FacetOrdered]
 
-    val res: ElemFacets = myFacets.toSeq
-    res
+    if (localPatternValue.nonEmpty)
+      myFacets.enqueue(new FacetPattern(localPatternValue))
+    if (localLengthValue.nonEmpty)
+      myFacets.enqueue(new FacetLength(localLengthValue, this))
+    if (localMinLengthValue.nonEmpty)
+      myFacets.enqueue(new FacetMinLength(localMinLengthValue, this))
+    if (localMaxLengthValue.nonEmpty)
+      myFacets.enqueue(new FacetMaxLength(localMaxLengthValue, this))
+    if (localMinInclusiveValue.nonEmpty) {
+      val facet = new FacetMinInclusive(localMinInclusiveValue, primType, this)
+      checkValueSpaceFacetRange(facet.bigDecimalValue, Facet.minInclusive)
+      myFacets.enqueue(facet)
+    }
+    if (localMaxInclusiveValue.nonEmpty) {
+      val facet = new FacetMaxInclusive(localMaxInclusiveValue, primType, this)
+      checkValueSpaceFacetRange(facet.bigDecimalValue, Facet.maxInclusive)
+      myFacets.enqueue(facet)
+    }
+    if (localMinExclusiveValue.nonEmpty) {
+      val facet = new FacetMinExclusive(localMinExclusiveValue, primType, this)
+      checkValueSpaceFacetRange(facet.bigDecimalValue, Facet.minExclusive)
+      myFacets.enqueue(facet)
+    }
+    if (localMaxExclusiveValue.nonEmpty) {
+      val facet = new FacetMaxExclusive(localMaxExclusiveValue, primType, this)
+      checkValueSpaceFacetRange(facet.bigDecimalValue, Facet.maxExclusive)
+      myFacets.enqueue(facet)
+    }
+    if (localTotalDigitsValue.nonEmpty)
+      myFacets.enqueue(new FacetTotalDigits(localTotalDigitsValue, this))
+    if (localFractionDigitsValue.nonEmpty)
+      myFacets.enqueue(new FacetFractionDigits(localFractionDigitsValue, this))
+    if (localEnumerationValue.nonEmpty)
+      myFacets.enqueue(new FacetEnumeration(localEnumerationValue))
+
+    myFacets.toSeq
   }
 
-  final lazy val combinedBaseFacets: Seq[FacetValue] = {
-    val combined: Queue[FacetValue] = Queue.empty
+  final lazy val combinedBaseFacets: ElemFacets = {
+    val combined: Queue[FacetOrdered] = Queue.empty
 
     if (hasEnumeration) {
-      val enumVal = getCombinedValueEnum
-      combined.enqueue((Facet.enumeration, enumVal))
+      val lValue = localBaseFacets.collectFirst { case f: FacetEnumeration => f }
+      val rValue = remoteBaseFacets.collectFirst { case f: FacetEnumeration => f }
+      // validate subset if both exist
+      for (l <- lValue; r <- rValue) {
+        l.xmlValue.foreach(e => {
+          if (r.xmlValue.nonEmpty && !r.xmlValue.contains(e))
+            SDE("Local enumerations must be a subset of base enumerations.")
+        })
+      }
+      // local wins if present, otherwise remote
+      // hasEnumeration guarantees at least one is defined
+      combined.enqueue(lValue.orElse(rValue).getOrElse(Assert.impossibleCase))
     }
+    // Patterns within a type are OR'd, collect all
+    // per http://www.xfront.com/XML-Schema-library/papers/Algorithm-for-Merging-a-simpleType-Dependency-Chain.pdf
     if (hasPattern) {
-      val lPattern = localBaseFacets.filter { case (f, v) => f == Facet.pattern }
-      val rPattern = remoteBaseFacets.filter { case (f, v) => f == Facet.pattern }
-      val cPattern = lPattern ++: rPattern
-      cPattern.foreach(x => combined.enqueue(x))
+      val lPattern = localBaseFacets.collect { case f: FacetPattern => f }
+      val rPattern = remoteBaseFacets.collect { case f: FacetPattern => f }
+      (lPattern ++: rPattern).foreach(combined.enqueue)
     }
     if (hasLength) {
-      val cValue = getCombinedValue(Facet.length)
-      combined.enqueue((Facet.length, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetLength => f } ++
+          remoteBaseFacets.collect { case f: FacetLength => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
     if (hasMinLength) {
-      val cValue = getCombinedValue(Facet.minLength)
-      combined.enqueue((Facet.minLength, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetMinLength => f } ++
+          remoteBaseFacets.collect { case f: FacetMinLength => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
     if (hasMaxLength) {
-      val cValue = getCombinedValue(Facet.maxLength)
-      combined.enqueue((Facet.maxLength, cValue.toString()))
-    }
-    if (hasMaxInclusive) {
-      val cValue = getCombinedValue(Facet.maxInclusive)
-      combined.enqueue((Facet.maxInclusive, cValue.toString()))
-    }
-    if (hasMaxExclusive) {
-      val cValue = getCombinedValue(Facet.maxExclusive)
-      combined.enqueue((Facet.maxExclusive, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetMaxLength => f } ++
+          remoteBaseFacets.collect { case f: FacetMaxLength => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
     if (hasMinInclusive) {
-      val cValue = getCombinedValue(Facet.minInclusive)
-      combined.enqueue((Facet.minInclusive, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetMinInclusive => f } ++
+          remoteBaseFacets.collect { case f: FacetMinInclusive => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
+    }
+    if (hasMaxInclusive) {
+      val facets =
+        localBaseFacets.collect { case f: FacetMaxInclusive => f } ++
+          remoteBaseFacets.collect { case f: FacetMaxInclusive => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
     if (hasMinExclusive) {
-      val cValue = getCombinedValue(Facet.minExclusive)
-      combined.enqueue((Facet.minExclusive, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetMinExclusive => f } ++
+          remoteBaseFacets.collect { case f: FacetMinExclusive => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
+    }
+    if (hasMaxExclusive) {
+      val facets =
+        localBaseFacets.collect { case f: FacetMaxExclusive => f } ++
+          remoteBaseFacets.collect { case f: FacetMaxExclusive => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
     if (hasTotalDigits) {
-      val cValue = getCombinedValue(Facet.totalDigits)
-      combined.enqueue((Facet.totalDigits, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetTotalDigits => f } ++
+          remoteBaseFacets.collect { case f: FacetTotalDigits => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
     if (hasFractionDigits) {
-      val cValue = getCombinedValue(Facet.fractionDigits)
-      combined.enqueue((Facet.fractionDigits, cValue.toString()))
+      val facets =
+        localBaseFacets.collect { case f: FacetFractionDigits => f } ++
+          remoteBaseFacets.collect { case f: FacetFractionDigits => f }
+      val narrowed = facets.reduce[FacetOrdered]((l, r) => l.narrow(r))
+      combined.enqueue(narrowed)
     }
+
     combined.toSeq
   }
 
@@ -306,145 +495,6 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
 }
 
 sealed trait TypeChecks { self: Restriction =>
-  protected def dateToBigDecimal(
-    date: String,
-    format: String,
-    dateType: String,
-    context: ThrowsSDE
-  ): JBigDecimal = {
-    val df = new SimpleDateFormat(format)
-    df.setCalendar(new GregorianCalendar())
-    df.setTimeZone(TimeZone.GMT_ZONE)
-    val bd =
-      try {
-        val dt = df.parse(date)
-        new JBigDecimal(dt.getTime())
-      } catch {
-        case s: scala.util.control.ControlThrowable => throw s
-        case u: UnsuppressableException => throw u
-        case e1: Exception => {
-          try {
-            // Could already be a BigDecimal
-            new JBigDecimal(date)
-          } catch {
-            case s: scala.util.control.ControlThrowable => throw s
-            case u: UnsuppressableException => throw u
-            case e2: Exception =>
-              context.SDE(
-                "Failed to parse (%s) to %s (%s) due to %s (after %s).",
-                date,
-                dateType,
-                format,
-                e2.getMessage(),
-                e1.getMessage()
-              )
-          }
-        }
-      }
-    bd
-  }
-
-  private def convertStringToBigDecimal(
-    value: String,
-    primType: PrimType,
-    context: ThrowsSDE
-  ): JBigDecimal = {
-    primType match {
-      case PrimType.DateTime =>
-        dateToBigDecimal(
-          value,
-          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
-          PrimType.DateTime.toString(),
-          context
-        )
-      case PrimType.Date =>
-        dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
-      case PrimType.Time =>
-        dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
-      case _ => new JBigDecimal(value)
-    }
-  }
-
-  def checkRangeReturnsValue(
-    value: String,
-    primType: PrimType,
-    theContext: ThrowsSDE
-  ): (Boolean, Option[JBigDecimal]) = {
-    // EmptyString is only valid for hexBinary and String
-    if ((value == null | value.length() == 0)) {
-      return primType match {
-        case PrimType.HexBinary | PrimType.String => (true, None)
-        case _ => (false, None)
-      }
-    }
-
-    // Don't need to range check String or HexBinary or blobs.
-    // no point attempting a conversion to BigDecimal so
-    // return early here.
-    primType match {
-      case PrimType.String | PrimType.HexBinary | PrimType.AnyURI => return (true, None)
-      case _ => /* Continue on below */
-    }
-
-    // Check Boolean, and the Numeric types.
-    (value.toLowerCase(), primType) match {
-      case ("true", PrimType.Boolean) => (true, Some(JBigDecimal.ONE))
-      case ("false", PrimType.Boolean) => (true, Some(JBigDecimal.ZERO))
-      case (x, PrimType.Boolean) =>
-        theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
-      case (_, _) => {
-        // Perform conversions once
-        val theValue = convertStringToBigDecimal(value, primType, theContext)
-
-        // Here we're just doing range checking for the
-        // specified primitive type
-        val res: Boolean = primType match {
-          case PrimType.Int => isInIntRange(theValue)
-          case PrimType.Byte => isInByteRange(theValue)
-          case PrimType.Short => isInShortRange(theValue)
-          case PrimType.Long => isInLongRange(theValue)
-          case PrimType.Integer => true // Unbounded Integer
-          case PrimType.UnsignedInt => isInUnsignedIntRange(theValue)
-          case PrimType.UnsignedByte => isInUnsignedByteRange(theValue)
-          case PrimType.UnsignedShort => isInUnsignedShortRange(theValue)
-          case PrimType.UnsignedLong => isInUnsignedLongRange(theValue)
-          case PrimType.Double => isInDoubleRange(theValue)
-          case PrimType.Float => isInFloatRange(theValue)
-          case PrimType.DateTime => true
-          case PrimType.Date => true
-          case PrimType.Time => true
-          case PrimType.Boolean => Assert.impossibleCase // Handled earlier, shouldn't get here
-          case PrimType.Decimal => true // Unbounded Decimal
-          case PrimType.HexBinary =>
-            Assert.impossibleCase // Handled earlier, shouldn't get here
-          case PrimType.String => Assert.impossibleCase // Handled earlier, shouldn't get here
-          case PrimType.AnyURI => Assert.impossibleCase // Handled earlier, shouldn't get here
-          case PrimType.NonNegativeInteger => isInNonNegativeIntegerRange(theValue)
-        }
-        val isValueWhole = {
-          val IsWholeRegex = """^[^.]*(\.0*)?$""".r
-          value match {
-            case IsWholeRegex(_) => true
-            case _ => false
-          }
-        }
-        primType match {
-          case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-              PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte |
-              PrimType.UnsignedShort | PrimType.UnsignedLong =>
-            if (!isValueWhole)
-              theContext.SDE("checkRange - Value (%s) must be a whole number.", value)
-          case _ => // OK
-        }
-        (res, Some(theValue))
-      }
-    }
-  }
-
-  def checkRange(value: String, primType: PrimType, theContext: ThrowsSDE): Boolean = {
-    val (boolResult, _) = checkRangeReturnsValue(value, primType, theContext)
-    boolResult
-  }
 
   protected def isNumInRange(num: JBigDecimal, min: JBigDecimal, max: JBigDecimal): Boolean = {
     val checkMin = num.compareTo(min)
