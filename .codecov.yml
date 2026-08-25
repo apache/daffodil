@@ -16,10 +16,12 @@
 coverage:
   status:
     project: off
-    patch: 
+    patch:
       default:
         target: auto
+        only_pulls: true
       main:
+        target: auto
         branches:
           - main
         informational: true
