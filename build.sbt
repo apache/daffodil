@@ -446,7 +446,7 @@ lazy val genTunablesDocSettings = Seq(
 
     val nonDeprecatedDefs = nonDeprecated.map { case (sub, desc, default) =>
       s"""
-       |#### $sub
+       |## $sub
        |$desc
        |
        |default: $default
@@ -487,7 +487,7 @@ lazy val genTunablesDocSettings = Seq(
       |Tunables are set by way of the ``tunables`` element in [config files](/configuration)
       |or from the [cli](/cli) via the ``-T`` option.
       |
-      |#### Config Example
+      |# Config Example
       | ``` xml
       | <daf:dfdlConfig
       |	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
@@ -501,16 +501,16 @@ lazy val genTunablesDocSettings = Seq(
       |
       | The config file can then be passed into daffodil subcommands via the ``-c|--config`` options.
       |
-      |#### CLI Example
+      |# CLI Example
       | ``` bash
       | daffodil parse -s schema.xsd -TsuppressSchemaDefinitionWarnings="encodingErrorPolicyError" data.bin
       | ```
       |
       |
-      |### Definitions
+      |# Definitions
       |${nonDeprecatedDefs.mkString("\n")}
       |
-      |### Deprecated
+      |# Deprecated
       |${deprecatedList.mkString("- ", "\n- ", "")}
       |""".stripMargin
     IO.write(outputDocFile, s"$documentationPage")
