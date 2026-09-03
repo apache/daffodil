@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:ex="http://example.com"
+  targetNamespace="http://example.com"
+  elementFormDefault="qualified">
+
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="ex:GeneralFormat" encoding="US-ASCII"
+        representation="text" textNumberRep="standard"
+        occursCountKind="implicit" separator="" initiator=""
+        terminator="" ignoreCase="no" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <!--
+    Unseparated array of fixed-width strings, terminated by the stop
+    value "zz", followed by a two character element.
+  -->
+  <xs:element name="svStringRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Multiple stop values. Either "zz" or "yy" terminates the occurrences.
+  -->
+  <xs:element name="svMultiRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz yy" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Comparison is by value, not by the raw text of the data. The data
+    "00010" is the integer ten, which matches the stop value 10.
+  -->
+  <xs:element name="svIntRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:int" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="5"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="10" />
+        <xs:element name="after" type="xs:int" dfdl:lengthKind="explicit"
+          dfdl:length="5" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Binary numbers, stop value zero.
+  -->
+  <xs:element name="svBinaryRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:int" minOccurs="0"
+          maxOccurs="unbounded" dfdl:representation="binary"
+          dfdl:lengthKind="implicit" dfdl:occursCountKind="stopValue"
+          dfdl:occursStopValue="0" />
+        <xs:element name="after" type="xs:int" dfdl:representation="binary"
+          dfdl:lengthKind="implicit" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Fixed-width items in a separated sequence, stop value "99". The array
+    is in its own separated sub-sequence so that the data following the
+    terminating stop value occurrence is unambiguous.
+  -->
+  <xs:element name="svSeparatedRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:element name="item" type="xs:string" minOccurs="0"
+            maxOccurs="unbounded" dfdl:lengthKind="explicit"
+            dfdl:length="2" dfdl:occursCountKind="stopValue"
+            dfdl:occursStopValue="99" />
+        </xs:sequence>
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="4" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Stop value array that ends the containing sequence. The occurrences
+    end because the data ended, without ever finding the stop value.
+  -->
+  <xs:element name="svEndOfDataRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
+    Error cases follow
+  -->
+
+  <!-- stopValue with no occursStopValue property defined -->
+  <xs:element name="errNoStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- stopValue with an empty occursStopValue property -->
+  <xs:element name="errEmptyStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- stopValue that is not a valid value of the element's simple type -->
+  <xs:element name="errInvalidStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:int" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="abc" />
+        <xs:element name="after" type="xs:int" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- stopValue on a complexType element -->
+  <xs:element name="errComplexStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" minOccurs="0" maxOccurs="unbounded"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit"
+                dfdl:length="2" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- stopValue on a nillable element -->
+  <xs:element name="errNillableStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" nillable="true" dfdl:lengthKind="explicit"
+          dfdl:length="2" dfdl:occursCountKind="stopValue"
+          dfdl:occursStopValue="zz" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- stopValue inside an unordered sequence -->
+  <xs:element name="errUnorderedStopValueRoot">
+    <xs:complexType>
+      <xs:sequence dfdl:sequenceKind="unordered">
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- default value on a stopValue array with no required occurrences -->
+  <xs:element name="errDefaultStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="unbounded" default="qq" dfdl:lengthKind="explicit"
+          dfdl:length="2" dfdl:occursCountKind="stopValue"
+          dfdl:occursStopValue="zz" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
