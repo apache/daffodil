@@ -17,13 +17,99 @@
 package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.EndArrayChecksMixin
 import org.apache.daffodil.runtime1.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.runtime1.processors.unparsers.*
+
+/**
+ * Unparser for an array with dfdl:occursCountKind='stopValue'.
+ *
+ * Unparsing with occursCountKind='stopValue' requires synthesizing a final terminating
+ * occurrence (whose value is the dfdl:occursStopValue) that does not exist in the infoset
+ * being unparsed. That is not implemented, so this unparser raises a clear subset error
+ * whenever unparsing is attempted, no matter how many occurrences are in the infoset.
+ */
+class UnsupportedStopValueSequenceChildUnparser(
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData
+) extends RepeatingChildUnparser(childUnparser, srd, erd) {
+
+  override def childProcessors = Vector(childUnparser)
+
+  protected def subsetNotSupported(state: UState): Nothing = {
+    state.subsetError(
+      "Unparsing with occursCountKind='stopValue' is not supported."
+    )
+  }
+
+  override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = false
+
+  override protected def unparse(state: UState): Unit = subsetNotSupported(state)
+
+  override def checkFinalOccursCountBetweenMinAndMaxOccurs(
+    state: UState,
+    unparser: RepeatingChildUnparser,
+    numOccurrences: Int,
+    maxReps: Long,
+    arrPos: Long
+  ): Unit = subsetNotSupported(state)
+}
+
+/**
+ * Separated sequence version of UnsupportedStopValueSequenceChildUnparser. Must be a
+ * RepOrderedSeparatedSequenceChildUnparser so that it can participate (type-wise) in a
+ * separated sequence unparser, but any attempt to actually unparse raises the subset
+ * error.
+ */
+class UnsupportedStopValueSeparatedSequenceChildUnparser(
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  sep: Unparser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy,
+  zeroLengthDetector: ZeroLengthDetector,
+  isPotentiallyTrailing: Boolean,
+  isKnownStaticallyNotToSuppressSeparator: Boolean,
+  isPositional: Boolean,
+  isDeclaredLast: Boolean
+) extends RepOrderedSeparatedSequenceChildUnparser(
+    childUnparser,
+    srd,
+    erd,
+    sep,
+    spos,
+    ssp,
+    zeroLengthDetector,
+    isPotentiallyTrailing,
+    isKnownStaticallyNotToSuppressSeparator,
+    isPositional,
+    isDeclaredLast
+  ) {
+
+  private def subsetNotSupported(state: UState): Nothing = {
+    state.subsetError(
+      "Unparsing with occursCountKind='stopValue' is not supported."
+    )
+  }
+
+  override protected def unparse(state: UState): Unit = subsetNotSupported(state)
+
+  override def checkFinalOccursCountBetweenMinAndMaxOccurs(
+    state: UState,
+    unparser: RepeatingChildUnparser,
+    numOccurrences: Int,
+    maxReps: Long,
+    arrPos: Long
+  ): Unit = subsetNotSupported(state)
+}
 
 /**
  * base for unparsers for the children of sequences.

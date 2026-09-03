@@ -31,11 +31,14 @@ trait Unseparated { self: SequenceChildParser =>
   ): ParseAttemptStatus = {
     val prevBitPosBeforeChild = pstate.bitPos0b
     self.childParser.parse1(pstate)
-    val res = parseResultHelper.computeParseAttemptStatus(
-      self,
-      prevBitPosBeforeChild,
+    val res = self.checkParseAttemptStatus(
       pstate,
-      requiredOptional
+      parseResultHelper.computeParseAttemptStatus(
+        self,
+        prevBitPosBeforeChild,
+        pstate,
+        requiredOptional
+      )
     )
     res
   }
@@ -76,6 +79,15 @@ class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
   erd: ElementRuntimeData,
   override val parseResultHelper: UnseparatedSequenceChildParseResultHelper
 ) extends OccursCountMinMaxParser(childParser, srd, erd)
+  with Unseparated
+
+class RepOrderedStopValueUnseparatedSequenceChildParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper,
+  stopValues: Seq[AnyRef]
+) extends OccursCountStopValueParser(childParser, srd, erd, stopValues)
   with Unseparated
 
 class OrderedUnseparatedSequenceParser(
