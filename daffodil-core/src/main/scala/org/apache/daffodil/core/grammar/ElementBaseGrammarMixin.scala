@@ -52,6 +52,7 @@ trait ElementBaseGrammarMixin
 
   requiredEvaluationsIfActivated(checkPrefixedLengthElementDecl)
   requiredEvaluationsIfActivated(checkDelimitedLengthEVDP)
+  requiredEvaluationsIfActivated(checkOccursStopValue)
 
   private val context = this
 

@@ -229,30 +229,32 @@
   </tdml:parserTestCase>
 
   <!--
-      Daffodil backend cannot parse stopValueElement since stopValue isn't supported yet (DAFFODIL-501)
+      Daffodil backend can parse stopValueElement (DAFFODIL-501). Note that unparsing
+      with occursCountKind="stopValue" is not supported yet, so round trip is disabled
+      for this test case.
 
       daffodil parse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
-      daffodil unparse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
-
-      Codegen backends cannot parse stopValueElement either
-
-      daffodil generate c -r stopValueElement -s variablelen.dfdl.xsd && make -C c
-
-      c/daffodil parse -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
-      c/daffodil unparse -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
   -->
   <tdml:parserTestCase
+    implementations="daffodil"
+    roundTrip="false"
     model="variablelen.dfdl.xsd"
     name="stopValue"
     root="stopValueElement">
     <tdml:document>
       <tdml:documentPart type="file">data/variablelen.stopValue.dat</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>stopValue</tdml:error>
-      <tdml:error>not supported</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.stopValue.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+      Codegen backends cannot parse stopValueElement since stopValue isn't supported
+      in the C code generator yet (C code generation fails with "Code generation not
+      supported for: RepOrderedStopValueSequenceChild"), so there is no daffodilC test
+      case here, the same convention used for other occursCountKinds that the C code
+      generator does not support (see implicitElement/parsedElement above).
+  -->
 
 </tdml:testSuite>

@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.OccursCountEv
@@ -95,6 +96,16 @@ object ParseAttemptStatus {
    * in its creation are backtracked.
    */
   case object EmptyRep extends SuccessParseAttemptStatus
+
+  /**
+   * Means the parse was successful and the value of the occurrence matches one of the
+   * dfdl:occursStopValue values of an element with dfdl:occursCountKind='stopValue'.
+   *
+   * This is a success status: the data for the terminating occurrence (and any associated
+   * separator) has been consumed, but the occurrence itself must not be added to the
+   * infoset, and no further occurrences are parsed.
+   */
+  case object StopValueRep extends SuccessParseAttemptStatus
 
   /**
    * When the parse is successful, and the data did not match NilRep(if nillable) or
@@ -208,6 +219,18 @@ abstract class SequenceChildParser(
     Assert.usageError("Not to be called on sequence child parsers")
 
   def parseOne(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+
+  /**
+   * Hook applied to the ParseAttemptStatus immediately after an occurrence has been
+   * parsed (i.e. after the child parser and any associated separator have been run).
+   *
+   * Only occursCountKind='stopValue' sequence child parsers use this to convert a
+   * successful parse attempt into a StopValueRep. The default is no-op.
+   */
+  protected def checkParseAttemptStatus(
+    pstate: PState,
+    status: ParseAttemptStatus
+  ): ParseAttemptStatus = status
 
   def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus]
 
@@ -497,6 +520,7 @@ trait MinMaxRepeatsMixin {
   private val minRepeats_ = {
     val mr =
       if (ock eq OccursCountKind.Parsed) 0
+      else if (ock eq OccursCountKind.StopValue) 0
       else erd.minOccurs
     mr
   }
@@ -516,6 +540,7 @@ trait MinMaxRepeatsMixin {
    */
   private val maxRepeats_ = {
     if (ock eq OccursCountKind.Parsed) Long.MaxValue
+    else if (ock eq OccursCountKind.StopValue) Long.MaxValue
     else if (erd.maxOccurs == -1) Long.MaxValue
     else erd.maxOccurs
   }
@@ -600,4 +625,74 @@ abstract class OccursCountMinMaxParser(
   )
 
   final override def pouStatus = PoUStatus.HasPoU
+}
+
+/**
+ * Parser for an array with dfdl:occursCountKind='stopValue'.
+ *
+ * Occurrences are parsed until the value of a parsed occurrence matches one of the
+ * dfdl:occursStopValue values. The stop value is detected after the fact (the whole
+ * occurrence, including any associated separator, has been parsed), the terminating
+ * occurrence is consumed from the data stream but removed from the infoset, and no
+ * further occurrences are parsed.
+ *
+ * Like dfdl:occursCountKind='parsed', minOccurs/maxOccurs are only used for validation,
+ * so minRepeats is zero and maxRepeats is unbounded (both computed by MinMaxRepeatsMixin).
+ * Since the decision to keep an occurrence can only be made after parsing it, each
+ * occurrence is parsed speculatively (PoUStatus.HasPoU).
+ */
+abstract class OccursCountStopValueParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  stopValues: Seq[AnyRef]
+) extends RepeatingChildParser(childParser, srd, erd, "StopValue") {
+
+  Assert.invariant(erd.maybeOccursCountKind.isDefined)
+
+  Assert.invariant(erd.maybeOccursCountKind.get == OccursCountKind.StopValue)
+
+  Assert.invariant(stopValues.nonEmpty)
+
+  final override def pouStatus = PoUStatus.HasPoU
+
+  final override protected def checkParseAttemptStatus(
+    pstate: PState,
+    status: ParseAttemptStatus
+  ): ParseAttemptStatus = checkStopValue(pstate, status)
+
+  /**
+   * If the just-parsed occurrence has a value matching one of the stop values, convert
+   * the successful parse attempt status into StopValueRep so that the surrounding
+   * sequence loop ends the array and removes this occurrence from the infoset.
+   */
+  final protected def checkStopValue(
+    pstate: PState,
+    status: ParseAttemptStatus
+  ): ParseAttemptStatus = {
+    if (!status.isSuccess || !pstate.isSuccess) return status
+    val maybeElem = pstate.infosetLastChild
+    if (maybeElem.isEmpty) return status
+    maybeElem.get match {
+      case elem: DISimple if (elem.erd eq erd) && !elem.isNilled && elem.hasValue => {
+        val dataValue = elem.dataValue.getAnyRef
+        var i = 0
+        while (i < stopValues.length) {
+          if (stopValueMatch(dataValue, stopValues(i))) return ParseAttemptStatus.StopValueRep
+          i += 1
+        }
+        status
+      }
+      case _ => status
+    }
+  }
+
+  private def stopValueMatch(data: AnyRef, stopValue: AnyRef): Boolean = {
+    (data, stopValue) match {
+      // byte arrays (e.g. xs:hexBinary, xs:base64Binary) compare by reference with ==,
+      // so compare their contents explicitly.
+      case (a: Array[Byte], b: Array[Byte]) => java.util.Arrays.equals(a, b)
+      case _ => data == stopValue
+    }
+  }
 }

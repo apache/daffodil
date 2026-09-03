@@ -21,6 +21,18 @@
   xmlns:ex="http://example.com"
   defaultImplementations="ibm daffodil">
 
+  <!--
+    DAFFODIL-501: per the DFDL specification, with occursCountKind='stopValue' the
+    terminating occurrence (the one whose value matches dfdl:occursStopValue) is consumed
+    from the data stream but is NOT included in the infoset. The original expected infoset
+    in this contributed test was internally inconsistent with either possible semantics
+    (it included the terminating occurrence for the x array but excluded it for the y
+    array), so it has been updated to match the specification:
+      * x parses 8, 9, then 10 which matches the stop value (excluded)
+      * y parses 7, 8, 9, then 10 which matches the stop value (excluded)
+      * z, being a delimited string with no delimiters, consumes the remainder of the
+        data, which begins with the comma following the y stop value occurrence
+  -->
   <parserTestCase name="BB000" root="list" model="BB.dfdl.xsd"
     description="occursCountKind='stopValue'">
     <document><![CDATA[0000800009000107,8,9,10,some string]]></document>
@@ -29,11 +41,10 @@
         <ex:list>
           <x>8</x>
           <x>9</x>
-          <x>10</x>
           <y>7</y>
           <y>8</y>
           <y>9</y>
-          <z>some string</z>
+          <z>,some string</z>
         </ex:list>
       </dfdlInfoset>
     </infoset>

@@ -735,3 +735,59 @@ class RepOrderedWithMinMaxSequenceChild(sq: SequenceTermBase, e: ElementBase, gr
       )
   }
 }
+
+class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, groupIndex: Int)
+  extends RepElementSequenceChild(sq, e, groupIndex) {
+
+  // The stop values are cooked (unescaped list of string literals) and converted to
+  // values of the element's simple type at schema-compile-time. The conversion (and the
+  // checks that dfdl:occursStopValue is present, non-empty, and valid for the type) is
+  // done by ElementBase.checkOccursStopValue, which forces occursStopValuesForParse.
+  private lazy val stopValues: Seq[AnyRef] =
+    e.occursStopValuesForParse.map { _.getAnyRef }
+
+  lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
+    case true =>
+      new RepOrderedStopValueSeparatedSequenceChildParser(
+        childParser,
+        srd,
+        erd,
+        sepParser,
+        sq.separatorPosition,
+        separatedHelper,
+        stopValues
+      )
+    case false =>
+      new RepOrderedStopValueUnseparatedSequenceChildParser(
+        childParser,
+        srd,
+        erd,
+        unseparatedHelper,
+        stopValues
+      )
+  }
+
+  // Unparsing with occursCountKind='stopValue' requires the ability to synthesize a
+  // final terminating occurrence (whose value is the stop value) that is not present in
+  // the infoset being unparsed. That is not implemented yet, so this generates an
+  // unparser that raises a clear subset error if/when unparsing is attempted. Parsing is
+  // fully supported.
+  override lazy val sequenceChildUnparser: SequenceChildUnparser = sq.hasSeparator match {
+    case true =>
+      new UnsupportedStopValueSeparatedSequenceChildUnparser(
+        childUnparser,
+        srd,
+        erd,
+        sepUnparser,
+        sq.separatorPosition,
+        sq.separatorSuppressionPolicy,
+        zeroLengthDetector,
+        e.isPotentiallyTrailing,
+        isKnownStaticallyNotToSuppressSeparator,
+        isPositional,
+        isDeclaredLast
+      )
+    case false =>
+      new UnsupportedStopValueSequenceChildUnparser(childUnparser, srd, erd)
+  }
+}

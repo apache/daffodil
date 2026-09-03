@@ -214,9 +214,10 @@ class TestBA extends TdmlTests {
 class TestBB extends TdmlTests {
   val tdmlSuite = TestBB
 
-  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
-  // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
-  @Ignore @Test def BB000 = test
+  // DAFFODIL-501: occursCountKind='stopValue' is now implemented; this test was
+  // enabled with its expected infoset updated to match the DFDL specification (see
+  // BB.tdml for details).
+  @Test def BB000 = test
 }
 
 class TestBC extends TdmlTests {
