@@ -1230,4 +1230,181 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+    DAFFODIL-3094: 'group' has an emptyElementDetected escape-hatch
+    branch, making isEmptyRepZeroLength statically true even though its other
+    branch ('code'-'name') is not zero-length. A speculative second 'group'
+    occurrence partially matches 'code' then fails to find '-', netting zero
+    bits via backtracking; gating on isEmptyRepZeroLength alone wrongly calls
+    this AbsentRep, retaining a separator that belongs to 'footer'.
+  -->
+  <tdml:defineSchema name="s13" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      separatorPosition="infix" separatorSuppressionPolicy="trailingEmpty"/>
+
+    <xs:group name="emptyElementDetectionAssertion13">
+      <xs:sequence>
+        <xs:element name="emptyElementDetected" type="xs:string">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert test="{ fn:false() }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root13" dfdl:initiator="RECORD">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/ %NL;/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="foo" type="xs:string"/>
+          <xs:sequence dfdl:separator="/ %NL;/" dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="group" maxOccurs="2" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="header">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:group ref="ex:emptyElementDetectionAssertion13"/>
+                        <xs:sequence dfdl:separator="-" dfdl:separatorSuppressionPolicy="never">
+                          <xs:element name="code" type="xs:string"/>
+                          <xs:element name="name" type="xs:string"/>
+                        </xs:sequence>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+          <xs:element name="footer" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_11" root="root13" model="s13"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">RECORD/1/A-B/X%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root13 xmlns:ex="http://example.com">
+          <foo>1</foo>
+          <group><header><code>A</code><name>B</name></header></group>
+          <footer>X</footer>
+        </ex:root13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    DAFFODIL-3094: 'header2' chooses among optA/optB/optC, each
+    itself a choice of an emptyElementDetected branch vs a real value. On
+    genuinely empty data, each alternative's discriminator resolves only its
+    own inner point of uncertainty, so the outer choice still resets its own
+    per-branch one after each exhausted try, though zero bits were consumed.
+    That reset must not be mistaken for a discarded non-zero-length match.
+  -->
+  <tdml:defineSchema name="s14" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      emptyValueDelimiterPolicy="none"
+      lengthKind="delimited"
+      separatorPosition="infix"
+      separatorSuppressionPolicy="trailingEmpty"
+    />
+
+    <xs:group name="emptyElementDetectionAssertion14">
+      <xs:sequence>
+        <xs:element name="emptyElementDetected" type="xs:string">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert test="{ fn:false() }"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="r14" dfdl:initiator="RECORD">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+          <xs:element name="foo" type="xs:string"/>
+          <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix" dfdl:separatorSuppressionPolicy="never">
+            <xs:element name="header2" minOccurs="0">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="optA">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:group ref="ex:emptyElementDetectionAssertion14"/>
+                        <xs:sequence>
+                          <xs:element name="valueA" type="xs:string" dfdl:initiator="A:"/>
+                        </xs:sequence>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="optB">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:group ref="ex:emptyElementDetectionAssertion14"/>
+                        <xs:sequence>
+                          <xs:element name="valueB" type="xs:string" dfdl:initiator="B:"/>
+                        </xs:sequence>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                  <xs:element name="optC">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:group ref="ex:emptyElementDetectionAssertion14"/>
+                        <xs:sequence>
+                          <xs:element name="valueC" type="xs:string" dfdl:initiator="C:"/>
+                        </xs:sequence>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="bar" type="xs:string"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_12" root="r14" model="s14"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">RECORD/1//X%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r14 xmlns:ex="http://example.com">
+          <foo>1</foo>
+          <bar>X</bar>
+        </ex:r14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

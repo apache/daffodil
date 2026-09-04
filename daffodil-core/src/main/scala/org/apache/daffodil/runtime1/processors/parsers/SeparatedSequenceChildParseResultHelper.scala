@@ -209,14 +209,17 @@ trait PositionalLikeElementSeparatedSequenceChildParseResultMixin
         // PositionalTrailing is the question. There, a failure that is ZL we want to have
         // just be Absent.
         //
-        // Exception: for a complex type whose content structurally cannot ever be
-        // zero-length (e.g. every branch of a choice requires a distinct non-empty
-        // initiator), a zero-length failure is not a legitimate empty occurrence --
-        // there is no occurrence at all. AbsentRep would retain the bit position,
-        // keeping a separator consumed for an occurrence that doesn't exist, so
-        // instead fall through to MissingItem, which forces a full backtrack
-        // (including that separator) via the caller's PoU handling.
-        if (erd.isComplexType && !isEmptyRepZeroLength) {
+        // Exception: for a complex type, AbsentRep would wrongly retain a
+        // consumed separator for an occurrence that doesn't legitimately exist
+        // as an empty representation. MissingItem forces a full backtrack of
+        // that separator instead.
+        //
+        // isEmptyRepZeroLength alone can't gate this: it's a static, per-type
+        // flag that can be true regardless of what this specific attempt did.
+        // hadNestedBacktrack catches the gap: true only if this attempt
+        // explored, then discarded, some non-zero-length content.
+        val hadNestedBacktrack = pstate.hadPointOfUncertaintyResetSinceMark
+        if (erd.isComplexType && (!isEmptyRepZeroLength || hadNestedBacktrack)) {
           ParseAttemptStatus.MissingItem
         } else {
           ParseAttemptStatus.AbsentRep
