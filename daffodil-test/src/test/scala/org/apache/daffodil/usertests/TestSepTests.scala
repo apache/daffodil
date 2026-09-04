@@ -54,6 +54,8 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_never_9 = test
   @Test def test_sep_unparse_positional_implicit_array_extra_seps = test
   @Test def test_sep_ssp_never_10 = test
+  @Test def test_sep_ssp_never_11 = test
+  @Test def test_sep_ssp_never_12 = test
 
   // DAFFODIL-2205 - EmptyValueDelimiterPolicy only works with 'both'
   @Test def test_sep_evdp_1 = test
