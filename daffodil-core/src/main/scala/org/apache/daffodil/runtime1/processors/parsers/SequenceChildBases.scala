@@ -207,7 +207,11 @@ abstract class SequenceChildParser(
   final override def parse(pstate: PState): Unit =
     Assert.usageError("Not to be called on sequence child parsers")
 
-  def parseOne(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+  def parseOne(
+    pstate: PState,
+    requiredOptional: RequiredOptionalStatus,
+    maybePOU: Maybe[PState.Mark]
+  ): ParseAttemptStatus
 
   def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus]
 
@@ -264,7 +268,11 @@ final class NonRepresentedSequenceChildParser(
   def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] =
     Assert.usageError("not to be used for non-represented terms.")
 
-  def parseOne(pstate: PState, ignored_roStatus: RequiredOptionalStatus): ParseAttemptStatus = {
+  def parseOne(
+    pstate: PState,
+    ignored_roStatus: RequiredOptionalStatus,
+    maybePOU: Maybe[PState.Mark]
+  ): ParseAttemptStatus = {
     childParser.parse1(pstate)
     if (pstate.processorStatus eq Success)
       ParseAttemptStatus.NormalRep

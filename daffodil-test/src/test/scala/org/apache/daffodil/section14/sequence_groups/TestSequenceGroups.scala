@@ -121,4 +121,12 @@ class TestSequenceGroup extends TdmlTests {
   @Test def choice_group_with_annotation_01 = test
 
   @Test def similar_model_groups_01 = test
+
+  // DAFFODIL-3085
+  @Test def seq2 = test
+  @Test def seq3 = test
+  @Test def seq4 = test
+  @Test def seq5 = test
+  @Test def seq6 = test
+  @Test def seq7 = test
 }
