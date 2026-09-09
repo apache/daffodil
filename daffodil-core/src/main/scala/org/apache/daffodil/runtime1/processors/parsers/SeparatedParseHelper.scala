@@ -156,12 +156,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
 
     sepStatus match {
       case _: SeparatorParseStatus.SeparatorSuccess => {
-        pstate.pushPointOfUncertaintyResetCountMark()
-        try {
-          childParser.parse1(pstate)
-        } finally {
-          pstate.popPointOfUncertaintyResetCountMark()
-        }
+        childParser.parse1(pstate)
         val pas =
           scParser.parseResultHelper.computeParseAttemptStatus(
             scParser,
@@ -239,12 +234,7 @@ final class PostfixSeparatorHelper(
     val prevBitPosBeforeChild = pstate.bitPos0b
     val prh = scParser.parseResultHelper
 
-    pstate.pushPointOfUncertaintyResetCountMark()
-    try {
-      childParser.parse1(pstate)
-    } finally {
-      pstate.popPointOfUncertaintyResetCountMark()
-    }
+    childParser.parse1(pstate)
     // The scoped PoU is not one of the schema's points of uncertainty. If a
     // discriminator consumed it, also resolve the enclosing one it was meant
     // for (spec 9.3.3.1).
