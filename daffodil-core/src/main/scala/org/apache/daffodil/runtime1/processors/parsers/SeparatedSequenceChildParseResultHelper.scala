@@ -193,23 +193,29 @@ trait PositionalLikeElementSeparatedSequenceChildParseResultMixin
     requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
     requiredOptional match {
-      case _: RequiredOptionalStatus.Optional if isZL => {
-        //
-        // optional and zero-length
-        // if we just said AbsentRep, that generally triggers backtracking an element
-        //
-        // Correction - if you set success here, then failures like when you parse
-        // an int, but hit end of data, and get unable to convert empty string to int....
-        // those should cause a failure, but those would be masked here.
-        // pstate.setSuccess()
-        //
-        // Missing/Failed is certainly correct for NonPositional(anyEmpty)separated sequences.
-        // Also for Positional, and Unseparated.
-        //
-        // PositionalTrailing is the question. There, a failure that is ZL we want to have
-        // just be Absent.
+      //
+      // optional and zero-length
+      // if we just said AbsentRep, that generally triggers backtracking an element
+      //
+      // Correction - if you set success here, then failures like when you parse
+      // an int, but hit end of data, and get unable to convert empty string to int....
+      // those should cause a failure, but those would be masked here.
+      // pstate.setSuccess()
+      //
+      // Missing/Failed is certainly correct for NonPositional(anyEmpty)separated sequences.
+      // Also for Positional, and Unseparated.
+      //
+      // PositionalTrailing is the question. There, a failure that is ZL we want to have
+      // just be Absent.
+      //
+      // Per DFDL Spec 9.3.2.2, a complex type establishes empty/absent
+      // representation only via a descent that returns successfully with
+      // zero bits; that case is handled entirely by the success path. A
+      // failed descent has no path to absent, so it must fall through to
+      // the plain isZL case below, forcing a full backtrack instead of
+      // wrongly retaining a separator.
+      case _: RequiredOptionalStatus.Optional if isZL && erd.isSimpleType =>
         ParseAttemptStatus.AbsentRep
-      }
       case _ if isZL =>
         ParseAttemptStatus.MissingItem
       case _ =>
