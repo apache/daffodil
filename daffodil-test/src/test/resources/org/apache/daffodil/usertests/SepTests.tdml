@@ -437,20 +437,11 @@
 
     <xs:group name="emptyElementDetectionAssertion">
       <xs:sequence>
-        <xs:element name="emptyElementDetected" type="xs:string">
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:sequence>
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:assert test="{ fn:false() }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator testKind="pattern" testPattern="\s*/"/>
+          </xs:appinfo>
+        </xs:annotation>
       </xs:sequence>
     </xs:group>
 
@@ -939,20 +930,11 @@
 
     <xs:group name="emptyElementDetectionAssertion">
       <xs:sequence>
-        <xs:element name="emptyElementDetected" type="xs:string">
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:sequence>
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:assert test="{ fn:false() }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator testKind="pattern" testPattern="\s*/"/>
+          </xs:appinfo>
+        </xs:annotation>
       </xs:sequence>
     </xs:group>
 
@@ -1028,20 +1010,11 @@
 
     <xs:group name="emptyElementDetectionAssertion3">
       <xs:sequence>
-        <xs:element name="emptyElementDetected" type="xs:string">
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:sequence>
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:assert test="{ fn:false() }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator testKind="pattern" testPattern="\s*/"/>
+          </xs:appinfo>
+        </xs:annotation>
       </xs:sequence>
     </xs:group>
 
@@ -1243,22 +1216,13 @@
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       separatorPosition="infix" separatorSuppressionPolicy="trailingEmpty"/>
 
-    <xs:group name="emptyElementDetectionAssertion13">
+    <xs:group name="emptyElementDetectionDiscriminator">
       <xs:sequence>
-        <xs:element name="emptyElementDetected" type="xs:string">
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:sequence>
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:assert test="{ fn:false() }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator testKind="pattern" testPattern="\s*/"/>
+          </xs:appinfo>
+        </xs:annotation>
       </xs:sequence>
     </xs:group>
 
@@ -1273,7 +1237,7 @@
                   <xs:element name="header">
                     <xs:complexType>
                       <xs:choice>
-                        <xs:group ref="ex:emptyElementDetectionAssertion13"/>
+                        <xs:group ref="ex:emptyElementDetectionDiscriminator"/>
                         <xs:sequence dfdl:separator="-" dfdl:separatorSuppressionPolicy="never">
                           <xs:element name="code" type="xs:string"/>
                           <xs:element name="name" type="xs:string"/>
@@ -1327,20 +1291,11 @@
 
     <xs:group name="emptyElementDetectionAssertion14">
       <xs:sequence>
-        <xs:element name="emptyElementDetected" type="xs:string">
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:discriminator test="{ fn:string-length(.) eq 0 }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:element>
-        <xs:sequence>
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:assert test="{ fn:false() }"/>
-            </xs:appinfo>
-          </xs:annotation>
-        </xs:sequence>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:discriminator testKind="pattern" testPattern="\s*/"/>
+          </xs:appinfo>
+        </xs:annotation>
       </xs:sequence>
     </xs:group>
 
