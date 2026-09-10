@@ -133,6 +133,24 @@
   </xs:element>
 
   <!--
+    Validation error case: a stopValue array whose occurrences are bounded by
+    maxOccurs="2". The stop value still determines where the occurrences end, but
+    Daffodil (schema consistency) validation reports an error when the data contains
+    more occurrences than maxOccurs allows.
+  -->
+  <xs:element name="svMaxOccursRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:string" minOccurs="0"
+          maxOccurs="2" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz" />
+        <xs:element name="after" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--
     Error cases follow
   -->
 
