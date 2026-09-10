@@ -229,15 +229,12 @@
   </tdml:parserTestCase>
 
   <!--
-      Daffodil backend can parse stopValueElement (DAFFODIL-501). Note that unparsing
-      with occursCountKind="stopValue" is not supported yet, so round trip is disabled
-      for this test case.
+      Daffodil backend can parse stopValueElement (DAFFODIL-501).
 
       daffodil parse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
   -->
   <tdml:parserTestCase
     implementations="daffodil"
-    roundTrip="false"
     model="variablelen.dfdl.xsd"
     name="stopValue"
     root="stopValueElement">

@@ -92,17 +92,15 @@ class OrderedUnseparatedSequenceUnparser(
   ): Unit = {
     unparser match {
       case su: StopValueMixin => {
-        if (su.erd.isArray)
-          if (state.dataProc.isDefined)
-            state.dataProc.get.beforeRepetition(state, this)
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.beforeRepetition(state, this)
         su.prepareStopValue(state)
         unparser.unparse1(state)
         state.moveOverOneArrayIterationIndexOnly()
         state.moveOverOneOccursIndexOnly()
         state.moveOverOneGroupIndexOnly() // the terminating occurrence occupies a slot
-        if (su.erd.isArray)
-          if (state.dataProc.isDefined)
-            state.dataProc.get.afterRepetition(state, this)
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.afterRepetition(state, this)
       }
       case _ => // not an occursCountKind='stopValue' array, nothing to do
     }

@@ -247,7 +247,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    *
    * Only meaningful (and only accessed) when hasStopValue is true.
    */
-  final lazy val occursStopValues: Seq[String] = {
+  final lazy val occursStopValueStrings: Seq[String] = {
     Assert.usage(hasStopValue)
     val maybePropValue = findPropertyOption("occursStopValue").toOption
     schemaDefinitionWhen(
@@ -264,12 +264,12 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    * as required by the DFDL specification (the stop value must be a value in the domain
    * of the declared simple type of the data item).
    */
-  final lazy val occursStopValuesForParse: Seq[DataValuePrimitive] = {
+  final lazy val occursStopValues: Seq[DataValuePrimitive] = {
     schemaDefinitionWhen(
       !isSimpleType,
       "Property occursCountKind='stopValue' requires a simple type. The value of each occurrence is compared with the dfdl:occursStopValue."
     )
-    occursStopValues.map { sv =>
+    occursStopValueStrings.map { sv =>
       try {
         primType.fromXMLString(sv)
       } catch {
@@ -299,7 +299,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       )
       // force the checks (present, non-empty, valid for the simple type) of the stop
       // values themselves
-      occursStopValuesForParse
+      occursStopValues
     }
   }
 }
