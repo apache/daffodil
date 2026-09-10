@@ -27,7 +27,7 @@
 
   <!-- Unseparated fixed-width strings terminated by stop value "zz" -->
   <tdml:parserTestCase name="sv01" root="svStringRoot"
-    model="occursStopValue.dfdl.xsd"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="stopValue array followed by another element">
     <tdml:document><![CDATA[abcdzz07]]></tdml:document>
     <tdml:infoset>
@@ -43,7 +43,7 @@
 
   <!-- Stop value on the very first occurrence => empty array -->
   <tdml:parserTestCase name="sv02" root="svStringRoot"
-    model="occursStopValue.dfdl.xsd"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="stopValue matching the first occurrence produces an empty array">
     <tdml:document><![CDATA[zz07]]></tdml:document>
     <tdml:infoset>
@@ -71,7 +71,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="sv04" root="svMultiRoot"
-    model="occursStopValue.dfdl.xsd"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="second stop value in the list also terminates">
     <tdml:document><![CDATA[abcdzz07]]></tdml:document>
     <tdml:infoset>
@@ -87,7 +87,7 @@
 
   <!-- Comparison is by value: data "00010" matches stop value "10" -->
   <tdml:parserTestCase name="sv05" root="svIntRoot"
-    model="occursStopValue.dfdl.xsd"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="stop value comparison is by value, not by text">
     <tdml:document><![CDATA[00011000120001000099]]></tdml:document>
     <tdml:infoset>
@@ -103,7 +103,7 @@
 
   <!-- Binary integers, stop value 0 -->
   <tdml:parserTestCase name="sv06" root="svBinaryRoot"
-    model="occursStopValue.dfdl.xsd"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="binary ints with stop value zero">
     <tdml:document>
       <tdml:documentPart type="file">occursStopValue.sv06.dat</tdml:documentPart>
@@ -115,7 +115,7 @@
 
   <!-- Fixed-width items in a separated sequence, stop value "99" -->
   <tdml:parserTestCase name="sv07" root="svSeparatedRoot"
-    model="occursStopValue.dfdl.xsd"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="stopValue array in a separated sequence">
     <tdml:document><![CDATA[11,22,99next]]></tdml:document>
     <tdml:infoset>
@@ -227,22 +227,34 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase name="svErrUnparse" root="svStringRoot"
+  <!-- Unparse: infoset occurrences followed by the synthesized terminating occurrence -->
+  <tdml:unparserTestCase name="svUnparse" root="svStringRoot"
     model="occursStopValue.dfdl.xsd"
-    description="unparsing with occursCountKind='stopValue' is a subset error">
+    description="unparse synthesizes the terminating occurrence">
+    <tdml:document><![CDATA[abcdzz07]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:svStringRoot>
-          <item>ab</item>
-          <item>cd</item>
-          <after>07</after>
+          <ex:item>ab</ex:item>
+          <ex:item>cd</ex:item>
+          <ex:after>07</ex:after>
         </ex:svStringRoot>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:errors>
-      <tdml:error>Subset</tdml:error>
-      <tdml:error>Unparsing with occursCountKind='stopValue' is not supported</tdml:error>
-    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <!-- Unparse an empty array: the data is just the terminating occurrence + after -->
+  <tdml:unparserTestCase name="svUnparseEmpty" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="unparse of an empty stopValue array emits only the terminating occurrence">
+    <tdml:document><![CDATA[zz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <ex:after>07</ex:after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

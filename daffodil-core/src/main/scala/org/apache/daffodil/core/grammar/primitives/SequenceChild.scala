@@ -767,27 +767,34 @@ class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, gro
       )
   }
 
-  // Unparsing with occursCountKind='stopValue' requires the ability to synthesize a
-  // final terminating occurrence (whose value is the stop value) that is not present in
-  // the infoset being unparsed. That is not implemented yet, so this generates an
-  // unparser that raises a clear subset error if/when unparsing is attempted. Parsing is
-  // fully supported.
-  override lazy val sequenceChildUnparser: SequenceChildUnparser = sq.hasSeparator match {
-    case true =>
-      new UnsupportedStopValueSeparatedSequenceChildUnparser(
-        childUnparser,
-        srd,
-        erd,
-        sepUnparser,
-        sq.separatorPosition,
-        sq.separatorSuppressionPolicy,
-        zeroLengthDetector,
-        e.isPotentiallyTrailing,
-        isKnownStaticallyNotToSuppressSeparator,
-        isPositional,
-        isDeclaredLast
-      )
-    case false =>
-      new UnsupportedStopValueSequenceChildUnparser(childUnparser, srd, erd)
+  // Unparsing an occursCountKind='stopValue' array emits all of the infoset occurrences
+  // followed by one synthesized terminating occurrence whose value is the first
+  // dfdl:occursStopValue (that occurrence consumes data but is not part of the infoset,
+  // matching the parse behavior). See StopValueMixin.
+  //
+  // When multiple stop values are defined, the first one is used for the terminating
+  // occurrence; the data parses back identically because parsing terminates on any of
+  // the stop values.
+  override lazy val sequenceChildUnparser: SequenceChildUnparser = {
+    val stopValue = e.occursStopValuesForParse.head
+    sq.hasSeparator match {
+      case true =>
+        new RepOrderedStopValueSeparatedSequenceChildUnparser(
+          childUnparser,
+          srd,
+          erd,
+          sepUnparser,
+          sq.separatorPosition,
+          sq.separatorSuppressionPolicy,
+          zeroLengthDetector,
+          e.isPotentiallyTrailing,
+          isKnownStaticallyNotToSuppressSeparator,
+          isPositional,
+          isDeclaredLast,
+          stopValue
+        )
+      case false =>
+        new RepOrderedStopValueSequenceChildUnparser(childUnparser, srd, erd, stopValue)
+    }
   }
 }

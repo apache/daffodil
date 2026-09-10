@@ -47,5 +47,6 @@ class TestOccursStopValue extends TdmlTests {
   @Test def svErrUnorderedStopValue = test
   @Test def svErrDefaultStopValue = test
   @Test def svErrMissingAfter = test
-  @Test def svErrUnparse = test
+  @Test def svUnparse = test
+  @Test def svUnparseEmpty = test
 }

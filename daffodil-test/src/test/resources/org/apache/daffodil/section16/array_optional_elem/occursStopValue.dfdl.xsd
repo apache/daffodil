@@ -74,9 +74,10 @@
       <xs:sequence>
         <xs:element name="item" type="xs:int" minOccurs="0"
           maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="5"
+          dfdl:textNumberPattern="00000"
           dfdl:occursCountKind="stopValue" dfdl:occursStopValue="10" />
         <xs:element name="after" type="xs:int" dfdl:lengthKind="explicit"
-          dfdl:length="5" />
+          dfdl:length="5" dfdl:textNumberPattern="00000" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
