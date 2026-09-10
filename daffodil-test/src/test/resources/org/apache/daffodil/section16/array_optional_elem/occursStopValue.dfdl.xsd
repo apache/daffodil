@@ -193,6 +193,33 @@
     </xs:complexType>
   </xs:element>
 
+  <!-- Second stop value in the list is not a valid value of the element's simple
+       type ("any of the stop values" per DFDL 1.0 section 16.1.5) -->
+  <xs:element name="errSecondStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:int" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="10 xx" />
+        <xs:element name="after" type="xs:int" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Stop value that is not a valid value of a binary simple type (hexBinary) -->
+  <xs:element name="errHexStopValueRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="xs:hexBinary" minOccurs="0"
+          maxOccurs="unbounded" dfdl:lengthKind="explicit" dfdl:length="2"
+          dfdl:occursCountKind="stopValue" dfdl:occursStopValue="zz" />
+        <xs:element name="after" type="xs:hexBinary" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <!-- stopValue on a complexType element -->
   <xs:element name="errComplexStopValueRoot">
     <xs:complexType>

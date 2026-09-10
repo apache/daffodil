@@ -187,6 +187,33 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <!-- DFDL 1.0 section 16.1.5: it is an SDE if any of the stop values does not
+       conform to the simple type of the element. Here the first stop value is valid,
+       the second is not. -->
+  <tdml:parserTestCase name="svErrSecondStopValueInvalid"
+    root="errSecondStopValueRoot" model="occursStopValue.dfdl.xsd"
+    description="second stop value in the list not valid for the element simple type is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid dfdl:occursStopValue</tdml:error>
+      <tdml:error>Value 'xx' is not a valid xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- DFDL 1.0 section 16.1.5: stop value must conform to the simple type of the
+       element, including binary types such as hexBinary. -->
+  <tdml:parserTestCase name="svErrInvalidHexStopValue"
+    root="errHexStopValueRoot" model="occursStopValue.dfdl.xsd"
+    description="stop value not valid for a binary (hexBinary) element simple type is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid dfdl:occursStopValue</tdml:error>
+      <tdml:error>xs:hexBinary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="svErrComplexStopValue" root="errComplexStopValueRoot"
     model="occursStopValue.dfdl.xsd"
     description="stopValue on a complexType element is a schema definition error">
