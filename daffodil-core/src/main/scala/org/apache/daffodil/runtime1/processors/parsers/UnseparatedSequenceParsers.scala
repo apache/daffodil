@@ -31,16 +31,13 @@ trait Unseparated { self: SequenceChildParser =>
   ): ParseAttemptStatus = {
     val prevBitPosBeforeChild = pstate.bitPos0b
     self.childParser.parse1(pstate)
-    val res = self.checkParseAttemptStatus(
+    val helperRes = parseResultHelper.computeParseAttemptStatus(
+      self,
+      prevBitPosBeforeChild,
       pstate,
-      parseResultHelper.computeParseAttemptStatus(
-        self,
-        prevBitPosBeforeChild,
-        pstate,
-        requiredOptional
-      )
+      requiredOptional
     )
-    res
+    self.checkParseAttemptStatus(pstate, helperRes)
   }
 
   final def isPositional = true

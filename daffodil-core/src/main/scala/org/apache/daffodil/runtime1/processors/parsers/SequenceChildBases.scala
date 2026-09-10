@@ -517,12 +517,9 @@ trait MinMaxRepeatsMixin {
 
   final val ock = erd.maybeOccursCountKind.get
 
-  private val minRepeats_ = {
-    val mr =
-      if (ock eq OccursCountKind.Parsed) 0
-      else if (ock eq OccursCountKind.StopValue) 0
-      else erd.minOccurs
-    mr
+  private val minRepeats_ = ock match {
+    case OccursCountKind.Parsed | OccursCountKind.StopValue => 0
+    case _ => erd.minOccurs
   }
 
   /**
@@ -538,11 +535,10 @@ trait MinMaxRepeatsMixin {
    * for speculative parsing cases, it's not OCK parsed, or OCK implicit with
    * maxOccurs unbounded.
    */
-  private val maxRepeats_ = {
-    if (ock eq OccursCountKind.Parsed) Long.MaxValue
-    else if (ock eq OccursCountKind.StopValue) Long.MaxValue
-    else if (erd.maxOccurs == -1) Long.MaxValue
-    else erd.maxOccurs
+  private val maxRepeats_ = ock match {
+    case OccursCountKind.Parsed | OccursCountKind.StopValue => Long.MaxValue
+    case _ if (erd.maxOccurs == -1) => Long.MaxValue
+    case _ => erd.maxOccurs
   }
 
   /**
@@ -672,16 +668,13 @@ abstract class OccursCountStopValueParser(
   ): ParseAttemptStatus = {
     if (!status.isSuccess || !pstate.isSuccess) return status
     val maybeElem = pstate.infosetLastChild
-    if (maybeElem.isEmpty) return status
     maybeElem.get match {
       case elem: DISimple if (elem.erd eq erd) && !elem.isNilled && elem.hasValue => {
         val dataValue = elem.dataValue.getAnyRef
-        var i = 0
-        while (i < stopValues.length) {
-          if (stopValueMatch(dataValue, stopValues(i))) return ParseAttemptStatus.StopValueRep
-          i += 1
+        stopValues.find(stopValueMatch(dataValue, _)) match {
+          case Some(sv) => ParseAttemptStatus.StopValueRep
+          case None => status
         }
-        status
       }
       case _ => status
     }

@@ -106,10 +106,20 @@
     model="occursStopValue.dfdl.xsd" roundTrip="true"
     description="binary ints with stop value zero">
     <tdml:document>
-      <tdml:documentPart type="file">occursStopValue.sv06.dat</tdml:documentPart>
+      <tdml:documentPart type="byte"><![CDATA[
+        00000001
+        00000002
+        00000000
+        FFFFFFFF]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">occursStopValue.sv06.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset>
+        <ex:svBinaryRoot>
+          <item>1</item>
+          <item>2</item>
+          <after>-1</after>
+        </ex:svBinaryRoot>
+      </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 

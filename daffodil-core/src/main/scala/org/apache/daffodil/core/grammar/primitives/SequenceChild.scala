@@ -742,9 +742,9 @@ class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, gro
   // The stop values are cooked (unescaped list of string literals) and converted to
   // values of the element's simple type at schema-compile-time. The conversion (and the
   // checks that dfdl:occursStopValue is present, non-empty, and valid for the type) is
-  // done by ElementBase.checkOccursStopValue, which forces occursStopValuesForParse.
+  // done by ElementBase.checkOccursStopValue, which forces occursStopValues.
   private lazy val stopValues: Seq[AnyRef] =
-    e.occursStopValuesForParse.map { _.getAnyRef }
+    e.occursStopValues.map { _.getAnyRef }
 
   lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
     case true =>
@@ -776,7 +776,7 @@ class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, gro
   // occurrence; the data parses back identically because parsing terminates on any of
   // the stop values.
   override lazy val sequenceChildUnparser: SequenceChildUnparser = {
-    val stopValue = e.occursStopValuesForParse.head
+    val stopValue = e.occursStopValues.head
     sq.hasSeparator match {
       case true =>
         new RepOrderedStopValueSeparatedSequenceChildUnparser(
