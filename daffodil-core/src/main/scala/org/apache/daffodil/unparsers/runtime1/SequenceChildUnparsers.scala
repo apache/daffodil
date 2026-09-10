@@ -20,6 +20,8 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
@@ -28,47 +30,75 @@ import org.apache.daffodil.runtime1.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
 /**
- * Unparser for an array with dfdl:occursCountKind='stopValue'.
+ * Marks the sequence child unparsers for arrays with dfdl:occursCountKind='stopValue'
+ * (DAFFODIL-501), and creates the synthesized terminating occurrence.
  *
- * Unparsing with occursCountKind='stopValue' requires synthesizing a final terminating
- * occurrence (whose value is the dfdl:occursStopValue) that does not exist in the infoset
- * being unparsed. That is not implemented, so this unparser raises a clear subset error
- * whenever unparsing is attempted, no matter how many occurrences are in the infoset.
+ * Unparsing such an array emits one extra (terminating) occurrence after all of the
+ * infoset occurrences: the terminating occurrence consumes data (its value is the first
+ * dfdl:occursStopValue) but it does not exist in the infoset, so there are no infoset
+ * events for it. The sequence unparser drivers call prepareStopValue and then
+ * unparse the child exactly as they would for an infoset occurrence; the element
+ * unparser consumes the pre-created infoset element (see
+ * RegularElementUnparserStartEndStrategy.unparseBegin/unparseEnd) in place of consuming
+ * start/end element events.
+ *
+ * The terminating occurrence is unparsed just like any other occurrence of the element,
+ * so its data is produced by the element's own representation (text numbers, binary
+ * encodings, delimiters, etc. all apply). When multiple stop values are defined, the
+ * first one is used; this parses back as terminating because parsing terminates on any
+ * of the stop values.
  */
-class UnsupportedStopValueSequenceChildUnparser(
-  childUnparser: Unparser,
-  srd: SequenceRuntimeData,
-  erd: ElementRuntimeData
-) extends RepeatingChildUnparser(childUnparser, srd, erd) {
+trait StopValueMixin {
+  def erd: ElementRuntimeData
 
-  override def childProcessors = Vector(childUnparser)
+  /**
+   * The (typed) first dfdl:occursStopValue, used as the value of the terminating
+   * occurrence. Never empty: the occursStopValue cooker SDEs on an empty value.
+   */
+  def stopValue: DataValuePrimitive
 
-  protected def subsetNotSupported(state: UState): Nothing = {
-    state.subsetError(
-      "Unparsing with occursCountKind='stopValue' is not supported."
-    )
+  /**
+   * Creates the infoset element for the terminating occurrence, with the stop value as
+   * its data value, and records it on the state as the pending terminator. Must be
+   * called immediately before unparsing the terminating occurrence.
+   *
+   * Returns the created element so that callers can perform zero-length (separator
+   * suppression) detection on it.
+   */
+  final def prepareStopValue(state: UState): DISimple = {
+    val elem = new DISimple(erd)
+    elem.setDataValue(stopValue)
+    state.setStopValue(elem)
+    elem
   }
-
-  override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = false
-
-  override protected def unparse(state: UState): Unit = subsetNotSupported(state)
-
-  override def checkFinalOccursCountBetweenMinAndMaxOccurs(
-    state: UState,
-    unparser: RepeatingChildUnparser,
-    numOccurrences: Int,
-    maxReps: Long,
-    arrPos: Long
-  ): Unit = subsetNotSupported(state)
 }
 
 /**
- * Separated sequence version of UnsupportedStopValueSequenceChildUnparser. Must be a
- * RepOrderedSeparatedSequenceChildUnparser so that it can participate (type-wise) in a
- * separated sequence unparser, but any attempt to actually unparse raises the subset
- * error.
+ * Unparser for an array with dfdl:occursCountKind='stopValue' in an unseparated
+ * sequence.
+ *
+ * Unparsing of the occurrences that do exist in the infoset is the normal inherited
+ * behavior (one occurrence per call, driven by infoset events by the sequence unparser
+ * driver). The sequence unparser driver additionally unparses one synthesized
+ * terminating occurrence after the infoset occurrences run out (see
+ * StopValueMixin).
  */
-class UnsupportedStopValueSeparatedSequenceChildUnparser(
+class RepOrderedStopValueSequenceChildUnparser(
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  override val stopValue: DataValuePrimitive
+) extends RepeatingChildUnparser(childUnparser, srd, erd)
+  with Unseparated
+  with StopValueMixin {
+
+  override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = true
+}
+
+/**
+ * Separated sequence version of RepOrderedStopValueSequenceChildUnparser.
+ */
+class RepOrderedStopValueSeparatedSequenceChildUnparser(
   childUnparser: Unparser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
@@ -79,7 +109,8 @@ class UnsupportedStopValueSeparatedSequenceChildUnparser(
   isPotentiallyTrailing: Boolean,
   isKnownStaticallyNotToSuppressSeparator: Boolean,
   isPositional: Boolean,
-  isDeclaredLast: Boolean
+  isDeclaredLast: Boolean,
+  override val stopValue: DataValuePrimitive
 ) extends RepOrderedSeparatedSequenceChildUnparser(
     childUnparser,
     srd,
@@ -92,24 +123,8 @@ class UnsupportedStopValueSeparatedSequenceChildUnparser(
     isKnownStaticallyNotToSuppressSeparator,
     isPositional,
     isDeclaredLast
-  ) {
-
-  private def subsetNotSupported(state: UState): Nothing = {
-    state.subsetError(
-      "Unparsing with occursCountKind='stopValue' is not supported."
-    )
-  }
-
-  override protected def unparse(state: UState): Unit = subsetNotSupported(state)
-
-  override def checkFinalOccursCountBetweenMinAndMaxOccurs(
-    state: UState,
-    unparser: RepeatingChildUnparser,
-    numOccurrences: Int,
-    maxReps: Long,
-    arrPos: Long
-  ): Unit = subsetNotSupported(state)
-}
+  )
+  with StopValueMixin
 
 /**
  * base for unparsers for the children of sequences.
