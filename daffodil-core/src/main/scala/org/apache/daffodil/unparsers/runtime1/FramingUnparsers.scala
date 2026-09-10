@@ -49,6 +49,10 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
     dos.maybeAbsBitPos0b.isDefined
   }
 
+  override def maybeRegisterWaiterOnBlock(ustate: UState): Unit = {
+    dosListeners.registerFor(ustate.getDataOutputStream)
+  }
+
   def continuation(state: UState): Unit = {
     val dos = state.getDataOutputStream
     val b4 = dos.relBitPos0b

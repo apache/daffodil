@@ -24,6 +24,13 @@ import Maybe.*
 object MStack {
   final case class Mark(val v: Int) extends AnyVal
   val nullMark = Mark(0)
+
+  /**
+   * Off by default: growing past initialSize isn't itself wrong, so paying
+   * this bookkeeping cost on every push isn't worth it normally; flip to
+   * true only while profiling to check a use's initialSize choice.
+   */
+  var trackMaxSizeReached: Boolean = false
 }
 
 /**
@@ -33,35 +40,25 @@ object MStack {
  * catches improper initialization. These were not initializing properly,
  * so the idiom evolved to use the scala initializers.
  */
-final class MStackOfBoolean private ()
-  extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false)
+final class MStackOfBoolean private (initialSize: Int)
+  extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false, initialSize)
 
 object MStackOfBoolean {
-  def apply() = {
-    val stk = new MStackOfBoolean()
-    stk.init()
-    stk
-  }
+  def apply(initialSize: Int = 32) = new MStackOfBoolean(initialSize)
 }
 
-final class MStackOfInt extends MStack[Int]((n: Int) => new Array[Int](n), 0)
+final class MStackOfInt(initialSize: Int)
+  extends MStack[Int]((n: Int) => new Array[Int](n), 0, initialSize)
 
 object MStackOfInt {
-  def apply() = {
-    val stk = new MStackOfInt()
-    stk.init()
-    stk
-  }
+  def apply(initialSize: Int = 32) = new MStackOfInt(initialSize)
 }
 
-final class MStackOfLong extends MStack[Long]((n: Int) => new Array[Long](n), 0L)
+final class MStackOfLong(initialSize: Int)
+  extends MStack[Long]((n: Int) => new Array[Long](n), 0L, initialSize)
 
 object MStackOfLong {
-  def apply() = {
-    val stk = new MStackOfLong()
-    stk.init()
-    stk
-  }
+  def apply(initialSize: Int = 32) = new MStackOfLong(initialSize)
 }
 
 /**
@@ -75,11 +72,11 @@ object MStackOfLong {
  * So we use an Array[AnyRef] as the representation here, and we
  * convert null to Nope, and an actual object reference to One(x)
  */
-final class MStackOfMaybe[T <: AnyRef] {
+final class MStackOfMaybe[T <: AnyRef](initialSize: Int = 32) {
 
   override def toString = delegate.toString
 
-  private val delegate = new MStackOf[T]
+  private val delegate = new MStackOf[T](initialSize)
   private val nullT = null.asInstanceOf[T]
 
   def copyFrom(other: MStackOfMaybe[T]) = delegate.copyFrom(other.delegate)
@@ -120,6 +117,7 @@ final class MStackOfMaybe[T <: AnyRef] {
   def toListMaybe = delegate.toList.map { (x: AnyRef) =>
     Maybe(x) // Scala compiler bug without this cast
   }
+  def maxSizeReached = delegate.maxSizeReached
 }
 
 /**
@@ -135,7 +133,7 @@ final class MStackOfMaybe[T <: AnyRef] {
  * an object reference or null, and call Maybe(thing) explicitly outside the
  * iteration. Maybe(null) is Nope, and Maybe(thing) is One(thing) if thing is not null.
  */
-final class MStackOf[T <: AnyRef] extends Serializable {
+final class MStackOf[T <: AnyRef](initialSize: Int = 32) extends Serializable {
 
   override def toString = delegate.toString
 
@@ -143,7 +141,7 @@ final class MStackOf[T <: AnyRef] extends Serializable {
 
   @inline final def length = delegate.length
 
-  private val delegate = MStackOfAnyRef()
+  private val delegate = MStackOfAnyRef(initialSize)
 
   @inline final def mark = delegate.mark
   @inline final def reset(m: MStack.Mark) = delegate.reset(m)
@@ -156,6 +154,7 @@ final class MStackOf[T <: AnyRef] extends Serializable {
   @inline final def isEmpty = delegate.isEmpty
   def clear() = delegate.clear()
   def toList = delegate.toList
+  def maxSizeReached = delegate.maxSizeReached
 
   def iterator = delegate.iterator.asInstanceOf[ResettableIterator[T]]
 
@@ -163,15 +162,15 @@ final class MStackOf[T <: AnyRef] extends Serializable {
 
 }
 
-private[util] final class MStackOfAnyRef private ()
-  extends MStack[AnyRef]((n: Int) => new Array[AnyRef](n), null.asInstanceOf[AnyRef])
+private[util] final class MStackOfAnyRef private (initialSize: Int)
+  extends MStack[AnyRef](
+    (n: Int) => new Array[AnyRef](n),
+    null.asInstanceOf[AnyRef],
+    initialSize
+  )
 
 object MStackOfAnyRef {
-  def apply() = {
-    val stk = new MStackOfAnyRef()
-    stk.init()
-    stk
-  }
+  def apply(initialSize: Int = 32) = new MStackOfAnyRef(initialSize)
 }
 
 /**
@@ -184,16 +183,23 @@ object MStackOfAnyRef {
  */
 protected abstract class MStack[@specialized T] private[util] (
   arrayAllocator: (Int) => Array[T],
-  nullValue: T
+  nullValue: T,
+  initialSize: Int = 32
 ) {
 
   private var index = 0
-  private var table: Array[T] = null
+  private var table: Array[T] = arrayAllocator(initialSize)
 
-  def init(): Unit = {
-    index = 0
-    table = arrayAllocator(32)
-  }
+  private var maxSizeReached_ = 0
+
+  /**
+   * The largest this stack's length has ever grown to, across its
+   * whole lifetime (not just its current length; pops don't reduce
+   * this). Diagnostic only: useful for profiling to check whether a
+   * particular use's initialSize is well-chosen, not for any runtime
+   * decision. Always 0 unless MStack.trackMaxSizeReached is enabled.
+   */
+  final def maxSizeReached: Int = maxSizeReached_
 
   def copyFrom(other: MStack[T]): Unit = {
     this.index = other.index
@@ -211,6 +217,9 @@ protected abstract class MStack[@specialized T] private[util] (
         i += 1
       }
 
+    }
+    if (MStack.trackMaxSizeReached && other.maxSizeReached_ > this.maxSizeReached_) {
+      this.maxSizeReached_ = other.maxSizeReached_
     }
   }
   // private var currentIteratorIndex = -1
@@ -254,6 +263,9 @@ protected abstract class MStack[@specialized T] private[util] (
     if (index == table.length) table = growArray(table)
     table(index) = x
     index += 1
+    if (MStack.trackMaxSizeReached && index > maxSizeReached_) {
+      maxSizeReached_ = index
+    }
   }
 
   /**

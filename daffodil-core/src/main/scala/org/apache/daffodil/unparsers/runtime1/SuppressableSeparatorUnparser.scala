@@ -159,6 +159,23 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
     }
   }
 
+  // test() blocks for one of two reasons: zlStatus_ is still Unknown (the
+  // guard above matches test()'s own), or it's NonZero and the alignment
+  // check inherited from AlignmentFillUnparserSuspendableMixin blocked;
+  // only the latter has a meaningful DOS to register against.
+  override def maybeRegisterWaiterOnBlock(ustate: UState): Unit = {
+    zlStatus_ match {
+      case ZeroLengthStatus.Unknown =>
+        if (maybeDOSAfterSeparatorRegion.isDefined) {
+          dosToCheck_.foreach(dosListeners.registerFor)
+        }
+      case ZeroLengthStatus.NonZero =>
+        super.maybeRegisterWaiterOnBlock(ustate)
+      case ZeroLengthStatus.Zero =>
+        Assert.invariantFailed("test() returns true once Zero; block() should not run")
+    }
+  }
+
   /**
    * Once we know whether the length is zero/non-zero, then we decide to unparse the
    * separator or not.

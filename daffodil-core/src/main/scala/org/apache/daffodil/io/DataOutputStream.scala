@@ -35,6 +35,62 @@ object ZeroLengthStatus {
 }
 
 /**
+ * Callback for code outside daffodil-io that wants to know, without
+ * polling for it, the moment some fact about a specific DataOutputStream
+ * settles into its final, permanent value: currently its absolute bit
+ * position (some suspensions only need this, not the DOS to be fully
+ * finished, to become resolvable: e.g. alignment fill, or a length
+ * calculation where the other endpoint is already absolute) or its
+ * zeroLengthStatus (e.g. deciding whether to suppress a separator).
+ * Unlike the finished notification below, this one's only implementer
+ * (Suspension) isn't a SuspensionWaiter; each
+ * suspension may be watching a different DOS from its own current
+ * writing context, so it registers itself directly. That's why this
+ * stays a generic listener trait instead of also being collapsed onto
+ * SuspensionWaiter. A single notifyKnown covers every such fact (rather
+ * than a differently-named method per fact) since every implementer to
+ * date reacts the same way regardless of which one changed: worth a
+ * real attempt again.
+ */
+trait DataOutputStreamEventListener {
+  def notifyKnown(dos: DataOutputStream): Unit
+}
+
+/**
+ * Shared bookkeeping for a registry of listeners waiting on some
+ * DataOutputStream fact that settles once and never changes again:
+ * register, remove, and clear-then-notify. notify is supplied
+ * per instance rather than via subclassing, so a use site just
+ * constructs one directly with its own dos and notify callback (e.g.
+ * `new DataOutputStreamListenerRegistry[SuspensionWaiter](this, (w, _) =>
+ * w.notifySuspensions())`) instead of a registry subclass per event.
+ */
+private[io] final class DataOutputStreamListenerRegistry[L](
+  dos: DataOutputStream,
+  notify: (L, DataOutputStream) => Unit
+) {
+  private var listeners: Set[L] = Set.empty
+
+  def register(l: L): Unit = { listeners = listeners + l }
+
+  def remove(l: L): Unit = { listeners = listeners - l }
+
+  // Drops every registered listener without notifying them, for a DOS
+  // being reset for reuse rather than reaching the fact they're waiting on.
+  def clear(): Unit = { listeners = Set.empty }
+
+  // Resets the field to empty BEFORE running any callback, not after:
+  // toNotify aliases the old (immutable, so this is free) Set, so a
+  // re-entrant registration during notification lands in a fresh
+  // `listeners` and survives instead of being wiped out afterward.
+  def clearAndNotifyAll(): Unit = {
+    val toNotify = listeners
+    listeners = Set.empty
+    toNotify.foreach(notify(_, dos))
+  }
+}
+
+/**
  * There is an asymmetry between DataInputStream and DataOutputStream with respect to the
  * positions and limits in the bit stream.
  *
@@ -233,6 +289,22 @@ trait DataOutputStream extends DataStreamCommon {
    */
   def setFinished(finfo: FormatInfo): Unit
   def isFinished: Boolean
+
+  /**
+   * True once this DOS's own position/content can never change again:
+   * either finished, or direct and merged/flushed away without ever
+   * passing through the finished state. Callers that only care whether
+   * it's safe to treat this DOS's data as permanent should use this.
+   */
+  def isFinishedOrDead: Boolean
+
+  /**
+   * Registers/deregisters a callback for one of this DOS's facts
+   * settling into its final value; see DataOutputStreamEventListener
+   * for what a listener does with that notification.
+   */
+  def registerListener(l: DataOutputStreamEventListener): Unit
+  def removeListener(l: DataOutputStreamEventListener): Unit
 
   /**
    * This function deletes any temnporary files that have been generated

@@ -23,10 +23,12 @@ import java.io.InputStreamReader
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.SuspensionWaiter
 
 import org.apache.commons.io.IOUtils
 import org.junit.Assert.*
 import org.junit.Test
+import passera.unsigned.ULong
 
 class TestDirectOrBufferedDataOutputStream {
 
@@ -161,5 +163,150 @@ class TestDirectOrBufferedDataOutputStream {
 
     assertTrue(buf2.isDirect)
 
+  }
+
+  /**
+   * A direct DOS that merges forward into a following buffered DOS goes
+   * straight to dead, never through finished (see setFinished's isDirect
+   * branch), but its own position/content is just as permanent at that
+   * point, so anyone waiting on it via registerFinishedListener must
+   * still be notified.
+   */
+  @Test def testCollapsingDirectIntoBufferedNotifiesFinishedListeners(): Unit = {
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
+    layered.putBytes("Hello World!".getBytes("ascii"), finfo)
+
+    val buf1 = layered.addBuffered()
+    buf1.putBytes("buf1".getBytes("ascii"), finfo)
+
+    var notified = false
+    val waiter = new SuspensionWaiter {
+      override def notifySuspensions(): Unit = notified = true
+    }
+    layered.registerFinishedListener(waiter)
+
+    layered.setFinished(finfo) // collapses layered into buf1; layered goes dead, not finished.
+
+    assertTrue(layered.isDead)
+    assertFalse(layered.isFinished)
+    assertTrue(layered.isFinishedOrDead)
+    assertTrue(
+      "expected the SuspensionWaiter registered on the direct DOS to be notified " +
+        "once it merged away, even though it never reached the finished state",
+      notified
+    )
+  }
+
+  /**
+   * Same as above, but for the other isDirect retirement path: nothing
+   * following, so the direct DOS is flushed, closed, and marked dead at
+   * the very end of the whole unparse instead of merging into a successor.
+   */
+  @Test def testFinishingDirectWithNoFollowingNotifiesFinishedListeners(): Unit = {
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
+    layered.putBytes("Hello World!".getBytes("ascii"), finfo)
+
+    var notified = false
+    val waiter = new SuspensionWaiter {
+      override def notifySuspensions(): Unit = notified = true
+    }
+    layered.registerFinishedListener(waiter)
+
+    layered.setFinished(
+      finfo
+    ) // no following stream, so this is the final flush-and-close path.
+
+    assertTrue(layered.isDead)
+    assertFalse(layered.isFinished)
+    assertTrue(layered.isFinishedOrDead)
+    assertTrue(
+      "expected the SuspensionWaiter registered on the direct DOS to be notified " +
+        "once it was flushed and closed at the end, even though it never reached " +
+        "the finished state",
+      notified
+    )
+  }
+
+  /**
+   * A newly buffered DOS starts with no absolute position
+   * (addBufferedDOS calls resetAllBitPos on it). A
+   * DataOutputStreamEventListener registered on it must be notified
+   * the moment setAbsStartingBitPos0b first makes maybeAbsBitPos0b
+   * defined, well before (and independent of) this DOS ever finishing.
+   */
+  @Test def testSetAbsStartingBitPos0bNotifiesAbsBitPosListeners(): Unit = {
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
+    val buf1 = layered.addBuffered()
+
+    assertTrue(buf1.maybeAbsBitPos0b.isEmpty)
+
+    var notifiedWith: DataOutputStream = null
+    buf1.registerListener(dos => notifiedWith = dos)
+
+    buf1.setAbsStartingBitPos0b(ULong(42))
+
+    assertTrue(buf1.maybeAbsBitPos0b.isDefined)
+    assertFalse(buf1.isFinished)
+    assertTrue(
+      "expected the DataOutputStreamEventListener to be notified as soon as " +
+        "the absolute position became known, without waiting for buf1 to finish",
+      notifiedWith eq buf1
+    )
+  }
+
+  /**
+   * setNonZeroLength (called by anything that writes 1+ bits to the DOS)
+   * is the eager Unknown -> NonZero transition. A
+   * DataOutputStreamEventListener registered beforehand must be
+   * notified the moment that write happens.
+   */
+  @Test def testWritingNotifiesZeroLengthStatusListenersAsNonZero(): Unit = {
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
+    val buf1 = layered.addBuffered()
+
+    assertTrue(buf1.zeroLengthStatus eq ZeroLengthStatus.Unknown)
+
+    var notifiedWith: DataOutputStream = null
+    buf1.registerListener(dos => notifiedWith = dos)
+
+    buf1.putBytes("x".getBytes("ascii"), finfo)
+
+    assertTrue(buf1.zeroLengthStatus eq ZeroLengthStatus.NonZero)
+    assertTrue(
+      "expected the DataOutputStreamEventListener to be notified as " +
+        "soon as a write made the status NonZero",
+      notifiedWith eq buf1
+    )
+  }
+
+  /**
+   * Unlike NonZero, Unknown only ever resolves to Zero lazily, when
+   * zeroLengthStatus is queried after the DOS finishes or dies having
+   * had nothing written to it. setFinished must force that
+   * resolution and notify, or a listener waiting on a never-written
+   * DOS would wait forever.
+   */
+  @Test def testFinishingWithNoWritesNotifiesZeroLengthStatusListenersAsZero(): Unit = {
+    val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
+    val layered = newDirectOrBufferedDataOutputStream(baos, null)
+    val buf1 = layered.addBuffered()
+
+    assertTrue(buf1.zeroLengthStatus eq ZeroLengthStatus.Unknown)
+
+    var notifiedWith: DataOutputStream = null
+    buf1.registerListener(dos => notifiedWith = dos)
+
+    buf1.setFinished(finfo)
+
+    assertTrue(buf1.zeroLengthStatus eq ZeroLengthStatus.Zero)
+    assertTrue(
+      "expected the DataOutputStreamEventListener to be notified once " +
+        "finishing resolved the still-Unknown status to Zero",
+      notifiedWith eq buf1
+    )
   }
 }

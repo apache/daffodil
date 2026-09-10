@@ -407,6 +407,11 @@ abstract class UState(
   final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
 
   def delimitedParseResult = Nope
+
+  // UStateMain owns the real one; UStateForSuspension delegates to its
+  // mainUState so that a Suspension can always reach its tracker via
+  // savedUstate, even after it's been cloned off for suspension.
+  def suspensionTracker: SuspensionTracker
 }
 
 /**
@@ -443,6 +448,7 @@ final class UStateForSuspension(
   override def getEncoder(cs: BitsCharset): BitsCharsetEncoder = mainUState.getEncoder(cs)
 
   override def suspensions = mainUState.suspensions
+  override val suspensionTracker = mainUState.suspensionTracker
 
   // override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
   override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream
@@ -553,8 +559,10 @@ final class UStateMain private (
         // MStack, since the escape scheme cache logic requires an MStack. We
         // reallyjust need the top for cloning for suspensions, but that
         // requires changes to how the escape schema cache is accessed, which
-        // isn't a trivial change.
-        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper]()
+        // isn't a trivial change. Sized to the source's actual depth since
+        // nothing ever pushes onto a suspension's cloned escapeSchemeEVCache
+        // after this point.
+        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper](escapeSchemeEVCache.length)
         esClone.copyFrom(escapeSchemeEVCache)
         Maybe(esClone)
       } else {
@@ -563,8 +571,11 @@ final class UStateMain private (
     val ds =
       if (!delimiterStack.isEmpty) {
         // If there are any delimiters, then we need to clone them all since
-        // they may be needed for escaping
-        val dsClone = new MStackOf[DelimiterStackUnparseNode]()
+        // they may be needed for escaping. Sized to the source's actual
+        // depth: pushDelimiters/popDelimiters both die on this clone (see
+        // below), so it's read-only for the rest of the suspension's life
+        // and can never grow past this depth.
+        val dsClone = new MStackOf[DelimiterStackUnparseNode](delimiterStack.length)
         dsClone.copyFrom(delimiterStack)
         Maybe(dsClone)
       } else {
@@ -707,7 +718,7 @@ final class UStateMain private (
    * All the other clones used for outputValueCalc, those never
    * need to add any.
    */
-  private val suspensionTracker =
+  override val suspensionTracker =
     new SuspensionTracker(tunable.unparseSuspensionWaitYoung, tunable.unparseSuspensionWaitOld)
 
   def addSuspension(se: Suspension): Unit = {

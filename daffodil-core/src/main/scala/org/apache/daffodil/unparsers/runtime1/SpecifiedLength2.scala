@@ -349,7 +349,7 @@ class TargetLengthOperation(
  * Several sub-unparsers need to have the value length, and the target length
  * in order to compute their own length.
  */
-sealed trait NeedValueAndTargetLengthMixin {
+sealed trait NeedValueAndTargetLengthMixin { self: SuspendableOperation =>
 
   def targetLengthEv: Evaluatable[MaybeJULong]
   def maybeLengthEv: Maybe[LengthEv]
@@ -366,6 +366,25 @@ sealed trait NeedValueAndTargetLengthMixin {
       val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
       val hasValueLength = e.valueLength.maybeLengthInBits().isDefined
       hasValueLength
+    }
+  }
+
+  // test() blocks here only once hasTargetLength(ustate) has already
+  // succeeded without throwing, so the only remaining reason is
+  // valueLength. Register against its own waiter rather than falling
+  // back to an unconditional per-tick retry.
+  override protected def maybeRegisterWaiterOnBlock(ustate: UState): Unit = {
+    val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
+    registerWaiter(
+      e.valueLength.suspensionWaiter,
+      () => e.valueLength.maybeLengthInBits().isDefined
+    )
+    // May also be blocked on one or more DOSs' absolute positions, not
+    // just suspensionWaiter's usual triggers. Guarded on nonEmpty so the
+    // common no-such-DOS case doesn't force dosListeners' lazy allocation.
+    val absBitPosDoses = e.valueLength.maybeAbsBitPosDoses
+    if (absBitPosDoses.nonEmpty) {
+      absBitPosDoses.foreach(dosListeners.registerFor)
     }
   }
 
@@ -552,6 +571,14 @@ class ChoiceUnusedUnparserSuspendableOperation(
         Assert.invariant(zlStatus_ eq ZeroLengthStatus.Unknown)
         false
       }
+    }
+  }
+
+  // test() only ever blocks (returns false) while zlStatus_ is still
+  // Unknown; once it's decided either way, test() always returns true.
+  override protected def maybeRegisterWaiterOnBlock(ustate: UState): Unit = {
+    if (maybeDOSStart.isDefined) {
+      dosToCheck_.foreach(dosListeners.registerFor)
     }
   }
 
@@ -931,6 +958,20 @@ class PrefixLengthSuspendableOperation(
 
   override def test(ustate: UState): Boolean = {
     elem.contentLength.maybeLengthInBits().isDefined
+  }
+
+  override protected def maybeRegisterWaiterOnBlock(ustate: UState): Unit = {
+    registerWaiter(
+      elem.contentLength.suspensionWaiter,
+      () => elem.contentLength.maybeLengthInBits().isDefined
+    )
+    // May also be blocked on one or more DOSs' absolute positions, not
+    // just suspensionWaiter's usual triggers. Guarded on nonEmpty so the
+    // common no-such-DOS case doesn't force dosListeners' lazy allocation.
+    val absBitPosDoses = elem.contentLength.maybeAbsBitPosDoses
+    if (absBitPosDoses.nonEmpty) {
+      absBitPosDoses.foreach(dosListeners.registerFor)
+    }
   }
 
   override def continuation(state: UState): Unit = {

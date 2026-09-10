@@ -95,6 +95,7 @@ trait DataOutputStreamImplMixin
           // we know that no actual writes occurred to this DOS, so it is zero length.
           // And now that it is finsihed, that can never change.
           zlStatus_ = Zero
+          notifyListeners()
         } else {
           // do nothing. It stays what it is, Unknown.
         }
@@ -108,8 +109,28 @@ trait DataOutputStreamImplMixin
    * if the amount written was 1 bit or more.
    */
   final protected def setNonZeroLength(): Unit = {
+    val wasUnknown = zlStatus_ eq ZeroLengthStatus.Unknown
     zlStatus_ = ZeroLengthStatus.NonZero
+    // Unknown -> NonZero happens exactly once per DOS; subsequent writes
+    // find it already NonZero.
+    if (wasUnknown) {
+      notifyListeners()
+    }
   }
+
+  private val stateChangeListeners =
+    new DataOutputStreamListenerRegistry[DataOutputStreamEventListener](
+      this,
+      (l, d) => l.notifyKnown(d)
+    )
+
+  def registerListener(l: DataOutputStreamEventListener): Unit =
+    stateChangeListeners.register(l)
+
+  def removeListener(l: DataOutputStreamEventListener): Unit =
+    stateChangeListeners.remove(l)
+
+  private def notifyListeners(): Unit = stateChangeListeners.clearAndNotifyAll()
 
   /**
    * Once we determine what it is, this will hold the absolute bit pos
@@ -168,6 +189,10 @@ trait DataOutputStreamImplMixin
     maybeAbsStartingBitPos0b_ = MaybeULong.Nope
     relBitPos0b_ = ULong(0)
     zlStatus_ = ZeroLengthStatus.Unknown
+    // A listener registered against the pre-reset facts would otherwise
+    // fire (or stay silently registered) against facts from this DOS's
+    // next, unrelated lifetime.
+    stateChangeListeners.clear()
   }
 
   def setAbsStartingBitPos0b(newStartingBitPos0b: ULong): Unit = {
@@ -181,6 +206,10 @@ trait DataOutputStreamImplMixin
       this.maybeAbsolutizedRelativeStartingBitPosInBits_.isEmpty
     ) {
       this.maybeAbsStartingBitPos0b_ = mv
+      // maybeAbsBitPos0b was Nope and is now defined for the first (and
+      // only) time. This DOS's absolute position never becomes unknown
+      // again once known, so this is the one moment to notify.
+      notifyListeners()
     } else if (this.maybeAbsStartingBitPos0b_.isDefined) {
       this.maybeAbsolutizedRelativeStartingBitPosInBits_ = this.maybeAbsStartingBitPos0b_
       this.maybeAbsStartingBitPos0b_ = mv
@@ -358,6 +387,7 @@ trait DataOutputStreamImplMixin
 
   @inline private[io] final def isDead = { _dosState =:= Uninitialized }
   @inline override final def isFinished = { _dosState =:= Finished }
+  @inline override final def isFinishedOrDead = { isFinished || isDead }
   // @inline override def setFinished(finfo: FormatInfo) { _dosState = Finished }
   @inline private[io] final def isActive = { _dosState =:= Active }
   @inline private[io] final def isReadOnly = { isFinished && isBuffering }

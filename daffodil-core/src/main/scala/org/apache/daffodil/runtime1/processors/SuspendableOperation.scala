@@ -54,6 +54,15 @@ trait SuspendableOperation extends Suspension {
    */
   protected def continuation(ustate: UState): Unit
 
+  /**
+   * Registers a targeted wake-up for the non-exceptional blocking path
+   * (test() returning false, rather than throwing). No-op by default;
+   * override when this operation's test() blocks on a specific, known
+   * SuspensionWaiter or DataOutputStream rather than on a
+   * RetryableException.
+   */
+  protected def maybeRegisterWaiterOnBlock(ustate: UState): Unit = ()
+
   override protected final def doTask(ustate: UState): Unit = {
     if (isBlocked) {
       setUnblocked()
@@ -71,6 +80,7 @@ trait SuspendableOperation extends Suspension {
             if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get
             else "No Node"
           block(nodeOpt, ustate.getDataOutputStream, 0, this)
+          maybeRegisterWaiterOnBlock(ustate)
         }
       } catch {
         case e: RetryableException => {
