@@ -227,6 +227,33 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <!--
+    More occurrences in the data than maxOccurs allows. Parsing succeeds (the stop
+    value determines the end of the occurrences), but Daffodil validation reports the
+    maxOccurs violation.
+  -->
+  <tdml:parserTestCase name="svExceedsMaxOccurs" root="svMaxOccursRoot"
+    model="occursStopValue.dfdl.xsd" validation="limited"
+    description="validation error when a stopValue array has more occurrences than maxOccurs">
+    <tdml:document><![CDATA[abcdefzz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svMaxOccursRoot>
+          <item>ab</item>
+          <item>cd</item>
+          <item>ef</item>
+          <after>07</after>
+        </ex:svMaxOccursRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>item</tdml:error>
+      <tdml:error>occurred</tdml:error>
+      <tdml:error>minimum of '0'</tdml:error>
+      <tdml:error>maximum of '2'</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="svErrMissingAfter" root="svStringRoot"
     model="occursStopValue.dfdl.xsd"
     description="parse error when stop value never appears and a required element follows">
