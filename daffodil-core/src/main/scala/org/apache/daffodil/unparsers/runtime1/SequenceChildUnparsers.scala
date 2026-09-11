@@ -48,14 +48,20 @@ import org.apache.daffodil.runtime1.processors.unparsers.*
  * first one is used; this parses back as terminating because parsing terminates on any
  * of the stop values.
  */
-trait StopValueMixin {
+trait StopValueMixin { this: Unparser =>
   def erd: ElementRuntimeData
 
   /**
-   * The (typed) first dfdl:occursStopValue, used as the value of the terminating
-   * occurrence. Never empty: the occursStopValue cooker SDEs on an empty value.
+   * The (typed) dfdl:occursStopValue values. Never empty: the occursStopValue cooker
+   * SDEs on an empty value.
    */
-  def stopValue: DataValuePrimitive
+  def stopValues: Seq[DataValuePrimitive]
+
+  /**
+   * The first stop value is used as the value of the terminating occurrence (per DFDL
+   * 1.0 section 16.1.5, when multiple stop values are provided the first is used).
+   */
+  final def stopValue: DataValuePrimitive = stopValues.head
 
   /**
    * Creates the infoset element for the terminating occurrence, with the stop value as
@@ -70,6 +76,57 @@ trait StopValueMixin {
     elem.setDataValue(stopValue)
     state.setStopValue(elem)
     elem
+  }
+
+  /**
+   * DFDL 1.0 section 16.1.5: "It is a Processing Error if a stop value is found in the
+   * Infoset when unparsing. (This ensures that the array can be reparsed, as the stop
+   * value is placed automatically and only at the end.)"
+   *
+   * Before unparsing an occurrence, capture the pending infoset element for this array
+   * (None if this call is for the synthesized terminating occurrence, or if the pending
+   * event is not an occurrence of this element).
+   */
+  final def maybeStopValueInfosetOccurrence(state: UState): Option[DISimple] = {
+    if (state.maybeStopValue.isDefined)
+      None // this unparse call is for the synthesized terminating occurrence
+    else if (!state.inspect)
+      None
+    else {
+      val ev = state.inspectAccessor
+      if (ev.isStart && ev.info.isSimpleElement && (ev.erd eq erd)) Some(ev.info.asSimple)
+      else None
+    }
+  }
+
+  /**
+   * Completes the check started by maybeStopValueInfosetOccurrence; call after the
+   * occurrence has been unparsed, at which point the element's data value is definitely
+   * set. Raises a processing error if the infoset occurrence has one of the stop values.
+   */
+  final def checkStopValueInInfoset(state: UState, maybeElem: Option[DISimple]): Unit = {
+    maybeElem.foreach { elem =>
+      if (!elem.isNilled && elem.hasValue) {
+        val dataValue = elem.dataValue.getAnyRef
+        if (stopValues.exists { sv => stopValueMatch(dataValue, sv.getAnyRef) }) {
+          UE(
+            state,
+            "Found stop value '%s' in the infoset for array element %s. Occurrences of a dfdl:occursCountKind='stopValue' array must not have a value equal to one of the dfdl:occursStopValue values; the terminating occurrence is added automatically when unparsing.",
+            elem.dataValue.getAnyRef,
+            erd.namedQName.toExtendedSyntax
+          )
+        }
+      }
+    }
+  }
+
+  private def stopValueMatch(data: AnyRef, stopValue: AnyRef): Boolean = {
+    (data, stopValue) match {
+      // byte arrays (e.g. xs:hexBinary, xs:base64Binary) compare by reference with ==,
+      // so compare their contents explicitly.
+      case (a: Array[Byte], b: Array[Byte]) => java.util.Arrays.equals(a, b)
+      case _ => data == stopValue
+    }
   }
 }
 
@@ -87,12 +144,18 @@ class RepOrderedStopValueSequenceChildUnparser(
   childUnparser: Unparser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
-  override val stopValue: DataValuePrimitive
+  override val stopValues: Seq[DataValuePrimitive]
 ) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Unseparated
   with StopValueMixin {
 
   override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = true
+
+  override def unparse(state: UState): Unit = {
+    val maybeOccurrence = maybeStopValueInfosetOccurrence(state)
+    super.unparse(state)
+    checkStopValueInInfoset(state, maybeOccurrence)
+  }
 }
 
 /**
@@ -110,7 +173,7 @@ class RepOrderedStopValueSeparatedSequenceChildUnparser(
   isKnownStaticallyNotToSuppressSeparator: Boolean,
   isPositional: Boolean,
   isDeclaredLast: Boolean,
-  override val stopValue: DataValuePrimitive
+  override val stopValues: Seq[DataValuePrimitive]
 ) extends RepOrderedSeparatedSequenceChildUnparser(
     childUnparser,
     srd,
@@ -124,7 +187,14 @@ class RepOrderedStopValueSeparatedSequenceChildUnparser(
     isPositional,
     isDeclaredLast
   )
-  with StopValueMixin
+  with StopValueMixin {
+
+  override def unparse(state: UState): Unit = {
+    val maybeOccurrence = maybeStopValueInfosetOccurrence(state)
+    super.unparse(state)
+    checkStopValueInInfoset(state, maybeOccurrence)
+  }
+}
 
 /**
  * base for unparsers for the children of sequences.
