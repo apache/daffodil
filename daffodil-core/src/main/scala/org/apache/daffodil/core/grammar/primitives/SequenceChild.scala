@@ -774,9 +774,10 @@ class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, gro
   //
   // When multiple stop values are defined, the first one is used for the terminating
   // occurrence; the data parses back identically because parsing terminates on any of
-  // the stop values.
+  // the stop values. All stop values are passed to the unparser so that it can raise a
+  // processing error if one of them appears in the infoset (DFDL 1.0 section 16.1.5).
   override lazy val sequenceChildUnparser: SequenceChildUnparser = {
-    val stopValue = e.occursStopValues.head
+    val stopValues = e.occursStopValues
     sq.hasSeparator match {
       case true =>
         new RepOrderedStopValueSeparatedSequenceChildUnparser(
@@ -791,10 +792,10 @@ class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, gro
           isKnownStaticallyNotToSuppressSeparator,
           isPositional,
           isDeclaredLast,
-          stopValue
+          stopValues
         )
       case false =>
-        new RepOrderedStopValueSequenceChildUnparser(childUnparser, srd, erd, stopValue)
+        new RepOrderedStopValueSequenceChildUnparser(childUnparser, srd, erd, stopValues)
     }
   }
 }

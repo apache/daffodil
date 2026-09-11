@@ -292,6 +292,28 @@
   </tdml:parserTestCase>
 
   <!-- Unparse: infoset occurrences followed by the synthesized terminating occurrence -->
+  <!-- DFDL 1.0 section 16.1.5: it is a Processing Error if a stop value is found in
+       the infoset when unparsing. The terminating occurrence is added automatically,
+       and an infoset occurrence equal to a stop value would make the resulting data
+       not reparse to the same infoset. -->
+  <tdml:unparserTestCase name="svErrStopValueInInfoset" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="stop value found in the infoset when unparsing is a processing error">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <ex:item>ab</ex:item>
+          <ex:item>zz</ex:item>
+          <ex:after>07</ex:after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Found stop value</tdml:error>
+      <tdml:error>must not have a value equal to one of the dfdl:occursStopValue values</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:unparserTestCase name="svUnparse" root="svStringRoot"
     model="occursStopValue.dfdl.xsd"
     description="unparse synthesizes the terminating occurrence">
