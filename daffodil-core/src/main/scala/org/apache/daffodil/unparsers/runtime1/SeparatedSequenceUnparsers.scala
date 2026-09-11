@@ -162,6 +162,77 @@ class OrderedSeparatedSequenceUnparser(
   }
 
   /**
+   * DAFFODIL-501: unparses the synthesized terminating occurrence of an array with
+   * dfdl:occursCountKind='stopValue', if (and only if) the child unparser is for such
+   * an array. Does nothing otherwise. Used by the no-suppression driver: the separator
+   * associated with the terminating occurrence is unparsed unconditionally, just like
+   * the other occurrences there.
+   *
+   * The terminating occurrence consumes data (the dfdl:occursStopValue), but does not
+   * appear in the infoset and has no infoset events; see StopValueMixin.
+   */
+  protected def unparseStopValueIfNeeded(
+    unparser: SequenceChildUnparser,
+    state: UState
+  ): Unit = {
+    unparser match {
+      case su: StopValueMixin => {
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.beforeRepetition(state, this)
+        su.prepareStopValue(state)
+        unparseOne(su, su.erd, state)
+        state.moveOverOneArrayIterationIndexOnly()
+        state.moveOverOneOccursIndexOnly()
+        state.moveOverOneGroupIndexOnly() // the terminating occurrence occupies a slot
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.afterRepetition(state, this)
+      }
+      case _ => // not an occursCountKind='stopValue' array, nothing to do
+    }
+  }
+
+  /**
+   * DAFFODIL-501: like unparseStopValueIfNeeded, but for sequences where
+   * separator suppression is possible (dfdl:separatorSuppressionPolicy not never). The
+   * terminating occurrence's separator is suppressed just like a normal occurrence's
+   * would be; since the value of the terminating occurrence is statically known, the
+   * zero-length detection is done directly on the synthesized infoset element.
+   */
+  protected def unparseStopValueIfNeededWithSuppression(
+    unparser: SequenceChildUnparser with Separated,
+    state: UState,
+    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]
+  ): Unit = {
+    unparser match {
+      case su: StopValueMixin => {
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.beforeRepetition(state, this)
+        val termElem = su.prepareStopValue(state)
+        val isKnownNonZeroLength =
+          su.isKnownStaticallyNotToSuppressSeparator ||
+            su.zeroLengthDetector.isKnownNonZeroLength(termElem)
+        if (isKnownNonZeroLength) {
+          unparseOne(su, su.erd, state)
+        } else {
+          unparseOneWithSuppression(
+            su,
+            su.erd,
+            state,
+            trailingSuspendedOps,
+            onlySeparatorFlag = false
+          )
+        }
+        state.moveOverOneArrayIterationIndexOnly()
+        state.moveOverOneOccursIndexOnly()
+        state.moveOverOneGroupIndexOnly()
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.afterRepetition(state, this)
+      }
+      case _ => // not an occursCountKind='stopValue' array, nothing to do
+    }
+  }
+
+  /**
    * Unparses just the separator, as well as any mandatory text alignment if necessary
    *
    * Does not deals with infix boundary condition.
@@ -410,6 +481,13 @@ class OrderedSeparatedSequenceUnparser(
                       state.dataProc.get.afterRepetition(state, this)
 
                 }
+                // DAFFODIL-501: unparse the synthesized terminating occurrence of an
+                // occursCountKind='stopValue' array after all infoset occurrences.
+                unparseStopValueIfNeededWithSuppression(
+                  unparser,
+                  state,
+                  trailingSuspendedOps
+                )
                 numOccurrences = unparsePositionallyRequiredSeps(
                   unparser,
                   erd,
@@ -430,6 +508,13 @@ class OrderedSeparatedSequenceUnparser(
                 // start array for some other array. Not this one.
                 //
                 Assert.invariant(erd.minOccurs == 0L)
+                // DAFFODIL-501: zero infoset occurrences, but an
+                // occursCountKind='stopValue' array still emits the terminating occurrence
+                unparseStopValueIfNeededWithSuppression(
+                  unparser,
+                  state,
+                  trailingSuspendedOps
+                )
                 numOccurrences = unparsePositionallyRequiredSeps(
                   unparser,
                   erd,
@@ -448,6 +533,13 @@ class OrderedSeparatedSequenceUnparser(
               // That has to be for a different element later in the sequence
               // since this one has a RepUnparser (i.e., is NOT scalar)
               //
+              // DAFFODIL-501: zero infoset occurrences, but an
+              // occursCountKind='stopValue' array still emits the terminating occurrence
+              unparseStopValueIfNeededWithSuppression(
+                unparser,
+                state,
+                trailingSuspendedOps
+              )
               numOccurrences = unparsePositionallyRequiredSeps(
                 unparser,
                 erd,
@@ -457,6 +549,13 @@ class OrderedSeparatedSequenceUnparser(
               )
             } else {
               Assert.invariant(ev.isEnd && ev.erd.isComplexType)
+              // DAFFODIL-501: zero infoset occurrences, but an
+              // occursCountKind='stopValue' array still emits the terminating occurrence
+              unparseStopValueIfNeededWithSuppression(
+                unparser,
+                state,
+                trailingSuspendedOps
+              )
               unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
                 state,
                 unparser,
@@ -665,9 +764,18 @@ class OrderedSeparatedSequenceUnparser(
               state.dataProc.get.afterRepetition(state, this)
           }
 
+          // DAFFODIL-501: unparse the synthesized terminating occurrence of an
+          // occursCountKind='stopValue' array after all infoset occurrences. This also
+          // covers the zero-infoset-occurrence case (the loop above just did not run).
+          unparseStopValueIfNeeded(unparser, state)
+
           // If not enough occurrences are in the infoset, we output extra separators because
-          // we are unparsing with no suppression
-          if (maxReps > numOccurrences) {
+          // we are unparsing with no suppression.
+          //
+          // For occursCountKind='stopValue' arrays the number of occurrences in the data
+          // is not related to maxOccurs (maxRepeats is unbounded there), so no extra
+          // separators are ever output.
+          if (maxReps > numOccurrences && !unparser.isInstanceOf[StopValueMixin]) {
             var numExtraSeps = {
               val sepsNeeded = erd.maxOccurs - numOccurrences
               if ((spos eq Infix) && state.groupPos == 1) {

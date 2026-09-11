@@ -735,3 +735,67 @@ class RepOrderedWithMinMaxSequenceChild(sq: SequenceTermBase, e: ElementBase, gr
       )
   }
 }
+
+class RepOrderedStopValueSequenceChild(sq: SequenceTermBase, e: ElementBase, groupIndex: Int)
+  extends RepElementSequenceChild(sq, e, groupIndex) {
+
+  // The stop values are cooked (unescaped list of string literals) and converted to
+  // values of the element's simple type at schema-compile-time. The conversion (and the
+  // checks that dfdl:occursStopValue is present, non-empty, and valid for the type) is
+  // done by ElementBase.checkOccursStopValue, which forces occursStopValues.
+  private lazy val stopValues: Seq[AnyRef] =
+    e.occursStopValues.map { _.getAnyRef }
+
+  lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
+    case true =>
+      new RepOrderedStopValueSeparatedSequenceChildParser(
+        childParser,
+        srd,
+        erd,
+        sepParser,
+        sq.separatorPosition,
+        separatedHelper,
+        stopValues
+      )
+    case false =>
+      new RepOrderedStopValueUnseparatedSequenceChildParser(
+        childParser,
+        srd,
+        erd,
+        unseparatedHelper,
+        stopValues
+      )
+  }
+
+  // Unparsing an occursCountKind='stopValue' array emits all of the infoset occurrences
+  // followed by one synthesized terminating occurrence whose value is the first
+  // dfdl:occursStopValue (that occurrence consumes data but is not part of the infoset,
+  // matching the parse behavior). See StopValueMixin.
+  //
+  // When multiple stop values are defined, the first one is used for the terminating
+  // occurrence; the data parses back identically because parsing terminates on any of
+  // the stop values. All stop values are passed to the unparser so that it can raise a
+  // processing error if one of them appears in the infoset (DFDL 1.0 section 16.1.5).
+  override lazy val sequenceChildUnparser: SequenceChildUnparser = {
+    val stopValues = e.occursStopValues
+    sq.hasSeparator match {
+      case true =>
+        new RepOrderedStopValueSeparatedSequenceChildUnparser(
+          childUnparser,
+          srd,
+          erd,
+          sepUnparser,
+          sq.separatorPosition,
+          sq.separatorSuppressionPolicy,
+          zeroLengthDetector,
+          e.isPotentiallyTrailing,
+          isKnownStaticallyNotToSuppressSeparator,
+          isPositional,
+          isDeclaredLast,
+          stopValues
+        )
+      case false =>
+        new RepOrderedStopValueSequenceChildUnparser(childUnparser, srd, erd, stopValues)
+    }
+  }
+}

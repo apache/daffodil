@@ -40,7 +40,8 @@
   <element name="implicitElement" type="vl:implicitType"/>
   <element name="parsedElement" type="vl:parsedType"/>
   <element name="expressionElement" type="vl:expressionType"/>
-  <!-- Daffodil doesn't support stopValue (DAFFODIL-501) -->
+  <!-- Daffodil supports stopValue for parsing (DAFFODIL-501); the C code generator does
+       not support it yet -->
   <element name="stopValueElement" type="vl:stopValueType"/>
 
   <!-- Types (fixedType, implicitType, parsedType, expressionType,
