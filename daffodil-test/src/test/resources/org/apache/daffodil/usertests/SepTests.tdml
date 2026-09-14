@@ -1362,4 +1362,380 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s15" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+        ref="ex:GeneralFormat"
+        emptyValueDelimiterPolicy="none"
+        lengthKind="delimited"
+        separatorPosition="infix"
+        separatorSuppressionPolicy="trailingEmpty"
+    />
+
+    <xs:element name="simple">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+            <xs:element name="one" type="xs:string"  minOccurs="0"/>
+            <xs:element name="two" type="xs:string" minOccurs="0">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{. eq '2'}"/>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="three" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="complex">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+            <xs:element name="one" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="two" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:assert test="{. eq '2'}"/>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="three" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_trailing_1" root="simple" model="s15"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1//3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:simple xmlns:ex="http://example.com">
+          <one>1</one>
+          <three>3</three>
+        </ex:simple>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_trailing_2" root="simple" model="s15"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:simple xmlns:ex="http://example.com">
+          <one>1</one>
+          <three>3</three>
+        </ex:simple>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_trailing_3" root="complex" model="s15"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1//3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:complex xmlns:ex="http://example.com">
+          <one><value>1</value></one>
+          <three><value>3</value></three>
+        </ex:complex>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_trailing_4" root="complex" model="s15"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:complex xmlns:ex="http://example.com">
+          <one><value>1</value></one>
+          <three><value>3</value></three>
+        </ex:complex>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<tdml:defineSchema name="s16" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+        ref="ex:GeneralFormat"
+        emptyValueDelimiterPolicy="none"
+        lengthKind="delimited"
+        separatorPosition="infix"
+        separatorSuppressionPolicy="never"
+    />
+
+    <xs:element name="simple">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+            <xs:element name="one" type="xs:string"  minOccurs="0"/>
+            <xs:element name="two" type="xs:string" minOccurs="0">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{. eq '2'}"/>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="three" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="complex">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+            <xs:element name="one" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="two" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:assert test="{. eq '2'}"/>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="three" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_13" root="simple" model="s16"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1//3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:simple xmlns:ex="http://example.com">
+          <one>1</one>
+          <three>3</three>
+        </ex:simple>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Unlike never_13 ('/1//3%LF;'), this data gives 'two' no separator of its
+    own: the single '/' between '1' and '3' either belongs to 'two' (making
+    its content '3', which fails the assert) or, if 'two' is skipped, to
+    'three'. separatorSuppressionPolicy='never' requires all occurrences to
+    be found along with their own separator, so this is not a valid
+    representation of s16 and must fail.
+  -->
+  <tdml:parserTestCase name="test_sep_ssp_never_14" root="simple" model="s16"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>separatorSuppressionPolicy</tdml:error>
+      <tdml:error>never</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_never_15" root="complex" model="s16"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1//3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:complex xmlns:ex="http://example.com">
+          <one><value>1</value></one>
+          <three><value>3</value></three>
+        </ex:complex>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Complex-typed analog of never_14: 'two' has no separator of its own in
+    this data, so separatorSuppressionPolicy='never' must reject it, same as
+    never_14.
+  -->
+  <tdml:parserTestCase name="test_sep_ssp_never_16" root="complex" model="s16"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>separatorSuppressionPolicy</tdml:error>
+      <tdml:error>never</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  <tdml:defineSchema name="s17" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+        ref="ex:GeneralFormat"
+        emptyValueDelimiterPolicy="none"
+        lengthKind="delimited"
+        separatorPosition="infix"
+        separatorSuppressionPolicy="anyEmpty"
+    />
+
+    <xs:element name="simple">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+            <xs:element name="one" type="xs:string"  minOccurs="0"/>
+            <xs:element name="two" type="xs:string" minOccurs="0">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{. eq '2'}"/>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="three" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="complex">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:terminator="%NL;">
+            <xs:element name="one" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="two" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:assert test="{. eq '2'}"/>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="three" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_any_1" root="simple" model="s17"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1//3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:simple xmlns:ex="http://example.com">
+          <one>1</one>
+          <three>3</three>
+        </ex:simple>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_any_2" root="simple" model="s17"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:simple xmlns:ex="http://example.com">
+          <one>1</one>
+          <three>3</three>
+        </ex:simple>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_any_3" root="complex" model="s17"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1//3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:complex xmlns:ex="http://example.com">
+          <one><value>1</value></one>
+          <three><value>3</value></three>
+        </ex:complex>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_any_4" root="complex" model="s17"
+                       implementations="daffodil">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">/1/3%LF;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:complex xmlns:ex="http://example.com">
+          <one><value>1</value></one>
+          <three><value>3</value></three>
+        </ex:complex>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
 </tdml:testSuite>
