@@ -105,6 +105,22 @@ abstract class SequenceParserBase(
        */
       var priorResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
+      /**
+       * Separate from priorResultOfTry, which a repeating child's own
+       * inner loop overwrites on its first iteration: this tracks the true
+       * previous sibling's final result, for the cross-sibling adjacency
+       * check below.
+       */
+      var priorSiblingResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+      /**
+       * Whether a separator was found for the attempt that produced the
+       * current resultOfTry, for a repeating child: tells a genuinely
+       * absent occurrence (no separator attempted, e.g. the first item)
+       * apart from one where a separator was found but content was empty.
+       */
+      var lastAttemptSeparatorWasFound: Boolean = false
+
       var child: SequenceChildParser = null
 
       var isDone = false
@@ -137,6 +153,18 @@ abstract class SequenceParserBase(
             //
 
             priorResultOfTry = resultOfTry
+            // Only meaningful if the immediately preceding sibling was
+            // itself bounded to at most one occurrence: a multi-occurrence
+            // array's own final attempt is a deliberate probe expected to
+            // fail, not a wrongly-discarded singular occurrence.
+            val priorSiblingIsBoundedToAtMostOne =
+              (scpIndex == 0) || (children(scpIndex - 1) match {
+                case rep: RepeatingChildParser => rep.maxRepeats(pstate) <= 1
+                case _ => true
+              })
+            priorSiblingResultOfTry =
+              if (priorSiblingIsBoundedToAtMostOne) priorResultOfTry
+              else ParseAttemptStatus.Uninitialized
             resultOfTry = ParseAttemptStatus.Uninitialized
 
             var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
@@ -159,6 +187,7 @@ abstract class SequenceParserBase(
                 ais = nextAIS
                 priorResultOfTry = resultOfTry
                 resultOfTry = nextResultOfTry
+                lastAttemptSeparatorWasFound = pstate.lastSeparatorWasFound
               }
               val currentPos = pstate.bitPos0b
               if (
@@ -218,7 +247,12 @@ abstract class SequenceParserBase(
 
             } // end while for each repeat
             parser.endArray(pstate)
-            parser.arrayCompleteChecks(pstate, resultOfTry, priorResultOfTry)
+            parser.arrayCompleteChecks(
+              pstate,
+              resultOfTry,
+              priorSiblingResultOfTry,
+              lastAttemptSeparatorWasFound
+            )
           } // end match case RepeatingChildParser
 
           case nonRepresentedParser: NonRepresentedSequenceChildParser => {

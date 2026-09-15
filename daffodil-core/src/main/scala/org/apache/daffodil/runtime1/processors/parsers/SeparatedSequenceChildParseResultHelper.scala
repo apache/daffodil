@@ -18,6 +18,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 
@@ -81,6 +82,22 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
    */
   def isSimpleDelimited: Boolean
 
+  /**
+   * Checks, without consuming data, whether an in-scope delimiter is
+   * present right where this complex type's content would begin, verifying
+   * a failed/zero-length attempt against bit-position bookkeeping alone,
+   * which nested backtracking can corrupt. Nope for simple types and groups.
+   */
+  def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser]
+
+  /**
+   * True only when this NonPositional behavior comes from
+   * dfdl:separatorSuppressionPolicy='anyEmpty' itself, not from an
+   * occursCountKind of 'parsed'/'stopValue', which produce the same
+   * NonPositional status codes for unrelated reasons. False by default.
+   */
+  def isAnyEmptySeparatorSuppressionPolicy: Boolean = false
+
   def computeFailedSeparatorParseAttemptStatus(
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
@@ -99,18 +116,62 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
     parser: SequenceChildParser,
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus
+    priorSiblingResultOfTry: ParseAttemptStatus,
+    lastAttemptSeparatorWasFound: Boolean
   ): Unit = {
-    if ((sscb eq PositionalNever)) {
-      val resultToTest = resultOfTry
-      resultToTest match {
-        case ParseAttemptStatus.FailureUnspecified | ParseAttemptStatus.MissingSeparator =>
+    sscb match {
+      case PositionalNever =>
+        resultOfTry match {
+          case ParseAttemptStatus.FailureUnspecified | ParseAttemptStatus.MissingSeparator =>
+            parser.PE(
+              pstate,
+              "maxOccurs instances and their separators are required when dfdl:separatorSuppressionPolicy='never'"
+            )
+          case _ => // ok
+        }
+
+      case sspValue @ (PositionalTrailingLax | PositionalTrailingStrict) =>
+        // A discarded prior occurrence (backtracked out, not cleanly
+        // resolved as absent) followed by this occurrence finding real
+        // content means the prior occurrence's separator was speculatively
+        // reused; only valid if the prior occurrence was genuinely last.
+        (priorSiblingResultOfTry, resultOfTry) match {
+          case (
+                ParseAttemptStatus.FailureUnspecified | ParseAttemptStatus.MissingSeparator,
+                _: ParseAttemptStatus.SuccessParseAttemptStatus
+              ) =>
+            val sspName =
+              if (sspValue eq PositionalTrailingStrict) "trailingEmptyStrict"
+              else "trailingEmpty"
+            parser.PE(
+              pstate,
+              s"Non-trailing zero length occurrences (and their separator) may not be omitted when dfdl:separatorSuppressionPolicy='$sspName'"
+            )
+          case _ => // ok
+        }
+
+      case NonPositional if isAnyEmptySeparatorSuppressionPolicy =>
+        // dfdl:separatorSuppressionPolicy='anyEmpty' requires a zero length
+        // occurrence to also omit its separator; a separator found before
+        // zero length content violates that, unless this array's own final
+        // attempt is a multi-occurrence probe expected to fail.
+        val isBoundedToAtMostOne = parser match {
+          case rep: RepeatingChildParser => rep.maxRepeats(pstate) <= 1
+          case _ => true
+        }
+        if (
+          isBoundedToAtMostOne &&
+          lastAttemptSeparatorWasFound &&
+          ((resultOfTry eq ParseAttemptStatus.AbsentRep) ||
+            (resultOfTry eq ParseAttemptStatus.MissingItem))
+        ) {
           parser.PE(
             pstate,
-            "maxOccurs instances and their separators are required when dfdl:separatorSuppressionPolicy='never'"
+            "Zero length occurrences (and their separator) must be omitted when dfdl:separatorSuppressionPolicy='anyEmpty'"
           )
-        case _ => // ok
-      }
+        }
+
+      case _ => // ok
     }
   }
 
@@ -223,6 +284,7 @@ class PositionalScalarElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val erd: ElementRuntimeData,
   override val isSimpleDelimited: Boolean,
+  override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
   override val isEmptyRepNonZeroLength: Boolean
@@ -234,6 +296,7 @@ class NonPositionalScalarElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val erd: ElementRuntimeData,
   override val isSimpleDelimited: Boolean,
+  override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
   override val isEmptyRepNonZeroLength: Boolean
@@ -244,6 +307,7 @@ class PositionalTrailingScalarElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val erd: ElementRuntimeData,
   override val isSimpleDelimited: Boolean,
+  override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
   override val isEmptyRepNonZeroLength: Boolean
@@ -258,6 +322,7 @@ class PositionalTrailingRepElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val erd: ElementRuntimeData,
   override val isSimpleDelimited: Boolean,
+  override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
   override val isEmptyRepNonZeroLength: Boolean
@@ -265,6 +330,7 @@ class PositionalTrailingRepElementSeparatedSequenceChildParseResultHelper(
     separatedSequenceChildBehavior,
     erd,
     isSimpleDelimited,
+    zeroLengthComplexTypeDelimiterScanner,
     emptyElementParsePolicy,
     isEmptyRepZeroLength,
     isEmptyRepNonZeroLength
@@ -274,6 +340,7 @@ class PositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val erd: ElementRuntimeData,
   override val isSimpleDelimited: Boolean,
+  override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
   override val isEmptyRepNonZeroLength: Boolean
@@ -284,9 +351,11 @@ class NonPositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val erd: ElementRuntimeData,
   override val isSimpleDelimited: Boolean,
+  override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean
+  override val isEmptyRepNonZeroLength: Boolean,
+  override val isAnyEmptySeparatorSuppressionPolicy: Boolean
 ) extends RepElementSeparatedSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
 
@@ -295,6 +364,8 @@ trait GroupSeparatedSequenceChildParseResultHelper
   with ModelGroupSequenceChildParseResultHelper {
 
   final override def isSimpleDelimited = false // only relevant to elements
+  final override def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser] =
+    Maybe.Nope // only relevant to elements
 }
 
 trait PositionalLikeGroupSequenceChildParseResultMixin

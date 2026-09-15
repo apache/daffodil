@@ -31,7 +31,7 @@ class TestSepTests extends TdmlTests {
 
   val tdmlSuite = TestSepTests
 
-  @Test def test_sep_trailing_1 = trace
+  @Test def test_sep_trailing_1 = test
   @Test def test_sep_anyEmpty_1 = test
   // DAFFODIL-2498 anyEmpty with minOccurs '0', and empty as first occurrence.
   @Test def test_sep_anyEmpty_2 = test
@@ -53,6 +53,7 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_never_8 = test
   @Test def test_sep_ssp_never_9 = test
   @Test def test_sep_unparse_positional_implicit_array_extra_seps = test
+  @Test def test_sep_parse_discriminated_group = test
   @Test def test_sep_ssp_never_10 = test
   @Test def test_sep_ssp_never_11 = test
   @Test def test_sep_ssp_never_12 = test
@@ -71,6 +72,11 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_any_2 = test
   @Test def test_sep_ssp_any_3 = test
   @Test def test_sep_ssp_any_4 = test
+
+  @Test def test_sep_ssp_strict_1 = test
+  @Test def test_sep_ssp_strict_2 = test
+  @Test def test_sep_ssp_strict_3 = test
+  @Test def test_sep_ssp_strict_4 = test
 
   // DAFFODIL-2205 - EmptyValueDelimiterPolicy only works with 'both'
   @Test def test_sep_evdp_1 = test

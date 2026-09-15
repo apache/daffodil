@@ -27,7 +27,10 @@ trait Separated { self: SequenceChildParser =>
   def trd: TermRuntimeData
   def parseResultHelper: SeparatedSequenceChildParseResultHelper
 
-  override def childProcessors: Vector[Processor] = Vector(self.childParser) :+ sep
+  override def childProcessors: Vector[Processor] =
+    Vector(
+      self.childParser
+    ) ++ parseResultHelper.zeroLengthComplexTypeDelimiterScanner.toList :+ sep
 
   import SeparatorPosition.*
 
@@ -53,9 +56,16 @@ trait Separated { self: SequenceChildParser =>
   final override def arrayCompleteChecks(
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus
+    priorSiblingResultOfTry: ParseAttemptStatus,
+    lastAttemptSeparatorWasFound: Boolean
   ): Unit =
-    parseResultHelper.arrayCompleteChecks(self, pstate, resultOfTry, priorResultOfTry)
+    parseResultHelper.arrayCompleteChecks(
+      self,
+      pstate,
+      resultOfTry,
+      priorSiblingResultOfTry,
+      lastAttemptSeparatorWasFound
+    )
 
   final override def sequenceCompleteChecks(
     pstate: PState,

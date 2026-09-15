@@ -24,6 +24,9 @@ import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolic
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.parsers.*
 import org.apache.daffodil.unparsers.runtime1.*
@@ -501,12 +504,16 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     Assert.invariant(e.isScalar)
     Assert.invariant(e.isRepresented)
     val isd = e.isSimpleType && (e.lengthKind eq LengthKind.Delimited)
+    val icd = e.isComplexType && (e.lengthKind eq LengthKind.Delimited)
+    val zls: Maybe[Parser] =
+      if (icd) One(ZeroLengthComplexTypeDelimiterScanner(e).parser) else Nope
     this.sscb match {
       case PositionalTrailingLax | PositionalTrailingStrict =>
         new PositionalTrailingScalarElementSeparatedSequenceChildParseResultHelper(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -516,6 +523,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -525,6 +533,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -592,6 +601,9 @@ sealed abstract class RepElementSequenceChild(
     Assert.invariant(!e.isScalar)
     Assert.invariant(e.isRepresented)
     val isd = e.isSimpleType && (e.lengthKind eq LengthKind.Delimited)
+    val icd = e.isComplexType && (e.lengthKind eq LengthKind.Delimited)
+    val zls: Maybe[Parser] =
+      if (icd) One(ZeroLengthComplexTypeDelimiterScanner(e).parser) else Nope
 
     this.sscb match {
       case PositionalTrailingLax | PositionalTrailingStrict =>
@@ -599,6 +611,7 @@ sealed abstract class RepElementSequenceChild(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -608,6 +621,7 @@ sealed abstract class RepElementSequenceChild(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -617,9 +631,11 @@ sealed abstract class RepElementSequenceChild(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength
+          isEmptyRepNonZeroLength,
+          ssp eq SeparatorSuppressionPolicy.AnyEmpty
         )
     }
   }

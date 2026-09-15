@@ -43,6 +43,14 @@ sealed abstract class SeparatorParseHelper(
 
   protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
 
+  /**
+   * Checks, without consuming data, whether one of the sequence's in-scope
+   * delimiters is present right where this complex type's content would
+   * begin. Nope for simple types and for model groups.
+   */
+  protected final def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser] =
+    scParser.parseResultHelper.zeroLengthComplexTypeDelimiterScanner
+
   def parseOneWithSeparator(
     state: PState,
     requiredOptional: RequiredOptionalStatus,
@@ -164,6 +172,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             pstate,
             requiredOptional
           )
+        pstate.lastSeparatorWasFound = sepStatus eq SeparatorParseStatus.SeparatorFound
         pas
       }
       case _ => {
@@ -173,6 +182,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
           }
           case _ => // No action
         }
+        pstate.lastSeparatorWasFound = false
         scParser.parseResultHelper.computeFailedSeparatorParseAttemptStatus(
           scParser,
           prevBitPosBeforeChild,
@@ -260,6 +270,7 @@ final class PostfixSeparatorHelper(
       if (pstate.processorStatus eq Success) {
         // we got the postfix sep after successful parse of the data item
         // so whatever the status of the item was, that's the status overall.
+        pstate.lastSeparatorWasFound = true
         dataOnlyRep
       } else {
         // child successful, but no postfix sep found. Build the error while the
@@ -275,6 +286,7 @@ final class PostfixSeparatorHelper(
             pstate.resetToPointOfUncertainty(scopedPou.get)
             pstate.setFailed(sepFailure)
           }
+          pstate.lastSeparatorWasFound = false
           prh.computeFailedSeparatorParseAttemptStatus(
             scParser,
             prevBitPosBeforeChild,
@@ -325,6 +337,7 @@ final class PostfixSeparatorHelper(
             hasZLChildAttempt,
             requiredOptional
           )
+          pstate.lastSeparatorWasFound = true
           // For non-positional (anyEmpty) sequences, the child result helper returns
           // MissingItem for optional ZL elements; since the postfix separator WAS
           // found, a non-array element is AbsentRep per DFDL spec 9.2.4.
@@ -347,6 +360,7 @@ final class PostfixSeparatorHelper(
           // the separator failed on ZL data
           // so no chance on a ZL representation here.
           val isZL = false
+          pstate.lastSeparatorWasFound = false
           prh.computeFailedSeparatorParseAttemptStatus(
             scParser,
             prevBitPosBeforeChild,
@@ -361,6 +375,7 @@ final class PostfixSeparatorHelper(
         // makes sense (ex: the child could be failing because it is fixed
         // length, with asserts that check the value that fail.)
         val isZL = false
+        pstate.lastSeparatorWasFound = false
         prh.computeFailedParseAttemptStatus(
           scParser,
           prevBitPosBeforeChild,

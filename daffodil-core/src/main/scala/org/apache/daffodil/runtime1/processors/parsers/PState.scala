@@ -183,6 +183,13 @@ final class PState private (
   def output = walker.outputter
 
   /**
+   * Whether a separator was actually found for the most recent separated
+   * sequence child attempt. Not tracked across backtracking, so callers
+   * must read it immediately, before any subsequent attempt overwrites it.
+   */
+  var lastSeparatorWasFound: Boolean = false
+
+  /**
    * This stack is used to track points of uncertainty during a parse. When a
    * parser determines a PoU should exist, it should call withPointOfUncertainty
    * to create a new PoU (represented by a Mark) and perform all the logic that
