@@ -23,6 +23,7 @@ import scala.xml.Node
 import org.apache.daffodil.core.compiler.RootSpec
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.SchemaSetGrammarMixin
+import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.DaffodilTunables
@@ -116,6 +117,7 @@ final class SchemaSet private (
 
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
+  requiredEvaluationsAlways(userDefinedCharsets)
 
   lazy val resolver = DFDLCatalogResolver.get
 
@@ -545,6 +547,39 @@ final class SchemaSet private (
 
   lazy val allDefinedVariables = schemas
     .flatMap(_.defineVariables) ++: predefinedVars
+
+  /**
+   * The BitsCharsets defined via dfdlx:defineCharset statements in this schema
+   * set, keyed by uppercased name. Charset names are case-insensitive (the
+   * canonical form of a charset name is uppercase), hence charsets defined in
+   * different namespaces of the same schema set with names differing only by
+   * case are a schema definition error.
+   *
+   * Demanding this value also demands validation (SDE checking) of every
+   * dfdlx:defineCharset statement, even those never referenced.
+   *
+   * Note that these are not added to the global BitsCharsetDefinitionRegistry,
+   * they are resolved from this map when the dfdl:encoding property is
+   * resolved (see CharsetEv).
+   */
+  lazy val userDefinedCharsets: Map[String, BitsCharset] = {
+    val pairs: Seq[(String, DFDLDefineCharset)] =
+      schemas.flatMap { _.defineCharsets }.map { dc => (dc.name.toUpperCase, dc) }
+    val grouped = pairs.groupBy { case (upperName, _) => upperName }
+    grouped.foreach { case (upperName, dupes) =>
+      if (dupes.length > 1) {
+        SDEButContinue(
+          "Multiple definitions for dfdlx:defineCharset name '%s'. Defined in following locations:\n%s",
+          upperName,
+          dupes
+            .map { case (_, dc) => dc.locationDescription }
+            .mkString("\n")
+        )
+      }
+    }
+    // demanding bitsCharset performs all the SDE validation of the statements
+    pairs.map { case (upperName, dc) => (upperName, dc.bitsCharset) }.toMap
+  }
 
   private lazy val checkUnusedProperties = LV(Symbol("hasUnusedProperties")) {
     root.checkUnusedProperties
