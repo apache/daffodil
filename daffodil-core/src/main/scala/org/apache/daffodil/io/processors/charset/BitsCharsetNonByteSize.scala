@@ -64,7 +64,9 @@ trait BitsCharsetNonByteSize extends BitsCharset {
   def maxBytesPerChar() = 1 / maxCharsPerByte()
   def maxBitsPerChar() = 1 / maxCharsPerBit()
 
-  Assert.usage(decodeString.length == (1 << bitWidthOfACodeUnit))
+  Assert.usage(
+    decodeString.codePointCount(0, decodeString.length) == (1 << bitWidthOfACodeUnit)
+  )
   Assert.usage(bitWidthOfACodeUnit <= 8 && bitWidthOfACodeUnit >= 1)
 
   override def newDecoder(): BitsCharsetDecoder = new BitsCharsetNonByteSizeDecoder(this)

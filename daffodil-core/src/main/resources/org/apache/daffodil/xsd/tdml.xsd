@@ -23,6 +23,7 @@
   xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" 
   elementFormDefault="unqualified"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
@@ -119,6 +120,7 @@
       <element ref='dfdl:defineVariable'/>
       <element ref='dfdl:defineEscapeScheme'/>
       <element ref='dfdl:defineFormat'/>
+      <element ref='dfdlx:defineCharacterSet'/>
       <element ref='xs:element'/>
       <element ref='xs:complexType'/>
       <element ref='xs:group'/>
