@@ -22,6 +22,7 @@ import scala.jdk.CollectionConverters.*
 import org.apache.daffodil.api
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.*
 import org.apache.daffodil.runtime1.processors.Failure
@@ -163,6 +164,7 @@ object DFDL {
      * is all in the same encoding.
      */
     def isScannable: Boolean
+    def userDefinedCharsets: Map[String, BitsCharset]
     def encodingName: String
   }
 

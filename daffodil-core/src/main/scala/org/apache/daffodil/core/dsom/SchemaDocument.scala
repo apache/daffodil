@@ -230,6 +230,7 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
       case Elem("dfdl", "defineEscapeScheme", _, _, _*) =>
         DFDLDefineEscapeSchemeFactory(node, this)
       case Elem("dfdl", "defineVariable", _, _, _*) => DFDLDefineVariable(node, this)
+      case Elem("dfdlx", "defineCharacterSet", _, _, _*) => DFDLDefineCharacterSet(node, this)
       case _ => {
         val prefix =
           if (node.prefix == null || node.prefix == "") ""
@@ -259,6 +260,9 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
     case des: DFDLDefineEscapeSchemeFactory => des
   }
   lazy val defineVariables = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
+  lazy val defineCharacterSets = annotationObjs.collect { case dc: DFDLDefineCharacterSet =>
+    dc
+  }
 
   /**
    * by name getters for the global things that can be referenced.
@@ -270,6 +274,7 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
 
   def getDefineFormat(name: String) = defineFormats.find { _.namedQName.local == name }
   def getDefineVariable(name: String) = defineVariables.find { _.name == name }
+  def getDefineCharacterSet(name: String) = defineCharacterSets.find { _.name == name }
   def getDefaultFormat = this.defaultFormat
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 

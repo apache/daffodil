@@ -134,3 +134,6 @@ object IntRangeCooker extends Converter[String, Seq[(JBigInt, JBigInt)]] {
     run(asSeq)
   }
 }
+
+object DefineCharacterSetCodePointsCooker
+  extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()

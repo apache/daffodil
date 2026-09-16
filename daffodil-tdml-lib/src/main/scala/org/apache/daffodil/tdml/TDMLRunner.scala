@@ -1647,7 +1647,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       }
     }
 
-    if (actual.isScannable) {
+    if (
+      actual.isScannable &&
+      CharsetUtils.getCharset(actual.encodingName) != null
+    ) {
       // all textual in one encoding, so we can do display of results
       // in terms of text so the user can see what is going on.
       VerifyTestCase.verifyTextData(expectedData, outStream, actual.encodingName, implString)
@@ -1750,7 +1753,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val dataErrors = {
       optExpectedData.flatMap { data =>
         try {
-          if (actual.isScannable) {
+          if (
+            actual.isScannable &&
+            CharsetUtils.getCharset(actual.encodingName) != null
+          ) {
             // all textual in one encoding, so we can do display of results
             // in terms of text so the user can see what is going on.
             VerifyTestCase.verifyTextData(data, outStream, actual.encodingName, implString)
@@ -2147,6 +2153,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val defineFormats = (xml \ "defineFormat")
   val defaultFormats = (xml \ "format")
   val defineVariables = (xml \ "defineVariable")
+  val defineCharacterSets = (xml \ "defineCharacterSet")
   val defineEscapeSchemes = (xml \ "defineEscapeScheme")
 
   val globalElementDecls = {
@@ -2160,7 +2167,8 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val globalImports = (xml \ "import")
 
   val importIncludes = globalImports ++ globalIncludes
-  val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
+  val dfdlTopLevels =
+    defineFormats ++ defaultFormats ++ defineVariables ++ defineCharacterSets ++ defineEscapeSchemes
   val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
   private val parentDiagnosticFileName = parent.tsURISchemaSource.diagnosticFile.getPath

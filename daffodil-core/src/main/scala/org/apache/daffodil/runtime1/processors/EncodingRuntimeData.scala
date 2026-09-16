@@ -58,8 +58,10 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
     res
   }
 
+  final lazy val userDefinedCharsets = charsetEv.userCharsets
+
   final lazy val knownEncodingCharset = {
-    CharsetUtils.getCharset(knownEncodingName)
+    CharsetUtils.getCharset(knownEncodingName, charsetEv.userCharsets)
   }
 
   /**

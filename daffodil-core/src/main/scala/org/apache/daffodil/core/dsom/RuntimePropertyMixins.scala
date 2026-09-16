@@ -126,7 +126,7 @@ trait TermRuntimeValuedPropertiesMixin
 
   final lazy val maybeCharsetEv =
     if (optionEncodingRaw.isDefined) {
-      val ev = new CharsetEv(encodingEv, tci)
+      val ev = new CharsetEv(encodingEv, decl.schemaSet.userDefinedCharsets, tci)
       ev.compile(tunable)
       One(ev)
     } else

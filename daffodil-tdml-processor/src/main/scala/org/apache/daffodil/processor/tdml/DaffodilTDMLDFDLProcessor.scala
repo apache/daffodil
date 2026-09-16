@@ -34,6 +34,7 @@ import org.apache.daffodil.api
 import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.processors.charset.CharsetUtils
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.*
@@ -375,8 +376,16 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
         val dpis = new ByteArrayInputStream(
           dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray
         )
-        if (actualDP.isScannable && actualSAX.isScannable) {
-          VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, None)
+        if (
+          actualDP.isScannable && actualSAX.isScannable &&
+          CharsetUtils.getCharset(actualDP.encodingName) != null
+        ) {
+          VerifyTestCase.verifyTextData(
+            dpis,
+            saxOutputStream,
+            actualSAX.encodingName,
+            None
+          )
         } else {
           VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
         }
