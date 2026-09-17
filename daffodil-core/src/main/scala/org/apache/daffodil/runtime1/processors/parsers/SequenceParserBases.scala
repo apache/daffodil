@@ -22,6 +22,10 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.infoset.DIComplexState
+import org.apache.daffodil.runtime1.infoset.DIElement
+import org.apache.daffodil.runtime1.infoset.DIElementSharedInterface
+import org.apache.daffodil.runtime1.infoset.DISimpleState
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
@@ -113,14 +117,6 @@ abstract class SequenceParserBase(
        */
       var priorSiblingResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
-      /**
-       * Whether a separator was found for the attempt that produced the
-       * current resultOfTry, for a repeating child: tells a genuinely
-       * absent occurrence (no separator attempted, e.g. the first item)
-       * apart from one where a separator was found but content was empty.
-       */
-      var lastAttemptSeparatorWasFound: Boolean = false
-
       var child: SequenceChildParser = null
 
       var isDone = false
@@ -187,7 +183,6 @@ abstract class SequenceParserBase(
                 ais = nextAIS
                 priorResultOfTry = resultOfTry
                 resultOfTry = nextResultOfTry
-                lastAttemptSeparatorWasFound = pstate.lastSeparatorWasFound
               }
               val currentPos = pstate.bitPos0b
               if (
@@ -250,8 +245,7 @@ abstract class SequenceParserBase(
             parser.arrayCompleteChecks(
               pstate,
               resultOfTry,
-              priorSiblingResultOfTry,
-              lastAttemptSeparatorWasFound
+              priorSiblingResultOfTry
             )
           } // end match case RepeatingChildParser
 
@@ -414,7 +408,16 @@ abstract class SequenceParserBase(
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
 
     checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
-    val priorPos = pstate.bitPos0b
+
+    // Infoset-only snapshot, independent of the PoU's own Mark: a
+    // discriminator can resolve (and thereby discard) that Mark on the
+    // same attempt that still classifies as AbsentRep, so we need our own
+    // way to back out any infoset side effects afterward.
+    val priorElement: DIElement = pstate.thisElement
+    val priorInfosetLastChild = pstate.infosetLastChild
+    val priorElementState: DIElementSharedInterface =
+      if (priorElement.isSimple) DISimpleState() else DIComplexState()
+    if (maybePoU.isDefined) priorElementState.captureFrom(priorElement)
 
     var resultOfTry = parser.parseOne(pstate, roStatus, maybePoU)
 

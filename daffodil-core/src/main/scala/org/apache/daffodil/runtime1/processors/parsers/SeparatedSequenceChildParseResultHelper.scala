@@ -90,14 +90,6 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
    */
   def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser]
 
-  /**
-   * True only when this NonPositional behavior comes from
-   * dfdl:separatorSuppressionPolicy='anyEmpty' itself, not from an
-   * occursCountKind of 'parsed'/'stopValue', which produce the same
-   * NonPositional status codes for unrelated reasons. False by default.
-   */
-  def isAnyEmptySeparatorSuppressionPolicy: Boolean = false
-
   def computeFailedSeparatorParseAttemptStatus(
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
@@ -116,8 +108,7 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
     parser: SequenceChildParser,
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
-    priorSiblingResultOfTry: ParseAttemptStatus,
-    lastAttemptSeparatorWasFound: Boolean
+    priorSiblingResultOfTry: ParseAttemptStatus
   ): Unit = {
     sscb match {
       case PositionalNever =>
@@ -148,27 +139,6 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
               s"Non-trailing zero length occurrences (and their separator) may not be omitted when dfdl:separatorSuppressionPolicy='$sspName'"
             )
           case _ => // ok
-        }
-
-      case NonPositional if isAnyEmptySeparatorSuppressionPolicy =>
-        // dfdl:separatorSuppressionPolicy='anyEmpty' requires a zero length
-        // occurrence to also omit its separator; a separator found before
-        // zero length content violates that, unless this array's own final
-        // attempt is a multi-occurrence probe expected to fail.
-        val isBoundedToAtMostOne = parser match {
-          case rep: RepeatingChildParser => rep.maxRepeats(pstate) <= 1
-          case _ => true
-        }
-        if (
-          isBoundedToAtMostOne &&
-          lastAttemptSeparatorWasFound &&
-          ((resultOfTry eq ParseAttemptStatus.AbsentRep) ||
-            (resultOfTry eq ParseAttemptStatus.MissingItem))
-        ) {
-          parser.PE(
-            pstate,
-            "Zero length occurrences (and their separator) must be omitted when dfdl:separatorSuppressionPolicy='anyEmpty'"
-          )
         }
 
       case _ => // ok
@@ -251,7 +221,8 @@ trait PositionalLikeElementSeparatedSequenceChildParseResultMixin
   final override protected def anyTypeElementFailedParseAttemptStatus(
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus = {
     requiredOptional match {
       case _: RequiredOptionalStatus.Optional if isZL => {
@@ -354,8 +325,7 @@ class NonPositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val zeroLengthComplexTypeDelimiterScanner: Maybe[Parser],
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean,
-  override val isAnyEmptySeparatorSuppressionPolicy: Boolean
+  override val isEmptyRepNonZeroLength: Boolean
 ) extends RepElementSeparatedSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
 

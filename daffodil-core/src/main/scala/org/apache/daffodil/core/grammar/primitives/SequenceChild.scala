@@ -634,8 +634,7 @@ sealed abstract class RepElementSequenceChild(
           zls,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
-          ssp eq SeparatorSuppressionPolicy.AnyEmpty
+          isEmptyRepNonZeroLength
         )
     }
   }

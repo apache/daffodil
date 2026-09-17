@@ -161,6 +161,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         SeparatorParseStatus.SeparatorNotNeeded
 
     val prevBitPosBeforeChild = pstate.bitPos0b
+    val separatorWasFound = sepStatus eq SeparatorParseStatus.SeparatorFound
 
     sepStatus match {
       case _: SeparatorParseStatus.SeparatorSuccess => {
@@ -170,10 +171,25 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             scParser,
             prevBitPosBeforeChild,
             pstate,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound
           )
-        pstate.lastSeparatorWasFound = sepStatus eq SeparatorParseStatus.SeparatorFound
-        pas
+        val anotherSeparatorFollows = pstate.probeNonDestructively(sep)
+        pas match {
+          case ParseAttemptStatus.AbsentRep
+              if pstate.isFailure && 
+                separatorWasFound &&
+                (scParser.parseResultHelper.separatedSequenceChildBehavior eq
+                  SeparatedSequenceChildBehavior.NonPositional) &&
+                !anotherSeparatorFollows =>
+              // Only for NonPositional (anyEmpty): a failed, zero-length
+              // attempt whose separator isn't followed by another one isn't
+              // a genuine zero-length occurrence of this item; release it
+              // (via the usual MissingItem backtrack) for the next item to
+              // claim instead.
+              ParseAttemptStatus.MissingItem
+          case _ => pas
+        }
       }
       case _ => {
         requiredOptional match {
@@ -182,7 +198,6 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
           }
           case _ => // No action
         }
-        pstate.lastSeparatorWasFound = false
         scParser.parseResultHelper.computeFailedSeparatorParseAttemptStatus(
           scParser,
           prevBitPosBeforeChild,
@@ -264,13 +279,13 @@ final class PostfixSeparatorHelper(
           scParser,
           prevBitPosBeforeChild,
           pstate,
-          requiredOptional
+          requiredOptional,
+          separatorWasFound = false // separator not parsed yet at this point
         )
       sep.parse1(pstate)
       if (pstate.processorStatus eq Success) {
         // we got the postfix sep after successful parse of the data item
         // so whatever the status of the item was, that's the status overall.
-        pstate.lastSeparatorWasFound = true
         dataOnlyRep
       } else {
         // child successful, but no postfix sep found. Build the error while the
@@ -286,7 +301,6 @@ final class PostfixSeparatorHelper(
             pstate.resetToPointOfUncertainty(scopedPou.get)
             pstate.setFailed(sepFailure)
           }
-          pstate.lastSeparatorWasFound = false
           prh.computeFailedSeparatorParseAttemptStatus(
             scParser,
             prevBitPosBeforeChild,
@@ -335,9 +349,9 @@ final class PostfixSeparatorHelper(
             prevBitPosBeforeChild,
             pstate,
             hasZLChildAttempt,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound = true
           )
-          pstate.lastSeparatorWasFound = true
           // For non-positional (anyEmpty) sequences, the child result helper returns
           // MissingItem for optional ZL elements; since the postfix separator WAS
           // found, a non-array element is AbsentRep per DFDL spec 9.2.4.
@@ -360,7 +374,6 @@ final class PostfixSeparatorHelper(
           // the separator failed on ZL data
           // so no chance on a ZL representation here.
           val isZL = false
-          pstate.lastSeparatorWasFound = false
           prh.computeFailedSeparatorParseAttemptStatus(
             scParser,
             prevBitPosBeforeChild,
@@ -375,13 +388,13 @@ final class PostfixSeparatorHelper(
         // makes sense (ex: the child could be failing because it is fixed
         // length, with asserts that check the value that fail.)
         val isZL = false
-        pstate.lastSeparatorWasFound = false
         prh.computeFailedParseAttemptStatus(
           scParser,
           prevBitPosBeforeChild,
           pstate,
           isZL,
-          requiredOptional
+          requiredOptional,
+          separatorWasFound = false
         )
       }
     }

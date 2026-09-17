@@ -68,10 +68,14 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_never_15 = test
   @Test def test_sep_ssp_never_16 = test
 
-  @Test def test_sep_ssp_any_1 = test
+  @Test def test_sep_ssp_any_1 = trace
   @Test def test_sep_ssp_any_2 = test
   @Test def test_sep_ssp_any_3 = test
   @Test def test_sep_ssp_any_4 = test
+  @Test def test_sep_ssp_any_5 = test
+  @Test def test_sep_ssp_any_6 = test
+  @Test def test_sep_ssp_any_7 = test
+  @Test def test_sep_ssp_any_8 = test
 
   @Test def test_sep_ssp_strict_1 = test
   @Test def test_sep_ssp_strict_2 = test

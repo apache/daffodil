@@ -183,13 +183,6 @@ final class PState private (
   def output = walker.outputter
 
   /**
-   * Whether a separator was actually found for the most recent separated
-   * sequence child attempt. Not tracked across backtracking, so callers
-   * must read it immediately, before any subsequent attempt overwrites it.
-   */
-  var lastSeparatorWasFound: Boolean = false
-
-  /**
    * This stack is used to track points of uncertainty during a parse. When a
    * parser determines a PoU should exist, it should call withPointOfUncertainty
    * to create a new PoU (represented by a Mark) and perform all the logic that
@@ -298,6 +291,25 @@ final class PState private (
   def bitPos0b = dataInputStream.bitPos0b
   def bitLimit0b = dataInputStream.bitLimit0b
   //  def charLimit = inStream.charLimit0b
+
+  /**
+   * Runs parser as a peek: forces success, lets it run, then unconditionally
+   * restores bit position, processor status, and diagnostics to what they
+   * were beforehand, regardless of what parser did. Returns whether it
+   * succeeded.
+   */
+  def probeNonDestructively(parser: Parser): Boolean = {
+    val savedBitPos = bitPos0b
+    val savedStatus = processorStatus
+    val savedDiagnostics = diagnostics
+    setSuccess()
+    parser.parse1(this)
+    val found = isSuccess
+    dataInputStream.setBitPos0b(savedBitPos)
+    _processorStatus = savedStatus
+    diagnostics = savedDiagnostics
+    found
+  }
 
   def simpleElement: DISimple = {
     val res = infoset match {
