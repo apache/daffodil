@@ -266,12 +266,12 @@ abstract class ModelGroup protected (index: Int)
   requiredEvaluationsIfActivated(initiatedContentCheck)
 
   /**
-   * FIXME: DAFFODIL-2132. This tells us if framing is expressed on the schema.
-   * It does NOT tell us if that framing occupies bits in the data stream or not.
+   * True if this group has framing that occupies bits in the data stream. A
+   * question about the data, not the schema: a %ES; delimiter is written down
+   * but matches nothing, so it is not framing.
    */
   final lazy val hasFraming =
-    hasInitiator ||
-      hasTerminator ||
+    isKnownNonZeroLengthDelimiters ||
       !hasNoSkipRegions
 
   final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
@@ -499,8 +499,8 @@ abstract class ModelGroup protected (index: Int)
           term.hasInitiator,
           "Enclosing group has initiatedContent='yes', but initiator is not defined."
         )
-        term.schemaDefinitionUnless(
-          term.hasNonZeroLengthInitiator,
+        term.schemaDefinitionWhen(
+          term.hasZeroLengthEntityAloneInInitiator,
           "Enclosing group has initiatedContent='yes', but initiator can match zero-length data."
         )
       }

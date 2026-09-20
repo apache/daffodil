@@ -1022,4 +1022,118 @@
       <tdml:error>zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="possibleZeroLenEntityInitiator">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="possibleZeroLenEntityWithInitiatedContentYes">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="P %ES;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nonZeroLenInitiatorListWithInitiatedContentYes">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="P Q" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="multiplePossibleZeroLenEntitiesWithInitiatedContentYes">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="%WSP*;%WSP*;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="possibleZeroLenEntityWithInitiatedContentNo">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="P %ES;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nonZeroLenInitiatorWithInitiatedContentYes">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="yes">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="P" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="possibleZeroLenEntityWithInitiatedContentYes"
+                       model="possibleZeroLenEntityInitiator"
+                       description="An initiator list with '%ES;' alone as one of its literals causes an error"
+                       root="possibleZeroLenEntityWithInitiatedContentYes">
+    <tdml:document><![CDATA[Pfoo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+      <tdml:error>yes</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>zero</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nonZeroLenInitiatorListWithInitiatedContentYes"
+                       model="possibleZeroLenEntityInitiator"
+                       description="Control. An initiator list with no zero-length-matching literal is fine"
+                       root="nonZeroLenInitiatorListWithInitiatedContentYes">
+    <tdml:document><![CDATA[Pfoo]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonZeroLenInitiatorListWithInitiatedContentYes>
+          <s1>foo</s1>
+        </nonZeroLenInitiatorListWithInitiatedContentYes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="multiplePossibleZeroLenEntitiesWithInitiatedContentYes"
+                       model="possibleZeroLenEntityInitiator"
+                       description="An initiator literal of only zero-width entities is not restricted by section 12.2, so it is caught at runtime instead of statically"
+                       root="multiplePossibleZeroLenEntitiesWithInitiatedContentYes">
+    <tdml:document><![CDATA[foo]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>initiator</tdml:error>
+      <tdml:error>non-zero length</tdml:error>
+      <tdml:error>initiatedContent</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="possibleZeroLenEntityWithInitiatedContentNo"
+                       model="possibleZeroLenEntityInitiator"
+                       description="Migration. Keeping '%ES;' in the list is allowed once dfdl:initiatedContent is 'no'"
+                       root="possibleZeroLenEntityWithInitiatedContentNo">
+    <tdml:document><![CDATA[Pfoo]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <possibleZeroLenEntityWithInitiatedContentNo>
+          <s1>foo</s1>
+        </possibleZeroLenEntityWithInitiatedContentNo>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nonZeroLenInitiatorWithInitiatedContentYes"
+                       model="possibleZeroLenEntityInitiator"
+                       description="Migration. Dropping the zero-length alternative leaves a valid initiated-content schema"
+                       root="nonZeroLenInitiatorWithInitiatedContentYes">
+    <tdml:document><![CDATA[Pfoo]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonZeroLenInitiatorWithInitiatedContentYes>
+          <s1>foo</s1>
+        </nonZeroLenInitiatorWithInitiatedContentYes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 </tdml:testSuite>

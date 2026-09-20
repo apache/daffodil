@@ -247,18 +247,6 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
         case mg if mg.isPotentiallyTrailing => (true, false)
         case mg => {
           val hasSyntax = mg.hasKnownRequiredSyntax
-          //
-          // This is coming out incorrect in one case
-          // (a) the format has a terminator which is an expression
-          // (b) the expression evaluates to say, %WSP*; or %ES; based on looking at other infoset information.
-          // (c) that delimiter matches zero length
-          // (d) the lengthKind is NOT delimited. So we're not scanning for this.
-          // This comes up in mil-std-2045 and other formats which have an optional
-          // final terminator after a string having lengthKind 'pattern'.
-          // In that case, hasKnownRequiredSyntax is incorrect.
-          //
-          // Bug DAFFODIL-2132 is why this is incorrect in the above case.
-          //
           (!hasSyntax, hasSyntax)
         }
       }
@@ -275,7 +263,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
     val res: (Boolean, Boolean) = childElement match {
       case _ if !childElement.isRepresented => (false, false)
       case eb if eb.isComplexType => {
-        val canBeZL = !eb.hasDelimiters &&
+        val canBeZL = !eb.isKnownNonZeroLengthDelimiters &&
           !eb.complexType.modelGroup.hasKnownRequiredSyntax
         (canBeZL, false)
       }
