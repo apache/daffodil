@@ -274,6 +274,14 @@ class DelimiterStackUnparser(
 ) extends CombinatorUnparser(ctxt)
   with WriteUnparser {
 
+  // Hoisted once per instance rather than passed as `pushDelimiterScope`/
+  // `bodyUnparser.unparse1` at each call site: an eta-expansion of an
+  // instance method (or one of its fields) closes over `this`, so it
+  // allocates a fresh closure on every call otherwise, and both
+  // writeContent and unparse run once per matching element in the infoset.
+  private val funcPushDelimiterScope: UState => Unit = pushDelimiterScope
+  private val funcBodyUnparserUnparse1: UState => Unit = bodyUnparser.unparse1
+
   /**
    * Pushes the delimiter scope, recurses into the body, and pops only
    * once the body's own writeContent (if any) returns, since a pending
@@ -284,7 +292,7 @@ class DelimiterStackUnparser(
       containerNode,
       bodyUnparser,
       state,
-      setup = pushDelimiterScope,
+      setup = funcPushDelimiterScope,
       teardown = (state, _) => state.popDelimiters()
     )
   override def nom = "DelimiterStack"
@@ -307,8 +315,8 @@ class DelimiterStackUnparser(
   def unparse(state: UState): Unit =
     withPushPop(
       state,
-      setup = pushDelimiterScope,
-      dispatch = bodyUnparser.unparse1,
+      setup = funcPushDelimiterScope,
+      dispatch = funcBodyUnparserUnparse1,
       teardown = (state, _) => state.popDelimiters()
     )
 
@@ -338,6 +346,16 @@ class DynamicEscapeSchemeUnparser(
 
   override val runtimeDependencies = Array(escapeScheme)
 
+  // Hoisted once per instance rather than passed at each call site: an
+  // eta-expansion of an instance method, or a lambda referencing an
+  // instance field like `escapeScheme`, closes over `this`, so it
+  // allocates a fresh closure on every call otherwise, and both
+  // writeContent and unparse run once per matching element in the infoset.
+  private val funcCacheEscapeScheme: UState => Unit = cacheEscapeScheme
+  private val funcBodyUnparserUnparse1: UState => Unit = bodyUnparser.unparse1
+  private val funcInvalidateCache: (UState, Unit) => Unit =
+    (state, _) => escapeScheme.invalidateCache(state)
+
   /**
    * Caches the escape scheme, recurses into the body, and invalidates
    * the cache only once the body's own writeContent (if any) returns,
@@ -348,16 +366,16 @@ class DynamicEscapeSchemeUnparser(
       containerNode,
       bodyUnparser,
       state,
-      setup = cacheEscapeScheme,
-      teardown = (state, _) => escapeScheme.invalidateCache(state)
+      setup = funcCacheEscapeScheme,
+      teardown = funcInvalidateCache
     )
 
   def unparse(state: UState): Unit =
     withPushPop(
       state,
-      setup = cacheEscapeScheme,
-      dispatch = bodyUnparser.unparse1,
-      teardown = (state, _) => escapeScheme.invalidateCache(state)
+      setup = funcCacheEscapeScheme,
+      dispatch = funcBodyUnparserUnparse1,
+      teardown = funcInvalidateCache
     )
 
   // Evaluates the dynamic escape scheme in the correct scope; the result is

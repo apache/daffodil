@@ -71,11 +71,18 @@ final class SpecifiedLengthExplicitImplicitUnparser(
     }
   }
 
+  // Hoisted once per instance rather than passed at each call site below:
+  // an eta-expansion of an instance method (or field) closes over `this`,
+  // so it allocates a fresh closure on every call otherwise, and both
+  // writeContent and unparse run once per matching element in the infoset.
+  private val funcCheckVariableWidthComplexType: UState => Unit = checkVariableWidthComplexType
+  private val funcEUnparserUnparse1: UState => Unit = eUnparser.unparse1
+
   override final def unparse(state: UState): Unit =
     withPushPop(
       state,
-      setup = checkVariableWidthComplexType,
-      dispatch = eUnparser.unparse1,
+      setup = funcCheckVariableWidthComplexType,
+      dispatch = funcEUnparserUnparse1,
       teardown = (_, _) => ()
     )
 
@@ -88,7 +95,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
       containerNode,
       eUnparser,
       state,
-      setup = checkVariableWidthComplexType,
+      setup = funcCheckVariableWidthComplexType,
       teardown = (_, _) => ()
     )
 }
@@ -167,14 +174,26 @@ class SpecifiedLengthPrefixedUnparser(
 
   override def childProcessors = Vector(prefixedLengthUnparser, eUnparser)
 
+  // Hoisted once per instance rather than passed at the unparse() call
+  // site below: an eta-expansion of an instance method (or field) closes
+  // over `this`, so it allocates a fresh closure on every call otherwise,
+  // and unparse runs once per matching element in the infoset.
+  // writeContent's own setup/teardown below are NOT hoisted the same way:
+  // its teardown also captures containerNode, a per-call parameter, so a
+  // fresh closure there is unavoidable regardless.
+  private val funcPushDetachedPrefixLengthElement: UState => DISimple =
+    pushDetachedPrefixLengthElement
+  private val funcEUnparserUnparse1: UState => Unit = eUnparser.unparse1
+  private val funcUnparseTeardown: (UState, DISimple) => Unit = { (state, plElem) =>
+    resolvePrefixLength(state, state.currentInfosetNode.asInstanceOf[DIElement], plElem)
+  }
+
   override def unparse(state: UState): Unit =
     withPushPop(
       state,
-      setup = pushDetachedPrefixLengthElement,
-      dispatch = eUnparser.unparse1,
-      teardown = { (state, plElem) =>
-        resolvePrefixLength(state, state.currentInfosetNode.asInstanceOf[DIElement], plElem)
-      }
+      setup = funcPushDetachedPrefixLengthElement,
+      dispatch = funcEUnparserUnparse1,
+      teardown = funcUnparseTeardown
     )
 
   // Without this, WriteUnparser dispatch (a plain recursive-dispatch
@@ -186,7 +205,7 @@ class SpecifiedLengthPrefixedUnparser(
       containerNode,
       eUnparser,
       state,
-      setup = pushDetachedPrefixLengthElement,
+      setup = funcPushDetachedPrefixLengthElement,
       teardown = { (state, plElem) =>
         // resolvePrefixLength (via assignPrefixLength/suspension.run)
         // expects state.processor to already be set, normally done by

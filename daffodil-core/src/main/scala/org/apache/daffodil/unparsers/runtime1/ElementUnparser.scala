@@ -235,6 +235,28 @@ sealed abstract class ElementUnparserBase(
     dispatchContentUnparser(state)
   }
 
+  // Hoisted once per instance rather than passed inline at the unparse()
+  // call site below: a closure referencing instance fields/methods (erd,
+  // runContentUnparser) closes over `this`, so it allocates a fresh
+  // closure on every call otherwise, and unparse runs once per matching
+  // element in the infoset. writeContent's own dispatch closure is not
+  // hoisted the same way: it also captures containerNode, a per-call
+  // parameter, so a fresh closure there is unavoidable regardless.
+  private val funcUnparseDispatch: UState => Unit = { s =>
+    // We must push the TermRuntimeData for all model-groups, starting
+    // from the complex type's model-group; simple types have none to
+    // push. Only unparse's own event-driven dispatch needs this:
+    // nextElement, its sole reader, resolves a raw event's tag name
+    // against it, and writeContent never consumes events at all.
+    if (erd.isComplexType)
+      s.pushTRD(erd.optComplexTypeModelGroupRuntimeData.get)
+
+    runContentUnparser(s)
+
+    if (erd.isComplexType)
+      s.popTRD(erd.optComplexTypeModelGroupRuntimeData.get)
+  }
+
   /**
    * The steps identical whether reached via writeContent's already-built
    * containerNode or unparse's own event-consuming attach: before-content,
@@ -312,23 +334,7 @@ sealed abstract class ElementUnparserBase(
 
     unparseBegin(state)
 
-    runElementContent(
-      state,
-      dispatch = { s =>
-        // We must push the TermRuntimeData for all model-groups, starting
-        // from the complex type's model-group; simple types have none to
-        // push. Only unparse's own event-driven dispatch needs this:
-        // nextElement, its sole reader, resolves a raw event's tag name
-        // against it, and writeContent never consumes events at all.
-        if (erd.isComplexType)
-          s.pushTRD(erd.optComplexTypeModelGroupRuntimeData.get)
-
-        runContentUnparser(s)
-
-        if (erd.isComplexType)
-          s.popTRD(erd.optComplexTypeModelGroupRuntimeData.get)
-      }
-    )
+    runElementContent(state, dispatch = funcUnparseDispatch)
 
     unparseEnd(state, isBuild = false)
 

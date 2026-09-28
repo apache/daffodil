@@ -35,6 +35,13 @@ class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: U
 
   override val runtimeDependencies = Array()
 
+  // Hoisted once per instance rather than passed as `bodyUnparser.unparse1`
+  // at the unparse() call site below: an eta-expansion of an instance
+  // field's method closes over `this`, so it allocates a fresh closure on
+  // every call otherwise, and unparse runs once per matching element in
+  // the infoset.
+  private val funcBodyUnparserUnparse1: UState => Unit = bodyUnparser.unparse1
+
   // The hidden-depth counter must stay incremented across any pauses, since
   // anything the body writes needs it (e.g. choice-branch resolution
   // branches on state.withinHiddenNest, and RepType conversion asserts
@@ -52,7 +59,7 @@ class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: U
     withPushPop(
       start,
       setup = _.incrementHiddenDef(),
-      dispatch = bodyUnparser.unparse1,
+      dispatch = funcBodyUnparserUnparse1,
       teardown = (start, _) => start.decrementHiddenDef()
     )
 }
