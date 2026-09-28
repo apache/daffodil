@@ -71,10 +71,13 @@ final class SpecifiedLengthExplicitImplicitUnparser(
     }
   }
 
-  override final def unparse(state: UState): Unit = {
-    checkVariableWidthComplexType(state)
-    eUnparser.unparse1(state)
-  }
+  override final def unparse(state: UState): Unit =
+    withPushPop(
+      state,
+      setup = checkVariableWidthComplexType,
+      dispatch = eUnparser.unparse1,
+      teardown = (_, _) => ()
+    )
 
   // Without this, a SeqCompUnparser wrapping this class would treat
   // eUnparser as a synchronous call via its generic fallback, but
@@ -164,11 +167,15 @@ class SpecifiedLengthPrefixedUnparser(
 
   override def childProcessors = Vector(prefixedLengthUnparser, eUnparser)
 
-  override def unparse(state: UState): Unit = {
-    val plElem = pushDetachedPrefixLengthElement(state)
-    eUnparser.unparse1(state)
-    resolvePrefixLength(state, state.currentInfosetNode.asInstanceOf[DIElement], plElem)
-  }
+  override def unparse(state: UState): Unit =
+    withPushPop(
+      state,
+      setup = pushDetachedPrefixLengthElement,
+      dispatch = eUnparser.unparse1,
+      teardown = { (state, plElem) =>
+        resolvePrefixLength(state, state.currentInfosetNode.asInstanceOf[DIElement], plElem)
+      }
+    )
 
   // Without this, WriteUnparser dispatch (a plain recursive-dispatch
   // fallback for a group-wrapped eUnparser) would call eUnparser.unparse1

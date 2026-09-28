@@ -236,6 +236,22 @@ sealed abstract class ElementUnparserBase(
   }
 
   /**
+   * The steps identical whether reached via writeContent's already-built
+   * containerNode or unparse's own event-consuming attach: before-content,
+   * the content dispatch itself, after-content, and setVariables. dispatch
+   * abstracts writeContent's WriteUnparser-bypass check (needed to reach a
+   * nested group's own writeContent) from unparse's plain, purely
+   * event-driven runContentUnparser.
+   */
+  private[runtime1] def runElementContent(state: UState, dispatch: UState => Unit): Unit = {
+    captureRuntimeValuedExpressionValues(state)
+    doBeforeContentUnparser(state)
+    dispatch(state)
+    doAfterContentUnparser(state)
+    computeSetVariables(state)
+  }
+
+  /**
    * Writes this element's content against an already-built
    * `containerNode`, without consuming any InfosetInputter events:
    * dispatches to whatever `eUnparser` turns out to be, a group
@@ -245,36 +261,26 @@ sealed abstract class ElementUnparserBase(
     state.currentInfosetNodeStack.push(One(containerNode))
     state.childIndexStack.push(0L)
     try {
-      // writeContent is only ever called from write's side, so this and
-      // computeSetVariables below always run here, at write's own
-      // document-order position.
-      captureRuntimeValuedExpressionValues(state)
-      doBeforeContentUnparser(state)
       // contentSetup can suspend, and suspending reads state.processor.
       // That's normally set by the ordinary unparse dispatch, which this
       // call bypasses entirely, so it's set explicitly here to match.
       state.setProcessor(this)
-      // Must run before the dispatch below: a group-wrapped eUnparser
-      // (delimiter stack, escape scheme, specified-length prefix)
-      // delegates straight to its own writeContent and never reaches
-      // dispatchContentUnparser, which would otherwise run this instead.
-      contentSetup(state)
-      // eReptypeUnparser takes priority here too, matching
-      // dispatchContentUnparser: a repType'd element's raw eUnparser can
-      // itself be group-wrapped, and without this check would wrongly
-      // delegate to that raw content instead of converting via repType.
-      eUnparser.toOption match {
-        case Some(wu: WriteUnparser) if eReptypeUnparser.isEmpty =>
-          wu.writeContent(containerNode, state)
-        case _ =>
-          dispatchContentUnparser(state)
-      }
-      // The after-content (padding/fill) region depends on the content
-      // having been written, so it must run only once the (possibly
-      // nested) content dispatch above has fully returned; true for both
-      // the simple-element and group-content cases.
-      doAfterContentUnparser(state)
-      computeSetVariables(state)
+      runElementContent(
+        state,
+        dispatch = { s =>
+          contentSetup(s)
+          // eReptypeUnparser takes priority here too, matching
+          // dispatchContentUnparser: a repType'd element's raw eUnparser can
+          // itself be group-wrapped, and without this check would wrongly
+          // delegate to that raw content instead of converting via repType.
+          eUnparser.toOption match {
+            case Some(wu: WriteUnparser) if eReptypeUnparser.isEmpty =>
+              wu.writeContent(containerNode, s)
+            case _ =>
+              dispatchContentUnparser(s)
+          }
+        }
+      )
       // Only a simple node needs finalizing here (complex/array nodes were
       // already finalized in build's unparseEnd; re-finalizing trips
       // setFinal()'s !isFinal assert). An OVC node may still be valueless
@@ -306,23 +312,23 @@ sealed abstract class ElementUnparserBase(
 
     unparseBegin(state)
 
-    captureRuntimeValuedExpressionValues(state)
+    runElementContent(
+      state,
+      dispatch = { s =>
+        // We must push the TermRuntimeData for all model-groups, starting
+        // from the complex type's model-group; simple types have none to
+        // push. Only unparse's own event-driven dispatch needs this:
+        // nextElement, its sole reader, resolves a raw event's tag name
+        // against it, and writeContent never consumes events at all.
+        if (erd.isComplexType)
+          s.pushTRD(erd.optComplexTypeModelGroupRuntimeData.get)
 
-    doBeforeContentUnparser(state)
+        runContentUnparser(s)
 
-    // We must push the TermRuntimeData for all model-groups, starting from
-    // the complex type's model-group; simple types have none to push.
-    if (erd.isComplexType)
-      state.pushTRD(erd.optComplexTypeModelGroupRuntimeData.get)
-
-    runContentUnparser(state)
-
-    if (erd.isComplexType)
-      state.popTRD(erd.optComplexTypeModelGroupRuntimeData.get)
-
-    doAfterContentUnparser(state)
-
-    computeSetVariables(state)
+        if (erd.isComplexType)
+          s.popTRD(erd.optComplexTypeModelGroupRuntimeData.get)
+      }
+    )
 
     unparseEnd(state, isBuild = false)
 

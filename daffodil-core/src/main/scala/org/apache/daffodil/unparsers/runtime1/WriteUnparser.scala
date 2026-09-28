@@ -34,31 +34,47 @@ trait WriteUnparser {
   // needed child exists and is ready, then resumes where it left off.
   def writeContent(containerNode: DINode, state: UState): Unit
 
-  // Shared push-once/pop-once skeleton: setup runs before recursing into
-  // bodyUnparser (dispatched to writeContent if it's a WriteUnparser, else
-  // plain unparse1), teardown runs once that call returns with setup's
-  // result (e.g. threading a detached element from setup to teardown).
+  // Shared push-once/pop-once skeleton, used by both unparse() and
+  // writeContent() implementations that need one: setup runs before
+  // dispatch, teardown runs once dispatch returns (even on exception,
+  // e.g. a stall caught higher up and followed by finishWriteSide's
+  // invariant checks against this same state) with setup's result
+  // threaded through (e.g. a detached element from setup to teardown).
+  protected def withPushPop[A](
+    state: UState,
+    setup: UState => A,
+    dispatch: UState => Unit,
+    teardown: (UState, A) => Unit
+  ): Unit = {
+    val setupResult = setup(state)
+    try {
+      dispatch(state)
+    } finally {
+      teardown(state, setupResult)
+    }
+  }
+
+  // withPushPop specialized for writeContent's own dispatch: bodyUnparser
+  // is dispatched to writeContent if it's a WriteUnparser, else plain
+  // unparse1.
   protected def writeWithPushPop[A](
     containerNode: DINode,
     bodyUnparser: Unparser,
     state: UState,
     setup: UState => A,
     teardown: (UState, A) => Unit
-  ): Unit = {
-    val setupResult = setup(state)
-    // Unlike single-pass unparse(), a stall here is caught higher up and
-    // followed by finishWriteSide's invariant checks against this same
-    // state, so teardown must still run, or those checks fail for an
-    // unrelated reason.
-    try {
-      bodyUnparser match {
-        case wu: WriteUnparser => wu.writeContent(containerNode, state)
-        case _ => bodyUnparser.unparse1(state)
-      }
-    } finally {
-      teardown(state, setupResult)
-    }
-  }
+  ): Unit =
+    withPushPop(
+      state,
+      setup = setup,
+      dispatch = { s =>
+        bodyUnparser match {
+          case wu: WriteUnparser => wu.writeContent(containerNode, s)
+          case _ => bodyUnparser.unparse1(s)
+        }
+      },
+      teardown = teardown
+    )
 
   /**
    * `writeWithPushPop` for a combinator with nothing to push or pop; just
@@ -73,7 +89,7 @@ trait WriteUnparser {
       containerNode,
       bodyUnparser,
       state,
-      (_: UState) => (),
-      (_: UState, _: Unit) => ()
+      setup = (_: UState) => (),
+      teardown = (_: UState, _: Unit) => ()
     )
 }

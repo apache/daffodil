@@ -304,14 +304,13 @@ class DelimiterStackUnparser(
   override val runtimeDependencies =
     (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toArray
 
-  def unparse(state: UState): Unit = {
-    pushDelimiterScope(state)
-    try {
-      bodyUnparser.unparse1(state)
-    } finally {
-      state.popDelimiters()
-    }
-  }
+  def unparse(state: UState): Unit =
+    withPushPop(
+      state,
+      setup = pushDelimiterScope,
+      dispatch = bodyUnparser.unparse1,
+      teardown = (state, _) => state.popDelimiters()
+    )
 
   private def pushDelimiterScope(state: UState): Unit = {
     val init =
@@ -353,14 +352,13 @@ class DynamicEscapeSchemeUnparser(
       teardown = (state, _) => escapeScheme.invalidateCache(state)
     )
 
-  def unparse(state: UState): Unit = {
-    cacheEscapeScheme(state)
-    try {
-      bodyUnparser.unparse1(state)
-    } finally {
-      escapeScheme.invalidateCache(state)
-    }
-  }
+  def unparse(state: UState): Unit =
+    withPushPop(
+      state,
+      setup = cacheEscapeScheme,
+      dispatch = bodyUnparser.unparse1,
+      teardown = (state, _) => escapeScheme.invalidateCache(state)
+    )
 
   // Evaluates the dynamic escape scheme in the correct scope; the result is
   // cached in the Evaluatable (since it is manually cached), so future

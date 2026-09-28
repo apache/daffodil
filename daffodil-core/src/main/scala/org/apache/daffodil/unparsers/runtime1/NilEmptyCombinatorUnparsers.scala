@@ -60,25 +60,18 @@ case class ComplexNilOrContentUnparser(
 
   override def childProcessors = Vector(nilUnparser, contentUnparser)
 
+  private def chooseBodyUnparser(node: DINode): Unparser =
+    if (node.asComplex.isNilled) nilUnparser else contentUnparser
+
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
-    val inode = state.currentInfosetNode.asComplex
-    if (inode.isNilled)
-      nilUnparser.unparse1(state)
-    else
-      contentUnparser.unparse1(state)
+    chooseBodyUnparser(state.currentInfosetNode).unparse1(state)
   }
 
   // Without this override, WriteUnparser dispatch would call
   // contentUnparser.unparse1 synchronously on write's state, but it can
   // itself be a resumable group unparser expecting live InfosetInputter
   // events that don't exist yet (see SpecifiedLengthExplicitImplicitUnparser).
-  override def writeContent(containerNode: DINode, state: UState): Unit = {
-    val bodyUnparser = if (containerNode.asComplex.isNilled) {
-      nilUnparser
-    } else {
-      contentUnparser
-    }
-    writeWithPushPop(containerNode, bodyUnparser, state)
-  }
+  override def writeContent(containerNode: DINode, state: UState): Unit =
+    writeWithPushPop(containerNode, chooseBodyUnparser(containerNode), state)
 }
