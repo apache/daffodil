@@ -21,10 +21,12 @@ import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.parsers.{ Parser as DaffodilParser, * }
+import org.apache.daffodil.runtime1.processors.unparsers.Builder
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser as DaffodilUnparser
 import org.apache.daffodil.unparsers.runtime1.*
 
@@ -55,6 +57,10 @@ case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram)
 
   override lazy val unparser: DaffodilUnparser =
     new DelimiterStackUnparser(uInit, uSep, uTerm, sq.termRuntimeData, body.unparser)
+
+  // Delimiters are write-only content; the builder tree skips straight to
+  // whatever this sequence's body itself builds, if anything.
+  override lazy val builder: Maybe[Builder] = body.builder
 }
 
 case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram)
@@ -77,6 +83,10 @@ case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram)
 
   override lazy val unparser: DaffodilUnparser =
     new DelimiterStackUnparser(uInit, None, uTerm, ch.termRuntimeData, body.unparser)
+
+  // Delimiters are write-only content; the builder tree skips straight to
+  // whatever this choice's body itself builds, if anything.
+  override lazy val builder: Maybe[Builder] = body.builder
 }
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram)
@@ -111,6 +121,10 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram)
     if (u.isEmpty) u
     else new DelimiterStackUnparser(uInit, None, uTerm, e.termRuntimeData, u)
   }
+
+  // Delimiters are write-only content; the builder tree skips straight to
+  // whatever this element's body itself builds, if anything.
+  override lazy val builder: Maybe[Builder] = body.builder
 }
 
 case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram)
@@ -135,4 +149,9 @@ case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram)
     if (u.isEmpty || schemeUnparseIsConstant) u
     else new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.termRuntimeData, u)
   }
+
+  // The escape scheme only governs delimiter matching in written bytes; the
+  // builder tree skips straight to whatever this element's body itself
+  // builds, if anything.
+  override lazy val builder: Maybe[Builder] = body.builder
 }

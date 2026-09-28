@@ -19,6 +19,7 @@ package org.apache.daffodil.unparsers.runtime1
 
 import scala.jdk.CollectionConverters.*
 
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeInt
@@ -78,12 +79,123 @@ class ChoiceCombinatorUnparser(
   choiceBranchMap: ChoiceBranchMap,
   choiceLengthInBits: MaybeInt
 ) extends CombinatorUnparser(mgrd)
-  with ToBriefXMLImpl {
+  with ToBriefXMLImpl
+  with WriteUnparser {
   override def nom = "Choice"
 
   override val runtimeDependencies = Array()
 
   override def childProcessors = choiceBranchMap.childProcessors
+
+  /**
+   * Resolves which branch an already-built child belongs to by keying off
+   * the child's element identity, blocking until that's known, then
+   * recurses into the resolved branch. Self-manages advancing/freeing its
+   * own resolved tree-child position, and applies the same choice-length
+   * filling as the structural pass. Covers the visible-choice path only;
+   * the hidden-choice default branch is handled separately below.
+   */
+  override def writeContent(containerNode: DINode, state: UState): Unit = {
+    val sharedCtx = state.sharedContext.get
+    val complex = containerNode.asComplex
+    val childIndex = state.childIndexStack.top.toInt
+
+    val (maybeChildUnparser, resolvedChildIndex): (Maybe[Unparser], Int) =
+      if (state.withinHiddenNest) {
+        // A hidden choice's branch is always the single deterministic
+        // default one (DFDL requires its outcome to be schema-determined,
+        // not data-driven), so no key/event peek is needed. The tree child at this position, if any, IS this default branch's own content, not something to skip past.
+        val idx = if (sharedCtx.childExistsOrFinal(complex, childIndex)) {
+          childIndex
+        } else {
+          -1
+        }
+        (Maybe.toMaybe(choiceBranchMap.defaultUnparser), idx)
+      } else {
+        // Hidden elements never produce infoset events, so the branch
+        // lookup keys are built from the first represented child. Build
+        // still materializes a branch's leading hidden group as actual
+        // tree children, so skip past those first.
+        var idx = childIndex
+        while (sharedCtx.childExistsOrFinal(complex, idx) && complex.child(idx).isHidden) {
+          idx += 1
+        }
+        if (idx >= complex.numChildren) {
+          // Build is done and no child ever showed up: the choice resolved
+          // to a branch with no infoset footprint at all (e.g. an empty
+          // sequence, or an absent defaultable element); fall back to the
+          // default/unmapped branch.
+          (Maybe.toMaybe(choiceBranchMap.defaultUnparser), -1)
+        } else {
+          val child = sharedCtx.awaitChild(complex, idx)
+          val key: ChoiceBranchEvent = ChoiceBranchStartEvent(child.erd.namedQName)
+          val fromTable = choiceBranchMap.lookupTable.get(key)
+          if (fromTable != null) {
+            // An actual match; this tree position genuinely belongs to this
+            // choice.
+            (One(fromTable), idx)
+          } else {
+            // No branch key matches this child, so it must belong to a
+            // sibling term after this choice: this choice resolved to a
+            // branch with no infoset footprint here and consumes no
+            // tree position.
+            (Maybe.toMaybe(choiceBranchMap.defaultUnparser), -1)
+          }
+        }
+      }
+    if (maybeChildUnparser.isEmpty) {
+      // A real UnparseError, not an internal assertion: a choice with no
+      // default and no match for what's actually in the tree is
+      // malformed input, not an invariant violation.
+      UnparseError(
+        One(mgrd.schemaFileLocation),
+        One(state.currentLocation),
+        "No matching or default choice branch found."
+      )
+    }
+    val child = if (resolvedChildIndex >= 0) {
+      complex.child(resolvedChildIndex)
+    } else {
+      // A resumable group or ChoiceBranchEmptyUnparser needs no tree child,
+      // so null is fine, but the unmapped default can also be a bare
+      // ElementUnparserBase, which DOES need one: writeContent(null, state)
+      // on that would NPE deep inside it instead of failing clearly here.
+      if (maybeChildUnparser.get.isInstanceOf[ElementUnparserBase]) {
+        Assert.invariantFailed(
+          "Choice resolved to a simple-element default branch with no resolved tree position."
+        )
+      }
+      null
+    }
+
+    // True when the resolved branch is itself a resumable group, whose own
+    // dispatch already advances/frees its tree positions; this choice must
+    // not also advance/free then, or it double-advances past the branch's
+    // last child, skipping the following sibling term.
+    var innerSelfManagesPosition = false
+    withChoiceLengthFiller(state) {
+      maybeChildUnparser.get match {
+        case elemUnp: ElementUnparserBase => elemUnp.writeContent(child, state)
+        case wu: WriteUnparser =>
+          innerSelfManagesPosition = true
+          wu.writeContent(containerNode, state)
+        case emptyUnp: ChoiceBranchEmptyUnparser =>
+          // A branch that optimized to nothing (e.g. a sequence containing
+          // only an assert); runs its (no-op) unparse, same as any other
+          // synchronous branch.
+          emptyUnp.unparse1(state)
+        case other =>
+          Assert.usageError(s"unhandled choice branch unparser type: $other")
+      }
+    }
+
+    // Nothing to advance/free when the branch had no infoset footprint
+    // (resolvedChildIndex == -1), nor when it's itself a resumable group (innerSelfManagesPosition), which already did so for its own positions.
+    if (resolvedChildIndex >= 0 && !innerSelfManagesPosition) {
+      state.moveOverOneElementChildOnly()
+      complex.freeChildIfNoLongerNeeded(resolvedChildIndex, state.releaseUnneededInfoset)
+    }
+  }
 
   def unparse(state: UState): Unit = {
     if (state.withinHiddenNest) {
@@ -121,20 +233,34 @@ class ChoiceCombinatorUnparser(
       val childUnparser = maybeChildUnparser.get
       state.popTRD(mgrd)
       state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
-      if (choiceLengthInBits.isDefined) {
-        val suspendableOp =
-          new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
-        val choiceUnusedUnparser =
-          new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
-
-        suspendableOp.captureDOSStartForChoiceUnused(state)
-        childUnparser.unparse1(state)
-        suspendableOp.captureDOSEndForChoiceUnused(state)
-        choiceUnusedUnparser.unparse(state)
-      } else {
+      withChoiceLengthFiller(state) {
         childUnparser.unparse1(state)
       }
       state.popTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
+    }
+  }
+
+  /**
+   * Wraps runChosenBranch with the dfdl:choiceLength "unused region"
+   * filler (no-op if choiceLengthInBits isn't set), capturing DOS
+   * position before/after via ChoiceUnusedUnparser. The
+   * state.setProcessor calls are redundant for unparse()'s call site but
+   * required for writeContent's, which bypasses unparse1 (and its
+   * equivalent setProcessor) entirely.
+   */
+  private def withChoiceLengthFiller(state: UState)(runChosenBranch: => Unit): Unit = {
+    if (choiceLengthInBits.isEmpty) {
+      runChosenBranch
+    } else {
+      val suspendableOp =
+        new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
+      val unusedUnparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
+      state.setProcessor(ChoiceCombinatorUnparser.this)
+      suspendableOp.captureDOSStartForChoiceUnused(state)
+      runChosenBranch
+      state.setProcessor(ChoiceCombinatorUnparser.this)
+      suspendableOp.captureDOSEndForChoiceUnused(state)
+      unusedUnparser.unparse(state)
     }
   }
 }
@@ -145,7 +271,22 @@ class DelimiterStackUnparser(
   terminatorOpt: Maybe[TerminatorUnparseEv],
   ctxt: TermRuntimeData,
   bodyUnparser: Unparser
-) extends CombinatorUnparser(ctxt) {
+) extends CombinatorUnparser(ctxt)
+  with WriteUnparser {
+
+  /**
+   * Pushes the delimiter scope, recurses into the body, and pops only
+   * once the body's own writeContent (if any) returns, since a pending
+   * pause still needs the stack for separator writing.
+   */
+  override def writeContent(containerNode: DINode, state: UState): Unit =
+    writeWithPushPop(
+      containerNode,
+      bodyUnparser,
+      state,
+      setup = pushDelimiterScope,
+      teardown = (state, _) => state.popDelimiters()
+    )
   override def nom = "DelimiterStack"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -164,7 +305,15 @@ class DelimiterStackUnparser(
     (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toArray
 
   def unparse(state: UState): Unit = {
-    // Evaluate Delimiters
+    pushDelimiterScope(state)
+    try {
+      bodyUnparser.unparse1(state)
+    } finally {
+      state.popDelimiters()
+    }
+  }
+
+  private def pushDelimiterScope(state: UState): Unit = {
     val init =
       if (initiatorOpt.isDefined) initiatorOpt.get.evaluate(state)
       else EmptyDelimiterStackUnparseNode.empty
@@ -174,14 +323,7 @@ class DelimiterStackUnparser(
     val term =
       if (terminatorOpt.isDefined) terminatorOpt.get.evaluate(state)
       else EmptyDelimiterStackUnparseNode.empty
-
-    val node = DelimiterStackUnparseNode(init, sep, term)
-
-    state.pushDelimiters(node)
-
-    bodyUnparser.unparse1(state)
-
-    state.popDelimiters()
+    state.pushDelimiters(DelimiterStackUnparseNode(init, sep, term))
   }
 }
 
@@ -189,25 +331,43 @@ class DynamicEscapeSchemeUnparser(
   escapeScheme: EscapeSchemeUnparseEv,
   ctxt: TermRuntimeData,
   bodyUnparser: Unparser
-) extends CombinatorUnparser(ctxt) {
+) extends CombinatorUnparser(ctxt)
+  with WriteUnparser {
   override def nom = "EscapeSchemeStack"
 
   override def childProcessors = Vector(bodyUnparser)
 
   override val runtimeDependencies = Array(escapeScheme)
 
+  /**
+   * Caches the escape scheme, recurses into the body, and invalidates
+   * the cache only once the body's own writeContent (if any) returns,
+   * since a pending pause still needs the cache for delimiter writing.
+   */
+  override def writeContent(containerNode: DINode, state: UState): Unit =
+    writeWithPushPop(
+      containerNode,
+      bodyUnparser,
+      state,
+      setup = cacheEscapeScheme,
+      teardown = (state, _) => escapeScheme.invalidateCache(state)
+    )
+
   def unparse(state: UState): Unit = {
-    // evaluate the dynamic escape scheme in the correct scope. the resulting
-    // value is cached in the Evaluatable (since it is manually cached) and
-    // future parsers/evaluatables that use this escape scheme will use that
-    // cached value.
+    cacheEscapeScheme(state)
+    try {
+      bodyUnparser.unparse1(state)
+    } finally {
+      escapeScheme.invalidateCache(state)
+    }
+  }
+
+  // Evaluates the dynamic escape scheme in the correct scope; the result is
+  // cached in the Evaluatable (since it is manually cached), so future
+  // unparsers/evaluatables that use this escape scheme reuse that cached
+  // value.
+  private def cacheEscapeScheme(state: UState): Unit = {
     escapeScheme.newCache(state)
     escapeScheme.evaluate(state)
-
-    // Unparse
-    bodyUnparser.unparse1(state)
-
-    // invalidate the escape scheme cache
-    escapeScheme.invalidateCache(state)
   }
 }

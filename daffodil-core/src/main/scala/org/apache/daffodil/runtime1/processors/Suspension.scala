@@ -25,8 +25,8 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.runtime1.processors.unparsers.SuspensionCapableUState
 import org.apache.daffodil.runtime1.processors.unparsers.UState
-import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 /**
@@ -50,6 +50,17 @@ trait Suspension extends Serializable {
    * TODO: Redundant with implementing maybeKnownLengthInBits as MaybeULong(0L)
    */
   val isReadOnly = false
+
+  /**
+   * True if this suspension might resolve without any bytes written yet
+   * (e.g. value/variable read); false if it needs a real DOS bit position
+   * (e.g. valueLength/contentLength, padding/alignment); distinct from
+   * isReadOnly. A static, direction-blind heuristic (can't tell a
+   * backward reference to an already-resolved value from a forward
+   * one), used by build's retries to skip an attempt that's usually,
+   * but not always, doomed to block.
+   */
+  def canResolveWithoutWriting: Boolean = false
 
   def UE(ustate: UState, s: String, args: Any*) = {
     UnparseError(One(rd.schemaFileLocation), One(ustate.currentLocation), s, args*)
@@ -111,7 +122,7 @@ trait Suspension extends Serializable {
     //
     // As written, we have a bunch of suspensions that occur, but have
     // specifically known length of zero bits. So nothing being written out.
-    // In that case, why do we need to split at all?
+    // TODO: In that case, why do we need to split at all?
     //
     val original = ustate.getDataOutputStream
     if (mkl.isEmpty || (mkl.isDefined && mkl.get > 0)) {
@@ -175,18 +186,20 @@ trait Suspension extends Serializable {
     //
     // clone the ustate for use when evaluating the expression
     //
-    // TODO: Performance - copying this whole state, just for OVC is painful.
-    // Some sort of copy-on-write scheme would be better.
+    // This is a targeted partial clone (shallow VariableMap copy, stack
+    // tops only), not a full deep copy, but still copies the full
+    // escapeSchemeEVCache/delimiterStack contents unconditionally.
+    // TODO: Performance: a copy-on-write scheme could avoid that copy.
     //
     val didSplit = (ustate.getDataOutputStream ne original)
-    val cloneUState = ustate.asInstanceOf[UStateMain].cloneForSuspension(original)
+    val cloneUState = ustate.asInstanceOf[SuspensionCapableUState].cloneForSuspension(original)
     if (isReadOnly && didSplit) {
       Assert.invariantFailed("Shouldn't have split. read-only case")
     }
 
     savedUstate_ = cloneUState
 
-    ustate.asInstanceOf[UStateMain].addSuspension(this)
+    ustate.asInstanceOf[SuspensionCapableUState].addSuspension(this)
   }
 
   final def explain(): Unit = {

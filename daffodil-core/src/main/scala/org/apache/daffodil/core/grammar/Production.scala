@@ -22,7 +22,10 @@ import org.apache.daffodil.core.compiler.ForUnparser
 import org.apache.daffodil.core.compiler.ParserOrUnparser
 import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
+import org.apache.daffodil.runtime1.processors.unparsers.Builder
 import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 
 /**
@@ -106,5 +109,17 @@ final class Prod(
       new NadaUnparser(context.runtimeData)
     else
       unp
+  }
+
+  final override lazy val builder: Maybe[Builder] = {
+    if (gram.isEmpty) {
+      Nope
+    } else {
+      (forWhat, gram.forWhat) match {
+        case (ForParser, _) => Nope
+        case (_, ForParser) => Nope
+        case _ => gram.builder
+      }
+    }
   }
 }

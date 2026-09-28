@@ -22,6 +22,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.runtime1.infoset.DIElement
+import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.Infoset
 import org.apache.daffodil.runtime1.processors.CharsetEv
@@ -35,7 +36,8 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv
-) extends CombinatorUnparser(erd) {
+) extends CombinatorUnparser(erd)
+  with WriteUnparser {
 
   override val runtimeDependencies = Array()
 
@@ -52,7 +54,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
     dcs
   }
 
-  override final def unparse(state: UState): Unit = {
+  private def checkVariableWidthComplexType(state: UState): Unit = {
     lazy val dcs = getCharset(state)
     if (
       erd.impliedRepresentation == Representation.Text &&
@@ -66,10 +68,26 @@ final class SpecifiedLengthExplicitImplicitUnparser(
         lengthKind.toString,
         lengthUnits.toString
       )
-    } else {
-      eUnparser.unparse1(state)
     }
   }
+
+  override final def unparse(state: UState): Unit = {
+    checkVariableWidthComplexType(state)
+    eUnparser.unparse1(state)
+  }
+
+  // Without this, a SeqCompUnparser wrapping this class would treat
+  // eUnparser as a synchronous call via its generic fallback, but
+  // eUnparser can itself be a resumable group unparser expecting live
+  // InfosetInputter events, desyncing build's event stream entirely.
+  override def writeContent(containerNode: DINode, state: UState): Unit =
+    writeWithPushPop(
+      containerNode,
+      eUnparser,
+      state,
+      setup = checkVariableWidthComplexType,
+      teardown = (_, _) => ()
+    )
 }
 
 /**
@@ -139,13 +157,39 @@ class SpecifiedLengthPrefixedUnparser(
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
 ) extends CombinatorUnparser(erd)
-  with CalculatedPrefixedLengthUnparserMixin {
+  with CalculatedPrefixedLengthUnparserMixin
+  with WriteUnparser {
 
   override val runtimeDependencies = Array()
 
   override def childProcessors = Vector(prefixedLengthUnparser, eUnparser)
 
   override def unparse(state: UState): Unit = {
+    val plElem = pushDetachedPrefixLengthElement(state)
+    eUnparser.unparse1(state)
+    resolvePrefixLength(state, state.currentInfosetNode.asInstanceOf[DIElement], plElem)
+  }
+
+  // Without this, WriteUnparser dispatch (a plain recursive-dispatch
+  // fallback for a group-wrapped eUnparser) would call eUnparser.unparse1
+  // synchronously, but it can itself be a resumable group unparser
+  // expecting live InfosetInputter events.
+  override def writeContent(containerNode: DINode, state: UState): Unit =
+    writeWithPushPop(
+      containerNode,
+      eUnparser,
+      state,
+      setup = pushDetachedPrefixLengthElement,
+      teardown = { (state, plElem) =>
+        // resolvePrefixLength (via assignPrefixLength/suspension.run)
+        // expects state.processor to already be set, normally done by
+        // Unparser.unparse1, which this recursive-dispatch path bypasses.
+        state.setProcessor(SpecifiedLengthPrefixedUnparser.this)
+        resolvePrefixLength(state, containerNode.asInstanceOf[DIElement], plElem)
+      }
+    )
+
+  private def pushDetachedPrefixLengthElement(state: UState): DISimple = {
     // Create a "detached" DIDocument with a single child element that the
     // prefix length will be parsed to. This creates a completely new
     // infoset and parses to that, so care is taken to ensure this infoset
@@ -160,10 +204,10 @@ class SpecifiedLengthPrefixedUnparser(
     state.currentInfosetNodeStack.push(One(plElem))
     prefixedLengthUnparser.unparse1(state)
     state.currentInfosetNodeStack.pop
+    plElem
+  }
 
-    val elem = state.currentInfosetNode.asInstanceOf[DIElement]
-    eUnparser.unparse1(state)
-
+  private def resolvePrefixLength(state: UState, elem: DIElement, plElem: DISimple): Unit = {
     if (elem.contentLength.maybeLengthInBits().isDefined) {
       // If we were able to immediately calculate the length of the element,
       // then just set it as the value of the detached element created above so

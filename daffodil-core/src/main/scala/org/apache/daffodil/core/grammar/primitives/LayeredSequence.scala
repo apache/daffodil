@@ -20,9 +20,14 @@ package org.apache.daffodil.core.grammar.primitives
 import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.core.layers.LayerSchemaCompiler
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.parsers.LayeredSequenceParser
 import org.apache.daffodil.runtime1.processors.parsers.Parser as DaffodilParser
+import org.apache.daffodil.runtime1.processors.unparsers.Builder
+import org.apache.daffodil.runtime1.processors.unparsers.SequenceBuilder
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser as DaffodilUnparser
 import org.apache.daffodil.unparsers.runtime1.LayeredSequenceUnparser
 
@@ -47,4 +52,18 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
 
   override lazy val unparser: DaffodilUnparser =
     new LayeredSequenceUnparser(srd, bodyUnparser)
+
+  // The layer transform itself is a write-only, byte-level concern, but
+  // (unlike delimiters/escape schemes) this is still a genuine one-child
+  // sequence position: it must push/pop bodyTerm's TRD and advance the
+  // group index the same way SequenceBuilder does for any other sequence
+  // child, or next-element resolution on the shared InfosetInputter breaks.
+  override lazy val builder: Maybe[Builder] = {
+    val info = bodyTerm.optSequenceChildBuildInfo
+    if (info.isEmpty) {
+      Nope
+    } else {
+      One(new SequenceBuilder(IndexedSeq(info.get)))
+    }
+  }
 }

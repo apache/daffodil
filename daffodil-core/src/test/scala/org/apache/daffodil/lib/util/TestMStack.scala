@@ -17,12 +17,118 @@
 
 package org.apache.daffodil.lib.util
 
+import org.apache.daffodil.lib.util.Maybe.*
+
+import org.junit.Assert.*
+import org.junit.Test
+
 /**
  * Compare MStack performance to ArrayStack. It should be faster for primitives
  */
 class TestMStack {
 
   var junk: Long = 0
+
+  // Copying into a sized destination must match copying into a default one.
+  @Test def testMStackOfCopyFromSizedDestinationMatchesDefault(): Unit = {
+    val source = new MStackOf[String]
+    source.push("a")
+    source.push("b")
+    source.push("c")
+
+    val sizedDest = new MStackOf[String](source.length)
+    sizedDest.copyFrom(source)
+
+    val defaultDest = new MStackOf[String]
+    defaultDest.copyFrom(source)
+
+    assertEquals(defaultDest.toList, sizedDest.toList)
+    assertEquals(3, sizedDest.length)
+    assertEquals("c", sizedDest.top)
+  }
+
+  // A sized-to-exact-depth destination must still grow past capacity.
+  @Test def testMStackOfSizedDestinationStillGrowsCorrectly(): Unit = {
+    val source = new MStackOf[String]
+    source.push("a")
+    source.push("b")
+
+    val sizedDest = new MStackOf[String](source.length)
+    sizedDest.copyFrom(source)
+
+    sizedDest.push("c")
+    sizedDest.push("d")
+    sizedDest.push("e")
+
+    assertEquals(5, sizedDest.length)
+    assertEquals("e", sizedDest.top)
+    assertEquals(List("e", "d", "c", "b", "a"), sizedDest.toList)
+  }
+
+  /** Same sized-clone pattern, but for MStackOfMaybe. */
+  @Test def testMStackOfMaybeCopyFromSizedDestinationMatchesDefault(): Unit = {
+    val source = new MStackOfMaybe[String]
+    source.push(One("x"))
+    source.push(Nope)
+    source.push(One("z"))
+
+    val sizedDest = new MStackOfMaybe[String](source.length)
+    sizedDest.copyFrom(source)
+
+    val defaultDest = new MStackOfMaybe[String]
+    defaultDest.copyFrom(source)
+
+    assertEquals(defaultDest.toListMaybe, sizedDest.toListMaybe)
+    assertEquals(3, sizedDest.length)
+    assertEquals(One("z"), sizedDest.top)
+    assertEquals(One("z"), sizedDest.pop)
+    assertEquals(Nope, sizedDest.pop)
+    assertEquals(One("x"), sizedDest.pop)
+    assertTrue(sizedDest.isEmpty)
+  }
+
+  /** Same sized-construction pattern, for the primitive-specialized variants. */
+  @Test def testMStackOfBooleanSizedConstructionWorks(): Unit = {
+    val stk = MStackOfBoolean(3)
+    stk.push(true)
+    stk.push(false)
+    stk.push(true)
+    assertEquals(3, stk.length)
+    assertEquals(true, stk.pop())
+    assertEquals(false, stk.pop())
+    assertEquals(true, stk.pop())
+  }
+
+  @Test def testMStackOfIntSizedConstructionWorks(): Unit = {
+    val stk = MStackOfInt(2)
+    stk.push(1)
+    stk.push(2)
+    stk.push(3)
+    assertEquals(3, stk.length)
+    assertEquals(3, stk.pop())
+    assertEquals(2, stk.pop())
+    assertEquals(1, stk.pop())
+  }
+
+  @Test def testMStackOfLongSizedConstructionWorks(): Unit = {
+    val stk = MStackOfLong(1)
+    stk.push(10L)
+    stk.push(20L)
+    assertEquals(2, stk.length)
+    assertEquals(20L, stk.pop())
+    assertEquals(10L, stk.pop())
+  }
+
+  // trackMaxSizeReached is a `final val`; confirms it's off by default
+  // and maxSizeReached stays 0 while it is.
+  @Test def testMaxSizeReachedDisabledByDefault(): Unit = {
+    assertEquals(false, MStack.trackMaxSizeReached)
+    val stk = new MStackOf[String]
+    stk.push("a")
+    stk.push("b")
+    stk.push("c")
+    assertEquals(0, stk.maxSizeReached)
+  }
 
   /**
    * This test compares MStackOfLong to ArrayStack[Long].

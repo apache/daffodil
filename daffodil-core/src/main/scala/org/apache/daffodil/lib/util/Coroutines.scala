@@ -91,6 +91,9 @@ trait Coroutine[T] {
 
   private var thread_ : Option[Future[Unit]] = None
 
+  /** True once this coroutine's own thread has actually been created. */
+  final def isStarted: Boolean = thread_.isDefined
+
   private final def init(): Unit = {
     if (!isMain && thread_.isEmpty) {
       val thr = Future {

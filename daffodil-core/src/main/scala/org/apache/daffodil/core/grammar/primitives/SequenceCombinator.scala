@@ -124,6 +124,15 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
       }
     }
   }
+
+  override lazy val builder: Maybe[Builder] = {
+    val childBuildInfos = sequenceChildren.flatMap { _.optSequenceChildBuildInfo }
+    if (childBuildInfos.isEmpty) {
+      Maybe.Nope
+    } else {
+      Maybe.One(new SequenceBuilder(childBuildInfos.toIndexedSeq))
+    }
+  }
 }
 
 class UnorderedSequence(
@@ -218,6 +227,15 @@ class UnorderedSequence(
         case false =>
           new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)
       }
+    }
+  }
+
+  override lazy val builder: Maybe[Builder] = {
+    val childBuildInfos = sequenceChildren.flatMap { _.optSequenceChildBuildInfo }
+    if (childBuildInfos.isEmpty) {
+      Maybe.Nope
+    } else {
+      Maybe.One(new SequenceBuilder(childBuildInfos.toIndexedSeq))
     }
   }
 }

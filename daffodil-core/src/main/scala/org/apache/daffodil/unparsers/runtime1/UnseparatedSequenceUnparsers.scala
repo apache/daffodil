@@ -18,6 +18,9 @@ package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.runtime1.infoset.DIArray
+import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
@@ -56,7 +59,8 @@ class RepOrderedUnseparatedSequenceChildUnparser(
 class OrderedUnseparatedSequenceUnparser(
   rd: SequenceRuntimeData,
   childUnparsers: Array[SequenceChildUnparser]
-) extends OrderedSequenceUnparserBase(rd) {
+) extends OrderedSequenceUnparserBase(rd)
+  with WriteUnparser {
 
   // Sequences of nothing (no initiator, no terminator, nothing at all) should
   // have been optimized away
@@ -65,6 +69,141 @@ class OrderedUnseparatedSequenceUnparser(
   override val runtimeDependencies = Array()
 
   override def childProcessors = childUnparsers.toVector
+
+  /**
+   * Walks childUnparsers positionally against an already-built
+   * containerNode, same shape as a separated sequence but without any
+   * separator writing. Without a dedicated writeContent override here,
+   * the outer dispatch's WriteUnparser check would be false, falling
+   * through to the single-pass-style dispatch path against an untouched
+   * inputter.
+   */
+  override def writeContent(containerNode: DINode, state: UState): Unit = {
+    val sharedCtx = state.sharedContext.get
+    val complex = containerNode.asComplex
+
+    var index = 0
+    while (index < childUnparsers.length) {
+      childUnparsers(index) match {
+        case rep: RepeatingChildUnparser =>
+          writeRepeatingTerm(rep, complex, sharedCtx, state)
+        case cu =>
+          writeRequiredTerm(cu, complex, sharedCtx, state)
+      }
+      index += 1
+    }
+  }
+
+  /**
+   * Writes an array/optional term's full occurrence loop, if it produced
+   * any occurrences; nothing to do otherwise. There's no separator
+   * bookkeeping to account for either way, since this sequence has none.
+   */
+  private def writeRepeatingTerm(
+    rep: RepeatingChildUnparser,
+    complex: DIComplex,
+    sharedCtx: UnparseSharedContext,
+    state: UState
+  ): Unit = {
+    val idx = state.childIndexStack.top.toInt
+    if (sharedCtx.childExistsOrFinal(complex, idx)) {
+      val next = complex.child(idx)
+      if (next.erd eq rep.erd) {
+        next match {
+          case arrayNode: DIArray =>
+            // A dfdl:occursIndex() expression in the occurrence's own
+            // content reads state.occursIndexStack.top, which must track
+            // the actual occurrence being written.
+            state.pushOccurrenceIndices()
+            try {
+              var arrayOcc = 0
+              while (sharedCtx.childExistsOrFinal(arrayNode, arrayOcc)) {
+                val occNode = sharedCtx.awaitChild(arrayNode, arrayOcc)
+                rep.childUnparser
+                  .asInstanceOf[ElementUnparserBase]
+                  .writeContent(occNode, state)
+                arrayNode.freeChildIfNoLongerNeeded(arrayOcc, state.releaseUnneededInfoset)
+                arrayOcc += 1
+                state.moveOverOneArrayIterationIndexOnly()
+                state.moveOverOneOccursIndexOnly()
+              }
+              complex.freeChildIfNoLongerNeeded(idx, state.releaseUnneededInfoset)
+              state.moveOverOneElementChildOnly()
+            } finally {
+              state.popOccurrenceIndices()
+            }
+          case scalarOptional =>
+            val readyChild = sharedCtx.awaitChild(complex, idx)
+            // Same reason as the array case above: a dfdl:occursIndex()
+            // expression in the occurrence's own content reads
+            // state.occursIndexStack.top.
+            state.pushOccurrenceIndices()
+            try {
+              rep.childUnparser
+                .asInstanceOf[ElementUnparserBase]
+                .writeContent(readyChild, state)
+              state.moveOverOneElementChildOnly()
+              complex.freeChildIfNoLongerNeeded(idx, state.releaseUnneededInfoset)
+              state.moveOverOneArrayIterationIndexOnly()
+              state.moveOverOneOccursIndexOnly()
+            } finally {
+              state.popOccurrenceIndices()
+            }
+        }
+      }
+      // else: this term produced zero occurrences; a different term's
+      // child appeared in this tree position instead, and there's no
+      // separator bookkeeping to resolve for it here, unlike the
+      // separated sequence's own zeroOccurrences.
+    }
+    // else: no more children will ever come; this optional/array term is
+    // absent, again with nothing further to do about it here.
+  }
+
+  /**
+   * Writes a required term: a simple or complex element, a nested bare
+   * group, or a statement-only term with no tree child of its own.
+   */
+  private def writeRequiredTerm(
+    cu: SequenceChildUnparser,
+    complex: DIComplex,
+    sharedCtx: UnparseSharedContext,
+    state: UState
+  ): Unit = {
+    cu.childUnparser match {
+      // A plain scalar element term: await its one tree child, write
+      // its content, then advance the element-child position.
+      case elemUnp: ElementUnparserBase =>
+        val idx = state.childIndexStack.top.toInt
+        val child = sharedCtx.awaitChild(complex, idx)
+        elemUnp.writeContent(child, state)
+        state.moveOverOneElementChildOnly()
+        complex.freeChildIfNoLongerNeeded(idx, state.releaseUnneededInfoset)
+      case wu: WriteUnparser =>
+        val idx = state.childIndexStack.top.toInt
+        // This nested group (e.g. a choice) may have resolved to a branch
+        // with no infoset footprint at all; only wait for a child's
+        // readiness when childExistsOrFinal says one genuinely exists.
+        if (sharedCtx.childExistsOrFinal(complex, idx)) {
+          sharedCtx.awaitChild(complex, idx)
+        }
+        wu.writeContent(complex, state)
+      case nvi: NewVariableInstanceStartUnparser =>
+        nvi.unparse1(state)
+      case sv: SetVariableUnparser =>
+        sv.unparse1(state)
+      case nvi: NewVariableInstanceEndUnparser =>
+        nvi.unparse1(state)
+      case align: AlignmentPrimUnparser =>
+        // Padding has no non-idempotent side effect (unlike assert/discriminator
+        // below), so re-running it here is required, not forbidden: build's
+        // own recursion only ran it against build's no-op-sink DOS.
+        align.unparse1(state)
+      case _ =>
+        // No tree child, so nothing to wait on.
+        ()
+    }
+  }
 
   /**
    * Unparses one iteration of an array/optional element
@@ -101,8 +240,7 @@ class OrderedUnseparatedSequenceUnparser(
       //
       childUnparser match {
         case unparser: RepeatingChildUnparser => {
-          state.arrayIterationIndexStack.push(1L)
-          state.occursIndexStack.push(1L)
+          state.pushOccurrenceIndices()
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
@@ -177,8 +315,7 @@ class OrderedUnseparatedSequenceUnparser(
             )
           }
 
-          state.arrayIterationIndexStack.pop()
-          state.occursIndexStack.pop()
+          state.popOccurrenceIndices()
         }
         //
         case scalarUnparser => {

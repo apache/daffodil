@@ -28,6 +28,8 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.processors.parsers.CaptureEndOfContentLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureEndOfValueLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureStartOfContentLengthParser
@@ -36,6 +38,8 @@ import org.apache.daffodil.runtime1.processors.parsers.ElementParser
 import org.apache.daffodil.runtime1.processors.parsers.ElementParserInputValueCalc
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Builder
+import org.apache.daffodil.runtime1.processors.unparsers.ElementBuilder
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.unparsers.runtime1.CaptureEndOfContentLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.CaptureEndOfValueLengthUnparser
@@ -44,6 +48,7 @@ import org.apache.daffodil.unparsers.runtime1.CaptureStartOfValueLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementOVCSpecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementOVCUnspecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementSpecifiedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.ElementUnparserBase
 import org.apache.daffodil.unparsers.runtime1.ElementUnparserInputValueCalc
 import org.apache.daffodil.unparsers.runtime1.ElementUnspecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementUnusedUnparser
@@ -143,6 +148,37 @@ class ElementCombinator(
     }
   }
 
+  private lazy val eBuilder: Maybe[Builder] = {
+    if (eValue.isEmpty) {
+      Nope
+    } else {
+      eValue.builder
+    }
+  }
+  private lazy val eReptypeBuilder: Maybe[Builder] = repTypeElementGram.builder
+
+  // Reuses the same already-memoized instance above for unparseBegin/
+  // unparseEnd, so build() and write() see identical node-creation
+  // behavior; the third branch's builder is whatever subComb builds.
+  override lazy val builder: Maybe[Builder] = unparser match {
+    case eu @ (_: ElementOVCSpecifiedLengthUnparser | _: ElementSpecifiedLengthUnparser) => {
+      val eub = eu.asInstanceOf[ElementUnparserBase]
+      val contentBuilder = if (eReptypeBuilder.isDefined) {
+        eReptypeBuilder
+      } else {
+        eBuilder
+      }
+      One(
+        new ElementBuilder(
+          context.erd,
+          eub.unparseBeginForBuild,
+          eub.unparseEndForBuild,
+          contentBuilder
+        )
+      )
+    }
+    case _ => subComb.builder
+  }
 }
 
 case class ElementUnused(ctxt: ElementBase)
@@ -374,6 +410,26 @@ class ElementParseAndUnspecifiedLength(
       new ElementUnparserInputValueCalc(context.erd, uSetVar)
     }
   }
+
+  // Reuses the same already-memoized ElementUnparserBase instance above for
+  // unparseBegin/unparseEnd, so build() and write() see identical
+  // nilled/OVC/IVC node-creation behavior.
+  override lazy val builder: Maybe[Builder] = {
+    val eu = unparser.asInstanceOf[ElementUnparserBase]
+    val contentBuilder = if (eRepTypeBuilder.isDefined) {
+      eRepTypeBuilder
+    } else {
+      eBuilder
+    }
+    One(
+      new ElementBuilder(
+        context.erd,
+        eu.unparseBeginForBuild,
+        eu.unparseEndForBuild,
+        contentBuilder
+      )
+    )
+  }
 }
 
 abstract class ElementCombinatorBase(
@@ -448,5 +504,9 @@ abstract class ElementCombinatorBase(
   lazy val eRepTypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
 
   def unparser: Unparser
+
+  lazy val eBuilder: Maybe[Builder] = eGram.builder
+
+  lazy val eRepTypeBuilder: Maybe[Builder] = repTypeElementGram.builder
 
 }

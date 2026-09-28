@@ -176,13 +176,13 @@ sealed trait DINode {
   private var _isFinal: Boolean = false
 
   /**
-  * Use to mark a node as final, indicating that its value will not change or have
-  * any children added to it. Setting an element as final does not preclude it from
-  * being discarded by backtracking, i.e. it is only locally final, but might still
-  * be inside an enclosing PoU.
-  *
-  * This cannot be called if an element is already marked as final to help ensure
-  * correct use.
+   * Use to mark a node as final, indicating that its value will not change or have
+   * any children added to it. Setting an element as final does not preclude it from
+   * being discarded by backtracking, i.e. it is only locally final, but might still
+   * be inside an enclosing PoU.
+   *
+   * This cannot be called if an element is already marked as final to help ensure
+   * correct use.
    */
   def setFinal(): Unit = {
     Assert.invariant(!_isFinal)
@@ -1334,6 +1334,13 @@ final class DIArray(
 
   final def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
     val node = _contents(index)
+    // A null slot here means write's coroutine already freed it before
+    // build's own (always doFree=false, see UState.releaseUnneededInfoset)
+    // redundant call arrived; a doFree=true call hitting null is a real bug.
+    if (node == null) {
+      Assert.invariant(!doFree)
+      return
+    }
     if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
       if (doFree) {
         // set to null so that the garbage collector can free this node
@@ -1825,6 +1832,13 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   def freeChildIfNoLongerNeeded(index: Int, doFree: Boolean): Unit = {
     val node = child(index)
+    // A null slot here means write's coroutine already freed it before
+    // build's own (always doFree=false, see UState.releaseUnneededInfoset)
+    // redundant call arrived; a doFree=true call hitting null is a real bug.
+    if (node == null) {
+      Assert.invariant(!doFree)
+      return
+    }
     if (!node.erd.dpathElementCompileInfo.isReferencedByExpressions) {
       if (doFree) {
         // set to null so that the garbage collector can free this node

@@ -21,6 +21,8 @@ import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
@@ -29,6 +31,7 @@ import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.runtime1.processors.parsers.NotParsableParser
+import org.apache.daffodil.runtime1.processors.unparsers.Builder
 import org.apache.daffodil.runtime1.processors.unparsers.NotUnparsableUnparser
 
 trait SchemaSetRuntime1Mixin {
@@ -61,6 +64,20 @@ trait SchemaSetRuntime1Mixin {
     unp
   }.value
 
+  // Unlike parser/unparser, not forced eagerly: onPath below only
+  // references this when tunable.useBuildWritePrefetch is on, since
+  // there's no public API to reuse this SchemaSet's ssrd under a
+  // different tunable (tunable is fixed at compile time, see
+  // Compiler().withTunables), so schemas that never enable it never
+  // pay to construct the Builder tree.
+  lazy val builder: Maybe[Builder] = {
+    if (generateUnparser) {
+      root.document.builder
+    } else {
+      Nope
+    }
+  }
+
   private lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 
   private lazy val allLayers: Seq[LayerRuntimeData] = LV(Symbol("allLayers")) {
@@ -84,14 +101,20 @@ trait SchemaSetRuntime1Mixin {
     // null parser/unparser, and that it's impossible for a DataProcessor
     // to have an error
     Assert.invariant(!root.isError)
+    // Only reference builder/hasAnyPrefetchBeneficialOVC (both real
+    // work: a full parallel Builder tree, a schema component scan) when
+    // the tunable that would actually use them is on; otherwise every
+    // schema compile would pay for them regardless.
     val ssrd =
       new SchemaSetRuntimeData(
         parser,
         unparser,
+        if (tunable.useBuildWritePrefetch) builder else Nope,
         root.elementRuntimeData,
         variableMap,
         allLayers,
-        layerRuntimeCompiler
+        layerRuntimeCompiler,
+        tunable.useBuildWritePrefetch && root.hasAnyPrefetchBeneficialOVC
       )
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(

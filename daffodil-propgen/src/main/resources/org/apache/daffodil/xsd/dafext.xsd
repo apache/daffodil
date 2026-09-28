@@ -534,6 +534,50 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="useBuildWritePrefetch" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              If true, unparsing uses a build/write-prefetch path instead of the
+              default single-pass unparse: a build pass runs ahead of a write pass
+              over the same infoset tree, resolving forward references against the
+              tree directly instead of via Suspensions where possible. How far
+              build may run ahead of write is bounded by
+              unparsePrefetchWindowNodes.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unparsePrefetchWindowNodes" type="xs:long" default="1000" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Only consulted when useBuildWritePrefetch is true. The maximum
+              number of infoset nodes build may construct ahead of write before
+              build pauses to let write catch up. Bounds peak memory use to
+              roughly this many resident nodes rather than the whole infoset.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unparsePendingSuspensionTripLimit" type="xs:long" default="500" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Only consulted when useBuildWritePrefetch is true. A second,
+              independent limit on how far build may run ahead of write,
+              alongside unparsePrefetchWindowNodes: the maximum number of
+              pending suspensions (forward references that cannot resolve
+              until write itself writes the referenced bytes, e.g.
+              dfdl:valueLength/dfdl:contentLength) build may accumulate
+              before it pauses to let write catch up, regardless of how
+              large unparsePrefetchWindowNodes is set. Without this,
+              unparsePrefetchWindowNodes alone does not bound this
+              backlog, since a node's lead-counter contribution is
+              released once write's structural pass reaches it, whether or
+              not that node's own suspension has resolved yet, so a large
+              window can otherwise let many resolved-but-still-
+              pending nodes accumulate unboundedly before anything
+              forces write to actually catch up to what they're
+              waiting on.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="requireBitOrderProperty" type="xs:boolean" default="false" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -644,7 +688,11 @@
               evaluating suspensions that are likely to fail. The
               unparseSuspensionWaitYoung and unparseSuspensionWaitOld
               values determine how many elements are unparsed before evaluating
-              young and old suspensions, respectively.
+              young and old suspensions, respectively. When useBuildWritePrefetch
+              is true, both values are used internally at double what is
+              configured here, since build and write independently advance this
+              same counter, so it would otherwise tick twice as fast as a single
+              traversal.
             </xs:documentation>
           </xs:annotation>
           <xs:simpleType>

@@ -21,6 +21,7 @@ import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Builder
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 trait GramRuntime1Mixin { self: Gram =>
@@ -59,4 +60,13 @@ trait GramRuntime1Mixin { self: Gram =>
       else Maybe(u)
     }
   }
+
+  /**
+   * Provides this Gram's node in the much smaller, dedicated Builder tree
+   * that parallels the full Unparser tree (see Builder's own doc). Most
+   * Grams contribute nothing to the infoset's structure and simply inherit
+   * this Nope default; only Grams that create or select infoset content
+   * override it.
+   */
+  def builder: Maybe[Builder] = Maybe.Nope
 }

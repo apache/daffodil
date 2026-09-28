@@ -19,6 +19,7 @@ package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
@@ -52,7 +53,8 @@ case class ComplexNilOrContentUnparser(
   ctxt: ElementRuntimeData,
   nilUnparser: Unparser,
   contentUnparser: Unparser
-) extends CombinatorUnparser(ctxt) {
+) extends CombinatorUnparser(ctxt)
+  with WriteUnparser {
 
   override val runtimeDependencies = Array()
 
@@ -65,5 +67,18 @@ case class ComplexNilOrContentUnparser(
       nilUnparser.unparse1(state)
     else
       contentUnparser.unparse1(state)
+  }
+
+  // Without this override, WriteUnparser dispatch would call
+  // contentUnparser.unparse1 synchronously on write's state, but it can
+  // itself be a resumable group unparser expecting live InfosetInputter
+  // events that don't exist yet (see SpecifiedLengthExplicitImplicitUnparser).
+  override def writeContent(containerNode: DINode, state: UState): Unit = {
+    val bodyUnparser = if (containerNode.asComplex.isNilled) {
+      nilUnparser
+    } else {
+      contentUnparser
+    }
+    writeWithPushPop(containerNode, bodyUnparser, state)
   }
 }

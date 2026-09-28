@@ -23,10 +23,12 @@ import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.core.dsom.PrimitiveType
 import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.dsom.SimpleTypeDefBase
+import org.apache.daffodil.core.dsom.TransitiveClosureSchemaComponents
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation.Text
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.dpath.SuspendableExpression
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.RuntimeData
@@ -133,6 +135,20 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
     isReferenced || mightHaveSuspensions
   }
+
+  /**
+   * True if a component reachable from this element has a
+   * dfdl:outputValueCalc resolvable without writing; gates
+   * useBuildWritePrefetch. Scoped to a closure seeded from this
+   * element, not schemaSet.allSchemaComponents, which is shared and
+   * schema-set-wide and would leak another root's OVC into this one.
+   */
+  final lazy val hasAnyPrefetchBeneficialOVC: Boolean =
+    TransitiveClosureSchemaComponents(Seq(this)).exists {
+      case e: ElementBase if e.isOutputValueCalc =>
+        SuspendableExpression.isPrefetchBeneficial(e.ovcCompiledExpression)
+      case _ => false
+    }
 
   final override lazy val dpathCompileInfo = dpathElementCompileInfo
 

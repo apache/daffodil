@@ -29,10 +29,14 @@ import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.lib.cookers.IntRangeCooker
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.ProperlySerializableMap.*
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
 import org.apache.daffodil.runtime1.processors.RangeBound
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.*
 import org.apache.daffodil.runtime1.processors.unparsers.*
 import org.apache.daffodil.unparsers.runtime1.*
@@ -330,6 +334,33 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         eventUnparserMap.toProperlySerializableMap
       val cbm = ChoiceBranchMap(serializableMap, branchForUnparse)
       new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, cbm, choiceLengthInBits)
+    }
+  }
+
+  override lazy val builder: Maybe[Builder] = {
+    val (eventRDMap, optDefaultBranch) = ch.choiceBranchMap
+
+    def builderFor(term: Term): (TermRuntimeData, Builder) = {
+      val cb = term.termContentBody.builder
+      val b = if (cb.isDefined) {
+        cb.get
+      } else {
+        EmptyBuilder
+      }
+      (term.termRuntimeData, b)
+    }
+
+    val branchMap: Map[ChoiceBranchEvent, (TermRuntimeData, Builder)] =
+      eventRDMap.map { case (cbe, branchTerm) => (cbe, builderFor(branchTerm)) }
+    val defaultBranch: Maybe[(TermRuntimeData, Builder)] = optDefaultBranch match {
+      case Some(term) => One(builderFor(term))
+      case None => Nope
+    }
+
+    if (branchMap.isEmpty && defaultBranch.isEmpty) {
+      Nope
+    } else {
+      One(new ChoiceBuilder(ch.modelGroupRuntimeData, branchMap, defaultBranch))
     }
   }
 }

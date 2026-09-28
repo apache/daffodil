@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
@@ -27,11 +28,25 @@ import org.apache.daffodil.runtime1.processors.unparsers.*
  * we unwind from the refs, we'll decrement.
  */
 class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: Unparser)
-  extends CombinatorUnparser(ctxt) {
+  extends CombinatorUnparser(ctxt)
+  with WriteUnparser {
 
   override def childProcessors = Vector(bodyUnparser)
 
   override val runtimeDependencies = Array()
+
+  // The hidden-depth counter must stay incremented across any pauses, since
+  // anything the body writes needs it (e.g. choice-branch resolution
+  // branches on state.withinHiddenNest, and RepType conversion asserts
+  // it's never true).
+  override def writeContent(containerNode: DINode, start: UState): Unit =
+    writeWithPushPop(
+      containerNode,
+      bodyUnparser,
+      start,
+      setup = _.incrementHiddenDef(),
+      teardown = (start, _) => start.decrementHiddenDef()
+    )
 
   def unparse(start: UState): Unit = {
     try {
