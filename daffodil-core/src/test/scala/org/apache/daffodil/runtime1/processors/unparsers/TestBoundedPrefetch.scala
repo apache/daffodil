@@ -42,15 +42,25 @@ class TestBoundedPrefetch {
 
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"
-        encoding="ascii"
-        lengthUnits="bytes"/>,
+      {
+        <dfdl:format ref="tns:GeneralFormat"
+          encoding="ascii"
+          lengthUnits="bytes"/>
+        <dfdl:defineVariable name="marker" type="xs:string" defaultValue="M"/>
+      },
       <xs:element name="row" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
             <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="unbounded"
               dfdl:lengthKind="delimited"
               dfdl:occursCountKind="implicit"/>
+            <!-- A variable reference: no element references
+                 (canResolveWithoutWriting) and not a compile-time
+                 constant (unlike a literal, which the compiler folds to
+                 isConstant=true) - the only kind hasAnyPrefetchBeneficialOVC
+                 counts, so builder actually gets constructed here. -->
+            <xs:element name="marker" type="xs:string" dfdl:lengthKind="delimited"
+              dfdl:outputValueCalc="{ $ex:marker }"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
@@ -62,7 +72,7 @@ class TestBoundedPrefetch {
       <ex:row xmlns:ex={example}>
         {items}
       </ex:row>
-    val expectedBytes = (0 until numItems).map(i => s"i$i").mkString(",")
+    val expectedBytes = (0 until numItems).map(i => s"i$i").mkString(",") + ",M"
 
     val dp = TestUtils.compileForUnparse(
       sch,
@@ -92,8 +102,8 @@ class TestBoundedPrefetch {
 
     dp.ssrd.builder.get.build(buildState)
 
-    // See class doc above for why this proves interleaving; numItems + 1
-    // (row + all items) is what currentLead would equal here if
+    // See class doc above for why this proves interleaving; numItems + 2
+    // (row + all items + marker) is what currentLead would equal here if
     // resumeWrite never fired mid-recursion.
     assertTrue(
       s"expected lead close to prefetchLimit=$prefetchLimit after build, but was ${sharedCtx.currentLead} " +

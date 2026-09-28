@@ -103,18 +103,21 @@ trait SchemaSetRuntime1Mixin {
     Assert.invariant(!root.isError)
     // Only reference builder/hasAnyPrefetchBeneficialOVC (both real
     // work: a full parallel Builder tree, a schema component scan) when
-    // the tunable that would actually use them is on; otherwise every
-    // schema compile would pay for them regardless.
+    // prefetch will actually be used for this schema; a schema with no
+    // prefetch-beneficial OVC never reaches unparseViaBuildThenWrite (see
+    // DataProcessor.unparse), so building the Builder tree for it would
+    // be pure waste even with the tunable globally on.
+    val isPrefetchInUse = tunable.useBuildWritePrefetch && root.hasAnyPrefetchBeneficialOVC
     val ssrd =
       new SchemaSetRuntimeData(
         parser,
         unparser,
-        if (tunable.useBuildWritePrefetch) builder else Nope,
+        if (isPrefetchInUse) builder else Nope,
         root.elementRuntimeData,
         variableMap,
         allLayers,
         layerRuntimeCompiler,
-        tunable.useBuildWritePrefetch && root.hasAnyPrefetchBeneficialOVC
+        isPrefetchInUse
       )
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(

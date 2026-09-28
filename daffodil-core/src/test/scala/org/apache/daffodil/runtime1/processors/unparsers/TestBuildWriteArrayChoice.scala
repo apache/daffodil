@@ -127,9 +127,12 @@ class TestBuildWriteArrayChoice {
   @Test def testStandaloneBuildStateNavigatesArrayChoiceSeparator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"
-        encoding="ascii"
-        lengthUnits="bytes"/>,
+      {
+        <dfdl:format ref="tns:GeneralFormat"
+          encoding="ascii"
+          lengthUnits="bytes"/>
+        <dfdl:defineVariable name="marker" type="xs:string" defaultValue="M"/>
+      },
       <xs:element name="row" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
@@ -141,6 +144,13 @@ class TestBuildWriteArrayChoice {
               <xs:element name="typeA" type="xs:string" dfdl:lengthKind="delimited"/>
               <xs:element name="typeB" type="xs:string" dfdl:lengthKind="delimited"/>
             </xs:choice>
+            <!-- A variable reference: no element references
+                 (canResolveWithoutWriting) and not a compile-time
+                 constant (unlike a literal, which the compiler folds to
+                 isConstant=true) - the only kind hasAnyPrefetchBeneficialOVC
+                 counts, so builder actually gets constructed here. -->
+            <xs:element name="marker" type="xs:string" dfdl:lengthKind="delimited"
+              dfdl:outputValueCalc="{ $ex:marker }"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
@@ -172,15 +182,16 @@ class TestBuildWriteArrayChoice {
 
     dp.ssrd.builder.get.build(buildState)
 
-    // row, header, item x3, typeB = 6 elements total.
-    assertEquals(6L, sharedCtx.currentLead)
+    // row, header, item x3, typeB, marker = 7 elements total.
+    assertEquals(7L, sharedCtx.currentLead)
 
     val rootNode = buildInputter.documentElement.child(0).asComplex
-    assertEquals(3, rootNode.numChildren)
+    assertEquals(4, rootNode.numChildren)
     assertEquals("header", rootNode.child(0).erd.name)
     assertEquals("item", rootNode.child(1).erd.name)
     assertEquals(3, rootNode.child(1).asInstanceOf[DIArray].numChildren)
     assertEquals("typeB", rootNode.child(2).erd.name)
+    assertEquals("marker", rootNode.child(3).erd.name)
 
     // Build was driven directly (no coroutine handoff), so sharedCtx can't
     // know build is done; tell it so write's awaitChild call takes the
@@ -206,6 +217,6 @@ class TestBuildWriteArrayChoice {
     writeState.evalSuspensions(isFinal = true)
     writeState.getDataOutputStream.setFinished(writeState)
 
-    assertEquals("H,a,b,c,X", new String(walkerOut.toByteArray, StandardCharsets.US_ASCII))
+    assertEquals("H,a,b,c,X,M", new String(walkerOut.toByteArray, StandardCharsets.US_ASCII))
   }
 }

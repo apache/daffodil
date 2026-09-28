@@ -39,15 +39,25 @@ class TestLeadCounter {
   @Test def testLeadCounterIncrementsOnBuildAndDecrementsOnWrite(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"
-        encoding="ascii"
-        lengthUnits="bytes"/>,
+      {
+        <dfdl:format ref="tns:GeneralFormat"
+          encoding="ascii"
+          lengthUnits="bytes"/>
+        <dfdl:defineVariable name="marker" type="xs:string" defaultValue="M"/>
+      },
       <xs:element name="row" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="name" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5"/>
             <xs:element name="age" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
             <xs:element name="city" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="6"/>
+            <!-- A variable reference: no element references
+                 (canResolveWithoutWriting) and not a compile-time
+                 constant (unlike a literal, which the compiler folds to
+                 isConstant=true) - the only kind hasAnyPrefetchBeneficialOVC
+                 counts, so builder actually gets constructed here. -->
+            <xs:element name="marker" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"
+              dfdl:outputValueCalc="{ $ex:marker }"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
@@ -81,9 +91,9 @@ class TestLeadCounter {
     assertEquals(0L, sharedCtx.currentLead)
     dp.ssrd.builder.get.build(buildState)
 
-    // row itself, name, age, city = 4 elements total, each incrementing
-    // once via unparseBegin's actual hookup.
-    assertEquals(4L, sharedCtx.currentLead)
+    // row itself, name, age, city, marker = 5 elements total, each
+    // incrementing once via unparseBegin's actual hookup.
+    assertEquals(5L, sharedCtx.currentLead)
 
     // Build was driven directly (no coroutine handoff), so sharedCtx can't
     // know build is done; tell it so write's awaitChild calls take the
@@ -105,7 +115,7 @@ class TestLeadCounter {
     rootUnparser.writeContent(rootNode, writeState)
     writeState.getDataOutputStream.setFinished(writeState)
 
-    assertEquals("Alice30Boston", new String(walkerOut.toByteArray, StandardCharsets.US_ASCII))
+    assertEquals("Alice30BostonM", new String(walkerOut.toByteArray, StandardCharsets.US_ASCII))
 
     // Write decremented once per element too, so the counter is back to 0:
     // build and write agree on how many nodes exist, coordinated through

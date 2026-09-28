@@ -35,16 +35,26 @@ class TestBuildState {
   @Test def testBuildStateSurfacesCorrectEventSequence(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"
-        encoding="ascii"
-        lengthUnits="bytes"
-        outputNewLine="%CR;%LF;"/>,
+      {
+        <dfdl:format ref="tns:GeneralFormat"
+          encoding="ascii"
+          lengthUnits="bytes"
+          outputNewLine="%CR;%LF;"/>
+        <dfdl:defineVariable name="marker" type="xs:string" defaultValue="M"/>
+      },
       <xs:element name="row" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
             <xs:element name="name" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="age" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="city" type="xs:string" dfdl:lengthKind="delimited"/>
+            <!-- A variable reference: no element references
+                 (canResolveWithoutWriting) and not a compile-time
+                 constant (unlike a literal, which the compiler folds to
+                 isConstant=true) - the only kind hasAnyPrefetchBeneficialOVC
+                 counts, so builder actually gets constructed here. -->
+            <xs:element name="marker" type="xs:string" dfdl:lengthKind="delimited"
+              dfdl:outputValueCalc="{ $ex:marker }"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
@@ -78,12 +88,13 @@ class TestBuildState {
     // straight past the delimiter-stack wrapper unparser entirely.
     dp.ssrd.builder.get.build(buildState)
 
-    assertEquals(4L, sharedCtx.currentLead) // row, name, age, city
+    assertEquals(5L, sharedCtx.currentLead) // row, name, age, city, marker
 
     val rootNode = inputter.documentElement.child(0).asComplex
-    assertEquals(3, rootNode.numChildren)
+    assertEquals(4, rootNode.numChildren)
     assertEquals("name", rootNode.child(0).erd.name)
     assertEquals("age", rootNode.child(1).erd.name)
     assertEquals("city", rootNode.child(2).erd.name)
+    assertEquals("marker", rootNode.child(3).erd.name)
   }
 }
