@@ -1023,8 +1023,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>not have a value</tdml:error>
-      <tdml:error>circular dependency</tdml:error>
+      <tdml:error>circularly deadlocked</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
@@ -1055,10 +1054,7 @@
         </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:errors>
-      <tdml:error>not have a value</tdml:error>
-      <tdml:error>circular dependency</tdml:error>
-    </tdml:errors>
+    <tdml:document>5ABCDE</tdml:document>
   </tdml:unparserTestCase>
 
     <tdml:defineSchema name="truncatedString3">
@@ -1113,7 +1109,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Value length unknown</tdml:error>
+      <tdml:error>circularly deadlocked</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

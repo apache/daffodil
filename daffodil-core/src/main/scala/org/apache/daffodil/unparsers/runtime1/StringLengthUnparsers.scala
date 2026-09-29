@@ -26,6 +26,7 @@ import org.apache.daffodil.runtime1.processors.CharsetEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.LengthEv
+import org.apache.daffodil.runtime1.processors.SuspendableOperation
 import org.apache.daffodil.runtime1.processors.TextTruncationType
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.unparsers.*
@@ -70,9 +71,25 @@ class StringNoTruncateUnparser(erd: ElementRuntimeData)
 sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
   stringTruncationType: TextTruncationType.Type,
   erd: ElementRuntimeData
-) extends StringSpecifiedLengthUnparserBase(erd) {
+) extends StringSpecifiedLengthUnparserBase(erd)
+  with SuspendableUnparser {
 
   Assert.usage(stringTruncationType ne TextTruncationType.None)
+
+  /**
+   * The target length the string is truncated to. It can depend on an
+   * outputValueCalc element that has not been computed yet.
+   */
+  protected[runtime1] def targetLengthEv: Evaluatable[AnyRef]
+
+  /**
+   * Reads the target length without retrying, so it must only be called
+   * once the target length can be evaluated.
+   */
+  protected[runtime1] def unparseString(state: UState): Unit
+
+  override protected def suspendableOperation =
+    new StringTruncationSuspendableOperation(erd, this)
 
   /**
    * We only truncate strings, and only if textStringJustification is left or
@@ -121,6 +138,8 @@ class StringMaybeTruncateBitsUnparser(
 ) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
   override val runtimeDependencies = Array(targetLengthInBitsEv, charsetEv)
+
+  override protected[runtime1] def targetLengthEv = targetLengthInBitsEv
 
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
     val cs = charsetEv.evaluate(state)
@@ -171,7 +190,7 @@ class StringMaybeTruncateBitsUnparser(
     res
   }
 
-  override def unparse(state: UState): Unit = {
+  override protected[runtime1] def unparseString(state: UState): Unit = {
 
     //
     // We have to stage the bits of the value just so as to be able to count them
@@ -259,7 +278,9 @@ class StringMaybeTruncateCharactersUnparser(
 
   override val runtimeDependencies = Array(lengthInCharactersEv)
 
-  override def unparse(state: UState): Unit = {
+  override protected[runtime1] def targetLengthEv = lengthInCharactersEv
+
+  override protected[runtime1] def unparseString(state: UState): Unit = {
     val dos = state.getDataOutputStream
     val valueString = contentString(state)
     val targetLengthInCharacters =
@@ -283,5 +304,29 @@ class StringMaybeTruncateCharactersUnparser(
     //
     val nCharsWritten = dos.putString(valueToWrite, state)
     Assert.invariant(nCharsWritten == valueToWrite.length)
+  }
+}
+
+/**
+ * Suspends until the target length can be evaluated, then unparses the
+ * string, because the truncating string unparsers read the target length
+ * without retrying.
+ */
+class StringTruncationSuspendableOperation(
+  override val rd: ElementRuntimeData,
+  unparser: StringSpecifiedLengthUnparserTruncateBase
+) extends SuspendableOperation {
+
+  override def toString = "string truncation for " + rd.diagnosticDebugName
+
+  // Evaluating throws a RetryableException while the length is unavailable,
+  // which blocks this operation.
+  override protected def test(ustate: UState): Boolean = {
+    unparser.targetLengthEv.evaluate(ustate)
+    true
+  }
+
+  override protected def continuation(ustate: UState): Unit = {
+    unparser.unparseString(ustate)
   }
 }
