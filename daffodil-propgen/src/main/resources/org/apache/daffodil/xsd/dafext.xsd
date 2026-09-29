@@ -534,7 +534,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="useBuildWritePrefetch" type="xs:boolean" default="false" minOccurs="0">
+        <xs:element name="useBuildWritePrefetch" type="xs:boolean" default="true" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               If true, unparsing uses a build/write-prefetch path instead of the
