@@ -35,7 +35,7 @@ import org.apache.daffodil.lib.xml.XMLUtils
 class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
   extends JScalaXMLInfosetOutputter {
 
-  protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
+  protected val stack = new MStackOf[ListBuffer[scala.xml.Node]](16)
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
 
   def reset()

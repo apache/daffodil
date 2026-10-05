@@ -30,7 +30,7 @@ import org.apache.daffodil.lib.xml.XMLUtils
 
 class JDOMInfosetOutputter extends JJDOMInfosetOutputter {
 
-  private val stack = new MStackOf[org.jdom2.Parent]
+  private val stack = new MStackOf[org.jdom2.Parent](16)
   private var result: Maybe[org.jdom2.Document] = Maybe.Nope
   private val xsiNS = org.jdom2.Namespace.getNamespace("xsi", XMLUtils.XSI_NAMESPACE.toString)
 

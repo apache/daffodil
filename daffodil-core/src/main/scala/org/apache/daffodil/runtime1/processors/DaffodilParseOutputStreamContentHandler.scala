@@ -62,9 +62,9 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
    * used to maintain the correct scope of activePrefixMapping throughout processing. It is also used
    * to reset the activePrefixMapping after processing each element.
    */
-  private lazy val activePrefixMappingContextStack = new MStackOf[NamespaceBinding]
+  private lazy val activePrefixMappingContextStack = new MStackOf[NamespaceBinding](8)
   private val outputNewlineStack: MStackOfBoolean = {
-    val s = MStackOfBoolean()
+    val s = MStackOfBoolean(16)
     s.push(false)
     s
   }

@@ -57,7 +57,7 @@ class JDOMInfosetInputter(doc: Document) extends api.infoset.InfosetInputter {
    * Element.
    */
   private val stack = {
-    val s = new MStackOf[(Element, Iterator[Content])]
+    val s = new MStackOf[(Element, Iterator[Content])](16)
     val docChildren = doc.getContent.iterator
     if (!docChildren.hasNext) {
       throw new InvalidInfosetException("Document does not contain a root element")

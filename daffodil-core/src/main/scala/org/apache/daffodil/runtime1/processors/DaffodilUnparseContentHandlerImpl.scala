@@ -137,7 +137,7 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
    * added in startElement() so they can be quickly removed in endElement() by
    * popping off the stack.
    */
-  private lazy val prefixMappingTrackingStack = new MStackOf[NamespaceBinding]
+  private lazy val prefixMappingTrackingStack = new MStackOf[NamespaceBinding](8)
 
   /**
    * SAXInfosetEvents are buffered into this array before sent to the
