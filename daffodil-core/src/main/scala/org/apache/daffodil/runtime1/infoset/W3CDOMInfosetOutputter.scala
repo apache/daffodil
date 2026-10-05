@@ -37,7 +37,7 @@ import org.w3c.dom.Node
 class W3CDOMInfosetOutputter extends JW3CDOMInfosetOutputter {
 
   private var document: Document = null
-  private val stack = new MStackOf[Node]
+  private val stack = new MStackOf[Node](16)
   private var result: Maybe[Document] = Maybe.Nope
 
   def reset()

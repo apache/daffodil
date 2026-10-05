@@ -48,7 +48,7 @@ class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Bool
   // used to determine if a comma should be written. We write commas before
   // writing start content if it is not the first child (i.e. top of the stack
   // is false).
-  private val isFirstChildStack = MStackOfBoolean()
+  private val isFirstChildStack = MStackOfBoolean(16)
 
   private val stringEncoder = JsonStringEncoder.getInstance()
 

@@ -53,7 +53,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends api.infoset.Infose
    * array we enter is pushed onto this stack and is used as the name for all
    * StartElement events immediately inside that array.
    */
-  private val arrayNameStack = new MStackOf[String]()
+  private val arrayNameStack = new MStackOf[String](8)
 
   /**
    * The jackson library has no concept of an end event for values (which

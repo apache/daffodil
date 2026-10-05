@@ -114,8 +114,8 @@ object MPState {
 
 class MPState private () {
 
-  val arrayIterationIndexStack = MStackOfLong()
-  val occursIndexStack = MStackOfLong()
+  val arrayIterationIndexStack = MStackOfLong(16)
+  val occursIndexStack = MStackOfLong(16)
 
   def moveOverOneArrayIterationIndexOnly() =
     arrayIterationIndexStack.push(arrayIterationIndexStack.pop() + 1)
@@ -131,7 +131,7 @@ class MPState private () {
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = MStackOfLong()
+  val childIndexStack = MStackOfLong(16)
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop() + 1)
   def childPos = {
     val res = childIndexStack.top
@@ -141,7 +141,7 @@ class MPState private () {
   val delimiters = new ArrayBuffer[DFADelimiter]
   val delimitersLocalIndexStack = MStackOfInt()
 
-  val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
+  val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper](16)
 
   private def init(): Unit = {
     arrayIterationIndexStack.push(1L)
@@ -225,7 +225,7 @@ final class PState private (
    * discard/resetTo/resolvePointOfUncertainty functions to simplify this
    * logic.
    */
-  val pointsOfUncertainty = new MStackOf[PState.Mark]()
+  val pointsOfUncertainty = new MStackOf[PState.Mark](16)
 
   override def dataStream = One(dataInputStream)
 

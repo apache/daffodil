@@ -47,7 +47,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends api.infoset.InfosetInputte
    * Start/EndDocument events.
    */
   private val stack = {
-    val s = new MStackOf[(Elem, Iterator[Node])]
+    val s = new MStackOf[(Elem, Iterator[Node])](16)
 
     val iter = rootNode match {
       case e: Elem => e.iterator

@@ -554,7 +554,7 @@ final class UStateMain private (
         // reallyjust need the top for cloning for suspensions, but that
         // requires changes to how the escape schema cache is accessed, which
         // isn't a trivial change.
-        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper]()
+        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper](escapeSchemeEVCache.length)
         esClone.copyFrom(escapeSchemeEVCache)
         Maybe(esClone)
       } else {
@@ -564,7 +564,7 @@ final class UStateMain private (
       if (!delimiterStack.isEmpty) {
         // If there are any delimiters, then we need to clone them all since
         // they may be needed for escaping
-        val dsClone = new MStackOf[DelimiterStackUnparseNode]()
+        val dsClone = new MStackOf[DelimiterStackUnparseNode](delimiterStack.length)
         dsClone.copyFrom(delimiterStack)
         Maybe(dsClone)
       } else {
@@ -663,15 +663,15 @@ final class UStateMain private (
     if (currentInfosetNodeStack.isEmpty) Nope
     else currentInfosetNodeStack.top
 
-  override val currentInfosetNodeStack = new MStackOfMaybe[DINode]
+  override val currentInfosetNodeStack = new MStackOfMaybe[DINode](16)
 
-  override val arrayIterationIndexStack = MStackOfLong()
+  override val arrayIterationIndexStack = MStackOfLong(16)
   arrayIterationIndexStack.push(1L)
   override def moveOverOneArrayIterationIndexOnly() =
     arrayIterationIndexStack.setTop(arrayIterationIndexStack.top + 1)
   override def arrayIterationPos = arrayIterationIndexStack.top
 
-  override val occursIndexStack = MStackOfLong()
+  override val occursIndexStack = MStackOfLong(16)
   occursIndexStack.push(1L)
   override def moveOverOneOccursIndexOnly() = occursIndexStack.setTop(occursIndexStack.top + 1)
   override def occursPos = occursIndexStack.top
@@ -683,12 +683,12 @@ final class UStateMain private (
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  override val childIndexStack = MStackOfLong()
+  override val childIndexStack = MStackOfLong(16)
   childIndexStack.push(1L)
   override def moveOverOneElementChildOnly() = childIndexStack.setTop(childIndexStack.top + 1)
   override def childPos = childIndexStack.top
 
-  override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper]
+  override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper](8)
 
   val delimiterStack = new MStackOf[DelimiterStackUnparseNode]()
   override def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)

@@ -52,7 +52,7 @@ class W3CDOMInfosetInputter(doc: Document) extends api.infoset.InfosetInputter {
    * Element.
    */
   private val stack = {
-    val s = new MStackOf[(Element, Iterator[Node])]
+    val s = new MStackOf[(Element, Iterator[Node])](16)
     val iterator = new IterableNodeList(doc.getChildNodes)
     if (!iterator.hasNext) {
       throw new InvalidInfosetException("Document does not contain a root element")
