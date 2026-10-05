@@ -20,8 +20,8 @@ package org.apache.daffodil.unparsers.runtime1
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
-import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.runtime1.dpath.SuspendableExpression
+import org.apache.daffodil.runtime1.dpath.DelegatedSuspendableExpression
+import org.apache.daffodil.runtime1.dpath.ForwardingSuspendableExpression
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DISimple
@@ -239,25 +239,21 @@ trait ElementSpecifiedLengthMixin {
   protected def erd: ElementRuntimeData
 
   /**
-   * This is a maybeTLOp so that this base class can be used to handle
+   * This is a maybe so that this base class can be used to handle
    * data types that do not have specified length as well.
    *
    * An example is lengthKind 'pattern' which while not "specified" length,
    * uses this same code path, just there is no possibility of pad/fill regions.
    *
    * It's a degenerate case of specified length.
-   *
-   * Note: thread safety: This must be def, not val/lazyval because TargetLengthOperation is
-   * a stateful class instance, so cannot be a static member of an unparser
-   * object (unparsers are shared by multiple threads. Suspensions cannot be.)
    */
-  //  private def maybeTLOp = {
-  //    val mtlop = if (maybeTargetLengthEv.isDefined)
-  //      One(new TargetLengthOperation(erd, maybeTargetLengthEv.get))
-  //    else
-  //      Nope
-  //    mtlop
-  //  }
+  private val maybeTargetLengthUnparser: Maybe[TargetLengthUnparser] = {
+    if (maybeTargetLengthEv.isDefined) {
+      Maybe(new TargetLengthUnparser(erd, maybeTargetLengthEv.get))
+    } else {
+      Maybe.Nope
+    }
+  }
 
   protected def computeTargetLength(state: UState): Unit = {
     if (maybeTargetLengthEv.isDefined) {
@@ -267,8 +263,7 @@ trait ElementSpecifiedLengthMixin {
         // do nothing
       } else {
         // it is an expression. It might suspend.
-        val op = new TargetLengthOperation(erd, tlEv)
-        op.run(state)
+        maybeTargetLengthUnparser.get.suspendableOperation.run(state)
       }
     }
   }
@@ -310,32 +305,6 @@ class ElementSpecifiedLengthUnparser(
 /**
  * For dfdl:outputValueCalc elements.
  */
-class ElementOVCSpecifiedLengthUnparserSuspendableExpression(
-  callingUnparser: ElementOVCSpecifiedLengthUnparser,
-  override val expr: CompiledExpression[AnyRef]
-) extends SuspendableExpression {
-
-  override def rd = callingUnparser.erd
-
-  override final protected def processExpressionResult(
-    state: UState,
-    v: DataValuePrimitive
-  ): Unit = {
-    val diSimple = state.currentInfosetNode.asSimple
-
-    diSimple.setDataValue(v)
-
-    //
-    // These are now done in the main unparse, but they will
-    // suspend if they cannot be evaluated because there is not data value yet.
-    //
-    // callingUnparser.computeSetVariables(state)
-  }
-
-  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
-
-}
-
 class ElementOVCSpecifiedLengthUnparser(
   context: ElementRuntimeData,
   override val maybeTargetLengthEv: Maybe[UnparseTargetLengthInBitsEv],
@@ -343,7 +312,7 @@ class ElementOVCSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  expr: CompiledExpression[AnyRef]
+  override val expr: CompiledExpression[AnyRef]
 ) extends ElementUnparserBase(
     context,
     setVarUnparsers,
@@ -353,12 +322,18 @@ class ElementOVCSpecifiedLengthUnparser(
     Nope
   )
   with OVCStartEndStrategy
-  with ElementSpecifiedLengthMixin {
+  with ElementSpecifiedLengthMixin
+  with DelegatedSuspendableExpression {
 
   override val runtimeDependencies = maybeTargetLengthEv.toArray
 
-  private def suspendableExpression =
-    new ElementOVCSpecifiedLengthUnparserSuspendableExpression(this, expr)
+  override def rd: ElementRuntimeData = erd
+
+  override def processExpressionResult(state: UState, v: DataValuePrimitive): Unit = {
+    state.currentInfosetNode.asSimple.setDataValue(v)
+  }
+
+  private def suspendableExpression = new ForwardingSuspendableExpression(this)
 
   Assert.invariant(context.dpathElementCompileInfo.isOutputValueCalc)
 

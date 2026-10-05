@@ -43,9 +43,8 @@ trait Suspension extends Serializable {
   /**
    * Specifies that this suspension does not write to the data output stream.
    *
-   * Override in TargetLengthOperation,and in SuspendableExpression as they
-   * don't write to the DOS hence, if a DOS is created it can be setFinished
-   * immediately.
+   * Override in suspensions that don't write to the DOS, since then, if a DOS
+   * is created it can be setFinished immediately.
    *
    * TODO: Redundant with implementing maybeKnownLengthInBits as MaybeULong(0L)
    */
