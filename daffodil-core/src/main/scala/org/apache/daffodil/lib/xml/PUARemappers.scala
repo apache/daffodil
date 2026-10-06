@@ -18,6 +18,81 @@ package org.apache.daffodil.lib.xml
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.CharacterSetRemapper
+import org.apache.daffodil.runtime1.infoset.InvalidInfosetException
+
+/**
+ * Represents backslash, CR, and LF characters as the two character sequences
+ * \\, \r, and \n so that the text contains no line ending characters and the
+ * conversion is exactly invertible.
+ */
+object LineEndingEscaper {
+
+  private def isEscapable(c: Char): Boolean = c == '\\' || c == '\r' || c == '\n'
+
+  def escape(s: String): String = {
+    val len = s.length
+    var pos = 0
+    while (pos < len && !isEscapable(s.charAt(pos))) {
+      pos += 1
+    }
+    if (pos == len) {
+      s
+    } else {
+      val sb = new java.lang.StringBuilder(len)
+      sb.append(s, 0, pos)
+      while (pos < len) {
+        val c = s.charAt(pos)
+        c match {
+          case '\\' => sb.append("\\\\")
+          case '\r' => sb.append("\\r")
+          case '\n' => sb.append("\\n")
+          case _ => sb.append(c)
+        }
+        pos += 1
+      }
+      sb.toString
+    }
+  }
+
+  /**
+   * Inverse of escape. A backslash that is not followed by backslash, 'r', or 'n'
+   * is invalid, as is a backslash at the end of the string.
+   */
+  def unescape(s: String): String = {
+    val len = s.length
+    var pos = s.indexOf('\\')
+    if (pos < 0) {
+      s
+    } else {
+      val sb = new java.lang.StringBuilder(len)
+      sb.append(s, 0, pos)
+      while (pos < len) {
+        val c = s.charAt(pos)
+        if (c == '\\') {
+          if (pos + 1 >= len) {
+            throw new InvalidInfosetException(
+              "Line ending escape style: string ends with an incomplete backslash escape."
+            )
+          }
+          s.charAt(pos + 1) match {
+            case '\\' => sb.append('\\')
+            case 'r' => sb.append('\r')
+            case 'n' => sb.append('\n')
+            case other =>
+              throw new InvalidInfosetException(
+                "Line ending escape style: invalid escape sequence '\\%c'.".format(other)
+              )
+          }
+          pos += 2
+        } else {
+          sb.append(c)
+          pos += 1
+        }
+      }
+      sb.toString
+    }
+  }
+}
 
 /**
  * Remaps illegal XML chars to the Unicode Private use Area (PUA), and optionally CR also to the PUA.

@@ -18,6 +18,7 @@
 package org.apache.daffodil.cli
 
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 
 /**
  * One supported key: the infoset types it applies to, its allowed values for help
@@ -85,6 +86,17 @@ final case class InfosetOptions(parsed: ParsedInfosetOptions) {
       valueDescription = XMLTextEscapeStyle.values.mkString("|"),
       defaultValue = XMLTextEscapeStyle.Standard,
       parseValue = text => InfosetOptions.enumValue(XMLTextEscapeStyle.values, text)
+    )
+  )
+
+  val lineEndingStyle: XMLTextLineEndingStyle = value(
+    InfosetOptionKey(
+      name = "lineEndings",
+      applicableInfosetTypes =
+        Set(InfosetType.XML, InfosetType.SCALA_XML, InfosetType.JDOM, InfosetType.W3CDOM),
+      valueDescription = XMLTextLineEndingStyle.values.mkString("|"),
+      defaultValue = XMLTextLineEndingStyle.Normalize,
+      parseValue = text => InfosetOptions.enumValue(XMLTextLineEndingStyle.values, text)
     )
   )
 

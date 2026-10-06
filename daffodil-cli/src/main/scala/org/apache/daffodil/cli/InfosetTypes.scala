@@ -293,7 +293,8 @@ case class XMLTextInfosetHandler(
     val output = new XMLTextInfosetOutputter(
       os,
       infosetOptions.pretty,
-      infosetOptions.xmlTextEscapeStyle
+      infosetOptions.xmlTextEscapeStyle,
+      lineEndingStyle = infosetOptions.lineEndingStyle
     )
     val pr = parseWithInfosetOutputter(input, output)
     new InfosetParseResult(pr)
@@ -304,7 +305,7 @@ case class XMLTextInfosetHandler(
       case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
       case is: InputStream => is
     }
-    val input = new XMLTextInfosetInputter(is)
+    val input = new XMLTextInfosetInputter(is, infosetOptions.lineEndingStyle)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -352,14 +353,14 @@ case class JDOMInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new JDOMInfosetOutputter()
+    val output = new JDOMInfosetOutputter(infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new JDOMInfosetParseResult(pr, output)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
     val doc = data.asInstanceOf[org.jdom2.Document]
-    val input = new JDOMInfosetInputter(doc)
+    val input = new JDOMInfosetInputter(doc, infosetOptions.lineEndingStyle)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -396,14 +397,14 @@ case class ScalaXMLInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new ScalaXMLInfosetOutputter()
+    val output = new ScalaXMLInfosetOutputter(infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new ScalaXMLInfosetParseResult(pr, output)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
     val node = data.asInstanceOf[scala.xml.Node]
-    val input = new ScalaXMLInfosetInputter(node)
+    val input = new ScalaXMLInfosetInputter(node, infosetOptions.lineEndingStyle)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -443,7 +444,7 @@ case class W3CDOMInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new W3CDOMInfosetOutputter()
+    val output = new W3CDOMInfosetOutputter(infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new W3CDOMInfosetParseResult(pr, output)
   }
@@ -451,7 +452,7 @@ case class W3CDOMInfosetHandler(
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
     val domPool = data.asInstanceOf[ThreadSafePool[org.w3c.dom.Document]]
     domPool.withInstance { doc =>
-      val input = new W3CDOMInfosetInputter(doc)
+      val input = new W3CDOMInfosetInputter(doc, infosetOptions.lineEndingStyle)
       val ur = unparseWithInfosetInputter(input, output)
       ur
     }

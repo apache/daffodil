@@ -23,12 +23,16 @@ import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetElement
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.JDOMInfosetOutputter as JJDOMInfosetOutputter
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
 
-class JDOMInfosetOutputter extends JJDOMInfosetOutputter {
+class JDOMInfosetOutputter(lineEndingStyle: XMLTextLineEndingStyle)
+  extends JJDOMInfosetOutputter {
+
+  def this() = this(XMLTextLineEndingStyle.Normalize)
 
   private val stack = new MStackOf[org.jdom2.Parent](16)
   private var result: Maybe[org.jdom2.Document] = Maybe.Nope
@@ -58,7 +62,7 @@ class JDOMInfosetOutputter extends JJDOMInfosetOutputter {
     if (!simple.isNilled) {
       val text =
         if (simple.metadata.dfdlType == DFDLPrimType.String) {
-          XMLUtils.remapXMLIllegalCharactersToPUA(simple.getText)
+          XMLUtils.remapXMLIllegalCharactersToPUA(simple.getText, lineEndingStyle)
         } else {
           simple.getText
         }

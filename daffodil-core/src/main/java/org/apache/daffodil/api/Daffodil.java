@@ -25,6 +25,7 @@ import org.apache.daffodil.api.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.api.infoset.ScalaXMLInfosetOutputter;
 import org.apache.daffodil.api.infoset.W3CDOMInfosetOutputter;
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle;
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle;
 import org.apache.daffodil.core.dsom.ExpressionCompilers$;
 import org.apache.daffodil.runtime1.debugger.DaffodilDebugger;
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner;
@@ -78,7 +79,7 @@ public class Daffodil {
    * @return InfosetOutputter
    */
   public static InfosetOutputter newXMLTextInfosetOutputter(OutputStream os, boolean pretty) {
-    return new XMLTextInfosetOutputter(os, pretty, XMLTextEscapeStyle.Standard, false);
+    return new XMLTextInfosetOutputter(os, pretty, XMLTextEscapeStyle.Standard, false, XMLTextLineEndingStyle.Normalize);
   }
 
   /**
@@ -96,7 +97,105 @@ public class Daffodil {
    * @return InfosetOutputter
    */
   public static InfosetOutputter newXMLTextInfosetOutputter(OutputStream os, boolean pretty, XMLTextEscapeStyle xmlTextEscapeStyle) {
-    return new XMLTextInfosetOutputter(os, pretty, xmlTextEscapeStyle, false);
+    return new XMLTextInfosetOutputter(os, pretty, xmlTextEscapeStyle, false, XMLTextLineEndingStyle.Normalize);
+  }
+
+  /**
+   * {@link InfosetOutputter} to build an infoset represented as XML written to a java.io.OutputStream
+   * <p>
+   * Output the infoset as XML Text, written to a java.io.OutputStream
+   *
+   * @param os                 the java.io.OutputStream to write the XML text to
+   * @param pretty             enable or disable pretty printing. Pretty printing will only
+   *                           insert indentation and newlines where it will not affect the
+   *                           content of the XML.
+   * @param xmlTextEscapeStyle determine whether to wrap values of elements of type
+   *                           xs:string in CDATA tags in order to preserve
+   *                           whitespace.
+   * @param lineEndingStyle    determine how CR and LF characters in the values of elements
+   *                           of type xs:string are represented. The same style must be
+   *                           used by the InfosetInputter to read the infoset back in.
+   * @return InfosetOutputter
+   */
+  public static InfosetOutputter newXMLTextInfosetOutputter(OutputStream os, boolean pretty, XMLTextEscapeStyle xmlTextEscapeStyle, XMLTextLineEndingStyle lineEndingStyle) {
+    return new XMLTextInfosetOutputter(os, pretty, xmlTextEscapeStyle, false, lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetOutputter} to build an infoset represented as a scala.xml.Node
+   *
+   * @param lineEndingStyle determine how CR and LF characters in the values of elements
+   *                        of type xs:string are represented
+   * @return InfosetOutputter
+   */
+  public static ScalaXMLInfosetOutputter newScalaXMLInfosetOutputter(XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter(lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetOutputter} to build an infoset represented as an org.jdom2.Document
+   *
+   * @param lineEndingStyle determine how CR and LF characters in the values of elements
+   *                        of type xs:string are represented
+   * @return InfosetOutputter
+   */
+  public static JDOMInfosetOutputter newJDOMInfosetOutputter(XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.JDOMInfosetOutputter(lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetOutputter} to build an infoset represented as an org.w3c.dom.Document
+   *
+   * @param lineEndingStyle determine how CR and LF characters in the values of elements
+   *                        of type xs:string are represented
+   * @return InfosetOutputter
+   */
+  public static W3CDOMInfosetOutputter newW3CDOMInfosetOutputter(XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.W3CDOMInfosetOutputter(lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetInputter} to read an infoset represented as a scala.xml.Node
+   *
+   * @param node            the scala.xml.Node infoset
+   * @param lineEndingStyle the style the infoset used to represent CR and LF characters
+   * @return InfosetInputter
+   */
+  public static InfosetInputter newScalaXMLInfosetInputter(scala.xml.Node node, XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter(node, lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetInputter} to read an infoset represented as XML from a java.io.InputStream
+   *
+   * @param is              the java.io.InputStream to read the XML text from
+   * @param lineEndingStyle the style the infoset used to represent CR and LF characters
+   * @return InfosetInputter
+   */
+  public static InfosetInputter newXMLTextInfosetInputter(InputStream is, XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.XMLTextInfosetInputter(is, lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetInputter} to read an infoset represented as an org.jdom2.Document
+   *
+   * @param document        the org.jdom2.Document infoset
+   * @param lineEndingStyle the style the infoset used to represent CR and LF characters
+   * @return InfosetInputter
+   */
+  public static InfosetInputter newJDOMInfosetInputter(org.jdom2.Document document, XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.JDOMInfosetInputter(document, lineEndingStyle);
+  }
+
+  /**
+   * {@link InfosetInputter} to read an infoset represented as an org.w3c.dom.Document
+   *
+   * @param document        the org.w3c.dom.Document infoset
+   * @param lineEndingStyle the style the infoset used to represent CR and LF characters
+   * @return InfosetInputter
+   */
+  public static InfosetInputter newW3CDOMInfosetInputter(org.w3c.dom.Document document, XMLTextLineEndingStyle lineEndingStyle) {
+    return new org.apache.daffodil.runtime1.infoset.W3CDOMInfosetInputter(document, lineEndingStyle);
   }
 
   /**

@@ -37,6 +37,7 @@ import scala.math.abs
 import scala.util.matching.Regex
 import scala.xml.*
 
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.*
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -175,9 +176,23 @@ object XMLUtils {
 
   def remapXMLIllegalCharactersToPUA(s: String): String = remapXMLToPUA.remap(s)
 
+  def remapXMLIllegalCharactersToPUA(s: String, style: XMLTextLineEndingStyle): String =
+    style match {
+      case XMLTextLineEndingStyle.Normalize => remapXMLToPUA.remap(s)
+      case XMLTextLineEndingStyle.PUA => xmlRemapperPreservingCR.remap(s)
+      case XMLTextLineEndingStyle.Escape => remapXMLToPUA.remap(LineEndingEscaper.escape(s))
+    }
+
   private val remapPUAToXML = new RemapPUAToXMLIllegalChar()
 
   def remapPUAToXMLIllegalCharacters(text: String) = remapPUAToXML.remap(text)
+
+  def remapPUAToXMLIllegalCharacters(text: String, style: XMLTextLineEndingStyle): String =
+    style match {
+      case XMLTextLineEndingStyle.Escape =>
+        LineEndingEscaper.unescape(remapPUAToXML.remap(text))
+      case _ => remapPUAToXML.remap(text)
+    }
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {
     node match {
