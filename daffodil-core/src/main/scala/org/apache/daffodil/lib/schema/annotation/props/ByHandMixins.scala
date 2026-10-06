@@ -31,7 +31,7 @@ import org.apache.daffodil.lib.cookers.TextStandardInfinityRepCooker
 import org.apache.daffodil.lib.cookers.TextStandardNaNRepCooker
 import org.apache.daffodil.lib.cookers.TextStandardZeroRepCooker
 import org.apache.daffodil.lib.cookers.TextStringPadCharacterCooker
-import org.apache.daffodil.lib.equality.ViewEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.iapi.DaffodilTunables
