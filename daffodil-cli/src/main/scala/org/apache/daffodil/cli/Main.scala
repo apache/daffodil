@@ -191,6 +191,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       }
     })
 
+  private val infosetOptionDescr =
+    "Comma separated list of key=value options for the infoset inputter or outputter, " +
+      "for example --infoset-opts=pretty=false,xmlTextEscape=CDATA. " +
+      "Keys:\n" + InfosetOptions.keysDescription
+
   implicit def implementationConverter: ValueConverter[TDMLImplementation] =
     singleArgConverter[TDMLImplementation]((s: String) => {
       val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
@@ -361,6 +366,13 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
     )
+    val infosetOptions = opt[String](
+      name = "infoset-opts",
+      noshort = true,
+      argName = "key=value,...",
+      descr = infosetOptionDescr,
+      default = Some("")
+    )
     val output = opt[String](
       argName = "file",
       descr =
@@ -439,6 +451,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     // --config must be a file that exists
     validateFileIsFile(config)
 
+    validateOpt(infosetType, infosetOptions) {
+      case (Some(t), Some(options)) => InfosetOptions.parse(options, t).map(_ => ())
+      case _ => Right(())
+    }
+
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
         Left("Input must not be stdin during interactive debugging")
@@ -487,6 +504,13 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         ", "
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
+    )
+    val infosetOptions = opt[String](
+      name = "infoset-opts",
+      noshort = true,
+      argName = "key=value,...",
+      descr = infosetOptionDescr,
+      default = Some("")
     )
     val output = opt[String](
       argName = "file",
@@ -563,6 +587,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
     // --config must be a file that exists
     validateFileIsFile(config)
+
+    validateOpt(infosetType, infosetOptions) {
+      case (Some(t), Some(options)) => InfosetOptions.parse(options, t).map(_ => ())
+      case _ => Right(())
+    }
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
@@ -1263,17 +1292,22 @@ class Main(
                 }
               }
             }
-            Using.resource(input) { inStream =>
+            Using.Manager { use =>
+              val inStream = use(input)
               val output = parseOpts.output.toOption match {
                 case Some("-") | None => STDOUT
-                case Some(file) => new FileOutputStream(file)
+                case Some(file) => use(new FileOutputStream(file))
               }
 
               val infosetHandler = InfosetType.getInfosetHandler(
                 parseOpts.infosetType(),
                 processor,
                 parseOpts.schema.map(_.uri).toOption,
-                forPerformance = false
+                forPerformance = false,
+                options = InfosetOptions.parseValidated(
+                  parseOpts.infosetOptions(),
+                  parseOpts.infosetType()
+                )
               )
 
               var lastParseBitPosition = 0L
@@ -1399,7 +1433,7 @@ class Main(
                 }
               }
               exitCode
-            }
+            }.get
           }
         }
         rc
@@ -1614,7 +1648,11 @@ class Main(
               unparseOpts.infosetType(),
               processor,
               unparseOpts.schema.map(_.uri).toOption,
-              forPerformance = false
+              forPerformance = false,
+              options = InfosetOptions.parseValidated(
+                unparseOpts.infosetOptions(),
+                unparseOpts.infosetType()
+              )
             )
 
             while (keepUnparsing) {

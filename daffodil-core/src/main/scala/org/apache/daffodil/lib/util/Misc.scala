@@ -47,6 +47,33 @@ import passera.unsigned.UByte
  */
 object Misc {
 
+  /**
+   * Splits text into key=value pairs. The text is split into items at each match
+   * of the separator regular expression, and each item is split at its first '='.
+   * Values may be empty or contain '='.
+   *
+   * @return Right with the pairs in order, empty if text is empty, or Left with
+   *   the first item that has no '=' or has an empty key.
+   */
+  def parseKeyValuePairs(
+    text: String,
+    separator: String
+  ): Either[String, Seq[(String, String)]] = {
+    val items = if (text.isEmpty) {
+      Seq.empty[String]
+    } else {
+      text.split(separator, -1).toSeq
+    }
+    items.find(_.indexOf('=') <= 0) match {
+      case Some(badItem) => Left(badItem)
+      case None =>
+        Right(items.map { item =>
+          val eq = item.indexOf('=')
+          (item.substring(0, eq), item.substring(eq + 1))
+        })
+    }
+  }
+
   def boolToOpt[T](test: Boolean, thing: => T): Option[T] = {
     if (test) Some(thing) else None
   }

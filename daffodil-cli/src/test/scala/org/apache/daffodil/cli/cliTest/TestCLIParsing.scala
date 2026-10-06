@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import scala.sys.process.Process
 import scala.util.Using
 
+import org.apache.daffodil.cli.InfosetOptions
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util.*
 import org.apache.daffodil.core.util.TestUtils.intercept
@@ -36,6 +37,14 @@ class TestCLIParsing {
   @Test def test_CLI_help(): Unit = {
     runCLI(args"parse --help") { cli =>
       cli.expect("Usage: daffodil parse")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_CLI_help_documentsEveryInfosetOption(): Unit = {
+    runCLI(args"parse --help") { cli =>
+      InfosetOptions.keyNames.foreach { key =>
+        cli.expect(s"$key=")
+      }
     }(ExitCode.Success)
   }
 
@@ -875,6 +884,103 @@ class TestCLIParsing {
     runCLI(args"parse -I jdom -s $schema -r e1") { cli =>
       cli.send("Hello", inputDone = true)
       cli.expect("""<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>""")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_unknownKey(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse --infoset-opts=bogus=true -s $schema -r e1") { cli =>
+      cli.expectErr("Unrecognized infoset option 'bogus'")
+    }(ExitCode.Usage)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_notApplicable(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse -I json --infoset-opts=xmlTextEscape=CDATA -s $schema -r e1") { cli =>
+      cli.expectErr("Infoset option 'xmlTextEscape' does not apply to the json infoset type")
+    }(ExitCode.Usage)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_invalidValue(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse --infoset-opts=pretty=bogus -s $schema -r e1") { cli =>
+      cli.expectErr("Invalid value 'bogus' for infoset option 'pretty'")
+    }(ExitCode.Usage)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_missingEquals(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse --infoset-opts=pretty -s $schema -r e1") { cli =>
+      cli.expectErr("Invalid infoset option 'pretty'. Expected key=value")
+    }(ExitCode.Usage)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_exiCompression(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    withTempDir { tempDir =>
+      val plain = java.nio.file.Paths.get(tempDir.toString, "plain.exi")
+      val compressed = java.nio.file.Paths.get(tempDir.toString, "compressed.exi")
+
+      runCLI(args"parse -I exi -s $schema -r e1 -o $plain") { cli =>
+        cli.send("Hello", inputDone = true)
+      }(ExitCode.Success)
+
+      runCLI(
+        args"parse -I exi --infoset-opts=exiCompression=true -s $schema -r e1 -o $compressed"
+      ) { cli =>
+        cli.send("Hello", inputDone = true)
+      }(ExitCode.Success)
+
+      assertFalse(
+        java.util.Arrays.equals(
+          java.nio.file.Files.readAllBytes(plain),
+          java.nio.file.Files.readAllBytes(compressed)
+        )
+      )
+
+      runCLI(
+        args"unparse -I exi --infoset-opts=exiCompression=true -s $schema --root e1 $compressed"
+      ) { cli =>
+        cli.expect("Hello")
+      }(ExitCode.Success)
+    }
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_json_notPretty(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse -I json --infoset-opts=pretty=false -s $schema -r e1") { cli =>
+      cli.send("Hello", inputDone = true)
+      cli.expect("""{"e1": "Hello"}""")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_xml_cdata(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse --infoset-opts=xmlTextEscape=CDATA,pretty=false -s $schema -r e1") {
+      cli =>
+        cli.send("a b c", inputDone = true)
+        cli.expect("<![CDATA[a b c]]>")
     }(ExitCode.Success)
   }
 
