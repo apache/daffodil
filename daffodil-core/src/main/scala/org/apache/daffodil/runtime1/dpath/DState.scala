@@ -31,7 +31,6 @@ import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.FakeDINode
 import org.apache.daffodil.runtime1.infoset.InfosetNoNextSiblingException
-import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData;
 object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
@@ -364,43 +363,12 @@ case class DState(
     // do nothing
   }
 
-  // @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
-  final def withRetryIfBlocking[T](body: => T): T =
-    DState.withRetryIfBlocking(this)(body)
-}
-
-object DState {
-
-  // private object ToBeIgnored
-
-  // @inline
-  final def withRetryIfBlocking[T](ds: DState)(body: => T): T = { // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
-    ds.mode match {
-      case _: ParserMode => body
-      case UnparserNonBlocking => body
-      case UnparserBlocking => {
-        var isDone = false
-        var res: T = null.asInstanceOf[T]
-        while (!isDone) {
-          try {
-            res = body
-            isDone = true
-          } catch {
-            case e: RetryableException => {
-              // we're to block here, and retry subsequently.
-              isDone = false
-              //              if (ds.thisExpressionCoroutine.isDefined && ds.coroutineToResumeIfBlocked.isDefined) {
-              //                ds.thisExpressionCoroutine.get.resume(ds.coroutineToResumeIfBlocked.get, ToBeIgnored)
-              //              } else {
-              throw e
-              //              }
-            }
-          }
-        }
-        res
-      }
-    }
-  }
+  /**
+   * Evaluates body in place. A blocked evaluation's RetryableException
+   * propagates to the suspension machinery, which retries it later. It is
+   * inline so the by-name body costs no closure per call.
+   */
+  inline final def withRetryIfBlocking[T](inline body: => T): T = body
 }
 
 class DStateForConstantFolding(

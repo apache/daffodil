@@ -43,9 +43,12 @@ package object equality {
 
   // Convertible types - strongly typed equality
 
+  // The operators below are inline so each call site compares with its
+  // operands' static types; compiled once, they would compare through the
+  // erased type and call BoxesRunTime.equals every time.
   implicit class ViewEqual[T](val left: T) extends AnyVal {
-    @inline def =#=(right: T) = left == right
-    @inline def !=#=(right: T) = left != right
+    inline def =#=(right: T) = left == right
+    inline def !=#=(right: T) = left != right
   }
   //  implicit class ViewEqual[L](val left: L) extends AnyVal {
   //    def =#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
@@ -87,15 +90,17 @@ package object equality {
 
   // Type wise - allows bi-directional subtypes, not just subtype on right.
 
+  // The implicit TypeEquality is only the compile-time proof that L and R are
+  // in a subtype relationship; the comparison itself is expanded in place.
   implicit class TypeEqual[L <: AnyRef](val left: L) extends AnyVal {
-    @inline def =:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
-      equality.areEqual(left, right)
-    @inline def !=:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
-      !equality.areEqual(left, right)
-    @inline def _eq_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
-      equality.areEq(left, right)
-    @inline def _ne_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
-      !equality.areEq(left, right)
+    inline def =:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      left == right
+    inline def !=:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      left != right
+    inline def _eq_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      left eq right
+    inline def _ne_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      left ne right
   }
 
   @implicitNotFound("Typed equality requires ${L} and ${R} to be in a subtype relationship!")

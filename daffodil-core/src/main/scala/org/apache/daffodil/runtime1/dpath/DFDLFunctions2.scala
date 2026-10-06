@@ -35,7 +35,7 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
   protected def getLength(elt: DIElement, units: LengthUnits, dstate: DState): ULong = {
 
     val len: ULong =
-      DState.withRetryIfBlocking(dstate) {
+      dstate.withRetryIfBlocking {
         units match {
           case LengthUnits.Bits => lengthState(elt).lengthInBits
           case LengthUnits.Bytes => lengthState(elt).lengthInBytes
