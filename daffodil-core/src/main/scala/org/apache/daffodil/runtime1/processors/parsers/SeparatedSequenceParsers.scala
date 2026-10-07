@@ -17,6 +17,7 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.*
 
 trait Separated { self: SequenceChildParser =>
@@ -43,9 +44,10 @@ trait Separated { self: SequenceChildParser =>
 
   final def parseOne(
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    maybePOU: Maybe[PState.Mark]
   ): ParseAttemptStatus = {
-    separatorHelper.parseOneWithSeparator(pstate, requiredOptional)
+    separatorHelper.parseOneWithSeparator(pstate, requiredOptional, maybePOU)
   }
 
   final override def arrayCompleteChecks(
