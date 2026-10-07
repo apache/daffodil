@@ -24,6 +24,38 @@ import org.junit.Test
 
 class TestMisc {
 
+  @Test def testParseKeyValuePairs(): Unit = {
+    assertEquals(
+      Right(Seq(("a", "1"), ("b", "two"))),
+      Misc.parseKeyValuePairs("a=1,b=two", ",")
+    )
+  }
+
+  @Test def testParseKeyValuePairsEmpty(): Unit = {
+    assertEquals(Right(Seq.empty), Misc.parseKeyValuePairs("", ","))
+  }
+
+  @Test def testParseKeyValuePairsEmptyValueAndEmbeddedEquals(): Unit = {
+    assertEquals(
+      Right(Seq(("a", ""), ("b", "x=y"))),
+      Misc.parseKeyValuePairs("a=,b=x=y", ",")
+    )
+  }
+
+  @Test def testParseKeyValuePairsRegexSeparator(): Unit = {
+    assertEquals(
+      Right(Seq(("a", "1"), ("b", "2"))),
+      Misc.parseKeyValuePairs("a=1  b=2", """\s+""")
+    )
+  }
+
+  @Test def testParseKeyValuePairsBadItems(): Unit = {
+    assertEquals(Left("b"), Misc.parseKeyValuePairs("a=1,b,c=3", ","))
+    assertEquals(Left("=1"), Misc.parseKeyValuePairs("=1", ","))
+    assertEquals(Left(""), Misc.parseKeyValuePairs("a=1,", ","))
+    assertEquals(Left(""), Misc.parseKeyValuePairs("a=1,,b=2", ","))
+  }
+
   @Test def testHex2BytesInvalidLower(): Unit = {
     val e = intercept[NumberFormatException] {
       Misc.hex2Bytes("0g")
