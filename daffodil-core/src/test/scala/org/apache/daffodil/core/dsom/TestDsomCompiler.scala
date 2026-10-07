@@ -1170,7 +1170,7 @@ class TestDsomCompiler {
     val decl = declf.asRoot
 
     assertEquals(1, decl.patternValues.length)
-    val (_, pattern) = decl.patternValues(0)
+    val pattern = decl.patternValues.head.regex
     assertEquals("1|2|3", pattern.toString())
   }
 
@@ -1210,9 +1210,9 @@ class TestDsomCompiler {
     val decl = declf.asRoot
 
     assertEquals(3, decl.patternValues.length)
-    val (_, st1) = decl.patternValues(0)
-    val (_, st2) = decl.patternValues(1)
-    val (_, st3) = decl.patternValues(2)
+    val st1 = decl.patternValues.head.regex
+    val st2 = decl.patternValues(1).regex
+    val st3 = decl.patternValues(2).regex
 
     assertEquals("1|2|3", st1.toString())
     assertEquals("4|5|6", st2.toString())
