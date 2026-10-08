@@ -24,7 +24,7 @@ import java.util.regex.Pattern
 
 import org.apache.daffodil.core.util.TestUtils.intercept
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
-import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy

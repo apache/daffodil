@@ -43,12 +43,12 @@ package object equality {
 
   // Convertible types - strongly typed equality
 
-  // The operators below are inline so each call site compares with its
-  // operands' static types; compiled once, they would compare through the
-  // erased type and call BoxesRunTime.equals every time.
-  implicit class ViewEqual[T](val left: T) extends AnyVal {
-    inline def =#=(right: T) = left == right
-    inline def !=#=(right: T) = left != right
+  // The operators are inline extension methods with inline receivers so each
+  // call site compares with its operands' static types, and neither a wrapper
+  // object nor a boxed operand is created.
+  extension [T](inline left: T) {
+    inline def =#=(inline right: T): Boolean = left == right
+    inline def !=#=(inline right: T): Boolean = left != right
   }
   //  implicit class ViewEqual[L](val left: L) extends AnyVal {
   //    def =#=[R](right: R)(implicit equality: ViewEquality[L, R]): Boolean =
@@ -90,43 +90,43 @@ package object equality {
 
   // Type wise - allows bi-directional subtypes, not just subtype on right.
 
-  // The implicit TypeEquality is only the compile-time proof that L and R are
-  // in a subtype relationship; the comparison itself is expanded in place.
-  implicit class TypeEqual[L <: AnyRef](val left: L) extends AnyVal {
-    inline def =:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+  // The given TypeEquality is only the compile-time proof that L and R are
+  // in a subtype relationship; it is an inline parameter so it is never evaluated.
+  extension [L <: AnyRef](inline left: L) {
+    inline def =:=[R <: AnyRef](inline right: R)(using
+      inline equality: TypeEquality[L, R]
+    ): Boolean =
       left == right
-    inline def !=:=[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    inline def !=:=[R <: AnyRef](inline right: R)(using
+      inline equality: TypeEquality[L, R]
+    ): Boolean =
       left != right
-    inline def _eq_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    inline def _eq_[R <: AnyRef](inline right: R)(using
+      inline equality: TypeEquality[L, R]
+    ): Boolean =
       left eq right
-    inline def _ne_[R <: AnyRef](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+    inline def _ne_[R <: AnyRef](inline right: R)(using
+      inline equality: TypeEquality[L, R]
+    ): Boolean =
       left ne right
   }
 
   @implicitNotFound("Typed equality requires ${L} and ${R} to be in a subtype relationship!")
-  private[equality] sealed trait TypeEquality[L <: AnyRef, R <: AnyRef] {
-    def areEqual(left: L, right: R): Boolean
-    def areEq(left: L, right: R): Boolean
-  }
+  private[equality] sealed trait TypeEquality[L <: AnyRef, R <: AnyRef]
 
   private[equality] object TypeEquality extends LowPriorityTypeEqualityImplicits {
-    @inline implicit def rightSubtypeOfLeftEquality[L <: AnyRef, R <: L]: TypeEquality[L, R] =
+    inline given rightSubtypeOfLeftEquality[L <: AnyRef, R <: L]: TypeEquality[L, R] =
       AnyTypeEquality.asInstanceOf[TypeEquality[L, R]]
   }
   private[equality] trait LowPriorityTypeEqualityImplicits {
-    @inline implicit def leftSubtypeOfRightEquality[R <: AnyRef, L <: R]: TypeEquality[L, R] =
+    inline given leftSubtypeOfRightEquality[R <: AnyRef, L <: R]: TypeEquality[L, R] =
       AnyTypeEquality.asInstanceOf[TypeEquality[L, R]]
   }
 
   // must be public or scala compiler complains that it can't embed the
   // static reference.
   //
-  object AnyTypeEquality extends TypeEquality[AnyRef, AnyRef] {
-    @inline override def areEqual(left: AnyRef, right: AnyRef): Boolean =
-      left == right
-    @inline override def areEq(left: AnyRef, right: AnyRef): Boolean =
-      left eq right
-  }
+  object AnyTypeEquality extends TypeEquality[AnyRef, AnyRef]
 
   // exact type equality
   //
