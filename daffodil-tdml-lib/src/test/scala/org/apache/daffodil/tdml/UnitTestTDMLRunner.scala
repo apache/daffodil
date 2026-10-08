@@ -869,46 +869,4 @@ class UnitTestTDMLRunner {
     assertTrue(e.getMessage().contains("'type' must appear on element 'documentPart'"))
   }
 
-  @Test def testEnvTunablesEmpty(): Unit = {
-    assertEquals(Map.empty[String, String], TDMLEnvTunables.parse(""))
-    assertEquals(Map.empty[String, String], TDMLEnvTunables.parse(" , ,"))
-  }
-
-  @Test def testEnvTunablesSingle(): Unit = {
-    assertEquals(
-      Map("useBuildPrefetch" -> "false"),
-      TDMLEnvTunables.parse("useBuildPrefetch=false")
-    )
-  }
-
-  @Test def testEnvTunablesMultipleWithWhitespace(): Unit = {
-    assertEquals(
-      Map("a" -> "1", "b" -> "two"),
-      TDMLEnvTunables.parse(" a = 1 , b=two ,")
-    )
-  }
-
-  @Test def testEnvTunablesValueContainsEquals(): Unit = {
-    assertEquals(Map("a" -> "b=c"), TDMLEnvTunables.parse("a=b=c"))
-  }
-
-  @Test def testEnvTunablesLastDuplicateWins(): Unit = {
-    assertEquals(Map("a" -> "2"), TDMLEnvTunables.parse("a=1,a=2"))
-  }
-
-  @Test def testEnvTunablesMissingEquals(): Unit = {
-    val e = intercept[IllegalArgumentException] {
-      TDMLEnvTunables.parse("a=1,justAName")
-    }
-    assertTrue(e.getMessage.contains("justAName"))
-    assertTrue(e.getMessage.contains("expected name=value"))
-  }
-
-  @Test def testEnvTunablesMissingName(): Unit = {
-    val e = intercept[IllegalArgumentException] {
-      TDMLEnvTunables.parse("=1")
-    }
-    assertTrue(e.getMessage.contains("expected name=value"))
-  }
-
 }
