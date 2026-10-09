@@ -79,6 +79,11 @@ sealed trait Unparser extends Processor {
     UnparseError(One(context.schemaFileLocation), One(ustate.currentLocation), s, args*)
   }
 
+  // Code shared with build has no data location to report.
+  def UE(state: InfosetTreeState, s: String, args: Any*) = {
+    UnparseError(One(context.schemaFileLocation), Nope, s, args*)
+  }
+
 }
 
 /**

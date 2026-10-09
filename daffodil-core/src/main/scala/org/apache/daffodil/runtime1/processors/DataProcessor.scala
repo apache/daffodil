@@ -39,6 +39,7 @@ import org.apache.daffodil.api.validation.ValidatorInitializationException
 import org.apache.daffodil.api.validation.Validators
 import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.iapi.DaffodilTunables
+import org.apache.daffodil.lib.iapi.InfosetBuilderMode
 import org.apache.daffodil.lib.iapi.WithDiagnostics
 import org.apache.daffodil.runtime1.dsom.*
 import org.apache.daffodil.runtime1.iapi.DFDL
@@ -61,6 +62,7 @@ import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.runtime1.events.MultipleEventHandler
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.infoset.DIElement
+import org.apache.daffodil.runtime1.infoset.InfosetBuildCursor
 import org.apache.daffodil.runtime1.infoset.InfosetException
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.TeeInfosetOutputter
@@ -68,6 +70,10 @@ import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.ChildNotBuiltException
+import org.apache.daffodil.runtime1.processors.unparsers.InfosetBuildState
+import org.apache.daffodil.runtime1.processors.unparsers.NotUnparsableUnparser
+import org.apache.daffodil.runtime1.processors.unparsers.TreeEventState
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
@@ -458,6 +464,189 @@ class DataProcessor(
   }
 
   def unparse(actualInputter: api.infoset.InfosetInputter, outStream: java.io.OutputStream) = {
+    // A NotUnparsableUnparser (dfdl:parseUnparsePolicy="parseOnly") has no
+    // builders to run ahead, and unparseEventDriven already gives the correct
+    // diagnostic for it, so it never builds ahead.
+    val canBuildAhead = !ssrd.unparser.isInstanceOf[NotUnparsableUnparser]
+    if ((tunables.infosetBuilderMode eq InfosetBuilderMode.BuildAhead) && canBuildAhead) {
+      unparseBuildAhead(actualInputter, outStream)
+    } else {
+      unparseEventDriven(actualInputter, outStream)
+    }
+  }
+
+  /**
+   * Shared by unparseBuildAhead and unparseEventDriven's top-level
+   * catch blocks: maps an exception caught during unparsing to a failed
+   * `state` plus its `unparseResult`, or rethrows if it's not one of the
+   * known unparse-error categories.
+   */
+  private def unparseErrorResult(state: UState, t: Throwable): UnparseResult = t match {
+    case ue: UnparseError => {
+      state.addUnparseError(ue)
+      state.unparseResult
+    }
+    case procErr: ProcessingError => {
+      state.setFailed(procErr.toUnparseError)
+      state.unparseResult
+    }
+    case sde: SchemaDefinitionError => {
+      // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
+      // These are fatal, and there's no notion of backtracking them, so they propagate to top level
+      // here.
+      state.setFailed(sde)
+      state.unparseResult
+    }
+    case sdefw: SchemaDefinitionErrorFromWarning => {
+      state.setFailed(sdefw)
+      state.unparseResult
+    }
+    case e: ErrorAlreadyHandled => {
+      state.setFailed(e.th)
+      state.unparseResult
+    }
+    case e: TunableLimitExceededError => {
+      state.setFailed(e)
+      state.unparseResult
+    }
+    case se: org.xml.sax.SAXException => {
+      state.setFailed(new UnparseError(None, None, se))
+      state.unparseResult
+    }
+    case e: scala.xml.parsing.FatalError => {
+      state.setFailed(new UnparseError(None, None, e))
+      state.unparseResult
+    }
+    case ie: InfosetException => {
+      state.setFailed(new UnparseError(None, None, ie))
+      state.unparseResult
+    }
+    case th: Throwable => throw th
+  }
+
+  /**
+   * Unparses with a build pass running ahead of the unparse (gated on
+   * `infosetBuilderMode`). An `InfosetBuildCursor` over `InfosetBuildState`
+   * builds the infoset tree from the inputter's events, and the unparse
+   * reads that tree back as events, advancing the cursor whenever it needs a
+   * node that does not exist yet.
+   */
+  private def unparseBuildAhead(
+    actualInputter: api.infoset.InfosetInputter,
+    outStream: java.io.OutputStream
+  ): UnparseResult = {
+    val rootUnparser = ssrd.unparser
+
+    val inputter = new InfosetInputter(actualInputter)
+
+    // Build side. The root element always has a builder: it is exactly the
+    // case that gets ElementInfosetBuilder wrapped around it, regardless of
+    // schema content.
+    val infosetBuildState = new InfosetBuildState(inputter, tunables)
+    val cursor = new InfosetBuildCursor(ssrd.builder, infosetBuildState)
+
+    // Unparse side. The tree events are the events of the tree build is making,
+    // so the unparsers read it as they read an inputter's. The state holds the
+    // output stream, which must be cleaned up.
+    val treeEvents = new TreeEventState(
+      cursor,
+      !areDebugging && tunables.releaseUnneededInfoset
+    )
+    val unparseState =
+      UState.createInitialUStateForBuildAhead(
+        outStream,
+        this,
+        inputter,
+        areDebugging,
+        treeEvents
+      )
+
+    try {
+      inputter.initialize(ssrd.elementRuntimeData, tunables)
+
+      if (areDebugging) {
+        Assert.invariant(optDebugger.isDefined)
+        addEventHandler(debugger)
+      }
+      if (areDebugging) {
+        unparseState.notifyDebugging(true)
+      }
+      // The root TRD is on the stack of the tree events, as it is
+      // on an inputter's when it is initialized.
+      unparseState.pushTRD(ssrd.elementRuntimeData)
+      init(unparseState, rootUnparser)
+      // Forces evaluation of non-constant defineVariable defaults; the unparse
+      // side reads and writes variables, so it needs this on its own copy.
+      unparseState.initializeVariables()
+      unparseState.getDataOutputStream.setPriorBitOrder(
+        ssrd.elementRuntimeData.defaultBitOrder
+      )
+
+      try {
+        rootUnparser.unparse1(unparseState)
+        unparseState.popTRD(rootUnparser.context.asInstanceOf[TermRuntimeData])
+      } catch {
+        // A genuine deadlock (if any) surfaces via the final
+        // evalSuspensions(isFinal = true) below.
+        case _: ChildNotBuiltException =>
+      }
+
+      // The unparse only ever advances build as far as it needs, so build may
+      // still have its trailing end events left to consume.
+      cursor.advance(lastAdvance = true)
+
+      // Build's stacks must end up balanced and the inputter must have nothing
+      // left unconsumed.
+      infosetBuildState.popTRD(rootUnparser.context.asInstanceOf[TermRuntimeData])
+      Assert.invariant(infosetBuildState.arrayIterationIndexStack.length == 1)
+      Assert.invariant(infosetBuildState.occursIndexStack.length == 1)
+      Assert.invariant(infosetBuildState.groupIndexStack.length == 1)
+      Assert.invariant(infosetBuildState.currentInfosetNodeMaybe.isEmpty)
+      Assert.invariant(infosetBuildState.maybeTopTRD().isEmpty)
+      val remainingEvent = infosetBuildState.advanceMaybe
+      if (remainingEvent.isDefined) {
+        UnparseError(
+          Nope,
+          Nope,
+          "Expected no remaining events, but received %s.",
+          remainingEvent.get
+        )
+      }
+
+      // The final suspension sweep runs BEFORE the stack-depth invariants: one
+      // tripping first could mask the real SuspensionDeadlockException diagnostic
+      // this ordering exists to surface.
+      unparseState.setProcessor(rootUnparser)
+      unparseState.evalSuspensions(isFinal = true)
+      Assert.invariant(unparseState.arrayIterationIndexStack.length == 1)
+      Assert.invariant(unparseState.occursIndexStack.length == 1)
+      Assert.invariant(unparseState.groupIndexStack.length == 1)
+      Assert.invariant(unparseState.childIndexStack.length == 1)
+      Assert.invariant(unparseState.currentInfosetNodeMaybe.isEmpty)
+      Assert.invariant(unparseState.escapeSchemeEVCache.isEmpty)
+      Assert.invariant(unparseState.maybeTopTRD().isEmpty)
+      Assert.invariant(!unparseState.withinHiddenNest)
+      Assert.invariant(!unparseState.getDataOutputStream.isFinished)
+      try {
+        unparseState.getDataOutputStream.setFinished(unparseState)
+      } catch {
+        case boc: BitOrderChangeException =>
+          unparseState.SDE(boc)
+        case fio: FileIOException =>
+          unparseState.SDE(fio)
+      }
+      unparseState.unparseResult
+    } catch {
+      case t: Throwable => unparseErrorResult(unparseState, t)
+    } finally {
+      unparseState.getDataOutputStream.cleanUp()
+    }
+  }
+
+  private def unparseEventDriven(
+    actualInputter: api.infoset.InfosetInputter,
+    outStream: java.io.OutputStream
+  ) = {
     val inputter = new InfosetInputter(actualInputter)
     val unparserState =
       UState.createInitialUState(outStream, this, inputter, areDebugging)
@@ -477,47 +666,7 @@ class DataProcessor(
         unparserState.evalSuspensions(isFinal = true)
         unparserState.unparseResult
       } catch {
-        case ue: UnparseError => {
-          unparserState.addUnparseError(ue)
-          unparserState.unparseResult
-        }
-        case procErr: ProcessingError => {
-          val x = procErr
-          unparserState.setFailed(x.toUnparseError)
-          unparserState.unparseResult
-        }
-        case sde: SchemaDefinitionError => {
-          // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-          // These are fatal, and there's no notion of backtracking them, so they propagate to top level
-          // here.
-          unparserState.setFailed(sde)
-          unparserState.unparseResult
-        }
-        case sdefw: SchemaDefinitionErrorFromWarning => {
-          unparserState.setFailed(sdefw)
-          unparserState.unparseResult
-        }
-        case e: ErrorAlreadyHandled => {
-          unparserState.setFailed(e.th)
-          unparserState.unparseResult
-        }
-        case e: TunableLimitExceededError => {
-          unparserState.setFailed(e)
-          unparserState.unparseResult
-        }
-        case se: org.xml.sax.SAXException => {
-          unparserState.setFailed(new UnparseError(None, None, se))
-          unparserState.unparseResult
-        }
-        case e: scala.xml.parsing.FatalError => {
-          unparserState.setFailed(new UnparseError(None, None, e))
-          unparserState.unparseResult
-        }
-        case ie: InfosetException => {
-          unparserState.setFailed(new UnparseError(None, None, ie))
-          unparserState.unparseResult
-        }
-        case th: Throwable => throw th
+        case t: Throwable => unparseErrorResult(unparserState, t)
       } finally {
         unparserState.getDataOutputStream.cleanUp()
       }

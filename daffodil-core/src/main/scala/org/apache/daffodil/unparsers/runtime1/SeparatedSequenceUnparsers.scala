@@ -108,8 +108,8 @@ class RepOrderedSeparatedSequenceChildUnparser(
 ) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Separated {
 
-  override def checkArrayPosAgainstMaxOccurs(state: UState) =
-    state.arrayIterationPos <= maxRepeats(state)
+  override def checkArrayPosAgainstMaxOccurs(state: InfosetTreeState) =
+    state.arrayIterationPos <= maxRepeatsConst
 }
 
 class OrderedSeparatedSequenceUnparser(
@@ -319,7 +319,7 @@ class OrderedSeparatedSequenceUnparser(
           state.occursIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
-          val maxReps = unparser.maxRepeats(state)
+          val maxReps = unparser.maxRepeatsConst
           //
           // The number of occurrances we unparse is always exactly driven
           // by the number of infoset events for the repeating/optional element.
@@ -565,7 +565,7 @@ class OrderedSeparatedSequenceUnparser(
           unparser.isPositional && unparser.isBoundedMax &&
           (!unparser.isDeclaredLast || !unparser.isPotentiallyTrailing)
         ) {
-          val maxReps = unparser.maxRepeats(state)
+          val maxReps = unparser.maxRepeatsConst
           while (numOccurrences < maxReps) {
             unparseOneWithSuppression(
               unparser,
@@ -613,7 +613,7 @@ class OrderedSeparatedSequenceUnparser(
           Assert.invariant(erd.isRepresented) // arrays/optionals cannot have inputValueCalc
 
           var numOccurrences = 0
-          val maxReps = unparser.maxRepeats(state)
+          val maxReps = unparser.maxRepeatsConst
 
           Assert.invariant(state.inspect)
           val ev = state.inspectAccessor

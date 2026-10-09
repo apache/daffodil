@@ -30,7 +30,8 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 /**
  * How unparsing the events of an inputter makes the infoset: it creates the
  * node of an element that has no event, attaches each new node to its parent,
- * and finishes a node when its end is reached.
+ * and finishes a node when its end is reached. A state that unparses a tree
+ * that was already built overrides these.
  */
 trait InfosetFromEvents { self: InfosetTreeState =>
 

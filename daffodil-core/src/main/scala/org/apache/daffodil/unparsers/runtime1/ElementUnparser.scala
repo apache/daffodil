@@ -59,8 +59,8 @@ class ElementUnspecifiedLengthUnparser(
 }
 
 sealed trait RepMoveMixin {
-  def move(start: UState): Unit = {
-    start.childIndexStack.setTop(start.childIndexStack.top + 1)
+  def move(start: InfosetTreeState): Unit = {
+    start.moveOverOneElementChildOnly()
   }
 }
 
@@ -83,8 +83,8 @@ class ElementUnparserInputValueCalc(erd: ElementRuntimeData, setVarUnparsers: Ar
    * Move over in the element children, but not in the group.
    * This avoids separators for this IVC element.
    */
-  override def move(state: UState): Unit = {
-    state.childIndexStack.setTop(state.childIndexStack.top + 1)
+  override def move(state: InfosetTreeState): Unit = {
+    state.moveOverOneElementChildOnly()
   }
 }
 
@@ -205,6 +205,8 @@ sealed abstract class ElementUnparserBase(
     computeSetVariables(state)
 
     unparseEnd(state)
+
+    retrySuspensionsAfterEnd(state)
 
     if (state.dataProc.isDefined) state.dataProc.value.endElement(state, this)
 
@@ -380,16 +382,20 @@ sealed trait ElementUnparserStartEndStrategy {
    * Consumes the required infoset events and changes context so that the
    * element's DIElement node is the context element.
    */
-  protected def unparseBegin(state: UState): Unit
+  def unparseBegin(state: InfosetTreeState): Unit
 
   /**
    * Restores prior context. Consumes end-element event.
    */
-  protected def unparseEnd(state: UState): Unit
+  def unparseEnd(state: InfosetTreeState): Unit
 
   protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit
 
-  protected def move(start: UState): Unit
+  // Only an unparse creates suspensions, so retrying them is not part of
+  // unparseEnd, which build runs too.
+  protected def retrySuspensionsAfterEnd(ustate: UState): Unit
+
+  protected def move(start: InfosetTreeState): Unit
 
   protected def erd: ElementRuntimeData
 
@@ -402,7 +408,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
    * Consumes the required infoset events and changes context so that the
    * element's DIElement node is the context element.
    */
-  final override protected def unparseBegin(state: UState): Unit = {
+  final override def unparseBegin(state: InfosetTreeState): Unit = {
     if (erd.isQuasiElement) {
       // Quasi elements are used for RepType and PrefixedLength, and have no corresponding
       // events in the infoset inputter. The parent parser will push a DIElement for us to
@@ -422,7 +428,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
             // this indicates that the incoming infoset (as events) doesn't match the schema
             UnparseError(
               Nope,
-              One(state.currentLocation),
+              Nope,
               "Expected element start event for %s, but received %s.",
               erd.namedQName.toExtendedSyntax,
               event
@@ -447,7 +453,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
   /**
    * Restores prior context. Consumes end-element event.
    */
-  final override protected def unparseEnd(state: UState): Unit = {
+  final override def unparseEnd(state: InfosetTreeState): Unit = {
     if (erd.isQuasiElement) {
       // Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
       // The parent parser will handle pushing and poping the Infoset, so we do not need to do anything here.
@@ -464,7 +470,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
           // this indicates that the incoming infoset (as events) doesn't match the schema
           UnparseError(
             Nope,
-            One(state.currentLocation),
+            Nope,
             "Expected element end event for %s, but received %s.",
             erd.namedQName.toExtendedSyntax,
             event
@@ -473,12 +479,15 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       }
 
       val cur = state.currentInfosetNodeStack.pop.get
-
       state.finishElement(cur, erd)
 
       move(state)
+    }
+  }
 
-      state.asInstanceOf[UStateMain].evalSuspensions(isFinal = false)
+  final override protected def retrySuspensionsAfterEnd(ustate: UState): Unit = {
+    if (!erd.isQuasiElement) {
+      ustate.runSuspensions()
     }
   }
 
@@ -493,7 +502,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
   /**
    * For OVC, the behavior w.r.t. consuming infoset events is different.
    */
-  protected final override def unparseBegin(state: UState): Unit = {
+  final override def unparseBegin(state: InfosetTreeState): Unit = {
     val ovcElem =
       if (!state.withinHiddenNest) {
         // outputValueCalc elements are optional in the infoset. If the next event
@@ -524,15 +533,16 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
     state.currentInfosetNodeStack.push(One(ovcElem))
   }
 
-  protected final override def unparseEnd(state: UState): Unit = {
+  final override def unparseEnd(state: InfosetTreeState): Unit = {
     // if an OVC element existed, the start AND end events were consumed in
     // unparseBegin. No need to advance the cursor here.
-
     val ovcElem = state.currentInfosetNodeStack.pop
     state.finishOvcElement(ovcElem.get)
 
     move(state)
   }
+
+  final override protected def retrySuspensionsAfterEnd(ustate: UState): Unit = {}
 
   // For OVC, or for a target length expression,
   //
