@@ -30,46 +30,32 @@ import org.apache.daffodil.runtime1.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
 /**
- * Marks the sequence child unparsers for arrays with dfdl:occursCountKind='stopValue'
- * (DAFFODIL-501), and creates the synthesized terminating occurrence.
+ * Marks the sequence child unparsers for arrays with dfdl:occursCountKind='stopValue'.
  *
- * Unparsing such an array emits one extra (terminating) occurrence after all of the
- * infoset occurrences: the terminating occurrence consumes data (its value is the first
- * dfdl:occursStopValue) but it does not exist in the infoset, so there are no infoset
- * events for it. The sequence unparser drivers call prepareStopValue and then
- * unparse the child exactly as they would for an infoset occurrence; the element
- * unparser consumes the pre-created infoset element (see
- * RegularElementUnparserStartEndStrategy.unparseBegin/unparseEnd) in place of consuming
- * start/end element events.
- *
- * The terminating occurrence is unparsed just like any other occurrence of the element,
- * so its data is produced by the element's own representation (text numbers, binary
- * encodings, delimiters, etc. all apply). When multiple stop values are defined, the
- * first one is used; this parses back as terminating because parsing terminates on any
- * of the stop values.
+ * After the infoset occurrences, such an array is followed in the data by one
+ * synthesized terminating occurrence: it consumes data (the first dfdl:occursStopValue,
+ * which parses back as terminating on any of the stop values) but is not in the
+ * infoset, so it has no infoset events.
  */
 trait StopValueMixin { this: Unparser =>
   def erd: ElementRuntimeData
 
   /**
-   * The (typed) dfdl:occursStopValue values. Never empty: the occursStopValue cooker
-   * SDEs on an empty value.
+   * The typed dfdl:occursStopValue values, never empty (the cooker SDEs otherwise).
    */
   def stopValues: Seq[DataValuePrimitive]
 
   /**
-   * The first stop value is used as the value of the terminating occurrence (per DFDL
-   * 1.0 section 16.1.5, when multiple stop values are provided the first is used).
+   * Value of the terminating occurrence; DFDL 1.0 section 16.1.5 uses the first of the
+   * stop values when there is more than one.
    */
   final def stopValue: DataValuePrimitive = stopValues.head
 
   /**
-   * Creates the infoset element for the terminating occurrence, with the stop value as
-   * its data value, and records it on the state as the pending terminator. Must be
-   * called immediately before unparsing the terminating occurrence.
-   *
-   * Returns the created element so that callers can perform zero-length (separator
-   * suppression) detection on it.
+   * Creates the infoset element for the terminating occurrence and records it on the
+   * state, where the element unparser picks it up instead of consuming infoset events.
+   * Must be called immediately before unparsing that occurrence. The element is
+   * returned so callers can do zero-length (separator suppression) detection on it.
    */
   final def prepareStopValue(state: UState): DISimple = {
     val elem = new DISimple(erd)
@@ -79,13 +65,9 @@ trait StopValueMixin { this: Unparser =>
   }
 
   /**
-   * DFDL 1.0 section 16.1.5: "It is a Processing Error if a stop value is found in the
-   * Infoset when unparsing. (This ensures that the array can be reparsed, as the stop
-   * value is placed automatically and only at the end.)"
-   *
-   * Before unparsing an occurrence, capture the pending infoset element for this array
-   * (None if this call is for the synthesized terminating occurrence, or if the pending
-   * event is not an occurrence of this element).
+   * Captures the pending infoset occurrence of this element before it is unparsed, for
+   * the check that no stop value appears in the infoset (DFDL 1.0 section 16.1.5).
+   * Returns None when this unparse call is for the synthesized terminating occurrence.
    */
   final def maybeStopValueInfosetOccurrence(state: UState): Option[DISimple] = {
     if (state.maybeStopValue.isDefined)
@@ -100,9 +82,9 @@ trait StopValueMixin { this: Unparser =>
   }
 
   /**
-   * Completes the check started by maybeStopValueInfosetOccurrence; call after the
-   * occurrence has been unparsed, at which point the element's data value is definitely
-   * set. Raises a processing error if the infoset occurrence has one of the stop values.
+   * Completes the check started by maybeStopValueInfosetOccurrence, once the element's
+   * data value is set. A stop value in the infoset would not reparse, so it is a
+   * processing error.
    */
   final def checkStopValueInInfoset(state: UState, maybeElem: Option[DISimple]): Unit = {
     maybeElem.foreach { elem =>
@@ -132,13 +114,8 @@ trait StopValueMixin { this: Unparser =>
 
 /**
  * Unparser for an array with dfdl:occursCountKind='stopValue' in an unseparated
- * sequence.
- *
- * Unparsing of the occurrences that do exist in the infoset is the normal inherited
- * behavior (one occurrence per call, driven by infoset events by the sequence unparser
- * driver). The sequence unparser driver additionally unparses one synthesized
- * terminating occurrence after the infoset occurrences run out (see
- * StopValueMixin).
+ * sequence. The infoset occurrences are handled as usual; the sequence unparser driver
+ * adds the terminating occurrence afterwards (see StopValueMixin).
  */
 class RepOrderedStopValueSequenceChildUnparser(
   childUnparser: Unparser,

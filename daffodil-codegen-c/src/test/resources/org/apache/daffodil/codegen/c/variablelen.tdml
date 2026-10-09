@@ -229,7 +229,7 @@
   </tdml:parserTestCase>
 
   <!--
-      Daffodil backend can parse stopValueElement (DAFFODIL-501).
+      Daffodil backend can parse stopValueElement
 
       daffodil parse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
   -->
@@ -247,11 +247,10 @@
   </tdml:parserTestCase>
 
   <!--
-      Codegen backends cannot parse stopValueElement since stopValue isn't supported
-      in the C code generator yet (C code generation fails with "Code generation not
-      supported for: RepOrderedStopValueSequenceChild"), so there is no daffodilC test
-      case here, the same convention used for other occursCountKinds that the C code
-      generator does not support (see implicitElement/parsedElement above).
+      Codegen backends cannot parse stopValueElement; generating C code for it fails with
+      "Code generation not supported for: RepOrderedStopValueSequenceChild"
+
+      daffodil generate c -r stopValueElement -s variablelen.dfdl.xsd
   -->
 
 </tdml:testSuite>

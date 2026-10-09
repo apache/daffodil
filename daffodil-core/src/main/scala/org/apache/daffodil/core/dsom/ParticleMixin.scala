@@ -238,24 +238,33 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    * occurrences. (For scalar elements the occursCountKind is ignored, so this is false
    * for them.)
    */
-  final lazy val hasStopValue =
+  final lazy val hasStopValue = LV(Symbol("hasStopValue")) {
     !isScalar && occursCountKind == OccursCountKind.StopValue
+  }.value
 
   /**
    * The dfdl:occursStopValue property value, cooked (i.e. split into a list of string
-   * literals with DFDL entities like %ES; replaced) into individual stop values.
+   * literals with DFDL entities replaced) into individual stop values.
+   *
+   * Like nil values, these are cooked twice because some entities (the %NL; entity and
+   * doubled percents) only have their final values at unparse time.
    *
    * Only meaningful (and only accessed) when hasStopValue is true.
    */
-  final lazy val occursStopValueStrings: Seq[String] = {
+  private def cookedOccursStopValue(forUnparse: Boolean): Seq[String] = {
     Assert.usage(hasStopValue)
     val maybePropValue = findPropertyOption("occursStopValue").toOption
+    // Only the absence of the property is checked here, the cooker below SDEs if the list
+    // of cooked stop values is empty.
     schemaDefinitionWhen(
       maybePropValue.isEmpty,
       "Property occursCountKind='stopValue' requires the dfdl:occursStopValue property to be defined."
     )
-    // the cooker SDEs if the cooked list of stop values is empty
-    OccursStopValueCooker.convertConstant(maybePropValue.get, this, forUnparse = false)
+    val cooked = OccursStopValueCooker.convertConstant(maybePropValue.get, this, forUnparse)
+    // Character class entities are only replaced when unparsing (that is true of every
+    // such property), but %ES; always means an empty value, so resolve it for parsing.
+    if (forUnparse) cooked
+    else cooked.map { sv => if (sv == "%ES;") "" else sv }
   }
 
   /**
@@ -264,12 +273,14 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    * as required by the DFDL specification (the stop value must be a value in the domain
    * of the declared simple type of the data item).
    */
-  final lazy val occursStopValues: Seq[DataValuePrimitive] = {
+  private def occursStopValues(forUnparse: Boolean): Seq[DataValuePrimitive] = {
+    // Checked here instead of by checkOccursStopValue because these values can be demanded
+    // while building the grammar of an element whose required evaluations have not run yet
     schemaDefinitionWhen(
       !isSimpleType,
       "Property occursCountKind='stopValue' requires a simple type. The value of each occurrence is compared with the dfdl:occursStopValue."
     )
-    occursStopValueStrings.map { sv =>
+    cookedOccursStopValue(forUnparse).map { sv =>
       try {
         primType.fromXMLString(sv)
       } catch {
@@ -279,16 +290,16 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
+  final lazy val occursStopValuesForParse = occursStopValues(forUnparse = false)
+
+  final lazy val occursStopValuesForUnparse = occursStopValues(forUnparse = true)
+
   /**
    * Checks that an element using occursCountKind='stopValue' is valid. Forced by
    * ElementBaseGrammarMixin, so it runs whenever such an element is compiled.
    */
   final lazy val checkOccursStopValue: Unit = {
     if (hasStopValue) {
-      schemaDefinitionWhen(
-        !isSimpleType,
-        "Property occursCountKind='stopValue' requires a simple type. The value of each occurrence is compared with the dfdl:occursStopValue."
-      )
       schemaDefinitionWhen(
         !isRepresented,
         "Property occursCountKind='stopValue' is not meaningful for elements with no data representation (e.g. dfdl:inputValueCalc)."
@@ -297,9 +308,10 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
         isNillable,
         "Property occursCountKind='stopValue' is not supported for nillable elements."
       )
-      // force the checks (present, non-empty, valid for the simple type) of the stop
-      // values themselves
-      occursStopValues
+      // force the checks (simple type, present, non-empty, valid for that type) of the
+      // stop values themselves
+      occursStopValuesForParse
+      occursStopValuesForUnparse
     }
   }
 }

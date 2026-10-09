@@ -626,15 +626,11 @@ abstract class OccursCountMinMaxParser(
 /**
  * Parser for an array with dfdl:occursCountKind='stopValue'.
  *
- * Occurrences are parsed until the value of a parsed occurrence matches one of the
- * dfdl:occursStopValue values. The stop value is detected after the fact (the whole
- * occurrence, including any associated separator, has been parsed), the terminating
- * occurrence is consumed from the data stream but removed from the infoset, and no
- * further occurrences are parsed.
+ * Occurrences are parsed until one of them has a value matching one of the
+ * dfdl:occursStopValue values. That terminating occurrence consumes data but is removed
+ * from the infoset, and no further occurrences are parsed.
  *
- * Like dfdl:occursCountKind='parsed', minOccurs/maxOccurs are only used for validation,
- * so minRepeats is zero and maxRepeats is unbounded (both computed by MinMaxRepeatsMixin).
- * Since the decision to keep an occurrence can only be made after parsing it, each
+ * As with occursCountKind='parsed', minOccurs/maxOccurs are only for validation, so each
  * occurrence is parsed speculatively (PoUStatus.HasPoU).
  */
 abstract class OccursCountStopValueParser(
@@ -671,10 +667,10 @@ abstract class OccursCountStopValueParser(
     maybeElem.get match {
       case elem: DISimple if (elem.erd eq erd) && !elem.isNilled && elem.hasValue => {
         val dataValue = elem.dataValue.getAnyRef
-        stopValues.find(stopValueMatch(dataValue, _)) match {
-          case Some(sv) => ParseAttemptStatus.StopValueRep
-          case None => status
-        }
+        if (stopValues.exists { stopValueMatch(dataValue, _) })
+          ParseAttemptStatus.StopValueRep
+        else
+          status
       }
       case _ => status
     }
