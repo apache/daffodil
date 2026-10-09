@@ -82,7 +82,7 @@ abstract class RepeatingChildUnparser(
    * Sets up for the start of an array/optional. For true array, pulls an event, which must be a start-array
    * event.
    */
-  final def startArrayOrOptional(state: UState): Unit = {
+  final def startArrayOrOptional(state: InfosetTreeState): Unit = {
     val ev = state.inspectAccessor
     if (ev.erd.isArray) {
       // only pull start array event for a true array, not an optional.
@@ -98,6 +98,21 @@ abstract class RepeatingChildUnparser(
    * Validates array dimensions if validation has been requested.
    */
   final def endArrayOrOptional(currentArrayERD: ElementRuntimeData, state: UState): Unit = {
+    consumeEndArrayEvent(currentArrayERD, state)
+
+    // State could be Success or Failure here.
+    endArray(state, state.occursPos - 1)
+  }
+
+  /**
+   * The part of ending an array/optional that only consumes the end-array
+   * event, which build shares with unparse. Array validation needs the full
+   * UState, so it stays in endArrayOrOptional.
+   */
+  final def consumeEndArrayEvent(
+    currentArrayERD: ElementRuntimeData,
+    state: InfosetTreeState
+  ): Unit = {
     if (currentArrayERD.isArray) {
       // only pull end array event for a true array, not an optional
       val event = state.advanceOrError
@@ -110,9 +125,6 @@ abstract class RepeatingChildUnparser(
         )
       }
     }
-
-    // State could be Success or Failure here.
-    endArray(state, state.occursPos - 1)
   }
 
   /**
@@ -125,7 +137,10 @@ abstract class RepeatingChildUnparser(
    * If the event is not a start, it must be an endArray for the enclosing complex element, and
    * the answer is false.
    */
-  final def shouldDoUnparser(unparser: RepeatingChildUnparser, state: UState): Boolean = {
+  final def shouldDoUnparser(
+    unparser: RepeatingChildUnparser,
+    state: InfosetTreeState
+  ): Boolean = {
     val childRD = unparser.trd
     val res =
       childRD match {
@@ -176,7 +191,7 @@ abstract class RepeatingChildUnparser(
    * bound occurrences with maxOccurs.
    *
    */
-  def checkArrayPosAgainstMaxOccurs(state: UState): Boolean
+  def checkArrayPosAgainstMaxOccurs(state: InfosetTreeState): Boolean
 
   /**
    * For OccursCountKind 'implicit', we need to check for arrayPos in range
@@ -189,7 +204,7 @@ abstract class RepeatingChildUnparser(
    * 'unbounded', then maxReps will be Long.MaxValue.
    */
   def checkFinalOccursCountBetweenMinAndMaxOccurs(
-    state: UState,
+    state: InfosetTreeState,
     unparser: RepeatingChildUnparser,
     numOccurrences: Int,
     maxReps: Long,
@@ -197,7 +212,7 @@ abstract class RepeatingChildUnparser(
   ): Unit = {
     import OccursCountKind.*
 
-    val minReps = unparser.minRepeats(state)
+    val minReps = unparser.minRepeatsConst
     val ev = state.inspectAccessor
     val erd = unparser.erd
 

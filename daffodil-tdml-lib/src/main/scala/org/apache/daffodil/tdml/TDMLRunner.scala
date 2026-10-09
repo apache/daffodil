@@ -387,6 +387,15 @@ class DFDLTestSuite private[tdml] (
 
   var checkAllTopLevel: Boolean = compileAllTopLevel
 
+  /**
+   * Tunables from the DAFFODIL_TDML_TUNABLES environment variable, a
+   * comma-separated list of name=value pairs. They apply to every test and
+   * are overridden by a test's own defineConfig tunables, so a whole suite
+   * can run under any combination of tunables.
+   */
+  private[tdml] lazy val envTunables: Map[String, String] =
+    TDMLEnvTunables.parse(sys.env.getOrElse(TDMLEnvTunables.VariableName, ""))
+
   def setCheckAllTopLevel(flag: Boolean): Unit = {
     checkAllTopLevel = flag
   }
@@ -902,7 +911,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     }
   }
 
-  lazy val tunables = cfg.map { _.tunablesMap }.getOrElse(Map.empty)
+  lazy val tunables =
+    parent.envTunables ++ cfg.map { _.tunablesMap }.getOrElse(Map.empty)
 
   lazy val tunableObj = DaffodilTunables(tunables)
 
@@ -3150,4 +3160,30 @@ object GlobalTDMLCompileResultCache {
   val cache = {
     new TDMLCompileResultCache(Some(expireTimeSeconds))
   }
+}
+
+private[tdml] object TDMLEnvTunables {
+  val VariableName = "DAFFODIL_TDML_TUNABLES"
+
+  /**
+   * Parses a comma-separated list of name=value pairs, as in
+   * "key=value,key=value". Blank entries are ignored, and a value may itself
+   * contain '='. An entry without a name or without '=' is an error.
+   */
+  def parse(value: String): Map[String, String] =
+    value
+      .split(',')
+      .map(_.trim)
+      .filter(_.nonEmpty)
+      .map { pair =>
+        pair.split("=", 2) match {
+          case Array(name, tunableValue) if name.trim.nonEmpty =>
+            (name.trim, tunableValue.trim)
+          case _ =>
+            throw new IllegalArgumentException(
+              s"Invalid $VariableName entry '$pair'; expected name=value"
+            )
+        }
+      }
+      .toMap
 }

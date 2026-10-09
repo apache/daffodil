@@ -19,7 +19,7 @@ package org.apache.daffodil.runtime1.processors.dfa
 
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.lib.equality.ViewEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.util.Pool
 import org.apache.daffodil.lib.util.Poolable
 import org.apache.daffodil.runtime1.processors.DelimiterIterator

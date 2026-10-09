@@ -150,6 +150,13 @@ object StreamingInfosetWalker {
    *   (e.g. due to an unresolved point of uncertainty) and increases the
    *   number of walk() calls to skip before trying again. This defines the
    *   maximum number of skipped calls, even as that number increases.
+   *
+   * @param visibleChildCounts
+   *
+   *   When not null, the number of children of a container that the walk may
+   *   visit, for a container that has an entry; any other container is walked
+   *   in full. This should only be used while debugging, to leave out nodes
+   *   that exist in the infoset but that unparsing has not reached.
    */
   def apply(
     root: DIElement,
@@ -158,7 +165,8 @@ object StreamingInfosetWalker {
     ignoreBlocks: Boolean,
     releaseUnneededInfoset: Boolean,
     walkSkipMin: Int = 32,
-    walkSkipMax: Int = 2048
+    walkSkipMax: Int = 2048,
+    visibleChildCounts: java.util.Map[DINode, Integer] = null
   ): StreamingInfosetWalker = {
 
     // Determine the container of the root node and the index in which it
@@ -187,7 +195,8 @@ object StreamingInfosetWalker {
       ignoreBlocks,
       releaseUnneededInfoset,
       walkSkipMin,
-      walkSkipMax
+      walkSkipMax,
+      visibleChildCounts
     )
   }
 
@@ -252,6 +261,12 @@ object StreamingInfosetWalker {
  *   being blocked for removal (e.g. due to an unresolved point of uncertainty)
  *   and increases the number of walk() calls to skip before trying again. This
  *   defines the maximum number of skiped calls, even as this number increases.
+ *
+ * @param visibleChildCounts
+ *
+ *   When not null, the number of children of a container that the walk may
+ *   visit, for a container that has an entry; any other container is walked
+ *   in full. This should only be used while debugging.
  */
 class StreamingInfosetWalker private (
   startingContainerNode: DINode,
@@ -261,7 +276,8 @@ class StreamingInfosetWalker private (
   ignoreBlocks: Boolean,
   releaseUnneededInfoset: Boolean,
   walkSkipMin: Int,
-  walkSkipMax: Int
+  walkSkipMax: Int,
+  visibleChildCounts: java.util.Map[DINode, Integer]
 ) extends InfosetWalker {
 
   /**
@@ -563,12 +579,25 @@ class StreamingInfosetWalker private (
     finished = true
   }
 
+  private def visibleChildCount(containerNode: DINode): Int = {
+    if (visibleChildCounts eq null) {
+      containerNode.numChildren
+    } else {
+      val count = visibleChildCounts.get(containerNode)
+      if (count eq null) {
+        containerNode.numChildren
+      } else {
+        count.intValue
+      }
+    }
+  }
+
   /**
    * Output start/end events for DIComplex/DIArray/DISimple, and mutate state
    * so we are looking at the next node in the infoset.
    */
   private def infosetWalkerStepMove(containerNode: DINode, containerIndex: Int): Unit = {
-    if (containerIndex < containerNode.numChildren) {
+    if (containerIndex < visibleChildCount(containerNode)) {
       // This block means we need to create a start event for the element
       // at containerIndex. Once we create that event we
       // need to mutate the state of the InfosetWalker so that the next time we

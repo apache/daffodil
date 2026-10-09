@@ -22,6 +22,8 @@ import org.apache.daffodil.core.compiler.ForUnparser
 import org.apache.daffodil.core.compiler.ParserOrUnparser
 import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.NadaInfosetBuilder
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 
@@ -106,5 +108,17 @@ final class Prod(
       new NadaUnparser(context.runtimeData)
     else
       unp
+  }
+
+  final override lazy val builder: InfosetBuilder = {
+    if (gram.isEmpty) {
+      NadaInfosetBuilder
+    } else {
+      (forWhat, gram.forWhat) match {
+        case (ForParser, _) => NadaInfosetBuilder
+        case (_, ForParser) => NadaInfosetBuilder
+        case _ => gram.builder
+      }
+    }
   }
 }

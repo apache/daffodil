@@ -22,12 +22,15 @@ import org.apache.daffodil.core.grammar.EmptyGram
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.NamedGram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.infoset.ElementInfosetBuilder
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.NadaInfosetBuilder
 import org.apache.daffodil.runtime1.processors.parsers.CaptureEndOfContentLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureEndOfValueLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureStartOfContentLengthParser
@@ -44,6 +47,7 @@ import org.apache.daffodil.unparsers.runtime1.CaptureStartOfValueLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementOVCSpecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementOVCUnspecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementSpecifiedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.ElementUnparserBase
 import org.apache.daffodil.unparsers.runtime1.ElementUnparserInputValueCalc
 import org.apache.daffodil.unparsers.runtime1.ElementUnspecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementUnusedUnparser
@@ -109,7 +113,13 @@ class ElementCombinator(
     if (eAfterValue.isEmpty) Maybe.Nope
     else Maybe(eAfterValue.unparser)
 
-  private lazy val eReptypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
+  private lazy val eRepTypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
+
+  private lazy val isSpecifiedLength: Boolean =
+    (context.lengthKind._eq_(LengthKind.Explicit)) ||
+      (context.isSimpleType &&
+        (context.lengthKind._eq_(LengthKind.Implicit)) &&
+        (context.impliedRepresentation._eq_(Representation.Text)))
 
   override lazy val unparser: Unparser = {
     if (context.isOutputValueCalc) {
@@ -122,12 +132,7 @@ class ElementCombinator(
         eAfterUnparser,
         context.ovcCompiledExpression
       )
-    } else if (
-      (context.lengthKind._eq_(LengthKind.Explicit)) ||
-      (context.isSimpleType &&
-        (context.lengthKind._eq_(LengthKind.Implicit)) &&
-        (context.impliedRepresentation._eq_(Representation.Text)))
-    ) {
+    } else if (isSpecifiedLength) {
 
       new ElementSpecifiedLengthUnparser(
         context.erd,
@@ -136,13 +141,33 @@ class ElementCombinator(
         eBeforeUnparser,
         eUnparser,
         eAfterUnparser,
-        eReptypeUnparser
+        eRepTypeUnparser
       )
     } else {
       subComb.unparser
     }
   }
 
+  private lazy val eBuilder: InfosetBuilder = {
+    if (eValue.isEmpty) {
+      NadaInfosetBuilder
+    } else {
+      eValue.builder
+    }
+  }
+  private lazy val eRepTypeBuilder: InfosetBuilder = repTypeElementGram.builder
+
+  // Shares the memoized unparser above for unparseBegin/unparseEnd, so
+  // build and the unparse see identical node-creation behavior.
+  override lazy val builder: InfosetBuilder = {
+    if (context.isOutputValueCalc || isSpecifiedLength) {
+      val eu = unparser.asInstanceOf[ElementUnparserBase]
+      val contentBuilder = eRepTypeBuilder.orElse(eBuilder)
+      new ElementInfosetBuilder(context.erd, eu, contentBuilder)
+    } else {
+      subComb.builder
+    }
+  }
 }
 
 case class ElementUnused(ctxt: ElementBase)
@@ -374,6 +399,14 @@ class ElementParseAndUnspecifiedLength(
       new ElementUnparserInputValueCalc(context.erd, uSetVar)
     }
   }
+
+  // Shares the memoized unparser above for unparseBegin/unparseEnd, so
+  // build and the unparse see identical nilled/OVC/IVC node-creation behavior.
+  override lazy val builder: InfosetBuilder = {
+    val eu = unparser.asInstanceOf[ElementUnparserBase]
+    val contentBuilder = eRepTypeBuilder.orElse(eBuilder)
+    new ElementInfosetBuilder(context.erd, eu, contentBuilder)
+  }
 }
 
 abstract class ElementCombinatorBase(
@@ -448,5 +481,9 @@ abstract class ElementCombinatorBase(
   lazy val eRepTypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
 
   def unparser: Unparser
+
+  lazy val eBuilder: InfosetBuilder = eGram.builder
+
+  lazy val eRepTypeBuilder: InfosetBuilder = repTypeElementGram.builder
 
 }

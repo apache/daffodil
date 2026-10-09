@@ -21,6 +21,8 @@ import org.apache.daffodil.core.compiler.ForParser
 import org.apache.daffodil.core.compiler.ForUnparser
 import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.SeqCompInfosetBuilder
 import org.apache.daffodil.runtime1.processors.parsers.AssertExpressionEvaluationParser
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.SeqCompParser
@@ -124,6 +126,19 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
     else if (unparserChildren.length == 1) unparserChildren.head
     else new SeqCompUnparser(context.runtimeData, unparserChildren.toArray)
   }
+
+  // Only the (usually at most one) child(ren) that actually build infoset
+  // content contribute here; children that build no infoset events
+  // (delimiters, padding, etc.) simply have no builder to collect.
+  lazy val builderChildren: Array[InfosetBuilder] = {
+    children
+      .filter(x => !x.isEmpty && (x.forWhat != ForParser))
+      .map(_.builder)
+      .filterNot(_.isEmpty)
+      .toArray
+  }
+
+  final override lazy val builder: InfosetBuilder = SeqCompInfosetBuilder(builderChildren)
 }
 
 object EmptyGram extends Gram(null) {

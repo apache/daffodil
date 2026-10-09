@@ -22,7 +22,7 @@ import java.math.BigInteger as JBigInteger
 import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
-import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe

@@ -49,6 +49,7 @@ import org.apache.daffodil.runtime1.processors.*
 import org.apache.daffodil.runtime1.processors.parsers.*
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateForSuspension
+import org.apache.daffodil.runtime1.processors.unparsers.UStateMainForBuildAhead
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 case class DebuggerExitException() extends UnsuppressableException("Debugger exit")
@@ -468,22 +469,29 @@ class DaffodilDebugger(
     }
   }
 
-  private def infosetToString(ie: InfosetElement): String = {
+  private def infosetToString(ie: InfosetElement, state: ParseOrUnparseState): String = {
     val bos = new java.io.ByteArrayOutputStream()
     val xml = new XMLTextInfosetOutputter(bos, pretty = true, minimal = true)
+    // When unparsing builds the infoset ahead, show only the part the unparse
+    // has reached, as an event-driven unparse would have built it by now.
+    val reached = state match {
+      case buildAhead: UStateMainForBuildAhead => buildAhead.reachedChildCounts()
+      case _ => null
+    }
     val iw = StreamingInfosetWalker(
       ie.asInstanceOf[DIElement],
       xml,
       walkHidden = !DebuggerConfig.removeHidden,
       ignoreBlocks = true,
-      releaseUnneededInfoset = false
+      releaseUnneededInfoset = false,
+      visibleChildCounts = reached
     )
     iw.walk(lastWalk = true)
     bos.toString("UTF-8")
   }
 
-  private def debugPrettyPrintXML(ie: InfosetElement): Unit = {
-    val infosetString = infosetToString(ie)
+  private def debugPrettyPrintXML(ie: InfosetElement, state: ParseOrUnparseState): Unit = {
+    val infosetString = infosetToString(ie, state)
     debugPrintln(infosetString)
   }
 
@@ -1123,11 +1131,11 @@ class DaffodilDebugger(
             debugPrintln(_)
           }
           res match {
-            case ie: InfosetElement => debugPrettyPrintXML(ie)
+            case ie: InfosetElement => debugPrettyPrintXML(ie, state)
             case nodeSeq: Seq[Any] =>
               nodeSeq.foreach { a =>
                 a match {
-                  case ie: InfosetElement => debugPrettyPrintXML(ie)
+                  case ie: InfosetElement => debugPrettyPrintXML(ie, state)
                   case _ => debugPrintln(a)
                 }
               }
@@ -1164,7 +1172,7 @@ class DaffodilDebugger(
                 //
                 // Displays the empty element since it has no value.
                 //
-                debugPrettyPrintXML(nd.diElement)
+                debugPrettyPrintXML(nd.diElement, state)
                 state.suppressDiagnosticAndSucceed(r)
               }
               case _ => throw r
@@ -1810,7 +1818,7 @@ class DaffodilDebugger(
                 debugPrintln("No Infoset", "  ")
               }
               case _ => {
-                val infosetString = infosetToString(node)
+                val infosetString = infosetToString(node, state)
                 val lines = infosetString.split("\r?\n")
 
                 val dropCount =
