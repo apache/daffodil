@@ -162,14 +162,10 @@ class OrderedSeparatedSequenceUnparser(
   }
 
   /**
-   * DAFFODIL-501: unparses the synthesized terminating occurrence of an array with
-   * dfdl:occursCountKind='stopValue', if (and only if) the child unparser is for such
-   * an array. Does nothing otherwise. Used by the no-suppression driver: the separator
-   * associated with the terminating occurrence is unparsed unconditionally, just like
-   * the other occurrences there.
-   *
-   * The terminating occurrence consumes data (the dfdl:occursStopValue), but does not
-   * appear in the infoset and has no infoset events; see StopValueMixin.
+   * Unparses the synthesized terminating occurrence of an occursCountKind='stopValue'
+   * array, if and only if the child unparser is for such an array; does nothing
+   * otherwise. Used by the no-suppression driver, where the separator of every
+   * occurrence is unparsed unconditionally. See StopValueMixin.
    */
   protected def unparseStopValueIfNeeded(
     unparser: SequenceChildUnparser,
@@ -192,11 +188,10 @@ class OrderedSeparatedSequenceUnparser(
   }
 
   /**
-   * DAFFODIL-501: like unparseStopValueIfNeeded, but for sequences where
-   * separator suppression is possible (dfdl:separatorSuppressionPolicy not never). The
-   * terminating occurrence's separator is suppressed just like a normal occurrence's
-   * would be; since the value of the terminating occurrence is statically known, the
-   * zero-length detection is done directly on the synthesized infoset element.
+   * Like unparseStopValueIfNeeded, but for sequences that allow separator suppression:
+   * the separator of the terminating occurrence can be suppressed like any other. Its
+   * value is statically known, so zero-length detection is done directly on the
+   * synthesized infoset element.
    */
   protected def unparseStopValueIfNeededWithSuppression(
     unparser: SequenceChildUnparser with Separated,
@@ -481,7 +476,7 @@ class OrderedSeparatedSequenceUnparser(
                       state.dataProc.get.afterRepetition(state, this)
 
                 }
-                // DAFFODIL-501: unparse the synthesized terminating occurrence of an
+                // Unparse the synthesized terminating occurrence of an
                 // occursCountKind='stopValue' array after all infoset occurrences.
                 unparseStopValueIfNeededWithSuppression(
                   unparser,
@@ -508,8 +503,8 @@ class OrderedSeparatedSequenceUnparser(
                 // start array for some other array. Not this one.
                 //
                 Assert.invariant(erd.minOccurs == 0L)
-                // DAFFODIL-501: zero infoset occurrences, but an
-                // occursCountKind='stopValue' array still emits the terminating occurrence
+                // Zero infoset occurrences, but an occursCountKind='stopValue'
+                // array still emits the terminating occurrence
                 unparseStopValueIfNeededWithSuppression(
                   unparser,
                   state,
@@ -533,8 +528,8 @@ class OrderedSeparatedSequenceUnparser(
               // That has to be for a different element later in the sequence
               // since this one has a RepUnparser (i.e., is NOT scalar)
               //
-              // DAFFODIL-501: zero infoset occurrences, but an
-              // occursCountKind='stopValue' array still emits the terminating occurrence
+              // Zero infoset occurrences, but an occursCountKind='stopValue'
+              // array still emits the terminating occurrence
               unparseStopValueIfNeededWithSuppression(
                 unparser,
                 state,
@@ -549,8 +544,8 @@ class OrderedSeparatedSequenceUnparser(
               )
             } else {
               Assert.invariant(ev.isEnd && ev.erd.isComplexType)
-              // DAFFODIL-501: zero infoset occurrences, but an
-              // occursCountKind='stopValue' array still emits the terminating occurrence
+              // Zero infoset occurrences, but an occursCountKind='stopValue'
+              // array still emits the terminating occurrence
               unparseStopValueIfNeededWithSuppression(
                 unparser,
                 state,
@@ -764,9 +759,9 @@ class OrderedSeparatedSequenceUnparser(
               state.dataProc.get.afterRepetition(state, this)
           }
 
-          // DAFFODIL-501: unparse the synthesized terminating occurrence of an
+          // Unparse the synthesized terminating occurrence of an
           // occursCountKind='stopValue' array after all infoset occurrences. This also
-          // covers the zero-infoset-occurrence case (the loop above just did not run).
+          // covers the zero-infoset-occurrence case (the loop above did not run).
           unparseStopValueIfNeeded(unparser, state)
 
           // If not enough occurrences are in the infoset, we output extra separators because

@@ -413,13 +413,11 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       // get the DIElem for this element, which is in the infoset once it is returned
       val newElem =
         if (!state.withinHiddenNest && state.maybeStopValue.isDefined) {
-          // DAFFODIL-501: this is the synthesized terminating occurrence of an array with
-          // dfdl:occursCountKind='stopValue'. The array unparser created the infoset
-          // element (with the dfdl:occursStopValue as its data value) and set it on the
-          // state. No infoset start element event exists for it. unparseEnd() recognizes
-          // it below and skips the end element event. This element is added to the infoset
-          // (the DIArray) like any other occurrence so that the rest of the element
-          // unparser machinery (lengths, alignment, encoders) works unchanged.
+          // The synthesized terminating occurrence of an occursCountKind='stopValue'
+          // array. The array unparser created it because there are no infoset events for
+          // it; it joins the infoset like any other occurrence so the rest of this
+          // unparser (lengths, alignment, encoders) works unchanged, and unparseEnd
+          // below skips its end element event.
           val termElem = state.maybeStopValue.get
           Assert.invariant(termElem.erd eq erd)
           termElem
@@ -463,7 +461,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       ()
     } else {
       if (state.maybeStopValue.isDefined) {
-        // DAFFODIL-501: terminating occurrence of an occursCountKind='stopValue' array.
+        // Terminating occurrence of an occursCountKind='stopValue' array.
         // It had no infoset start element event (see unparseBegin), so there is no end
         // element event to consume either. Clear the pending terminator now that the
         // occurrence has been fully unparsed.

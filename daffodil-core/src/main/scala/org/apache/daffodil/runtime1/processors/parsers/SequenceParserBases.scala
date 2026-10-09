@@ -403,14 +403,10 @@ abstract class SequenceParserBase(
 
     resultOfTry match {
       case StopValueRep => {
-        // The value of this occurrence matched the dfdl:occursStopValue of an element with
-        // dfdl:occursCountKind='stopValue'. The data for this terminating occurrence (and
-        // any associated separator) is consumed, but the occurrence must not appear in the
-        // infoset and no more occurrences are parsed.
-        //
-        // Backtrack the infoset (and other) side effects using the point of uncertainty
-        // (which always exists for these parsers since their effective minOccurs is zero),
-        // but retain the data position just past the terminating occurrence.
+        // This occurrence matched a dfdl:occursStopValue: its data (and separator) is
+        // consumed, but it must not appear in the infoset and no more occurrences are
+        // parsed. Backtrack the infoset side effects to the point of uncertainty (always
+        // defined here, since the effective minOccurs is zero), keeping the data position.
         if (maybePoU.isDefined) {
           Assert.invariant(!isPoUResolved)
           val bitPosAfterTerminatingOccurrence = currentPos

@@ -177,21 +177,12 @@ abstract class UState(
   final def isInspectArrayEnd: Boolean = eventState.isInspectArrayEnd
 
   /**
-   * DAFFODIL-501: support for unparsing dfdl:occursCountKind='stopValue'.
+   * Support for unparsing dfdl:occursCountKind='stopValue'.
    *
-   * When unparsing an array whose occurrences are terminated by a stop value, a final
-   * terminating occurrence is synthesized: it consumes data (the stop value) but does
-   * not appear in the infoset, so no infoset events exist for it. The array unparser
-   * creates the infoset element for the terminating occurrence (with the stop value as
-   * its data value) and sets it here; the element unparser consumes it (see
-   * RegularElementUnparserStartEndStrategy.unparseBegin/unparseEnd) in place of
-   * consuming infoset start/end element events.
-   *
-   * This is per-unparse-run state (UStates are created fresh for each run). It is
-   * always consumed by the immediately following unparse of the array element, so it
-   * never outlives the single sequence-unparser-loop iteration that set it. It is not
-   * consulted by suspended-operation unparsers (which never run element start/end
-   * strategies), so the inherited (unused) copy on UStateForSuspension is harmless.
+   * The terminating occurrence of such an array consumes data but is not in the
+   * infoset, so it has no infoset events. The array unparser creates its infoset
+   * element here; the element unparser consumes that instead of consuming start/end
+   * element events (see RegularElementUnparserStartEndStrategy).
    */
   private var maybeStopValueElem: Maybe[DISimple] = Nope
 

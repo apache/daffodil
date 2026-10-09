@@ -46,6 +46,9 @@ trait Separated { self: SequenceChildParser =>
     requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
     val status = separatorHelper.parseOneWithSeparator(pstate, requiredOptional)
+    // Both the occurrence and its separator are parsed at this point, which is where an
+    // occursCountKind='stopValue' array notices it has reached its terminating occurrence.
+    // No-op for every other occursCountKind.
     self.checkParseAttemptStatus(pstate, status)
   }
 

@@ -79,12 +79,9 @@ class OrderedUnseparatedSequenceUnparser(
   }
 
   /**
-   * DAFFODIL-501: unparses the synthesized terminating occurrence of an array with
-   * dfdl:occursCountKind='stopValue', if (and only if) the child unparser is for such
-   * an array. Does nothing otherwise.
-   *
-   * The terminating occurrence consumes data (the dfdl:occursStopValue), but does not
-   * appear in the infoset and has no infoset events; see StopValueMixin.
+   * Unparses the synthesized terminating occurrence of an occursCountKind='stopValue'
+   * array, if and only if the child unparser is for such an array; does nothing
+   * otherwise. The terminating occurrence has no infoset events, see StopValueMixin.
    */
   protected def unparseStopValueIfNeeded(
     unparser: SequenceChildUnparser,
@@ -180,8 +177,8 @@ class OrderedUnseparatedSequenceUnparser(
             // to check if the element is defaultable and add elements until we reach that
             // number. Daffodil does not currently support defaulting during unparsing.
 
-            // DAFFODIL-501: for an occursCountKind='stopValue' array, after all of the
-            // infoset occurrences, unparse the synthesized terminating occurrence.
+            // After all of the infoset occurrences of an occursCountKind='stopValue'
+            // array, unparse the synthesized terminating occurrence.
             unparseStopValueIfNeeded(unparser, state)
 
             unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
@@ -201,8 +198,8 @@ class OrderedUnseparatedSequenceUnparser(
             // to check if the element is defaultable and add elements until we reach that
             // number. Daffodil does not currently support defaulting during unparsing.
             //
-            // DAFFODIL-501: even with zero infoset occurrences, an
-            // occursCountKind='stopValue' array emits the terminating occurrence.
+            // Even with zero infoset occurrences, an occursCountKind='stopValue'
+            // array emits the terminating occurrence.
             unparseStopValueIfNeeded(unparser, state)
             unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
               state,
