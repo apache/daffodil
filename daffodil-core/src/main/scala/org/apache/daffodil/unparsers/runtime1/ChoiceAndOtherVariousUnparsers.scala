@@ -23,17 +23,26 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.ProperlySerializableMap.*
+import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.infoset.*
 import org.apache.daffodil.runtime1.processors.*
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
+/**
+ * Maps the name of the element that starts a branch to the unparser for that
+ * branch. An end event never starts a branch, so it always takes the default.
+ */
 case class ChoiceBranchMap(
-  lookupTable: ProperlySerializableMap[ChoiceBranchEvent, Unparser],
+  lookupTable: ProperlySerializableMap[NamedQName, Unparser],
   unmappedDefault: Option[Unparser]
 ) extends Serializable {
 
-  def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
-    val fromTable = lookupTable.get(cbe)
+  def get(event: InfosetAccessor): Maybe[Unparser] = {
+    val fromTable = if (event.isStart) {
+      lookupTable.get(event.erd.namedQName)
+    } else {
+      null
+    }
     val res =
       if (fromTable != null) One(fromTable)
       else {
@@ -92,28 +101,16 @@ class ChoiceCombinatorUnparser(
     } else {
       state.pushTRD(mgrd)
       val event: InfosetAccessor = state.inspectOrError
-      val key: ChoiceBranchEvent = event match {
-        //
-        // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a
-        // hash-table lookup for a cached value. This avoids constructing these
-        // objects over and over again.
-        //
-        case e if e.isStart && e.isElement => ChoiceBranchStartEvent(e.erd.namedQName)
-        case e if e.isEnd && e.isElement => ChoiceBranchEndEvent(e.erd.namedQName)
-        case e if e.isStart && e.isArray => ChoiceBranchStartEvent(e.erd.namedQName)
-        case e if e.isEnd && e.isArray => ChoiceBranchEndEvent(e.erd.namedQName)
-      }
-
-      val maybeChildUnparser = choiceBranchMap.get(key)
+      val maybeChildUnparser = choiceBranchMap.get(event)
       if (maybeChildUnparser.isEmpty) {
         UnparseError(
           One(mgrd.schemaFileLocation),
           One(state.currentLocation),
           "Found next element %s, but expected one of %s.",
-          key.qname.toExtendedSyntax,
+          event.erd.namedQName.toExtendedSyntax,
           choiceBranchMap.keys
             .map {
-              _.qname.toExtendedSyntax
+              _.toExtendedSyntax
             }
             .mkString(", ")
         )
