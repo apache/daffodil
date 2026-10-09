@@ -292,6 +292,25 @@ final class PState private (
   def bitLimit0b = dataInputStream.bitLimit0b
   //  def charLimit = inStream.charLimit0b
 
+  /**
+   * Runs parser as a peek: forces success, lets it run, then unconditionally
+   * restores bit position, processor status, and diagnostics to what they
+   * were beforehand, regardless of what parser did. Returns whether it
+   * succeeded.
+   */
+  def probeNonDestructively(parser: Parser): Boolean = {
+    val savedBitPos = bitPos0b
+    val savedStatus = processorStatus
+    val savedDiagnostics = diagnostics
+    setSuccess()
+    parser.parse1(this)
+    val found = isSuccess
+    dataInputStream.setBitPos0b(savedBitPos)
+    _processorStatus = savedStatus
+    diagnostics = savedDiagnostics
+    found
+  }
+
   def simpleElement: DISimple = {
     val res = infoset match {
       case s: DISimple => s

@@ -35,7 +35,8 @@ trait Unseparated { self: SequenceChildParser =>
       self,
       prevBitPosBeforeChild,
       pstate,
-      requiredOptional
+      requiredOptional,
+      separatorWasFound = false
     )
     res
   }

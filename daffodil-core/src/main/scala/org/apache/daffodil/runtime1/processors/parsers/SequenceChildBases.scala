@@ -218,7 +218,7 @@ abstract class SequenceChildParser(
   def arrayCompleteChecks(
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus
+    priorSiblingResultOfTry: ParseAttemptStatus
   ): Unit = {
     // does nothing by default.
     // overridden in separated sequence child parsers in some cases

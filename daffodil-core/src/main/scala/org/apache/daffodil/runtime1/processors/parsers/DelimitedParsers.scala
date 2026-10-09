@@ -25,6 +25,7 @@ import org.apache.daffodil.lib.util.PackedSignCodes
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockParserHelper
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextJustificationType
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
@@ -106,6 +107,44 @@ class StringDelimitedParser(
       }
     }
     processResult(result, start)
+  }
+}
+
+/**
+ * Checks whether one of the sequence's in-scope delimiters (separator or
+ * terminator) is present right at the current position, without consuming
+ * any data and without attempting to parse any field content or handle
+ * escape schemes.
+ *
+ * Used to determine whether a complex type's representation at this
+ * position is genuinely zero-length, independent of whatever bit-position
+ * bookkeeping the complex type's own (possibly backtracking) descent
+ * produces. Saves its delimited-parse result the same way a field parser
+ * would, but never sets a data value, since there is no simple element
+ * value to set.
+ */
+final class ZeroLengthComplexTypeDelimitedParser(
+  override val context: TermRuntimeData
+) extends PrimParser {
+
+  override val runtimeDependencies = Array()
+
+  def parse(start: PState): Unit = {
+    val delimIter = new AllTerminatingMarkupDelimiterIterator(
+      start.mpstate.delimiters,
+      start.mpstate.delimitersLocalIndexStack.top
+    )
+    start.clearDelimitedParseResult()
+    val result = dfa.ZeroLengthDelimiterScanner.scan(start, start.dataInputStream, delimIter)
+    if (!result.isDefined) {
+      this.PE(
+        start,
+        "%s - No adjacent delimiter found for zero-length representation.",
+        context.diagnosticDebugName
+      )
+    } else {
+      start.saveDelimitedParseResult(result)
+    }
   }
 }
 
