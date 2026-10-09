@@ -25,10 +25,8 @@ import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.WarnID
 import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.ChoiceBranchEndEvent
-import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
-import org.apache.daffodil.runtime1.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
 
@@ -58,7 +56,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
   private lazy val allBranchesClosed =
     identifyingEventsForAllChoiceBranches.forall { _.isClosed }
 
-  final lazy val choiceBranchMap: (Map[ChoiceBranchEvent, Term], Option[Term]) = {
+  final lazy val choiceBranchMap: (Map[NamedQName, Term], Option[Term]) = {
 
     import PossibleNextElements.*
 
@@ -67,7 +65,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
         case t: Term => {
           val poss = t.identifyingEventsForChoiceBranch
           poss.pnes.flatMap { case PNE(e, ovr) =>
-            Seq((ChoiceBranchStartEvent(e.namedQName).asInstanceOf[ChoiceBranchEvent], t))
+            Seq((e.namedQName, t))
           }
         }
         case _ => Assert.invariantFailed("must be a term")
@@ -103,7 +101,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
     // more than one branch.
 
     val noDupes = eventMap.map {
-      case (event, terms) => {
+      case (qname, terms) => {
         Assert.invariant(terms.length > 0)
         if (terms.length > 1) {
           if (
@@ -131,7 +129,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
                 "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
                 "Note that choice branches with entirely optional content are not allowed.\n" +
                 "The offending choice branches are:\n%s",
-              event.qname,
+              qname,
               terms
                 .map { trd =>
                   "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription)
@@ -139,20 +137,15 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
                 .mkString("\n")
             )
           } else {
-            val eventType = event match {
-              case _: ChoiceBranchEndEvent => "end"
-              case _: ChoiceBranchStartEvent => "start"
-            }
             // there are no element children in any of the branches.
             SDW(
               WarnID.MultipleChoiceBranches,
-              "Multiple choice branches are associated with the %s of element %s.\n" +
+              "Multiple choice branches are associated with the start of element %s.\n" +
                 "Note that elements with dfdl:outputValueCalc cannot be used to distinguish choice branches.\n" +
                 "Note that choice branches with entirely optional content are not allowed.\n" +
                 "The offending choice branches are:\n%s\n" +
                 "The first branch will be used during unparsing when an infoset ambiguity exists.",
-              eventType,
-              event.qname,
+              qname,
               terms
                 .map { trd =>
                   "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription)
@@ -161,7 +154,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
             )
           }
         }
-        (event, terms(0))
+        (qname, terms(0))
       }
     }
     (noDupes, optDefaultBranch)

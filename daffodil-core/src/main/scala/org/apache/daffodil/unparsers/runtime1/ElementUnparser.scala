@@ -23,8 +23,6 @@ import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.dpath.SuspendableExpression
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.runtime1.infoset.DIComplex
-import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -43,14 +41,14 @@ class ElementUnspecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  eReptypeUnparser: Maybe[Unparser]
+  eRepTypeUnparser: Maybe[Unparser]
 ) extends ElementUnparserBase(
     erd,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    eReptypeUnparser
+    eRepTypeUnparser
   )
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
@@ -123,13 +121,13 @@ sealed abstract class ElementUnparserBase(
   val eBeforeUnparser: Maybe[Unparser],
   val eUnparser: Maybe[Unparser],
   val eAfterUnparser: Maybe[Unparser],
-  val eReptypeUnparser: Maybe[Unparser]
+  val eRepTypeUnparser: Maybe[Unparser]
 ) extends CombinatorUnparser(erd)
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
 
   final override def childProcessors =
-    (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ eReptypeUnparser.toList ++ setVarUnparsers.toList).toVector
+    (eBeforeUnparser.toList ++ eUnparser.toList ++ eAfterUnparser.toList ++ eRepTypeUnparser.toList ++ setVarUnparsers.toList).toVector
 
   private val name = erd.name
 
@@ -139,7 +137,7 @@ sealed abstract class ElementUnparserBase(
       "<Element name='" + name + "'>" +
         (if (eBeforeUnparser.isDefined) eBeforeUnparser.value.toBriefXML(depthLimit - 1)
          else "") +
-        (if (eReptypeUnparser.isDefined) eReptypeUnparser.value.toBriefXML(depthLimit - 1)
+        (if (eRepTypeUnparser.isDefined) eRepTypeUnparser.value.toBriefXML(depthLimit - 1)
          else "") +
         (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
         (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1)
@@ -172,8 +170,8 @@ sealed abstract class ElementUnparserBase(
   }
 
   protected def runContentUnparser(state: UState): Unit = {
-    if (eReptypeUnparser.isDefined) {
-      eReptypeUnparser.get.unparse1(state)
+    if (eRepTypeUnparser.isDefined) {
+      eRepTypeUnparser.get.unparse1(state)
     } else if (eUnparser.isDefined)
       eUnparser.get.unparse1(state)
   }
@@ -284,14 +282,14 @@ class ElementSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  eReptypeUnparser: Maybe[Unparser]
+  eRepTypeUnparser: Maybe[Unparser]
 ) extends ElementUnparserBase(
     context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    eReptypeUnparser
+    eRepTypeUnparser
   )
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
@@ -412,7 +410,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
     } else {
-      // get the new DIElem to add to the infoset
+      // get the DIElem for this element, which is in the infoset once it is returned
       val newElem =
         if (!state.withinHiddenNest) {
           // Elements in a hidden context are not in the infoset, so we will never get an event
@@ -429,56 +427,11 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
               event
             )
           }
-          event.info.element
+          state.getElement(erd, One(event))
         } else {
           Assert.invariant(state.withinHiddenNest)
-          // Since we never get events for elements in hidden contexts, their infoset elements
-          // will have never been created. This means we need to manually create them
-          val hiddenElem = if (erd.isComplexType) new DIComplex(erd) else new DISimple(erd)
-          hiddenElem.setHidden()
-          hiddenElem
+          state.getElement(erd)
         }
-
-      // now add this new elem to the infoset
-      val parentNodeMaybe = state.currentInfosetNodeMaybe
-      if (parentNodeMaybe.isDefined) {
-        val parentComplex = parentNodeMaybe.get.asComplex
-        Assert.invariant(!parentComplex.isFinal)
-        if (parentComplex.isNilled) {
-          // cannot add content to a nilled complex element
-          UnparseError(
-            One(erd.schemaFileLocation),
-            Nope,
-            "Nilled complex element %s has content from %s",
-            parentComplex.erd.namedQName.toExtendedSyntax,
-            newElem.erd.namedQName.toExtendedSyntax
-          )
-        }
-
-        // We are about to add a child to this complex element. Before we do
-        // that, if the last child added to this complex is a DIArray, and this
-        // new child isn't part of that array, that implies that the DIArray
-        // will have no more children added and should be marked as final, and
-        // we can attempt to free that array.
-        val lastChildMaybe = parentComplex.maybeLastChild
-        if (lastChildMaybe.isDefined) {
-          val lastChild = lastChildMaybe.get
-          if (lastChild.isArray && (lastChild.erd ne newElem.erd)) {
-            lastChild.setFinal()
-            parentComplex.freeChildIfNoLongerNeeded(
-              parentComplex.numChildren - 1,
-              state.releaseUnneededInfoset
-            )
-          }
-        }
-
-        parentComplex.addChild(newElem, state.tunable)
-      } else {
-        // We do not yet have an infoset element (this new element is the
-        // root), so add the infoset node to the DIDocument
-        val doc = state.documentElement
-        doc.addChild(newElem, state.tunable)
-      }
 
       // When the infoset events are being advanced, the currentInfosetNodeStack
       // is pushing and popping to match the events. This provides the proper
@@ -517,44 +470,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
 
       val cur = state.currentInfosetNodeStack.pop.get
 
-      if (cur.isComplex) {
-        // We are ending a complex element. If the last child of this complex
-        // is a DIArray, that implies that the array will have no more children
-        // and should be marked as isFinal. Normally this happens when we add a
-        // new sibling after an array in unparseBegin, but in this case there
-        // is no sibling following the array, so it must be set here.
-        val lastChild = cur.maybeLastChild
-        if (lastChild.isDefined && lastChild.get.isArray) {
-          lastChild.get.setFinal()
-          cur.freeChildIfNoLongerNeeded(cur.numChildren - 1, state.releaseUnneededInfoset)
-        }
-      }
-
-      // cur is finished, mark it as final and free if possible. Note that we
-      // need the container and not the parent of the current element to free
-      // it. This way if this element is in an array, we free this element
-      // from the array. We also do not set hidden IVC elements as
-      // final--although we allow hidden IVC elements when unparsing, they
-      // never get a value so we can't set them as final without breaking
-      // assertions. Nothing can access hidden IVC elements, so this should
-      // not break anything
-      if (!state.withinHiddenNest || erd.isRepresented) cur.setFinal()
-      val curContainer =
-        if (cur.erd.isArray) cur.diParent.maybeLastChild.get
-        else cur.diParent
-      curContainer.freeChildIfNoLongerNeeded(
-        curContainer.numChildren - 1,
-        state.releaseUnneededInfoset
-      )
-
-      if (state.currentInfosetNodeStack.isEmpty) {
-        // If there is nothing else on the infoset stack after popping off the
-        // current infoset node, that means we have finished the root element,
-        // so mark the DIDocument as final
-        val doc = state.documentElement
-        Assert.invariant(!doc.isFinal)
-        doc.setFinal()
-      }
+      state.finishElement(cur)
 
       move(state)
 
@@ -589,42 +505,16 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
           val endEv = state.advanceOrError // Consume the end event
           Assert.invariant(endEv.isEnd && endEv.erd == erd)
 
-          val e = new DISimple(erd)
-          // Remove any state that was set by what created this event. Later
-          // code asserts that OVC elements do not have a value
-          e.resetValue()
-          e
+          state.getElement(erd, One(startEv))
         } else {
           // Event was optional and didn't exist, create a new InfosetElement and add it
-          val e = new DISimple(erd)
-          e
+          state.getElement(erd)
         }
       } else {
         // Event was hidden and will never exist, create a new InfosetElement and add it
-        val e = new DISimple(erd)
-        e.setHidden()
-        e
+        state.getElement(erd)
       }
 
-    // We are about to add a new OVC child to this complex element. Before we
-    // do that, if the last child added to this complex is a DIArray, that
-    // implies that the DIArray will have no more children added and should be
-    // marked as final, and we can attempt to free that array.
-    val parentNode = state.currentInfosetNode
-    val parentComplex = parentNode.asComplex
-    val lastChildMaybe = parentComplex.maybeLastChild
-    if (lastChildMaybe.isDefined) {
-      val lastChild = lastChildMaybe.get
-      if (lastChild.isArray) {
-        lastChild.setFinal()
-        parentComplex.freeChildIfNoLongerNeeded(
-          parentComplex.numChildren - 1,
-          state.releaseUnneededInfoset
-        )
-      }
-    }
-
-    parentComplex.addChild(ovcElem, state.tunable)
     state.currentInfosetNodeStack.push(One(ovcElem))
   }
 
@@ -632,23 +522,8 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
     // if an OVC element existed, the start AND end events were consumed in
     // unparseBegin. No need to advance the cursor here.
 
-    // ovcElem is finished, free it if possible. OVC elements are not allowed in
-    // arrays, so we can directly get the diParent to get the container DINode
     val ovcElem = state.currentInfosetNodeStack.pop
-    val ovcContainer = ovcElem.get.diParent
-    ovcContainer.freeChildIfNoLongerNeeded(
-      ovcContainer.numChildren - 1,
-      state.releaseUnneededInfoset
-    )
-
-    if (state.currentInfosetNodeStack.isEmpty) {
-      // If there is nothing else on the infoset stack after popping off the
-      // current infoset node, that means we have finished the root element,
-      // so mark the DIDocument as final
-      val doc = state.documentElement
-      Assert.invariant(!doc.isFinal)
-      doc.setFinal()
-    }
+    state.finishElement(ovcElem.get)
 
     move(state)
   }

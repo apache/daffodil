@@ -109,7 +109,7 @@ class ElementCombinator(
     if (eAfterValue.isEmpty) Maybe.Nope
     else Maybe(eAfterValue.unparser)
 
-  private lazy val eReptypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
+  private lazy val eRepTypeUnparser: Maybe[Unparser] = repTypeElementGram.maybeUnparser
 
   override lazy val unparser: Unparser = {
     if (context.isOutputValueCalc) {
@@ -136,7 +136,7 @@ class ElementCombinator(
         eBeforeUnparser,
         eUnparser,
         eAfterUnparser,
-        eReptypeUnparser
+        eRepTypeUnparser
       )
     } else {
       subComb.unparser
