@@ -17,9 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
+import org.apache.daffodil.lib.cookers.OccursStopValueCooker
 import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.*
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 trait RequiredOptionalMixin { self: ElementBase =>
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
@@ -230,14 +233,73 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       res
     }.value
 
-  final lazy val hasStopValue = LV(Symbol("hasStopValue")) {
-    val sv = !isScalar && occursCountKind == OccursCountKind.StopValue
-    // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
-    schemaDefinitionUnless(
-      !(sv && occursStopValue == ""),
-      "Property occursCountKind='stopValue' requires a non-empty occursStopValue property."
+  /**
+   * True if this element uses occursCountKind='stopValue' to determine the end of its
+   * occurrences. (For scalar elements the occursCountKind is ignored, so this is false
+   * for them.)
+   */
+  final lazy val hasStopValue =
+    !isScalar && occursCountKind == OccursCountKind.StopValue
+
+  /**
+   * The dfdl:occursStopValue property value, cooked (i.e. split into a list of string
+   * literals with DFDL entities like %ES; replaced) into individual stop values.
+   *
+   * Only meaningful (and only accessed) when hasStopValue is true.
+   */
+  final lazy val occursStopValueStrings: Seq[String] = {
+    Assert.usage(hasStopValue)
+    val maybePropValue = findPropertyOption("occursStopValue").toOption
+    schemaDefinitionWhen(
+      maybePropValue.isEmpty,
+      "Property occursCountKind='stopValue' requires the dfdl:occursStopValue property to be defined."
     )
-    schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")
-    sv
-  }.value
+    // the cooker SDEs if the cooked list of stop values is empty
+    OccursStopValueCooker.convertConstant(maybePropValue.get, this, forUnparse = false)
+  }
+
+  /**
+   * The stop values converted to values of this element's simple type. Comparison with
+   * parsed values is by value (e.g. data 00010 matches a stop value of 10 for xs:int),
+   * as required by the DFDL specification (the stop value must be a value in the domain
+   * of the declared simple type of the data item).
+   */
+  final lazy val occursStopValues: Seq[DataValuePrimitive] = {
+    schemaDefinitionWhen(
+      !isSimpleType,
+      "Property occursCountKind='stopValue' requires a simple type. The value of each occurrence is compared with the dfdl:occursStopValue."
+    )
+    occursStopValueStrings.map { sv =>
+      try {
+        primType.fromXMLString(sv)
+      } catch {
+        case ipd: InvalidPrimitiveDataException =>
+          SDE("Invalid dfdl:occursStopValue: %s", ipd.getMessage)
+      }
+    }
+  }
+
+  /**
+   * Checks that an element using occursCountKind='stopValue' is valid. Forced by
+   * ElementBaseGrammarMixin, so it runs whenever such an element is compiled.
+   */
+  final lazy val checkOccursStopValue: Unit = {
+    if (hasStopValue) {
+      schemaDefinitionWhen(
+        !isSimpleType,
+        "Property occursCountKind='stopValue' requires a simple type. The value of each occurrence is compared with the dfdl:occursStopValue."
+      )
+      schemaDefinitionWhen(
+        !isRepresented,
+        "Property occursCountKind='stopValue' is not meaningful for elements with no data representation (e.g. dfdl:inputValueCalc)."
+      )
+      schemaDefinitionWhen(
+        isNillable,
+        "Property occursCountKind='stopValue' is not supported for nillable elements."
+      )
+      // force the checks (present, non-empty, valid for the simple type) of the stop
+      // values themselves
+      occursStopValues
+    }
+  }
 }

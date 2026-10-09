@@ -48,6 +48,7 @@ import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIDocument
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DINode
+import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.InfosetAccessor
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
@@ -164,6 +165,35 @@ abstract class UState(
   def inspectOrError: InfosetAccessor
   def advanceOrError: InfosetAccessor
   def isInspectArrayEnd: Boolean
+
+  /**
+   * DAFFODIL-501: support for unparsing dfdl:occursCountKind='stopValue'.
+   *
+   * When unparsing an array whose occurrences are terminated by a stop value, a final
+   * terminating occurrence is synthesized: it consumes data (the stop value) but does
+   * not appear in the infoset, so no infoset events exist for it. The array unparser
+   * creates the infoset element for the terminating occurrence (with the stop value as
+   * its data value) and sets it here; the element unparser consumes it (see
+   * RegularElementUnparserStartEndStrategy.unparseBegin/unparseEnd) in place of
+   * consuming infoset start/end element events.
+   *
+   * This is per-unparse-run state (UStates are created fresh for each run). It is
+   * always consumed by the immediately following unparse of the array element, so it
+   * never outlives the single sequence-unparser-loop iteration that set it. It is not
+   * consulted by suspended-operation unparsers (which never run element start/end
+   * strategies), so the inherited (unused) copy on UStateForSuspension is harmless.
+   */
+  private var maybeStopValueElem: Maybe[DISimple] = Nope
+
+  final def setStopValue(elem: DISimple): Unit = {
+    maybeStopValueElem = One(elem)
+  }
+
+  final def maybeStopValue: Maybe[DISimple] = maybeStopValueElem
+
+  final def clearStopValue(): Unit = {
+    maybeStopValueElem = Nope
+  }
 
   override def dataStream = Maybe(getDataOutputStream)
 

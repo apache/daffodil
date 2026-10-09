@@ -414,7 +414,18 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
     } else {
       // get the new DIElem to add to the infoset
       val newElem =
-        if (!state.withinHiddenNest) {
+        if (!state.withinHiddenNest && state.maybeStopValue.isDefined) {
+          // DAFFODIL-501: this is the synthesized terminating occurrence of an array with
+          // dfdl:occursCountKind='stopValue'. The array unparser created the infoset
+          // element (with the dfdl:occursStopValue as its data value) and set it on the
+          // state. No infoset start element event exists for it. unparseEnd() recognizes
+          // it below and skips the end element event. This element is added to the infoset
+          // (the DIArray) like any other occurrence so that the rest of the element
+          // unparser machinery (lengths, alignment, encoders) works unchanged.
+          val termElem = state.maybeStopValue.get
+          Assert.invariant(termElem.erd eq erd)
+          termElem
+        } else if (!state.withinHiddenNest) {
           // Elements in a hidden context are not in the infoset, so we will never get an event
           // for them. Only try to consume start events for non-hidden elements
           val event = state.advanceOrError
@@ -498,7 +509,15 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
     } else {
-      if (!state.withinHiddenNest) {
+      if (state.maybeStopValue.isDefined) {
+        // DAFFODIL-501: terminating occurrence of an occursCountKind='stopValue' array.
+        // It had no infoset start element event (see unparseBegin), so there is no end
+        // element event to consume either. Clear the pending terminator now that the
+        // occurrence has been fully unparsed.
+        val termElem = state.maybeStopValue.get
+        Assert.invariant(termElem.erd eq erd)
+        state.clearStopValue()
+      } else if (!state.withinHiddenNest) {
         // Hidden elements are not in the infoset, so we will never get an event
         // for them. Only try to consume end events for non-hidden elements
         val event = state.advanceOrError

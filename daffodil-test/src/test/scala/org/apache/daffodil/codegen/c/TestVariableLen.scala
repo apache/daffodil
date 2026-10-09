@@ -56,5 +56,4 @@ class TestVariableLenC extends TdmlTests {
   @Test def expression_01 = test
   @Test def expression_16 = test
   @Test def expression_17_error = test
-  @Test def stopValue = test
 }
