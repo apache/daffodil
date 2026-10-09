@@ -19,10 +19,11 @@ package org.apache.daffodil.unparsers.runtime1
 import scala.collection.mutable.Buffer
 
 import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.io.ZeroLengthStatus
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
+import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
@@ -51,6 +52,49 @@ trait StreamSplitter {
     buf += afterDOS
     val res = buf.toSeq
     res
+  }
+}
+
+/**
+ * Tracks whether a region of unparsed data, isolated by splitting the data
+ * output stream, is zero length or not.
+ */
+trait ZeroLengthRegionMixin extends StreamSplitter {
+
+  private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
+
+  final def zlStatus: ZeroLengthStatus = zlStatus_
+
+  /**
+   * Splits the data output stream so the data unparsed after this point is
+   * isolated, and returns the data output stream that ends the region before
+   * the split.
+   */
+  protected final def splitRegion(
+    splitter: RegionSplitUnparser,
+    state: UState
+  ): DataOutputStream = {
+    val op = splitter.suspendableOperation
+    splitter.unparseWithOperation(state, op)
+    op.savedUstate.getDataOutputStream
+  }
+
+  /**
+   * Updates the status from the streams of the region. Any non-zero stream
+   * makes the region non-zero, and it is zero only when all streams are known
+   * to be zero. Otherwise it remains unknown until the streams are further
+   * along. The streams are only computed while the status is unknown.
+   */
+  protected final def updateZLStatus(dosToCheck: => Seq[DataOutputStream]): ZeroLengthStatus = {
+    if (zlStatus_ eq ZeroLengthStatus.Unknown) {
+      val doss = dosToCheck
+      if (doss.exists { _.zeroLengthStatus eq ZeroLengthStatus.NonZero }) {
+        zlStatus_ = ZeroLengthStatus.NonZero
+      } else if (doss.forall { _.zeroLengthStatus eq ZeroLengthStatus.Zero }) {
+        zlStatus_ = ZeroLengthStatus.Zero
+      }
+    }
+    zlStatus_
   }
 }
 
@@ -84,40 +128,38 @@ trait StreamSplitter {
  */
 class RegionSplitUnparser(override val context: TermRuntimeData)
   extends PrimUnparser
-  with SuspendableUnparser {
+  with StatefulDelegatedSuspendableUnparser[RegionSplitState] {
 
   override def childProcessors: Vector[Processor] = Vector()
 
   override val runtimeDependencies = Array()
 
-  override lazy val suspendableOperation = new RegionSplitSuspendableOperation(context)
+  override def rd: RuntimeData = context
 
-  lazy val dataOutputStream = suspendableOperation.savedUstate.getDataOutputStream
-}
-
-final class RegionSplitSuspendableOperation(override val rd: TermRuntimeData)
-  extends SuspendableOperation {
-
-  private var secondTime = false
+  override def newSuspensionState(): RegionSplitState = new RegionSplitState
 
   /**
    * Suspends once, since test fails the first time.
    * When retried, the test succeeds.
    */
-  override def test(ustate: UState): Boolean = {
-    if (secondTime) true
+  override def suspensionTest(ustate: UState, state: RegionSplitState): Boolean = {
+    if (state.secondTime) true
     else {
-      secondTime = true
+      state.secondTime = true
       false
     }
   }
 
-  override def continuation(ustate: UState): Unit = {
+  override def suspensionContinuation(ustate: UState, state: RegionSplitState): Unit = {
     // do nothing.
     //
     // The underlying suspension system will take care of
     // finishing the DOS so everything gets unblocked.
   }
+}
+
+final class RegionSplitState {
+  var secondTime = false
 }
 
 object RegionSplitUnparser {

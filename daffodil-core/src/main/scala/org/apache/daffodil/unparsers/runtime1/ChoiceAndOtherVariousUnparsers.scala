@@ -85,6 +85,16 @@ class ChoiceCombinatorUnparser(
 
   override def childProcessors = choiceBranchMap.childProcessors
 
+  private val choiceUnusedUnparser: Maybe[ChoiceUnusedUnparser] = {
+    if (choiceLengthInBits.isDefined) {
+      val unparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get)
+      Processor.initialize(unparser)
+      Maybe(unparser)
+    } else {
+      Maybe.Nope
+    }
+  }
+
   def unparse(state: UState): Unit = {
     if (state.withinHiddenNest) {
       val branchForUnparseIfHidden = choiceBranchMap.defaultUnparser
@@ -122,15 +132,11 @@ class ChoiceCombinatorUnparser(
       state.popTRD(mgrd)
       state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
       if (choiceLengthInBits.isDefined) {
-        val suspendableOp =
-          new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
-        val choiceUnusedUnparser =
-          new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
-
-        suspendableOp.captureDOSStartForChoiceUnused(state)
+        val suspendableOp = choiceUnusedUnparser.get.suspendableOperation
+        suspendableOp.state.captureDOSStartForChoiceUnused(state)
         childUnparser.unparse1(state)
-        suspendableOp.captureDOSEndForChoiceUnused(state)
-        choiceUnusedUnparser.unparse(state)
+        suspendableOp.state.captureDOSEndForChoiceUnused(state)
+        choiceUnusedUnparser.get.unparseWithOperation(state, suspendableOp)
       } else {
         childUnparser.unparse1(state)
       }
