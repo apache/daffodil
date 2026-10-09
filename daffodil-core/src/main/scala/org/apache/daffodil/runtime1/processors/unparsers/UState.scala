@@ -54,6 +54,7 @@ import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.DelimiterStackUnparseNode
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparserHelper
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.NonTermRuntimeData
@@ -75,9 +76,11 @@ abstract class UState(
   diagnosticsArg: Seq[api.Diagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
-  areDebugging: Boolean
+  areDebugging: Boolean,
+  eventState: InfosetEventState,
+  delimiterEscapePosition: DelimiterEscapePositionState
 ) extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
-  with Cursor[InfosetAccessor]
+  with InfosetTreeState
   with ThrowsSDE
   with SavesErrorsAndWarnings {
 
@@ -110,18 +113,18 @@ abstract class UState(
   /**
    * Push onto the dynamic TRD context stack
    */
-  def pushTRD(trd: TermRuntimeData): Unit
+  final def pushTRD(trd: TermRuntimeData): Unit = eventState.pushTRD(trd)
 
   /**
    * Returns the top of the stack if it exists. No state change to stack contents.
    */
-  def maybeTopTRD(): Maybe[TermRuntimeData]
+  final def maybeTopTRD(): Maybe[TermRuntimeData] = eventState.maybeTopTRD()
 
   /**
    * Pop the dynamic TRD context stack. The popped TRD should be the same as the argument rd.
    * The popped TRD is returned.
    */
-  def popTRD(trd: TermRuntimeData): TermRuntimeData
+  final def popTRD(trd: TermRuntimeData): TermRuntimeData = eventState.popTRD(trd)
 
   override def toString = {
     val elt =
@@ -138,32 +141,39 @@ abstract class UState(
     _dataOutputStream = dos
   }
 
-  def currentInfosetNode: DINode
-  def currentInfosetNodeMaybe: Maybe[DINode]
-  def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
+  final def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] =
+    delimiterEscapePosition.escapeSchemeEVCache
 
-  def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
-  def withByteArrayOutputStream
-    : LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
+  final def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse] =
+    delimiterEscapePosition.withUnparserDataInputStream
+  final def withByteArrayOutputStream
+    : LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)] =
+    delimiterEscapePosition.withByteArrayOutputStream
 
-  def allTerminatingMarkup: List[DFADelimiter]
-  def localDelimiters: DelimiterStackUnparseNode
-  def pushDelimiters(node: DelimiterStackUnparseNode): Unit
-  def popDelimiters(): Unit
+  final def allTerminatingMarkup: List[DFADelimiter] =
+    delimiterEscapePosition.allTerminatingMarkup
+  final def localDelimiters: DelimiterStackUnparseNode = delimiterEscapePosition.localDelimiters
+  final def pushDelimiters(node: DelimiterStackUnparseNode): Unit =
+    delimiterEscapePosition.pushDelimiters(node)
+  final def popDelimiters(): Unit = delimiterEscapePosition.popDelimiters()
 
-  def currentInfosetNodeStack: MStackOfMaybe[DINode]
-  def arrayIterationIndexStack: MStackOfLong
-  def occursIndexStack: MStackOfLong
-  def childIndexStack: MStackOfLong
-  def groupIndexStack: MStackOfLong
-  def moveOverOneArrayIterationIndexOnly(): Unit
-  def moveOverOneOccursIndexOnly(): Unit
-  def moveOverOneGroupIndexOnly(): Unit
-  def moveOverOneElementChildOnly(): Unit
+  final def childIndexStack: MStackOfLong = delimiterEscapePosition.childIndexStack
+  final def moveOverOneElementChildOnly(): Unit =
+    delimiterEscapePosition.moveOverOneElementChildOnly()
+  final override def childPos: Long = delimiterEscapePosition.childPos
 
-  def inspectOrError: InfosetAccessor
-  def advanceOrError: InfosetAccessor
-  def isInspectArrayEnd: Boolean
+  final override def advance: Boolean = eventState.advance
+  final override def advanceAccessor: InfosetAccessor = eventState.advanceAccessor
+  final override def inspect: Boolean = eventState.inspect
+  final override def inspectAccessor: InfosetAccessor = eventState.inspectAccessor
+
+  /**
+   * Use these so if there isn't an event we get a clean diagnostic message saying
+   * that is what has gone wrong.
+   */
+  final def inspectOrError: InfosetAccessor = eventState.inspectOrError
+  final def advanceOrError: InfosetAccessor = eventState.advanceOrError
+  final def isInspectArrayEnd: Boolean = eventState.isInspectArrayEnd
 
   override def dataStream = Maybe(getDataOutputStream)
 
@@ -406,192 +416,194 @@ abstract class UState(
 
   final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
 
+  final def freeChildIfNoLongerNeeded(parent: DINode, index: Int): Unit =
+    parent.freeChildIfNoLongerNeeded(index, releaseUnneededInfoset)
+
   def delimitedParseResult = Nope
 }
 
 /**
- * When we create a suspension during unparse, we need to clone the UStateMain
- * for when the suspension is later resumed. However, we do not need nearly as
- * much information for these cloned ustates as the main unparse. Either we can
- * access the necessary information directly from the main UState, or the
- * information isn't used and there's no need to copy it/take up valuable
- * memory.
+ * The state of the infoset tree as unparsing makes it from events: the event
+ * cursor, the TRD and node stacks, and the position within the current group,
+ * array and occurrence. The unparsers that create and finish the nodes of
+ * elements work through it.
  */
-final class UStateForSuspension(
-  val mainUState: UStateMain,
-  val dataOutputStream: DirectOrBufferedDataOutputStream,
-  vbox: VariableBox,
-  override val currentInfosetNode: DINode,
-  arrayIterationIndex: Long,
-  occursIndex: Long,
-  escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
-  delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
-  tunable: DaffodilTunables,
-  areDebugging: Boolean
-) extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
+trait InfosetTreeState extends Cursor[InfosetAccessor] {
+  def tunable: DaffodilTunables
 
-  _dataOutputStream = dataOutputStream
-  dState.setMode(UnparserBlocking)
-  dState.setCurrentNode(thisElement.asInstanceOf[DINode])
-  dState.setContextNode(thisElement.asInstanceOf[DINode])
-  dState.setErrorOrWarn(this)
+  // How the infoset's nodes are made and kept as unparsing consumes events.
+  // InfosetFromEvents does it for the events of an inputter.
 
+  // The node of an element in a hidden group, which has no events.
+  def getHiddenElement(erd: ElementRuntimeData): DIElement
+
+  // The node of an outputValueCalc element whose start event was just consumed.
+  def getOvcElement(startEvent: InfosetAccessor, erd: ElementRuntimeData): DIElement
+
+  // Adds a node whose start was just reached to the infoset.
+  def attachElement(newElem: DIElement): Unit
+
+  // Finishes a node whose end was just reached.
+  def finishElement(cur: DINode, erd: ElementRuntimeData): Unit
+  def finishOvcElement(cur: DINode): Unit
+
+  def inspectOrError: InfosetAccessor
+  def advanceOrError: InfosetAccessor
+  def isInspectArrayEnd: Boolean
+
+  def pushTRD(trd: TermRuntimeData): Unit
+  def maybeTopTRD(): Maybe[TermRuntimeData]
+  def popTRD(trd: TermRuntimeData): TermRuntimeData
+
+  def currentInfosetNode: DINode
+  def currentInfosetNodeMaybe: Maybe[DINode]
+  def currentInfosetNodeStack: MStackOfMaybe[DINode]
+  def documentElement: DIDocument
+
+  def arrayIterationIndexStack: MStackOfLong
+  def occursIndexStack: MStackOfLong
+  def groupIndexStack: MStackOfLong
+  def moveOverOneArrayIterationIndexOnly(): Unit
+  def moveOverOneOccursIndexOnly(): Unit
+  def moveOverOneGroupIndexOnly(): Unit
+  def arrayIterationPos: Long
+  def occursPos: Long
+  def groupPos: Long
+
+  def withinHiddenNest: Boolean
+
+  def freeChildIfNoLongerNeeded(parent: DINode, index: Int): Unit
+}
+
+/**
+ * The part of a UState that consumes infoset events from an InfosetInputter:
+ * the event cursor and the TRD stack. Only the UStates that read the
+ * infoset events hold a real one.
+ */
+trait InfosetEventState {
+  def advance: Boolean
+  def advanceAccessor: InfosetAccessor
+  def inspect: Boolean
+  def inspectAccessor: InfosetAccessor
+  def inspectOrError: InfosetAccessor
+  def advanceOrError: InfosetAccessor
+  def isInspectArrayEnd: Boolean
+  def pushTRD(trd: TermRuntimeData): Unit
+  def maybeTopTRD(): Maybe[TermRuntimeData]
+  def popTRD(trd: TermRuntimeData): TermRuntimeData
+}
+
+/**
+ * Events read from an InfosetInputter. The purpose names what the caller is
+ * doing, for the diagnostic when an event is required but none is available.
+ */
+final class InputterEventState(inputter: InfosetInputter, purpose: String)
+  extends InfosetEventState {
+
+  override def advance: Boolean = inputter.advance
+  override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
+  override def inspect: Boolean = inputter.inspect
+  override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
+
+  override def inspectOrError: InfosetAccessor = {
+    if (inspect) {
+      inspectAccessor
+    } else {
+      Assert.invariantFailed(
+        "An InfosetEvent was required for " + purpose + ", but no InfosetEvent was available."
+      )
+    }
+  }
+
+  override def advanceOrError: InfosetAccessor = {
+    if (advance) {
+      advanceAccessor
+    } else {
+      Assert.invariantFailed(
+        "An InfosetEvent was required for " + purpose + ", but no InfosetEvent was available."
+      )
+    }
+  }
+
+  override def isInspectArrayEnd: Boolean = {
+    if (!inspect) {
+      false
+    } else {
+      inspectAccessor match {
+        case e if e.isEnd && e.isArray => true
+        case _ => false
+      }
+    }
+  }
+
+  override def pushTRD(trd: TermRuntimeData): Unit = inputter.pushTRD(trd)
+  override def maybeTopTRD(): Maybe[TermRuntimeData] = inputter.maybeTopTRD()
+  override def popTRD(trd: TermRuntimeData): TermRuntimeData = {
+    val poppedTRD = inputter.popTRD()
+    if (poppedTRD ne trd) {
+      Assert.invariantFailed("TRDs do not match. Expected: " + trd + " got " + poppedTRD)
+    }
+    poppedTRD
+  }
+}
+
+/**
+ * For a UState that never reads infoset events: a clone made to resume a
+ * suspension.
+ */
+object NoInfosetEventState extends InfosetEventState {
   private def die =
     Assert.invariantFailed("Function should never be needed in UStateForSuspension")
 
-  override def getDecoder(cs: BitsCharset): BitsCharsetDecoder = mainUState.getDecoder(cs)
-  override def getEncoder(cs: BitsCharset): BitsCharsetEncoder = mainUState.getEncoder(cs)
-
-  override def suspensions = mainUState.suspensions
-
-  // override def charBufferDataOutputStream = mainUState.charBufferDataOutputStream
-  override def withUnparserDataInputStream = mainUState.withUnparserDataInputStream
-  override def withByteArrayOutputStream = mainUState.withByteArrayOutputStream
-
-  // $COVERAGE-OFF$
   override def advance: Boolean = die
   override def advanceAccessor: InfosetAccessor = die
   override def inspect: Boolean = die
   override def inspectAccessor: InfosetAccessor = die
-  override def fini(): Unit = die
-  override def inspectOrError = die
-  override def advanceOrError = die
-  override def isInspectArrayEnd = die
-  override def currentInfosetNodeStack = die
-  override def arrayIterationIndexStack = die
-  override def moveOverOneArrayIterationIndexOnly() = die
-  override def occursIndexStack = die
-  override def moveOverOneOccursIndexOnly() = die
-  override def groupIndexStack = die
-  override def moveOverOneGroupIndexOnly() = die
-  override def childIndexStack = die
-  override def moveOverOneElementChildOnly() = die
-  override def pushDelimiters(node: DelimiterStackUnparseNode) = die
-  override def popDelimiters() = die
-  // $COVERAGE-ON$
-
-  override def groupPos = 0 // was die, but this is called when copying state during debugging
-  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
-  override def arrayIterationPos = arrayIterationIndex
-  override def occursPos = occursIndex
-  override def childPos = 0 // was die, but this is called when copying state during debugging.
-
-  override def localDelimiters = delimiterStackMaybe.get.top
-  override def allTerminatingMarkup = {
-    delimiterStackMaybe.get.iterator.flatMap { dnode =>
-      dnode.separator ++ dnode.terminator
-    }.toList
-  }
-
-  override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] =
-    escapeSchemeEVCacheMaybe.get
-
+  override def inspectOrError: InfosetAccessor = die
+  override def advanceOrError: InfosetAccessor = die
+  override def isInspectArrayEnd: Boolean = die
   override def pushTRD(trd: TermRuntimeData): Unit = die
-  override def maybeTopTRD() = die
+  override def maybeTopTRD(): Maybe[TermRuntimeData] = die
   override def popTRD(trd: TermRuntimeData): TermRuntimeData = die
-
-  override def documentElement = mainUState.documentElement
-
-  override def incrementHiddenDef() =
-    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def decrementHiddenDef() =
-    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def withinHiddenNest =
-    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def setDataOutputStream(value: DirectOrBufferedDataOutputStream) = {
-    Assert.invariantFailed("Should never change dataOutputStream on a suspension")
-  }
 }
 
-final class UStateMain private (
-  private val inputter: InfosetInputter,
-  outStream: java.io.OutputStream,
-  vbox: VariableBox,
-  diagnosticsArg: Seq[api.Diagnostic],
-  dataProcArg: DataProcessor,
+/**
+ * The part of a UState that only emitting delimited, escaped text uses: the
+ * delimiter stack, the escape scheme cache, the scratch buffers for measuring
+ * and escaping text, and the position within the current sequence or choice.
+ *
+ * The main unparse owns all of it. The clone that resumes a suspension holds
+ * only copies of the escape scheme and delimiter stacks, which are never
+ * pushed onto, and shares the scratch buffers of the state it came from.
+ */
+final class DelimiterEscapePositionState private (
   tunable: DaffodilTunables,
-  areDebugging: Boolean
-) extends UState(vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
+  // The state a suspension's clone came from; Nope for the main unparse.
+  clonedFrom: Maybe[DelimiterEscapePositionState],
+  private var escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
+  delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]]
+) {
 
-  dState.setMode(UnparserBlocking)
-
-  def this(
-    inputter: InfosetInputter,
-    outputStream: java.io.OutputStream,
-    vmap: VariableMap,
-    diagnosticsArg: Seq[api.Diagnostic],
-    dataProcArg: DataProcessor,
-    tunable: DaffodilTunables,
-    areDebugging: Boolean
-  ) =
-    this(
-      inputter,
-      outputStream,
-      new VariableBox(vmap),
-      diagnosticsArg,
-      dataProcArg,
-      tunable,
-      areDebugging
-    )
-
-  setDataOutputStream({
-    val out = DirectOrBufferedDataOutputStream(
-      outStream,
-      null, // null means no other stream created this one.
-      isLayer = false,
-      tunable.outputStreamChunkSizeInBytes,
-      tunable.maxByteArrayOutputStreamBufferSizeInBytes,
-      tunable.tempFilePath
-    )
-    out
-  })
-
-  def cloneForSuspension(suspendedDOS: DirectOrBufferedDataOutputStream): UState = {
-    val es =
-      if (!escapeSchemeEVCache.isEmpty) {
-        // If there are any escape schemes, then we need to clone the whole
-        // MStack, since the escape scheme cache logic requires an MStack. We
-        // reallyjust need the top for cloning for suspensions, but that
-        // requires changes to how the escape schema cache is accessed, which
-        // isn't a trivial change.
-        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper](escapeSchemeEVCache.length)
-        esClone.copyFrom(escapeSchemeEVCache)
-        Maybe(esClone)
-      } else {
-        Nope
-      }
-    val ds =
-      if (!delimiterStack.isEmpty) {
-        // If there are any delimiters, then we need to clone them all since
-        // they may be needed for escaping
-        val dsClone = new MStackOf[DelimiterStackUnparseNode](delimiterStack.length)
-        dsClone.copyFrom(delimiterStack)
-        Maybe(dsClone)
-      } else {
-        Nope
-      }
-
-    val clone = new UStateForSuspension(
-      this,
-      suspendedDOS,
-      variableBox.cloneForSuspension(),
-      currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
-      arrayIterationIndexStack.top, // only need the top of the stack, not the whole thing
-      occursIndexStack.top,
-      es,
-      ds,
-      tunable,
-      areDebugging
-    )
-
-    clone.setProcessor(processor)
-
-    clone
+  def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] = {
+    if (escapeSchemeEVCacheMaybe.isEmpty) {
+      Assert.invariant(clonedFrom.isEmpty)
+      escapeSchemeEVCacheMaybe = Maybe(new MStackOfMaybe[EscapeSchemeUnparserHelper](8))
+    }
+    escapeSchemeEVCacheMaybe.get
   }
 
-  override lazy val withUnparserDataInputStream =
+  private lazy val unparserDataInputStream =
     new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
-  override lazy val withByteArrayOutputStream =
+
+  def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse] = {
+    if (clonedFrom.isEmpty) {
+      unparserDataInputStream
+    } else {
+      clonedFrom.get.withUnparserDataInputStream
+    }
+  }
+
+  private lazy val byteArrayOutputStream =
     new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
       {
         val baos =
@@ -614,46 +626,256 @@ final class UStateMain private (
         }
     )
 
-  override def advance: Boolean = inputter.advance
-  override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
-  override def inspect: Boolean = inputter.inspect
-  override def inspectAccessor: InfosetAccessor = inputter.inspectAccessor
+  def withByteArrayOutputStream
+    : LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)] = {
+    if (clonedFrom.isEmpty) {
+      byteArrayOutputStream
+    } else {
+      clonedFrom.get.withByteArrayOutputStream
+    }
+  }
+
+  def pushDelimiters(node: DelimiterStackUnparseNode): Unit = {
+    Assert.invariant(clonedFrom.isEmpty)
+    delimiterStackMaybe.get.push(node)
+  }
+
+  def popDelimiters(): Unit = {
+    Assert.invariant(clonedFrom.isEmpty)
+    delimiterStackMaybe.get.pop
+  }
+
+  def localDelimiters: DelimiterStackUnparseNode = delimiterStackMaybe.get.top
+
+  def allTerminatingMarkup: List[DFADelimiter] = {
+    delimiterStackMaybe.get.iterator.flatMap { dnode =>
+      dnode.separator ++ dnode.terminator
+    }.toList
+  }
+
+  // Sequence and choice unparsers read it to find their current child; build
+  // tracks position in its own frames instead. A clone has none.
+  private val childIndexStackMaybe: Maybe[MStackOfLong] = {
+    if (clonedFrom.isEmpty) {
+      val stack = MStackOfLong(16)
+      stack.push(1L)
+      Maybe(stack)
+    } else {
+      Nope
+    }
+  }
+
+  def childIndexStack: MStackOfLong = childIndexStackMaybe.get
+
+  def moveOverOneElementChildOnly(): Unit = {
+    val stack = childIndexStack
+    stack.setTop(stack.top + 1)
+  }
+
+  // A clone reports 0, which is read when copying state during debugging.
+  def childPos: Long = {
+    if (childIndexStackMaybe.isEmpty) {
+      0L
+    } else {
+      childIndexStackMaybe.get.top
+    }
+  }
+
+  /**
+   * The surface for a clone that resumes a suspension: it needs only the
+   * current escape scheme and delimiters, and shares the scratch buffers.
+   */
+  def cloneForSuspension(): DelimiterEscapePositionState = {
+    val es =
+      if (escapeSchemeEVCacheMaybe.isDefined && !escapeSchemeEVCacheMaybe.get.isEmpty) {
+        // If there are any escape schemes, clone the whole MStack, since the
+        // escape scheme cache logic requires one (only the top is really
+        // needed, but changing the cache access isn't trivial). Sized to the
+        // source's depth: nothing pushes onto the clone afterward.
+        val source = escapeSchemeEVCacheMaybe.get
+        val esClone = new MStackOfMaybe[EscapeSchemeUnparserHelper](source.length)
+        esClone.copyFrom(source)
+        Maybe(esClone)
+      } else {
+        Nope
+      }
+    val ds =
+      if (!delimiterStackMaybe.get.isEmpty) {
+        // If there are any delimiters, clone them all since they may be
+        // needed for escaping. Sized to the source's depth: push and pop
+        // both die on this clone, so it never grows past that depth.
+        val source = delimiterStackMaybe.get
+        val dsClone = new MStackOf[DelimiterStackUnparseNode](source.length)
+        dsClone.copyFrom(source)
+        Maybe(dsClone)
+      } else {
+        Nope
+      }
+    new DelimiterEscapePositionState(tunable, Maybe(this), es, ds)
+  }
+}
+
+object DelimiterEscapePositionState {
+  def apply(tunable: DaffodilTunables): DelimiterEscapePositionState =
+    new DelimiterEscapePositionState(
+      tunable,
+      Nope,
+      Nope,
+      Maybe(new MStackOf[DelimiterStackUnparseNode]())
+    )
+}
+
+/**
+ * When we create a suspension during unparse, we need to clone the UStateMain
+ * for when the suspension is later resumed. However, we do not need nearly as
+ * much information for these cloned ustates as the main unparse. Either we can
+ * access the necessary information directly from the main UState, or the
+ * information isn't used and there's no need to copy it/take up valuable
+ * memory.
+ */
+final class UStateForSuspension(
+  val mainUState: UStateMain,
+  val dataOutputStream: DirectOrBufferedDataOutputStream,
+  vbox: VariableBox,
+  override val currentInfosetNode: DINode,
+  arrayIterationIndex: Long,
+  occursIndex: Long,
+  delimiterEscapePosition: DelimiterEscapePositionState,
+  tunable: DaffodilTunables,
+  areDebugging: Boolean
+) extends UState(
+    vbox,
+    mainUState.diagnostics,
+    mainUState.dataProc,
+    tunable,
+    areDebugging,
+    NoInfosetEventState,
+    delimiterEscapePosition
+  ) {
+
+  _dataOutputStream = dataOutputStream
+  dState.setMode(UnparserBlocking)
+  dState.setCurrentNode(thisElement.asInstanceOf[DINode])
+  dState.setContextNode(thisElement.asInstanceOf[DINode])
+  dState.setErrorOrWarn(this)
+
+  private def die =
+    Assert.invariantFailed("Function should never be needed in UStateForSuspension")
+
+  override def getDecoder(cs: BitsCharset): BitsCharsetDecoder = mainUState.getDecoder(cs)
+  override def getEncoder(cs: BitsCharset): BitsCharsetEncoder = mainUState.getEncoder(cs)
+
+  override def suspensions = mainUState.suspensions
+
+  // $COVERAGE-OFF$
+  override def fini(): Unit = die
+  override def currentInfosetNodeStack = die
+  override def arrayIterationIndexStack = die
+  override def moveOverOneArrayIterationIndexOnly() = die
+  override def occursIndexStack = die
+  override def moveOverOneOccursIndexOnly() = die
+  override def groupIndexStack = die
+  override def moveOverOneGroupIndexOnly() = die
+  override def getHiddenElement(erd: ElementRuntimeData) = die
+  override def getOvcElement(startEvent: InfosetAccessor, erd: ElementRuntimeData) = die
+  override def attachElement(newElem: DIElement) = die
+  override def finishElement(cur: DINode, erd: ElementRuntimeData) = die
+  override def finishOvcElement(cur: DINode) = die
+  // $COVERAGE-ON$
+
+  override def groupPos = 0 // was die, but this is called when copying state during debugging
+  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
+  override def arrayIterationPos = arrayIterationIndex
+  override def occursPos = occursIndex
+
+  override def documentElement = mainUState.documentElement
+
+  override def incrementHiddenDef() =
+    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def decrementHiddenDef() =
+    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def withinHiddenNest =
+    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def setDataOutputStream(value: DirectOrBufferedDataOutputStream) = {
+    Assert.invariantFailed("Should never change dataOutputStream on a suspension")
+  }
+}
+
+final class UStateMain private (
+  private val inputter: InfosetInputter,
+  outStream: java.io.OutputStream,
+  vbox: VariableBox,
+  diagnosticsArg: Seq[api.Diagnostic],
+  dataProcArg: DataProcessor,
+  tunable: DaffodilTunables,
+  areDebugging: Boolean,
+  delimiterEscapePosition: DelimiterEscapePositionState
+) extends UState(
+    vbox,
+    diagnosticsArg,
+    One(dataProcArg),
+    tunable,
+    areDebugging,
+    new InputterEventState(inputter, "unparsing"),
+    delimiterEscapePosition
+  )
+  with InfosetFromEvents {
+
+  dState.setMode(UnparserBlocking)
+
+  def this(
+    inputter: InfosetInputter,
+    outputStream: java.io.OutputStream,
+    vmap: VariableMap,
+    diagnosticsArg: Seq[api.Diagnostic],
+    dataProcArg: DataProcessor,
+    tunable: DaffodilTunables,
+    areDebugging: Boolean
+  ) =
+    this(
+      inputter,
+      outputStream,
+      new VariableBox(vmap),
+      diagnosticsArg,
+      dataProcArg,
+      tunable,
+      areDebugging,
+      DelimiterEscapePositionState(tunable)
+    )
+
+  setDataOutputStream({
+    val out = DirectOrBufferedDataOutputStream(
+      outStream,
+      null, // null means no other stream created this one.
+      isLayer = false,
+      tunable.outputStreamChunkSizeInBytes,
+      tunable.maxByteArrayOutputStreamBufferSizeInBytes,
+      tunable.tempFilePath
+    )
+    out
+  })
+
+  def cloneForSuspension(suspendedDOS: DirectOrBufferedDataOutputStream): UState = {
+    val clone = new UStateForSuspension(
+      this,
+      suspendedDOS,
+      variableBox.cloneForSuspension(),
+      currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
+      arrayIterationIndexStack.top, // only need the top of the stack, not the whole thing
+      occursIndexStack.top,
+      delimiterEscapePosition.cloneForSuspension(),
+      tunable,
+      areDebugging
+    )
+
+    clone.setProcessor(processor)
+
+    clone
+  }
+
   // $COVERAGE-OFF$ // unused, but necessary to meet requirements of Cursor[T]
   override def fini() = Assert.usageError("Not to be used on UState")
   // $COVERAGE-ON$
-  /**
-   * Use this so if there isn't an event we get a clean diagnostic message saying
-   * that is what has gone wrong.
-   */
-  override def inspectOrError = {
-    if (inspect)
-      inspectAccessor
-    else
-      Assert.invariantFailed(
-        "An InfosetEvent was required for unparsing, but no InfosetEvent was available."
-      )
-  }
-
-  override def advanceOrError = {
-    if (advance)
-      advanceAccessor
-    else
-      Assert.invariantFailed(
-        "An InfosetEvent was required for unparsing, but no InfosetEvent was available."
-      )
-  }
-
-  override def isInspectArrayEnd = {
-    if (!inspect) false
-    else {
-      val p = inspectAccessor
-      val res = p match {
-        case e if e.isEnd && e.isArray => true
-        case _ => false
-      }
-      res
-    }
-  }
 
   def currentInfosetNode: DINode =
     if (currentInfosetNodeMaybe.isEmpty) null
@@ -681,25 +903,6 @@ final class UStateMain private (
   override def moveOverOneGroupIndexOnly() = groupIndexStack.setTop(groupIndexStack.top + 1)
   override def groupPos = groupIndexStack.top
 
-  // TODO: it doesn't look anything is actually reading the value of childindex
-  // stack. Can we get rid of it?
-  override val childIndexStack = MStackOfLong(16)
-  childIndexStack.push(1L)
-  override def moveOverOneElementChildOnly() = childIndexStack.setTop(childIndexStack.top + 1)
-  override def childPos = childIndexStack.top
-
-  override lazy val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeUnparserHelper](8)
-
-  val delimiterStack = new MStackOf[DelimiterStackUnparseNode]()
-  override def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
-  override def popDelimiters() = delimiterStack.pop
-  override def localDelimiters = delimiterStack.top
-  override def allTerminatingMarkup = {
-    delimiterStack.iterator.flatMap { dnode =>
-      dnode.separator ++ dnode.terminator
-    }.toList
-  }
-
   /**
    * For outputValueCalc we accumulate the suspendables here.
    *
@@ -720,19 +923,6 @@ final class UStateMain private (
   }
 
   def suspensions = suspensionTracker.suspensions
-
-  final override def pushTRD(trd: TermRuntimeData) =
-    inputter.pushTRD(trd)
-
-  final override def maybeTopTRD(): Maybe[TermRuntimeData] =
-    inputter.maybeTopTRD()
-
-  final override def popTRD(trd: TermRuntimeData) = {
-    val poppedTRD = inputter.popTRD()
-    if (poppedTRD ne trd)
-      Assert.invariantFailed("TRDs do not match. Expected: " + trd + " got " + poppedTRD)
-    poppedTRD
-  }
 
   final override def documentElement = inputter.documentElement
 
