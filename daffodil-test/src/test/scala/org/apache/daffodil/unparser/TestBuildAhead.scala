@@ -64,4 +64,5 @@ class TestBuildAhead extends TdmlTests {
   @Test def delimitedComplexVariableLengthExpression = test
   @Test def purelyContentLengthOVC = test
   @Test def mixedResolvableAndContentLengthOVC = test
+  @Test def eventDrivenInfosetMismatchReportsDataLocation = test
 }

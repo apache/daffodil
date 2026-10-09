@@ -180,7 +180,13 @@ final class TreeEventState(
         return false
       }
       if (cursor.isFinished) {
-        throw new ChildNotBuiltException
+        UnparseError(
+          Nope,
+          Nope,
+          "Expected child %s of %s, but the build finished without it.",
+          index + 1,
+          parent.erd.namedQName.toExtendedSyntax
+        )
       }
       cursor.advance()
     }
@@ -382,11 +388,3 @@ final class TreeEventState(
 private[unparsers] enum NodeKind {
   case Simple, Complex, Array, Document
 }
-
-/**
- * Thrown when the unparse needs a child that does not exist after build has
- * finished. Caught only by the top-level driver, which still runs its normal
- * finalization (the genuine, diagnostic-producing final suspension drain)
- * rather than treating this as the final outcome itself.
- */
-final class ChildNotBuiltException extends Exception

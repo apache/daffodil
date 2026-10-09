@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.unparsers
 
+import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.MStackOfMaybe
@@ -80,6 +81,9 @@ final class InfosetBuildState(
   override def popTRD(trd: TermRuntimeData): TermRuntimeData = eventState.popTRD(trd)
 
   override def documentElement: DIDocument = inputter.documentElement
+
+  // The build runs ahead of the output, so it has no data location.
+  override def maybeCurrentLocation: Maybe[DataLocation] = Nope
 
   override val currentInfosetNodeStack = new MStackOfMaybe[DINode]
 
