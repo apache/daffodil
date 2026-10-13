@@ -427,7 +427,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
             // this indicates that the incoming infoset (as events) doesn't match the schema
             UnparseError(
               Nope,
-              Nope,
+              state.maybeCurrentLocation,
               "Expected element start event for %s, but received %s.",
               erd.namedQName.toExtendedSyntax,
               event
@@ -466,7 +466,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
           // this indicates that the incoming infoset (as events) doesn't match the schema
           UnparseError(
             Nope,
-            Nope,
+            state.maybeCurrentLocation,
             "Expected element end event for %s, but received %s.",
             erd.namedQName.toExtendedSyntax,
             event

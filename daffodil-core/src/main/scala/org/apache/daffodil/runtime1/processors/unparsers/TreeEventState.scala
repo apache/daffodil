@@ -172,15 +172,21 @@ final class TreeEventState(
 
   // Advances build until the child exists, or the parent is final with no
   // child there. The unparse only needs the child to exist, so it knows which
-  // branch or occurrence it is on, not for it to have a value. Build having
-  // finished with the child still missing is a stall.
+  // branch or occurrence it is on, not for it to have a value. If build
+  // finishes with the child still missing, that is an unparse error.
   private def childExistsOrFinal(parent: DINode, index: Int): Boolean = {
     while (index >= parent.numChildren) {
       if (parent.isFinal) {
         return false
       }
       if (cursor.isFinished) {
-        throw new ChildNotBuiltException
+        UnparseError(
+          Nope,
+          Nope,
+          "Expected child %s of %s, but the build finished without it.",
+          index + 1,
+          parent.erd.namedQName.toExtendedSyntax
+        )
       }
       cursor.advance()
     }
@@ -382,11 +388,3 @@ final class TreeEventState(
 private[unparsers] enum NodeKind {
   case Simple, Complex, Array, Document
 }
-
-/**
- * Thrown when the unparse needs a child that does not exist after build has
- * finished. Caught only by the top-level driver, which still runs its normal
- * finalization (the genuine, diagnostic-producing final suspension drain)
- * rather than treating this as the final outcome itself.
- */
-final class ChildNotBuiltException extends Exception

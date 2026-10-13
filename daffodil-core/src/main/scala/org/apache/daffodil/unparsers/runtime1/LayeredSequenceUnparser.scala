@@ -95,9 +95,6 @@ class LayeredSequenceUnparser(
       // layer stack is potentially still needed, so
       // nothing can be cleaned up at this point.
     } catch {
-      // A signal from waiting on build, not a failure of the layer; rewrapping
-      // it would hide the stall diagnostic.
-      case e: ChildNotBuiltException => throw e
       case t: Throwable if (layerDriver ne null) => layerDriver.handleThrowable(t)
       case t: Throwable => LayerDriver.handleThrowableWithoutLayer(t)
       // otherwise we have no layer driver, so we were unable to load the layer.

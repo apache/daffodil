@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.unparsers
 
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.InfosetAccessor

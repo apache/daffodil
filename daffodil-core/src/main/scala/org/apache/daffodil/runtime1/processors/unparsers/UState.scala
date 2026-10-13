@@ -239,6 +239,8 @@ abstract class UState(
     new DataLoc(bitPos1b, bitLimit1b, Left(getDataOutputStream), mrd)
   }
 
+  final override def maybeCurrentLocation: Maybe[DataLocation] = One(currentLocation)
+
   lazy val unparseResult = new UnparseResult(dataProc.get, this)
 
   def bitPos0b = if (getDataOutputStream.maybeAbsBitPos0b.isDefined)
@@ -460,6 +462,10 @@ abstract class UState(
 trait InfosetTreeState extends Cursor[InfosetAccessor] {
   def tunable: DaffodilTunables
 
+  // Where in the data an error raised through this state happened. A state
+  // with no output has none to report.
+  def maybeCurrentLocation: Maybe[DataLocation]
+
   // How the infoset's nodes are provided and finished as unparsing consumes
   // events.
 
@@ -503,7 +509,7 @@ trait InfosetTreeState extends Cursor[InfosetAccessor] {
 
   def moveOverOneElementChildOnly(): Unit
 
-  // unparseBegin and unparseEnd free children, and build runs them too. Build
+  // Nodes are freed as elements begin and end, and build runs those too. Build
   // runs ahead of the unparse, which may already have freed the node, so build
   // must not free: it would find a null slot or free a node the unparse has
   // not read yet.
@@ -991,6 +997,35 @@ class UStateMain private[unparsers] (
     val hidden = if (withinHiddenNest) " hidden" else ""
     "UState(" + elt + hidden + " DOS=" + getDataOutputStream.toString() + ")"
   }
+}
+
+/**
+ * The UState for unparsing a tree that build made ahead of it, by reading
+ * the tree as events and taking each node from the tree.
+ */
+final class UStateMainForBuildAhead private[unparsers] (
+  inputter: InfosetInputter,
+  outStream: java.io.OutputStream,
+  vmap: VariableMap,
+  diagnosticsArg: Seq[api.Diagnostic],
+  dataProcArg: DataProcessor,
+  tunable: DaffodilTunables,
+  areDebugging: Boolean,
+  override protected val treeEvents: TreeEventState
+) extends UStateMain(
+    inputter,
+    outStream,
+    vmap,
+    diagnosticsArg,
+    dataProcArg,
+    tunable,
+    areDebugging,
+    treeEvents
+  )
+  with PrebuiltNodeProvider {
+
+  // How far the unparse of the built tree has reached, for the debugger.
+  def reachedChildCounts(): java.util.Map[DINode, Integer] = treeEvents.reachedChildCounts()
 }
 
 object UState {

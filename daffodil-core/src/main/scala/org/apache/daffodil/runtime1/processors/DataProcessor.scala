@@ -70,7 +70,6 @@ import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.parsers.Parser
-import org.apache.daffodil.runtime1.processors.unparsers.ChildNotBuiltException
 import org.apache.daffodil.runtime1.processors.unparsers.InfosetBuildState
 import org.apache.daffodil.runtime1.processors.unparsers.NotUnparsableUnparser
 import org.apache.daffodil.runtime1.processors.unparsers.TreeEventState
@@ -582,14 +581,8 @@ class DataProcessor(
         ssrd.elementRuntimeData.defaultBitOrder
       )
 
-      try {
-        rootUnparser.unparse1(unparseState)
-        unparseState.popTRD(rootUnparser.context.asInstanceOf[TermRuntimeData])
-      } catch {
-        // A genuine deadlock (if any) surfaces via the final
-        // evalSuspensions(isFinal = true) below.
-        case _: ChildNotBuiltException =>
-      }
+      rootUnparser.unparse1(unparseState)
+      unparseState.popTRD(rootUnparser.context.asInstanceOf[TermRuntimeData])
 
       // The unparse only ever advances build as far as it needs, so build may
       // still have its trailing end events left to consume.

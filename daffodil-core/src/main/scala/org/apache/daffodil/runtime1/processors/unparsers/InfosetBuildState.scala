@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.unparsers
 
+import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.util.MStackOfMaybe
@@ -78,6 +79,9 @@ final class InfosetBuildState(
 
   override def documentElement: DIDocument = inputter.documentElement
 
+  // The build runs ahead of the output, so it has no data location.
+  override def maybeCurrentLocation: Maybe[DataLocation] = Nope
+
   override val currentInfosetNodeStack = new MStackOfMaybe[DINode]
 
   override def currentInfosetNode: DINode = {
@@ -114,7 +118,7 @@ final class InfosetBuildState(
   // descendants', and the unparse uncounts it when it finishes the node.
   private var lead: Long = 0
 
-  override def attachElement(newElem: DIElement): Unit = {
+  override protected def attachElement(newElem: DIElement): Unit = {
     super.attachElement(newElem)
     lead += 1
   }

@@ -28,6 +28,12 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:ex="http://example.com">
 
+  <tdml:defineConfig name="cfgEventDriven">
+    <daf:tunables>
+      <daf:infosetBuilderMode>eventDriven</daf:infosetBuilderMode>
+    </daf:tunables>
+  </tdml:defineConfig>
+
   <tdml:defineConfig name="cfg1">
     <daf:tunables>
       <daf:unparseBuildAheadWindowNodes>3</daf:unparseBuildAheadWindowNodes>
@@ -1431,6 +1437,37 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>00600503xyz</tdml:document>
+  </tdml:unparserTestCase>
+
+  <!-- Event driven unparse reports where in the data an infoset mismatch happened. Build ahead runs ahead of the output, so it has no location to report. -->
+  <tdml:defineSchema name="s_infosetMismatchLocation" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"
+      encoding="ascii"
+      lengthUnits="bytes"
+      textNumberJustification="right"
+      textNumberPadCharacter="0"
+      textPadKind="padChar"/>
+    <xs:element name="row" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+          <xs:element name="b" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="eventDrivenInfosetMismatchReportsDataLocation" root="row" model="s_infosetMismatchLocation" config="cfgEventDriven">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:row><a>001</a><c>002</c></ex:row>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Expected element start event for</tdml:error>
+      <tdml:error>Data location was preceding byte</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

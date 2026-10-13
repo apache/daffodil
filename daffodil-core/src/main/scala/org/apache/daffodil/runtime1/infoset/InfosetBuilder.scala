@@ -156,14 +156,11 @@ object SeqCompInfosetBuilder {
 }
 
 /**
- * Builds one element's infoset node and, for complex types, builds
- * descendant nodes via contentBuilder. The element unparser's
- * unparseBegin/unparseEnd are the same element-kind-specific
- * (plain/nillable/OVC/etc.) node-creation logic unparse() itself uses,
- * including the bounded-lookahead lead-counter hookup and the deferred
- * simple-value finalization; only the "what does this element contain"
- * step is redirected to the builder tree instead of back into the
- * unparser tree.
+ * Builds one element's infoset node and, for complex types, its descendant
+ * nodes through contentBuilder. The node is made with the element unparser's
+ * unparseBegin and unparseEnd, the same code an unparse runs, so build and
+ * unparse create a node the same way; only what the element contains is built
+ * through the builder tree.
  */
 final class ElementInfosetBuilder(
   erd: ElementRuntimeData,
@@ -197,11 +194,9 @@ final class ElementInfosetBuilder(
 }
 
 /**
- * Pairs a sequence child's existing occurs-count/array bookkeeping (reused
- * as-is from the Unparser tree, since it is cheap, pure state bookkeeping
- * unrelated to the tree-walking overhead this InfosetBuilder tree exists to avoid)
- * with that same child's own InfosetBuilder, which SequenceInfosetBuilder builds
- * instead of the child's full Unparser.
+ * Pairs a sequence child's occurs-count and array bookkeeping, which comes from
+ * its unparser, with the child's own InfosetBuilder, which SequenceInfosetBuilder
+ * builds in place of the child's full unparser.
  */
 final case class SequenceChildInfosetBuildInfo(
   childUnparser: SequenceChildUnparser,
@@ -408,10 +403,9 @@ final class ChoiceInfosetBuilder(
 }
 
 /**
- * Builds the body of a hidden group. withinHiddenNest must stay maintained
- * during build too: it is what tells a hidden element's unparseBegin/
- * unparseEnd to manufacture a node instead of consuming an event that will
- * never exist.
+ * Builds the body of a hidden group. withinHiddenNest must be maintained during
+ * build too: it is what makes the nodes of hidden elements get created, since
+ * no event will ever exist for them.
  */
 final private class HiddenGroupInfosetBuilder(bodyBuilder: InfosetBuilder)
   extends InfosetBuilder {
