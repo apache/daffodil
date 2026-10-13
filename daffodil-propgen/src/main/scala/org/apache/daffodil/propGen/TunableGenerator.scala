@@ -79,7 +79,8 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |      if (configOpt.isDefined) {
     |        val loader = new DaffodilXMLLoader()
     |        val node = loader.load(URISchemaSource(Paths.get(configPath).toFile, configOpt.get), Some(XMLUtils.dafextURI))
-    |        tunablesMap(node)
+    |        val optTunablesNode = (node \ "tunables").headOption
+    |        optTunablesNode.map(tunablesMap(_)).getOrElse(Map.empty)
     |      } else {
     |        Map.empty
     |      }
@@ -98,21 +99,28 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |    tunables.foldLeft(this) { case (dafTuns, (tunable, value)) => dafTuns.withTunable(tunable, value) }
     |  }
     |
+    |  // One large match over every tunable name would exceed the JVM's
+    |  // 64KB-per-method bytecode limit as tunables accumulate over time, so
+    |  // this is split into a chain of smaller private methods instead, each
+    |  // falling through to the next on no match.
     |  def withTunable(tunable: String, value: String): DaffodilTunables = {
-    |    tunable match {
+    |    withTunablePart0(tunable, value)
+    |  }
+    |
     """.trim.stripMargin
 
   val bottom = """
-    |      case _ => throw new IllegalArgumentException("Unknown tunable: " + tunable)
-    |    }
-    |  }
-    |
     |  private def throwInvalidTunableValue(tunable: String, value: String) = {
     |    throw new IllegalArgumentException("Invalid value for tunable " + tunable + ": " + value)
     |  }
     |
     |}
     """.trim.stripMargin
+
+  // How many tunables' worth of case-match bytecode go into each
+  // withTunablePartN method; small enough to leave headroom against the
+  // JVM's 64KB-per-method limit as more tunables are added over time.
+  private val tunablesPerPart = 8
 
   val tunablesRoot = (schemaRootConfig \ "element").find(_ \@ "name" == "tunables").get
   val tunableNodes = tunablesRoot \\ "all" \ "element"
@@ -165,15 +173,38 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
         .map(_.scalaDefinition)
         .mkString("  ", ",\n  ", ")")
 
-    val conversionString =
-      tunables
-        .map { tunable =>
-          tunable.scalaConversion
-            .split("\n")
-            .filter(_.trim.length > 0)
-            .mkString("      ", "\n      ", "")
+    // Split across several withTunablePartN methods rather than one large
+    // match: each chunk's case bodies, then a fallthrough to the next
+    // chunk's method, or to the final "unknown tunable" error on the last.
+    val tunableChunks = tunables.grouped(tunablesPerPart).toIndexedSeq
+    val numParts = tunableChunks.length
+    val partsString =
+      tunableChunks.zipWithIndex
+        .map { case (chunk, idx) =>
+          val casesString =
+            chunk
+              .map { tunable =>
+                tunable.scalaConversion
+                  .split("\n")
+                  .filter(_.trim.length > 0)
+                  .mkString("      ", "\n      ", "")
+              }
+              .mkString("\n")
+          val fallthrough =
+            if (idx == numParts - 1)
+              """      case _ => throw new IllegalArgumentException("Unknown tunable: " + tunable)"""
+            else
+              s"      case _ => withTunablePart${idx + 1}(tunable, value)"
+          s"""
+            |  private def withTunablePart${idx}(tunable: String, value: String): DaffodilTunables = {
+            |    tunable match {
+            |${casesString}
+            |${fallthrough}
+            |    }
+            |  }
+          """.trim.stripMargin
         }
-        .mkString("\n")
+        .mkString("\n\n")
 
     w.write(top)
     w.write("\n")
@@ -181,7 +212,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     w.write("\n")
     w.write(middle)
     w.write("\n")
-    w.write(conversionString)
+    w.write(partsString)
     w.write("\n")
     w.write(bottom)
     w.write("\n")

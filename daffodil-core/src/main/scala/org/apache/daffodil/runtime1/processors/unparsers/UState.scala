@@ -76,7 +76,7 @@ abstract class UState(
   diagnosticsArg: Seq[api.Diagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
-  areDebugging: Boolean,
+  val areDebugging: Boolean,
   eventState: InfosetEventState,
   delimiterEscapePosition: DelimiterEscapePositionState
 ) extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
@@ -141,6 +141,8 @@ abstract class UState(
     _dataOutputStream = dos
   }
 
+  def currentInfosetNode: DINode
+  def currentInfosetNodeMaybe: Maybe[DINode]
   final def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] =
     delimiterEscapePosition.escapeSchemeEVCache
 
@@ -161,6 +163,27 @@ abstract class UState(
   final def moveOverOneElementChildOnly(): Unit =
     delimiterEscapePosition.moveOverOneElementChildOnly()
   final override def childPos: Long = delimiterEscapePosition.childPos
+
+  def currentInfosetNodeStack: MStackOfMaybe[DINode]
+  def arrayIterationIndexStack: MStackOfLong
+  def occursIndexStack: MStackOfLong
+  def groupIndexStack: MStackOfLong
+  def moveOverOneArrayIterationIndexOnly(): Unit
+  def moveOverOneOccursIndexOnly(): Unit
+  def moveOverOneGroupIndexOnly(): Unit
+
+  // A dfdl:occursIndex() expression in an occurrence's own content reads
+  // arrayIterationIndexStack/occursIndexStack's top, which must track the
+  // occurrence currently being unparsed; the build pass pushes the same pair
+  // directly around each array/optional occurrence group.
+  final def pushOccurrenceIndices(): Unit = {
+    arrayIterationIndexStack.push(1L)
+    occursIndexStack.push(1L)
+  }
+  final def popOccurrenceIndices(): Unit = {
+    arrayIterationIndexStack.pop()
+    occursIndexStack.pop()
+  }
 
   final override def advance: Boolean = eventState.advance
   final override def advanceAccessor: InfosetAccessor = eventState.advanceAccessor
@@ -414,19 +437,25 @@ abstract class UState(
 
   def documentElement: DIDocument
 
-  final val releaseUnneededInfoset: Boolean = !areDebugging && tunable.releaseUnneededInfoset
+  // Whether a node is freed once it is done with.
+  private[unparsers] def releaseUnneededInfoset: Boolean
 
   final def freeChildIfNoLongerNeeded(parent: DINode, index: Int): Unit =
     parent.freeChildIfNoLongerNeeded(index, releaseUnneededInfoset)
 
   def delimitedParseResult = Nope
+
+  // Retries the suspensions that can be resolved now.
+  def runSuspensions(): Unit
+
 }
 
 /**
- * The state of the infoset tree as unparsing makes it from events: the event
- * cursor, the TRD and node stacks, and the position within the current group,
- * array and occurrence. The unparsers that create and finish the nodes of
- * elements work through it.
+ * The state of the infoset tree as unparsing builds it: the event cursor, the
+ * TRD and node stacks, and the position within the current group, array and
+ * occurrence. Both an event-driven unparse (UState) and the build ahead build
+ * (InfosetBuildState) walk the infoset through it; the build has no output
+ * stream, variables or debugger state, so it is not a UState.
  */
 trait InfosetTreeState extends Cursor[InfosetAccessor] {
   def tunable: DaffodilTunables
@@ -469,7 +498,15 @@ trait InfosetTreeState extends Cursor[InfosetAccessor] {
   def groupPos: Long
 
   def withinHiddenNest: Boolean
+  def incrementHiddenDef(): Unit
+  def decrementHiddenDef(): Unit
 
+  def moveOverOneElementChildOnly(): Unit
+
+  // unparseBegin and unparseEnd free children, and build runs them too. Build
+  // runs ahead of the unparse, which may already have freed the node, so build
+  // must not free: it would find a null slot or free a node the unparse has
+  // not read yet.
   def freeChildIfNoLongerNeeded(parent: DINode, index: Int): Unit
 }
 
@@ -751,6 +788,10 @@ final class UStateForSuspension(
     delimiterEscapePosition
   ) {
 
+  // Follows the main state this suspension state was cloned from.
+  override private[unparsers] def releaseUnneededInfoset: Boolean =
+    mainUState.releaseUnneededInfoset
+
   _dataOutputStream = dataOutputStream
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
@@ -776,6 +817,7 @@ final class UStateForSuspension(
   override def moveOverOneGroupIndexOnly() = die
   override def getElement(erd: ElementRuntimeData, startEvent: Maybe[InfosetAccessor]) = die
   override def finishElement(cur: DINode) = die
+  override def runSuspensions() = die
   // $COVERAGE-ON$
 
   override def groupPos = 0 // was die, but this is called when copying state during debugging
@@ -796,7 +838,35 @@ final class UStateForSuspension(
   }
 }
 
-final class UStateMain private (
+/**
+ * Stack-backed array-iteration/occurs/group/child index tracking, shared
+ * by UStateMain and InfosetBuildState: each stack starts seeded with 1L, and
+ * moveOverOne*Only bumps its top by one as navigation advances.
+ * UStateForSuspension needs none of this (it stubs the stacks to die and
+ * tracks arrayIterationPos/occursPos as plain frozen Longs instead), so
+ * this lives in a mixin rather than directly on UState.
+ */
+trait TraversalIndexStacks { self: InfosetTreeState =>
+  override val arrayIterationIndexStack = MStackOfLong(16)
+  arrayIterationIndexStack.push(1L)
+  override def moveOverOneArrayIterationIndexOnly(): Unit =
+    arrayIterationIndexStack.setTop(arrayIterationIndexStack.top + 1)
+  override def arrayIterationPos = arrayIterationIndexStack.top
+
+  override val occursIndexStack = MStackOfLong(16)
+  occursIndexStack.push(1L)
+  override def moveOverOneOccursIndexOnly(): Unit =
+    occursIndexStack.setTop(occursIndexStack.top + 1)
+  override def occursPos = occursIndexStack.top
+
+  override val groupIndexStack = MStackOfLong()
+  groupIndexStack.push(1L)
+  override def moveOverOneGroupIndexOnly(): Unit =
+    groupIndexStack.setTop(groupIndexStack.top + 1)
+  override def groupPos = groupIndexStack.top
+}
+
+class UStateMain private[unparsers] (
   private val inputter: InfosetInputter,
   outStream: java.io.OutputStream,
   vbox: VariableBox,
@@ -804,17 +874,24 @@ final class UStateMain private (
   dataProcArg: DataProcessor,
   tunable: DaffodilTunables,
   areDebugging: Boolean,
-  delimiterEscapePosition: DelimiterEscapePositionState
+  mainDelimiterEscapePosition: DelimiterEscapePositionState,
+  eventState: InfosetEventState
 ) extends UState(
     vbox,
     diagnosticsArg,
     One(dataProcArg),
     tunable,
     areDebugging,
-    new InputterEventState(inputter, "unparsing"),
-    delimiterEscapePosition
+    eventState,
+    mainDelimiterEscapePosition
   )
+  with TraversalIndexStacks
   with InfosetNodeProvider {
+
+  override def runSuspensions(): Unit = evalSuspensions(isFinal = false)
+
+  private[unparsers] final val releaseUnneededInfoset: Boolean =
+    !areDebugging && tunable.releaseUnneededInfoset
 
   dState.setMode(UnparserBlocking)
 
@@ -825,7 +902,8 @@ final class UStateMain private (
     diagnosticsArg: Seq[api.Diagnostic],
     dataProcArg: DataProcessor,
     tunable: DaffodilTunables,
-    areDebugging: Boolean
+    areDebugging: Boolean,
+    eventState: InfosetEventState
   ) =
     this(
       inputter,
@@ -835,7 +913,8 @@ final class UStateMain private (
       dataProcArg,
       tunable,
       areDebugging,
-      DelimiterEscapePositionState(tunable)
+      DelimiterEscapePositionState(tunable),
+      eventState
     )
 
   setDataOutputStream({
@@ -858,7 +937,7 @@ final class UStateMain private (
       currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
       arrayIterationIndexStack.top, // only need the top of the stack, not the whole thing
       occursIndexStack.top,
-      delimiterEscapePosition.cloneForSuspension(),
+      mainDelimiterEscapePosition.cloneForSuspension(),
       tunable,
       areDebugging
     )
@@ -881,22 +960,6 @@ final class UStateMain private (
     else currentInfosetNodeStack.top
 
   override val currentInfosetNodeStack = new MStackOfMaybe[DINode](16)
-
-  override val arrayIterationIndexStack = MStackOfLong(16)
-  arrayIterationIndexStack.push(1L)
-  override def moveOverOneArrayIterationIndexOnly() =
-    arrayIterationIndexStack.setTop(arrayIterationIndexStack.top + 1)
-  override def arrayIterationPos = arrayIterationIndexStack.top
-
-  override val occursIndexStack = MStackOfLong(16)
-  occursIndexStack.push(1L)
-  override def moveOverOneOccursIndexOnly() = occursIndexStack.setTop(occursIndexStack.top + 1)
-  override def occursPos = occursIndexStack.top
-
-  override val groupIndexStack = MStackOfLong()
-  groupIndexStack.push(1L)
-  override def moveOverOneGroupIndexOnly() = groupIndexStack.setTop(groupIndexStack.top + 1)
-  override def groupPos = groupIndexStack.top
 
   /**
    * For outputValueCalc we accumulate the suspendables here.
@@ -953,8 +1016,33 @@ object UState {
       diagnostics,
       dataProc.asInstanceOf[DataProcessor],
       dataProc.tunables,
-      areDebugging
+      areDebugging,
+      new InputterEventState(inputter, "unparsing")
     )
     newState
+  }
+
+  /**
+   * For the unparse of a tree that is being built, which reads it as events.
+   * The inputter still owns the infoset document the events refer to.
+   */
+  def createInitialUStateForBuildAhead(
+    outStream: java.io.OutputStream,
+    dataProc: DFDL.DataProcessor,
+    inputter: InfosetInputter,
+    areDebugging: Boolean,
+    treeEvents: TreeEventState
+  ): UStateMainForBuildAhead = {
+    val variables = dataProc.variableMap.copy()
+    new UStateMainForBuildAhead(
+      inputter,
+      outStream,
+      variables,
+      Nil,
+      dataProc.asInstanceOf[DataProcessor],
+      dataProc.tunables,
+      areDebugging,
+      treeEvents
+    )
   }
 }

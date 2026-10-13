@@ -21,6 +21,8 @@ import org.apache.daffodil.core.dsom.*
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.core.layers.LayerSchemaCompiler
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.SequenceInfosetBuilder
 import org.apache.daffodil.runtime1.processors.parsers.LayeredSequenceParser
 import org.apache.daffodil.runtime1.processors.parsers.Parser as DaffodilParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser as DaffodilUnparser
@@ -47,4 +49,11 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
 
   override lazy val unparser: DaffodilUnparser =
     new LayeredSequenceUnparser(srd, bodyUnparser)
+
+  // The layer transform builds no infoset events, but this is still a one-child
+  // sequence position: it must push/pop bodyTerm's TRD and advance the
+  // group index like any sequence child, or next-element resolution on
+  // the shared InfosetInputter breaks.
+  override lazy val builder: InfosetBuilder =
+    SequenceInfosetBuilder(Array(bodyTerm.sequenceChildBuildInfo))
 }

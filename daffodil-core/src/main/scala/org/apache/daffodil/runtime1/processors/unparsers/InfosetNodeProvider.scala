@@ -31,7 +31,8 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 /**
  * Provides the infoset nodes of a state that builds the infoset as it consumes the
  * events of an inputter: it takes or creates the node of each element, attaches
- * it to its parent, and finishes it when its end is reached.
+ * it to its parent, and finishes it when its end is reached. A state that unparses a tree
+ * that was already built takes its nodes from that tree instead.
  */
 trait InfosetNodeProvider { self: InfosetTreeState =>
 

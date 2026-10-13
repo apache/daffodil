@@ -21,6 +21,8 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.NilOrContentInfosetBuilder
 import org.apache.daffodil.runtime1.processors.parsers.ComplexNilOrContentParser
 import org.apache.daffodil.runtime1.processors.parsers.SimpleNilOrValueParser
 import org.apache.daffodil.unparsers.runtime1.ComplexNilOrContentUnparser
@@ -59,4 +61,8 @@ case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gr
   override lazy val unparser =
     ComplexNilOrContentUnparser(ctxt.erd, nilUnparser, contentUnparser)
 
+  // A nilled complex element has no children to build; nilled-ness is only
+  // known once the node exists, so this needs a real runtime check, not a
+  // static pass-through.
+  override lazy val builder: InfosetBuilder = NilOrContentInfosetBuilder(contentGram.builder)
 }
