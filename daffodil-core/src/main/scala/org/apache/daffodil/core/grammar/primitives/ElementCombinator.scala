@@ -22,7 +22,7 @@ import org.apache.daffodil.core.grammar.EmptyGram
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.NamedGram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation

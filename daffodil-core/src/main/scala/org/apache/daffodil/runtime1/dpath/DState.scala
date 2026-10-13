@@ -31,7 +31,6 @@ import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.FakeDINode
 import org.apache.daffodil.runtime1.infoset.InfosetNoNextSiblingException
-import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData;
 object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
@@ -142,60 +141,12 @@ case class DState(
 
   def mode = _mode
 
-  //
-  //  The purpose of this commented out code was to retry expressions, not
-  //  from the begining, but closer to where the expression failed. That is
-  //  for a big complex expression, we would not redo the whole thing, but would
-  //  block the co-routine right where it was unable to proceed e.g., in a call to
-  //  node.dataValue, such that when it was resumed, it would resume right there.
-  //  retry the call to node.dataValue, and then carry on with the rest of the
-  //  expression.
-  //
-  //  If we don't do this, then we're not taking advantage of that optimization
-  //  Then we don't really need coroutines at all to implement blocking. We just
-  //  keep the saved/cloned state around, and retry whatever needed to be done, from scratch.
-  //
-  //  The vast bulk of expressions are going to be fairly small, so this extra
-  //  overhead vs. the complexity of coroutines?? I think we should move away
-  //  From coroutines.
-  //
-  //  However, if expressions were to block on the infoset, by queuing themselves
-  //  adjacent to what they need, then... well you can still just retry the whole
-  //  expression again, this time knowing it won't block in the same place.
-  //
-  //  private var thisExpressionCoroutine_ : Maybe[Coroutine[AnyRef]] = Nope
-  //
-  //  def setThisExpressionCoroutine(co: Maybe[Coroutine[AnyRef]]) {
-  //    Assert.usage(mode eq UnparserBlocking)
-  //    thisExpressionCoroutine_ = co
-  //  }
-  //
-  //  def thisExpressionCoroutine = {
-  //    Assert.usage(mode eq UnparserBlocking)
-  //    thisExpressionCoroutine_
-  //  }
-  //
-  //  private var coroutineToResumeIfBlocked_ : Maybe[Coroutine[AnyRef]] = Nope
-  //
-  //  def setCoroutineToResumeIfBlocked(co: Maybe[Coroutine[AnyRef]]) {
-  //    Assert.usage(mode eq UnparserBlocking)
-  //    coroutineToResumeIfBlocked_ = co
-  //  }
-  //
-  //  def coroutineToResumeIfBlocked = {
-  //    Assert.usage(mode eq UnparserBlocking)
-  //    coroutineToResumeIfBlocked_
-  //  }
-
   def resetValue(): Unit = {
     _currentValue = DataValue.NoValue
   }
 
   def currentValue: DataValuePrimitiveNullable = {
-    if (_currentValue.isEmpty)
-      withRetryIfBlocking {
-        currentSimple.dataValue
-      }
+    if (_currentValue.isEmpty) currentSimple.dataValue
     else _currentValue
   }
 
@@ -362,44 +313,6 @@ case class DState(
   }
   def fnExists(): Unit = {
     // do nothing
-  }
-
-  // @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
-  final def withRetryIfBlocking[T](body: => T): T =
-    DState.withRetryIfBlocking(this)(body)
-}
-
-object DState {
-
-  // private object ToBeIgnored
-
-  // @inline
-  final def withRetryIfBlocking[T](ds: DState)(body: => T): T = { // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
-    ds.mode match {
-      case _: ParserMode => body
-      case UnparserNonBlocking => body
-      case UnparserBlocking => {
-        var isDone = false
-        var res: T = null.asInstanceOf[T]
-        while (!isDone) {
-          try {
-            res = body
-            isDone = true
-          } catch {
-            case e: RetryableException => {
-              // we're to block here, and retry subsequently.
-              isDone = false
-              //              if (ds.thisExpressionCoroutine.isDefined && ds.coroutineToResumeIfBlocked.isDefined) {
-              //                ds.thisExpressionCoroutine.get.resume(ds.coroutineToResumeIfBlocked.get, ToBeIgnored)
-              //              } else {
-              throw e
-              //              }
-            }
-          }
-        }
-        res
-      }
-    }
   }
 }
 
