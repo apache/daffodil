@@ -983,7 +983,18 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNYearFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "year"
-  val field = Calendar.EXTENDED_YEAR
+  val field = Calendar.YEAR
+
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
+    a.getAnyRef match {
+      case dt: DFDLDateTime =>
+        JBigInt.valueOf(dt.signedYear)
+      case _ =>
+        throw new NumberFormatException(
+          "fn:" + fieldName + "-from-dateTime only accepts xs:dateTime."
+        )
+    }
+  }
 }
 case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
@@ -1052,7 +1063,16 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNYearFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "year"
-  val field = Calendar.EXTENDED_YEAR
+  val field = Calendar.YEAR
+
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
+    a.getAnyRef match {
+      case d: DFDLDate =>
+        JBigInt.valueOf(d.signedYear)
+      case _ =>
+        throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
+    }
+  }
 }
 case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
