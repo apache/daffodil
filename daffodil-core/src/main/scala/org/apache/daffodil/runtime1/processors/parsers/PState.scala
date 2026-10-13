@@ -433,6 +433,28 @@ final class PState private (
   }
 
   /**
+   * Restore state to the point of uncertainty WITHOUT discarding it. The POU
+   * remains on the stack and can still be used for a subsequent reset or
+   * discard by the outer handler. Used when a separator helper needs to
+   * speculatively rewind state (e.g., postfix absent-rep detection) while
+   * leaving the outer POU available for the outer handler to discard normally.
+   *
+   * Unlike resetToPointOfUncertainty, this does not pop the POU from the
+   * stack, decrement the infoset walker block count, or return the mark to
+   * the pool. Because dataInputStream.reset discards its mark argument, a
+   * fresh data stream mark is captured at the restored position so that the
+   * outer handler can still call resetToPointOfUncertainty or
+   * discardPointOfUncertainty.
+   */
+  def restoreToPointOfUncertainty(pou: PState.Mark): Unit = {
+    Assert.usage(!isPointOfUncertaintyResolved(pou))
+    pou.restoreInto(this)
+    // dataInputStream.reset (called inside restoreInto) discards pou.disMark.
+    // Re-capture at this (= outer POU) position so the POU remains valid.
+    pou.disMark = dataInputStream.mark(pou.poolDebugLabel)
+  }
+
+  /**
    * Discard the point of uncertainty created by withPointOfUncertainty. Once
    * called, the pou variable should no longer be used. If the pou is not
    * reset, resolved, or discarded, this function is automatically called at
