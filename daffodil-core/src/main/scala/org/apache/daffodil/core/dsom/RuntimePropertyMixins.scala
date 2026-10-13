@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.TextStandardExponentRepMixin

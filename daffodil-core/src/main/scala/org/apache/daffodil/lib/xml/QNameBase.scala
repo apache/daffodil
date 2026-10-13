@@ -21,7 +21,7 @@ import java.net.URI
 import java.net.URISyntaxException
 import scala.util.Try
 
-import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.UnqualifiedPathStepPolicy
 

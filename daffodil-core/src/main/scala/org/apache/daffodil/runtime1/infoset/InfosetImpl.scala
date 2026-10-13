@@ -46,8 +46,7 @@ import org.apache.daffodil.api.metadata.SimpleElementMetadata
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.lib.calendar.DFDLCalendar
-import org.apache.daffodil.lib.equality.TypeEqual
-import org.apache.daffodil.lib.equality.ViewEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
 import org.apache.daffodil.lib.exceptions.ThrowsSDE

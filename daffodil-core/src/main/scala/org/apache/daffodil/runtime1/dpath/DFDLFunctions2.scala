@@ -32,32 +32,30 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
 
   protected def lengthState(elt: DIElement): LengthState
 
-  protected def getLength(elt: DIElement, units: LengthUnits, dstate: DState): ULong = {
+  protected def getLength(elt: DIElement, units: LengthUnits): ULong = {
 
     val len: ULong =
-      DState.withRetryIfBlocking(dstate) {
-        units match {
-          case LengthUnits.Bits => lengthState(elt).lengthInBits
-          case LengthUnits.Bytes => lengthState(elt).lengthInBytes
-          case LengthUnits.Characters => {
-            //
-            // TODO: We could warn about taking lengthInCharacters of something
-            // that isn't all text, but it's not required that it be purely
-            // text. DFDL lets you mix text and binary and then search it for
-            // delimiters or run regex patterns to parse it. You have to know what
-            // you are doing.
-            // Furthermore, in fixed-width encodings, this length can be computed
-            // from the length-in-bits by just dividing by a codepoint width
-            // code point width.
-            //
-            val nyi = new IllegalArgumentException(
-              "dfdl:%sLength's second argument of 'characters' is not yet supported.".format(
-                kind
-              )
+      units match {
+        case LengthUnits.Bits => lengthState(elt).lengthInBits
+        case LengthUnits.Bytes => lengthState(elt).lengthInBytes
+        case LengthUnits.Characters => {
+          //
+          // TODO: We could warn about taking lengthInCharacters of something
+          // that isn't all text, but it's not required that it be purely
+          // text. DFDL lets you mix text and binary and then search it for
+          // delimiters or run regex patterns to parse it. You have to know what
+          // you are doing.
+          // Furthermore, in fixed-width encodings, this length can be computed
+          // from the length-in-bits by just dividing by a codepoint width
+          // code point width.
+          //
+          val nyi = new IllegalArgumentException(
+            "dfdl:%sLength's second argument of 'characters' is not yet supported.".format(
+              kind
             )
-            elt.erd.SDE(nyi)
-            // lengthState(elt).lengthInCharacters
-          }
+          )
+          elt.erd.SDE(nyi)
+          // lengthState(elt).lengthInCharacters
         }
       }
     len
@@ -89,7 +87,7 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
         )
     }
 
-    val jLen: JLong = getLength(elt, units, dstate).longValue
+    val jLen: JLong = getLength(elt, units).longValue
     jLen
   }
 }

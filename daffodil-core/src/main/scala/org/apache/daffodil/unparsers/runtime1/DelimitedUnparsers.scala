@@ -20,7 +20,7 @@ package org.apache.daffodil.unparsers.runtime1
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
 
-import org.apache.daffodil.lib.equality.ViewEqual
+import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
