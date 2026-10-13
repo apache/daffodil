@@ -191,6 +191,21 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       }
     })
 
+  implicit def infosetOptionsConverter: ValueConverter[InfosetOptions] =
+    propsConverter[String](stringConverter).map { pairs =>
+      InfosetOptions(pairs.map { case (name, text) =>
+        val key = InfosetOptions.supportedKeys
+          .find(_.name == name)
+          .getOrElse(
+            throw new Exception(
+              "Unrecognized infoset option '%s'. Must be one of %s"
+                .format(name, InfosetOptions.supportedKeys.map(_.name).mkString(", "))
+            )
+          )
+        key -> key.parseValue(text)
+      })
+    }
+
   implicit def implementationConverter: ValueConverter[TDMLImplementation] =
     singleArgConverter[TDMLImplementation]((s: String) => {
       val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
@@ -361,6 +376,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
     )
+    val infosetOptions = opt[InfosetOptions](
+      name = "infoset-opts",
+      noshort = true,
+      argName = "key=value,...",
+      descr = "List of key=value options for the infoset inputter or outputter. Keys:\n" +
+        InfosetOptions.keysDescription,
+      default = Some(InfosetOptions.Default)
+    )
     val output = opt[String](
       argName = "file",
       descr =
@@ -439,6 +462,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     // --config must be a file that exists
     validateFileIsFile(config)
 
+    validateOpt(infosetType, infosetOptions) {
+      case (Some(t), Some(options)) =>
+        options.parsed.keys.find(!_.applicableInfosetTypes.contains(t)) match {
+          case Some(key) =>
+            Left(
+              "Infoset option '%s' does not apply to the %s infoset type".format(key.name, t)
+            )
+          case None => Right(())
+        }
+      case _ => Right(())
+    }
+
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
         Left("Input must not be stdin during interactive debugging")
@@ -487,6 +522,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         ", "
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
+    )
+    val infosetOptions = opt[InfosetOptions](
+      name = "infoset-opts",
+      noshort = true,
+      argName = "key=value,...",
+      descr = "List of key=value options for the infoset inputter or outputter. Keys:\n" +
+        InfosetOptions.keysDescription,
+      default = Some(InfosetOptions.Default)
     )
     val output = opt[String](
       argName = "file",
@@ -563,6 +606,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
     // --config must be a file that exists
     validateFileIsFile(config)
+
+    validateOpt(infosetType, infosetOptions) {
+      case (Some(t), Some(options)) =>
+        options.parsed.keys.find(!_.applicableInfosetTypes.contains(t)) match {
+          case Some(key) =>
+            Left(
+              "Infoset option '%s' does not apply to the %s infoset type".format(key.name, t)
+            )
+          case None => Right(())
+        }
+      case _ => Right(())
+    }
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
@@ -719,6 +774,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       ) + ". Defaults to 'xml'.",
       default = Some(InfosetType.XML)
     )
+    val infosetOptions = opt[InfosetOptions](
+      name = "infoset-opts",
+      noshort = true,
+      argName = "key=value,...",
+      descr = "List of key=value options for the infoset inputter or outputter. Keys:\n" +
+        InfosetOptions.keysDescription,
+      default = Some(InfosetOptions.Default)
+    )
     val number = opt[Int](
       short = 'N',
       argName = "number",
@@ -792,6 +855,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     validateOpt(infosetType, schema) {
       case (Some(InfosetType.EXISA), None) =>
         Left("A schema must be specified to use schema-aware compression with EXI")
+      case _ => Right(())
+    }
+
+    validateOpt(infosetType, infosetOptions) {
+      case (Some(t), Some(options)) =>
+        options.parsed.keys.find(!_.applicableInfosetTypes.contains(t)) match {
+          case Some(key) =>
+            Left(
+              "Infoset option '%s' does not apply to the %s infoset type".format(key.name, t)
+            )
+          case None => Right(())
+        }
       case _ => Right(())
     }
   }
@@ -1263,17 +1338,19 @@ class Main(
                 }
               }
             }
-            Using.resource(input) { inStream =>
+            Using.Manager { use =>
+              val inStream = use(input)
               val output = parseOpts.output.toOption match {
                 case Some("-") | None => STDOUT
-                case Some(file) => new FileOutputStream(file)
+                case Some(file) => use(new FileOutputStream(file))
               }
 
               val infosetHandler = InfosetType.getInfosetHandler(
                 parseOpts.infosetType(),
                 processor,
                 parseOpts.schema.map(_.uri).toOption,
-                forPerformance = false
+                forPerformance = false,
+                infosetOptions = parseOpts.infosetOptions()
               )
 
               var lastParseBitPosition = 0L
@@ -1399,7 +1476,7 @@ class Main(
                 }
               }
               exitCode
-            }
+            }.get
           }
         }
         rc
@@ -1452,7 +1529,8 @@ class Main(
               performanceOpts.infosetType(),
               processor,
               performanceOpts.schema.map(_.uri).toOption,
-              forPerformance = true
+              forPerformance = true,
+              infosetOptions = performanceOpts.infosetOptions()
             )
 
             val isUnparse = performanceOpts.unparse()
@@ -1465,10 +1543,7 @@ class Main(
                 // same input data multiple times in different performance runs.
                 // So read the file data into an Array[Byte], and use that for
                 // everything.
-                val input = (new FileInputStream(filePath))
-                val dataSize = filePath.length()
-                val bytes = new Array[Byte](dataSize.toInt)
-                input.read(bytes)
+                val bytes = Files.readAllBytes(filePath.toPath)
                 val data =
                   if (isUnparse) {
                     infosetHandler.dataToInfoset(bytes)
@@ -1614,7 +1689,8 @@ class Main(
               unparseOpts.infosetType(),
               processor,
               unparseOpts.schema.map(_.uri).toOption,
-              forPerformance = false
+              forPerformance = false,
+              infosetOptions = unparseOpts.infosetOptions()
             )
 
             while (keepUnparsing) {
@@ -1899,7 +1975,8 @@ class Main(
           try {
             Some(
               EXIInfosetHandler.createEXIFactory(
-                exiOpts.schema.map(_.uri).toOption
+                exiOpts.schema.map(_.uri).toOption,
+                InfosetOptions.Default
               )
             )
           } catch {

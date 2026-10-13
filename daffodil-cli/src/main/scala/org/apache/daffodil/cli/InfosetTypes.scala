@@ -51,6 +51,7 @@ import org.apache.daffodil.runtime1.infoset.XMLTextInfosetInputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
 
+import com.siemens.ct.exi.core.CodingMode
 import com.siemens.ct.exi.core.EXIFactory
 import com.siemens.ct.exi.core.helpers.DefaultEXIFactory
 import com.siemens.ct.exi.grammars.GrammarFactory
@@ -99,19 +100,20 @@ object InfosetType extends Enumeration {
     infosetType: InfosetType.Type,
     dataProcessor: api.DataProcessor,
     schemaUri: Option[URI],
-    forPerformance: Boolean
+    forPerformance: Boolean,
+    infosetOptions: InfosetOptions
   ): InfosetHandler = {
 
     infosetType match {
-      case InfosetType.EXI => EXIInfosetHandler(dataProcessor)
-      case InfosetType.EXISA => EXIInfosetHandler(dataProcessor, schemaUri.get)
-      case InfosetType.JDOM => JDOMInfosetHandler(dataProcessor)
-      case InfosetType.JSON => JsonInfosetHandler(dataProcessor)
-      case InfosetType.NULL => NULLInfosetHandler(dataProcessor)
-      case InfosetType.SAX => SAXInfosetHandler(dataProcessor, forPerformance)
-      case InfosetType.SCALA_XML => ScalaXMLInfosetHandler(dataProcessor)
-      case InfosetType.W3CDOM => W3CDOMInfosetHandler(dataProcessor)
-      case InfosetType.XML => XMLTextInfosetHandler(dataProcessor)
+      case InfosetType.EXI => EXIInfosetHandler(dataProcessor, infosetOptions)
+      case InfosetType.EXISA => EXIInfosetHandler(dataProcessor, schemaUri.get, infosetOptions)
+      case InfosetType.JDOM => JDOMInfosetHandler(dataProcessor, infosetOptions)
+      case InfosetType.JSON => JsonInfosetHandler(dataProcessor, infosetOptions)
+      case InfosetType.NULL => NULLInfosetHandler(dataProcessor, infosetOptions)
+      case InfosetType.SAX => SAXInfosetHandler(dataProcessor, forPerformance, infosetOptions)
+      case InfosetType.SCALA_XML => ScalaXMLInfosetHandler(dataProcessor, infosetOptions)
+      case InfosetType.W3CDOM => W3CDOMInfosetHandler(dataProcessor, infosetOptions)
+      case InfosetType.XML => XMLTextInfosetHandler(dataProcessor, infosetOptions)
     }
   }
 }
@@ -282,10 +284,17 @@ sealed class InfosetParseResult(val parseResult: api.ParseResult) {
 /**
  * InfosetType.XML
  */
-case class XMLTextInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetHandler {
+case class XMLTextInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new XMLTextInfosetOutputter(os, pretty = true)
+    val output = new XMLTextInfosetOutputter(
+      os,
+      infosetOptions.pretty,
+      infosetOptions.xmlTextEscapeStyle
+    )
     val pr = parseWithInfosetOutputter(input, output)
     new InfosetParseResult(pr)
   }
@@ -308,10 +317,13 @@ case class XMLTextInfosetHandler(dataProcessor: api.DataProcessor) extends Infos
 /**
  * InfosetType.JSON
  */
-case class JsonInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetHandler {
+case class JsonInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new JsonInfosetOutputter(os, pretty = true)
+    val output = new JsonInfosetOutputter(os, infosetOptions.pretty)
     val pr = parseWithInfosetOutputter(input, output)
     new InfosetParseResult(pr)
   }
@@ -334,7 +346,10 @@ case class JsonInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetH
 /**
  * InfosetType.JDOM
  */
-case class JDOMInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetHandler {
+case class JDOMInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new JDOMInfosetOutputter()
@@ -375,7 +390,10 @@ class JDOMInfosetParseResult(parseResult: api.ParseResult, output: JDOMInfosetOu
 /**
  * InfosetType.SCALA_XML
  */
-case class ScalaXMLInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetHandler {
+case class ScalaXMLInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new ScalaXMLInfosetOutputter()
@@ -419,7 +437,10 @@ class ScalaXMLInfosetParseResult(
 /**
  * InfosetType.W3CDOM
  */
-case class W3CDOMInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetHandler {
+case class W3CDOMInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new W3CDOMInfosetOutputter()
@@ -472,7 +493,10 @@ class W3CDOMInfosetParseResult(parseResult: api.ParseResult, output: W3CDOMInfos
 /**
  * InfosetType.NULL
  */
-case class NULLInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetHandler {
+case class NULLInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new NullInfosetOutputter()
@@ -498,15 +522,18 @@ case class NULLInfosetHandler(dataProcessor: api.DataProcessor) extends InfosetH
 /**
  * InfosetType.SAX
  */
-case class SAXInfosetHandler(dataProcessor: api.DataProcessor, forPerformance: Boolean)
-  extends InfosetHandler {
+case class SAXInfosetHandler(
+  dataProcessor: api.DataProcessor,
+  forPerformance: Boolean,
+  infosetOptions: InfosetOptions
+) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val contentHandler =
       if (forPerformance) {
         new DefaultHandler() // ignores all SAX events
       } else {
-        new DaffodilParseOutputStreamContentHandler(os, pretty = true)
+        new DaffodilParseOutputStreamContentHandler(os, infosetOptions.pretty)
       }
 
     val pr = parseWithSax(input, contentHandler)
@@ -679,19 +706,32 @@ case class SAXInfosetHandler(dataProcessor: api.DataProcessor, forPerformance: B
 object EXIInfosetHandler {
 
   /** non-schema aware EXI **/
-  def apply(dataProcessor: api.DataProcessor): InfosetHandler = {
-    val exiFactory = createEXIFactory(None)
+  def apply(
+    dataProcessor: api.DataProcessor,
+    infosetOptions: InfosetOptions
+  ): InfosetHandler = {
+    val exiFactory = createEXIFactory(None, infosetOptions)
     EXIInfosetHandler(dataProcessor, exiFactory)
   }
 
   /** schema aware EXI **/
-  def apply(dataProcessor: api.DataProcessor, schemaUri: URI): InfosetHandler = {
-    val exiFactory = createEXIFactory(Some(schemaUri))
+  def apply(
+    dataProcessor: api.DataProcessor,
+    schemaUri: URI,
+    infosetOptions: InfosetOptions
+  ): InfosetHandler = {
+    val exiFactory = createEXIFactory(Some(schemaUri), infosetOptions)
     EXIInfosetHandler(dataProcessor, exiFactory)
   }
 
-  def createEXIFactory(optSchema: Option[URI]): EXIFactory = {
+  def createEXIFactory(
+    optSchema: Option[URI],
+    infosetOptions: InfosetOptions
+  ): EXIFactory = {
     val exiFactory = DefaultEXIFactory.newInstance
+    if (infosetOptions.exiCompression) {
+      exiFactory.setCodingMode(CodingMode.COMPRESSION)
+    }
     if (optSchema.isDefined) {
       val grammarFactory = GrammarFactory.newInstance
       val grammar =
