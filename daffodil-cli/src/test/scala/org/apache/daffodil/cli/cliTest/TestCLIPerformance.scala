@@ -60,6 +60,20 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
+  @Test def test_CLI_Performance_2_Threads_2_Times_exi_compression(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    )
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
+
+    runCLI(
+      args"performance -I exi --infoset-opts=exiCompression=true -N 2 -t 2 -s $schema -r matrix $input"
+    ) { cli =>
+      cli.expect("total parse time (sec):")
+      cli.expect("average throughput (files/sec):")
+    }(ExitCode.Success)
+  }
+
   @Test def test_CLI_Performance_2_Threads_2_Times_exisa(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"

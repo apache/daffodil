@@ -878,6 +878,63 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
+  @Test def test_CLI_Parsing_InfosetOption_exiCompression(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    withTempDir { tempDir =>
+      val plain = java.nio.file.Paths.get(tempDir.toString, "plain.exi")
+      val compressed = java.nio.file.Paths.get(tempDir.toString, "compressed.exi")
+
+      runCLI(args"parse -I exi -s $schema -r e1 -o $plain") { cli =>
+        cli.send("Hello", inputDone = true)
+      }(ExitCode.Success)
+
+      runCLI(
+        args"parse -I exi --infoset-opts=exiCompression=true -s $schema -r e1 -o $compressed"
+      ) { cli =>
+        cli.send("Hello", inputDone = true)
+      }(ExitCode.Success)
+
+      assertFalse(
+        java.util.Arrays.equals(
+          java.nio.file.Files.readAllBytes(plain),
+          java.nio.file.Files.readAllBytes(compressed)
+        )
+      )
+
+      runCLI(
+        args"unparse -I exi --infoset-opts=exiCompression=true -s $schema --root e1 $compressed"
+      ) { cli =>
+        cli.expect("Hello")
+      }(ExitCode.Success)
+    }
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_json_notPretty(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse -I json --infoset-opts=pretty=false -s $schema -r e1") { cli =>
+      cli.send("Hello", inputDone = true)
+      cli.expect("""{"e1": "Hello"}""")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_CLI_Parsing_InfosetOption_xml_cdata(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse --infoset-opts=xmlTextEscape=CDATA,pretty=false -s $schema -r e1") {
+      cli =>
+        cli.send("a b c", inputDone = true)
+        cli.expect("<![CDATA[a b c]]>")
+    }(ExitCode.Success)
+  }
+
   @Test def test_CLI_Parsing_SimpleParse_scala_xml(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
