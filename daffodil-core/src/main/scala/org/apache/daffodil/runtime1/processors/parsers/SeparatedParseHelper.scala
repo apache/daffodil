@@ -17,6 +17,7 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.Success
@@ -41,6 +42,14 @@ sealed abstract class SeparatorParseHelper(
 ) extends Serializable {
 
   protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
+
+  /**
+   * Checks, without consuming data, whether one of the sequence's in-scope
+   * delimiters is present right where this complex type's content would
+   * begin. Nope for simple types and for model groups.
+   */
+  protected final def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser] =
+    scParser.parseResultHelper.zeroLengthComplexTypeDelimiterScanner
 
   def parseOneWithSeparator(
     state: PState,
@@ -146,6 +155,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         SeparatorParseStatus.SeparatorNotNeeded
 
     val prevBitPosBeforeChild = pstate.bitPos0b
+    val separatorWasFound = sepStatus eq SeparatorParseStatus.SeparatorFound
 
     sepStatus match {
       case _: SeparatorParseStatus.SeparatorSuccess => {
@@ -155,9 +165,25 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             scParser,
             prevBitPosBeforeChild,
             pstate,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound
           )
-        pas
+        val anotherSeparatorFollows = pstate.probeNonDestructively(sep)
+        pas match {
+          case ParseAttemptStatus.AbsentRep
+              if pstate.isFailure && 
+                separatorWasFound &&
+                (scParser.parseResultHelper.separatedSequenceChildBehavior eq
+                  SeparatedSequenceChildBehavior.NonPositional) &&
+                !anotherSeparatorFollows =>
+              // Only for NonPositional (anyEmpty): a failed, zero-length
+              // attempt whose separator isn't followed by another one isn't
+              // a genuine zero-length occurrence of this item; release it
+              // (via the usual MissingItem backtrack) for the next item to
+              // claim instead.
+              ParseAttemptStatus.MissingItem
+          case _ => pas
+        }
       }
       case _ => {
         requiredOptional match {
@@ -211,7 +237,8 @@ final class PostfixSeparatorHelper(
             scParser,
             prevBitPosBeforeChild,
             pstate,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound = false // separator not parsed yet at this point
           )
         sep.parse1(pstate)
         if (pstate.processorStatus eq Success) {
@@ -274,7 +301,8 @@ final class PostfixSeparatorHelper(
                 scParser,
                 prevBitPosBeforeChild,
                 pstate,
-                requiredOptional
+                requiredOptional,
+                separatorWasFound = true
               )
             val res = pas match {
               case AbsentRep => {
@@ -307,7 +335,8 @@ final class PostfixSeparatorHelper(
             prevBitPosBeforeChild,
             pstate,
             isZL,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound = false
           )
         }
       }

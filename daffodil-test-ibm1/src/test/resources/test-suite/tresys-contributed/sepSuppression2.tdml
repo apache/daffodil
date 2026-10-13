@@ -289,16 +289,12 @@
     </xs:element>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="testAnyEmptyTrailing1" root="r" model="s2"
-    roundTrip="twoPass">
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:r>
-          <foo>foo</foo>
-          <!-- <bar /> This does not appear. -->
-        </ex:r>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+  <tdml:parserTestCase name="testAnyEmptyTrailing1" root="r" model="s2">
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>separatorSuppressionPolicy</tdml:error>
+      <tdml:error>anyEmpty</tdml:error>
+    </tdml:errors>
     <tdml:document>foo,</tdml:document>
   </tdml:parserTestCase>
                       
