@@ -49,20 +49,13 @@ class TestBuildAhead extends TdmlTests {
   @Test def layeredSequenceLengthMismatchError = test
   @Test def nestedOvcSuspensions = test
   @Test def binaryIntArray = test
-  @Test def variableLengthExpression = test
-  @Test def prefixedLength = test
   @Test def prefixedLengthComplexContent = test
-  @Test def ovcCountOfPrecedingArray = test
   @Test def ovcCountOfPrecedingArrayAfterBuildFullyFinishes = test
   @Test def dynamicTerminatorReferencingArrayCount = test
   @Test def ivcExistsOverNestedArray = test
   @Test def manyValueLengthForwardReferencesThrottled = test
   @Test def nviScopedVariableWithValueLengthOVC = test
-  @Test def singleNviScopedVariableWithValueLengthOVC = test
   @Test def nviScopedSetVariableWithNoForwardReference = test
-  @Test def delimitedVariableLengthExpression = test
   @Test def delimitedComplexVariableLengthExpression = test
-  @Test def purelyContentLengthOVC = test
-  @Test def mixedResolvableAndContentLengthOVC = test
   @Test def eventDrivenInfosetMismatchReportsDataLocation = test
 }

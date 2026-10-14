@@ -61,7 +61,8 @@ trait InfosetBuilder extends Serializable {
  * One InfosetBuilder's in-progress state for one unparse. `step` performs one
  * transition and must either push exactly one child frame onto the cursor
  * (this frame is stepped again once that child pops) or pop itself from the
- * cursor to signal it is complete.
+ * cursor to signal it is complete. A frame is therefore stepped more than once,
+ * so it keeps a phase that tells it which step it is on.
  */
 abstract class InfosetBuildFrame {
   def step(cursor: InfosetBuildCursor): Unit
@@ -79,9 +80,12 @@ final class InfosetBuildCursor(
 ) {
   def state: InfosetTreeState = buildState
 
-  private val stack = new MStackOf[InfosetBuildFrame](64)
-
-  push(root.newFrame())
+  // Starts with the root's frame.
+  private val stack = {
+    val frames = new MStackOf[InfosetBuildFrame](64)
+    frames.push(root.newFrame())
+    frames
+  }
 
   def push(frame: InfosetBuildFrame): Unit = stack.push(frame)
 
@@ -169,16 +173,20 @@ final class ElementInfosetBuilder(
 ) extends InfosetBuilder {
 
   override def newFrame(): InfosetBuildFrame = new InfosetBuildFrame {
-    private var contentPushed = false
+    import ContentBuildPhase.*
+
+    // Start begins the element and pushes the frame of its content, if it has
+    // any. AfterContent ends the element.
+    private var phase: ContentBuildPhase = Start
 
     override def step(cursor: InfosetBuildCursor): Unit = {
       val state = cursor.state
-      if (!contentPushed) {
+      if (phase eq Start) {
         elementUnparser.unparseBegin(state)
         if (erd.isComplexType) {
           state.pushTRD(erd.optComplexTypeModelGroupRuntimeData.get)
           if (!contentBuilder.isEmpty) {
-            contentPushed = true
+            phase = AfterContent
             cursor.push(contentBuilder.newFrame())
             return
           }
@@ -211,6 +219,15 @@ final case class SequenceChildInfosetBuildInfo(
  */
 private enum SequenceBuildPhase {
   case Start, NextChild, AfterScalar, InArray, AfterOccurrence
+}
+
+/**
+ * Where a frame that builds one piece of content is in its steps. Start is
+ * before the content's frame is pushed. AfterContent is once that frame has
+ * popped, when this frame is stepped again to finish.
+ */
+private enum ContentBuildPhase {
+  case Start, AfterContent
 }
 
 /**
@@ -383,12 +400,18 @@ final class ChoiceInfosetBuilder(
   }
 
   override def newFrame(): InfosetBuildFrame = new InfosetBuildFrame {
+    import ContentBuildPhase.*
+
+    // Start resolves the branch and pushes the frame of its content, if it has
+    // any. AfterContent leaves the branch, whose TRD is kept to pop.
+    private var phase: ContentBuildPhase = Start
     private var branchTRD: TermRuntimeData = null
 
     override def step(cursor: InfosetBuildCursor): Unit = {
       val state = cursor.state
-      if (branchTRD == null) {
+      if (phase eq Start) {
         val (trd, builder) = resolveBranch(state)
+        phase = AfterContent
         branchTRD = trd
         state.pushTRD(trd)
         if (!builder.isEmpty) {
@@ -410,11 +433,15 @@ final class ChoiceInfosetBuilder(
 final private class HiddenGroupInfosetBuilder(bodyBuilder: InfosetBuilder)
   extends InfosetBuilder {
   override def newFrame(): InfosetBuildFrame = new InfosetBuildFrame {
-    private var bodyPushed = false
+    import ContentBuildPhase.*
+
+    // Start enters the hidden group and pushes the frame of its body.
+    // AfterContent leaves the group.
+    private var phase: ContentBuildPhase = Start
 
     override def step(cursor: InfosetBuildCursor): Unit = {
-      if (!bodyPushed) {
-        bodyPushed = true
+      if (phase eq Start) {
+        phase = AfterContent
         cursor.state.incrementHiddenDef()
         cursor.push(bodyBuilder.newFrame())
       } else {
@@ -443,11 +470,15 @@ object HiddenGroupInfosetBuilder {
 final private class NilOrContentInfosetBuilder(contentBuilder: InfosetBuilder)
   extends InfosetBuilder {
   override def newFrame(): InfosetBuildFrame = new InfosetBuildFrame {
-    private var contentPushed = false
+    import ContentBuildPhase.*
+
+    // Start pushes the frame of the content, unless the element is nilled.
+    // AfterContent, or a nilled element, finishes the frame.
+    private var phase: ContentBuildPhase = Start
 
     override def step(cursor: InfosetBuildCursor): Unit = {
-      if (!contentPushed && !cursor.state.currentInfosetNode.asComplex.isNilled) {
-        contentPushed = true
+      if ((phase eq Start) && !cursor.state.currentInfosetNode.asComplex.isNilled) {
+        phase = AfterContent
         cursor.push(contentBuilder.newFrame())
       } else {
         cursor.pop()

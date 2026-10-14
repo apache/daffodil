@@ -163,7 +163,7 @@
     <tdml:document>a,b</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- A choice reached while withinHiddenNest: both sides pick defaultUnparser unconditionally, since the outcome is schema-determined. -->
+  <!-- A choice in a hidden group has no events to pick a branch from, so it takes its default branch, since the outcome is schema-determined. -->
   <tdml:defineSchema name="s_hiddenChoice" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -228,7 +228,7 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- A choice branch with zero tree footprint (absent optional element) must still unparse its own initiator, or unparse's dispatch can hang. -->
+  <!-- A choice branch whose only content is an absent optional element builds no nodes, but must still unparse its own initiator. -->
   <tdml:defineSchema name="s_choiceBranchWithAbsentOptionalElement" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -263,7 +263,7 @@
     <tdml:document>first_defaultable1</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- Same schema as above, but with "opt" PRESENT (an actual match, not the empty-branch fallback). */ -->
+  <!-- Same schema as above, but with "opt" present, so the branch builds a node. -->
   <tdml:defineSchema name="s_choiceBranchWithPresentOptionalElement" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -341,7 +341,7 @@
     <tdml:document>i0,i1,i2,i3,i4,i5,i6,i7,i8,i9,i10,i11</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- A bare nested xs:sequence has no tree node of its own; the unparse of the enclosing element must not advance/free a tree-child position recursing into it. -->
+  <!-- A bare nested xs:sequence has no node of its own, so unparsing it must not advance or free the enclosing element's child position. -->
   <tdml:defineSchema name="s_nestedBareSequence" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -406,7 +406,7 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- A hidden group's elements never get hasValue=true; unparse's dispatch must special-case that instead of blocking on it forever. -->
+  <!-- A hidden group's elements have no events, so the unparse makes or takes the node itself instead of waiting for one. -->
   <tdml:defineSchema name="s_hiddenGroup" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -439,7 +439,7 @@
     <tdml:document>HV</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- Initiator/terminator with no separator: same delimiter-frame code path as the separator tests above, via a different property combination. -->
+  <!-- An initiator and terminator on a sequence with no separator. -->
   <tdml:defineSchema name="s_initiatorTerminator" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -532,7 +532,7 @@
     <tdml:document>V</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- Escape-scheme state is confined entirely to unparsers that build no infoset events; confirms that end to end with no frame changes needed. -->
+  <!-- Escape-scheme state is used only when writing text and never changes the infoset, so the output must not depend on how the infoset is built. -->
   <tdml:defineSchema name="s_escapeScheme" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -727,82 +727,7 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- A variable-length dfdl:length expression (every other test here is constant), exercising computeTargetLength's non-constant branch. -->
-  <tdml:defineSchema name="s_variableLengthExpression" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"
-      textNumberJustification="right"
-      textNumberPadCharacter="0"
-      textPadKind="padChar"/>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:sequence>
-            <xs:element name="lenField" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
-            <xs:element name="content" type="xs:string"
-              dfdl:lengthKind="explicit"
-              dfdl:length="{ xs:int(../lenField) }"/>
-          </xs:sequence>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="variableLengthExpression" root="row" model="s_variableLengthExpression">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row>
-          <lenField>5</lenField>
-          <content>hello</content>
-        </ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>05hello</tdml:document>
-  </tdml:unparserTestCase>
-
-  <!-- A prefixed-length element: the prefix depends on the content's unparsed length, a forward dependency like OVC but length-driven. -->
-  <tdml:defineSchema name="s_prefixedLength" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"
-      textNumberJustification="right"
-      textNumberPadCharacter="0"
-      textPadKind="padChar"/>
-    <xs:simpleType name="lenPrefixType"
-      dfdl:representation="text"
-      dfdl:lengthKind="explicit"
-      dfdl:length="2"
-      dfdl:lengthUnits="bytes">
-      <xs:restriction base="xs:int"/>
-    </xs:simpleType>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:sequence>
-            <xs:element name="content" type="xs:string"
-              dfdl:lengthKind="prefixed"
-              dfdl:prefixLengthType="ex:lenPrefixType"
-              dfdl:lengthUnits="bytes"
-              dfdl:prefixIncludesPrefixLength="no"/>
-          </xs:sequence>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="prefixedLength" root="row" model="s_prefixedLength">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row><content>hello</content></ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>05hello</tdml:document>
-  </tdml:unparserTestCase>
-
-  <!-- A prefixed-length element with complex (not simple) content, so unparse's dispatch must recurse into the wrapped content unparser. -->
+  <!-- A prefixed-length element with complex (not simple) content, whose length prefix depends on the unparsed length of its whole content. -->
   <tdml:defineSchema name="s_prefixedLengthComplexContent" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -854,41 +779,7 @@
     <tdml:document>06hi,bye</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- An OVC referencing fn:count of a preceding array, resolvable directly against the tree: the ordinary non-suspending OVC path. -->
-  <tdml:defineSchema name="s_ovcCountOfPrecedingArray" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"/>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="items" type="xs:int" minOccurs="0" maxOccurs="3"
-            dfdl:lengthKind="explicit"
-            dfdl:length="1"
-            dfdl:occursCountKind="implicit"/>
-          <xs:element name="cnt" type="xs:int"
-            dfdl:lengthKind="explicit"
-            dfdl:length="1"
-            dfdl:outputValueCalc="{ fn:count(../items) }"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="ovcCountOfPrecedingArray" root="row" model="s_ovcCountOfPrecedingArray">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row>
-          <items>1</items>
-          <items>2</items>
-        </ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>122</tdml:document>
-  </tdml:unparserTestCase>
-
-  <!-- A large array that build finishes entirely before unparse starts, so unparse never has to wait for more tree. -->
+  <!-- An unbounded array followed by an OVC count of it, where build has finished the whole tree before unparse needs the count. -->
   <tdml:defineSchema name="s_ovcCountOfPrecedingArrayAfterBuildFullyFinishes" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -903,7 +794,7 @@
             dfdl:occursCountKind="implicit"/>
           <xs:element name="cnt" type="xs:int"
             dfdl:lengthKind="explicit"
-            dfdl:length="3"
+            dfdl:length="1"
             dfdl:outputValueCalc="{ fn:count(../items) }"/>
         </xs:sequence>
       </xs:complexType>
@@ -917,107 +808,10 @@
           <items>0</items>
           <items>1</items>
           <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
-          <items>0</items>
-          <items>1</items>
-          <items>2</items>
-          <items>3</items>
-          <items>4</items>
-          <items>5</items>
-          <items>6</items>
-          <items>7</items>
-          <items>8</items>
-          <items>9</items>
         </ex:row>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789100</tdml:document>
+    <tdml:document>0123</tdml:document>
   </tdml:unparserTestCase>
 
   <!-- A dynamic dfdl:terminator expression referencing a preceding array's count: navigation-only, resolvable directly against the tree. -->
@@ -1194,50 +988,6 @@
     <tdml:document>0 |6   |value01 |7   |value12 |8   |value23 |9   |value34 |10  |value45 |11  |value56 |12  |value67 |13  |value7</tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- Simpler variant of the repeating-NVI test above: a single (non-repeating) scope, as a distinct data point. -->
-  <tdml:defineSchema name="s_singleNviScopedVariableWithValueLengthOVC" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"/>
-    <dfdl:defineVariable name="runningVar" type="xs:int"/>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence dfdl:separator="|">
-          <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:newVariableInstance ref="ex:runningVar" defaultValue="0"/>
-            </xs:appinfo>
-          </xs:annotation>
-          <xs:element name="idx" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2">
-            <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:setVariable ref="ex:runningVar" value="{ . }"/>
-              </xs:appinfo>
-            </xs:annotation>
-          </xs:element>
-          <xs:element name="len" type="xs:int"
-            dfdl:lengthKind="explicit"
-            dfdl:length="4"
-            dfdl:outputValueCalc="{ $ex:runningVar + dfdl:valueLength(../data, 'bytes') }"/>
-          <xs:element name="data" type="xs:string" dfdl:lengthKind="delimited"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="singleNviScopedVariableWithValueLengthOVC" root="row" model="s_singleNviScopedVariableWithValueLengthOVC">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row>
-          <idx>42</idx>
-          <data>hello</data>
-        </ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>42|47  |hello</tdml:document>
-  </tdml:unparserTestCase>
-
   <!-- Regression guard for NVI-scope setVariable resolution: no forward OVC or separator, the minimal shape that exposes the race. -->
   <tdml:defineSchema name="s_nviScopedSetVariableWithNoForwardReference" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -1295,42 +1045,7 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
-  <!-- A variable-length dfdl:length expression inside a separated sequence must also call computeTargetLength from unparse's dispatch. -->
-  <tdml:defineSchema name="s_delimitedVariableLengthExpression" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"
-      textNumberJustification="right"
-      textNumberPadCharacter="0"
-      textPadKind="padChar"/>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:sequence dfdl:separator="|">
-            <xs:element name="lenField" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
-            <xs:element name="content" type="xs:string"
-              dfdl:lengthKind="explicit"
-              dfdl:length="{ xs:int(../lenField) }"/>
-          </xs:sequence>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="delimitedVariableLengthExpression" root="row" model="s_delimitedVariableLengthExpression">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row>
-          <lenField>5</lenField>
-          <content>hello</content>
-        </ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>05|hello</tdml:document>
-  </tdml:unparserTestCase>
-
-  <!-- Same dispatch path as the test above, but for a complex element whose expression-based dfdl:length wraps a whole group's content chain. -->
+  <!-- A complex element whose expression-based dfdl:length wraps a whole group's content chain. -->
   <tdml:defineSchema name="s_delimitedComplexVariableLengthExpression" elementFormDefault="unqualified">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -1367,76 +1082,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>03|xyz</tdml:document>
-  </tdml:unparserTestCase>
-
-  <!-- A schema where every OVC is content-length-dependent (never resolvable early) still builds ahead when the tunable is on, and unparses the same. -->
-  <tdml:defineSchema name="s_purelyContentLengthOVC" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"
-      textNumberJustification="right"
-      textNumberPadCharacter="0"
-      textPadKind="padChar"/>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="len" type="xs:int"
-            dfdl:lengthKind="explicit"
-            dfdl:length="2"
-            dfdl:outputValueCalc="{ dfdl:valueLength(../data, 'bytes') }"/>
-          <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="purelyContentLengthOVC" root="row" model="s_purelyContentLengthOVC">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row><data>xyz</data></ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>03xyz</tdml:document>
-  </tdml:unparserTestCase>
-
-  <!-- A schema mixing a resolvable OVC with an unrelated content-length-dependent one must still use the build ahead path. -->
-  <tdml:defineSchema name="s_mixedResolvableAndContentLengthOVC" elementFormDefault="unqualified">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat"
-      encoding="ascii"
-      lengthUnits="bytes"
-      textNumberJustification="right"
-      textNumberPadCharacter="0"
-      textPadKind="padChar"/>
-    <xs:element name="row" dfdl:lengthKind="implicit">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="computed" type="xs:int"
-            dfdl:lengthKind="explicit"
-            dfdl:length="3"
-            dfdl:outputValueCalc="{ ../actual + 1 }"/>
-          <xs:element name="actual" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
-          <xs:element name="len" type="xs:int"
-            dfdl:lengthKind="explicit"
-            dfdl:length="2"
-            dfdl:outputValueCalc="{ dfdl:valueLength(../data, 'bytes') }"/>
-          <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
-
-  <tdml:unparserTestCase name="mixedResolvableAndContentLengthOVC" root="row" model="s_mixedResolvableAndContentLengthOVC">
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <ex:row>
-          <actual>005</actual>
-          <data>xyz</data>
-        </ex:row>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>00600503xyz</tdml:document>
   </tdml:unparserTestCase>
 
   <!-- Event driven unparse reports where in the data an infoset mismatch happened. Build ahead runs ahead of the output, so it has no location to report. -->

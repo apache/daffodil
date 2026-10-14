@@ -128,53 +128,62 @@ final class TreeEventState(
   @tailrec
   private def computeNext(): Boolean = {
     if (pendingEnd ne null) {
+      // A simple node's start event was just emitted. It has no children, so
+      // its end event is next.
       val ended = pendingEnd
       pendingEnd = null
       setEvent(ended, NodeKind.Simple, isStart = false)
       freeEndedChild()
       true
     } else if (stackDepth == 0) {
+      // Every container has been left, so there are no more events.
       false
     } else {
+      // The innermost container is the one whose children are being visited.
       val innermost = stackDepth - 1
       val currentNode = containerStack(innermost)
       val currentKind = containerKinds(innermost)
-      if (childExistsOrFinal(currentNode, nextChildIndexes(innermost))) {
-        // A node ahead of this walk that is already freed was a hidden one,
-        // which finished before the walk got here.
-        val nextChild = currentNode.child(nextChildIndexes(innermost))
-        nextChildIndexes(innermost) += 1
-        if (nextChild eq null) {
+      val childIndex = nextChildIndexes(innermost)
+      if (awaitChild(currentNode, childIndex)) {
+        val nextChild = currentNode.child(childIndex)
+        nextChildIndexes(innermost) = childIndex + 1
+        if ((nextChild eq null) || isHidden(nextChild)) {
+          // A hidden node gets no events, so it is skipped. A node ahead of this
+          // walk that is already freed was a hidden one, which finished before
+          // the walk got here.
           computeNext()
         } else {
           val nextKind = kindOf(nextChild)
-          if (isHidden(nextChild, nextKind)) {
-            computeNext()
+          setEvent(nextChild, nextKind, isStart = true)
+          if (nextKind eq NodeKind.Simple) {
+            // A simple node has no children, so it stays off the stack and its
+            // end event is queued.
+            pendingEnd = nextChild
           } else {
-            setEvent(nextChild, nextKind, isStart = true)
-            if (nextKind eq NodeKind.Simple) {
-              pendingEnd = nextChild
-            } else {
-              pushContainer(nextChild, nextKind)
-            }
-            true
+            // A complex node or an array is entered, so its children are
+            // visited next.
+            pushContainer(nextChild, nextKind)
           }
+          true
         }
       } else if (currentKind eq NodeKind.Document) {
+        // The document has no end event here; leaving it ends the walk.
         popContainer()
         computeNext()
       } else {
+        // No more children, so this container ends: emit its end event and
+        // leave it.
         emitEnd(currentNode, currentKind)
         true
       }
     }
   }
 
-  // Advances build until the child exists, or the parent is final with no
-  // child there. The unparse only needs the child to exist, so it knows which
-  // branch or occurrence it is on, not for it to have a value. If build
-  // finishes with the child still missing, that is an unparse error.
-  private def childExistsOrFinal(parent: DINode, index: Int): Boolean = {
+  // True when the child at index exists, advancing build until it does. False
+  // when the parent is final with no child there. The unparse only needs the
+  // child to exist, so it knows which branch or occurrence it is on, not for it
+  // to have a value. If build finishes with neither, that is an unparse error.
+  private def awaitChild(parent: DINode, index: Int): Boolean = {
     while (index >= parent.numChildren) {
       if (parent.isFinal) {
         return false
@@ -232,8 +241,8 @@ final class TreeEventState(
     )
   }
 
-  private def isHidden(node: DINode, kind: NodeKind): Boolean = {
-    if (kind eq NodeKind.Array) {
+  private def isHidden(node: DINode): Boolean = {
+    if (node.isArray) {
       node.numChildren > 0 && node.isHidden
     } else {
       node.isHidden
@@ -272,7 +281,7 @@ final class TreeEventState(
   private lazy val handedOutContainers = new MStackOf[DINode](8)
   private lazy val handedOutIndexes = MStackOfInt(8)
 
-  def takeExistingHiddenChild(parent: DINode, erd: ElementRuntimeData): DIElement = {
+  def nextHiddenChild(parent: DINode, erd: ElementRuntimeData): DIElement = {
     val container = if (erd.isArray) {
       parent.child(findNextHiddenIndex(parent, erd, isArray = true))
     } else {
@@ -284,7 +293,7 @@ final class TreeEventState(
     container.child(index).asInstanceOf[DIElement]
   }
 
-  def freeExistingHiddenChild(): Unit = {
+  def freeHiddenChild(): Unit = {
     val container = handedOutContainers.pop
     container.freeChildIfNoLongerNeeded(handedOutIndexes.pop(), releaseUnneededInfoset)
   }
@@ -304,10 +313,10 @@ final class TreeEventState(
     }
     var found = false
     while (!found) {
-      Assert.invariant(childExistsOrFinal(container, index))
+      Assert.invariant(awaitChild(container, index))
       // A hidden node is always ready; a node already freed is not hidden.
       val child = container.child(index)
-      if ((child ne null) && isHidden(child, kindOf(child)) && (child.erd eq erd)) {
+      if ((child ne null) && isHidden(child) && (child.erd eq erd)) {
         found = true
       } else {
         index += 1

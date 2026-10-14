@@ -40,7 +40,7 @@ trait PrebuiltNodeProvider { self: InfosetTreeState =>
     startEvent: Maybe[InfosetAccessor]
   ): DIElement = {
     if (withinHiddenNest) {
-      treeEvents.takeExistingHiddenChild(currentInfosetNode, erd)
+      treeEvents.nextHiddenChild(currentInfosetNode, erd)
     } else {
       Assert.invariant(startEvent.isDefined)
       startEvent.get.info.element
@@ -60,7 +60,7 @@ trait PrebuiltNodeProvider { self: InfosetTreeState =>
     }
     treeEvents.decrementLead()
     if (withinHiddenNest) {
-      treeEvents.freeExistingHiddenChild()
+      treeEvents.freeHiddenChild()
     }
   }
 }
