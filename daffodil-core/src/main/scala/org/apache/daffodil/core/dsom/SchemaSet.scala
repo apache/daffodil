@@ -20,6 +20,7 @@ package org.apache.daffodil.core.dsom
 import java.io.File
 import scala.xml.Node
 
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.core.compiler.RootSpec
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.SchemaSetGrammarMixin
@@ -117,7 +118,7 @@ final class SchemaSet private (
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
-  lazy val resolver = DFDLCatalogResolver.get
+  lazy val resolver = DaffodilXMLEntityResolver.getEntityResolver
 
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None

@@ -25,9 +25,9 @@ import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.ThreadSafePool
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import XercesValidator.XercesValidatorImpl
@@ -76,7 +76,7 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
 
   private val schema = {
     val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
-    factory.setResourceResolver(DFDLCatalogResolver.get)
+    factory.setResourceResolver(DaffodilXMLEntityResolver.getEntityResolver)
     factory.newSchema(schemaSource)
   }
 
@@ -113,10 +113,10 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
 
     validatorPool.withInstance { xv =>
       try {
-        // DFDLCatalogResolver.get returns a resolver for use by a thread, but the validator in
+        // DaffodilXMLEntityResolver.getEntityResolver returns a resolver for use by a thread, but the validator in
         // the pool might have been created with another thread. We need to make sure this
         // validator uses the resolver allocated for this thread.
-        xv.setResourceResolver(DFDLCatalogResolver.get)
+        xv.setResourceResolver(DaffodilXMLEntityResolver.getEntityResolver)
         xv.setErrorHandler(eh)
         xv.validate(documentSource)
       } catch {

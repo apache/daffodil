@@ -20,6 +20,7 @@ package org.apache.daffodil.core.xml
 import java.io.File
 import scala.util.Using
 
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.xml.*
 
@@ -56,7 +57,7 @@ class TestXMLLoaderWithLocation {
     // val ldr = new DaffodilXMLLoader(BasicErrorHandler)
     val pId: String = null
     val sId: String = null
-    val resolver = DFDLCatalogResolver.get
+    val resolver = DaffodilXMLEntityResolver.getEntityResolver
     // val resolved =
     resolver.resolveResource(XMLUtils.XSD_NAMESPACE, XMLUtils.XSD_NAMESPACE, pId, sId, baseURI)
     // println(resolved)

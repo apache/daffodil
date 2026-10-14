@@ -40,6 +40,8 @@ import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
+import org.apache.daffodil.api.DaffodilEntityResolver
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -76,12 +78,7 @@ import org.xml.sax.helpers.XMLFilterImpl
  * and that gets priority, so that entities we choose to resolve
  * as built-ins are resolved from the Daffodil jars.
  */
-class DFDLCatalogResolver private ()
-  extends org.apache.xerces.xni.parser.XMLEntityResolver
-  with org.w3c.dom.ls.LSResourceResolver
-  with org.xml.sax.EntityResolver
-  with org.xml.sax.ext.EntityResolver2
-  with javax.xml.transform.URIResolver {
+class DFDLCatalogResolver private () extends DaffodilEntityResolver {
 
   lazy val init = {
     cm
@@ -89,7 +86,11 @@ class DFDLCatalogResolver private ()
     delegate
   }
 
-  lazy val catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
+  private lazy val _catalogFiles = cm.getCatalogFiles
+  lazy val catalogFiles = _catalogFiles.asScala.toList.asInstanceOf[List[String]]
+
+  override def getCatalogFiles: java.util.List[String] =
+    _catalogFiles.asInstanceOf[java.util.List[String]]
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
@@ -180,7 +181,7 @@ class DFDLCatalogResolver private ()
     res
   }
 
-  def resolveURI(uri: String): String = {
+  override def resolveURI(uri: String): String = {
     val optURI = resolveCommon(uri, null, null)
     optURI match {
       case None => null
@@ -346,7 +347,7 @@ class DFDLCatalogResolver private ()
   /**
    * We don't deal with DTDs at all. So this always returns null
    */
-  def getExternalSubset(name: String, baseURI: String) = {
+  override def getExternalSubset(name: String, baseURI: String) = {
     Logger.log.debug(s"getExternalSubset: name = ${name}, baseURI = ${baseURI}")
     null
   }
@@ -491,7 +492,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
   def this() = this(RethrowSchemaErrorHandler)
 
-  private def resolver = DFDLCatalogResolver.get
+  private def resolver = DaffodilXMLEntityResolver.getEntityResolver
 
   /**
    * UPA errors are detected by xerces if the schema-full-checking feature is

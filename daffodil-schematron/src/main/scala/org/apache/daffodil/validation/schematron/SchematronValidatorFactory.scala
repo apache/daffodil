@@ -22,8 +22,8 @@ import java.net.URI
 import java.util.Properties
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
 import net.sf.saxon.TransformerFactoryImpl
 
@@ -83,7 +83,7 @@ object SchematronValidatorFactory {
     svrlPath: Option[URI]
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
-    factory.setURIResolver(DFDLCatalogResolver.get)
+    factory.setURIResolver(DaffodilXMLEntityResolver.getEntityResolver)
     try {
       val rules = Transforms.from(schematron, schematronID, srcfmt, factory)
       new SchematronValidator(rules, svrlPath)

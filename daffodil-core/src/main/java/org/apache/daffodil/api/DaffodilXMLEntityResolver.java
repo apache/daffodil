@@ -14,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.daffodil.api;
 
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver;
-import org.apache.xerces.xni.parser.XMLEntityResolver;
-import org.w3c.dom.ls.LSResourceResolver;
-import org.xml.sax.EntityResolver;
+import org.apache.daffodil.lib.xml.PooledEntityResolver;
 
 /**
  * Returns the EntityResolver used by Daffodil to resolve import/include
@@ -40,6 +36,10 @@ import org.xml.sax.EntityResolver;
  * <p>
  * The EntityResolver isn't thread safe, but it also is expensive and stateful,
  * so we use ThreadLocal to only create one instance per thread.
+ * <p>
+ * The default can be replaced by registering a {@link DaffodilEntityResolverFactory}
+ * with SPI. The returned resolver is then safe to use from any thread, and the
+ * resolvers made by the factory are not required to be thread safe.
  */
 public final class DaffodilXMLEntityResolver {
 
@@ -52,21 +52,21 @@ public final class DaffodilXMLEntityResolver {
   /**
    * @return entity resolver
    */
-  public static EntityResolver getEntityResolver() {
-    return DFDLCatalogResolver.get();
+  public static DaffodilEntityResolver getEntityResolver() {
+    return PooledEntityResolver.resolver();
   }
 
   /**
    * @return xml entity resolver
    */
-  public static XMLEntityResolver getXMLEntityResolver() {
-    return DFDLCatalogResolver.get();
+  public static DaffodilEntityResolver getXMLEntityResolver() {
+    return getEntityResolver();
   }
 
   /**
    * @return ls resource resolver
    */
-  public static LSResourceResolver getLSResourceResolver() {
-    return DFDLCatalogResolver.get();
+  public static DaffodilEntityResolver getLSResourceResolver() {
+    return getEntityResolver();
   }
 }

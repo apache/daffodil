@@ -30,9 +30,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.xml.SAXParser
 
 import org.apache.daffodil.api
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util.ThreadSafePool
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.iapi.DFDL
@@ -735,7 +735,10 @@ object EXIInfosetHandler {
     if (optSchema.isDefined) {
       val grammarFactory = GrammarFactory.newInstance
       val grammar =
-        grammarFactory.createGrammars(optSchema.get.toString, DFDLCatalogResolver.get)
+        grammarFactory.createGrammars(
+          optSchema.get.toString,
+          DaffodilXMLEntityResolver.getEntityResolver
+        )
       exiFactory.setGrammars(grammar)
     }
     exiFactory

@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import java.net.URI
+import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.IIUtils.*
@@ -114,7 +115,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     }.value
 
   private lazy val resolver = xsd.schemaSet.resolver
-  private lazy val catFiles = resolver.catalogFiles.mkString(", ")
+  private lazy val catFiles = resolver.getCatalogFiles.asScala.mkString(", ")
 
   /**
    * XML Catalog is tried first, then classpath
