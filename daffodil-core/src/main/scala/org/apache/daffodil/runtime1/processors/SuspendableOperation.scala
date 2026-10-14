@@ -24,6 +24,8 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.infoset.RetryableException
+import org.apache.daffodil.runtime1.processors.unparsers.DelegatedSuspendableUnparser
+import org.apache.daffodil.runtime1.processors.unparsers.StatefulDelegatedSuspendableUnparser
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 /**
@@ -99,3 +101,25 @@ class SuspendableOperationException(m: String)
   override def isError = true
   override def modeName = "Unparse"
 }
+
+class StatefulForwardingSuspendableOperation[S](
+  unparser: StatefulDelegatedSuspendableUnparser[S]
+) extends SuspendableOperation {
+
+  override val rd = unparser.rd
+
+  val state: S = unparser.newSuspensionState()
+
+  override def toString =
+    "%s for %s".format(Misc.getNameFromClass(unparser), rd.diagnosticDebugName)
+
+  override protected def test(ustate: UState): Boolean =
+    unparser.suspensionTest(ustate, state)
+
+  override protected def continuation(ustate: UState): Unit =
+    unparser.suspensionContinuation(ustate, state)
+}
+
+class ForwardingSuspendableOperation(
+  unparser: DelegatedSuspendableUnparser
+) extends StatefulForwardingSuspendableOperation[Unit](unparser)

@@ -26,7 +26,6 @@ import org.apache.daffodil.runtime1.processors.CharsetEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.LengthEv
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
 import org.apache.daffodil.runtime1.processors.TextTruncationType
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.unparsers.*
@@ -72,7 +71,7 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
   stringTruncationType: TextTruncationType.Type,
   erd: ElementRuntimeData
 ) extends StringSpecifiedLengthUnparserBase(erd)
-  with SuspendableUnparser {
+  with DelegatedSuspendableUnparser {
 
   Assert.usage(stringTruncationType ne TextTruncationType.None)
 
@@ -88,8 +87,16 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
    */
   protected[runtime1] def unparseString(state: UState): Unit
 
-  override protected def suspendableOperation =
-    new StringTruncationSuspendableOperation(erd, this)
+  override def rd = erd
+
+  // Evaluating throws a RetryableException while the length is unavailable,
+  // which blocks this operation.
+  override def suspensionTest(ustate: UState): Boolean = {
+    targetLengthEv.evaluate(ustate)
+    true
+  }
+
+  override def suspensionContinuation(ustate: UState): Unit = unparseString(ustate)
 
   /**
    * We only truncate strings, and only if textStringJustification is left or
@@ -304,29 +311,5 @@ class StringMaybeTruncateCharactersUnparser(
     //
     val nCharsWritten = dos.putString(valueToWrite, state)
     Assert.invariant(nCharsWritten == valueToWrite.length)
-  }
-}
-
-/**
- * Suspends until the target length can be evaluated, then unparses the
- * string, because the truncating string unparsers read the target length
- * without retrying.
- */
-class StringTruncationSuspendableOperation(
-  override val rd: ElementRuntimeData,
-  unparser: StringSpecifiedLengthUnparserTruncateBase
-) extends SuspendableOperation {
-
-  override def toString = "string truncation for " + rd.diagnosticDebugName
-
-  // Evaluating throws a RetryableException while the length is unavailable,
-  // which blocks this operation.
-  override protected def test(ustate: UState): Boolean = {
-    unparser.targetLengthEv.evaluate(ustate)
-    true
-  }
-
-  override protected def continuation(ustate: UState): Unit = {
-    unparser.unparseString(ustate)
   }
 }

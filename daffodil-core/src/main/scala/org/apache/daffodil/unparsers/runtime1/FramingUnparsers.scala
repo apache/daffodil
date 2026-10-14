@@ -18,7 +18,7 @@
 package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
+import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextProcessor
 import org.apache.daffodil.runtime1.processors.unparsers.*
@@ -34,12 +34,13 @@ class SkipRegionUnparser(skipInBits: Int, override val context: TermRuntimeData)
   }
 }
 
-trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
+trait AlignmentFillMixin {
 
   def alignmentInBits: Int
-  def rd: TermRuntimeData
 
-  def test(ustate: UState) = {
+  def UE(ustate: UState, s: String, args: Any*): Nothing
+
+  def alignmentTest(ustate: UState): Boolean = {
     val dos = ustate.getDataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
       Logger.log.debug(
@@ -49,7 +50,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
     dos.maybeAbsBitPos0b.isDefined
   }
 
-  def continuation(state: UState): Unit = {
+  def alignmentContinuation(state: UState): Unit = {
     val dos = state.getDataOutputStream
     val b4 = dos.relBitPos0b
     if (!dos.align(alignmentInBits, state))
@@ -63,20 +64,20 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
   }
 }
 
-class AlignmentFillUnparserSuspendableOperation(
+class AlignmentFillUnparser(
   override val alignmentInBits: Int,
-  override val rd: TermRuntimeData
-) extends SuspendableOperation
-  with AlignmentFillUnparserSuspendableMixin
-
-class AlignmentFillUnparser(alignmentInBits: Int, override val context: TermRuntimeData)
-  extends AlignmentPrimUnparser
-  with SuspendableUnparser {
+  override val context: TermRuntimeData
+) extends AlignmentPrimUnparser
+  with DelegatedSuspendableUnparser
+  with AlignmentFillMixin {
 
   override val runtimeDependencies = Array()
 
-  override def suspendableOperation =
-    new AlignmentFillUnparserSuspendableOperation(alignmentInBits, context)
+  override def rd: RuntimeData = context
+
+  override def suspensionTest(ustate: UState): Boolean = alignmentTest(ustate)
+
+  override def suspensionContinuation(ustate: UState): Unit = alignmentContinuation(ustate)
 }
 
 class MandatoryTextAlignmentUnparser(alignmentInBits: Int, e: TermRuntimeData)
