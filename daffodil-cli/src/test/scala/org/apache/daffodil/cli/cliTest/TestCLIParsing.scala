@@ -878,6 +878,17 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
+  @Test def test_CLI_Parsing_InfosetOption_lineEndings_pua(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+
+    runCLI(args"parse --infoset-opts=lineEndings=pua -s $schema -r e1") { cli =>
+      cli.send("a\r\nbc", inputDone = true)
+      cli.expect(s"a${0xe00d.toChar}\nbc")
+    }(ExitCode.Success)
+  }
+
   @Test def test_CLI_Parsing_InfosetOption_exiCompression(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"

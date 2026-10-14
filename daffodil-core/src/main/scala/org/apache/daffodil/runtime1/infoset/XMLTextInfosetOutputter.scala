@@ -26,6 +26,7 @@ import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.XMLTextEscapeStyle
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -43,12 +44,15 @@ import org.codehaus.stax2.XMLStreamWriter2
  * @param xmlTextEscapeStyle Determine whether to wrap values of elements of type
  *                           xs:string in CDATA tags in order to preserve whitespace.
  * @param minimal            Determine whether to exclude xml slug and prefix bindings
+ * @param lineEndingStyle    Determine how CR and LF characters in the text of xs:string
+ *                           elements are represented
  */
 class XMLTextInfosetOutputter private (
   writer: java.io.BufferedWriter,
   pretty: Boolean,
   xmlTextEscapeStyle: XMLTextEscapeStyle,
-  minimal: Boolean
+  minimal: Boolean,
+  lineEndingStyle: XMLTextLineEndingStyle
 ) extends api.infoset.InfosetOutputter
   with Indentable {
 
@@ -56,14 +60,16 @@ class XMLTextInfosetOutputter private (
     os: java.io.OutputStream,
     pretty: Boolean,
     xmlTextEscapeStyle: XMLTextEscapeStyle = XMLTextEscapeStyle.Standard,
-    minimal: Boolean = false
+    minimal: Boolean = false,
+    lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
   ) = {
     // using a BufferedWriter provides significant performance improvements
     this(
       new java.io.BufferedWriter(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8)),
       pretty,
       xmlTextEscapeStyle,
-      minimal
+      minimal,
+      lineEndingStyle
     )
   }
 
@@ -208,7 +214,7 @@ class XMLTextInfosetOutputter private (
         if (simple.erd.runtimeProperties.get(XMLTextInfoset.stringAsXml) == "true") {
           writeStringAsXml(simpleVal)
         } else {
-          val xmlSafe = XMLUtils.remapXMLIllegalCharactersToPUA(simpleVal)
+          val xmlSafe = XMLUtils.remapXMLIllegalCharactersToPUA(simpleVal, lineEndingStyle)
           val escaped = xmlTextEscapeStyle match {
             case XMLTextEscapeStyle.CDATA => {
               val needsCDataEscape = xmlSafe.exists { c =>

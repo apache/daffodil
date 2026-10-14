@@ -27,13 +27,16 @@ import org.apache.daffodil.api.infoset.InfosetArray
 import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.ScalaXMLInfosetOutputter as JScalaXMLInfosetOutputter
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
 
-class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
-  extends JScalaXMLInfosetOutputter {
+class ScalaXMLInfosetOutputter(
+  showFreedInfo: Boolean = false,
+  lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
+) extends JScalaXMLInfosetOutputter {
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]](16)
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
@@ -91,7 +94,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false)
       if (!diSimple.isNilled && diSimple.hasValue) {
         val text =
           if (diSimple.metadata.dfdlType == DFDLPrimType.String) {
-            XMLUtils.remapXMLIllegalCharactersToPUA(diSimple.dataValueAsString)
+            XMLUtils.remapXMLIllegalCharactersToPUA(diSimple.dataValueAsString, lineEndingStyle)
           } else {
             diSimple.dataValueAsString
           }
