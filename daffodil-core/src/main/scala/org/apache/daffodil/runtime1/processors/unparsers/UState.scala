@@ -48,6 +48,7 @@ import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIDocument
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DINode
+import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.InfosetAccessor
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
@@ -174,6 +175,26 @@ abstract class UState(
   final def inspectOrError: InfosetAccessor = eventState.inspectOrError
   final def advanceOrError: InfosetAccessor = eventState.advanceOrError
   final def isInspectArrayEnd: Boolean = eventState.isInspectArrayEnd
+
+  /**
+   * Support for unparsing dfdl:occursCountKind='stopValue'.
+   *
+   * The terminating occurrence of such an array consumes data but is not in the
+   * infoset, so it has no infoset events. The array unparser creates its infoset
+   * element here; the element unparser consumes that instead of consuming start/end
+   * element events (see RegularElementUnparserStartEndStrategy).
+   */
+  private var maybeStopValueElem: Maybe[DISimple] = Nope
+
+  final def setStopValue(elem: DISimple): Unit = {
+    maybeStopValueElem = One(elem)
+  }
+
+  final def maybeStopValue: Maybe[DISimple] = maybeStopValueElem
+
+  final def clearStopValue(): Unit = {
+    maybeStopValueElem = Nope
+  }
 
   override def dataStream = Maybe(getDataOutputStream)
 

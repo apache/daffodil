@@ -17,13 +17,161 @@
 package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.EndArrayChecksMixin
 import org.apache.daffodil.runtime1.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.runtime1.processors.unparsers.*
+
+/**
+ * Marks the sequence child unparsers for arrays with dfdl:occursCountKind='stopValue'.
+ *
+ * After the infoset occurrences, such an array is followed in the data by one
+ * synthesized terminating occurrence: it consumes data (the first dfdl:occursStopValue,
+ * which parses back as terminating on any of the stop values) but is not in the
+ * infoset, so it has no infoset events.
+ */
+trait StopValueMixin { this: Unparser =>
+  def erd: ElementRuntimeData
+
+  /**
+   * The typed dfdl:occursStopValue values, never empty (the cooker SDEs otherwise).
+   */
+  def stopValues: Seq[DataValuePrimitive]
+
+  /**
+   * Value of the terminating occurrence; DFDL 1.0 section 16.1.5 uses the first of the
+   * stop values when there is more than one.
+   */
+  final def stopValue: DataValuePrimitive = stopValues.head
+
+  /**
+   * Creates the infoset element for the terminating occurrence and records it on the
+   * state, where the element unparser picks it up instead of consuming infoset events.
+   * Must be called immediately before unparsing that occurrence. The element is
+   * returned so callers can do zero-length (separator suppression) detection on it.
+   */
+  final def prepareStopValue(state: UState): DISimple = {
+    val elem = new DISimple(erd)
+    elem.setDataValue(stopValue)
+    state.setStopValue(elem)
+    elem
+  }
+
+  /**
+   * Captures the pending infoset occurrence of this element before it is unparsed, for
+   * the check that no stop value appears in the infoset (DFDL 1.0 section 16.1.5).
+   * Returns None when this unparse call is for the synthesized terminating occurrence.
+   */
+  final def maybeStopValueInfosetOccurrence(state: UState): Option[DISimple] = {
+    if (state.maybeStopValue.isDefined)
+      None // this unparse call is for the synthesized terminating occurrence
+    else if (!state.inspect)
+      None
+    else {
+      val ev = state.inspectAccessor
+      if (ev.isStart && ev.info.isSimpleElement && (ev.erd eq erd)) Some(ev.info.asSimple)
+      else None
+    }
+  }
+
+  /**
+   * Completes the check started by maybeStopValueInfosetOccurrence, once the element's
+   * data value is set. A stop value in the infoset would not reparse, so it is a
+   * processing error.
+   */
+  final def checkStopValueInInfoset(state: UState, maybeElem: Option[DISimple]): Unit = {
+    maybeElem.foreach { elem =>
+      if (!elem.isNilled && elem.hasValue) {
+        val dataValue = elem.dataValue.getAnyRef
+        if (stopValues.exists { sv => stopValueMatch(dataValue, sv.getAnyRef) }) {
+          UE(
+            state,
+            "Found stop value '%s' in the infoset for array element %s. Occurrences of a dfdl:occursCountKind='stopValue' array must not have a value equal to one of the dfdl:occursStopValue values; the terminating occurrence is added automatically when unparsing.",
+            elem.dataValue.getAnyRef,
+            erd.namedQName.toExtendedSyntax
+          )
+        }
+      }
+    }
+  }
+
+  private def stopValueMatch(data: AnyRef, stopValue: AnyRef): Boolean = {
+    (data, stopValue) match {
+      // byte arrays (e.g. xs:hexBinary, xs:base64Binary) compare by reference with ==,
+      // so compare their contents explicitly.
+      case (a: Array[Byte], b: Array[Byte]) => java.util.Arrays.equals(a, b)
+      case _ => data == stopValue
+    }
+  }
+}
+
+/**
+ * Unparser for an array with dfdl:occursCountKind='stopValue' in an unseparated
+ * sequence. The infoset occurrences are handled as usual; the sequence unparser driver
+ * adds the terminating occurrence afterwards (see StopValueMixin).
+ */
+class RepOrderedStopValueSequenceChildUnparser(
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  override val stopValues: Seq[DataValuePrimitive]
+) extends RepeatingChildUnparser(childUnparser, srd, erd)
+  with Unseparated
+  with StopValueMixin {
+
+  override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = true
+
+  override def unparse(state: UState): Unit = {
+    val maybeOccurrence = maybeStopValueInfosetOccurrence(state)
+    super.unparse(state)
+    checkStopValueInInfoset(state, maybeOccurrence)
+  }
+}
+
+/**
+ * Separated sequence version of RepOrderedStopValueSequenceChildUnparser.
+ */
+class RepOrderedStopValueSeparatedSequenceChildUnparser(
+  childUnparser: Unparser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  sep: Unparser,
+  spos: SeparatorPosition,
+  ssp: SeparatorSuppressionPolicy,
+  zeroLengthDetector: ZeroLengthDetector,
+  isPotentiallyTrailing: Boolean,
+  isKnownStaticallyNotToSuppressSeparator: Boolean,
+  isPositional: Boolean,
+  isDeclaredLast: Boolean,
+  override val stopValues: Seq[DataValuePrimitive]
+) extends RepOrderedSeparatedSequenceChildUnparser(
+    childUnparser,
+    srd,
+    erd,
+    sep,
+    spos,
+    ssp,
+    zeroLengthDetector,
+    isPotentiallyTrailing,
+    isKnownStaticallyNotToSuppressSeparator,
+    isPositional,
+    isDeclaredLast
+  )
+  with StopValueMixin {
+
+  override def unparse(state: UState): Unit = {
+    val maybeOccurrence = maybeStopValueInfosetOccurrence(state)
+    super.unparse(state)
+    checkStopValueInInfoset(state, maybeOccurrence)
+  }
+}
 
 /**
  * base for unparsers for the children of sequences.

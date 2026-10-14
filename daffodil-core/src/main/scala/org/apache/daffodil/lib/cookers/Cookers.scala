@@ -106,6 +106,8 @@ object ChoiceBranchKeyCooker
 
 object RepValueCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
+object OccursStopValueCooker extends NonEmptyListOfStringLiteral("occursStopValue", false)
+
 object UpperCaseTokenCooker extends UpperCaseToken
 
 object IntRangeCooker extends Converter[String, Seq[(JBigInt, JBigInt)]] {

@@ -79,6 +79,31 @@ class OrderedUnseparatedSequenceUnparser(
   }
 
   /**
+   * Unparses the synthesized terminating occurrence of an occursCountKind='stopValue'
+   * array, if and only if the child unparser is for such an array; does nothing
+   * otherwise. The terminating occurrence has no infoset events, see StopValueMixin.
+   */
+  protected def unparseStopValueIfNeeded(
+    unparser: SequenceChildUnparser,
+    state: UState
+  ): Unit = {
+    unparser match {
+      case su: StopValueMixin => {
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.beforeRepetition(state, this)
+        su.prepareStopValue(state)
+        unparser.unparse1(state)
+        state.moveOverOneArrayIterationIndexOnly()
+        state.moveOverOneOccursIndexOnly()
+        state.moveOverOneGroupIndexOnly() // the terminating occurrence occupies a slot
+        if (su.erd.isArray && state.dataProc.isDefined)
+          state.dataProc.get.afterRepetition(state, this)
+      }
+      case _ => // not an occursCountKind='stopValue' array, nothing to do
+    }
+  }
+
+  /**
    * Unparses an entire sequence, including both scalar and array/optional children.
    */
   protected def unparse(state: UState): Unit = {
@@ -152,6 +177,10 @@ class OrderedUnseparatedSequenceUnparser(
             // to check if the element is defaultable and add elements until we reach that
             // number. Daffodil does not currently support defaulting during unparsing.
 
+            // After all of the infoset occurrences of an occursCountKind='stopValue'
+            // array, unparse the synthesized terminating occurrence.
+            unparseStopValueIfNeeded(unparser, state)
+
             unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
               state,
               unparser,
@@ -168,6 +197,10 @@ class OrderedUnseparatedSequenceUnparser(
             // DAFFODIL-115: if the number of occurrences is less than minOccurs we are supposed
             // to check if the element is defaultable and add elements until we reach that
             // number. Daffodil does not currently support defaulting during unparsing.
+            //
+            // Even with zero infoset occurrences, an occursCountKind='stopValue'
+            // array emits the terminating occurrence.
+            unparseStopValueIfNeeded(unparser, state)
             unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
               state,
               unparser,

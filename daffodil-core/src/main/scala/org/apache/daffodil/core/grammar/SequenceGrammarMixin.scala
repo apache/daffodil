@@ -137,8 +137,8 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
     val res = (child, sequenceKind, ssp, ock, min, max) match {
       case (e: EB, Ordered__, ___________, __________, ONE, ONE) =>
         new ScalarOrderedSequenceChild(this, e, groupIndex)
-      case (e: EB, _________, ___________, StopValue_, ___, __2) =>
-        e.subsetError("dfdl:occursCountKind 'stopValue' is not supported.")
+      case (e: EB, Ordered__, ___________, StopValue_, ___, __2) =>
+        new RepOrderedStopValueSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, ___________, Parsed____, ___, __2) =>
         new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, ___________, Fixed_____, ___, UNB) =>
