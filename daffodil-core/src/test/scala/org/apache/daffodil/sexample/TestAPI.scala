@@ -1310,7 +1310,7 @@ class TestAPI {
     xml.substring(xml.indexOf(".com\">") + 6, xml.indexOf("</tns"))
 
   @Test
-  def testAPILineEndingsNormalize(): Unit = {
+  def testAPILineEndingsStandard(): Unit = {
     val is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8))
     Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
       val bos = new ByteArrayOutputStream()
@@ -1318,7 +1318,7 @@ class TestAPI {
         bos,
         false,
         XMLTextEscapeStyle.Standard,
-        XMLTextLineEndingStyle.Normalize
+        XMLTextLineEndingStyle.Standard
       )
       assertFalse(lineEndingsDP.parse(input, outputter).isError())
       assertEquals("a\nb\nc\nd\\e", elementText(bos.toString("UTF-8")))
@@ -1340,42 +1340,14 @@ class TestAPI {
       assertEquals(s"a${puaCR}\nb${puaCR}c\nd\\e", elementText(bos.toString("UTF-8")))
 
       val unparsed = new ByteArrayOutputStream()
-      val inputter = Daffodil.newXMLTextInfosetInputter(
-        new ByteArrayInputStream(bos.toByteArray),
-        XMLTextLineEndingStyle.PUA
-      )
+      val inputter =
+        Daffodil.newXMLTextInfosetInputter(new ByteArrayInputStream(bos.toByteArray))
       val res = lineEndingsDP.unparse(inputter, Channels.newChannel(unparsed))
       assertFalse(res.isError())
       assertEquals(lineEndingsData + "$", unparsed.toString("UTF-8"))
     }
   }
 
-  @Test
-  def testAPILineEndingsEscapeRoundTrip(): Unit = {
-    val is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8))
-    Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
-      val bos = new ByteArrayOutputStream()
-      val outputter = Daffodil.newXMLTextInfosetOutputter(
-        bos,
-        false,
-        XMLTextEscapeStyle.Standard,
-        XMLTextLineEndingStyle.Escape
-      )
-      assertFalse(lineEndingsDP.parse(input, outputter).isError())
-      assertEquals("a\\r\\nb\\rc\\nd\\\\e", elementText(bos.toString("UTF-8")))
-
-      val unparsed = new ByteArrayOutputStream()
-      val inputter = Daffodil.newXMLTextInfosetInputter(
-        new ByteArrayInputStream(bos.toByteArray),
-        XMLTextLineEndingStyle.Escape
-      )
-      val res = lineEndingsDP.unparse(inputter, Channels.newChannel(unparsed))
-      assertFalse(res.isError())
-      assertEquals(lineEndingsData + "$", unparsed.toString("UTF-8"))
-    }
-  }
-
-  // Includes a literal backslash followed by r or n, which must not be read as CR or LF
   @Test
   def testAPILineEndingsRoundTripEdgeCases(): Unit = {
     val cases = Seq(
@@ -1385,84 +1357,28 @@ class TestAPI {
       "\n\r",
       "\r\r",
       "\n\n",
-      "a\r\nb\r\n",
-      "\\",
-      "\\\\",
-      "\\r",
-      "\\n",
-      "x\\ry\r"
+      "a\r\nb\r\n"
     )
-    Seq(XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape).foreach { style =>
-      cases.foreach { text =>
-        val is = new ByteArrayInputStream((text + "$").getBytes(StandardCharsets.UTF_8))
-        Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
-          val bos = new ByteArrayOutputStream()
-          val outputter =
-            Daffodil.newXMLTextInfosetOutputter(bos, false, XMLTextEscapeStyle.Standard, style)
-          assertFalse(lineEndingsDP.parse(input, outputter).isError())
+    cases.foreach { text =>
+      val is = new ByteArrayInputStream((text + "$").getBytes(StandardCharsets.UTF_8))
+      Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
+        val bos = new ByteArrayOutputStream()
+        val outputter =
+          Daffodil.newXMLTextInfosetOutputter(
+            bos,
+            false,
+            XMLTextEscapeStyle.Standard,
+            XMLTextLineEndingStyle.PUA
+          )
+        assertFalse(lineEndingsDP.parse(input, outputter).isError())
 
-          val unparsed = new ByteArrayOutputStream()
-          val inputter =
-            Daffodil.newXMLTextInfosetInputter(new ByteArrayInputStream(bos.toByteArray), style)
-          val res = lineEndingsDP.unparse(inputter, Channels.newChannel(unparsed))
-          assertFalse(s"$style: ${text.toList}", res.isError())
-          assertEquals(s"$style: ${text.toList}", text + "$", unparsed.toString("UTF-8"))
-        }
+        val unparsed = new ByteArrayOutputStream()
+        val inputter =
+          Daffodil.newXMLTextInfosetInputter(new ByteArrayInputStream(bos.toByteArray))
+        val res = lineEndingsDP.unparse(inputter, Channels.newChannel(unparsed))
+        assertFalse(text.toList.toString, res.isError())
+        assertEquals(text.toList.toString, text + "$", unparsed.toString("UTF-8"))
       }
-    }
-  }
-
-  @Test
-  def testAPILineEndingsEscapeUnknownEscapeOnUnparse(): Unit = {
-    val is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8))
-    Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
-      val bos = new ByteArrayOutputStream()
-      val outputter = Daffodil.newXMLTextInfosetOutputter(
-        bos,
-        false,
-        XMLTextEscapeStyle.Standard,
-        XMLTextLineEndingStyle.Escape
-      )
-      assertFalse(lineEndingsDP.parse(input, outputter).isError())
-      val xml = bos.toString("UTF-8").replace("\\r\\n", "\\t")
-
-      val inputter = Daffodil.newXMLTextInfosetInputter(
-        new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
-        XMLTextLineEndingStyle.Escape
-      )
-      val res =
-        lineEndingsDP.unparse(inputter, Channels.newChannel(new ByteArrayOutputStream()))
-      assertTrue(res.isError())
-      assertTrue(
-        res.getDiagnostics().asScala.mkString("\n").contains("invalid escape sequence '\\t'")
-      )
-    }
-  }
-
-  @Test
-  def testAPILineEndingsEscapeTrailingBackslashOnUnparse(): Unit = {
-    val is = new ByteArrayInputStream("ab$".getBytes(StandardCharsets.UTF_8))
-    Using.resource(Daffodil.newInputSourceDataInputStream(is)) { input =>
-      val bos = new ByteArrayOutputStream()
-      val outputter = Daffodil.newXMLTextInfosetOutputter(
-        bos,
-        false,
-        XMLTextEscapeStyle.Standard,
-        XMLTextLineEndingStyle.Escape
-      )
-      assertFalse(lineEndingsDP.parse(input, outputter).isError())
-      val xml = bos.toString("UTF-8").replace(">ab<", ">a\\<")
-
-      val inputter = Daffodil.newXMLTextInfosetInputter(
-        new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)),
-        XMLTextLineEndingStyle.Escape
-      )
-      val res =
-        lineEndingsDP.unparse(inputter, Channels.newChannel(new ByteArrayOutputStream()))
-      assertTrue(res.isError())
-      assertTrue(
-        res.getDiagnostics().asScala.mkString("\n").contains("incomplete backslash escape")
-      )
     }
   }
 
@@ -1482,32 +1398,26 @@ class TestAPI {
 
   @Test
   def testAPILineEndingsScalaXMLRoundTrip(): Unit = {
-    Seq(XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape).foreach { style =>
-      doLineEndingsRoundTrip(
-        Daffodil.newScalaXMLInfosetOutputter(style),
-        outputter => Daffodil.newScalaXMLInfosetInputter(outputter.getResult(), style)
-      )
-    }
+    doLineEndingsRoundTrip(
+      Daffodil.newScalaXMLInfosetOutputter(XMLTextLineEndingStyle.PUA),
+      outputter => Daffodil.newScalaXMLInfosetInputter(outputter.getResult())
+    )
   }
 
   @Test
   def testAPILineEndingsJDOMRoundTrip(): Unit = {
-    Seq(XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape).foreach { style =>
-      doLineEndingsRoundTrip(
-        Daffodil.newJDOMInfosetOutputter(style),
-        outputter => Daffodil.newJDOMInfosetInputter(outputter.getResult(), style)
-      )
-    }
+    doLineEndingsRoundTrip(
+      Daffodil.newJDOMInfosetOutputter(XMLTextLineEndingStyle.PUA),
+      outputter => Daffodil.newJDOMInfosetInputter(outputter.getResult())
+    )
   }
 
   @Test
   def testAPILineEndingsW3CDOMRoundTrip(): Unit = {
-    Seq(XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape).foreach { style =>
-      doLineEndingsRoundTrip(
-        Daffodil.newW3CDOMInfosetOutputter(style),
-        outputter => Daffodil.newW3CDOMInfosetInputter(outputter.getResult(), style)
-      )
-    }
+    doLineEndingsRoundTrip(
+      Daffodil.newW3CDOMInfosetOutputter(XMLTextLineEndingStyle.PUA),
+      outputter => Daffodil.newW3CDOMInfosetInputter(outputter.getResult())
+    )
   }
 
   @Test

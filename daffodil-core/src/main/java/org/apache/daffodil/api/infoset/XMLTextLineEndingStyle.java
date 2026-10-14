@@ -21,28 +21,22 @@ package org.apache.daffodil.api.infoset;
  * XMLTextLineEndingStyles determine how carriage return (CR) and line feed (LF)
  * characters in the text of xs:string elements are represented in an XML infoset.
  * <p>
- * The XML specification requires parsers to convert CRLF and lone CR to LF, which
- * loses information about the original line endings. Only the Normalize style is
- * lossy. The other styles preserve line endings exactly when the same style is
- * used to read the infoset back in.
+ * Anything that consumes the infoset sees the represented form, not the original
+ * characters, and may need adjusting to account for the style.
  */
 public enum XMLTextLineEndingStyle {
   /**
-   * CRLF and a lone CR are converted to LF, which is standard XML behavior. This is
+   * CRLF and a lone CR are converted to LF, as the XML specification requires of
+   * parsers. This is lossy, since the original line endings cannot be recovered. This is
    * the default.
    */
-  Normalize,
+  Standard,
 
   /**
    * CR is remapped to the Unicode Private Use Area character U+E00D. LF is not changed,
-   * so CRLF is represented as U+E00D followed by LF.
+   * so CRLF is represented as U+E00D followed by LF. Line endings are preserved exactly,
+   * and an infoset inputter converts U+E00D back to CR. Patterns must account for CR
+   * being U+E00D.
    */
-  PUA,
-
-  /**
-   * CR is represented as the two characters backslash and 'r', LF as backslash and
-   * 'n', and a backslash as two backslashes, similar to JSON string escaping. The
-   * resulting text contains no CR or LF characters.
-   */
-  Escape;
+  PUA;
 }

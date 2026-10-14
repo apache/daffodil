@@ -878,17 +878,6 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_CLI_Parsing_InfosetOption_lineEndings_escape(): Unit = {
-    val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
-    )
-
-    runCLI(args"parse --infoset-opts=lineEndings=escape -s $schema -r e1") { cli =>
-      cli.send("a\r\nb\\", inputDone = true)
-      cli.expect("""<tns:e1 xmlns:tns="http://example.com">a\r\nb\\</tns:e1>""")
-    }(ExitCode.Success)
-  }
-
   @Test def test_CLI_Parsing_InfosetOption_lineEndings_pua(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"

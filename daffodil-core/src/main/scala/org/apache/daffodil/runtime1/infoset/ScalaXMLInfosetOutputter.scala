@@ -34,15 +34,9 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
 
 class ScalaXMLInfosetOutputter(
-  showFreedInfo: Boolean,
-  lineEndingStyle: XMLTextLineEndingStyle
+  showFreedInfo: Boolean = false,
+  lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
 ) extends JScalaXMLInfosetOutputter {
-
-  def this(showFreedInfo: Boolean = false) =
-    this(showFreedInfo, XMLTextLineEndingStyle.Normalize)
-
-  def this(lineEndingStyle: XMLTextLineEndingStyle) =
-    this(false, lineEndingStyle)
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]](16)
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope

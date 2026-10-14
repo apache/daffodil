@@ -35,10 +35,9 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
-class W3CDOMInfosetOutputter(lineEndingStyle: XMLTextLineEndingStyle)
-  extends JW3CDOMInfosetOutputter {
-
-  def this() = this(XMLTextLineEndingStyle.Normalize)
+class W3CDOMInfosetOutputter(
+  lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
+) extends JW3CDOMInfosetOutputter {
 
   private var document: Document = null
   private val stack = new MStackOf[Node](16)

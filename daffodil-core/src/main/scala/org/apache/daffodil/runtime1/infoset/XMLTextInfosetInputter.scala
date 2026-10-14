@@ -28,7 +28,6 @@ import javax.xml.stream.XMLStreamException
 import org.apache.daffodil.api
 import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
 import org.apache.daffodil.api.Daffodil.InfosetInputterEventType.*
-import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -197,13 +196,7 @@ object XMLTextInfoset {
   }
 }
 
-class XMLTextInfosetInputter(
-  input: java.io.InputStream,
-  lineEndingStyle: XMLTextLineEndingStyle
-) extends api.infoset.InfosetInputter {
-
-  def this(input: java.io.InputStream) =
-    this(input, XMLTextLineEndingStyle.Normalize)
+class XMLTextInfosetInputter(input: java.io.InputStream) extends api.infoset.InfosetInputter {
 
   private lazy val xsr: XMLStreamReader2 = {
     val xsr = XMLTextInfoset.xmlInputFactory
@@ -328,7 +321,7 @@ class XMLTextInfosetInputter(
             }
           }
         if (primType == NodeInfo.String) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(elementText, lineEndingStyle)
+          XMLUtils.remapPUAToXMLIllegalCharacters(elementText)
         } else {
           elementText
         }

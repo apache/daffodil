@@ -95,7 +95,7 @@ final case class InfosetOptions(parsed: ParsedInfosetOptions) {
       applicableInfosetTypes =
         Set(InfosetType.XML, InfosetType.SCALA_XML, InfosetType.JDOM, InfosetType.W3CDOM),
       valueDescription = XMLTextLineEndingStyle.values.mkString("|"),
-      defaultValue = XMLTextLineEndingStyle.Normalize,
+      defaultValue = XMLTextLineEndingStyle.Standard,
       parseValue = text => InfosetOptions.enumValue(XMLTextLineEndingStyle.values, text)
     )
   )

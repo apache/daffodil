@@ -29,10 +29,9 @@ import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
 
-class JDOMInfosetOutputter(lineEndingStyle: XMLTextLineEndingStyle)
-  extends JJDOMInfosetOutputter {
-
-  def this() = this(XMLTextLineEndingStyle.Normalize)
+class JDOMInfosetOutputter(
+  lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
+) extends JJDOMInfosetOutputter {
 
   private val stack = new MStackOf[org.jdom2.Parent](16)
   private var result: Maybe[org.jdom2.Document] = Maybe.Nope

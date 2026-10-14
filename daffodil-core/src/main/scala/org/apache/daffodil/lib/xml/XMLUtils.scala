@@ -178,21 +178,13 @@ object XMLUtils {
 
   def remapXMLIllegalCharactersToPUA(s: String, style: XMLTextLineEndingStyle): String =
     style match {
-      case XMLTextLineEndingStyle.Normalize => remapXMLToPUA.remap(s)
+      case XMLTextLineEndingStyle.Standard => remapXMLToPUA.remap(s)
       case XMLTextLineEndingStyle.PUA => xmlRemapperPreservingCR.remap(s)
-      case XMLTextLineEndingStyle.Escape => remapXMLToPUA.remap(LineEndingEscaper.escape(s))
     }
 
   private val remapPUAToXML = new RemapPUAToXMLIllegalChar()
 
   def remapPUAToXMLIllegalCharacters(text: String) = remapPUAToXML.remap(text)
-
-  def remapPUAToXMLIllegalCharacters(text: String, style: XMLTextLineEndingStyle): String =
-    style match {
-      case XMLTextLineEndingStyle.Escape =>
-        LineEndingEscaper.unescape(remapPUAToXML.remap(text))
-      case _ => remapPUAToXML.remap(text)
-    }
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {
     node match {

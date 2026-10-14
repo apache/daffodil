@@ -1372,12 +1372,12 @@ public class TestAPI {
   }
 
   @Test
-  public void testAPILineEndingsNormalize() throws Exception {
+  public void testAPILineEndingsStandard() throws Exception {
     DataProcessor dp = lineEndingsDP();
     ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
     try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      InfosetOutputter outputter = Daffodil.newXMLTextInfosetOutputter(bos, false, XMLTextEscapeStyle.Standard, XMLTextLineEndingStyle.Normalize);
+      InfosetOutputter outputter = Daffodil.newXMLTextInfosetOutputter(bos, false, XMLTextEscapeStyle.Standard, XMLTextLineEndingStyle.Standard);
       assertFalse(dp.parse(input, outputter).isError());
       assertEquals("a\nb\nc\nd\\e", elementText(bos.toString("UTF-8")));
     }
@@ -1394,25 +1394,7 @@ public class TestAPI {
       assertEquals("a" + puaCR + "\nb" + puaCR + "c\nd\\e", elementText(bos.toString("UTF-8")));
 
       ByteArrayOutputStream unparsed = new ByteArrayOutputStream();
-      InfosetInputter inputter = Daffodil.newXMLTextInfosetInputter(new ByteArrayInputStream(bos.toByteArray()), XMLTextLineEndingStyle.PUA);
-      UnparseResult res = dp.unparse(inputter, Channels.newChannel(unparsed));
-      assertFalse(res.isError());
-      assertEquals(lineEndingsData + "$", unparsed.toString("UTF-8"));
-    }
-  }
-
-  @Test
-  public void testAPILineEndingsEscapeRoundTrip() throws Exception {
-    DataProcessor dp = lineEndingsDP();
-    ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
-    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      InfosetOutputter outputter = Daffodil.newXMLTextInfosetOutputter(bos, false, XMLTextEscapeStyle.Standard, XMLTextLineEndingStyle.Escape);
-      assertFalse(dp.parse(input, outputter).isError());
-      assertEquals("a\\r\\nb\\rc\\nd\\\\e", elementText(bos.toString("UTF-8")));
-
-      ByteArrayOutputStream unparsed = new ByteArrayOutputStream();
-      InfosetInputter inputter = Daffodil.newXMLTextInfosetInputter(new ByteArrayInputStream(bos.toByteArray()), XMLTextLineEndingStyle.Escape);
+      InfosetInputter inputter = Daffodil.newXMLTextInfosetInputter(new ByteArrayInputStream(bos.toByteArray()));
       UnparseResult res = dp.unparse(inputter, Channels.newChannel(unparsed));
       assertFalse(res.isError());
       assertEquals(lineEndingsData + "$", unparsed.toString("UTF-8"));
@@ -1422,55 +1404,49 @@ public class TestAPI {
   @Test
   public void testAPILineEndingsScalaXMLRoundTrip() throws Exception {
     DataProcessor dp = lineEndingsDP();
-    for (XMLTextLineEndingStyle style : new XMLTextLineEndingStyle[] {XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape}) {
-      ScalaXMLInfosetOutputter outputter = Daffodil.newScalaXMLInfosetOutputter(style);
-      ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
-      try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
-        assertFalse(dp.parse(input, outputter).isError());
-      }
-
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      InfosetInputter inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult(), style);
-      UnparseResult res = dp.unparse(inputter, Channels.newChannel(bos));
-      assertFalse(res.isError());
-      assertEquals(lineEndingsData + "$", bos.toString("UTF-8"));
+    ScalaXMLInfosetOutputter outputter = Daffodil.newScalaXMLInfosetOutputter(XMLTextLineEndingStyle.PUA);
+    ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
+      assertFalse(dp.parse(input, outputter).isError());
     }
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    InfosetInputter inputter = Daffodil.newScalaXMLInfosetInputter(outputter.getResult());
+    UnparseResult res = dp.unparse(inputter, Channels.newChannel(bos));
+    assertFalse(res.isError());
+    assertEquals(lineEndingsData + "$", bos.toString("UTF-8"));
   }
 
   @Test
   public void testAPILineEndingsJDOMRoundTrip() throws Exception {
     DataProcessor dp = lineEndingsDP();
-    for (XMLTextLineEndingStyle style : new XMLTextLineEndingStyle[] {XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape}) {
-      JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter(style);
-      ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
-      try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
-        assertFalse(dp.parse(input, outputter).isError());
-      }
-
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult(), style);
-      UnparseResult res = dp.unparse(inputter, Channels.newChannel(bos));
-      assertFalse(res.isError());
-      assertEquals(lineEndingsData + "$", bos.toString("UTF-8"));
+    JDOMInfosetOutputter outputter = Daffodil.newJDOMInfosetOutputter(XMLTextLineEndingStyle.PUA);
+    ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
+      assertFalse(dp.parse(input, outputter).isError());
     }
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    InfosetInputter inputter = Daffodil.newJDOMInfosetInputter(outputter.getResult());
+    UnparseResult res = dp.unparse(inputter, Channels.newChannel(bos));
+    assertFalse(res.isError());
+    assertEquals(lineEndingsData + "$", bos.toString("UTF-8"));
   }
 
   @Test
   public void testAPILineEndingsW3CDOMRoundTrip() throws Exception {
     DataProcessor dp = lineEndingsDP();
-    for (XMLTextLineEndingStyle style : new XMLTextLineEndingStyle[] {XMLTextLineEndingStyle.PUA, XMLTextLineEndingStyle.Escape}) {
-      W3CDOMInfosetOutputter outputter = Daffodil.newW3CDOMInfosetOutputter(style);
-      ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
-      try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
-        assertFalse(dp.parse(input, outputter).isError());
-      }
-
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      InfosetInputter inputter = Daffodil.newW3CDOMInfosetInputter(outputter.getResult(), style);
-      UnparseResult res = dp.unparse(inputter, Channels.newChannel(bos));
-      assertFalse(res.isError());
-      assertEquals(lineEndingsData + "$", bos.toString("UTF-8"));
+    W3CDOMInfosetOutputter outputter = Daffodil.newW3CDOMInfosetOutputter(XMLTextLineEndingStyle.PUA);
+    ByteArrayInputStream is = new ByteArrayInputStream((lineEndingsData + "$").getBytes(StandardCharsets.UTF_8));
+    try (InputSourceDataInputStream input = Daffodil.newInputSourceDataInputStream(is)) {
+      assertFalse(dp.parse(input, outputter).isError());
     }
+
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    InfosetInputter inputter = Daffodil.newW3CDOMInfosetInputter(outputter.getResult());
+    UnparseResult res = dp.unparse(inputter, Channels.newChannel(bos));
+    assertFalse(res.isError());
+    assertEquals(lineEndingsData + "$", bos.toString("UTF-8"));
   }
 
   @Test

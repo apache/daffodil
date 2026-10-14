@@ -61,7 +61,7 @@ class XMLTextInfosetOutputter private (
     pretty: Boolean,
     xmlTextEscapeStyle: XMLTextEscapeStyle = XMLTextEscapeStyle.Standard,
     minimal: Boolean = false,
-    lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Normalize
+    lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
   ) = {
     // using a BufferedWriter provides significant performance improvements
     this(

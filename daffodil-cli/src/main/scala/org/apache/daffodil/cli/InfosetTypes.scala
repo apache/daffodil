@@ -294,7 +294,8 @@ case class XMLTextInfosetHandler(
       os,
       infosetOptions.pretty,
       infosetOptions.xmlTextEscapeStyle,
-      lineEndingStyle = infosetOptions.lineEndingStyle
+      false,
+      infosetOptions.lineEndingStyle
     )
     val pr = parseWithInfosetOutputter(input, output)
     new InfosetParseResult(pr)
@@ -305,7 +306,7 @@ case class XMLTextInfosetHandler(
       case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
       case is: InputStream => is
     }
-    val input = new XMLTextInfosetInputter(is, infosetOptions.lineEndingStyle)
+    val input = new XMLTextInfosetInputter(is)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -360,7 +361,7 @@ case class JDOMInfosetHandler(
 
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
     val doc = data.asInstanceOf[org.jdom2.Document]
-    val input = new JDOMInfosetInputter(doc, infosetOptions.lineEndingStyle)
+    val input = new JDOMInfosetInputter(doc)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -397,14 +398,14 @@ case class ScalaXMLInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new ScalaXMLInfosetOutputter(infosetOptions.lineEndingStyle)
+    val output = new ScalaXMLInfosetOutputter(false, infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new ScalaXMLInfosetParseResult(pr, output)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
     val node = data.asInstanceOf[scala.xml.Node]
-    val input = new ScalaXMLInfosetInputter(node, infosetOptions.lineEndingStyle)
+    val input = new ScalaXMLInfosetInputter(node)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -452,7 +453,7 @@ case class W3CDOMInfosetHandler(
   def unparse(data: AnyRef, output: DFDL.Output): api.UnparseResult = {
     val domPool = data.asInstanceOf[ThreadSafePool[org.w3c.dom.Document]]
     domPool.withInstance { doc =>
-      val input = new W3CDOMInfosetInputter(doc, infosetOptions.lineEndingStyle)
+      val input = new W3CDOMInfosetInputter(doc)
       val ur = unparseWithInfosetInputter(input, output)
       ur
     }

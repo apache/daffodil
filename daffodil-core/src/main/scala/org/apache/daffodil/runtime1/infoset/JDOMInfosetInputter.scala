@@ -22,7 +22,6 @@ import java.util.Iterator
 
 import org.apache.daffodil.api
 import org.apache.daffodil.api.Daffodil.InfosetInputterEventType
-import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -40,10 +39,7 @@ object JDOMInfosetInputter {
   protected val JDOM_XSI_NAMESPACE = Namespace.getNamespace(XMLUtils.XSI_NAMESPACE)
 }
 
-class JDOMInfosetInputter(doc: Document, lineEndingStyle: XMLTextLineEndingStyle)
-  extends api.infoset.InfosetInputter {
-
-  def this(doc: Document) = this(doc, XMLTextLineEndingStyle.Normalize)
+class JDOMInfosetInputter(doc: Document) extends api.infoset.InfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -104,7 +100,7 @@ class JDOMInfosetInputter(doc: Document, lineEndingStyle: XMLTextLineEndingStyle
             throw new NonTextFoundInSimpleContentException(stack.top._1.getQualifiedName)
         }
         if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(text, lineEndingStyle)
+          XMLUtils.remapPUAToXMLIllegalCharacters(text)
         } else {
           text
         }
