@@ -586,7 +586,7 @@ class DataProcessor(
 
       // The unparse only ever advances build as far as it needs, so build may
       // still have its trailing end events left to consume.
-      cursor.advance(lastAdvance = true)
+      cursor.advanceToEnd()
 
       // Build's stacks must end up balanced and the inputter must have nothing
       // left unconsumed.

@@ -33,6 +33,8 @@ import org.apache.daffodil.lib.oolag.OOLAG.*
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.util.DPathUtil
 import org.apache.daffodil.lib.util.Enum
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.NS
@@ -475,8 +477,8 @@ class DaffodilDebugger(
     // When unparsing builds the infoset ahead, show only the part the unparse
     // has reached, as an event-driven unparse would have built it by now.
     val reached = state match {
-      case buildAhead: UStateMainForBuildAhead => buildAhead.reachedChildCounts()
-      case _ => null
+      case buildAhead: UStateMainForBuildAhead => One(buildAhead.reachedChildCounts())
+      case _ => Nope
     }
     val iw = StreamingInfosetWalker(
       ie.asInstanceOf[DIElement],

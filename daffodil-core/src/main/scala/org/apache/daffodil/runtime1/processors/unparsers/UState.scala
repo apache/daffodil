@@ -845,31 +845,33 @@ final class UStateForSuspension(
 }
 
 /**
- * Stack-backed array-iteration/occurs/group/child index tracking, shared
- * by UStateMain and InfosetBuildState: each stack starts seeded with 1L, and
+ * Stack-backed array-iteration, occurs and group index tracking, shared by
+ * UStateMain and InfosetBuildState: each stack starts seeded with 1L, and
  * moveOverOne*Only bumps its top by one as navigation advances.
  * UStateForSuspension needs none of this (it stubs the stacks to die and
  * tracks arrayIterationPos/occursPos as plain frozen Longs instead), so
  * this lives in a mixin rather than directly on UState.
  */
 trait TraversalIndexStacks { self: InfosetTreeState =>
-  override val arrayIterationIndexStack = MStackOfLong(16)
-  arrayIterationIndexStack.push(1L)
+  override val arrayIterationIndexStack = seedWithOne(MStackOfLong(16))
+  override val occursIndexStack = seedWithOne(MStackOfLong(16))
+  override val groupIndexStack = seedWithOne(MStackOfLong())
+
   override def moveOverOneArrayIterationIndexOnly(): Unit =
     arrayIterationIndexStack.setTop(arrayIterationIndexStack.top + 1)
-  override def arrayIterationPos = arrayIterationIndexStack.top
-
-  override val occursIndexStack = MStackOfLong(16)
-  occursIndexStack.push(1L)
   override def moveOverOneOccursIndexOnly(): Unit =
     occursIndexStack.setTop(occursIndexStack.top + 1)
-  override def occursPos = occursIndexStack.top
-
-  override val groupIndexStack = MStackOfLong()
-  groupIndexStack.push(1L)
   override def moveOverOneGroupIndexOnly(): Unit =
     groupIndexStack.setTop(groupIndexStack.top + 1)
+
+  override def arrayIterationPos = arrayIterationIndexStack.top
+  override def occursPos = occursIndexStack.top
   override def groupPos = groupIndexStack.top
+
+  private def seedWithOne(stack: MStackOfLong): MStackOfLong = {
+    stack.push(1L)
+    stack
+  }
 }
 
 class UStateMain private[unparsers] (

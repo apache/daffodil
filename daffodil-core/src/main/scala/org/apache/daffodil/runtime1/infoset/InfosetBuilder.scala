@@ -94,17 +94,23 @@ final class InfosetBuildCursor(
   def isFinished: Boolean = stack.isEmpty
 
   /**
-   * Steps until the lead window is full or building completes, so it takes a
-   * single step when the window is already full. With lastAdvance it ignores
-   * the window and runs until building completes. A failure propagates and
-   * ends the unparse, so the cursor is not used again.
+   * Steps until the lead window is full or building completes. It always takes
+   * at least one step, so a caller that needs more of the tree makes progress
+   * even when the window is already full. A failure propagates and ends the
+   * unparse, so the cursor is not used again.
    */
-  def advance(lastAdvance: Boolean = false): Unit = {
+  def advance(): Unit = {
+    var stepping = !stack.isEmpty
+    while (stepping) {
+      stack.top.step(this)
+      stepping = !stack.isEmpty && !buildState.leadExceedsBuildAheadLimit
+    }
+  }
+
+  // Steps until building completes, ignoring the lead window.
+  def advanceToEnd(): Unit = {
     while (!stack.isEmpty) {
       stack.top.step(this)
-      if (!lastAdvance && buildState.leadExceedsBuildAheadLimit) {
-        return
-      }
     }
   }
 }

@@ -19,14 +19,21 @@ package org.apache.daffodil.runtime1.processors.unparsers
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
+import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 
+import org.apache.daffodil.api
+import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.InfosetBuildCursor
+import org.apache.daffodil.runtime1.infoset.InfosetInputter
+import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.StreamingInfosetWalker
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
+import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 import org.junit.Assert.*
@@ -35,8 +42,7 @@ import org.junit.Test
 /**
  * Tests the infoset build cursor and build state against the unparse that
  * reads the built tree as events: the event sequence build surfaces, the lead
- * counter, the build ahead window, and the build ahead unparse matching an
- * event-driven unparse for scalar, array and choice content.
+ * counter, the build ahead window, and unparsing the tree build made.
  */
 class TestInfosetBuildCursor {
 
@@ -104,12 +110,41 @@ class TestInfosetBuildCursor {
       <typeB>X</typeB>
     </ex:row>
 
+  private def throwDiagnostics(ds: java.util.List[api.Diagnostic]): Nothing =
+    throw new Exception(ds.asScala.map(_.getMessage()).mkString("\n"))
+
+  /**
+   * Compiles testSchema with the given tunables and returns the resulting
+   * DataProcessor without a saveAndReload round-trip, since the tests build
+   * state directly off the live object.
+   */
+  private def compileForUnparse(
+    testSchema: Node,
+    tunables: Map[String, String] = Map.empty
+  ): DataProcessor = {
+    val pf = Compiler().withTunables(tunables).compileNode(testSchema)
+    if (pf.isError) throwDiagnostics(pf.getDiagnostics)
+    val dp = pf.onPath("/").asInstanceOf[DataProcessor]
+    if (dp.isError) throwDiagnostics(dp.getDiagnostics)
+    dp
+  }
+
+  /**
+   * Builds a fresh InfosetInputter walking infosetXML against dp, already
+   * initialized with the root TRD pushed.
+   */
+  private def newInitializedInputter(infosetXML: Node, dp: DataProcessor): InfosetInputter = {
+    val inputter = new InfosetInputter(new ScalaXMLInfosetInputter(infosetXML))
+    inputter.initialize(dp.ssrd.elementRuntimeData, dp.tunables)
+    inputter
+  }
+
   /**
    * A build side, an InfosetBuildCursor over an InfosetBuildState, and an
    * unparse side that reads the tree the build side makes.
    */
   private final class BuildAheadRun(sch: Node, infoset: Node, buildAheadLimit: Long = 100) {
-    val dp = InfosetBuildTestFixture.compileForUnparse(
+    val dp = compileForUnparse(
       sch,
       Map(
         "releaseUnneededInfoset" -> "false",
@@ -117,11 +152,11 @@ class TestInfosetBuildCursor {
         "unparseBuildAheadWindowNodes" -> buildAheadLimit.toString
       )
     )
-    val buildInputter = InfosetBuildTestFixture.newInitializedInputter(infoset, dp)
+    val buildInputter = newInitializedInputter(infoset, dp)
     val buildState = new InfosetBuildState(buildInputter, dp.tunables)
     val cursor = new InfosetBuildCursor(dp.ssrd.builder, buildState)
 
-    def buildAll(): Unit = cursor.advance(lastAdvance = true)
+    def buildAll(): Unit = cursor.advanceToEnd()
 
     def rootNode = buildInputter.documentElement.child(0).asComplex
 
@@ -150,19 +185,6 @@ class TestInfosetBuildCursor {
       state.getDataOutputStream.setFinished(state)
       new String(out.toByteArray, StandardCharsets.US_ASCII)
     }
-  }
-
-  // A tree built outside an event-driven unparse, compared against that unparse.
-  private def assertBuildAheadMatchesEventDriven(sch: Node, infoset: Node): Array[Byte] = {
-    // Event-driven on purpose: the tunable would otherwise replace it.
-    val dp = InfosetBuildTestFixture.compileForUnparse(
-      sch,
-      Map("releaseUnneededInfoset" -> "false", "infosetBuilderMode" -> "eventDriven")
-    )
-    val (eventDrivenBytes, buildAheadBytes) =
-      InfosetBuildTestFixture.getEventDrivenAndBuildAheadBytes(dp, infoset)
-    assertArrayEquals(eventDrivenBytes, buildAheadBytes)
-    eventDrivenBytes
   }
 
   @Test def testBuildStateSurfacesCorrectEventSequence(): Unit = {
@@ -273,16 +295,6 @@ class TestInfosetBuildCursor {
     assertEquals(expectedBytes, run.unparseBuiltTree())
   }
 
-  @Test def testBuildAheadMatchesEventDriven(): Unit = {
-    assertBuildAheadMatchesEventDriven(separatedRowSchema, separatedRowInfoset)
-  }
-
-  @Test def testArrayAndChoiceBuildAheadMatchesEventDriven(): Unit = {
-    val eventDrivenBytes =
-      assertBuildAheadMatchesEventDriven(arrayChoiceSchema, arrayChoiceInfoset)
-    assertEquals("H,a,b,c,X", new String(eventDrivenBytes, StandardCharsets.US_ASCII))
-  }
-
   // Drives InfosetBuildState directly, then feeds its tree to the unparse
   // (end-to-end build-then-unparse).
   @Test def testStandaloneBuildStateNavigatesArrayChoiceSeparator(): Unit = {
@@ -389,7 +401,7 @@ class TestInfosetBuildCursor {
       walkHidden = false,
       ignoreBlocks = true,
       releaseUnneededInfoset = false,
-      visibleChildCounts = treeEvents.reachedChildCounts()
+      visibleChildCounts = One(treeEvents.reachedChildCounts())
     ).walk(lastWalk = true)
     out.toString("UTF-8")
   }

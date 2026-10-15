@@ -47,14 +47,12 @@ trait PrebuiltNodeProvider { self: InfosetTreeState =>
     }
   }
 
-  override def finishElement(cur: DINode): Unit = finishExistingNode(cur)
-
   /**
    * Build attached the node and marked it final, apart from a simple node
    * still waiting for its value, and the event state frees it once its end
    * event is out. Unparsing the node is done, so it leaves build's lead.
    */
-  private def finishExistingNode(cur: DINode): Unit = {
+  override def finishElement(cur: DINode): Unit = {
     if (cur.isSimple && !cur.isFinal && cur.asSimple.hasValue) {
       cur.setFinal()
     }

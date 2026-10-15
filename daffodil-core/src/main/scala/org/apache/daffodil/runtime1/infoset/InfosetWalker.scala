@@ -22,6 +22,8 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MStackOfInt
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
 
 /**
  * Walks Daffodil's internal infoset representation (DINodes) and emits
@@ -153,7 +155,7 @@ object StreamingInfosetWalker {
    *
    * @param visibleChildCounts
    *
-   *   When not null, the number of children of a container that the walk may
+   *   When defined, the number of children of a container that the walk may
    *   visit, for a container that has an entry; any other container is walked
    *   in full. This should only be used while debugging, to leave out nodes
    *   that exist in the infoset but that unparsing has not reached.
@@ -166,7 +168,7 @@ object StreamingInfosetWalker {
     releaseUnneededInfoset: Boolean,
     walkSkipMin: Int = 32,
     walkSkipMax: Int = 2048,
-    visibleChildCounts: java.util.Map[DINode, Integer] = null
+    visibleChildCounts: Maybe[java.util.Map[DINode, Integer]] = Nope
   ): StreamingInfosetWalker = {
 
     // Determine the container of the root node and the index in which it
@@ -264,7 +266,7 @@ object StreamingInfosetWalker {
  *
  * @param visibleChildCounts
  *
- *   When not null, the number of children of a container that the walk may
+ *   When defined, the number of children of a container that the walk may
  *   visit, for a container that has an entry; any other container is walked
  *   in full. This should only be used while debugging.
  */
@@ -277,7 +279,7 @@ class StreamingInfosetWalker private (
   releaseUnneededInfoset: Boolean,
   walkSkipMin: Int,
   walkSkipMax: Int,
-  visibleChildCounts: java.util.Map[DINode, Integer]
+  visibleChildCounts: Maybe[java.util.Map[DINode, Integer]]
 ) extends InfosetWalker {
 
   /**
@@ -580,14 +582,14 @@ class StreamingInfosetWalker private (
   }
 
   private def visibleChildCount(containerNode: DINode): Int = {
-    if (visibleChildCounts eq null) {
+    if (visibleChildCounts.isEmpty) {
       containerNode.numChildren
     } else {
-      val count = visibleChildCounts.get(containerNode)
-      if (count eq null) {
+      val count: Int = visibleChildCounts.get.getOrDefault(containerNode, -1)
+      if (count < 0) {
         containerNode.numChildren
       } else {
-        count.intValue
+        count
       }
     }
   }

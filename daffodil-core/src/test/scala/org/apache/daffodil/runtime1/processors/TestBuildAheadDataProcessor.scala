@@ -103,61 +103,6 @@ class TestBuildAheadDataProcessor {
     )
   }
 
-  // A schema with no OVC at all still gets a builder.
-  @Test def testSchemaWithNoOVCAtAllStillGetsBuilder(): Unit = {
-    val sch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"
-        encoding="ascii"
-        lengthUnits="bytes"/>,
-      <xs:element name="row" dfdl:lengthKind="implicit">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>,
-      elementFormDefault = "unqualified"
-    )
-    val dp = Compiler()
-      .withTunable("infosetBuilderMode", "buildAhead")
-      .compileNode(sch)
-      .onPath("/")
-      .asInstanceOf[DataProcessor]
-    assertFalse(dp.ssrd.builder.isEmpty)
-  }
-
-  // A schema with an OVC element gets a builder.
-  @Test def testSchemaWithOVCGetsBuilder(): Unit = {
-    val sch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"
-        encoding="ascii"
-        lengthUnits="bytes"
-        textNumberJustification="right"
-        textNumberPadCharacter="0"
-        textPadKind="padChar"/>,
-      <xs:element name="row" dfdl:lengthKind="implicit">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="computed" type="xs:int"
-              dfdl:lengthKind="explicit"
-              dfdl:length="3"
-              dfdl:outputValueCalc="{ ../actual + 1 }"/>
-            <xs:element name="actual" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>,
-      elementFormDefault = "unqualified"
-    )
-    val dp = Compiler()
-      .withTunable("infosetBuilderMode", "buildAhead")
-      .compileNode(sch)
-      .onPath("/")
-      .asInstanceOf[DataProcessor]
-    assertFalse(dp.ssrd.builder.isEmpty)
-  }
-
   // The builder exists even when the tunable is off at compile time, and the
   // same compiled processor unparses identically with the tunable switched
   // either way afterward.

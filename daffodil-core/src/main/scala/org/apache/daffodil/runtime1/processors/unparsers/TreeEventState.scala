@@ -67,7 +67,7 @@ final class TreeEventState(
   // How many containers are on the stack.
   private var stackDepth = 0
 
-  // The simple node whose start event was emitted and whose end event is next.
+  // The simple node whose start event was computed and whose end event is next.
   // A simple node has no children to visit, so it never goes on the stack.
   private var pendingEnd: DINode = null
 
@@ -128,11 +128,11 @@ final class TreeEventState(
   @tailrec
   private def computeNext(): Boolean = {
     if (pendingEnd ne null) {
-      // A simple node's start event was just emitted. It has no children, so
+      // A simple node's start event was just computed. It has no children, so
       // its end event is next.
       val ended = pendingEnd
       pendingEnd = null
-      setEvent(ended, NodeKind.Simple, isStart = false)
+      fillInspected(ended, NodeKind.Simple, isStart = false)
       freeEndedChild()
       true
     } else if (stackDepth == 0) {
@@ -154,7 +154,7 @@ final class TreeEventState(
           computeNext()
         } else {
           val nextKind = kindOf(nextChild)
-          setEvent(nextChild, nextKind, isStart = true)
+          fillInspected(nextChild, nextKind, isStart = true)
           if (nextKind eq NodeKind.Simple) {
             // A simple node has no children, so it stays off the stack and its
             // end event is queued.
@@ -171,9 +171,11 @@ final class TreeEventState(
         popContainer()
         computeNext()
       } else {
-        // No more children, so this container ends: emit its end event and
-        // leave it.
-        emitEnd(currentNode, currentKind)
+        // No more children, so this container ends: fill in its end event, leave
+        // it, and free it from its parent.
+        fillInspected(currentNode, currentKind, isStart = false)
+        popContainer()
+        freeEndedChild()
         true
       }
     }
@@ -249,13 +251,8 @@ final class TreeEventState(
     }
   }
 
-  private def emitEnd(endedNode: DINode, kind: NodeKind): Unit = {
-    setEvent(endedNode, kind, isStart = false)
-    popContainer()
-    freeEndedChild()
-  }
-
-  private def setEvent(node: DINode, kind: NodeKind, isStart: Boolean): Unit = {
+  // Makes the inspected accessor hold the start or end event of the node.
+  private def fillInspected(node: DINode, kind: NodeKind, isStart: Boolean): Unit = {
     if (kind eq NodeKind.Array) {
       inspected.kind = if (isStart) {
         InfosetEventKind.StartArray
@@ -331,12 +328,19 @@ final class TreeEventState(
     index
   }
 
+  // Consumes the inspected event by swapping the two accessors instead of
+  // copying the event: the consumed event moves to advanced, and the accessor
+  // that held the previous one is reused (stale) for the next event.
+  private def consumeInspected(): Unit = {
+    val consumed = inspected
+    inspected = advanced
+    advanced = consumed
+    hasInspectedEvent = false
+  }
+
   override def advance: Boolean = {
     if (fill()) {
-      val consumed = inspected
-      inspected = advanced
-      advanced = consumed
-      hasInspectedEvent = false
+      consumeInspected()
       true
     } else {
       false
