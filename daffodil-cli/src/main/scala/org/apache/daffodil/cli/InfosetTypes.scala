@@ -737,7 +737,7 @@ object EXIInfosetHandler {
       val grammar =
         grammarFactory.createGrammars(
           optSchema.get.toString,
-          DaffodilXMLEntityResolver.getEntityResolver
+          DaffodilXMLEntityResolver.getXMLEntityResolver
         )
       exiFactory.setGrammars(grammar)
     }

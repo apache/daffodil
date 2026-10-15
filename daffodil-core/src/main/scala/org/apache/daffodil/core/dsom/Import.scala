@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.dsom
 
 import java.net.URI
-import scala.jdk.CollectionConverters.*
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.IIUtils.*
@@ -28,6 +27,8 @@ import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.*
+
+import org.apache.xerces.util.XMLResourceIdentifierImpl
 
 /**
  * An import statement.
@@ -101,10 +102,11 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
           None
         }
         case Some(ns) => {
-          val uriString = resolver.resolveURI(ns.toString)
-          if (uriString == null) None
+          val ri = new XMLResourceIdentifierImpl(null, null, null, null, ns.toString)
+          val source = resolver.resolveEntity(ri)
+          if (source == null) None
           else {
-            val uri = URI.create(uriString)
+            val uri = URI.create(source.getSystemId)
             val dfp = Misc.uriToDiagnosticFile(uri)
             val res =
               URISchemaSource(dfp, uri)
@@ -115,7 +117,10 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     }.value
 
   private lazy val resolver = xsd.schemaSet.resolver
-  private lazy val catFiles = resolver.getCatalogFiles.asScala.mkString(", ")
+  private lazy val catalogDescription = resolver match {
+    case r: DFDLCatalogResolver => s"XML catalog(s) ${r.catalogFiles.mkString(", ")}"
+    case _ => "the custom entity resolver"
+  }
 
   /**
    * XML Catalog is tried first, then classpath
@@ -153,18 +158,18 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         rnURI // found it in the catalog based on namespace attribute
       case (Some(ns), None, Some(sl), None) =>
         schemaDefinitionError(
-          "Unable to import namespace %s from XML catalog(s) %s or schema location %s. %s",
+          "Unable to import namespace %s from %s or schema location %s. %s",
           ns,
-          catFiles,
+          catalogDescription,
           importNode,
           whereSearched
         )
       case (_, None, Some(sl), Some(rsl)) => rsl // found it by way of the schemaLocation
       case (Some(ns), None, None, None) => {
         schemaDefinitionError(
-          "Unable to import namespace %s using XML Catalog(s) %s",
+          "Unable to import namespace %s using %s",
           ns,
-          catFiles
+          catalogDescription
         )
       }
       case _ => Assert.invariantFailed("illegal combination of namespace and schemaLocation")

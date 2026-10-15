@@ -20,7 +20,7 @@ import java.nio.file.Path
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util.*
-import org.apache.daffodil.entityresolver.LoggingEntityResolver
+import org.apache.daffodil.entityresolver.LoggingLSResourceResolver
 
 import org.junit.Test
 
@@ -28,7 +28,7 @@ class TestCLIEntityResolver {
 
   /**
    * Return a sequence of paths, made up of the one classpath containing the compiled
-   * test resolver factories, and the directory containing the META-INF dir that
+   * test resolver providers, and the directory containing the META-INF dir that
    * registers them.
    */
   private def resolverClasspath(extra: String*): Seq[Path] = {
@@ -41,9 +41,9 @@ class TestCLIEntityResolver {
   )
 
   /**
-   * Without a registered factory the default resolver is used and parsing works.
+   * Without a registered provider the default resolver is used and parsing works.
    */
-  @Test def test_noFactory_usesDefault(): Unit = {
+  @Test def test_noProvider_usesDefault(): Unit = {
     runCLI(args"parse -s $schema -r e", resolverClasspath(), fork = true) { cli =>
       cli.send("5/42,2", inputDone = true)
       cli.expect("<g>2</g>")
@@ -51,29 +51,29 @@ class TestCLIEntityResolver {
   }
 
   /**
-   * A registered factory supplies the resolver that schema loading uses.
+   * A registered provider supplies the resolver that schema loading uses.
    */
-  @Test def test_singleFactory_isUsed(): Unit = {
+  @Test def test_singleProvider_isUsed(): Unit = {
     val classpath = resolverClasspath(
       "daffodil-core/src/test/resources/org/apache/daffodil/entityresolver/single/"
     )
     runCLI(args"parse -s $schema -r e", classpath, fork = true) { cli =>
       cli.send("5/42,2", inputDone = true)
-      cli.expectErr(LoggingEntityResolver.marker)
+      cli.expectErr(LoggingLSResourceResolver.marker)
       cli.expect("<g>2</g>")
     }(ExitCode.Success)
   }
 
   /**
-   * More than one registered factory is an error.
+   * More than one registered provider is an error.
    */
-  @Test def test_twoFactories_isAnError(): Unit = {
+  @Test def test_twoProviders_isAnError(): Unit = {
     val classpath = resolverClasspath(
       "daffodil-core/src/test/resources/org/apache/daffodil/entityresolver/double/"
     )
     runCLI(args"parse -s $schema -r e", classpath, fork = true) { cli =>
       cli.send("5/42,2", inputDone = true)
-      cli.expectErr("At most one DaffodilEntityResolverFactory may be registered")
+      cli.expectErr("At most one DaffodilEntityResolverProvider may be registered")
     }(ExitCode.BugFound)
   }
 }

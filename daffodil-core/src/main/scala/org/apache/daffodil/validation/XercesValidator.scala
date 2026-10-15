@@ -76,7 +76,7 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
 
   private val schema = {
     val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
-    factory.setResourceResolver(DaffodilXMLEntityResolver.getEntityResolver)
+    factory.setResourceResolver(DaffodilXMLEntityResolver.getLSResourceResolver)
     factory.newSchema(schemaSource)
   }
 
@@ -113,10 +113,10 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
 
     validatorPool.withInstance { xv =>
       try {
-        // DaffodilXMLEntityResolver.getEntityResolver returns a resolver for use by a thread, but the validator in
+        // DaffodilXMLEntityResolver.getLSResourceResolver returns a resolver for use by a thread, but the validator in
         // the pool might have been created with another thread. We need to make sure this
         // validator uses the resolver allocated for this thread.
-        xv.setResourceResolver(DaffodilXMLEntityResolver.getEntityResolver)
+        xv.setResourceResolver(DaffodilXMLEntityResolver.getLSResourceResolver)
         xv.setErrorHandler(eh)
         xv.validate(documentSource)
       } catch {

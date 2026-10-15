@@ -118,7 +118,7 @@ final class SchemaSet private (
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
-  lazy val resolver = DaffodilXMLEntityResolver.getEntityResolver
+  lazy val resolver = DaffodilXMLEntityResolver.getXMLEntityResolver
 
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None

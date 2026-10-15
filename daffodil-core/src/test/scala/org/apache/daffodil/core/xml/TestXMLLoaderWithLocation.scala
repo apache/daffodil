@@ -57,7 +57,7 @@ class TestXMLLoaderWithLocation {
     // val ldr = new DaffodilXMLLoader(BasicErrorHandler)
     val pId: String = null
     val sId: String = null
-    val resolver = DaffodilXMLEntityResolver.getEntityResolver
+    val resolver = DaffodilXMLEntityResolver.getLSResourceResolver
     // val resolved =
     resolver.resolveResource(XMLUtils.XSD_NAMESPACE, XMLUtils.XSD_NAMESPACE, pId, sId, baseURI)
     // println(resolved)

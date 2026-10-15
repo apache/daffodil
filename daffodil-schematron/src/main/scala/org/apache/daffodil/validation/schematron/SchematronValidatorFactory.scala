@@ -83,7 +83,7 @@ object SchematronValidatorFactory {
     svrlPath: Option[URI]
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
-    factory.setURIResolver(DaffodilXMLEntityResolver.getEntityResolver)
+    factory.setURIResolver(DaffodilXMLEntityResolver.getURIResolver)
     try {
       val rules = Transforms.from(schematron, schematronID, srcfmt, factory)
       new SchematronValidator(rules, svrlPath)

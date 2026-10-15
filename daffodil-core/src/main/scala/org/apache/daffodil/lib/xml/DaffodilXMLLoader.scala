@@ -40,7 +40,6 @@ import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
-import org.apache.daffodil.api.DaffodilEntityResolver
 import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
@@ -78,7 +77,12 @@ import org.xml.sax.helpers.XMLFilterImpl
  * and that gets priority, so that entities we choose to resolve
  * as built-ins are resolved from the Daffodil jars.
  */
-class DFDLCatalogResolver private () extends DaffodilEntityResolver {
+class DFDLCatalogResolver private ()
+  extends org.apache.xerces.xni.parser.XMLEntityResolver
+  with org.w3c.dom.ls.LSResourceResolver
+  with org.xml.sax.EntityResolver
+  with org.xml.sax.ext.EntityResolver2
+  with javax.xml.transform.URIResolver {
 
   lazy val init = {
     cm
@@ -86,11 +90,8 @@ class DFDLCatalogResolver private () extends DaffodilEntityResolver {
     delegate
   }
 
-  private lazy val _catalogFiles = cm.getCatalogFiles
-  lazy val catalogFiles = _catalogFiles.asScala.toList.asInstanceOf[List[String]]
+  lazy val catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
 
-  override def getCatalogFiles: java.util.List[String] =
-    _catalogFiles.asInstanceOf[java.util.List[String]]
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
@@ -179,14 +180,6 @@ class DFDLCatalogResolver private () extends DaffodilEntityResolver {
         alreadyResolvingXSD = prior
       }
     res
-  }
-
-  override def resolveURI(uri: String): String = {
-    val optURI = resolveCommon(uri, null, null)
-    optURI match {
-      case None => null
-      case Some(uri) => uri.toString
-    }
   }
 
   override def resolve(href: String, base: String): Source = {
@@ -347,7 +340,7 @@ class DFDLCatalogResolver private () extends DaffodilEntityResolver {
   /**
    * We don't deal with DTDs at all. So this always returns null
    */
-  override def getExternalSubset(name: String, baseURI: String) = {
+  def getExternalSubset(name: String, baseURI: String) = {
     Logger.log.debug(s"getExternalSubset: name = ${name}, baseURI = ${baseURI}")
     null
   }
@@ -492,7 +485,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
   def this() = this(RethrowSchemaErrorHandler)
 
-  private def resolver = DaffodilXMLEntityResolver.getEntityResolver
+  private def lsResolver = DaffodilXMLEntityResolver.getLSResourceResolver
+  private def xmlResolver = DaffodilXMLEntityResolver.getXMLEntityResolver
 
   /**
    * UPA errors are detected by xerces if the schema-full-checking feature is
@@ -524,7 +518,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    */
   private def schemaFactory: XMLSchemaFactory = {
     val sf = new XMLSchemaFactory()
-    sf.setResourceResolver(resolver)
+    sf.setResourceResolver(lsResolver)
     //
     // despite setting the errorHandler here, the validator
     // sometimes still throws exceptions, so we cannot depend
@@ -660,7 +654,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   private def schemaFromURI(schemaURI: URI): Schema = {
     val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
     sf.setErrorHandler(errorHandler)
-    sf.setResourceResolver(resolver)
+    sf.setResourceResolver(lsResolver)
     val schema = sf.newSchema(new StreamSource(schemaURI.toString))
     schema
   }
@@ -780,7 +774,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
             getParent.getErrorHandler()
         }
         w.setErrorHandler(errorHandler)
-        w.setProperty("http://apache.org/xml/properties/internal/entity-resolver", resolver)
+        w.setProperty("http://apache.org/xml/properties/internal/entity-resolver", xmlResolver)
         w
       }
 
