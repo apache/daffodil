@@ -92,6 +92,7 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
       v.setFeature("http://xml.org/sax/features/validation", true)
       v.setFeature("http://apache.org/xml/features/validation/schema", true)
       v.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
+      v.setResourceResolver(DaffodilXMLEntityResolver.getLSResourceResolver)
       v
     }
   }
@@ -113,10 +114,6 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
 
     validatorPool.withInstance { xv =>
       try {
-        // DaffodilXMLEntityResolver.getLSResourceResolver returns a resolver for use by a thread, but the validator in
-        // the pool might have been created with another thread. We need to make sure this
-        // validator uses the resolver allocated for this thread.
-        xv.setResourceResolver(DaffodilXMLEntityResolver.getLSResourceResolver)
         xv.setErrorHandler(eh)
         xv.validate(documentSource)
       } catch {

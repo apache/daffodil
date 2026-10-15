@@ -28,14 +28,15 @@ import org.w3c.dom.ls.LSResourceResolver
 import org.xml.sax.EntityResolver
 
 /**
- * The provider Daffodil registers with SPI. It provides the resolver for the calling thread.
+ * The provider Daffodil registers with SPI. It provides a new resolver on each call, so
+ * callers should keep the one they get for the whole operation.
  */
 final class DefaultEntityResolverProvider extends DaffodilEntityResolverProvider {
   override def name(): String = "default-entity-resolver"
-  override def getEntityResolver(): EntityResolver = DFDLCatalogResolver.get
-  override def getXMLEntityResolver(): XMLEntityResolver = DFDLCatalogResolver.get
-  override def getLSResourceResolver(): LSResourceResolver = DFDLCatalogResolver.get
-  override def getURIResolver(): URIResolver = DFDLCatalogResolver.get
+  override def getEntityResolver(): EntityResolver = new DFDLCatalogResolver()
+  override def getXMLEntityResolver(): XMLEntityResolver = new DFDLCatalogResolver()
+  override def getLSResourceResolver(): LSResourceResolver = new DFDLCatalogResolver()
+  override def getURIResolver(): URIResolver = new DFDLCatalogResolver()
 }
 
 object EntityResolverProviders {
@@ -68,9 +69,9 @@ object EntityResolverProviders {
 
   /**
    * The provider registered with SPI besides the default if there is one, otherwise the
-   * default provider. Callers must request a resolver on the thread that will use it and
-   * must not store it where another thread can reach it, because resolvers need not be
-   * thread safe.
+   * default provider. Resolvers can be expensive to create and need not be thread safe, so
+   * callers should request one per operation, keep it for the whole operation, and not use it
+   * from more than one thread at a time.
    */
   def get(): DaffodilEntityResolverProvider = provider
 }

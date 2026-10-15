@@ -40,11 +40,10 @@ import javax.xml.transform.URIResolver;
  * a jar on the classpath.
  * <p>
  * The EntityResolver isn't thread safe, but it also is expensive and stateful,
- * so we use ThreadLocal to only create one instance per thread.
+ * so Daffodil requests one per operation and keeps it for the whole operation.
  * <p>
  * The default can be replaced by registering a {@link DaffodilEntityResolverProvider}
- * with SPI. Each method here then returns what the provider returns, and Daffodil
- * requests a resolver from the thread that will use it.
+ * with SPI. Each method here then returns what the provider returns.
  */
 public final class DaffodilXMLEntityResolver {
 

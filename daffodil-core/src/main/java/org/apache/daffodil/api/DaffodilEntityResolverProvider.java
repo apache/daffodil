@@ -32,11 +32,18 @@ import javax.xml.transform.URIResolver;
  * registered besides Daffodil's own default provider, which is used when there is none, and
  * providers registered with the same name are ignored.
  * <p>
- * Daffodil requests a resolver from the thread that is going to use it and never shares a
- * resolver between threads. A provider can therefore return a new resolver or a per-thread
- * resolver from each method, which need not be thread safe. A provider that returns the same
+ * Daffodil requests a resolver for an operation, keeps it for the whole operation, and never
+ * uses a resolver from more than one thread at a time. Daffodil may use a resolver from
+ * different threads one after another, so a resolver must not assume that only the thread that
+ * created it uses it. A provider can therefore return a new resolver from each method, which
+ * need not be thread safe. A provider that returns the same
  * resolver to every caller must make that resolver thread safe. The provider itself must be
  * thread safe.
+ * <p>
+ * Daffodil keeps the resolvers it gets in pools that last as long as the compiler that uses
+ * them, and reuses them for many operations. A resolver must therefore work correctly when it
+ * is used again, including after an operation that threw an exception. Anything a resolver
+ * caches stays in memory for as long as the compiler does.
  * <p>
  * Each method returns the kind of resolver Daffodil needs for one operation, and they need not
  * return the same object. A provider that does not support a kind of resolver may throw an

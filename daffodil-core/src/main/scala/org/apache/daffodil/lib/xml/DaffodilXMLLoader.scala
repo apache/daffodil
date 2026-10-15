@@ -34,25 +34,23 @@ import javax.xml.transform.Source
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
-import javax.xml.validation.SchemaFactory
 import scala.jdk.CollectionConverters.*
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
-import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.validation.XercesValidator
 
 import org.apache.xerces.jaxp.validation.XMLSchemaFactory
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
 import org.w3c.dom.ls.LSInput
+import org.w3c.dom.ls.LSResourceResolver
 import org.xml.sax.ContentHandler
 import org.xml.sax.DTDHandler
 import org.xml.sax.EntityResolver
@@ -77,7 +75,7 @@ import org.xml.sax.helpers.XMLFilterImpl
  * and that gets priority, so that entities we choose to resolve
  * as built-ins are resolved from the Daffodil jars.
  */
-class DFDLCatalogResolver private ()
+class DFDLCatalogResolver()
   extends org.apache.xerces.xni.parser.XMLEntityResolver
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
@@ -374,19 +372,6 @@ class DFDLCatalogResolver private ()
 }
 
 /**
- * catalog resolvers aren't thread safe. But they're also expensive stateful,
- * do I/O etc. so we really only want one per thread.
- */
-object DFDLCatalogResolver {
-  lazy val d = new ThreadLocal[DFDLCatalogResolver] {
-    override def initialValue() = {
-      new DFDLCatalogResolver()
-    }
-  }
-  def get = d.get
-}
-
-/**
  * This LSInput implementation is tailored specifically for Daffodil's use with
  * Xerces and has implementation details to ensure XML data is read correctly
  * and InputStreams are closed.
@@ -480,13 +465,32 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
  * do any validation either), however, once Daffodil starts processing the
  * DFDL schema nodes, it resolves references using the same one true XML catalog resolver.
  */
-class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
-  extends NoBindingFactoryAdapter {
+class DaffodilXMLLoader(
+  val errorHandler: org.xml.sax.ErrorHandler,
+  validationCache: SchemaValidationCache = new SchemaValidationCache
+) extends NoBindingFactoryAdapter {
 
   def this() = this(RethrowSchemaErrorHandler)
 
-  private def lsResolver = DaffodilXMLEntityResolver.getLSResourceResolver
-  private def xmlResolver = DaffodilXMLEntityResolver.getXMLEntityResolver
+  private var scopedErrorHandler: Option[org.xml.sax.ErrorHandler] = None
+
+  private def activeErrorHandler = scopedErrorHandler.getOrElse(errorHandler)
+
+  /**
+   * Runs the body with the given error handler in place of the one this loader was
+   * constructed with, so one loader can serve many schema files and still report each
+   * file's load errors to that file. A loader that does this must not be used by two
+   * threads at once.
+   */
+  def withErrorHandler[T](handler: org.xml.sax.ErrorHandler)(body: => T): T = {
+    val saved = scopedErrorHandler
+    scopedErrorHandler = Some(handler)
+    try {
+      body
+    } finally {
+      scopedErrorHandler = saved
+    }
+  }
 
   /**
    * UPA errors are detected by xerces if the schema-full-checking feature is
@@ -516,7 +520,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * so we should only create one factory per DaffodilXMLLoader, so saving it
    * as val does not gain anything.
    */
-  private def schemaFactory: XMLSchemaFactory = {
+  private def schemaFactory(lsResolver: LSResourceResolver): XMLSchemaFactory = {
     val sf = new XMLSchemaFactory()
     sf.setResourceResolver(lsResolver)
     //
@@ -527,7 +531,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     // In particular, fatal errors when a node cannot be returned
     // from the parse, always cause a throw.
     //
-    sf.setErrorHandler(errorHandler)
+    sf.setErrorHandler(activeErrorHandler)
     sf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
     sf.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
     // These are not recognized by a schemaFactory
@@ -603,7 +607,9 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       // in the schema has an unrecognized namespace prefix.
       //
       try {
-        schemaFactory.newSchema(saxSource)
+        validationCache.withLSResolver { lsResolver =>
+          schemaFactory(lsResolver).newSchema(saxSource)
+        }
       } finally {
         inputSource.getByteStream().close()
       }
@@ -651,13 +657,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     }
   }
 
-  private def schemaFromURI(schemaURI: URI): Schema = {
-    val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-    sf.setErrorHandler(errorHandler)
-    sf.setResourceResolver(lsResolver)
-    val schema = sf.newSchema(new StreamSource(schemaURI.toString))
-    schema
-  }
+  private def schemaFromURI(schemaURI: URI): Schema = validationCache.schema(schemaURI)
 
   private def parserFactory() = {
     val f = DaffodilSAXParserFactory()
@@ -720,7 +720,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     optSchemaURI.foreach { schemaURI =>
       val validator =
         try {
-          XercesValidator.fromURL(schemaURI.toURL())
+          validationCache.validator(schemaURI)
         } catch {
           case e: org.xml.sax.SAXParseException =>
             Assert.invariantFailed(
@@ -728,7 +728,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
             )
         }
       val inputStream = source.uriForLoading.toURL.openStream()
-      validator.validateXML(inputStream, errorHandler)
+      validator.validateXML(inputStream, activeErrorHandler)
       inputStream.close()
       //
       // Next we have to invoke a regular xerces loader, setup for validation
@@ -742,55 +742,60 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       // this writing, we have no tests that use that.
       //
       val parser = parserFromURI(optSchemaURI)
-      val xrdr: XMLReader = {
-        val r = parser.getXMLReader()
+      validationCache.withXMLResolver { xmlResolver =>
+        val xrdr: XMLReader = {
+          val r = parser.getXMLReader()
 
-        // We must use XMLReader setProperty() function to set the entity resolver--calling
-        // setEntityResolver with the Xerces XML reader causes validation to fail for some
-        // reason (we get a "cvc-elt.1.a: Cannot find the declaration of element 'schema'" error).
-        // We call the right function below, but unfortunately, scala-xml calls
-        // setEntityResolver in loadDocument(), which cannot be disabled and scala-xml does not
-        // want to change. To avoid this, we wrap the Xerces XMLReader in an XMLFilterImpl and
-        // override setEntityResolver to a no-op. However, XMLFilterImpl parse() calls
-        // setEntityResolver() on the XMLReader, which for the same reason as before causes
-        // issues. To fix this, we can override parse() to just pass through to the parent, but
-        // that means we must override the various set/get handler functions to also pass
-        // through to the parent.
-        val w = new XMLFilterImpl(r) {
-          override def setEntityResolver(resolver: EntityResolver): Unit = {} // no-op
-          override def parse(input: InputSource): Unit = getParent.parse(input)
+          // We must use XMLReader setProperty() function to set the entity resolver--calling
+          // setEntityResolver with the Xerces XML reader causes validation to fail for some
+          // reason (we get a "cvc-elt.1.a: Cannot find the declaration of element 'schema'" error).
+          // We call the right function below, but unfortunately, scala-xml calls
+          // setEntityResolver in loadDocument(), which cannot be disabled and scala-xml does not
+          // want to change. To avoid this, we wrap the Xerces XMLReader in an XMLFilterImpl and
+          // override setEntityResolver to a no-op. However, XMLFilterImpl parse() calls
+          // setEntityResolver() on the XMLReader, which for the same reason as before causes
+          // issues. To fix this, we can override parse() to just pass through to the parent, but
+          // that means we must override the various set/get handler functions to also pass
+          // through to the parent.
+          val w = new XMLFilterImpl(r) {
+            override def setEntityResolver(resolver: EntityResolver): Unit = {} // no-op
+            override def parse(input: InputSource): Unit = getParent.parse(input)
 
-          override def setContentHandler(handler: ContentHandler): Unit =
-            getParent.setContentHandler(handler)
-          override def setDTDHandler(handler: DTDHandler): Unit =
-            getParent.setDTDHandler(handler)
-          override def setErrorHandler(handler: ErrorHandler): Unit =
-            getParent.setErrorHandler(handler)
-          override def getContentHandler(): ContentHandler =
-            getParent.getContentHandler()
-          override def getDTDHandler(): DTDHandler =
-            getParent.getDTDHandler()
-          override def getErrorHandler(): ErrorHandler =
-            getParent.getErrorHandler()
+            override def setContentHandler(handler: ContentHandler): Unit =
+              getParent.setContentHandler(handler)
+            override def setDTDHandler(handler: DTDHandler): Unit =
+              getParent.setDTDHandler(handler)
+            override def setErrorHandler(handler: ErrorHandler): Unit =
+              getParent.setErrorHandler(handler)
+            override def getContentHandler(): ContentHandler =
+              getParent.getContentHandler()
+            override def getDTDHandler(): DTDHandler =
+              getParent.getDTDHandler()
+            override def getErrorHandler(): ErrorHandler =
+              getParent.getErrorHandler()
+          }
+          w.setErrorHandler(activeErrorHandler)
+          w.setProperty(
+            "http://apache.org/xml/properties/internal/entity-resolver",
+            xmlResolver
+          )
+          w
         }
-        w.setErrorHandler(errorHandler)
-        w.setProperty("http://apache.org/xml/properties/internal/entity-resolver", xmlResolver)
-        w
-      }
 
-      val saxSource = scala.xml.Source.fromSysId(source.uriForLoading.toString)
-      try {
-        // it is important that we call loadDocument to parse/validate the XML instead of
-        // directly calling xrdr.parse. Although loadDocument does eventually call xrdr.parse,
-        // it first modifies the reader in a number of ways to prepare it for use with this
-        // FactoryAdapter, as well as initialize private state that is used by ContentHandler
-        // functions.
-        loadDocument(saxSource, xrdr)
-      } catch {
-        // can be thrown by the resolver if a schemaLocation of
-        // an import/include cannot be resolved.
-        // Regular Xerces doesn't report that as an error.
-        case spe: SAXParseException => errorHandler.error(spe)
+        val saxSource = scala.xml.Source.fromSysId(source.uriForLoading.toString)
+        try {
+          // it is important that we call loadDocument to parse/validate the XML instead of
+          // directly calling xrdr.parse. Although loadDocument does eventually call xrdr.parse,
+          // it first modifies the reader in a number of ways to prepare it for use with this
+          // FactoryAdapter, as well as initialize private state that is used by ContentHandler
+          // functions.
+          loadDocument(saxSource, xrdr)
+        } catch {
+          // can be thrown by the resolver if a schemaLocation of
+          // an import/include cannot be resolved.
+          // Regular Xerces doesn't report that as an error.
+          case spe: SAXParseException => activeErrorHandler.error(spe)
+        }
       }
       // no result, as the errors are reported separately
     }
@@ -801,7 +806,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     val constructingLoader =
       new DaffodilConstructingLoader(
         source.uriForLoading,
-        errorHandler,
+        activeErrorHandler,
         addPositionAttributes,
         normalizeCRLFtoLF,
         removeComments,

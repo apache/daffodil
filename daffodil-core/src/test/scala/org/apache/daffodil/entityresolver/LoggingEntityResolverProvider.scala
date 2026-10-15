@@ -32,10 +32,10 @@ import org.xml.sax.EntityResolver
  */
 class LoggingEntityResolverProvider extends DaffodilEntityResolverProvider {
   override def name(): String = "logging"
-  override def getEntityResolver(): EntityResolver = DFDLCatalogResolver.get
-  override def getXMLEntityResolver(): XMLEntityResolver = DFDLCatalogResolver.get
+  override def getEntityResolver(): EntityResolver = new DFDLCatalogResolver()
+  override def getXMLEntityResolver(): XMLEntityResolver = new DFDLCatalogResolver()
   override def getLSResourceResolver(): LSResourceResolver = new LoggingLSResourceResolver
-  override def getURIResolver(): URIResolver = DFDLCatalogResolver.get
+  override def getURIResolver(): URIResolver = new DFDLCatalogResolver()
 }
 
 class DuplicateEntityResolverProvider extends LoggingEntityResolverProvider {
@@ -47,6 +47,9 @@ object LoggingLSResourceResolver {
 }
 
 class LoggingLSResourceResolver extends LSResourceResolver {
+
+  private val delegate = new DFDLCatalogResolver()
+
   override def resolveResource(
     resourceType: String,
     namespaceURI: String,
@@ -55,7 +58,7 @@ class LoggingLSResourceResolver extends LSResourceResolver {
     baseURI: String
   ): LSInput = {
     System.err.println(LoggingLSResourceResolver.marker)
-    DFDLCatalogResolver.get.resolveResource(
+    delegate.resolveResource(
       resourceType,
       namespaceURI,
       publicId,

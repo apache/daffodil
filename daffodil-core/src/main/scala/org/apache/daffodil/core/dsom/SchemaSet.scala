@@ -20,7 +20,6 @@ package org.apache.daffodil.core.dsom
 import java.io.File
 import scala.xml.Node
 
-import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.core.compiler.RootSpec
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.SchemaSetGrammarMixin
@@ -34,20 +33,24 @@ import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.TransitiveClosure
 import org.apache.daffodil.lib.xml.*
 
+import org.apache.xerces.xni.parser.XMLEntityResolver
+
 object SchemaSet {
   def apply(
     optPFRootSpec: Option[RootSpec],
     schemaSource: DaffodilSchemaSource,
     shouldValidateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
-    tunables: DaffodilTunables
+    tunables: DaffodilTunables,
+    validationCache: SchemaValidationCache
   ) = {
     val ss = new SchemaSet(
       optPFRootSpec,
       schemaSource,
       shouldValidateDFDLSchemas,
       checkAllTopLevel,
-      tunables
+      tunables,
+      validationCache
     )
     ss.initialize()
     ss
@@ -92,7 +95,8 @@ final class SchemaSet private (
   val schemaSource: DaffodilSchemaSource,
   val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
-  val tunables: DaffodilTunables
+  val tunables: DaffodilTunables,
+  validationCache: SchemaValidationCache
 ) extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
@@ -118,7 +122,14 @@ final class SchemaSet private (
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
-  lazy val resolver = DaffodilXMLEntityResolver.getXMLEntityResolver
+  /**
+   * One loader serves every schema file in this schema set. The schema and validator for
+   * DFDL schemas, and the resolvers, come from the cache that every schema set made by the
+   * same compiler shares.
+   */
+  lazy val schemaFileLoader = new DaffodilXMLLoader(RethrowSchemaErrorHandler, validationCache)
+
+  def withXMLResolver[A](f: XMLEntityResolver => A): A = validationCache.withXMLResolver(f)
 
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None
@@ -160,7 +171,8 @@ final class SchemaSet private (
       UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir),
       false,
       false,
-      tunableOpt.getOrElse(DaffodilTunables())
+      tunableOpt.getOrElse(DaffodilTunables()),
+      new SchemaValidationCache
     )
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
