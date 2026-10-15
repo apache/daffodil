@@ -83,33 +83,11 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
       else if (
         isDefaultable && !hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator
       ) true
-      else if (hasInitiator) {
-        //
-        // TODO: It is possible that this initiator expression cannot match zero length
-        // or that it can match zero length. We don't really know without analyzing it.
-        // The easiest way may be at compile time to try matching it against an empty string.
-        // That would tell us whether it requires input or not.
-        //
-        // For now we just assume if it has an initiator, then it can't be missing.
-        false
-      } else if (hasTerminator) {
-        // If the lengthKind is NOT delimited, then the terminator is potentially redundant and
-        // there are real formats (mil-std-2045) where the terminator is an expression, but that expression
-        // returns %WSP*; or %ES;, meaning the terminator can match zero length.
-        if (!terminatorExpr.isConstant && (lengthKind ne LengthKind.Delimited)) {
-          //
-          // It seems like we could do better here if we actually looked at the expression to see
-          // if it can be zero length. But we don't necessarily know because the expression could
-          // refer to other infoset contents, which is in fact the case for mil-std-2045 tString32
-          // type. It uses the length of another element to decide whether the terminator exists or not.
-          true
-        } else {
-          false
-          // expression with lengthKind 'delimited' isn't allowed to return something that can match zero length
-          // or we wouldn't be able to scan for it.
-          // constants can't be zero-length matchers or we wouldn't be able to scan for it.
-        }
-      } else if (isSimpleType) {
+      // A delimiter known to occupy bits makes this element present. One that
+      // matches nothing says nothing either way, so fall through to the content
+      // analysis below. That is the mil-std-2045 case.
+      else if (isKnownNonZeroLengthDelimiters) false
+      else if (isSimpleType) {
         primType match {
           case PrimType.String | PrimType.HexBinary =>
             !isContentRegionLengthKnownToBeGreaterThanZero

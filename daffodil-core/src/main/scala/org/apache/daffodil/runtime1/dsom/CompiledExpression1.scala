@@ -92,11 +92,31 @@ abstract class CompiledExpression[+T <: AnyRef](val qName: NamedQName, value: An
   final lazy val isConstantEmptyString = value == ""
 
   /**
-   * Tells us if the expression can match the empty string. We know it can if the expression
-   * is a DFDL entity like %ES; or %WSP*. We do not know whether it can if it is a more
-   * complicated constant or runtime expression.
+   * The literals of a delimiter property. Empty for a runtime expression, whose
+   * value we cannot see at compile time.
    */
-  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;"
+  private lazy val delimiterLiterals: Seq[String] =
+    if (!isConstant) Nil
+    else value.toString.split("\\s+").filter { _.nonEmpty }.toSeq
+
+  /**
+   * Tells us if this delimiter can match zero-length data. Spec section 12.2
+   * states its rules per list item, so any one literal made only of entities
+   * that match nothing will do: "X %ES;" and "%WSP*;%WSP*;" both qualify.
+   */
+  final lazy val isKnownCanMatchEmptyString =
+    delimiterLiterals.exists { lit =>
+      lit.replace("%ES;", "").replace("%WSP*;", "").isEmpty
+    }
+
+  /**
+   * Tells us if ES or WSP* appears "alone as one of the string literals in the
+   * list", which is how section 12.2 states its restrictions. Narrower than
+   * isKnownCanMatchEmptyString: "%WSP*;%WSP*;" matches zero-length data, but
+   * the spec does not restrict it.
+   */
+  final lazy val hasZeroLengthEntityAlone =
+    delimiterLiterals.exists { lit => lit == "%ES;" || lit == "%WSP*;" }
 
   /**
    * used to obtain a constant value.

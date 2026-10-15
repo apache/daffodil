@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="none">
+
+  <!--
+    DAFFODIL-2132. A delimiter of "%ES;" or "%WSP*;" matches zero-length data,
+    so it is not framing and must not make the group's separator mandatory.
+
+    Every test below is identical to its control except for the delimiter on the
+    inner model group. If a control fails, the harness is broken, not Daffodil.
+  -->
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      representation="text"
+      encoding="ASCII"
+      lengthKind="delimited"
+      separator=""
+      initiator=""
+      terminator=""
+      separatorPosition="infix"
+      separatorSuppressionPolicy="trailingEmpty"
+      occursCountKind="implicit"
+    />
+
+    <!-- CONTROL: inner sequence has NO framing at all. -->
+    <xs:element name="ctl">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:separator=";" dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- BUG: identical, except inner sequence has initiator="%ES;" which
+         matches zero-length data, yet makes hasFraming true. -->
+    <xs:element name="esInit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:initiator="%ES;" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- BUG: same but terminator="%ES;" -->
+    <xs:element name="esTerm">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:terminator="%ES;" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- BUG: same but initiator="%WSP*;" which also matches zero-length data -->
+    <xs:element name="wspInit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:initiator="%WSP*;" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- CONTROL for the choice variant -->
+    <xs:element name="ctlChoice">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:choice>
+            <xs:sequence dfdl:separator=";" dfdl:separatorSuppressionPolicy="trailingEmpty">
+              <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- BUG: choice with a zero-length-matching initiator -->
+    <xs:element name="esChoice">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:choice dfdl:initiator="%ES;">
+            <xs:sequence dfdl:separator=";" dfdl:separatorSuppressionPolicy="trailingEmpty">
+              <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+    <!-- so that the delimiter expressions below are genuinely not constants -->
+    <dfdl:defineVariable name="realTerm" type="xs:string" defaultValue="ZZ"/>
+
+    <!-- LIST FORM: %ES; is one alternative in the initiator list. The spec states its rule per list item, so this matches zero-length data just as "%ES;" alone does. -->
+    <xs:element name="esInitList">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:initiator="X %ES;" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- COMPOSITE LITERAL: a single literal built only from zero-length-matching entities. -->
+    <xs:element name="wspWspInit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:initiator="%WSP*;%WSP*;" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- LIST FORM on a terminator. -->
+    <xs:element name="esTermList">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:terminator="] %ES;" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- EXPRESSION: the terminator is computed at runtime. Its value cannot be known statically, and a model group has no dfdl:lengthKind, so it is not known to occupy bits and the group stays potentially trailing. Contrast constTermReal below, whose constant value IS known to occupy bits. -->
+    <xs:element name="exprTermReal">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:terminator="{ $ex:realTerm }" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- CONTRAST: the same delimiter as a constant. This one is known to occupy bits, so the group is not potentially trailing and the separator is required. -->
+    <xs:element name="constTermReal">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:terminator="ZZ" dfdl:separator=";"
+                       dfdl:separatorSuppressionPolicy="trailingEmpty">
+            <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="1"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!-- ==================== parse tests ==================== -->
+
+  <tdml:parserTestCase name="ctl_absent" root="ctl" model="s1"
+    description="control: trailing model group absent, separator suppressed">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ctl><a>X</a></ex:ctl>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ctl_present" root="ctl" model="s1"
+    description="control: trailing model group present">
+    <tdml:document><![CDATA[X,Y]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ctl><a>X</a><b>Y</b></ex:ctl>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="esInit_absent" root="esInit" model="s1"
+    description="DAFFODIL-2132: %ES; initiator on trailing group should not require the separator">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esInit><a>X</a></ex:esInit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="esInit_present" root="esInit" model="s1"
+    description="sanity: %ES; initiator group present parses">
+    <tdml:document><![CDATA[X,Y]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esInit><a>X</a><b>Y</b></ex:esInit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="esTerm_absent" root="esTerm" model="s1"
+    description="DAFFODIL-2132: %ES; terminator on trailing group">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esTerm><a>X</a></ex:esTerm>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="wspInit_absent" root="wspInit" model="s1"
+    description="DAFFODIL-2132: %WSP*; initiator on trailing group">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:wspInit><a>X</a></ex:wspInit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ctlChoice_absent" root="ctlChoice" model="s1"
+    description="control: trailing choice absent">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ctlChoice><a>X</a></ex:ctlChoice>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="esChoice_absent" root="esChoice" model="s1"
+    description="DAFFODIL-2132: %ES; initiator on trailing choice">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esChoice><a>X</a></ex:esChoice>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- ==================== unparse tests ==================== -->
+
+  <tdml:unparserTestCase name="ctl_absent_unparse" root="ctl" model="s1"
+    description="control: unparse suppresses the trailing separator">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ctl><a>X</a></ex:ctl>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="esInit_absent_unparse" root="esInit" model="s1"
+    description="DAFFODIL-2132: unparse should also suppress the trailing separator">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esInit><a>X</a></ex:esInit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="esInitList" root="esInitList" model="s1"
+    description="zero-length-matching initiator as one item of a list">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esInitList><a>X</a></ex:esInitList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="wspWspInit" root="wspWspInit" model="s1"
+    description="literal composed only of zero-length-matching entities">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:wspWspInit><a>X</a></ex:wspWspInit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="esTermList" root="esTermList" model="s1"
+    description="zero-length-matching terminator as one item of a list">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esTermList><a>X</a></ex:esTermList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="exprTermReal" root="exprTermReal" model="s1"
+    description="expression-valued terminator is not known to occupy bits">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:exprTermReal><a>X</a></ex:exprTermReal>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="constTermReal" root="constTermReal" model="s1"
+    description="constant terminator IS known to occupy bits, so the separator is required">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>separator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="esInitList_unparse" root="esInitList" model="s1"
+    description="unparse emits the first literal of the list, X, so the group is not zero length and the separator belongs">
+    <tdml:document><![CDATA[X,X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esInitList><a>X</a></ex:esInitList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="wspWspInit_unparse" root="wspWspInit" model="s1"
+    description="unparse suppresses the separator for a literal of only %WSP*;">
+    <tdml:document><![CDATA[X]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:wspWspInit><a>X</a></ex:wspWspInit>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="esTermList_unparse" root="esTermList" model="s1"
+    description="unparse emits the first literal of the list, the right bracket, so the separator belongs">
+    <tdml:document><![CDATA[X,]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:esTermList><a>X</a></ex:esTermList>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="exprTermReal_unparse" root="exprTermReal" model="s1"
+    description="unparse evaluates the expression to ZZ, so the separator belongs">
+    <tdml:document><![CDATA[X,ZZ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:exprTermReal><a>X</a></ex:exprTermReal>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

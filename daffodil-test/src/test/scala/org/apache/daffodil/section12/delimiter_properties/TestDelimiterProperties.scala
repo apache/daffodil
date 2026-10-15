@@ -68,4 +68,9 @@ class TestDelimiterProperties extends TdmlTests {
   @Test def emptyInitiator2 = test
   @Test def emptyInitiator3 = test
   @Test def emptyInitiator4 = test
+  @Test def possibleZeroLenEntityWithInitiatedContentYes = test
+  @Test def nonZeroLenInitiatorListWithInitiatedContentYes = test
+  @Test def multiplePossibleZeroLenEntitiesWithInitiatedContentYes = test
+  @Test def possibleZeroLenEntityWithInitiatedContentNo = test
+  @Test def nonZeroLenInitiatorWithInitiatedContentYes = test
 }
