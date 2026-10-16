@@ -125,7 +125,7 @@ class TestCLIEntityResolver {
    */
   @Test def test_userCatalogs_stillApplyWithAProvider(): Unit = {
     val main = path(providers + "usercatalog/main.dfdl.xsd")
-    val catalog = path(providers + "usercatalog/user-catalog.xml").toAbsolutePath
+    val catalog = path(providers + "usercatalog/user-catalog.xml").toAbsolutePath.toUri.toString
     withTempDir { dir =>
       Files.writeString(dir.resolve("CatalogManager.properties"), s"catalogs=$catalog\n")
       runCLI(
