@@ -16,11 +16,14 @@
  */
 package org.apache.daffodil.cliTest
 
+import java.nio.file.Files
 import java.nio.file.Path
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util.*
 import org.apache.daffodil.entityresolver.LoggingLSResourceResolver
+import org.apache.daffodil.entityresolver.LoggingURIResolver
+import org.apache.daffodil.entityresolver.LoggingXMLEntityResolver
 
 import org.junit.Test
 
@@ -62,6 +65,90 @@ class TestCLIEntityResolver {
       cli.expectErr(LoggingLSResourceResolver.marker)
       cli.expect("<g>2</g>")
     }(ExitCode.Success)
+  }
+
+  private val providers = "daffodil-core/src/test/resources/org/apache/daffodil/entityresolver/"
+
+  /**
+   * Schema-informed EXI builds its grammars with the provider's XML entity resolver.
+   */
+  @Test def test_exiGrammars_useTheProvidersXMLResolver(): Unit = {
+    val exiSchema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
+    )
+    withTempFile { out =>
+      runCLI(
+        args"parse -I exisa -s $exiSchema -r e1 -o $out",
+        resolverClasspath(providers + "single/"),
+        fork = true
+      ) { cli =>
+        cli.send("Hello", inputDone = true)
+        cli.expectErr(LoggingXMLEntityResolver.marker)
+      }(ExitCode.Success)
+    }
+  }
+
+  /**
+   * Schematron validation builds its transformer with the provider's URI resolver.
+   */
+  @Test def test_schematron_usesTheProvidersURIResolver(): Unit = {
+    val schematronSchema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val rules = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
+    runCLI(
+      args"parse --validate schematron=$rules -s $schematronSchema $input",
+      resolverClasspath(providers + "single/"),
+      fork = true
+    ) { cli =>
+      cli.expect("<never-fails>")
+      cli.expectErr(LoggingURIResolver.marker)
+    }(ExitCode.Success)
+  }
+
+  /**
+   * Daffodil resolves its own namespaces itself, so a provider that fails if it is asked for
+   * one still works.
+   */
+  @Test def test_providerIsNeverAskedForBuiltInNamespaces(): Unit = {
+    runCLI(
+      args"parse -s $schema -r e",
+      resolverClasspath(providers + "strict/"),
+      fork = true
+    ) { cli =>
+      cli.send("5/42,2", inputDone = true)
+      cli.expect("<g>2</g>")
+    }(ExitCode.Success)
+  }
+
+  /**
+   * Catalogs configured with CatalogManager.properties still apply when a provider is registered.
+   */
+  @Test def test_userCatalogs_stillApplyWithAProvider(): Unit = {
+    val main = path(providers + "usercatalog/main.dfdl.xsd")
+    val catalog = path(providers + "usercatalog/user-catalog.xml").toAbsolutePath
+    withTempDir { dir =>
+      Files.writeString(dir.resolve("CatalogManager.properties"), s"catalogs=$catalog\n")
+      runCLI(
+        args"parse -s $main -r root",
+        resolverClasspath(providers + "single/") :+ dir,
+        fork = true
+      ) { cli =>
+        cli.send("abc", inputDone = true)
+        cli.expect("<v>abc</v>")
+      }(ExitCode.Success)
+    }
+  }
+
+  /**
+   * If no provider is left, because one shares the default's name and both are ignored, that is
+   * an error.
+   */
+  @Test def test_noProviderLeft_isAnError(): Unit = {
+    val classpath = resolverClasspath(providers + "nodefault/")
+    runCLI(args"parse -s $schema -r e", classpath, fork = true) { cli =>
+      cli.send("5/42,2", inputDone = true)
+      cli.expectErr("No DaffodilEntityResolverProvider found")
+    }(ExitCode.BugFound)
   }
 
   /**

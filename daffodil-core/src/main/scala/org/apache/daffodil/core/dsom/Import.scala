@@ -103,7 +103,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         }
         case Some(ns) => {
           val ri = new XMLResourceIdentifierImpl(null, null, null, null, ns.toString)
-          val source = xsd.schemaSet.withXMLResolver { _.resolveEntity(ri) }
+          val source = resolver.resolveEntity(ri)
           if (source == null) None
           else {
             val uri = URI.create(source.getSystemId)
@@ -116,7 +116,8 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
       }
     }.value
 
-  private lazy val catalogDescription = xsd.schemaSet.withXMLResolver {
+  private lazy val resolver = xsd.schemaSet.resolver
+  private lazy val catalogDescription = resolver match {
     case r: DFDLCatalogResolver => s"XML catalog(s) ${r.catalogFiles.mkString(", ")}"
     case _ => "the custom entity resolver"
   }

@@ -177,9 +177,12 @@ final class DFDLSchemaFile(
         // need line numbers for diagnostics
         val node =
           try {
-            loader.withErrorHandler(errHandler) {
-              loader.load(schemaSource, None, addPositionAttributes = true)
-            }
+            loader.load(
+              schemaSource,
+              None,
+              addPositionAttributes = true,
+              errorHandler = errHandler
+            )
           } catch {
             case e: SAXParseException => {
               // the loader can throw these due to e.g., doctype disallowed which is fatal.
@@ -209,9 +212,7 @@ final class DFDLSchemaFile(
 
   lazy val isValidAsCompleteDFDLSchema: Boolean = LV(Symbol("isValidAsCompleteDFDLSchema")) {
     try {
-      loader.withErrorHandler(errHandler) {
-        loader.validateAsCompleteDFDLSchema(schemaSource)
-      }
+      loader.validateAsCompleteDFDLSchema(schemaSource, errHandler)
     } catch {
       case e: org.xml.sax.SAXParseException =>
         errHandler.error(e) // accumulate with error handler.
@@ -229,9 +230,7 @@ final class DFDLSchemaFile(
       // Some things, tests generally, want to turn this validation off.
       //
       try {
-        loader.withErrorHandler(errHandler) {
-          loader.validateAsIndividualDFDLSchemaFile(schemaSource)
-        }
+        loader.validateAsIndividualDFDLSchemaFile(schemaSource, errHandler)
       } catch {
         // validateAsIndividualDFDLSchemaFile doesn't always capture all exceptions in the
         // loader's error handler. Even for fatal errors it sometimes

@@ -33,8 +33,6 @@ import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.TransitiveClosure
 import org.apache.daffodil.lib.xml.*
 
-import org.apache.xerces.xni.parser.XMLEntityResolver
-
 object SchemaSet {
   def apply(
     optPFRootSpec: Option[RootSpec],
@@ -123,13 +121,13 @@ final class SchemaSet private (
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
   /**
-   * One loader serves every schema file in this schema set. The schema and validator for
-   * DFDL schemas, and the resolvers, come from the cache that every schema set made by the
-   * same compiler shares.
+   * One loader serves every schema file in this schema set, so its resolvers are created
+   * once for the compile. The schema and validator for DFDL schemas come from the cache
+   * that every schema set made by the same compiler shares.
    */
   lazy val schemaFileLoader = new DaffodilXMLLoader(RethrowSchemaErrorHandler, validationCache)
 
-  def withXMLResolver[A](f: XMLEntityResolver => A): A = validationCache.withXMLResolver(f)
+  lazy val resolver = schemaFileLoader.xmlResolver
 
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None

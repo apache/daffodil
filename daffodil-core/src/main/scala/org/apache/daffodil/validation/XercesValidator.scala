@@ -31,6 +31,7 @@ import org.apache.daffodil.lib.util.ThreadSafePool
 import org.apache.daffodil.lib.xml.XMLUtils
 
 import XercesValidator.XercesValidatorImpl
+import org.w3c.dom.ls.LSResourceResolver
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
 
@@ -71,12 +72,19 @@ object XercesValidatorFactory {
  * to do a validation pass on the TDML expected Infoset w.r.t. the model and to
  * do a validation pass on the actual result w.r.t. the model as an XML document.
  */
-class XercesValidator(schemaSource: javax.xml.transform.Source)
-  extends api.validation.Validator {
+class XercesValidator(
+  schemaSource: javax.xml.transform.Source,
+  suppliedResolver: Option[LSResourceResolver] = None
+) extends api.validation.Validator {
+
+  // A supplied resolver is used for the schema and every pooled validator. Otherwise each
+  // asks the entity resolver provider, so a resolver that is not thread safe is not shared.
+  private def resolver: LSResourceResolver =
+    suppliedResolver.getOrElse(DaffodilXMLEntityResolver.getLSResourceResolver)
 
   private val schema = {
     val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
-    factory.setResourceResolver(DaffodilXMLEntityResolver.getLSResourceResolver)
+    factory.setResourceResolver(resolver)
     factory.newSchema(schemaSource)
   }
 
@@ -92,7 +100,7 @@ class XercesValidator(schemaSource: javax.xml.transform.Source)
       v.setFeature("http://xml.org/sax/features/validation", true)
       v.setFeature("http://apache.org/xml/features/validation/schema", true)
       v.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true)
-      v.setResourceResolver(DaffodilXMLEntityResolver.getLSResourceResolver)
+      v.setResourceResolver(resolver)
       v
     }
   }
@@ -130,7 +138,15 @@ object XercesValidator {
   private type XercesValidatorImpl = javax.xml.validation.Validator
   val name = "xerces"
 
-  def fromURL(schemaURL: URL) = new XercesValidator({
+  /**
+   * A validator for the schema. With a resolver, it is used for the schema and every pooled
+   * validator, so it must be thread safe. Without one, the resolvers come from the entity
+   * resolver provider.
+   */
+  def fromURL(
+    schemaURL: URL,
+    resolver: Option[LSResourceResolver] = None
+  ): XercesValidator = {
     val is =
       try {
         schemaURL.openStream()
@@ -142,8 +158,8 @@ object XercesValidator {
     stream.setSystemId(
       schemaURL.toString
     ) // must set this so that relative URIs will be created for import/include files.
-    stream
-  })
+    new XercesValidator(stream, resolver)
+  }
 }
 
 private class XercesErrorHandler(validationHandler: api.validation.ValidationHandler)

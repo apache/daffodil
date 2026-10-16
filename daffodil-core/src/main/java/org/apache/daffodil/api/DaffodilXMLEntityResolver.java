@@ -39,11 +39,8 @@ import javax.xml.transform.URIResolver;
  * importing schema URI, which could either be a file on the filesystem or in
  * a jar on the classpath.
  * <p>
- * The EntityResolver isn't thread safe, but it also is expensive and stateful,
- * so Daffodil requests one per operation and keeps it for the whole operation.
- * <p>
  * The default can be replaced by registering a {@link DaffodilEntityResolverProvider}
- * with SPI. Each method here then returns what the provider returns.
+ * with SPI. The catalogs in step 1 are still consulted first.
  */
 public final class DaffodilXMLEntityResolver {
 
