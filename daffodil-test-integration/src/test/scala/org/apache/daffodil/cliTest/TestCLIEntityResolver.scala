@@ -151,6 +151,39 @@ class TestCLIEntityResolver {
     }(ExitCode.BugFound)
   }
 
+  private val xmlResolverProvider =
+    "daffodil-cli/src/test/resources/org/apache/daffodil/entityresolver/xmlresolver/"
+
+  /**
+   * An org.xmlresolver.XMLResolver registered as the provider resolves a namespace through its
+   * own catalog, which Daffodil's catalogs do not map.
+   */
+  @Test def test_xmlResolver_resolvesNamespacesFromItsCatalog(): Unit = {
+    val main = path(xmlResolverProvider + "xmlresolver-main.dfdl.xsd")
+    runCLI(
+      args"parse -s $main -r root",
+      resolverClasspath(
+        s"daffodil-cli/target/$scalaVersionForTargetPath/test-classes/",
+        xmlResolverProvider
+      ),
+      fork = true
+    ) { cli =>
+      cli.send("abc", inputDone = true)
+      cli.expect("<v>abc</v>")
+    }(ExitCode.Success)
+  }
+
+  /**
+   * Without the provider, the same schema fails because nothing maps the namespace.
+   */
+  @Test def test_xmlResolver_namespaceIsUnresolvedWithoutTheProvider(): Unit = {
+    val main = path(xmlResolverProvider + "xmlresolver-main.dfdl.xsd")
+    runCLI(args"parse -s $main -r root", resolverClasspath(), fork = true) { cli =>
+      cli.send("abc", inputDone = true)
+      cli.expectErr("Unable to import namespace urn:example:xmlresolver-ns")
+    }(ExitCode.UnableToCreateProcessor)
+  }
+
   /**
    * More than one registered provider is an error.
    */
