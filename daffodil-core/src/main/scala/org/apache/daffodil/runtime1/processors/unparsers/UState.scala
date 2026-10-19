@@ -48,6 +48,7 @@ import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIDocument
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DINode
+import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.InfosetAccessor
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
@@ -174,6 +175,26 @@ abstract class UState(
   final def inspectOrError: InfosetAccessor = eventState.inspectOrError
   final def advanceOrError: InfosetAccessor = eventState.advanceOrError
   final def isInspectArrayEnd: Boolean = eventState.isInspectArrayEnd
+
+  /**
+   * Support for unparsing dfdl:occursCountKind='stopValue'.
+   *
+   * The terminating occurrence of such an array consumes data but is not in the
+   * infoset, so it has no infoset events. The array unparser creates its infoset
+   * element here; the element unparser consumes that instead of consuming start/end
+   * element events (see RegularElementUnparserStartEndStrategy).
+   */
+  private var maybeStopValueElem: Maybe[DISimple] = Nope
+
+  final def setStopValue(elem: DISimple): Unit = {
+    maybeStopValueElem = One(elem)
+  }
+
+  final def maybeStopValue: Maybe[DISimple] = maybeStopValueElem
+
+  final def clearStopValue(): Unit = {
+    maybeStopValueElem = Nope
+  }
 
   override def dataStream = Maybe(getDataOutputStream)
 
@@ -441,6 +462,11 @@ trait InfosetTreeState extends Cursor[InfosetAccessor] {
     erd: ElementRuntimeData,
     startEvent: Maybe[InfosetAccessor] = Nope
   ): DIElement
+
+  // Adds an element that was created without an infoset start event to the infoset, as
+  // if it had come from an event. Needed for elements whose data has no events, such as
+  // the synthesized terminating occurrence of a dfdl:occursCountKind='stopValue' array.
+  def attachElement(newElem: DIElement): Unit
 
   // Finishes a node whose end was just reached.
   def finishElement(cur: DINode): Unit
@@ -775,6 +801,7 @@ final class UStateForSuspension(
   override def groupIndexStack = die
   override def moveOverOneGroupIndexOnly() = die
   override def getElement(erd: ElementRuntimeData, startEvent: Maybe[InfosetAccessor]) = die
+  override def attachElement(newElem: DIElement) = die
   override def finishElement(cur: DINode) = die
   // $COVERAGE-ON$
 

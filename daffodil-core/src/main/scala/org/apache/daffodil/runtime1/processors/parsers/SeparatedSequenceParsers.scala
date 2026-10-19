@@ -45,7 +45,11 @@ trait Separated { self: SequenceChildParser =>
     pstate: PState,
     requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
-    separatorHelper.parseOneWithSeparator(pstate, requiredOptional)
+    val status = separatorHelper.parseOneWithSeparator(pstate, requiredOptional)
+    // Both the occurrence and its separator are parsed at this point, which is where an
+    // occursCountKind='stopValue' array notices it has reached its terminating occurrence.
+    // No-op for every other occursCountKind.
+    self.checkParseAttemptStatus(pstate, status)
   }
 
   final override def arrayCompleteChecks(
@@ -122,6 +126,17 @@ final class RepOrderedWithMinMaxSeparatedSequenceChildParser(
   override val spos: SeparatorPosition,
   override val parseResultHelper: SeparatedSequenceChildParseResultHelper
 ) extends OccursCountMinMaxParser(childParser, srd, erd)
+  with Separated
+
+final class RepOrderedStopValueSeparatedSequenceChildParser(
+  childParser: Parser,
+  srd: SequenceRuntimeData,
+  erd: ElementRuntimeData,
+  override val sep: Parser,
+  override val spos: SeparatorPosition,
+  override val parseResultHelper: SeparatedSequenceChildParseResultHelper,
+  stopValues: Seq[AnyRef]
+) extends OccursCountStopValueParser(childParser, srd, erd, stopValues)
   with Separated
 
 final class OrderedSeparatedSequenceParser(

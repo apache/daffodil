@@ -412,7 +412,17 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
     } else {
       // get the DIElem for this element, which is in the infoset once it is returned
       val newElem =
-        if (!state.withinHiddenNest) {
+        if (!state.withinHiddenNest && state.maybeStopValue.isDefined) {
+          // The synthesized terminating occurrence of an occursCountKind='stopValue'
+          // array. The array unparser created it because there are no infoset events for
+          // it; it joins the infoset like any other occurrence so the rest of this
+          // unparser (lengths, alignment, encoders) works unchanged, and unparseEnd
+          // below skips its end element event.
+          val termElem = state.maybeStopValue.get
+          Assert.invariant(termElem.erd eq erd)
+          state.attachElement(termElem)
+          termElem
+        } else if (!state.withinHiddenNest) {
           // Elements in a hidden context are not in the infoset, so we will never get an event
           // for them. Only try to consume start events for non-hidden elements
           val event = state.advanceOrError
@@ -451,7 +461,15 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
     } else {
-      if (!state.withinHiddenNest) {
+      if (state.maybeStopValue.isDefined) {
+        // Terminating occurrence of an occursCountKind='stopValue' array.
+        // It had no infoset start element event (see unparseBegin), so there is no end
+        // element event to consume either. Clear the pending terminator now that the
+        // occurrence has been fully unparsed.
+        val termElem = state.maybeStopValue.get
+        Assert.invariant(termElem.erd eq erd)
+        state.clearStopValue()
+      } else if (!state.withinHiddenNest) {
         // Hidden elements are not in the infoset, so we will never get an event
         // for them. Only try to consume end events for non-hidden elements
         val event = state.advanceOrError

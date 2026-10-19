@@ -17,9 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
+import org.apache.daffodil.lib.cookers.OccursStopValueCooker
 import org.apache.daffodil.lib.equality.*
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.*
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 trait RequiredOptionalMixin { self: ElementBase =>
   final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
@@ -230,14 +233,85 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       res
     }.value
 
+  /**
+   * True if this element uses occursCountKind='stopValue' to determine the end of its
+   * occurrences. (For scalar elements the occursCountKind is ignored, so this is false
+   * for them.)
+   */
   final lazy val hasStopValue = LV(Symbol("hasStopValue")) {
-    val sv = !isScalar && occursCountKind == OccursCountKind.StopValue
-    // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
-    schemaDefinitionUnless(
-      !(sv && occursStopValue == ""),
-      "Property occursCountKind='stopValue' requires a non-empty occursStopValue property."
-    )
-    schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")
-    sv
+    !isScalar && occursCountKind == OccursCountKind.StopValue
   }.value
+
+  /**
+   * The dfdl:occursStopValue property value, cooked (i.e. split into a list of string
+   * literals with DFDL entities replaced) into individual stop values.
+   *
+   * Like nil values, these are cooked twice because some entities (the %NL; entity and
+   * doubled percents) only have their final values at unparse time.
+   *
+   * Only meaningful (and only accessed) when hasStopValue is true.
+   */
+  private def cookedOccursStopValue(forUnparse: Boolean): Seq[String] = {
+    Assert.usage(hasStopValue)
+    val maybePropValue = findPropertyOption("occursStopValue").toOption
+    // Only the absence of the property is checked here, the cooker below SDEs if the list
+    // of cooked stop values is empty.
+    schemaDefinitionWhen(
+      maybePropValue.isEmpty,
+      "Property occursCountKind='stopValue' requires the dfdl:occursStopValue property to be defined."
+    )
+    val cooked = OccursStopValueCooker.convertConstant(maybePropValue.get, this, forUnparse)
+    // Character class entities are only replaced when unparsing (that is true of every
+    // such property), but %ES; always means an empty value, so resolve it for parsing.
+    if (forUnparse) cooked
+    else cooked.map { sv => if (sv == "%ES;") "" else sv }
+  }
+
+  /**
+   * The stop values converted to values of this element's simple type. Comparison with
+   * parsed values is by value (e.g. data 00010 matches a stop value of 10 for xs:int),
+   * as required by the DFDL specification (the stop value must be a value in the domain
+   * of the declared simple type of the data item).
+   */
+  private def occursStopValues(forUnparse: Boolean): Seq[DataValuePrimitive] = {
+    // Checked here instead of by checkOccursStopValue because these values can be demanded
+    // while building the grammar of an element whose required evaluations have not run yet
+    schemaDefinitionWhen(
+      !isSimpleType,
+      "Property occursCountKind='stopValue' requires a simple type. The value of each occurrence is compared with the dfdl:occursStopValue."
+    )
+    cookedOccursStopValue(forUnparse).map { sv =>
+      try {
+        primType.fromXMLString(sv)
+      } catch {
+        case ipd: InvalidPrimitiveDataException =>
+          SDE("Invalid dfdl:occursStopValue: %s", ipd.getMessage)
+      }
+    }
+  }
+
+  final lazy val occursStopValuesForParse = occursStopValues(forUnparse = false)
+
+  final lazy val occursStopValuesForUnparse = occursStopValues(forUnparse = true)
+
+  /**
+   * Checks that an element using occursCountKind='stopValue' is valid. Forced by
+   * ElementBaseGrammarMixin, so it runs whenever such an element is compiled.
+   */
+  final lazy val checkOccursStopValue: Unit = {
+    if (hasStopValue) {
+      schemaDefinitionWhen(
+        !isRepresented,
+        "Property occursCountKind='stopValue' is not meaningful for elements with no data representation (e.g. dfdl:inputValueCalc)."
+      )
+      schemaDefinitionWhen(
+        isNillable,
+        "Property occursCountKind='stopValue' is not supported for nillable elements."
+      )
+      // force the checks (simple type, present, non-empty, valid for that type) of the
+      // stop values themselves
+      occursStopValuesForParse
+      occursStopValuesForUnparse
+    }
+  }
 }

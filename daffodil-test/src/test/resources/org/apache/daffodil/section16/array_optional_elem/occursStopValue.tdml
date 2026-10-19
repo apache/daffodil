@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="occursStopValue"
+  description="DAFFODIL-501 occursCountKind='stopValue' and the dfdl:occursStopValue property"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="false">
+
+  <!-- Unseparated fixed-width strings terminated by stop value "zz" -->
+  <tdml:parserTestCase name="sv01" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
+    description="stopValue array followed by another element">
+    <tdml:document><![CDATA[abcdzz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <item>ab</item>
+          <item>cd</item>
+          <after>07</after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Stop value on the very first occurrence => empty array -->
+  <tdml:parserTestCase name="sv02" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
+    description="stopValue matching the first occurrence produces an empty array">
+    <tdml:document><![CDATA[zz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <after>07</after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Multiple stop values, either zz or yy ends the occurrences -->
+  <tdml:parserTestCase name="sv03" root="svMultiRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="list of multiple stop values">
+    <tdml:document><![CDATA[abyy07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svMultiRoot>
+          <item>ab</item>
+          <after>07</after>
+        </ex:svMultiRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="sv04" root="svMultiRoot"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
+    description="second stop value in the list also terminates">
+    <tdml:document><![CDATA[abcdzz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svMultiRoot>
+          <item>ab</item>
+          <item>cd</item>
+          <after>07</after>
+        </ex:svMultiRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Comparison is by value: data "00010" matches stop value "10" -->
+  <tdml:parserTestCase name="sv05" root="svIntRoot"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
+    description="stop value comparison is by value, not by text">
+    <tdml:document><![CDATA[00011000120001000099]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svIntRoot>
+          <item>11</item>
+          <item>12</item>
+          <after>99</after>
+        </ex:svIntRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Binary integers, stop value 0 -->
+  <tdml:parserTestCase name="sv06" root="svBinaryRoot"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
+    description="binary ints with stop value zero">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[
+        00000001
+        00000002
+        00000000
+        FFFFFFFF]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svBinaryRoot>
+          <item>1</item>
+          <item>2</item>
+          <after>-1</after>
+        </ex:svBinaryRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Fixed-width items in a separated sequence, stop value "99" -->
+  <tdml:parserTestCase name="sv07" root="svSeparatedRoot"
+    model="occursStopValue.dfdl.xsd" roundTrip="true"
+    description="stopValue array in a separated sequence">
+    <tdml:document><![CDATA[11,22,99next]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svSeparatedRoot>
+          <item>11</item>
+          <item>22</item>
+          <after>next</after>
+        </ex:svSeparatedRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Data ends without the stop value ever being found -->
+  <tdml:parserTestCase name="sv08" root="svEndOfDataRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="occurrences end with end-of-data when stop value never appears">
+    <tdml:document><![CDATA[abcd]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svEndOfDataRoot>
+          <item>ab</item>
+          <item>cd</item>
+        </ex:svEndOfDataRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Error conditions -->
+
+  <tdml:parserTestCase name="svErrNoStopValue" root="errNoStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="DAFFODIL-501: stopValue without occursStopValue is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='stopValue' requires the dfdl:occursStopValue property</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrEmptyStopValue" root="errEmptyStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="empty occursStopValue is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursStopValue</tdml:error>
+      <tdml:error>cannot be empty</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrInvalidStopValue" root="errInvalidStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="stop value not valid for the element simple type is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid dfdl:occursStopValue</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- DFDL 1.0 section 16.1.5: it is an SDE if any of the stop values does not
+       conform to the simple type of the element. Here the first stop value is valid,
+       the second is not. -->
+  <tdml:parserTestCase name="svErrSecondStopValueInvalid"
+    root="errSecondStopValueRoot" model="occursStopValue.dfdl.xsd"
+    description="second stop value in the list not valid for the element simple type is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid dfdl:occursStopValue</tdml:error>
+      <tdml:error>Value 'xx' is not a valid xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- DFDL 1.0 section 16.1.5: stop value must conform to the simple type of the
+       element, including binary types such as hexBinary. -->
+  <tdml:parserTestCase name="svErrInvalidHexStopValue"
+    root="errHexStopValueRoot" model="occursStopValue.dfdl.xsd"
+    description="stop value not valid for a binary (hexBinary) element simple type is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid dfdl:occursStopValue</tdml:error>
+      <tdml:error>xs:hexBinary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrComplexStopValue" root="errComplexStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="stopValue on a complexType element is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='stopValue' requires a simple type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrNillableStopValue" root="errNillableStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="stopValue on a nillable element is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>nillable</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrUnorderedStopValue" root="errUnorderedStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="stopValue in an unordered sequence is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>unordered</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrDefaultStopValue" root="errDefaultStopValueRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="default value on a stopValue array with no required occurrences is a schema definition error">
+    <tdml:document><![CDATA[abzz]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>default</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    More occurrences in the data than maxOccurs allows. Parsing succeeds (the stop
+    value determines the end of the occurrences), but Daffodil validation reports the
+    maxOccurs violation.
+  -->
+  <tdml:parserTestCase name="svExceedsMaxOccurs" root="svMaxOccursRoot"
+    model="occursStopValue.dfdl.xsd" validation="limited"
+    description="validation error when a stopValue array has more occurrences than maxOccurs">
+    <tdml:document><![CDATA[abcdefzz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svMaxOccursRoot>
+          <item>ab</item>
+          <item>cd</item>
+          <item>ef</item>
+          <after>07</after>
+        </ex:svMaxOccursRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>item</tdml:error>
+      <tdml:error>occurred</tdml:error>
+      <tdml:error>minimum of '0'</tdml:error>
+      <tdml:error>maximum of '2'</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="svErrMissingAfter" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="parse error when stop value never appears and a required element follows">
+    <tdml:document><![CDATA[abcd07]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- Unparse: infoset occurrences followed by the synthesized terminating occurrence -->
+  <!-- DFDL 1.0 section 16.1.5: it is a Processing Error if a stop value is found in
+       the infoset when unparsing. The terminating occurrence is added automatically,
+       and an infoset occurrence equal to a stop value would make the resulting data
+       not reparse to the same infoset. -->
+  <tdml:unparserTestCase name="svErrStopValueInInfoset" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="stop value found in the infoset when unparsing is a processing error">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <ex:item>ab</ex:item>
+          <ex:item>zz</ex:item>
+          <ex:after>07</ex:after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Found stop value</tdml:error>
+      <tdml:error>must not have a value equal to one of the dfdl:occursStopValue values</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="svUnparse" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="unparse synthesizes the terminating occurrence">
+    <tdml:document><![CDATA[abcdzz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <ex:item>ab</ex:item>
+          <ex:item>cd</ex:item>
+          <ex:after>07</ex:after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <!-- Unparse an empty array: the data is just the terminating occurrence + after -->
+  <tdml:unparserTestCase name="svUnparseEmpty" root="svStringRoot"
+    model="occursStopValue.dfdl.xsd"
+    description="unparse of an empty stopValue array emits only the terminating occurrence">
+    <tdml:document><![CDATA[zz07]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:svStringRoot>
+          <ex:after>07</ex:after>
+        </ex:svStringRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>
