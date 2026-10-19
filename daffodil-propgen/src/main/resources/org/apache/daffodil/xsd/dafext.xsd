@@ -327,6 +327,19 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
+        <xs:element name="maxBinaryNumberLengthInBits" default="8192" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The maximum length, in bits, allowed for packed decimals or non-fixed-width binary
+              numbers (e.g. xs:integer).
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
         <xs:element name="maxByteArrayOutputStreamBufferSizeInBytes" default="2097152000" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -516,7 +529,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="readerByteBufferSize" type="xs:int" default="8192" minOccurs="0">
+        <xs:element name="readerByteBufferSize" type="xs:int" default="1024" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               Deprecated. This tunable no longer has any affect and is only kept for
