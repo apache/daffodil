@@ -36,6 +36,7 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.TextJustificationType
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 import passera.unsigned.ULong
 
@@ -58,28 +59,22 @@ trait PackedBinaryConversion[A <: Number] {
 }
 
 trait PackedBinaryLengthCheck {
-  def PE(state: PState, str: String, args: Any*): Unit
-  def checkLengthNotEqualToZero(nBits: Int, start: PState, packedType: String): Boolean = {
-    if (nBits == 0) {
-      PE(
-        start,
-        s"Number of bits %d out of range for a packed $packedType.",
-        nBits
-      )
-      false
-    } else {
-      true
-    }
-  }
 
-  def checkLengthIsMultipleOf4(nBits: Int, start: PState): Boolean = {
-    if ((nBits % 4) != 0) {
-      PE(
-        start,
-        "The given length (%s bits) must be a multiple of 4 when using packed binary formats",
-        nBits
-      )
-      false
+  /**
+   * Validates a packed decimal number's bit length
+   */
+  def checkLength(nBits: Long, state: ParseOrUnparseState): Boolean = {
+    if (nBits % 4 != 0 || nBits <= 0 || nBits > state.tunable.maxBinaryNumberLengthInBits) {
+      val msg =
+        s"Length of packed decimal must a multiple of 4, greater than zero, and less than or equal to ${state.tunable.maxBinaryNumberLengthInBits}, but was $nBits"
+      val procErr = state.toProcessingError(msg)
+      state match {
+        case s: PState =>
+          s.setFailed(procErr)
+          return false
+        case s: UState =>
+          s.toss(procErr)
+      }
     } else {
       true
     }
@@ -95,14 +90,11 @@ abstract class PackedBinaryDecimalBaseParser(
   with PackedBinaryLengthCheck {
   override val runtimeDependencies = Array()
 
-  protected def getBitLength(s: ParseOrUnparseState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Long
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    val lengthEqualsZero = !checkLengthNotEqualToZero(nBits, start, packedType = "decimal")
-    if (lengthEqualsZero) return
-    val lengthNotMultipleOf4 = !checkLengthIsMultipleOf4(nBits, start)
-    if (lengthNotMultipleOf4) return
+    if (!checkLength(nBits, start)) return
 
     val dis = start.dataInputStream
 
@@ -112,7 +104,7 @@ abstract class PackedBinaryDecimalBaseParser(
     }
 
     try {
-      val dec = toPrimType(context, dis.getByteArray(nBits, start))
+      val dec = toPrimType(context, dis.getByteArray(nBits.toInt, start))
       if (
         dec.getBigDecimal
           .signum() == -1 && optDecimalSigned.isDefined && optDecimalSigned.get == YesNo.No
@@ -140,14 +132,11 @@ abstract class PackedBinaryIntegerBaseParser(
   with PackedBinaryLengthCheck {
   override val runtimeDependencies = Array()
 
-  protected def getBitLength(s: ParseOrUnparseState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Long
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    val lengthEqualsZero = !checkLengthNotEqualToZero(nBits, start, packedType = "integer")
-    if (lengthEqualsZero) return
-    val lengthNotMultipleOf4 = !checkLengthIsMultipleOf4(nBits, start)
-    if (lengthNotMultipleOf4) return
+    if (!checkLength(nBits, start)) return
 
     val dis = start.dataInputStream
 
@@ -157,7 +146,7 @@ abstract class PackedBinaryIntegerBaseParser(
     }
 
     try {
-      val int = toPrimType(context, dis.getByteArray(nBits, start))
+      val int = toPrimType(context, dis.getByteArray(nBits.toInt, start))
       start.simpleElement.setDataValue(int)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())

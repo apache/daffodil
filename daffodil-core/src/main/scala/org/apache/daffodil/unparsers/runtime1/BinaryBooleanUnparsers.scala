@@ -26,7 +26,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.Maybe.*
 import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
@@ -41,7 +40,7 @@ abstract class BinaryBooleanUnparserBase(
   lengthUnits: LengthUnits
 ) extends PrimUnparser {
 
-  def getBitLength(s: ParseOrUnparseState): Int
+  def getBitLength(s: ParseOrUnparseState): Long
 
   lazy val toBits = lengthUnits match {
     case LengthUnits.Bits => 1
@@ -73,9 +72,9 @@ abstract class BinaryBooleanUnparserBase(
         val trueRep =
           if (binaryBooleanTrueRep.isDefined) binaryBooleanTrueRep.getULong
           else ~binaryBooleanFalseRep
-        putNumber(dos, trueRep, nBits, state)
+        putNumber(dos, trueRep, nBits.toInt, state)
       } else {
-        putNumber(dos, binaryBooleanFalseRep, nBits, state)
+        putNumber(dos, binaryBooleanFalseRep, nBits.toInt, state)
       }
 
     if (!res) {
@@ -118,9 +117,8 @@ class BinaryBooleanUnparser(
 
   override val runtimeDependencies = Array(lengthEv)
 
-  override def getBitLength(s: ParseOrUnparseState): Int = {
-    val nBytesAsJLong = lengthEv.evaluate(s)
-    val nBytes = Numbers.asInt(nBytesAsJLong)
+  override def getBitLength(s: ParseOrUnparseState): Long = {
+    val nBytes = lengthEv.evaluate(s)
     lengthKind match {
       case LengthKind.Implicit => nBytes
       case _ => nBytes * toBits
@@ -142,6 +140,6 @@ class BinaryBooleanMinimumLengthUnparser(
 
   override val runtimeDependencies = Array()
 
-  override def getBitLength(s: ParseOrUnparseState): Int = 32
+  override def getBitLength(s: ParseOrUnparseState): Long = 32L
 
 }

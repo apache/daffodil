@@ -50,6 +50,8 @@ class TestPacked extends TdmlTests {
   @Test def zeroLengthPackedCharset = test
   @Test def runtimeLengthPackedCharset1 = test
   @Test def runtimeLengthPackedCharset2 = test
+  @Test def runtimeLengthPackedExceedsTunableMax = test
+  @Test def runtimeLengthPackedExceedsTunableMaxUnparse = test
 
   @Test def bcdCharset01 = test
   @Test def bcdCharset02 = test

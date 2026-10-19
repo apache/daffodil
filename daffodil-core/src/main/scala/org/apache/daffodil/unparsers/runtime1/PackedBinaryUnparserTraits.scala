@@ -31,6 +31,7 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.processors.parsers.PackedBinaryLengthCheck
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
 trait PackedBinaryConversion {
@@ -39,11 +40,12 @@ trait PackedBinaryConversion {
 
 abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser
-  with PackedBinaryConversion {
+  with PackedBinaryConversion
+  with PackedBinaryLengthCheck {
 
   override val runtimeDependencies: Array[Evaluatable[AnyRef]] = Array()
 
-  protected def getBitLength(s: ParseOrUnparseState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Long
 
   def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean
 
@@ -67,9 +69,10 @@ abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData
 
   override def unparse(state: UState): Unit = {
     val nBits = getBitLength(state)
+    checkLength(nBits, state)
     val value = getNumberToPut(state)
     val dos = state.getDataOutputStream
-    val res = putNumber(dos, value, nBits, state)
+    val res = putNumber(dos, value, nBits.toInt, state)
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)

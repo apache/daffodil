@@ -19,10 +19,17 @@
 <tdml:testSuite suiteName="packed"
   description="Packed Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   defaultRoundTrip="true">
+
+  <tdml:defineConfig name="smallMaxBinaryNumberLength">
+    <daf:tunables>
+      <daf:maxBinaryNumberLengthInBits>16</daf:maxBinaryNumberLengthInBits>
+    </daf:tunables>
+  </tdml:defineConfig>
 
   <tdml:defineSchema name="s1">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -436,7 +443,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>bits 0 out of range</tdml:error>
+      <tdml:error>greater than zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -449,7 +456,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>bits 0 out of range</tdml:error>
+      <tdml:error>greater than zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -462,10 +469,44 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>The given length</tdml:error>
-      <tdml:error>must be a multiple of 4 when using packed binary formats</tdml:error>
+      <tdml:error>multiple of 4</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="runtimeLengthPackedExceedsTunableMax" root="int03" model="s8"
+      description="A runtime length that exceeds the configured maxBinaryNumberLengthInBits tunable should result in PE"
+      config="smallMaxBinaryNumberLength">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">20</tdml:documentPart>
+      <tdml:documentPart type="byte">000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>less than or equal to 16</tdml:error>
+      <tdml:error>but was 20</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="runtimeLengthPackedExceedsTunableMaxUnparse" root="int03" model="s8"
+      description="A runtime length that exceeds the configured maxBinaryNumberLengthInBits tunable should result in UE"
+      config="smallMaxBinaryNumberLength">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int03>
+          <len>20</len>
+          <value>5</value>
+        </int03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Length of packed decimal</tdml:error>
+      <tdml:error>less than or equal to 16</tdml:error>
+      <tdml:error>but was 20</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="packedCharset10" root="int01" model="s11"
     description="Attempting to use an alignment of 1 bit with Packed Decimal should result in SDE">
