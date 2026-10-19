@@ -68,7 +68,7 @@ trait InfosetNodeProvider { self: InfosetTreeState =>
     e
   }
 
-  protected def attachElement(newElem: DIElement): Unit = {
+  override def attachElement(newElem: DIElement): Unit = {
     val parentNodeMaybe = currentInfosetNodeMaybe
     if (parentNodeMaybe.isDefined) {
       val parentComplex = parentNodeMaybe.get.asComplex

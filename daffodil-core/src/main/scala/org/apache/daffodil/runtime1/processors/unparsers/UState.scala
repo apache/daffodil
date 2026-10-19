@@ -463,6 +463,11 @@ trait InfosetTreeState extends Cursor[InfosetAccessor] {
     startEvent: Maybe[InfosetAccessor] = Nope
   ): DIElement
 
+  // Adds an element that was created without an infoset start event to the infoset, as
+  // if it had come from an event. Needed for elements whose data has no events, such as
+  // the synthesized terminating occurrence of a dfdl:occursCountKind='stopValue' array.
+  def attachElement(newElem: DIElement): Unit
+
   // Finishes a node whose end was just reached.
   def finishElement(cur: DINode): Unit
 
@@ -796,6 +801,7 @@ final class UStateForSuspension(
   override def groupIndexStack = die
   override def moveOverOneGroupIndexOnly() = die
   override def getElement(erd: ElementRuntimeData, startEvent: Maybe[InfosetAccessor]) = die
+  override def attachElement(newElem: DIElement) = die
   override def finishElement(cur: DINode) = die
   // $COVERAGE-ON$
 

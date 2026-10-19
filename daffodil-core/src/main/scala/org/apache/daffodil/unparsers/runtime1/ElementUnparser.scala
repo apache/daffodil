@@ -420,6 +420,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
           // below skips its end element event.
           val termElem = state.maybeStopValue.get
           Assert.invariant(termElem.erd eq erd)
+          state.attachElement(termElem)
           termElem
         } else if (!state.withinHiddenNest) {
           // Elements in a hidden context are not in the infoset, so we will never get an event
