@@ -358,6 +358,8 @@ final class Schema private (
     noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
   def getDefineEscapeScheme(name: String) =
     noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
+  def getDefineCharset(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getDefineCharset(name) }, name)
 
   // used for bulk checking of uniqueness
 
@@ -368,5 +370,6 @@ final class Schema private (
   lazy val defineFormats = schemaDocuments.flatMap(_.defineFormats)
   lazy val defineEscapeSchemes = schemaDocuments.flatMap(_.defineEscapeSchemes)
   lazy val defineVariables = schemaDocuments.flatMap(_.defineVariables)
+  lazy val defineCharsets = schemaDocuments.flatMap(_.defineCharsets)
 
 }
