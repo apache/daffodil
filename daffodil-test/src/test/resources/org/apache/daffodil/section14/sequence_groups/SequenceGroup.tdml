@@ -1780,5 +1780,200 @@
     </tdml:warnings>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="seqDelim2">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="foo" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator test="{fn:true()}"/>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+                <xs:element name="bar" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="baz" type="xs:string" minOccurs="0" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="seq2" root="r" model="seqDelim2"
+    description="Discriminator commits foo but postfix separator is absent - parse error per spec 9.3.3.1"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ABCD]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>separator</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="seqDelim3">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r3">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:integer" minOccurs="0"/>
+          <xs:element name="y" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r4">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:integer"/>
+          <xs:element name="y" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="seq3" root="r3" model="seqDelim3"
+    description="Postfix separator: absent-rep detection for simple delimited element - child fails (empty integer), separator present, element is absent"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[//hello//]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r3>
+          <y>hello</y>
+        </ex:r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="seq4" root="r4" model="seqDelim3"
+    description="Postfix separator: required element has zero-length content before separator - parse error because required element is absent"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[//hello//]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>unable to parse</tdml:error>
+      <tdml:error>integer from empty string</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    seqDelim4: postfix separator with separatorSuppressionPolicy="trailingEmpty" (positional).
+    Used to exercise the continueSequence=false branch: an optional trailing element that gets
+    AbsentRep causes the sequence to stop (isDone=true) without attempting later children.
+  -->
+  <tdml:defineSchema name="seqDelim4">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="trailingEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r5">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:integer"/>
+          <xs:element name="y" type="xs:integer" minOccurs="0"/>
+          <xs:element name="z" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    continueSequence=false path: trailingEmpty policy makes y positional (PositionalTrailingLax).
+    y has ZL content before the separator; PostfixSeparatorHelper finds the separator immediately
+    after reset, returns AbsentRep via computeFailedParseAttemptStatus. The outer scalar loop sees
+    AbsentRep for a positional element and sets isDone=true, stopping before z is attempted.
+  -->
+  <tdml:parserTestCase name="seq5" root="r5" model="seqDelim4"
+    description="Postfix sep trailingEmpty: absent optional trailing integer y stops sequence (continueSequence=false)"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42////]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r5>
+          <x>42</x>
+        </ex:r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    continueSequence=true path, both elements absent: anyEmpty policy makes both x and y
+    non-positional. x (integer) has ZL content; PostfixSeparatorHelper promotes MissingItem to
+    AbsentRep for the non-positional optional. The outer scalar loop calls moveOverOneGroupIndexOnly
+    and continues to y. y (string) parses empty content before the separator; child succeeds with
+    empty string, making dataOnlyRep AbsentRep (empty optional string with anyEmpty). Sequence
+    continues again and the loop ends with both elements absent.
+  -->
+  <tdml:parserTestCase name="seq6" root="r3" model="seqDelim3"
+    description="Postfix sep anyEmpty: both optional elements absent, sequence continues past each AbsentRep (continueSequence=true)"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[////]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r3/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    continueSequence=true path, first element present then second absent: x (integer) parses
+    normally (NormalRep). y (string) parses empty content before the separator; child succeeds
+    empty, dataOnlyRep is AbsentRep. The outer scalar loop calls moveOverOneGroupIndexOnly,
+    the loop ends with y absent.
+  -->
+  <tdml:parserTestCase name="seq7" root="r3" model="seqDelim3"
+    description="Postfix sep anyEmpty: x present, y absent as empty string before separator (continueSequence=true)"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42////]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r3>
+          <x>42</x>
+        </ex:r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
