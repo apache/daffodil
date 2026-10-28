@@ -35,11 +35,13 @@ import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
+import org.apache.daffodil.api.DaffodilXMLEntityResolver
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -72,11 +74,13 @@ import org.xml.sax.helpers.XMLFilterImpl
  * You can also turn on/off verbose messaging from the resolver
  * by putting 'verbosity=4' in that same file.
  *
+ * With userCatalogs false only the built-in catalog is used.
+ *
  * In all cases, we get the resource daffodil-built-in-catalog.xml
  * and that gets priority, so that entities we choose to resolve
  * as built-ins are resolved from the Daffodil jars.
  */
-class DFDLCatalogResolver private ()
+class DFDLCatalogResolver(userCatalogs: Boolean = true)
   extends org.apache.xerces.xni.parser.XMLEntityResolver
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
@@ -90,6 +94,7 @@ class DFDLCatalogResolver private ()
   }
 
   lazy val catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
+
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
@@ -110,8 +115,14 @@ class DFDLCatalogResolver private ()
     // catalogs, we take any user-specified catalogs and explicitly put
     // our catalog first in the catalog list, and then set it again.
     //
-    val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
-    Logger.log.debug(s"initial catalog files: ${catFiles}")
+    val catFiles =
+      if (userCatalogs) {
+        val files = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
+        Logger.log.debug(s"initial catalog files: ${files}")
+        files
+      } else {
+        Nil
+      }
     val builtInCatalog = Misc.getRequiredResource("/daffodil-built-in-catalog.xml")
     val newCatFiles = builtInCatalog.toString() :: catFiles
     cm.setCatalogFiles(newCatFiles.mkString(";"))
@@ -130,61 +141,15 @@ class DFDLCatalogResolver private ()
   }
 
   /**
-   * Flag to let us know we're already inside the resolution of the
-   * XML Schema URI. See comment below.
+   * Called by Xerces to resolve the namespace and schemaLocation of an import or include.
    *
-   * This is not thread safe, but the underlying catalog resolver isn't either, so
-   * we're not making it worse.
-   */
-  var alreadyResolvingXSD: Boolean = false
-
-  /**
-   * Called by SAX parser of the schema to resolve entities.
-   *
-   * Why the alreadyResolvingXSD flag?? it's because DFDL Schemas use the XSD namespace,
-   * but want it to resolve to the DFDL subset schema, but the DFDL Subset Schema
-   * uses the XSD Namespace, and does NOT want it to resolve to the DFDL subset,
-   * but rather, to the regular XSD namespace. Actually its more than that.
-   * We don't want to bother validating the DFDL Subset schemas every time
-   * we load a file. So we special case the XSD namespace URI.
-   *
-   * Without this special case check, we'll recurse and stack overflow here.
+   * This only names where the schema is. Xerces opens it after this returns.
    */
   def resolveEntity(ri: org.apache.xerces.xni.XMLResourceIdentifier): XMLInputSource = {
-    val nsString = ri.getNamespace()
-    val ns = NS(nsString)
-    val literalSysId = ri.getLiteralSystemId()
-    val baseURIString = ri.getBaseSystemId()
-
-    if (ns == XMLUtils.XSD_NAMESPACE) {
-      if (alreadyResolvingXSD) {
-        Logger.log.debug(s"special resolved to null")
-        return null
-      }
-    }
-    val prior = alreadyResolvingXSD
-    val res =
-      try {
-        alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
-        val optURI = resolveCommon(nsString, literalSysId, baseURIString)
-        optURI match {
-          case None => null
-          case Some(uri) => {
-            val xis = new XMLInputSource(null, uri.toString, null)
-            xis
-          }
-        }
-      } finally {
-        alreadyResolvingXSD = prior
-      }
-    res
-  }
-
-  def resolveURI(uri: String): String = {
-    val optURI = resolveCommon(uri, null, null)
+    val optURI = resolveCommon(ri.getNamespace(), ri.getLiteralSystemId(), ri.getBaseSystemId())
     optURI match {
       case None => null
-      case Some(uri) => uri.toString
+      case Some(uri) => new XMLInputSource(null, uri.toString, null)
     }
   }
 
@@ -200,15 +165,14 @@ class DFDLCatalogResolver private ()
     source
   }
 
-  private def resolveCommon(
-    nsURI: String,
-    systemId: String,
-    baseURIString: String
-  ): Option[URI] = {
+  /**
+   * The schema location the catalogs resolve the namespace or system id to, as a string, or null
+   * if they resolve neither.
+   *
+   * A catalog hit for the namespace is ignored when the system id names a different file.
+   */
+  private def resolveCatalogLocation(nsURI: String, systemId: String): String = {
     init
-    if (nsURI == null && systemId == null && baseURIString == null) return None
-
-    Logger.log.debug(s"nsURI = ${nsURI}, baseURI = ${baseURIString}, systemId = ${systemId}")
     val resolvedUri = delegate.resolveURI(nsURI)
     val resolvedSystem = delegate.resolveSystem(systemId)
 
@@ -245,18 +209,52 @@ class DFDLCatalogResolver private ()
     } else {
       systemId
     }
-    val resolvedId = {
-      if (resolvedSystem != null && resolvedSystem != resolvedUri) {
-        resolvedSystem
-      } else if (
-        resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(
-          systemIdPath
-        )))
-      ) {
-        resolvedUri
-      } else
-        null // We were unable to resolve the file based on the URI or systemID, so we will return null.
-    }
+    if (resolvedSystem != null && resolvedSystem != resolvedUri) {
+      resolvedSystem
+    } else if (
+      resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(
+        systemIdPath
+      )))
+    ) {
+      resolvedUri
+    } else
+      null // We were unable to resolve the file based on the URI or systemID, so we will return null.
+  }
+
+  /**
+   * The schema that the catalogs map this namespace or system id to, if any. Unlike
+   * resolveEntity, this does not look for the system id on the classpath or file system.
+   */
+  def resolveFromCatalog(nsURI: String, systemId: String): Option[URI] = {
+    if (nsURI == null && systemId == null) None
+    else Option(resolveCatalogLocation(nsURI, systemId)).map { new URI(_) }
+  }
+
+  /**
+   * True if the catalogs map this namespace to a schema.
+   */
+  def mapsNamespace(nsURI: String): Boolean = {
+    init
+    nsURI != null && delegate.resolveURI(nsURI) != null
+  }
+
+  /**
+   * Resolves the namespace and system id to a schema. Unlike resolveFromCatalog, a system id
+   * the catalogs do not map is looked for on the classpath and relative to the base URI.
+   */
+  def resolveToURI(nsURI: String, systemId: String, baseURI: String): Option[URI] =
+    resolveCommon(nsURI, systemId, baseURI)
+
+  private def resolveCommon(
+    nsURI: String,
+    systemId: String,
+    baseURIString: String
+  ): Option[URI] = {
+    init
+    if (nsURI == null && systemId == null && baseURIString == null) return None
+
+    Logger.log.debug(s"nsURI = ${nsURI}, baseURI = ${baseURIString}, systemId = ${systemId}")
+    val resolvedId = resolveCatalogLocation(nsURI, systemId)
 
     val result = (resolvedId, systemId) match {
       case (null, null) => {
@@ -380,19 +378,6 @@ class DFDLCatalogResolver private ()
 }
 
 /**
- * catalog resolvers aren't thread safe. But they're also expensive stateful,
- * do I/O etc. so we really only want one per thread.
- */
-object DFDLCatalogResolver {
-  lazy val d = new ThreadLocal[DFDLCatalogResolver] {
-    override def initialValue() = {
-      new DFDLCatalogResolver()
-    }
-  }
-  def get = d.get
-}
-
-/**
  * This LSInput implementation is tailored specifically for Daffodil's use with
  * Xerces and has implementation details to ensure XML data is read correctly
  * and InputStreams are closed.
@@ -491,7 +476,13 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
   def this() = this(RethrowSchemaErrorHandler)
 
-  private def resolver = DFDLCatalogResolver.get
+  // A loader asks for each resolver once, because creating one can be expensive.
+  private lazy val lsResolver = DaffodilXMLEntityResolver.getLSResourceResolver
+  lazy val xmlResolver = DaffodilXMLEntityResolver.getXMLEntityResolver
+
+  // A loader serves one schema compile, so these maps need no locking.
+  private val schemas = mutable.HashMap[URI, Schema]()
+  private val validators = mutable.HashMap[URI, XercesValidator]()
 
   /**
    * UPA errors are detected by xerces if the schema-full-checking feature is
@@ -521,9 +512,9 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * so we should only create one factory per DaffodilXMLLoader, so saving it
    * as val does not gain anything.
    */
-  private def schemaFactory: XMLSchemaFactory = {
+  private def schemaFactory(errorHandler: org.xml.sax.ErrorHandler): XMLSchemaFactory = {
     val sf = new XMLSchemaFactory()
-    sf.setResourceResolver(resolver)
+    sf.setResourceResolver(lsResolver)
     //
     // despite setting the errorHandler here, the validator
     // sometimes still throws exceptions, so we cannot depend
@@ -549,11 +540,19 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * For example this ensures that you can only have minOccurs and maxOccurs
    * on local element declarations and element refs, not on sequence/choice/group.
    */
-  def validateAsIndividualDFDLSchemaFile(source: DaffodilSchemaSource): Unit = {
+  def validateAsIndividualDFDLSchemaFile(
+    source: DaffodilSchemaSource,
+    errorHandler: org.xml.sax.ErrorHandler = this.errorHandler
+  ): Unit = {
     // first we load it, with validation explicitly against the
     // schema for DFDL Schemas.
     try {
-      load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
+      load(
+        source,
+        Some(XMLUtils.schemaForDFDLSchemas),
+        addPositionAttributes = true,
+        errorHandler = errorHandler
+      )
     } catch {
       // fatal errors are thrown.
       // validation errors are never fatal.
@@ -593,7 +592,10 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * on the XMLUtils.setSecureDefaults, so we don't need to
    * further check that here.
    */
-  def validateAsCompleteDFDLSchema(source: DaffodilSchemaSource): Boolean = {
+  def validateAsCompleteDFDLSchema(
+    source: DaffodilSchemaSource,
+    errorHandler: org.xml.sax.ErrorHandler = this.errorHandler
+  ): Boolean = {
     try {
       //
       // We validate explicitly so Xerces can check things
@@ -608,7 +610,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       // in the schema has an unrecognized namespace prefix.
       //
       try {
-        schemaFactory.newSchema(saxSource)
+        schemaFactory(errorHandler).newSchema(saxSource)
       } finally {
         inputSource.getByteStream().close()
       }
@@ -656,13 +658,17 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     }
   }
 
-  private def schemaFromURI(schemaURI: URI): Schema = {
-    val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-    sf.setErrorHandler(errorHandler)
-    sf.setResourceResolver(resolver)
-    val schema = sf.newSchema(new StreamSource(schemaURI.toString))
-    schema
-  }
+  // Daffodil's own validation schemas resolve against its built-in catalog only, never against
+  // a custom entity resolver, which need not know the namespaces they import.
+  private def schemaFromURI(schemaURI: URI): Schema =
+    schemas.getOrElseUpdate(
+      schemaURI, {
+        val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+        sf.setErrorHandler(RethrowSchemaErrorHandler)
+        sf.setResourceResolver(EntityResolverProviders.noUserCatalogs)
+        sf.newSchema(new StreamSource(schemaURI.toString))
+      }
+    )
 
   private def parserFactory() = {
     val f = DaffodilSAXParserFactory()
@@ -715,7 +721,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     addPositionAttributes: Boolean = false,
     normalizeCRLFtoLF: Boolean = true,
     removeComments: Boolean = true,
-    removeProcInstr: Boolean = true
+    removeProcInstr: Boolean = true,
+    errorHandler: org.xml.sax.ErrorHandler = this.errorHandler
   ): scala.xml.Node = {
     //
     // First we invoke the validator to explicitly validate the XML against
@@ -723,9 +730,16 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     // javax.xml.validation.Validator's validate method.
     //
     optSchemaURI.foreach { schemaURI =>
+      // The validator also resolves against the built-in catalog only.
       val validator =
         try {
-          XercesValidator.fromURL(schemaURI.toURL())
+          validators.getOrElseUpdate(
+            schemaURI,
+            XercesValidator.fromURL(
+              schemaURI.toURL(),
+              Some(EntityResolverProviders.noUserCatalogs)
+            )
+          )
         } catch {
           case e: org.xml.sax.SAXParseException =>
             Assert.invariantFailed(
@@ -779,7 +793,10 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
             getParent.getErrorHandler()
         }
         w.setErrorHandler(errorHandler)
-        w.setProperty("http://apache.org/xml/properties/internal/entity-resolver", resolver)
+        w.setProperty(
+          "http://apache.org/xml/properties/internal/entity-resolver",
+          xmlResolver
+        )
         w
       }
 

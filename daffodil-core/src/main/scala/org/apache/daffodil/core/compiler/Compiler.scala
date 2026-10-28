@@ -97,7 +97,13 @@ final class ProcessorFactory private (
     )
 
   lazy val sset: SchemaSet =
-    SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables)
+    SchemaSet(
+      optRootSpec,
+      schemaSource,
+      validateDFDLSchemas,
+      checkAllTopLevel,
+      tunables
+    )
 
   lazy val rootView: RootView = sset.root
 
@@ -195,7 +201,13 @@ class Compiler private (
     optRootName: Option[String] = optRootName,
     optRootNamespace: Option[String] = optRootNamespace
   ) =
-    new Compiler(validateDFDLSchemas, tunables, checkAllTopLevel, optRootName, optRootNamespace)
+    new Compiler(
+      validateDFDLSchemas,
+      tunables,
+      checkAllTopLevel,
+      optRootName,
+      optRootNamespace
+    )
 
   def withDistinguishedRootNode(name: String, namespace: String): Compiler = {
     Assert.usage(name ne null)

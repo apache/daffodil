@@ -117,7 +117,13 @@ final class SchemaSet private (
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
-  lazy val resolver = DFDLCatalogResolver.get
+  /**
+   * One loader serves every schema file in this schema set, so its resolvers, and the schema
+   * and validator for DFDL schemas, are created once for the compile.
+   */
+  lazy val schemaFileLoader = new DaffodilXMLLoader(RethrowSchemaErrorHandler)
+
+  lazy val resolver = schemaFileLoader.xmlResolver
 
   override lazy val optSchemaDocument = None
   override lazy val optXMLSchemaDocument = None
