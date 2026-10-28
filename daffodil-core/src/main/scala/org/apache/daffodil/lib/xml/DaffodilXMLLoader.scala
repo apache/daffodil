@@ -34,6 +34,8 @@ import javax.xml.transform.Source
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
+import javax.xml.validation.SchemaFactory
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
@@ -45,6 +47,7 @@ import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.validation.XercesValidator
 
 import org.apache.xerces.jaxp.validation.XMLSchemaFactory
 import org.apache.xerces.xni.parser.XMLInputSource
@@ -468,16 +471,18 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
  * do any validation either), however, once Daffodil starts processing the
  * DFDL schema nodes, it resolves references using the same one true XML catalog resolver.
  */
-class DaffodilXMLLoader(
-  val errorHandler: org.xml.sax.ErrorHandler,
-  validationCache: SchemaValidationCache = new SchemaValidationCache
-) extends NoBindingFactoryAdapter {
+class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
+  extends NoBindingFactoryAdapter {
 
   def this() = this(RethrowSchemaErrorHandler)
 
   // A loader asks for each resolver once, because creating one can be expensive.
   private lazy val lsResolver = DaffodilXMLEntityResolver.getLSResourceResolver
   lazy val xmlResolver = DaffodilXMLEntityResolver.getXMLEntityResolver
+
+  // A loader serves one schema compile, so these maps need no locking.
+  private val schemas = mutable.HashMap[URI, Schema]()
+  private val validators = mutable.HashMap[URI, XercesValidator]()
 
   /**
    * UPA errors are detected by xerces if the schema-full-checking feature is
@@ -653,8 +658,17 @@ class DaffodilXMLLoader(
     }
   }
 
+  // Daffodil's own validation schemas resolve against its built-in catalog only, never against
+  // a custom entity resolver, which need not know the namespaces they import.
   private def schemaFromURI(schemaURI: URI): Schema =
-    validationCache.schema(schemaURI)
+    schemas.getOrElseUpdate(
+      schemaURI, {
+        val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+        sf.setErrorHandler(RethrowSchemaErrorHandler)
+        sf.setResourceResolver(EntityResolverProviders.noUserCatalogs)
+        sf.newSchema(new StreamSource(schemaURI.toString))
+      }
+    )
 
   private def parserFactory() = {
     val f = DaffodilSAXParserFactory()
@@ -716,9 +730,16 @@ class DaffodilXMLLoader(
     // javax.xml.validation.Validator's validate method.
     //
     optSchemaURI.foreach { schemaURI =>
+      // The validator also resolves against the built-in catalog only.
       val validator =
         try {
-          validationCache.validator(schemaURI)
+          validators.getOrElseUpdate(
+            schemaURI,
+            XercesValidator.fromURL(
+              schemaURI.toURL(),
+              Some(EntityResolverProviders.noUserCatalogs)
+            )
+          )
         } catch {
           case e: org.xml.sax.SAXParseException =>
             Assert.invariantFailed(

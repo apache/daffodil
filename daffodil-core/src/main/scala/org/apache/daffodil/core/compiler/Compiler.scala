@@ -43,7 +43,6 @@ import org.apache.daffodil.lib.iapi.DaffodilTunables
 import org.apache.daffodil.lib.iapi.URISchemaSource
 import org.apache.daffodil.lib.iapi.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.SchemaValidationCache
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.iapi.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -69,8 +68,7 @@ final class ProcessorFactory private (
   schemaSource: DaffodilSchemaSource,
   val validateDFDLSchemas: Boolean,
   checkAllTopLevel: Boolean,
-  tunables: DaffodilTunables,
-  validationCache: SchemaValidationCache
+  tunables: DaffodilTunables
 ) extends DFDL.ProcessorFactory {
 
   def this(
@@ -79,16 +77,14 @@ final class ProcessorFactory private (
     schemaSource: DaffodilSchemaSource,
     validateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
-    tunables: DaffodilTunables,
-    validationCache: SchemaValidationCache
+    tunables: DaffodilTunables
   ) =
     this(
       RootSpec.makeRootSpec(optRootName, optRootNamespace), // compute root-spec object
       schemaSource,
       validateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
-      validationCache
+      tunables
     )
 
   private def copy(optRootSpec: Option[RootSpec] = optRootSpec): api.ProcessorFactory =
@@ -97,8 +93,7 @@ final class ProcessorFactory private (
       schemaSource,
       validateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
-      validationCache
+      tunables
     )
 
   lazy val sset: SchemaSet =
@@ -107,8 +102,7 @@ final class ProcessorFactory private (
       schemaSource,
       validateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
-      validationCache
+      tunables
     )
 
   lazy val rootView: RootView = sset.root
@@ -188,8 +182,7 @@ class Compiler private (
    */
   private val checkAllTopLevel: Boolean,
   private val optRootName: Option[String],
-  private val optRootNamespace: Option[String],
-  private val validationCache: SchemaValidationCache
+  private val optRootNamespace: Option[String]
 ) extends DFDL.Compiler {
 
   private def this(validateDFDLSchemas: Boolean = true) =
@@ -198,8 +191,7 @@ class Compiler private (
       tunables = DaffodilTunables(),
       checkAllTopLevel = true,
       optRootName = None,
-      optRootNamespace = None,
-      validationCache = new SchemaValidationCache
+      optRootNamespace = None
     )
 
   private def copy(
@@ -214,8 +206,7 @@ class Compiler private (
       tunables,
       checkAllTopLevel,
       optRootName,
-      optRootNamespace,
-      validationCache
+      optRootNamespace
     )
 
   def withDistinguishedRootNode(name: String, namespace: String): Compiler = {
@@ -400,8 +391,7 @@ class Compiler private (
         schemaSource,
         validateDFDLSchemas,
         checkAllTopLevel,
-        tunables,
-        validationCache
+        tunables
       )
     }
     // It is tempting to call pf.isError here to drive compilation to completion before we

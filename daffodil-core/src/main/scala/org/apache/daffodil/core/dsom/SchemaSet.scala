@@ -39,16 +39,14 @@ object SchemaSet {
     schemaSource: DaffodilSchemaSource,
     shouldValidateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
-    tunables: DaffodilTunables,
-    validationCache: SchemaValidationCache
+    tunables: DaffodilTunables
   ) = {
     val ss = new SchemaSet(
       optPFRootSpec,
       schemaSource,
       shouldValidateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
-      validationCache
+      tunables
     )
     ss.initialize()
     ss
@@ -93,8 +91,7 @@ final class SchemaSet private (
   val schemaSource: DaffodilSchemaSource,
   val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
-  val tunables: DaffodilTunables,
-  validationCache: SchemaValidationCache
+  val tunables: DaffodilTunables
 ) extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
@@ -121,11 +118,10 @@ final class SchemaSet private (
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
   /**
-   * One loader serves every schema file in this schema set, so its resolvers are created
-   * once for the compile. The schema and validator for DFDL schemas come from the cache
-   * that every schema set made by the same compiler shares.
+   * One loader serves every schema file in this schema set, so its resolvers, and the schema
+   * and validator for DFDL schemas, are created once for the compile.
    */
-  lazy val schemaFileLoader = new DaffodilXMLLoader(RethrowSchemaErrorHandler, validationCache)
+  lazy val schemaFileLoader = new DaffodilXMLLoader(RethrowSchemaErrorHandler)
 
   lazy val resolver = schemaFileLoader.xmlResolver
 
@@ -169,8 +165,7 @@ final class SchemaSet private (
       UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir),
       false,
       false,
-      tunableOpt.getOrElse(DaffodilTunables()),
-      new SchemaValidationCache
+      tunableOpt.getOrElse(DaffodilTunables())
     )
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
