@@ -24,6 +24,9 @@ import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolic
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.SequenceChildInfosetBuildInfo
+import org.apache.daffodil.runtime1.infoset.SequenceInfosetBuilder
 import org.apache.daffodil.runtime1.processors.parsers.*
 import org.apache.daffodil.runtime1.processors.unparsers.*
 import org.apache.daffodil.unparsers.runtime1.{ Separated as SeparatedUnparser, * }
@@ -124,6 +127,9 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
       }
     }
   }
+
+  override lazy val builder: InfosetBuilder =
+    SequenceInfosetBuilder(sequenceChildren.map { _.sequenceChildBuildInfo })
 }
 
 class UnorderedSequence(
@@ -220,4 +226,7 @@ class UnorderedSequence(
       }
     }
   }
+
+  override lazy val builder: InfosetBuilder =
+    SequenceInfosetBuilder(sequenceChildren.map { _.sequenceChildBuildInfo })
 }
