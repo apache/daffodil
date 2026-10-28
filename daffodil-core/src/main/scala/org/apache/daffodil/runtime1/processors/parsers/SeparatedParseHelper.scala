@@ -177,17 +177,17 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         val anotherSeparatorFollows = pstate.probeNonDestructively(sep)
         pas match {
           case ParseAttemptStatus.AbsentRep
-              if pstate.isFailure && 
+              if pstate.isFailure &&
                 separatorWasFound &&
                 (scParser.parseResultHelper.separatedSequenceChildBehavior eq
                   SeparatedSequenceChildBehavior.NonPositional) &&
                 !anotherSeparatorFollows =>
-              // Only for NonPositional (anyEmpty): a failed, zero-length
-              // attempt whose separator isn't followed by another one isn't
-              // a genuine zero-length occurrence of this item; release it
-              // (via the usual MissingItem backtrack) for the next item to
-              // claim instead.
-              ParseAttemptStatus.MissingItem
+            // Only for NonPositional (anyEmpty): a failed, zero-length
+            // attempt whose separator isn't followed by another one isn't
+            // a genuine zero-length occurrence of this item; release it
+            // (via the usual MissingItem backtrack) for the next item to
+            // claim instead.
+            ParseAttemptStatus.MissingItem
           case _ => pas
         }
       }

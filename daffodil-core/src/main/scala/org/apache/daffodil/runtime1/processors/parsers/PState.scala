@@ -296,14 +296,22 @@ final class PState private (
    * Runs parser as a peek: forces success, lets it run, then unconditionally
    * restores bit position, processor status, and diagnostics to what they
    * were beforehand, regardless of what parser did. Returns whether it
-   * succeeded.
+   * succeeded. Debugger and trace events are not fired for the peek.
    */
   def probeNonDestructively(parser: Parser): Boolean = {
     val savedBitPos = bitPos0b
     val savedStatus = processorStatus
     val savedDiagnostics = diagnostics
+    val savedDelimitedParseResult = delimitedParseResult
+    val savedDataProc = dataProc
+    dataProc = Maybe.Nope
     setSuccess()
-    parser.parse1(this)
+    try {
+      parser.parse1(this)
+    } finally {
+      dataProc = savedDataProc
+      delimitedParseResult = savedDelimitedParseResult
+    }
     val found = isSuccess
     dataInputStream.setBitPos0b(savedBitPos)
     _processorStatus = savedStatus
