@@ -24,7 +24,10 @@ import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util.*
 import org.apache.daffodil.core.util.TestUtils.intercept
 
+import net.sf.expectit.matcher.Matchers.eof
 import net.sf.expectit.matcher.Matchers.regexp
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 
 /**
@@ -1325,4 +1328,55 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
+  /**
+   * Tracing an unparse must step through the same bit positions whether or not
+   * the build-ahead path is used. The
+   * trace also shows the infoset, data and diff at each step; those differ
+   * in small ways on the build ahead path (the child and group indexes, and
+   * nodes built one step ahead), so they are not compared.
+   */
+  @Test def test_CLI_Tdml_Trace_buildAheadUnparseMatchesEventDriven(): Unit = {
+    val tdml = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/unparser/buildAhead.tdml"
+    )
+
+    def steps(buildAhead: Boolean): Seq[String] = {
+      val mode = if (buildAhead) {
+        "buildAhead"
+      } else {
+        "eventDriven"
+      }
+      val tunables = Map("DAFFODIL_TDML_TUNABLES" -> s"infosetBuilderMode=$mode")
+      var transcript = ""
+      runCLI(
+        args"test -t $tdml nviScopedVariableWithValueLengthOVC",
+        fork = true,
+        envs = envs ++ tunables
+      ) { cli =>
+        transcript = cli.expect(eof()).getInput
+      }(ExitCode.Success)
+      transcript.linesIterator
+        .filter { line =>
+          line.startsWith("bitPosition:") || line.startsWith("-----")
+        }
+        .map(_.replaceAll("@[0-9a-f]+", ""))
+        .toSeq
+    }
+
+    val eventDriven = steps(buildAhead = false)
+    val buildAhead = steps(buildAhead = true)
+    assertTrue("expected a trace of steps", eventDriven.exists(_.startsWith("bitPosition:")))
+    val firstDifference = eventDriven.zipAll(buildAhead, "<none>", "<none>").indexWhere {
+      case (a, b) => a != b
+    }
+    if (firstDifference >= 0) {
+      def around(lines: Seq[String]) =
+        lines.slice(firstDifference - 3, firstDifference + 3).mkString("\n    ")
+      fail(
+        s"first difference at line $firstDifference of ${eventDriven.length} event-driven and " +
+          s"${buildAhead.length} build ahead lines\n  event-driven:\n    ${around(eventDriven)}" +
+          s"\n  build ahead:\n    ${around(buildAhead)}"
+      )
+    }
+  }
 }

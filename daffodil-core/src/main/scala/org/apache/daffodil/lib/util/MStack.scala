@@ -150,6 +150,7 @@ final class MStackOf[T <: AnyRef](initialSize: Int = 32) extends Serializable {
   @inline final def setTop(t: T) = delegate.setTop(t)
   @inline final def top: T = delegate.top.asInstanceOf[T]
   @inline final def bottom: T = delegate.bottom.asInstanceOf[T]
+  @inline final def apply(i: Int): T = delegate(i).asInstanceOf[T]
   @inline final def isEmpty = delegate.isEmpty
   def clear() = delegate.clear()
   def toList = delegate.toList
@@ -301,6 +302,12 @@ protected abstract class MStack[@specialized T] private[util] (
   inline def top: T = table(index - 1)
 
   inline def bottom: T = table(0)
+
+  /** The element at position i, counting from the bottom of the stack at 0. */
+  inline def apply(i: Int): T = {
+    if (i < 0 || i >= index) Assert.usageError("Index out of range")
+    table(i)
+  }
 
   @inline final def isEmpty: Boolean = index == 0
 

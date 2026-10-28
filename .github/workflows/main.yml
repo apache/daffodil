@@ -197,6 +197,14 @@ jobs:
       - name: Run Unit Tests
         run: $SBT test
 
+      # Build ahead is the default, so run the suite once more event driven to
+      # keep that unparse path tested.
+      - name: Run Unit Tests (event-driven unparse)
+        if: matrix.os == 'ubuntu-22.04' && matrix.java_version == '17'
+        env:
+          DAFFODIL_TDML_TUNABLES: infosetBuilderMode=eventDriven
+        run: $SBT test
+
       - name: Run Integration Tests
         run: $SBT daffodil-test-integration/test
 
