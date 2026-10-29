@@ -181,7 +181,9 @@ abstract class SequenceParserBase(
                 //
                 val (nextAIS, nextResultOfTry) = parseOneInstance(parser, pstate, roStatus)
                 ais = nextAIS
-                priorResultOfTry = resultOfTry
+                if (resultOfTry ne ParseAttemptStatus.Uninitialized) {
+                  priorResultOfTry = resultOfTry
+                }
                 resultOfTry = nextResultOfTry
               }
               val currentPos = pstate.bitPos0b

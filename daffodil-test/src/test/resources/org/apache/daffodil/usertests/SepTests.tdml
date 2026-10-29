@@ -2141,4 +2141,245 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s19" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+        ref="ex:GeneralFormat"
+        lengthKind="delimited"
+        separator=";"
+        separatorSuppressionPolicy="trailingEmptyStrict"
+    />
+
+    <xs:element name="postfix">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0"/>
+          <xs:element name="c" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postfixOptional">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix">
+          <xs:element name="a" type="xs:int" minOccurs="0"/>
+          <xs:element name="b" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="prefix">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="prefix">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0"/>
+          <xs:element name="c" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="infix">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="infix">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0"/>
+          <xs:element name="c" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s20" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+        ref="ex:GeneralFormat"
+        lengthKind="delimited"
+        separator=";"
+        separatorPosition="postfix"
+    />
+
+    <xs:element name="trailing">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0"/>
+          <xs:element name="c" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="anyEmpty">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorSuppressionPolicy="anyEmpty">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0"/>
+          <xs:element name="c" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="never">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="a" type="xs:int"/>
+          <xs:element name="b" type="xs:int" minOccurs="0"/>
+          <xs:element name="c" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_5" root="postfix" model="s19">
+    <tdml:document>1;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix xmlns:ex="http://example.com">
+          <a>1</a>
+        </ex:postfix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_6" root="postfix" model="s19">
+    <tdml:document>1;2;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfix xmlns:ex="http://example.com">
+          <a>1</a>
+          <b>2</b>
+        </ex:postfix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_7" root="postfix" model="s19">
+    <tdml:document>1;;</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Empty trailing optional elements</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_8" root="postfixOptional" model="s19">
+    <tdml:document>;</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Empty trailing optional elements</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_9" root="postfixOptional" model="s19">
+    <tdml:document>1;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:postfixOptional xmlns:ex="http://example.com">
+          <a>1</a>
+        </ex:postfixOptional>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_10" root="prefix" model="s19">
+    <tdml:document>;1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefix xmlns:ex="http://example.com">
+          <a>1</a>
+        </ex:prefix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_11" root="prefix" model="s19">
+    <tdml:document>;1;2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:prefix xmlns:ex="http://example.com">
+          <a>1</a>
+          <b>2</b>
+        </ex:prefix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_12" root="infix" model="s19">
+    <tdml:document>1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:infix xmlns:ex="http://example.com">
+          <a>1</a>
+        </ex:infix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_13" root="infix" model="s19">
+    <tdml:document>1;2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:infix xmlns:ex="http://example.com">
+          <a>1</a>
+          <b>2</b>
+        </ex:infix>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_14" root="trailing" model="s20">
+    <tdml:document>1;;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:trailing xmlns:ex="http://example.com">
+          <a>1</a>
+        </ex:trailing>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_15" root="anyEmpty" model="s20">
+    <tdml:document>1;;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:anyEmpty xmlns:ex="http://example.com">
+          <a>1</a>
+        </ex:anyEmpty>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_16" root="never" model="s20">
+    <tdml:document>1;</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>maxOccurs instances and their separators</tdml:error>
+      <tdml:error>are required</tdml:error>
+      <tdml:error>separatorSuppressionPolicy='never'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_17" root="prefix" model="s19">
+    <tdml:document>;1;</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Empty trailing optional elements</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_ssp_strict_18" root="infix" model="s19">
+    <tdml:document>1;</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Empty trailing optional elements</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>trailingEmptyStrict</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
