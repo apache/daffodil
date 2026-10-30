@@ -1913,6 +1913,7 @@
       <tdml:dfdlInfoset>
         <ex:simple xmlns:ex="http://example.com">
           <one>1</one>
+          <two></two>
           <three>3</three>
         </ex:simple>
       </tdml:dfdlInfoset>
