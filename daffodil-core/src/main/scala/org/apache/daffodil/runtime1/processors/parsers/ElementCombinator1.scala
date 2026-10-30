@@ -142,8 +142,9 @@ abstract class ElementParserBase(
 
       Assert.invariant(pstate.hasInfoset)
 
+      val valueParsed = pstate.processorStatus eq Success
       var setVarFailureDiags: Seq[api.Diagnostic] = Nil
-      if (pstate.processorStatus eq Success) {
+      if (valueParsed) {
         var i: Int = 0
         while (i < setVarParser.length) {
           val d = setVarParser(i)
@@ -162,7 +163,9 @@ abstract class ElementParserBase(
         }
       }
 
-      if (testDiscrimParser.isDefined) {
+      // A failed value parse is already the error, and the element has no value
+      // for the discriminator to evaluate.
+      if (valueParsed && testDiscrimParser.isDefined) {
         testDiscrimParser.get.parse1(pstate)
         // Tests fail at the end of the Element
         if (pstate.processorStatus ne Success) { return }

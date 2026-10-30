@@ -1780,5 +1780,719 @@
     </tdml:warnings>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="postfixOptionalElements">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r3">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:integer" minOccurs="0"/>
+          <xs:element name="y" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r4">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:integer"/>
+          <xs:element name="y" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixRequiredEmptyIntFails" root="r4" model="postfixOptionalElements"
+    description="Postfix separator: required element has zero-length content before separator; parse error because required element is absent"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[//hello//]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>unable to parse</tdml:error>
+      <tdml:error>integer from empty string</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixTrailingEmptyPolicy: postfix separator with separatorSuppressionPolicy="trailingEmpty"
+    (positional). An absent optional trailing element ends the sequence without later
+    children being attempted.
+  -->
+  <tdml:defineSchema name="postfixTrailingEmptyPolicy">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="trailingEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r5">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:integer"/>
+          <xs:element name="y" type="xs:integer" minOccurs="0"/>
+          <xs:element name="z" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    trailingEmpty makes y positional. y has zero-length content before the separator, so y is
+    absent and the separator is consumed.
+  -->
+  <tdml:parserTestCase name="postfixTrailingEmptyAbsentOptionalInt" root="r5" model="postfixTrailingEmptyPolicy"
+    description="Postfix sep trailingEmpty: absent optional trailing integer y is skipped"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42////]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r5>
+          <x>42</x>
+        </ex:r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    anyEmpty makes both x and y non-positional. x (integer) has zero-length content and its
+    separator is present, so x is absent. y (string) is an empty optional string followed by
+    its separator, so y is absent too. Both are skipped.
+  -->
+  <tdml:parserTestCase name="postfixAnyEmptyAbsentOptionals" root="r3" model="postfixOptionalElements"
+    description="Postfix sep anyEmpty: both optional elements absent, sequence continues past each"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[////]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r3/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixGroupChild: a model group with real, non-zero-length content (p) whose own postfix
+    separator is then missing. The group is not the sequence's last child.
+  -->
+  <tdml:defineSchema name="postfixGroupChild">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r6">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:sequence>
+            <xs:element name="p" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          </xs:sequence>
+          <xs:element name="q" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixGroupMissingSeparator" root="r6" model="postfixGroupChild"
+    description="Postfix sep: model group parses real content successfully but its own postfix separator is missing"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[AB]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>postfix</tdml:error>
+      <tdml:error>separator</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixRequiredChildren: two required scalar elements; x parses successfully but the
+    postfix separator that must follow it is missing.
+  -->
+  <tdml:defineSchema name="postfixRequiredChildren">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r7">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:element name="y" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixRequiredMissingSeparator" root="r7" model="postfixRequiredChildren"
+    description="Postfix sep: required element parses successfully but the postfix separator is missing"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[AB]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>postfix</tdml:error>
+      <tdml:error>separator</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixChoiceBranch: same missing-postfix-separator shape as postfixRequiredChildren,
+    but as the first branch of a choice, so the overall parse succeeds via the second
+    branch.
+  -->
+  <tdml:defineSchema name="postfixChoiceBranch">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r10">
+      <xs:complexType>
+        <xs:choice>
+          <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+            <xs:element name="x" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+            <xs:element name="y" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          </xs:sequence>
+          <xs:element name="alt" type="xs:string" dfdl:length="2" dfdl:lengthKind="explicit"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixMissingSeparatorChoiceFallback" root="r10" model="postfixChoiceBranch"
+    description="Postfix sep inside a choice branch: x parses successfully but the postfix separator is missing, so the branch fails and the choice must cleanly retry the second branch from the original position"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[AB]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r10>
+          <alt>AB</alt>
+        </ex:r10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixDiscriminatedRequiredInChoice: the first choice branch is a postfix sequence
+    whose required child x contains a discriminator. The discriminator commits the choice
+    branch, so a later failure in the branch is a hard error and the choice must not fall
+    back to the second branch.
+  -->
+  <tdml:defineSchema name="postfixDiscriminatedRequiredInChoice">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r11">
+      <xs:complexType>
+        <xs:choice>
+          <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+            <xs:element name="x">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:sequence>
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:discriminator test="{fn:true()}"/>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:sequence>
+                  <xs:element name="a" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="y" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          </xs:sequence>
+          <xs:element name="alt" type="xs:string" dfdl:length="2" dfdl:lengthKind="explicit"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixDiscriminatedRequiredCommitsChoice" root="r11" model="postfixDiscriminatedRequiredInChoice"
+    description="Postfix sep: discriminator in a required child commits the enclosing choice branch even when its separator is present and a later sibling then fails"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[A//B]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>postfix separator</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixTrailingGroup: x and a possibly zero-length trailing group are each followed by
+    the outer '//'; the group's inner ';' follows only p. When the group's '//' is missing,
+    the group is treated as absent and the sequence ends, so the group's content must be
+    undone.
+  -->
+  <tdml:defineSchema name="postfixTrailingGroup">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="trailingEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r13">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+          <xs:element name="x" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+          <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+            <xs:element name="p" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixTrailingGroupAbsent" root="r13" model="postfixTrailingGroup"
+    description="Postfix sep: trailing group with no content and no postfix separator is absent and the sequence ends"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[A//]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r13>
+          <x>A</x>
+        </ex:r13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="postfixTrailingGroupRolledBack" root="r13" model="postfixTrailingGroup"
+    description="Postfix sep: A//B; has the inner ; after p but no // after the trailing group, so the group is rolled back and its content is left over"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[A//B;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixDiscriminatedTrailingGroup: the trailing group also holds a computed element
+    with a discriminator.
+  -->
+  <tdml:defineSchema name="postfixDiscriminatedTrailingGroup">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="trailingEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:group name="body">
+      <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+        <xs:element name="x" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="p" type="xs:string" minOccurs="0"/>
+          <xs:element name="chk" type="xs:int" dfdl:inputValueCalc="{ 1 }">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator test="{ fn:true() }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="r15">
+      <xs:complexType>
+        <xs:choice>
+          <xs:group ref="ex:body"/>
+          <xs:element name="alt" type="xs:string" dfdl:length="7" dfdl:lengthKind="explicit"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixDiscriminatedTrailingGroupParses" root="r15" model="postfixDiscriminatedTrailingGroup"
+    description="Postfix sep: a discriminator inside a trailing group, with all separators present, parses inside a choice branch"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[A//B;//]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r15>
+          <x>A</x>
+          <p>B</p>
+          <chk>1</chk>
+        </ex:r15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    nestedChoicesAroundTrailingGroup: each discriminator resolves one enclosing point of
+    uncertainty, nearest first. The group has one discriminator in r24 and two in r25.
+    Only outerAlt can match the 7 character data, and innerAlt cannot.
+  -->
+  <tdml:defineSchema name="nestedChoicesAroundTrailingGroup">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="trailingEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:group name="bodyOne">
+      <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+        <xs:element name="x" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="p" type="xs:string" minOccurs="0"/>
+          <xs:element name="chk1" type="xs:int" dfdl:inputValueCalc="{ 1 }">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator test="{ fn:true() }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:group name="bodyTwo">
+      <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator="//">
+        <xs:element name="x" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="p" type="xs:string" minOccurs="0"/>
+          <xs:element name="chk1" type="xs:int" dfdl:inputValueCalc="{ 1 }">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator test="{ fn:true() }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="chk2" type="xs:int" dfdl:inputValueCalc="{ 1 }">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator test="{ fn:true() }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="r24">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice>
+            <xs:group ref="ex:bodyOne"/>
+            <xs:element name="innerAlt" type="xs:string" dfdl:length="9" dfdl:lengthKind="explicit"/>
+          </xs:choice>
+          <xs:element name="outerAlt" type="xs:string" dfdl:length="7" dfdl:lengthKind="explicit"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r25">
+      <xs:complexType>
+        <xs:choice>
+          <xs:choice>
+            <xs:group ref="ex:bodyTwo"/>
+            <xs:element name="innerAlt" type="xs:string" dfdl:length="9" dfdl:lengthKind="explicit"/>
+          </xs:choice>
+          <xs:element name="outerAlt" type="xs:string" dfdl:length="7" dfdl:lengthKind="explicit"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixTrailingGroupDiscriminatorCommitsNearestChoice" root="r24" model="nestedChoicesAroundTrailingGroup"
+    description="Postfix sep: one discriminator in a trailing group resolves only the nearest enclosing choice (nested point of uncertainty rule, spec 9.3.3.1), so the outer choice still falls back to its next branch"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[A//B;xy]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r24>
+          <outerAlt>A//B;xy</outerAlt>
+        </ex:r24>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="postfixTrailingGroupTwoDiscriminatorsCommitTwoChoices" root="r25" model="nestedChoicesAroundTrailingGroup"
+    description="Postfix sep: two discriminators in a trailing group commit the two nearest enclosing choices, so the outer choice does not fall back to its next branch"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[A//B;xy]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>postfix separator</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    postfixNestedSameSepAnyEmpty: an optional array in an inner postfix sequence that uses
+    the same separator as the enclosing postfix sequence. When the array has no further
+    items, the separator that follows belongs to the inner sequence, not to another empty
+    array occurrence.
+  -->
+  <tdml:defineSchema name="postfixNestedSameSepAnyEmpty">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r17">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+            <xs:element name="g" type="xs:int" minOccurs="0" maxOccurs="3"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixNestedSameSepArrayAnyEmpty" root="r17" model="postfixNestedSameSepAnyEmpty"
+    description="Postfix sep: an array ends and leaves the next separator to the enclosing sequence that uses the same separator"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1;2;;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r17>
+          <a>1</a>
+          <g>2</g>
+        </ex:r17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="postfixNestedSameSepTrailingEmpty">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="trailingEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r18">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="a" type="xs:string"/>
+          <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+            <xs:element name="g" type="xs:int" minOccurs="0" maxOccurs="3"/>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixNestedSameSepArrayTrailingEmpty" root="r18" model="postfixNestedSameSepTrailingEmpty"
+    description="Postfix sep with trailingEmpty: an array ends and leaves the next separator to the enclosing sequence that uses the same separator"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1;2;;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r18>
+          <a>1</a>
+          <g>2</g>
+        </ex:r18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+    discriminatedOptionalElement: an optional element with a discriminator whose content
+    is empty. The discriminator commits to the element, so it is kept as an empty element
+    rather than treated as absent.
+  -->
+  <tdml:defineSchema name="discriminatedOptionalElement">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r20">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="a" type="xs:string"/>
+          <xs:element name="b" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator test="{ fn:true() }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r21">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="infix" dfdl:separator=";">
+          <xs:element name="a" type="xs:string"/>
+          <xs:element name="b" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator test="{ fn:true() }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixDiscriminatedEmptyOptionalKept" root="r20" model="discriminatedOptionalElement"
+    description="Postfix sep: a discriminated optional element with empty content and its separator is kept as an empty element"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[;;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r20>
+          <a></a>
+          <b></b>
+        </ex:r20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infixDiscriminatedEmptyOptionalKept" root="r21" model="discriminatedOptionalElement"
+    description="Infix sep: a discriminated optional element with empty content is kept as an empty element"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r21>
+          <a></a>
+          <b></b>
+        </ex:r21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="postfixDiscriminatedOptionalMissingSeparator" root="r20" model="discriminatedOptionalElement"
+    description="Postfix sep: a discriminated optional element whose postfix separator is missing is a parse error"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[x;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>postfix separator</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+    discriminatedOccurrences: every occurrence of the discriminated optional element is
+    empty and is kept, so each one must count in the occurrence index. The discriminator is
+    true while the index equals the number of occurrences present, up to the second one.
+  -->
+  <tdml:defineSchema name="discriminatedOccurrences">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"
+                 encodingErrorPolicy="error" />
+
+    <xs:element name="r28">
+      <xs:complexType>
+        <xs:sequence dfdl:separatorPosition="postfix" dfdl:separator=";">
+          <xs:element name="a" type="xs:string"/>
+          <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="3">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator
+                  test="{ dfdl:occursIndex() eq fn:count(../ex:b) and dfdl:occursIndex() le 2 }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="postfixDiscriminatedEmptyOccurrencesCountInOccursIndex" root="r28" model="discriminatedOccurrences"
+    description="Postfix sep: empty discriminated occurrences are kept and each one counts in the occurrence index"
+    roundTrip="none">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[;;;]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com" xmlns="http://example.com">
+        <ex:r28>
+          <a></a>
+          <b></b>
+          <b></b>
+        </ex:r28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
