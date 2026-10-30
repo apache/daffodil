@@ -225,7 +225,10 @@ abstract class SequenceParserBase(
             // should never have non-represented children in unordered sequences
             Assert.invariant(isOrdered)
 
-            nonRepresentedParser.parseOne(pstate, null)
+            // non-represented children by definition can never be absent or
+            // optional, so there is no speculative parsing and no need for
+            // a point of uncertainty.
+            nonRepresentedParser.parseOne(pstate, null, Nope)
             // don't need to digest result from this. All
             // information about success/failure is in the pstate.
             //
@@ -257,16 +260,11 @@ abstract class SequenceParserBase(
             resultOfTry = nextResultOfTry
             resultOfTry match {
               case AbsentRep => {
-                // a scalar element, or a model group is absent. That means no separator
-                // was found for it.
-                //
-                // That means were at the end of the representation of this sequence,
-                // This is only returned as resultOfTry if it is
-                // OK for us to act on it. I.e., we know that the situation is
-                // Positional trailing, with a group that can have zero-length representation.
-                // and no separator was found for it.
-                //
-                // So we mask the failure, and exit the sequence successfully
+                // An absent scalar element or model group only arises from
+                // positional trailing behavior, so we are at the end of this
+                // sequence's representation. Mask the failure and exit the
+                // sequence successfully.
+                Assert.invariant(scalarParser.isPositional)
                 pstate.setSuccess()
                 isDone = true
                 // If we're masking the failure, we don't want the error dianostics
@@ -384,7 +382,7 @@ abstract class SequenceParserBase(
     checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
     val priorPos = pstate.bitPos0b
 
-    var resultOfTry = parser.parseOne(pstate, roStatus)
+    var resultOfTry = parser.parseOne(pstate, roStatus, maybePoU)
 
     val currentPos = pstate.bitPos0b
 
@@ -406,11 +404,14 @@ abstract class SequenceParserBase(
         if (maybePoU.isDefined && !isPoUResolved) pstate.discardPointOfUncertainty(maybePoU.get)
       }
       case AbsentRep => {
-        if (maybePoU.isDefined) {
-          Assert.invariant(!isPoUResolved) // impossible for an absent rep to resolve the PoU
+        if (maybePoU.isDefined && !isPoUResolved) {
           pstate.resetToPointOfUncertainty(
             maybePoU.get
           ) // back out any side effects of the attempt to parse
+        } else if (maybePoU.isDefined) {
+          // A discriminator inside the element resolved the PoU, committing to
+          // the element, so it is kept as an empty occurrence.
+          resultOfTry = ParseAttemptStatus.EmptyRep
         }
         pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
       }

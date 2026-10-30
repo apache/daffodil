@@ -181,18 +181,9 @@ jones,arya,cat,02/19/1986
   This test illustrates that because of the malformed date in the
   final row of data, the schema should deem the whole file malformed.
 
-  Bug DAFFODIL-2486 reports that the discriminator in the schema
-  for this data does not seem to work.
-
-  There is a problem related to separator suppression which is introducing an
-  additional point of uncertainty, which renders the discriminator ineffective
-  for rows after the first one.
-
-  The test should end with a complaint about the DOB element, which is a date.
-  Until that bug is fixed, this ends with "left over data".
-  Because it backtracks and terminates the record array based on the failure
-  to parse the date.
-  That shouldn't happen because of the discriminator.
+  The discriminator in each record commits the record array element, so the
+  malformed date is a parse error about the DOB element. It must not
+  terminate the record array and leave data over.
   -->
   <tdml:parserTestCase name="nameDOB_test_bad_1" root="file"
                        model="s1">
@@ -203,6 +194,82 @@ jones,arya,cat,1986-02-19
 ]]></tdml:document>
     <tdml:errors>
       <tdml:error>xs:date</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s2">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" />
+
+    <xs:group name="versioned">
+      <xs:sequence dfdl:separator="%SP;" dfdl:separatorPosition="postfix">
+        <xs:element name="Version" type="xs:int" dfdl:textNumberPattern="#0">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator test="{ . eq 1 }" />
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="rest" type="xs:string" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="versionedOnly">
+      <xs:complexType>
+        <xs:group ref="tns:versioned" />
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="versionedOrAlt">
+      <xs:complexType>
+        <xs:choice>
+          <xs:group ref="tns:versioned" />
+          <xs:element name="alt" type="xs:string" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+  The value of Version fails to parse, so the discriminator is not evaluated and
+  must not report that Version has no value.
+  -->
+  <tdml:parserTestCase name="discrimNotEvaluatedAfterFailedValue" root="versionedOnly"
+                       model="s2">
+    <tdml:document><![CDATA[Oct 4 x ]]></tdml:document>
+    <tdml:errors match="none">
+      <tdml:error>does not have a value</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+  The value of Version fails to parse before the discriminator is evaluated, so
+  the choice backtracks to the next branch.
+  -->
+  <tdml:parserTestCase name="discrimFailedValueBacktracksChoice" root="versionedOrAlt"
+                       model="s2">
+    <tdml:document><![CDATA[Oct 4 x ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:versionedOrAlt xmlns:ex="http://example.com">
+          <alt>Oct 4 x </alt>
+        </ex:versionedOrAlt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+  The discriminator is true, so it commits the choice to the first branch and a
+  later failure in that branch does not backtrack to the next branch.
+  -->
+  <tdml:parserTestCase name="discrimTrueCommitsChoice" root="versionedOrAlt"
+                       model="s2">
+    <tdml:document><![CDATA[1 ]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>postfix separator</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

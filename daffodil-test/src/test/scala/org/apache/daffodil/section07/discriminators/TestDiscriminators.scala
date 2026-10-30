@@ -20,7 +20,6 @@ package org.apache.daffodil.section07.discriminators
 import org.apache.daffodil.junit.tdml.TdmlSuite
 import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.Ignore
 import org.junit.Test
 
 object TestDiscriminator extends TdmlSuite {
@@ -92,10 +91,12 @@ class TestDiscriminator2 extends TdmlTests {
 
   @Test def nameDOB_test1 = test
   @Test def nameDOB_test_bad_date_first_row = test
-  // DAFFODIL-2486 - discriminator bug - interaction with separators
-  @Ignore @Test def nameDOB_test_bad_1 = test
+  @Test def nameDOB_test_bad_1 = test
 
   @Test def nameDOB_test_bad_using_terminators = test
+  @Test def discrimNotEvaluatedAfterFailedValue = test
+  @Test def discrimFailedValueBacktracksChoice = test
+  @Test def discrimTrueCommitsChoice = test
 }
 
 class TestMultipleDiscriminators extends TdmlTests {

@@ -121,4 +121,24 @@ class TestSequenceGroup extends TdmlTests {
   @Test def choice_group_with_annotation_01 = test
 
   @Test def similar_model_groups_01 = test
+
+  // DAFFODIL-3085
+  @Test def postfixRequiredEmptyIntFails = test
+  @Test def postfixTrailingEmptyAbsentOptionalInt = test
+  @Test def postfixAnyEmptyAbsentOptionals = test
+  @Test def postfixGroupMissingSeparator = test
+  @Test def postfixRequiredMissingSeparator = test
+  @Test def postfixMissingSeparatorChoiceFallback = test
+  @Test def postfixDiscriminatedRequiredCommitsChoice = test
+  @Test def postfixTrailingGroupAbsent = test
+  @Test def postfixTrailingGroupRolledBack = test
+  @Test def postfixDiscriminatedTrailingGroupParses = test
+  @Test def postfixNestedSameSepArrayAnyEmpty = test
+  @Test def postfixNestedSameSepArrayTrailingEmpty = test
+  @Test def postfixDiscriminatedEmptyOptionalKept = test
+  @Test def infixDiscriminatedEmptyOptionalKept = test
+  @Test def postfixDiscriminatedOptionalMissingSeparator = test
+  @Test def postfixDiscriminatedEmptyOccurrencesCountInOccursIndex = test
+  @Test def postfixTrailingGroupDiscriminatorCommitsNearestChoice = test
+  @Test def postfixTrailingGroupTwoDiscriminatorsCommitTwoChoices = test
 }

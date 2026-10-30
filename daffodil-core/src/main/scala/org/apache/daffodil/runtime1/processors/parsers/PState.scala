@@ -222,7 +222,7 @@ final class PState private (
    *
    * The isPointOfUncertaintyResolved() function performs this logic so parsers
    * do not need to worry about this implementation detail. Also provided are
-   * discard/resetTo/resolvePointOfUncertainty functions to simplify this
+   * discard/resetTo/restoreTo/resolvePointOfUncertainty functions to simplify this
    * logic.
    */
   val pointsOfUncertainty = new MStackOf[PState.Mark](16)
@@ -430,6 +430,23 @@ final class PState private (
     val pouPop = pointsOfUncertainty.pop
     Assert.invariant(pou == pouPop)
     reset(pouPop)
+  }
+
+  /**
+   * Restore state to the point of uncertainty WITHOUT discarding it; the PoU
+   * stays on the stack for the outer handler to reset or discard. A fresh data
+   * stream mark is captured after the restore, since the stream reset discards
+   * the old one.
+   */
+  def restoreToPointOfUncertainty(pou: PState.Mark): Unit = {
+    Assert.usage(!isPointOfUncertaintyResolved(pou))
+    // The stream position is valid after the reset even if deleting
+    // backtracked blob files throws, so always re-capture the mark.
+    try {
+      pou.restoreInto(this)
+    } finally {
+      pou.disMark = dataInputStream.mark(pou.poolDebugLabel)
+    }
   }
 
   /**
