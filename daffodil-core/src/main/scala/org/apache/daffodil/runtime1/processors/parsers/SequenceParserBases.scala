@@ -22,6 +22,10 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.infoset.DIComplexState
+import org.apache.daffodil.runtime1.infoset.DIElement
+import org.apache.daffodil.runtime1.infoset.DIElementSharedInterface
+import org.apache.daffodil.runtime1.infoset.DISimpleState
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
@@ -105,6 +109,14 @@ abstract class SequenceParserBase(
        */
       var priorResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
+      /**
+       * Separate from priorResultOfTry, which a repeating child's own
+       * inner loop overwrites on its first iteration: this tracks the true
+       * previous sibling's final result, for the cross-sibling adjacency
+       * check below.
+       */
+      var priorSiblingResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
       var child: SequenceChildParser = null
 
       var isDone = false
@@ -137,6 +149,18 @@ abstract class SequenceParserBase(
             //
 
             priorResultOfTry = resultOfTry
+            // Only meaningful if the immediately preceding sibling was
+            // itself bounded to at most one occurrence: a multi-occurrence
+            // array's own final attempt is a deliberate probe expected to
+            // fail, not a wrongly-discarded singular occurrence.
+            val priorSiblingIsBoundedToAtMostOne =
+              (scpIndex == 0) || (children(scpIndex - 1) match {
+                case rep: RepeatingChildParser => rep.maxRepeats(pstate) <= 1
+                case _ => true
+              })
+            priorSiblingResultOfTry =
+              if (priorSiblingIsBoundedToAtMostOne) priorResultOfTry
+              else ParseAttemptStatus.Uninitialized
             resultOfTry = ParseAttemptStatus.Uninitialized
 
             var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
@@ -157,7 +181,9 @@ abstract class SequenceParserBase(
                 //
                 val (nextAIS, nextResultOfTry) = parseOneInstance(parser, pstate, roStatus)
                 ais = nextAIS
-                priorResultOfTry = resultOfTry
+                if (resultOfTry ne ParseAttemptStatus.Uninitialized) {
+                  priorResultOfTry = resultOfTry
+                }
                 resultOfTry = nextResultOfTry
               }
               val currentPos = pstate.bitPos0b
@@ -218,7 +244,11 @@ abstract class SequenceParserBase(
 
             } // end while for each repeat
             parser.endArray(pstate)
-            parser.arrayCompleteChecks(pstate, resultOfTry, priorResultOfTry)
+            parser.arrayCompleteChecks(
+              pstate,
+              resultOfTry,
+              priorSiblingResultOfTry
+            )
           } // end match case RepeatingChildParser
 
           case nonRepresentedParser: NonRepresentedSequenceChildParser => {
@@ -380,7 +410,16 @@ abstract class SequenceParserBase(
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
 
     checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
-    val priorPos = pstate.bitPos0b
+
+    // Infoset-only snapshot, independent of the PoU's own Mark: a
+    // discriminator can resolve (and thereby discard) that Mark on the
+    // same attempt that still classifies as AbsentRep, so we need our own
+    // way to back out any infoset side effects afterward.
+    val priorElement: DIElement = pstate.thisElement
+    val priorInfosetLastChild = pstate.infosetLastChild
+    val priorElementState: DIElementSharedInterface =
+      if (priorElement.isSimple) DISimpleState() else DIComplexState()
+    if (maybePoU.isDefined) priorElementState.captureFrom(priorElement)
 
     var resultOfTry = parser.parseOne(pstate, roStatus, maybePoU)
 

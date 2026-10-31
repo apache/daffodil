@@ -424,16 +424,12 @@ trait Term
         lazy val hasAllowedOCK = (e.occursCountKind eq OccursCountKind.Implicit) ||
           (e.occursCountKind eq OccursCountKind.Parsed)
         lazy val hasAllowedLengthKind = e.lengthKind eq LengthKind.Delimited
-        lazy val hasNoDiscriminators = !statements.exists { s =>
-          s.isInstanceOf[DFDLDiscriminator]
-        }
         val res =
           isRepresented &&
             (allowsZeroOccurs ||
               minOccursNotZeroButDeclaredLast) &&
             hasAllowedOCK &&
-            hasAllowedLengthKind &&
-            hasNoDiscriminators
+            hasAllowedLengthKind
         res
       }
       case m: ModelGroup => {
