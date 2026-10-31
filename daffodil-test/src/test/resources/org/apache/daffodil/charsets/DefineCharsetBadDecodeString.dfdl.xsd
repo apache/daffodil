@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!-- dfdlx:defineCharset decodeString must have exactly 2**bitWidthOfACodeUnit
+     characters. This one is one character short. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+           targetNamespace="http://example.com/dcu"
+           xmlns:ex="http://example.com/dcu"
+           elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
+      <dfdlx:defineCharset name="BadDecodeString"
+                           bitWidthOfACodeUnit="6"
+                           decodeString=" 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;0"
+                           replacementCharCode="0x0"
+                           requiredBitOrder="leastSignificantBitFirst"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <xs:element name="bad" type="xs:string" dfdl:encoding="BadDecodeString"/>
+
+</xs:schema>

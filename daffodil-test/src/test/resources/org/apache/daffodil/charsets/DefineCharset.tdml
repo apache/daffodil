@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  suiteName="User Defined Charsets (dfdlx:defineCharset)"
+  description="Tests for user defined charsets via dfdlx:defineCharset"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com/dcu"
+  xmlns:tns="http://example.com/dcu"
+  defaultRoundTrip="true">
+
+  <tdml:parserTestCase name="sixBitUser" root="sixBitUser" model="DefineCharset.dfdl.xsd"
+    description="parse/unparse a user defined 6 bit charset, bit-for-bit equivalent to the predefined X-DFDL-6-BIT-DFI-264-DUI-001 charset">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="X-DFDL-6-BIT-DFI-264-DUI-001" bitOrder="LSBFirst"><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:sixBitUser><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></tns:sixBitUser>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="ascii6BitUser" root="ascii6BitUser" model="DefineCharset.dfdl.xsd"
+    description="user defined 6 bit charset using the default (mostSignificantBitFirst) required bit order">
+    <tdml:document>
+      <!-- 'A'=code 0x21 'B'=code 0x22 'C'=code 0x23 'D'=code 0x24, packed 6 bits MSB first -->
+      <tdml:documentPart type="bits" bitOrder="MSBFirst">
+        100001 | 100010 | 100011 | 100100
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:ascii6BitUser><![CDATA[ABCD]]></tns:ascii6BitUser>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="shadowBuiltinError" root="shadow" model="DefineCharsetShadowBuiltin.dfdl.xsd"
+    roundTrip="none"
+    description="dfdlx:defineCharset may not override a predefined charset name">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="X-DFDL-6-BIT-DFI-264-DUI-001" bitOrder="LSBFirst"><![CDATA[ABCD]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>already a defined/registered charset name</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="badDecodeStringError" root="bad" model="DefineCharsetBadDecodeString.dfdl.xsd"
+    roundTrip="none"
+    description="dfdlx:defineCharset decodeString must contain exactly 2**bitWidthOfACodeUnit characters">
+    <tdml:document>
+      <tdml:documentPart type="text" encoding="X-DFDL-6-BIT-DFI-264-DUI-001" bitOrder="LSBFirst"><![CDATA[ABCD]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>must contain exactly 64 characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

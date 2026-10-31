@@ -48,6 +48,12 @@
       <xsd:element ref="dfdl:sequence" />
       <xsd:element ref="dfdl:setVariable" />
       <xsd:element ref="dfdl:simpleType" />
+      <!-- Note: elements in the dfdlx namespace (e.g. dfdlx:defineCharset) are -->
+      <!-- allowed inside xs:appinfo via the lax xsd:any namespace="##other" -->
+      <!-- wildcard (dfdl:anyOther) in the appinfo content model, and are -->
+      <!-- validated against the dfdlx schema when possible. They must not be -->
+      <!-- added to this group since that would create a Unique Particle -->
+      <!-- Attribution conflict with the dfdl:anyOther wildcard. -->
     </xsd:choice>
   </xsd:group>
 

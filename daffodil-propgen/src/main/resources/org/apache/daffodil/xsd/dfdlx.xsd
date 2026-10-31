@@ -168,4 +168,44 @@
     </xs:list>
   </xs:simpleType>
 
+  <!-- ================================================================================ -->
+  <!-- dfdlx:defineCharset - defines a character set directly in the DFDL schema. -->
+  <!-- -->
+  <!-- This statement appears inside an xs:annotation/xs:appinfo element with -->
+  <!-- source="http://www.ogf.org/dfdl/", at the top level of a schema document. -->
+  <!-- Once defined, the charset may be referenced by name by the dfdl:encoding -->
+  <!-- property, anywhere in scope within the schema set. -->
+  <!-- -->
+  <!-- The decodeString attribute lists the characters corresponding to each code -->
+  <!-- point, in code point order, and must contain exactly 2**bitWidthOfACodeUnit -->
+  <!-- characters. It supports DFDL Character Entities (e.g. %NUL;, %NBSP;, %#xHH;, -->
+  <!-- %#DDD;, %#rHH;) as well as ordinary (XML-thawed) characters. The Unicode -->
+  <!-- code point of every character must be less than 256. The replacement -->
+  <!-- character U+FFFD marks an unassigned (unmappable) code. -->
+  <!-- -->
+  <!-- The replacementCharCode attribute (decimal or 0x hexadecimal) is the code -->
+  <!-- used when unparsing a character that cannot be represented in this charset. -->
+  <!-- -->
+  <!-- The requiredBitOrder attribute (same values as dfdl:bitOrder) states the -->
+  <!-- bit order that characters of this charset require; it is checked against -->
+  <!-- the dfdl:bitOrder property in scope. -->
+  <!-- -->
+  <!-- The mandatoryBitAlignment attribute gives the alignment (in bits) that -->
+  <!-- this charset requires; it defaults to 1 (no alignment required). -->
+  <!-- -->
+  <!-- The name must be unique within the schema set (ignoring case) and must not -->
+  <!-- match any predefined (or plugin-provided) charset name. -->
+  <!-- ================================================================================ -->
+
+  <xs:element name="defineCharset" type="dfdlx:DefineCharsetType"/>
+
+  <xs:complexType name="DefineCharsetType">
+    <xs:attribute name="name" type="xs:NCName" use="required"/>
+    <xs:attribute name="bitWidthOfACodeUnit" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="decodeString" type="xs:string" use="required"/>
+    <xs:attribute name="replacementCharCode" type="xs:string" use="required"/>
+    <xs:attribute name="requiredBitOrder" type="dfdl:BitOrderEnum" default="mostSignificantBitFirst"/>
+    <xs:attribute name="mandatoryBitAlignment" type="xs:positiveInteger" default="1"/>
+  </xs:complexType>
+
 </xs:schema>
