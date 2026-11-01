@@ -388,8 +388,10 @@ trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultH
    * False if the model group is not represented (contains no syntax, and
    * all content is recursively not represented)
    *
-   * True if the model group has no mandatory syntax, and all content within
-   * is possibly ZL (recursively), defaultable, optional, or not represented.
+   * True if the model group is potentially trailing, or has no syntax known
+   * to occupy bits in the data stream (see hasKnownRequiredSyntax).
+   * A delimiter that can match zero-length data, such as %ES; or %WSP*;, or
+   * one computed by an expression on a model group, is not such syntax.
    */
   def isModelGroupRepPossiblyZeroLength: Boolean
 
@@ -439,21 +441,8 @@ trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultH
    */
   final protected def checkModelGroupZL(pstate: PState, isZL: Boolean): Unit = {
     Assert.invariant(pstate.isSuccess)
-    val isIt = isZL
     if (isZL) {
-      // This doesn't hold if
-      // (a) the format has a terminator which is an expression
-      // (b) the expression evaluates to say, %WSP*; or %ES; based on looking at other infoset information.
-      // (c) that delimiter matches zero length
-      // (d) the lengthKind is NOT delimited. So we're not scanning for this.
-      // This comes up in mil-std-2045 and other formats which have an optional
-      // final terminator after a string having lengthKind 'pattern'.
-      // In that case, the static information would indicate positively that isModelGroupRepNonZeroLength
-      // is true, when it isn't.
-      //
-      // Bug DAFFODIL-2132 is why isModelGroupRepNonZeroLength is incorrect in the above case.
-      //
-      // Assert.invariant(isModelGroupRepPossiblyZeroLength && !isModelGroupRepNonZeroLength)
+      Assert.invariant(isModelGroupRepPossiblyZeroLength && !isModelGroupRepNonZeroLength)
     }
   }
 

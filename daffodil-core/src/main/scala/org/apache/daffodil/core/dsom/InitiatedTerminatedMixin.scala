@@ -76,6 +76,54 @@ trait InitiatedTerminatedMixin
     hasOne
   }
 
+  /**
+   * The terminator counterpart of hasNonZeroLengthInitiator. Like it, only
+   * meaningful together with hasTerminator: with no terminator this is true.
+   */
+  lazy val hasNonZeroLengthTerminator = {
+    val hasOne = !terminatorExpr.isKnownCanMatchEmptyString
+    hasOne
+  }
+
+  /**
+   * True if this term has a delimiter known to occupy bits in the data stream.
+   * Contrast hasDelimiters, true whenever one is written in the schema.
+   *
+   * Not hasNonZeroLengthInitiator || hasNonZeroLengthTerminator, which are true
+   * when there is no delimiter at all.
+   */
+  final lazy val isKnownNonZeroLengthDelimiters =
+    isKnownNonZeroLengthInitiator || isKnownNonZeroLengthTerminator
+
+  /**
+   * An initiator from an expression is never known to occupy bits: spec section
+   * 12.2 allows %ES; or %WSP*; when dfdl:initiatedContent is 'no'.
+   */
+  final lazy val isKnownNonZeroLengthInitiator =
+    hasInitiator && initiatorExpr.isConstant && hasNonZeroLengthInitiator
+
+  /**
+   * A terminator from an expression is known to occupy bits only where section
+   * 12.2 forbids %ES; and %WSP*;, that is, where the parser scans for delimiters.
+   *
+   * isLengthKindDelimited is false for a model group, which is narrower than
+   * the spec: a group's terminator is scanned for by its delimited children.
+   * The effect is that such a group can be potentially trailing.
+   */
+  final lazy val isKnownNonZeroLengthTerminator =
+    hasTerminator &&
+      (if (terminatorExpr.isConstant) hasNonZeroLengthTerminator
+       else isLengthKindDelimited)
+
+  /**
+   * True if ES or WSP* appears alone as one of the initiator's literals, which
+   * section 12.2 makes a Schema Definition Error under dfdl:initiatedContent
+   * 'yes'. Narrower than hasNonZeroLengthInitiator: the spec restricts only
+   * the entity standing alone.
+   */
+  final lazy val hasZeroLengthEntityAloneInInitiator =
+    initiatorExpr.hasZeroLengthEntityAlone
+
   private lazy val isInitiatedContentChoice: Boolean = {
     immediatelyEnclosingModelGroup
       .map {
