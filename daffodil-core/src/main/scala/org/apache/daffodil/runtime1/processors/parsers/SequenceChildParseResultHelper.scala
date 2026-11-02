@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.lib.util.Maybe
@@ -411,27 +412,24 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
     requiredOptional: RequiredOptionalStatus,
     separatorWasFound: Boolean
   ): ParseAttemptStatus = {
-    val zl = zeroLengthComplexTypeDelimiterScanner match {
-      case scanner if scanner.isDefined =>
-        probeZeroLengthComplexType(prevBitPosBeforeChild, scanner.get, pstate)
-      case _ => isZL
+    val zl = if (zeroLengthComplexTypeDelimiterScanner.isDefined) {
+      // Peek, without consuming data, for one of the sequence's in-scope
+      // delimiters at the child's start. If that data can no longer be
+      // re-read, the bit position based answer is used instead.
+      val dis = pstate.dataInputStream
+      val posAtFailure = dis.markPos
+      try {
+        dis.setBitPos0b(prevBitPosBeforeChild)
+        zeroLengthComplexTypeDelimiterScanner.get.probe(pstate)
+      } catch {
+        case _: BacktrackingException => isZL
+      } finally {
+        dis.resetPos(posAtFailure)
+      }
+    } else {
+      isZL
     }
     anyTypeElementFailedParseAttemptStatus(pstate, zl, requiredOptional, separatorWasFound)
-  }
-
-  /**
-   * Checks, without consuming data, whether one of the sequence's in-scope
-   * delimiters is present right at prevBitPosBeforeChild, restoring pstate's
-   * processor status and diagnostics as needed so this peek leaves no trace
-   * regardless of the answer.
-   */
-  private def probeZeroLengthComplexType(
-    prevBitPosBeforeChild: Long,
-    scanner: Parser,
-    pstate: PState
-  ): Boolean = {
-    pstate.dataInputStream.setBitPos0b(prevBitPosBeforeChild)
-    pstate.probeNonDestructively(scanner)
   }
 }
 

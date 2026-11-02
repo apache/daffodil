@@ -141,6 +141,23 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
           case _ => // ok
         }
 
+      case Positional =>
+        // A non-trailing optional occurrence that failed on non-empty content
+        // is backed out, leaving its separator to the next sibling. Only an
+        // array may give a separator up that way; a positional sequence
+        // needs an omitted occurrence's separator to still be there.
+        parser match {
+          case rep: RepeatingChildParser
+              if rep.minRepeats(pstate) == 0 && rep.maxRepeats(pstate) <= 1 =>
+            if (resultOfTry eq ParseAttemptStatus.FailureUnspecified) {
+              parser.PE(
+                pstate,
+                "A non-trailing optional occurrence that is absent must keep its separator in a positional separated sequence"
+              )
+            }
+          case _ => // ok
+        }
+
       case _ => // ok
     }
   }

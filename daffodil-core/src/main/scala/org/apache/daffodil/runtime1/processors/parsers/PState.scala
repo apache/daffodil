@@ -249,7 +249,7 @@ final class PState private (
 
   private val markPool = new PState.MarkPool
 
-  private def mark(requestorID: String, context: RuntimeData): PState.Mark = {
+  private[parsers] def mark(requestorID: String, context: RuntimeData): PState.Mark = {
     // threadCheck()
     val m = markPool.getFromPool(requestorID)
     m.captureFrom(this, requestorID, context)
@@ -263,7 +263,7 @@ final class PState private (
 
   def dataInputStreamIsValid = dataInputStream.inputSource.isValid
 
-  private def reset(m: PState.Mark): Unit = {
+  private[parsers] def reset(m: PState.Mark): Unit = {
     // threadCheck()
     m.element.infosetWalkerBlockCount -= 1
     m.restoreInto(this)
@@ -291,33 +291,6 @@ final class PState private (
   def bitPos0b = dataInputStream.bitPos0b
   def bitLimit0b = dataInputStream.bitLimit0b
   //  def charLimit = inStream.charLimit0b
-
-  /**
-   * Runs parser as a peek: forces success, lets it run, then unconditionally
-   * restores bit position, processor status, and diagnostics to what they
-   * were beforehand, regardless of what parser did. Returns whether it
-   * succeeded. Debugger and trace events are not fired for the peek.
-   */
-  def probeNonDestructively(parser: Parser): Boolean = {
-    val savedBitPos = bitPos0b
-    val savedStatus = processorStatus
-    val savedDiagnostics = diagnostics
-    val savedDelimitedParseResult = delimitedParseResult
-    val savedDataProc = dataProc
-    dataProc = Maybe.Nope
-    setSuccess()
-    try {
-      parser.parse1(this)
-    } finally {
-      dataProc = savedDataProc
-      delimitedParseResult = savedDelimitedParseResult
-    }
-    val found = isSuccess
-    dataInputStream.setBitPos0b(savedBitPos)
-    _processorStatus = savedStatus
-    diagnostics = savedDiagnostics
-    found
-  }
 
   def simpleElement: DISimple = {
     val res = infoset match {

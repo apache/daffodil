@@ -29,7 +29,8 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextJustificationType
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
-import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock;
+import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock
+import org.apache.daffodil.runtime1.processors.dfa.TextParser
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 import java.nio.charset.StandardCharsets
@@ -119,32 +120,35 @@ class StringDelimitedParser(
  * Used to determine whether a complex type's representation at this
  * position is genuinely zero-length, independent of whatever bit-position
  * bookkeeping the complex type's own (possibly backtracking) descent
- * produces. Saves its delimited-parse result the same way a field parser
- * would, but never sets a data value, since there is no simple element
- * value to set.
+ * produces. Nothing is consumed or recorded. The context is the sequence
+ * that owns the delimiters, so they are decoded in its encoding.
  */
 final class ZeroLengthComplexTypeDelimitedParser(
   override val context: TermRuntimeData
-) extends PrimParser {
+) extends TextPrimParser {
 
-  override val runtimeDependencies = Array()
+  override val runtimeDependencies = context.encodingInfo.runtimeDependencies
 
-  def parse(start: PState): Unit = {
-    val delimIter = new AllTerminatingMarkupDelimiterIterator(
-      start.mpstate.delimiters,
-      start.mpstate.delimitersLocalIndexStack.top
-    )
-    start.clearDelimitedParseResult()
-    val result = dfa.ZeroLengthDelimiterScanner.scan(start, start.dataInputStream, delimIter)
-    if (!result.isDefined) {
-      this.PE(
-        start,
-        "%s - No adjacent delimiter found for zero-length representation.",
-        context.diagnosticDebugName
+  private val textParser = new TextParser(context)
+
+  // The scan restores its own input position and changes no other state, so
+  // nothing needs saving.
+  override protected def probeImpl(start: PState): Boolean = {
+    val dis = start.dataInputStream
+    // At the end of the data there is no representation at all, so whatever
+    // would be here is necessarily zero length.
+    !dis.isDefinedForLength(1) || {
+      val delimIter = new AllTerminatingMarkupDelimiterIterator(
+        start.mpstate.delimiters,
+        start.mpstate.delimitersLocalIndexStack.top
       )
-    } else {
-      start.saveDelimitedParseResult(result)
+      textParser.parse(start, dis, delimIter).isDefined
     }
+  }
+
+  // This parser is only ever probed.
+  def parse(start: PState): Unit = {
+    Assert.invariantFailed("zero-length delimiter scanner is only probed, never parsed")
   }
 }
 

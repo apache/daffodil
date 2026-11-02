@@ -62,13 +62,14 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_trailing_2 = test
   @Test def test_sep_ssp_trailing_3 = test
   @Test def test_sep_ssp_trailing_4 = test
+  @Test def test_sep_ssp_trailing_5 = test
 
   @Test def test_sep_ssp_never_13 = test
   @Test def test_sep_ssp_never_14 = test
   @Test def test_sep_ssp_never_15 = test
   @Test def test_sep_ssp_never_16 = test
 
-  @Test def test_sep_ssp_any_1 = trace
+  @Test def test_sep_ssp_any_1 = test
   @Test def test_sep_ssp_any_2 = test
   @Test def test_sep_ssp_any_3 = test
   @Test def test_sep_ssp_any_4 = test
@@ -95,6 +96,21 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_strict_16 = test
   @Test def test_sep_ssp_strict_17 = test
   @Test def test_sep_ssp_strict_18 = test
+  @Test def test_sep_ssp_strict_19 = test
+  @Test def test_sep_ssp_strict_20 = test
+  @Test def test_sep_ssp_strict_21 = test
+  @Test def test_sep_ssp_strict_22 = test
+  @Test def test_sep_probe_stale_delimiter_1 = test
+  @Test def test_sep_probe_postfix_complex_1 = test
+  @Test def test_sep_probe_postfix_complex_2 = test
+  @Test def test_sep_probe_rewind_1 = test
+  @Test def test_sep_probe_end_of_data_1 = test
+  @Test def test_sep_probe_encoding_scope_1 = test
+  @Test def test_sep_discriminated_absent_1 = test
+  @Test def test_sep_unparse_discriminated_trailing_1 = test
+  @Test def test_sep_positional_optional_complex_1 = test
+  @Test def test_sep_positional_optional_complex_2 = test
+  @Test def test_sep_positional_optional_complex_3 = test
 
   // DAFFODIL-2205 - EmptyValueDelimiterPolicy only works with 'both'
   @Test def test_sep_evdp_1 = test

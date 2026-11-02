@@ -43,14 +43,6 @@ sealed abstract class SeparatorParseHelper(
 
   protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
 
-  /**
-   * Checks, without consuming data, whether one of the sequence's in-scope
-   * delimiters is present right where this complex type's content would
-   * begin. Nope for simple types and for model groups.
-   */
-  protected final def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser] =
-    scParser.parseResultHelper.zeroLengthComplexTypeDelimiterScanner
-
   def parseOneWithSeparator(
     state: PState,
     requiredOptional: RequiredOptionalStatus,
@@ -174,14 +166,13 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             requiredOptional,
             separatorWasFound
           )
-        val anotherSeparatorFollows = pstate.probeNonDestructively(sep)
         pas match {
           case ParseAttemptStatus.AbsentRep
               if pstate.isFailure &&
                 separatorWasFound &&
                 (scParser.parseResultHelper.separatedSequenceChildBehavior eq
                   SeparatedSequenceChildBehavior.NonPositional) &&
-                !anotherSeparatorFollows =>
+                !sep.probe(pstate) =>
             // Only for NonPositional (anyEmpty): a failed, zero-length
             // attempt whose separator isn't followed by another one isn't
             // a genuine zero-length occurrence of this item; release it
@@ -352,9 +343,10 @@ final class PostfixSeparatorHelper(
             requiredOptional,
             separatorWasFound = true
           )
-          // For non-positional (anyEmpty) sequences, the child result helper returns
-          // MissingItem for optional ZL elements; since the postfix separator WAS
-          // found, a non-array element is AbsentRep per DFDL spec 9.2.4.
+          // Since the postfix separator WAS found, a non-array optional element
+          // is already AbsentRep per DFDL spec 9.2.4. An array occurrence ends
+          // its array instead, leaving the separator for the enclosing group,
+          // which may need it as its own.
           val isArrayOccurrence = scParser.trd match {
             case erd: ElementRuntimeData => erd.isArray
             case _ => false
@@ -363,11 +355,7 @@ final class PostfixSeparatorHelper(
           pas match {
             case ParseAttemptStatus.MissingItem | ParseAttemptStatus.AbsentRep
                 if isOptional && isArrayOccurrence =>
-              // The array ends here and the separator is left for the enclosing
-              // group, which may need it as its own.
               ParseAttemptStatus.MissingSeparator
-            case ParseAttemptStatus.MissingItem if isOptional =>
-              ParseAttemptStatus.AbsentRep
             case _ => pas
           }
         } else {

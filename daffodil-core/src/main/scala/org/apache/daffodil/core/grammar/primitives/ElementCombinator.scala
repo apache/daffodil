@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.grammar.EmptyGram
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.NamedGram
@@ -170,14 +171,17 @@ case class ElementUnused(ctxt: ElementBase)
  * zero-length, independent of whatever bit-position bookkeeping the
  * complex type's own (possibly backtracking) descent produces.
  *
+ * The delimiters belong to the sequence, so the probe runs in the
+ * sequence's context, not the element's.
+ *
  * Parse-only: never composed into the element's own parse sequence, only
  * ever invoked on demand as a probe.
  */
-case class ZeroLengthComplexTypeDelimiterScanner(ctxt: ElementBase)
+case class ZeroLengthComplexTypeDelimiterScanner(ctxt: ElementBase, sq: SequenceTermBase)
   extends Terminal(ctxt, true) {
 
   override lazy val parser: Parser =
-    new ZeroLengthComplexTypeDelimitedParser(ctxt.elementRuntimeData)
+    new ZeroLengthComplexTypeDelimitedParser(sq.termRuntimeData)
 
   override def unparser: Unparser = hasNoUnparser
 }

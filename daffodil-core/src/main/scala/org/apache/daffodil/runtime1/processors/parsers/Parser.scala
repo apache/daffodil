@@ -23,6 +23,7 @@ import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.{ MaybeULong, Misc }
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
@@ -184,6 +185,47 @@ sealed trait Parser extends Processor {
       if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
       pstate.setMaybeProcessor(savedParser)
     }
+  }
+
+  /**
+   * Whether this parser would succeed at the current position, without
+   * affecting parse state or firing debugger and trace events.
+   */
+  final def probe(pstate: PState): Boolean = {
+    val savedParser = pstate.maybeProcessor
+    pstate.setProcessor(this)
+    try {
+      probeImpl(pstate)
+    } finally {
+      pstate.resetFormatInfoCaches()
+      pstate.setMaybeProcessor(savedParser)
+    }
+  }
+
+  /**
+   * Runs the parser under a mark with the event handler off, then resets to
+   * the mark. A mark does not capture the pending delimiter result and the
+   * event handler is not parse state, so both are handled here.
+   */
+  protected def probeImpl(pstate: PState): Boolean = {
+    val savedDelimitedParseResult = pstate.delimitedParseResult
+    val savedDataProc = pstate.dataProc
+    val probeMark = pstate.mark("probe", context)
+    // A delimiter result left over from an earlier parser would be trusted by
+    // the probed parser instead of scanning the data at this position.
+    pstate.delimitedParseResult = Nope
+    pstate.dataProc = Nope
+    pstate.setSuccess()
+    var found = false
+    try {
+      parse1(pstate)
+      found = pstate.isSuccess
+    } finally {
+      pstate.reset(probeMark)
+      pstate.dataProc = savedDataProc
+      pstate.delimitedParseResult = savedDelimitedParseResult
+    }
+    found
   }
 }
 
