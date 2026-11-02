@@ -42,12 +42,12 @@ jobs:
         java_distribution: [ temurin ]
         java_version: [ 17, 21, 25 ]
         scala_version: [ 3.3.7 ]
-        os: [ ubuntu-22.04, windows-2022, macos-14 ]
+        os: [ ubuntu-22.04, windows-2022, macos-15 ]
         exclude:
           # only run macos on java 17
-          - os: macos-14
+          - os: macos-15
             java_version: 21
-          - os: macos-14
+          - os: macos-15
             java_version: 25
         include:
           # configure shell/cc/ar for all OSes
@@ -59,7 +59,7 @@ jobs:
             shell: msys2 {0}
             env_cc: clang
             env_ar: llvm-ar
-          - os: macos-14
+          - os: macos-15
             shell: bash
             env_cc: cc
             env_ar: ar
