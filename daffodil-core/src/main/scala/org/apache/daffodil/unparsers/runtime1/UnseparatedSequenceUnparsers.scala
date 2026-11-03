@@ -45,9 +45,9 @@ class RepOrderedUnseparatedSequenceChildUnparser(
 ) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Unseparated {
 
-  override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = {
+  override def checkArrayPosAgainstMaxOccurs(state: InfosetTreeState): Boolean = {
     if (ock eq OccursCountKind.Implicit)
-      state.arrayIterationPos <= maxRepeats(state)
+      state.arrayIterationPos <= maxRepeatsConst
     else
       true
   }
@@ -105,7 +105,7 @@ class OrderedUnseparatedSequenceUnparser(
           state.occursIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
-          val maxReps = unparser.maxRepeats(state)
+          val maxReps = unparser.maxRepeatsConst
 
           //
           // The number of occurrances we unparse is always exactly driven

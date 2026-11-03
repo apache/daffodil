@@ -22,6 +22,8 @@ import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.iapi.DFDL
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.NadaInfosetBuilder
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -61,6 +63,16 @@ trait SchemaSetRuntime1Mixin {
     unp
   }.value
 
+  // Built for every unparse-capable compile, whatever infosetBuilderMode says,
+  // so the tunable can be changed on a compiled DataProcessor.
+  lazy val builder: InfosetBuilder = LV(Symbol("builder")) {
+    if (generateUnparser) {
+      root.document.builder
+    } else {
+      NadaInfosetBuilder
+    }
+  }.value
+
   private lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 
   private lazy val allLayers: Seq[LayerRuntimeData] = LV(Symbol("allLayers")) {
@@ -88,6 +100,7 @@ trait SchemaSetRuntime1Mixin {
       new SchemaSetRuntimeData(
         parser,
         unparser,
+        builder,
         root.elementRuntimeData,
         variableMap,
         allLayers,

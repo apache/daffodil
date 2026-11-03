@@ -534,6 +534,29 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="infosetBuilderMode" type="daf:TunableInfosetBuilderMode" default="buildAhead" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              How unparsing gets the infoset. Values are:
+              - buildAhead: a build pass runs ahead of an unparse pass over the same
+                  infoset tree, resolving forward references against the tree directly
+                  instead of via Suspensions where possible. How far build may run
+                  ahead of unparse is bounded by unparseBuildAheadWindowNodes.
+              - eventDriven: the events of the infoset inputter are unparsed as they
+                  arrive, with no tree built ahead.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unparseBuildAheadWindowNodes" type="xs:long" default="1000" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Only consulted when infosetBuilderMode is buildAhead. The maximum
+              number of infoset nodes build may construct ahead of unparse before
+              build pauses to let unparse catch up. Bounds peak memory use to
+              roughly this many infoset nodes rather than the whole infoset.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="requireBitOrderProperty" type="xs:boolean" default="false" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -707,6 +730,13 @@
       <xs:enumeration value="daffodil" />
       <xs:enumeration value="daffodilC" />
       <xs:enumeration value="ibm" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TunableInfosetBuilderMode">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="eventDriven" />
+      <xs:enumeration value="buildAhead" />
     </xs:restriction>
   </xs:simpleType>
 

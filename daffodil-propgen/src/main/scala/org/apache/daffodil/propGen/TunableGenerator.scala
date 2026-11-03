@@ -79,7 +79,8 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |      if (configOpt.isDefined) {
     |        val loader = new DaffodilXMLLoader()
     |        val node = loader.load(URISchemaSource(Paths.get(configPath).toFile, configOpt.get), Some(XMLUtils.dafextURI))
-    |        tunablesMap(node)
+    |        val optTunablesNode = (node \ "tunables").headOption
+    |        optTunablesNode.map(tunablesMap(_)).getOrElse(Map.empty)
     |      } else {
     |        Map.empty
     |      }
@@ -98,15 +99,13 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |    tunables.foldLeft(this) { case (dafTuns, (tunable, value)) => dafTuns.withTunable(tunable, value) }
     |  }
     |
+    |  // Each tunable has its own private parse method, so the match over the
+    |  // tunable names stays one line per tunable.
     |  def withTunable(tunable: String, value: String): DaffodilTunables = {
     |    tunable match {
     """.trim.stripMargin
 
   val bottom = """
-    |      case _ => throw new IllegalArgumentException("Unknown tunable: " + tunable)
-    |    }
-    |  }
-    |
     |  private def throwInvalidTunableValue(tunable: String, value: String) = {
     |    throw new IllegalArgumentException("Invalid value for tunable " + tunable + ": " + value)
     |  }
@@ -165,15 +164,25 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
         .map(_.scalaDefinition)
         .mkString("  ", ",\n  ", ")")
 
-    val conversionString =
+    val casesString =
+      tunables
+        .map { tunable =>
+          s"""      case "${tunable.name}" => ${tunable.parseFunctionName}(value)"""
+        }
+        .mkString("\n")
+
+    val unknownCase =
+      """      case _ => throw new IllegalArgumentException("Unknown tunable: " + tunable)"""
+
+    val parseFunctionsString =
       tunables
         .map { tunable =>
           tunable.scalaConversion
             .split("\n")
             .filter(_.trim.length > 0)
-            .mkString("      ", "\n      ", "")
+            .mkString("  ", "\n  ", "")
         }
-        .mkString("\n")
+        .mkString("\n\n")
 
     w.write(top)
     w.write("\n")
@@ -181,8 +190,15 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     w.write("\n")
     w.write(middle)
     w.write("\n")
-    w.write(conversionString)
+    w.write(casesString)
     w.write("\n")
+    w.write(unknownCase)
+    w.write("\n")
+    w.write("    }\n")
+    w.write("  }\n")
+    w.write("\n")
+    w.write(parseFunctionsString)
+    w.write("\n\n")
     w.write(bottom)
     w.write("\n")
     w.write("\n")
@@ -200,8 +216,13 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
 
 abstract class TunableBase {
   def scalaDefinition: String
+
+  // The definition of the private method that converts a value string to
+  // a DaffodilTunables with this tunable set.
   def scalaConversion: String
   def name: String
+
+  final def parseFunctionName: String = "parse" + name.head.toUpper + name.tail
 }
 
 class PrimitiveTunable(
@@ -226,7 +247,7 @@ class PrimitiveTunable(
 
   private def restrictionCheck(rCheck: String, rValue: String): Option[String] = {
     if (rValue != "") {
-      Some(s"""  if (!(v ${rCheck} ${rValue})) throwInvalidTunableValue(tunable, value)""")
+      Some(s"""  if (!(v ${rCheck} ${rValue})) throwInvalidTunableValue("${name}", value)""")
     } else {
       None
     }
@@ -246,8 +267,8 @@ class PrimitiveTunable(
 
   override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
   override val scalaConversion = s"""
-    |case "${name}" => {
-    |  val v = scala.util.Try(value.to${scalaType}).getOrElse { throwInvalidTunableValue(tunable, value) }
+    |private def ${parseFunctionName}(value: String): DaffodilTunables = {
+    |  val v = scala.util.Try(value.to${scalaType}).getOrElse { throwInvalidTunableValue("${name}", value) }
     |${restrictionChecks}
     |  this.copy(${name} = v)
     |}
@@ -258,7 +279,7 @@ class FileTunable(override val name: String, default: String) extends TunableBas
 
   override val scalaDefinition = s"""val ${name}: java.io.File = new java.io.File(${default})"""
   override val scalaConversion = s"""
-    |case "${name}" => {
+    |private def ${parseFunctionName}(value: String): DaffodilTunables = {
     |  this.copy(${name} = new java.io.File(value))
     |}
     """.trim.stripMargin
@@ -272,9 +293,9 @@ class EnumTunable(override val name: String, schemaType: String, schemaDefault: 
 
   override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
   override val scalaConversion = s"""
-    |case "${name}" => {
+    |private def ${parseFunctionName}(value: String): DaffodilTunables = {
     |  val vOpt = ${scalaType}.optionStringToEnum("${scalaType}", value)
-    |  val v = vOpt.getOrElse { throwInvalidTunableValue(tunable, value) }
+    |  val v = vOpt.getOrElse { throwInvalidTunableValue("${name}", value) }
     |  this.copy(${name} = v)
     |}
     """.trim.stripMargin
@@ -301,10 +322,10 @@ class EnumListTunable(
 
   override val scalaDefinition = s"val ${name}: Seq[${listType}] = ${scalaDefault}"
   override val scalaConversion = s"""
-    |case "${name}" => {
+    |private def ${parseFunctionName}(value: String): DaffodilTunables = {
     |  val values = value.split("\\\\s+").toSeq.map { v =>
     |    val vOpt = ${listType}.optionStringToEnum("${listType}", v)
-    |    vOpt.getOrElse { throwInvalidTunableValue(tunable, value) }
+    |    vOpt.getOrElse { throwInvalidTunableValue("${name}", value) }
     |  }
     |  this.copy(${name} = values)
     |}
