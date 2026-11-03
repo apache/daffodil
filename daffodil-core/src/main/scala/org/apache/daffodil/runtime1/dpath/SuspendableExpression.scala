@@ -19,10 +19,12 @@ package org.apache.daffodil.runtime1.dpath
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.Suspension
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 
@@ -74,3 +76,58 @@ trait SuspendableExpression extends Suspension {
   }
 
 }
+
+/**
+ * Implemented by a shared unparser that creates suspendable expressions whose
+ * per-call state is created by newSuspensionState, and passed to the
+ * processing of the expression result.
+ */
+trait StatefulDelegatedSuspendableExpression[S] {
+  def rd: RuntimeData
+
+  def expr: CompiledExpression[AnyRef]
+
+  def newSuspensionState(): S
+
+  def processExpressionResult(ustate: UState, v: DataValuePrimitive, state: S): Unit
+}
+
+/**
+ * Implemented by a shared unparser that creates suspendable expressions that
+ * have no per-call state.
+ */
+trait DelegatedSuspendableExpression extends StatefulDelegatedSuspendableExpression[Unit] {
+
+  def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit
+
+  final override def newSuspensionState(): Unit = ()
+
+  final override def processExpressionResult(
+    ustate: UState,
+    v: DataValuePrimitive,
+    state: Unit
+  ): Unit = processExpressionResult(ustate, v)
+}
+
+/**
+ * An expression that does not write to the data output stream, so it has a
+ * known length of zero.
+ */
+class StatefulForwardingSuspendableExpression[S](
+  host: StatefulDelegatedSuspendableExpression[S]
+) extends SuspendableExpression {
+
+  override val rd = host.rd
+
+  override protected val expr = host.expr
+
+  val state: S = host.newSuspensionState()
+
+  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit =
+    host.processExpressionResult(ustate, v, state)
+
+  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0)
+}
+
+class ForwardingSuspendableExpression(host: DelegatedSuspendableExpression)
+  extends StatefulForwardingSuspendableExpression[Unit](host)
