@@ -37,6 +37,7 @@ import scala.math.abs
 import scala.util.matching.Regex
 import scala.xml.*
 
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.*
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.URISchemaSource
@@ -174,6 +175,12 @@ object XMLUtils {
     )
 
   def remapXMLIllegalCharactersToPUA(s: String): String = remapXMLToPUA.remap(s)
+
+  def remapXMLIllegalCharactersToPUA(s: String, style: XMLTextLineEndingStyle): String =
+    style match {
+      case XMLTextLineEndingStyle.Standard => remapXMLToPUA.remap(s)
+      case XMLTextLineEndingStyle.PUA => xmlRemapperPreservingCR.remap(s)
+    }
 
   private val remapPUAToXML = new RemapPUAToXMLIllegalChar()
 
