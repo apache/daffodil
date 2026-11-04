@@ -293,7 +293,9 @@ case class XMLTextInfosetHandler(
     val output = new XMLTextInfosetOutputter(
       os,
       infosetOptions.pretty,
-      infosetOptions.xmlTextEscapeStyle
+      infosetOptions.xmlTextEscapeStyle,
+      false,
+      infosetOptions.lineEndingStyle
     )
     val pr = parseWithInfosetOutputter(input, output)
     new InfosetParseResult(pr)
@@ -352,7 +354,7 @@ case class JDOMInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new JDOMInfosetOutputter()
+    val output = new JDOMInfosetOutputter(infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new JDOMInfosetParseResult(pr, output)
   }
@@ -396,7 +398,7 @@ case class ScalaXMLInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new ScalaXMLInfosetOutputter()
+    val output = new ScalaXMLInfosetOutputter(false, infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new ScalaXMLInfosetParseResult(pr, output)
   }
@@ -443,7 +445,7 @@ case class W3CDOMInfosetHandler(
 ) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new W3CDOMInfosetOutputter()
+    val output = new W3CDOMInfosetOutputter(infosetOptions.lineEndingStyle)
     val pr = parseWithInfosetOutputter(input, output)
     new W3CDOMInfosetParseResult(pr, output)
   }

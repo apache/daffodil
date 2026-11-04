@@ -25,6 +25,7 @@ import org.apache.daffodil.api.infoset.InfosetComplexElement
 import org.apache.daffodil.api.infoset.InfosetElement
 import org.apache.daffodil.api.infoset.InfosetSimpleElement
 import org.apache.daffodil.api.infoset.W3CDOMInfosetOutputter as JW3CDOMInfosetOutputter
+import org.apache.daffodil.api.infoset.XMLTextLineEndingStyle
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
@@ -34,7 +35,9 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
-class W3CDOMInfosetOutputter extends JW3CDOMInfosetOutputter {
+class W3CDOMInfosetOutputter(
+  lineEndingStyle: XMLTextLineEndingStyle = XMLTextLineEndingStyle.Standard
+) extends JW3CDOMInfosetOutputter {
 
   private var document: Document = null
   private val stack = new MStackOf[Node](16)
@@ -68,7 +71,7 @@ class W3CDOMInfosetOutputter extends JW3CDOMInfosetOutputter {
     if (!se.isNilled) {
       val text =
         if (se.metadata.dfdlType == DFDLPrimType.String) {
-          XMLUtils.remapXMLIllegalCharactersToPUA(se.getText)
+          XMLUtils.remapXMLIllegalCharactersToPUA(se.getText, lineEndingStyle)
         } else {
           se.getText
         }
