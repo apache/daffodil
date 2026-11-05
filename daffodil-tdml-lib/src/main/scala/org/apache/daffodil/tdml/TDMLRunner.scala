@@ -43,6 +43,7 @@ import scala.xml.SAXParseException
 import org.apache.daffodil.api
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
@@ -1650,7 +1651,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (actual.isScannable) {
       // all textual in one encoding, so we can do display of results
       // in terms of text so the user can see what is going on.
-      VerifyTestCase.verifyTextData(expectedData, outStream, actual.encodingName, implString)
+      VerifyTestCase.verifyTextData(expectedData, outStream, actual.encodingName, actual.userDefinedCharsets, implString)
     } else {
       // data is not all textual, or in mixture of encodings
       // So while we can still use the encoding as a heuristic,
@@ -1753,7 +1754,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           if (actual.isScannable) {
             // all textual in one encoding, so we can do display of results
             // in terms of text so the user can see what is going on.
-            VerifyTestCase.verifyTextData(data, outStream, actual.encodingName, implString)
+            VerifyTestCase.verifyTextData(data, outStream, actual.encodingName, actual.userDefinedCharsets, implString)
           } else {
             // data is not all textual, or in mixture of encodings
             // So while we can still use the encoding as a heuristic,
@@ -1994,13 +1995,14 @@ object VerifyTestCase {
     expectedData: InputStream,
     actualOutStream: java.io.ByteArrayOutputStream,
     encodingName: String,
+    userDefinedCharsets: Map[String, BitsCharset],
     implString: Option[String]
   ): Unit = {
     // Getting this decoder and decoding the bytes to text this way is
     // necessary, as opposed to toString(encodingName), because it is possible
     // that encodingName is a custom DFDL specific decoder (e.g. 7-bit ASCII)
     // that Java does not know about.
-    val decoder = CharsetUtils.getCharset(encodingName).newDecoder()
+    val decoder = CharsetUtils.getCharset(encodingName, userDefinedCharsets).newDecoder()
     val actualBytes = actualOutStream.toByteArray
     val expectedBytes = IOUtils.toByteArray(expectedData)
 
@@ -2147,6 +2149,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val defineFormats = (xml \ "defineFormat")
   val defaultFormats = (xml \ "format")
   val defineVariables = (xml \ "defineVariable")
+  val defineCharsets = (xml \ "defineCharset")
   val defineEscapeSchemes = (xml \ "defineEscapeScheme")
 
   val globalElementDecls = {
@@ -2160,7 +2163,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val globalImports = (xml \ "import")
 
   val importIncludes = globalImports ++ globalIncludes
-  val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
+  val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineCharsets ++ defineEscapeSchemes
   val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
   private val parentDiagnosticFileName = parent.tsURISchemaSource.diagnosticFile.getPath

@@ -31,8 +31,9 @@
       <dfdlx:defineCharset name="BadDecodeString"
                            bitWidthOfACodeUnit="6"
                            decodeString=" 123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;0"
-                           replacementCharCode="0x0"
-                           requiredBitOrder="leastSignificantBitFirst"/>
+                           replacementChar="?"
+                           bitOrder="leastSignificantBitFirst"
+                           alignment="1"/>
     </xs:appinfo>
   </xs:annotation>
 

@@ -25,23 +25,84 @@
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com/dcu"
-  xmlns:tns="http://example.com/dcu"
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com"
   defaultRoundTrip="true">
 
-  <tdml:parserTestCase name="sixBitUser" root="sixBitUser" model="DefineCharset.dfdl.xsd"
+  <tdml:defineSchema name="DefineCharset">
+
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+                 bitOrder="leastSignificantBitFirst" byteOrder="littleEndian"
+                 encoding="ASCII"/>
+
+    <!-- Same codes as the predefined X-DFDL-6-BIT-DFI-264-DUI-001 charset,
+         written using DFDL Character Entities (%#xHH;) for the characters
+         that cannot be written directly in the schema. -->
+    <dfdlx:defineCharset name="BitsCharset6BitDFI408DUI505"
+                         bitWidthOfACodeUnit="6"
+                         decodeString="%SP;123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;0"
+                         replacementChar="%#xFFFD;"
+                         bitOrder="leastSignificantBitFirst"
+                         alignment="1"/>
+
+    <!-- A 6 bit charset where code i maps to the US-ASCII character i + 0x20
+         (i.e. the 64 characters from U+0020 space through U+005F
+         underscore). -->
+    <dfdlx:defineCharset name="UserASCII6BitMSB"
+                         bitWidthOfACodeUnit="6"
+                         replacementChar="?"
+                         decodeString="%SP;!&quot;#$%%&amp;'()*+,-./0123456789:;&lt;=&gt;?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_"
+                         bitOrder="mostSignificantBitFirst"
+                         alignment="1"/>
+
+    <dfdlx:defineCharset name="moonPhases"
+                         bitWidthOfACodeUnit="3"
+                         replacementChar="🌑"
+                         decodeString="🌑🌒🌓🌔🌕🌖🌗🌘"
+                         bitOrder="mostSignificantBitFirst"
+                         alignment="1"/>
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <xs:element name="sixBitUser" type="xs:string"
+                dfdl:encoding="BitsCharset6BitDFI408DUI505"/>
+
+    <xs:element name="ascii6BitUser" type="xs:string" dfdl:length="4"
+                dfdl:lengthKind="explicit" dfdl:lengthUnits="characters"
+                dfdl:bitOrder="mostSignificantBitFirst"
+                dfdl:encoding="UserASCII6BitMSB"/>
+
+    <xs:element name="moons" type="xs:string"
+                dfdl:encoding="moonPhases"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="sixBitUser" root="sixBitUser" model="DefineCharset"
     description="parse/unparse a user defined 6 bit charset, bit-for-bit equivalent to the predefined X-DFDL-6-BIT-DFI-264-DUI-001 charset">
     <tdml:document>
       <tdml:documentPart type="text" encoding="X-DFDL-6-BIT-DFI-264-DUI-001" bitOrder="LSBFirst"><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tns:sixBitUser><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></tns:sixBitUser>
+        <sixBitUser><![CDATA[0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ012]]></sixBitUser>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="ascii6BitUser" root="ascii6BitUser" model="DefineCharset.dfdl.xsd"
+  <tdml:unparserTestCase name="replacementChar" root="ascii6BitUser" model="DefineCharset" roundTrip="false"
+    description="user defined 6 bit charset using the default (mostSignificantBitFirst) required bit order">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ascii6BitUser><![CDATA[ABC�]]></ex:ascii6BitUser>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="MSBFirst">
+        100001 | 100010 | 100011 | 011111
+      </tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="ascii6BitUser" root="ascii6BitUser" model="DefineCharset"
     description="user defined 6 bit charset using the default (mostSignificantBitFirst) required bit order">
     <tdml:document>
       <!-- 'A'=code 0x21 'B'=code 0x22 'C'=code 0x23 'D'=code 0x24, packed 6 bits MSB first -->
@@ -51,7 +112,21 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tns:ascii6BitUser><![CDATA[ABCD]]></tns:ascii6BitUser>
+        <ascii6BitUser><![CDATA[ABCD]]></ascii6BitUser>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="largeCodePoints" root="moons" model="DefineCharset"
+    description="user defined 3 bit charset using large code points for unicode symbols">
+    <tdml:document>
+      <tdml:documentPart type="bits" bitOrder="MSBFirst">
+        000 | 001 | 010 | 011 | 100 | 101 | 110 | 111
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <moons><![CDATA[🌑🌒🌓🌔🌕🌖🌗🌘]]></moons>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

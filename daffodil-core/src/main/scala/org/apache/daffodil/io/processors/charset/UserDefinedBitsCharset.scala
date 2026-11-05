@@ -28,8 +28,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * mechanism). Instead, they are resolved from a per-SchemaSet map of
  * user-defined charsets when the dfdl:encoding property is resolved. That
  * map is built from the dfdlx:defineCharset statements in the schema set,
- * and is carried by the CharsetEv evaluatable, so it survives PDI
- * serialization.
+ * and is carried by the CharsetEv evaluatable.
  *
  * All the decode/encode behavior comes from BitsCharsetNonByteSize, which is
  * exactly the same mechanism used by the hardcoded non-byte-size charsets
@@ -56,51 +55,6 @@ final class UserDefinedBitsCharset(
    * the registry, so we serialize the entire charset definition inline via a
    * dedicated proxy.
    */
-  @throws(classOf[java.io.ObjectStreamException])
-  override protected def writeReplace(): Object =
-    UserDefinedBitsCharsetProxy(
-      name,
-      bitWidthOfACodeUnit,
-      decodeString,
-      replacementCharCode,
-      requiredBitOrder.toString,
-      mandatoryBitAlignment
-    )
-}
+  override protected def writeReplace(): Object = this
 
-/**
- * Serialization proxy for UserDefinedBitsCharset. Holds only plain serializable
- * data (the BitOrder enum value is stored as its string name, reconstructed via
- * the BitOrder enum's values, to avoid any dependency on the serialization
- * behavior of generated case objects).
- */
-final case class UserDefinedBitsCharsetProxy(
-  name: String,
-  bitWidthOfACodeUnit: Int,
-  decodeString: String,
-  replacementCharCode: Int,
-  requiredBitOrderName: String,
-  mandatoryBitAlignment: Int
-) extends java.io.Serializable {
-
-  @throws(classOf[java.io.ObjectStreamException])
-  def readResolve(): Object = {
-    val bitOrder =
-      BitOrder.values.find(_.toString == requiredBitOrderName).getOrElse {
-        throw new java.io.InvalidObjectException(
-          "Unrecognized bit order '%s' for user defined charset '%s'".format(
-            requiredBitOrderName,
-            name
-          )
-        )
-      }
-    new UserDefinedBitsCharset(
-      name,
-      bitWidthOfACodeUnit,
-      decodeString,
-      replacementCharCode,
-      bitOrder,
-      mandatoryBitAlignment
-    )
-  }
 }

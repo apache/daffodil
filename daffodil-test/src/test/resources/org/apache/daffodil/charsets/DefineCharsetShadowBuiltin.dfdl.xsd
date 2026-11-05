@@ -30,8 +30,9 @@
       <dfdlx:defineCharset name="X-DFDL-6-BIT-DFI-264-DUI-001"
                            bitWidthOfACodeUnit="6"
                            decodeString="%#x20;123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;%#xFFFD;0"
-                           replacementCharCode="0x0"
-                           requiredBitOrder="leastSignificantBitFirst"/>
+                           replacementChar="0"
+                           bitOrder="leastSignificantBitFirst"
+                           alignment="1"/>
     </xs:appinfo>
   </xs:annotation>
 

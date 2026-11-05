@@ -105,11 +105,7 @@ abstract class CharsetEvBase(
     val encString = encodingEv.evaluate(state)
     // first look for a registered (built-in or plugin) charset, then for a
     // charset defined via a dfdlx:defineCharset statement in this schema set.
-    val bc = {
-      val registeredCharset = CharsetUtils.getCharset(encString)
-      if (registeredCharset != null) registeredCharset
-      else userCharsets.getOrElse(encString.toUpperCase, null)
-    }
+    val bc = CharsetUtils.getCharset(encString, userCharsets)
     if (bc == null) {
       tci.schemaDefinitionError(
         "Unsupported encoding: %s. Supported encodings: %s%s",
@@ -129,7 +125,7 @@ abstract class CharsetEvBase(
 
 final class CharsetEv(
   encodingEv: EncodingEv,
-  userCharsets: Map[String, BitsCharset],
+  val userCharsets: Map[String, BitsCharset],
   tci: DPathCompileInfo
 ) extends CharsetEvBase(encodingEv, userCharsets, tci)
 

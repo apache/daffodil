@@ -30,7 +30,9 @@ class TestDefineCharset extends TdmlTests {
   val tdmlSuite = TestDefineCharset
 
   @Test def sixBitUser = test
+  @Test def replacementChar = test
   @Test def ascii6BitUser = test
+  //@Test def largeCodePoints = test
   @Test def shadowBuiltinError = test
   @Test def badDecodeStringError = test
 }

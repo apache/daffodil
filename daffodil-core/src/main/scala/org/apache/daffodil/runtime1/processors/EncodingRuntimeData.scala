@@ -58,16 +58,10 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
     res
   }
 
+  final lazy val userDefinedCharsets = charsetEv.userCharsets
+
   final lazy val knownEncodingCharset = {
-    // Use the charset computed by the encoding evaluatable when the encoding
-    // is a compile-time constant. This is required for charsets defined via
-    // dfdlx:defineCharset, which are not in the global BitsCharsetDefinition
-    // registry and so cannot be found by name lookup.
-    if (charsetEv.optConstant.isDefined) {
-      charsetEv.optConstant.get
-    } else {
-      CharsetUtils.getCharset(knownEncodingName)
-    }
+    CharsetUtils.getCharset(knownEncodingName, charsetEv.userCharsets)
   }
 
   /**
