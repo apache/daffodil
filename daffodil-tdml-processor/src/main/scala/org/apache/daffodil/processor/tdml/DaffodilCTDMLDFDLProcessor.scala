@@ -298,7 +298,8 @@ final class DaffodilCTDMLUnparseResult(
 
   override def bitPos0b: Long = finalBitPos0b
   override def isScannable: Boolean = false // binary data is not scannable
-  override def userDefinedCharsets: Map[String, BitsCharset] = Map.empty // encoding info needed only if scannable
+  override def userDefinedCharsets: Map[String, BitsCharset] =
+    Map.empty // encoding info needed only if scannable
   override def encodingName: String = "" // encoding needed only if scannable
   override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure

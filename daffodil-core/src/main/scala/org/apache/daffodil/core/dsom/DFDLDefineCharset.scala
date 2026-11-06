@@ -92,7 +92,7 @@ final class DFDLDefineCharset(node: Node, sd: SchemaDocument)
   private lazy val decodeString: String = {
     val raw = getAttributeRequired("decodeString")
     val thawed = XMLUtils.unescape(raw)
-    val cooked = EntityReplacer { _.replaceAll(thawed, None, forUnparse=true) }
+    val cooked = EntityReplacer { _.replaceAll(thawed, None, forUnparse = true) }
     schemaDefinitionUnless(
       cooked.codePointCount(0, cooked.length) == (1 << bitWidthOfACodeUnit),
       "The decodeString attribute of dfdlx:defineCharset must contain exactly %d characters, but after DFDL entity replacement it contained %d characters.",
@@ -124,7 +124,8 @@ final class DFDLDefineCharset(node: Node, sd: SchemaDocument)
     val i = str.toIntOption
     schemaDefinitionUnless(
       (i.isDefined && i.get >= 1),
-      s"The alignment attribute must be an integer >= 1, but was $str")
+      s"The alignment attribute must be an integer >= 1, but was $str"
+    )
     i.get
   }
 

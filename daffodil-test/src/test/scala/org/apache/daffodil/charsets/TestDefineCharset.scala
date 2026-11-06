@@ -32,7 +32,7 @@ class TestDefineCharset extends TdmlTests {
   @Test def sixBitUser = test
   @Test def replacementChar = test
   @Test def ascii6BitUser = test
-  //@Test def largeCodePoints = test
+  // @Test def largeCodePoints = test
   @Test def shadowBuiltinError = test
   @Test def badDecodeStringError = test
 }

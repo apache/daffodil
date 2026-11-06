@@ -33,7 +33,10 @@ object CharsetUtils {
    * Call instead of Charset.forName to obtain Daffodil's less-than-byte-sized
    * encodings as well as the standard ones. This will return the charset if it exists or null
    */
-  def getCharset(name: String, userDefinedCharsets: Map[String, BitsCharset] = Map.empty): BitsCharset = {
+  def getCharset(
+    name: String,
+    userDefinedCharsets: Map[String, BitsCharset] = Map.empty
+  ): BitsCharset = {
     val cs = BitsCharsetDefinitionRegistry.find(name.toUpperCase).getOrElse(null)
     if (cs == null)
       userDefinedCharsets.getOrElse(name.toUpperCase, null)

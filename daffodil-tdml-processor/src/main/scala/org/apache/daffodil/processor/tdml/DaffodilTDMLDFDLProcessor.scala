@@ -377,7 +377,13 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
           dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray
         )
         if (actualDP.isScannable && actualSAX.isScannable) {
-          VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, actualSAX.userDefinedCharsets, None)
+          VerifyTestCase.verifyTextData(
+            dpis,
+            saxOutputStream,
+            actualSAX.encodingName,
+            actualSAX.userDefinedCharsets,
+            None
+          )
         } else {
           VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
         }

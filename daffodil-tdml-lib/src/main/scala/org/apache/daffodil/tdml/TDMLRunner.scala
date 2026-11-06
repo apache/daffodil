@@ -1651,7 +1651,13 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (actual.isScannable) {
       // all textual in one encoding, so we can do display of results
       // in terms of text so the user can see what is going on.
-      VerifyTestCase.verifyTextData(expectedData, outStream, actual.encodingName, actual.userDefinedCharsets, implString)
+      VerifyTestCase.verifyTextData(
+        expectedData,
+        outStream,
+        actual.encodingName,
+        actual.userDefinedCharsets,
+        implString
+      )
     } else {
       // data is not all textual, or in mixture of encodings
       // So while we can still use the encoding as a heuristic,
@@ -1754,7 +1760,13 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           if (actual.isScannable) {
             // all textual in one encoding, so we can do display of results
             // in terms of text so the user can see what is going on.
-            VerifyTestCase.verifyTextData(data, outStream, actual.encodingName, actual.userDefinedCharsets, implString)
+            VerifyTestCase.verifyTextData(
+              data,
+              outStream,
+              actual.encodingName,
+              actual.userDefinedCharsets,
+              implString
+            )
           } else {
             // data is not all textual, or in mixture of encodings
             // So while we can still use the encoding as a heuristic,
@@ -2163,7 +2175,8 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val globalImports = (xml \ "import")
 
   val importIncludes = globalImports ++ globalIncludes
-  val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineCharsets ++ defineEscapeSchemes
+  val dfdlTopLevels =
+    defineFormats ++ defaultFormats ++ defineVariables ++ defineCharsets ++ defineEscapeSchemes
   val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
   private val parentDiagnosticFileName = parent.tsURISchemaSource.diagnosticFile.getPath
