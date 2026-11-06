@@ -50,22 +50,16 @@ class BCDIntegerRuntimeLengthUnparser(
   override val runtimeDependencies = Array(lengthEv)
 }
 
-final class BCDIntegerDelimitedUnparser(e: ElementRuntimeData)
-  extends BCDIntegerBaseUnparser(e) {
-
-  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
-}
-
 final class BCDIntegerMinimumLengthUnparser(e: ElementRuntimeData)
   extends BCDIntegerBaseUnparser(e) {
 
   override val runtimeDependencies = Array()
 
-  override def getBitLength(s: ParseOrUnparseState): Int = {
+  override def getBitLength(s: ParseOrUnparseState): Long = {
     val number = getNumberToPut(s.asInstanceOf[UState])
     val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
     val (byteLength, _) = DecimalUtils.bcdFromBigIntegerLength(absBigIntStr, 0)
-    byteLength * 8
+    byteLength.toLong * 8
   }
 }
 
@@ -94,12 +88,6 @@ class BCDDecimalRuntimeLengthUnparser(
   override val runtimeDependencies = Array(lengthEv)
 }
 
-final class BCDDecimalDelimitedUnparser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
-  extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
-
-  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
-}
-
 final class BCDDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int
@@ -107,10 +95,10 @@ final class BCDDecimalMinimumLengthUnparser(
 
   override val runtimeDependencies = Array()
 
-  override def getBitLength(s: ParseOrUnparseState): Int = {
+  override def getBitLength(s: ParseOrUnparseState): Long = {
     val number = getNumberToPut(s.asInstanceOf[UState])
     val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
     val (byteLength, _) = DecimalUtils.bcdFromBigIntegerLength(absBigIntStr, 0)
-    byteLength * 8
+    byteLength.toLong * 8
   }
 }

@@ -94,23 +94,29 @@ abstract class BinaryDecimalParserBase(
   with BinaryNumberCheckWidth {
   override val runtimeDependencies = Array()
 
-  protected def getBitLength(s: ParseOrUnparseState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Long
+
+  private val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     val isSigned = signed == Yes
     val minWidth = if (isSigned) 2 else 1
-    val res = checkMinWidth(start, isSigned, nBits, minWidth)
-    if (!res) return
+    if (!checkMinWidth(start, isSigned, nBits, minWidth)) return
+    val maxWidth =
+      if (primNumeric.maxWidth.isDefined) primNumeric.maxWidth.get
+      else start.tunable.maxBinaryNumberLengthInBits
+    if (!checkMaxWidth(start, nBits, maxWidth)) return
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis)
       return
     }
 
+    // the checkMin/MaxWidth calls above ensure nBits will not overflow when .toInt is called
     val bigInt: JBigInt =
-      if (signed == YesNo.Yes) { dis.getSignedBigInt(nBits, start) }
-      else { dis.getUnsignedBigInt(nBits, start) }
+      if (signed == YesNo.Yes) { dis.getSignedBigInt(nBits.toInt, start) }
+      else { dis.getUnsignedBigInt(nBits.toInt, start) }
 
     val bigDec = new JBigDecimal(bigInt, binaryDecimalVirtualPoint)
     start.simpleElement.overwriteDataValue(bigDec)
@@ -140,7 +146,7 @@ abstract class BinaryIntegerBaseParser(
   with BinaryNumberCheckWidth {
   override val runtimeDependencies = Array()
 
-  protected def getBitLength(s: ParseOrUnparseState): Int
+  protected def getBitLength(s: ParseOrUnparseState): Long
 
   private val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
@@ -152,24 +158,24 @@ abstract class BinaryIntegerBaseParser(
       val res = checkMinWidth(start, isSigned, nBits, minWidth)
       if (!res) return
     }
-    if (primNumeric.maxWidth.isDefined) {
-      val maxWidth = primNumeric.maxWidth.get
-      val res = checkMaxWidth(start, nBits, maxWidth)
-      if (!res) return
-    }
+    val maxWidth =
+      if (primNumeric.maxWidth.isDefined) primNumeric.maxWidth.get
+      else start.tunable.maxBinaryNumberLengthInBits
+    if (!checkMaxWidth(start, nBits, maxWidth)) return
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis)
       return
     }
 
+    // the checkMin/MaxWidth calls above ensure nBits will not overflow when .toInt is called
     val num: JNumber =
       if (primNumeric.isSigned) {
-        if (nBits > 64) { dis.getSignedBigInt(nBits, start) }
-        else { dis.getSignedLong(nBits, start) }
+        if (nBits > 64) { dis.getSignedBigInt(nBits.toInt, start) }
+        else { dis.getSignedLong(nBits.toInt, start) }
       } else {
-        if (nBits >= 64) { dis.getUnsignedBigInt(nBits, start) }
-        else { dis.getUnsignedLong(nBits, start).toLong }
+        if (nBits >= 64) { dis.getUnsignedBigInt(nBits.toInt, start) }
+        else { dis.getUnsignedLong(nBits.toInt, start).toLong }
       }
 
     val res =
@@ -190,7 +196,7 @@ trait BinaryNumberCheckWidth {
   def checkMinWidth(
     state: ParseOrUnparseState,
     isSigned: Boolean,
-    nBits: Int,
+    nBits: Long,
     minWidth: Int
   ): Boolean = {
     if (
@@ -212,7 +218,7 @@ trait BinaryNumberCheckWidth {
     true
   }
 
-  def checkMaxWidth(state: ParseOrUnparseState, nBits: Int, maxWidth: Int): Boolean = {
+  def checkMaxWidth(state: ParseOrUnparseState, nBits: Long, maxWidth: Int): Boolean = {
     if (nBits > maxWidth) {
       val procErr = state.toProcessingError(
         s"Number of bits $nBits out of range, must be between 1 and $maxWidth bits."
