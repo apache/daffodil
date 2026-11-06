@@ -58,14 +58,6 @@ class PackedIntegerRuntimeLengthUnparser(
   override val runtimeDependencies = Array(lengthEv)
 }
 
-final class PackedIntegerDelimitedUnparser(
-  e: ElementRuntimeData,
-  packedSignCodes: PackedSignCodes
-) extends PackedIntegerBaseUnparser(e, packedSignCodes) {
-
-  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
-}
-
 final class PackedIntegerMinimumLengthUnparser(
   e: ElementRuntimeData,
   packedSignCodes: PackedSignCodes
@@ -73,11 +65,11 @@ final class PackedIntegerMinimumLengthUnparser(
 
   override val runtimeDependencies = Array()
 
-  override def getBitLength(s: ParseOrUnparseState): Int = {
+  override def getBitLength(s: ParseOrUnparseState): Long = {
     val number = getNumberToPut(s.asInstanceOf[UState])
     val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
     val (byteLength, _) = DecimalUtils.packedFromBigIntegerLength(absBigIntStr, 0)
-    byteLength * 8
+    byteLength.toLong * 8
   }
 }
 
@@ -124,21 +116,6 @@ class PackedDecimalRuntimeLengthUnparser(
   override val runtimeDependencies = Array(lengthEv)
 }
 
-final class PackedDecimalDelimitedUnparser(
-  e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes,
-  decimalSigned: YesNo
-) extends PackedDecimalBaseUnparser(
-    e,
-    binaryDecimalVirtualPoint,
-    packedSignCodes,
-    decimalSigned
-  ) {
-
-  override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
-}
-
 final class PackedDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
@@ -153,11 +130,11 @@ final class PackedDecimalMinimumLengthUnparser(
 
   override val runtimeDependencies = Array()
 
-  override def getBitLength(s: ParseOrUnparseState): Int = {
+  override def getBitLength(s: ParseOrUnparseState): Long = {
     val number = getNumberToPut(s.asInstanceOf[UState])
     val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
     val (byteLength, _) = DecimalUtils.packedFromBigIntegerLength(absBigIntStr, 0)
-    byteLength * 8
+    byteLength.toLong * 8
   }
 
 }

@@ -91,6 +91,12 @@ class TestLengthKindExplicit extends TdmlTests {
 
   @Test def invalidByteBitLengthExpr = test
 
+  @Test def invalidIntegerBitLengthExpr = test
+  @Test def unparseInvalidIntegerBitLengthExpr = test
+
+  @Test def invalidDecimalBitLengthExpr = test
+  @Test def unparseInvalidDecimalBitLengthExpr = test
+
   @Test def insufficientBitsComplex = test
 
   @Test def insufficientBitsByte = test

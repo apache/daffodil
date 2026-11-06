@@ -23,7 +23,6 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 
@@ -35,7 +34,7 @@ abstract class BinaryBooleanParserBase(
   lengthUnits: LengthUnits
 ) extends PrimParser {
 
-  def getBitLength(state: PState): Int
+  def getBitLength(state: PState): Long
 
   lazy val toBits = lengthUnits match {
     case LengthUnits.Bits => 1
@@ -65,17 +64,18 @@ abstract class BinaryBooleanParserBase(
       return
     }
 
-    val sl = dis.getUnsignedLong(nBits, start)
+    // the checks above ensure nBits will not overflow when this .toInt is called
+    val ul = dis.getUnsignedLong(nBits.toInt, start)
 
     val bool: JBoolean =
       if (!binaryBooleanTrueRep.isDefined) {
-        if (binaryBooleanFalseRep == sl) false
+        if (binaryBooleanFalseRep == ul) false
         else true
       } else {
-        if (binaryBooleanTrueRep.getULong == sl) true
-        else if (binaryBooleanFalseRep == sl) false
+        if (binaryBooleanTrueRep.getULong == ul) true
+        else if (binaryBooleanFalseRep == ul) false
         else {
-          PE(start, "Unable to parse xs:boolean from binary: %s", sl)
+          PE(start, "Unable to parse xs:boolean from binary: %s", ul)
           return
         }
       }
@@ -95,9 +95,8 @@ class BinaryBooleanParser(
 
   override val runtimeDependencies = Array(lengthEv)
 
-  override def getBitLength(state: PState): Int = {
-    val nBytesAsJLong = lengthEv.evaluate(state)
-    val nBytes = Numbers.asInt(nBytesAsJLong)
+  override def getBitLength(state: PState): Long = {
+    val nBytes = lengthEv.evaluate(state)
     lengthKind match {
       case LengthKind.Implicit => nBytes
       case _ => nBytes * toBits
@@ -115,7 +114,7 @@ class BinaryBooleanBitLimitLengthParser(
 
   override val runtimeDependencies = Array()
 
-  override def getBitLength(state: PState): Int = {
-    getLengthInBits(state).toInt
+  override def getBitLength(state: PState): Long = {
+    getLengthInBits(state)
   }
 }

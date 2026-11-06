@@ -34,8 +34,8 @@ import org.apache.daffodil.runtime1.processors.Success
 trait HasKnownLengthInBits {
   def lengthInBits: Int
 
-  def getBitLength(s: ParseOrUnparseState) = {
-    lengthInBits
+  def getBitLength(s: ParseOrUnparseState): Long = {
+    lengthInBits.toLong
   }
 }
 
@@ -52,9 +52,8 @@ trait HasRuntimeExplicitLength {
       Assert.invariantFailed("Binary Numbers should never have length units of Bits or Bytes.")
   }
 
-  def getBitLength(s: ParseOrUnparseState): Int = {
-    val nBytesAsJLong = lengthEv.evaluate(s)
-    val nBytes = Numbers.asInt(nBytesAsJLong)
+  def getBitLength(s: ParseOrUnparseState): Long = {
+    val nBytes = lengthEv.evaluate(s)
     nBytes * toBits
   }
 }
@@ -174,10 +173,9 @@ trait PrefixedLengthParserMixin {
  */
 trait BitLengthFromBitLimitMixin {
 
-  def getBitLength(s: ParseOrUnparseState): Int = {
+  def getBitLength(s: ParseOrUnparseState): Long = {
     val pState = s.asInstanceOf[PState]
-    val len = getLengthInBits(pState)
-    len.toInt
+    getLengthInBits(pState)
   }
 
   def getLengthInBits(pstate: PState): Long = {
