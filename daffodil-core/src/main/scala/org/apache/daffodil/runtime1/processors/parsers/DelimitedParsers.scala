@@ -131,18 +131,23 @@ final class ZeroLengthComplexTypeDelimitedParser(
 
   private val textParser = new TextParser(context)
 
-  // The scan restores its own input position and changes no other state, so
-  // nothing needs saving.
+  // The scan restores its own input position and changes no other parse state,
+  // so nothing needs saving. It does not go through parse1, so the format info
+  // caches that decoding the delimiters fills must be reset here.
   override protected def probeImpl(start: PState): Boolean = {
     val dis = start.dataInputStream
-    // At the end of the data there is no representation at all, so whatever
-    // would be here is necessarily zero length.
-    !dis.isDefinedForLength(1) || {
-      val delimIter = new AllTerminatingMarkupDelimiterIterator(
-        start.mpstate.delimiters,
-        start.mpstate.delimitersLocalIndexStack.top
-      )
-      textParser.parse(start, dis, delimIter).isDefined
+    try {
+      // At the end of the data there is no representation at all, so whatever
+      // would be here is necessarily zero length.
+      !dis.isDefinedForLength(1) || {
+        val delimIter = new AllTerminatingMarkupDelimiterIterator(
+          start.mpstate.delimiters,
+          start.mpstate.delimitersLocalIndexStack.top
+        )
+        textParser.parse(start, dis, delimIter).isDefined
+      }
+    } finally {
+      start.resetFormatInfoCaches()
     }
   }
 

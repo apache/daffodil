@@ -2845,4 +2845,64 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s31" elementFormDefault="unqualified">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
+
+    <xs:element name="midOptionalInt">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="b" type="xs:int" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="c" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="test_sep_absent_mid_optional_1"
+                       root="midOptionalInt" model="s31"
+                       description="trailingEmpty: an absent optional int that is followed by a required element is rejected when its separator is missing, since only trailing occurrences may drop their separators.">
+    <tdml:document>a,c</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>must keep its separator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_absent_mid_optional_2"
+                       root="midOptionalInt" model="s31"
+                       description="trailingEmpty: with explicit length 1 the optional int consumes the second comma as its content and fails, so it is absent without its own separator and the parse is rejected.">
+    <tdml:document>a,,c</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>must keep its separator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_absent_mid_optional_3"
+                       root="midOptionalInt" model="s31"
+                       description="trailingEmpty: a present optional int followed by a required element parses.">
+    <tdml:document>a,1,c</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:midOptionalInt xmlns:ex="http://example.com">
+          <a>a</a>
+          <b>1</b>
+          <c>c</c>
+        </ex:midOptionalInt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_sep_absent_mid_optional_4"
+                       root="midOptionalInt" model="s31"
+                       description="trailingEmpty: a non-numeric value in the optional int position makes the int fail to parse and be absent without its separator, so the parse is rejected.">
+    <tdml:document>a,Z,x</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>must keep its separator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

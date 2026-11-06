@@ -111,6 +111,10 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_positional_optional_complex_1 = test
   @Test def test_sep_positional_optional_complex_2 = test
   @Test def test_sep_positional_optional_complex_3 = test
+  @Test def test_sep_absent_mid_optional_1 = test
+  @Test def test_sep_absent_mid_optional_2 = test
+  @Test def test_sep_absent_mid_optional_3 = test
+  @Test def test_sep_absent_mid_optional_4 = test
 
   // DAFFODIL-2205 - EmptyValueDelimiterPolicy only works with 'both'
   @Test def test_sep_evdp_1 = test

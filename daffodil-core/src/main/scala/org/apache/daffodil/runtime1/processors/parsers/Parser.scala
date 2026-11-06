@@ -191,41 +191,47 @@ sealed trait Parser extends Processor {
    * Whether this parser would succeed at the current position, without
    * affecting parse state or firing debugger and trace events.
    */
-  final def probe(pstate: PState): Boolean = {
+  final private[parsers] def probe(pstate: PState): Boolean = {
     val savedParser = pstate.maybeProcessor
     pstate.setProcessor(this)
     try {
       probeImpl(pstate)
     } finally {
-      pstate.resetFormatInfoCaches()
       pstate.setMaybeProcessor(savedParser)
     }
   }
 
   /**
-   * Runs the parser under a mark with the event handler off, then resets to
-   * the mark. A mark does not capture the pending delimiter result and the
-   * event handler is not parse state, so both are handled here.
+   * Runs the parser under a point of uncertainty with the event handler off,
+   * then resets to it. Resetting discards the pending delimiter result and the
+   * event handler is not parse state, so both are saved and restored here, as
+   * are the format info caches, which must be recomputed for whatever parser
+   * follows.
    */
   protected def probeImpl(pstate: PState): Boolean = {
     val savedDelimitedParseResult = pstate.delimitedParseResult
     val savedDataProc = pstate.dataProc
-    val probeMark = pstate.mark("probe", context)
-    // A delimiter result left over from an earlier parser would be trusted by
-    // the probed parser instead of scanning the data at this position.
-    pstate.delimitedParseResult = Nope
-    pstate.dataProc = Nope
-    pstate.setSuccess()
-    var found = false
     try {
-      parse1(pstate)
-      found = pstate.isSuccess
+      // This isn't actually a point of uncertainty, we just use the logic to
+      // undo whatever the probed parser did.
+      pstate.withPointOfUncertainty("probe", context) { pou =>
+        // A delimiter result left over from an earlier parser would be trusted
+        // by the probed parser instead of scanning the data at this position.
+        pstate.clearDelimitedParseResult()
+        pstate.dataProc = Nope
+        pstate.setSuccess()
+        try {
+          parse1(pstate)
+          pstate.isSuccess
+        } finally {
+          pstate.resetToPointOfUncertainty(pou)
+        }
+      }
     } finally {
-      pstate.reset(probeMark)
       pstate.dataProc = savedDataProc
-      pstate.delimitedParseResult = savedDelimitedParseResult
+      pstate.saveDelimitedParseResult(savedDelimitedParseResult)
+      pstate.resetFormatInfoCaches()
     }
-    found
   }
 }
 
