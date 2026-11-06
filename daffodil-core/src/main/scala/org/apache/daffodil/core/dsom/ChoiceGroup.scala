@@ -159,7 +159,7 @@ abstract class ChoiceTermBase(
    * Open issues:
    * 1) Is alignment or leading/trailing skip to be considered syntax. Alignment might not be there.
    * 2) What about an empty sequence that only carries statement annotations such as dfdl:assert or
-   * dfdl:setVariable
+   *    dfdl:setVariable
    *
    * This latter need to be allowed, because while they do not have known required syntax they do
    * have to be executed for side-effect.

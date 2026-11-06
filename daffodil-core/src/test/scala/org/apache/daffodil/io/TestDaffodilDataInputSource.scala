@@ -20,6 +20,7 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -256,6 +257,82 @@ class TestBucketingInputSource {
     assertEquals(6, bis.get())
     assertEquals(-1, bis.get())
   }
+
+  /**
+   * optEndOfDataPosition must not evict a bucket that has an active backtracking mark.
+   * With 2-byte buckets and a 4-byte cache, a mark on position 0 pins bucket 0, so the
+   * scan stops and returns None, and position 0 stays readable.
+   */
+  @Test def testOptEndOfDataPositionDoesNotEvictLockedBucket(): Unit = {
+    // bucketSizeExponent=1 -> bucketSize=2; maxCacheSizeInBytes=4 -> maxNumberOfNonNullBuckets=2
+    val tis = new TestInputStream()
+    tis.setEOF(12)
+    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
+
+    bis.lockPosition(0) // simulates a choice-parser mark at the start of the stream
+
+    // The oldest bucket (index 0) is locked. fillBucketsToIndex would exceed
+    // maxNumberOfNonNullBuckets after filling 2 buckets and be unable to evict
+    // bucket 0, so it stops the scan and returns None.
+    assertEquals(None, bis.optEndOfDataPosition)
+
+    // Bucket 0 must still be live: backtracking to position 0 must succeed.
+    bis.position(0)
+    assertEquals(0, bis.get())
+
+    bis.releasePosition(0)
+  }
+
+  /**
+   * areBytesAvailable must really buffer the requested bytes even when the
+   * oldest bucket is pinned and the request exceeds the cache window. The
+   * cache limit wins over the mark, so the pinned bucket is evicted like any
+   * other and the window does not grow.
+   */
+  @Test def testAreBytesAvailableWithPinnedOldestBucket(): Unit = {
+    val tis = new TestInputStream()
+    tis.setEOF(12)
+    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
+
+    bis.lockPosition(0)
+
+    assertEquals(true, bis.areBytesAvailable(12))
+    assertEquals(false, bis.areBytesAvailable(13))
+  }
+
+  /**
+   * Looking ahead for the end of data must not evict the bucket holding the current byte
+   * position. The end can't be found within the cache window, but reading must go on.
+   */
+  @Test def testOptEndOfDataPositionKeepsCurrentBucket(): Unit = {
+    val tis = new TestInputStream()
+    tis.setEOF(4)
+    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
+
+    assertEquals(0, bis.get())
+    assertEquals(None, bis.optEndOfDataPosition)
+    assertEquals(1, bis.get())
+  }
+
+  /**
+   * Releasing marks while reading frees buckets, and the buckets are compacted once enough
+   * have been freed. Compaction moves the head position, so reading on must stay correct.
+   */
+  @Test def testReleasePositionCompactsBuckets(): Unit = {
+    val tis = new TestInputStream()
+    tis.setEOF(2000)
+    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
+
+    var i = 0
+    while (i < 2000) {
+      bis.lockPosition(i)
+      assertEquals(i % 10, bis.get())
+      bis.releasePosition(i)
+      i += 1
+    }
+    assertEquals(2000L, bis.position())
+    assertEquals(-1, bis.get())
+  }
 }
 
 class TestByteBufferInputSource {
@@ -384,5 +461,84 @@ class TestByteBufferInputSource {
     assertEquals(5, bis.get())
     assertEquals(6, bis.get())
     assertEquals(-1, bis.get())
+  }
+}
+
+class TestBucketingInputSourceFileChannel {
+
+  /**
+   * optEndOfDataPosition must short-circuit via the file size known for a
+   * FileInputStream, rather than reading up to maxCacheSizeInBytes (256 MiB)
+   * of lookahead data to scan for EOF.
+   *
+   * Verified by asserting knownBytesAvailable() == 0 both before and after the
+   * call: if the scan path had run it would have loaded data into buckets,
+   * making knownBytesAvailable() > 0.
+   */
+  @Test def testOptEndOfDataPositionUsesFileSizeForFileInputStream(): Unit = {
+    val content = Array[Byte](1, 2, 3, 4, 5)
+    val tmpFile = java.nio.file.Files.createTempFile("daffodil-eop-test", ".bin")
+    try {
+      java.nio.file.Files.write(tmpFile, content)
+      val fis = new java.io.FileInputStream(tmpFile.toFile)
+      try {
+        // Size hint is supplied by the factory, not by BucketingInputSource directly.
+        val src = InputSourceDataInputStream(fis).inputSource
+        assertEquals(0L, src.knownBytesAvailable())
+        assertEquals(Some(5L), src.optEndOfDataPosition)
+        // Scan path would have populated buckets; verify it was not taken.
+        assertEquals(0L, src.knownBytesAvailable())
+      } finally {
+        fis.close()
+      }
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmpFile)
+    }
+  }
+
+  /**
+   * A file position past the end of the file gives a negative size, which is not a usable
+   * hint. The stream is scanned instead and found to have no data left.
+   */
+  @Test def testPositionPastEndOfFileGivesNoSizeHint(): Unit = {
+    val tmpFile = java.nio.file.Files.createTempFile("daffodil-eop-test", ".bin")
+    try {
+      java.nio.file.Files.write(tmpFile, Array[Byte](1, 2, 3, 4, 5))
+      val fis = new java.io.FileInputStream(tmpFile.toFile)
+      try {
+        fis.skip(20)
+        val src = InputSourceDataInputStream(fis).inputSource
+        assertEquals(Some(0L), src.optEndOfDataPosition)
+      } finally {
+        fis.close()
+      }
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmpFile)
+    }
+  }
+
+  /**
+   * Verify that BucketingInputSource constructed directly (no optSizeHint) falls
+   * back to the scan path: optEndOfDataPosition reads the entire stream into
+   * buckets, so knownBytesAvailable() is positive after the call.
+   */
+  @Test def testBucketingInputSourceWithoutHintUsesScanner(): Unit = {
+    val content = Array[Byte](1, 2, 3, 4, 5)
+    val tmpFile = java.nio.file.Files.createTempFile("daffodil-eop-test", ".bin")
+    try {
+      java.nio.file.Files.write(tmpFile, content)
+      val fis = new java.io.FileInputStream(tmpFile.toFile)
+      try {
+        val bis = new BucketingInputSource(fis) // no optSizeHint
+        assertEquals(0L, bis.knownBytesAvailable())
+        assertEquals(Some(5L), bis.optEndOfDataPosition)
+        // Scan path was taken - data has been buffered.
+        assertTrue(bis.knownBytesAvailable() > 0)
+      } finally {
+        fis.close()
+      }
+    } finally {
+      java.nio.file.Files.deleteIfExists(tmpFile)
+    }
   }
 }
