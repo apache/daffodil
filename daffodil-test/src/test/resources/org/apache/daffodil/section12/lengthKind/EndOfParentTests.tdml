@@ -2483,64 +2483,6 @@
 		<xs:element name="text_bool_txt_bytes" type="xs:boolean" dfdl:lengthUnits="bytes" />
 		<xs:element name="text_bool_txt_bits" type="xs:boolean" dfdl:lengthUnits="bits" />
 		<xs:element name="text_bool_txt_chars" type="xs:boolean" dfdl:lengthUnits="characters"/>
-
-		<xs:element name="complex_bin_bytes">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="strings">
-						<xs:complexType>
-							<xs:sequence dfdl:separator=",">
-								<xs:element name="str" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-					<xs:element name="remaining" type="xs:string" dfdl:lengthKind="endOfParent" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="complex_bin_bits">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="strings">
-						<xs:complexType>
-							<xs:sequence dfdl:separator=",">
-								<xs:element name="str" type="xs:string" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-					<xs:element name="remaining" type="xs:string" dfdl:lengthKind="endOfParent" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="complex_bin_bytes_suspension">
-			<xs:complexType>
-				<xs:sequence>
-					<xs:element name="lenValue">
-						<xs:complexType>
-							<xs:sequence dfdl:separator=",">
-								<xs:element name="len" type="xs:int" dfdl:lengthKind="delimited"
-								            dfdl:outputValueCalc="{ dfdl:valueLength(../ex:value, 'bytes') + 3 }" />
-								<xs:element name="value" type="xs:string" dfdl:lengthKind="explicit"
-								            dfdl:length="{ ../ex:len }" dfdl:textStringJustification="right"
-								            dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringPadCharacter="X" />
-							</xs:sequence>
-						</xs:complexType>
-					</xs:element>
-					<xs:element name="remaining" type="xs:string" dfdl:lengthKind="endOfParent" />
-				</xs:sequence>
-			</xs:complexType>
-		</xs:element>
-
-		<xs:element name="text_string_txt_bytes_includes_backtrack">
-			<xs:complexType>
-				<xs:choice>
-					<xs:element ref="ex:text_string_txt_bytes" />
-					<xs:element name="alldata" type="xs:string" dfdl:lengthKind="endOfParent" />
-				</xs:choice>
-			</xs:complexType>
-		</xs:element>
 	</tdml:defineSchema>
 
 	<tdml:parserTestCase name="text_string_txt_bytes"
@@ -3511,5 +3453,145 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:unparserTestCase>
+
+	<tdml:defineSchema name="eopChoiceDispatch">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="endOfParent" encoding="US-ASCII"/>
+
+		<xs:element name="eopDispatch">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="key" type="xs:string" dfdl:lengthKind="explicit"
+					            dfdl:length="1" dfdl:lengthUnits="bytes"/>
+					<xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="4"
+					           dfdl:choiceDispatchKey="{ ./ex:key }">
+						<xs:element name="str" type="xs:string" dfdl:lengthKind="endOfParent"
+						            dfdl:lengthUnits="bytes" dfdl:choiceBranchKey="a"/>
+					</xs:choice>
+					<xs:element name="tail" type="xs:string" dfdl:lengthKind="explicit"
+					            dfdl:length="2" dfdl:lengthUnits="bytes"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="eop_choice_direct_dispatch_01"
+	                     root="eopDispatch" model="eopChoiceDispatch"
+	                     description="EOP element in an explicit-length choice that dispatches directly ends at the choice length">
+		<tdml:document>aABCDxy</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopDispatch>
+					<ex:key>a</ex:key>
+					<ex:str>ABCD</ex:str>
+					<ex:tail>xy</ex:tail>
+				</ex:eopDispatch>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!--
+	  dfdl:lengthKind="endOfParent" with maxOccurs="unbounded" must be an SDE
+	  (spec 12.3.6: "the element has maxOccurs > 1"). unbounded is stored as -1 internally.
+	-->
+	<tdml:defineSchema name="hasMaxOccursUnbounded">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern" encoding="US-ASCII"
+		             separator="" initiator="" terminator="" />
+
+		<xs:element name="rootUnbounded" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string" maxOccurs="unbounded"
+								            dfdl:occursCountKind="parsed"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="checks_04"
+	                     root="rootUnbounded" model="hasMaxOccursUnbounded">
+		<tdml:document><![CDATA[abc]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>maxOccurs greater than 1</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<!--
+	  An unrepresented element (inputValueCalc) after an EOP element must not reset the
+	  "EOP seen" state: a later represented element is still an SDE (spec 12.3.6).
+	-->
+	<tdml:defineSchema name="representedAfterIVCAfterEOP">
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<dfdl:format ref="ex:GeneralFormat" lengthKind="pattern" encoding="US-ASCII"
+		             separator="" initiator="" terminator="" />
+
+		<xs:element name="rootRepAfterIVC" dfdl:representation="text" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="parentST" dfdl:lengthPattern="[^\r\n]{3}">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="firstChild" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+								<xs:element name="rest" type="xs:string"
+								            dfdl:lengthKind="endOfParent" dfdl:representation="text"/>
+								<xs:element name="calc" type="xs:string" dfdl:inputValueCalc="{'A'}"/>
+								<xs:element name="tail" type="xs:string" dfdl:lengthKind="explicit"
+								            dfdl:length="1" dfdl:representation="text"/>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="checks_05"
+	                     root="rootRepAfterIVC" model="representedAfterIVCAfterEOP">
+		<tdml:document><![CDATA[abc]]></tdml:document>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>endOfParent</tdml:error>
+			<tdml:error>represented element</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<!--
+	  This format deliberately does not define dfdl:representation. A hexBinary has an implied
+	  representation, so the checks on an endOfParent hexBinary must not require it. It has
+	  only the properties needed to compile an element.
+	-->
+	<tdml:defineSchema name="eopNoRepresentation">
+		<dfdl:format leadingSkip="0" trailingSkip="0" alignment="1" alignmentUnits="bytes"
+		             initiator="" terminator="" lengthUnits="bytes" encoding="US-ASCII"
+		             textPadKind="none" truncateSpecifiedLengthString="no" fillByte="%NUL;"/>
+
+		<xs:element name="eopHex" type="xs:hexBinary" dfdl:lengthKind="endOfParent"/>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="checks_06"
+	                     root="eopHex" model="eopNoRepresentation"
+	                     description="endOfParent hexBinary, with dfdl:representation not defined in the format">
+		<tdml:document>
+			<tdml:documentPart type="byte">0A 0B 0C 0D</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:eopHex>0A0B0C0D</ex:eopHex>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>

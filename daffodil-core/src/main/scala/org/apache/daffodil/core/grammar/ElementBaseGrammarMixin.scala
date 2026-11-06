@@ -23,7 +23,6 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
-import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.grammar.primitives.*
 import org.apache.daffodil.core.runtime1.ElementBaseRuntime1Mixin
 import org.apache.daffodil.lib.exceptions.Assert
@@ -267,7 +266,7 @@ trait ElementBaseGrammarMixin
       "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a non-zero dfdl:trailingSkip."
     )
     schemaDefinitionWhen(
-      currentElement.maxOccurs > 1,
+      currentElement.maxOccurs > 1 || currentElement.maxOccurs == -1, // -1 is "unbounded"
       "element is specified as dfdl:lengthKind=\"endOfParent\", but specifies a maxOccurs greater than 1."
     )
     schemaDefinitionWhen(
@@ -278,27 +277,30 @@ trait ElementBaseGrammarMixin
     )
     if (currentElement.isSimpleType) {
       val meetsSimpleTypeRestrictions = (currentElement.primType eq PrimType.String)
-        || (currentElement.representation == Representation.Text)
+        || (currentElement.impliedRepresentation == Representation.Text)
         || (currentElement.primType eq PrimType.HexBinary)
-        || (currentElement.representation == Representation.Binary
-          && ((
-            currentElement.binaryNumberRep,
-            currentElement.optionBinaryCalendarRep
-          ) match {
-            case (
-                  BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed,
-                  _
-                ) =>
-              true
-            case (
-                  _,
-                  Some(
-                    BinaryCalendarRep.Packed | BinaryCalendarRep.Bcd |
-                    BinaryCalendarRep.Ibm4690Packed
-                  )
-                ) =>
-              true
-            case _ => false
+        || (currentElement.impliedRepresentation == Representation.Binary
+          && (currentElement.primType match {
+            // Only force the property relevant to this type. E.g. calendar
+            // types need not define binaryNumberRep, and vice versa.
+            case PrimType.DateTime | PrimType.Date | PrimType.Time =>
+              currentElement.optionBinaryCalendarRep match {
+                case Some(
+                      BinaryCalendarRep.Packed | BinaryCalendarRep.Bcd |
+                      BinaryCalendarRep.Ibm4690Packed
+                    ) =>
+                  true
+                case _ => false
+              }
+            case _ =>
+              currentElement.optionBinaryNumberRep match {
+                case Some(
+                      BinaryNumberRep.Packed | BinaryNumberRep.Bcd |
+                      BinaryNumberRep.Ibm4690Packed
+                    ) =>
+                  true
+                case _ => false
+              }
           }))
       schemaDefinitionWhen(
         !meetsSimpleTypeRestrictions,
@@ -630,9 +632,6 @@ trait ElementBaseGrammarMixin
       )
   }
 
-  private lazy val unsupportedLengthKindEOPMessage =
-    "lengthKind='endOfParent' only supported for packed binary formats."
-
   /**
    * Property consistency check for called for all binary numbers
    *
@@ -662,20 +661,24 @@ trait ElementBaseGrammarMixin
       }
     case LengthKind.Pattern =>
       schemaDefinitionError("Binary data elements cannot have lengthKind='pattern'.")
-    case LengthKind.EndOfParent if optionBinaryCalendarRep.isDefined =>
-      binaryCalendarRep match {
-        case BinaryCalendarRep.BinaryMilliseconds | BinaryCalendarRep.BinarySeconds =>
-          SDE(unsupportedLengthKindEOPMessage)
-        case _ => -1
-      }
-    case LengthKind.EndOfParent if optionBinaryNumberRep.isDefined =>
-      binaryNumberRep match {
-        case BinaryNumberRep.Binary =>
-          SDE(unsupportedLengthKindEOPMessage)
-        case _ => -1
-      }
     case LengthKind.EndOfParent =>
-      SDE(unsupportedLengthKindEOPMessage)
+      // Dispatch on primType, so that a format defining both binaryNumberRep and
+      // binaryCalendarRep consults the right one.
+      primType match {
+        case PrimType.DateTime | PrimType.Date | PrimType.Time =>
+          optionBinaryCalendarRep match {
+            case Some(BinaryCalendarRep.BinaryMilliseconds | BinaryCalendarRep.BinarySeconds) |
+                None =>
+              SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+            case _ => -1
+          }
+        case _ =>
+          optionBinaryNumberRep match {
+            case Some(BinaryNumberRep.Binary) | None =>
+              SDE("lengthKind='endOfParent' only supported for packed binary formats.")
+            case _ => -1
+          }
+      }
   }
 
   private def explicitBinaryLengthInBits() = {
@@ -954,7 +957,7 @@ trait ElementBaseGrammarMixin
       )
     }
   private lazy val packedEndOfParentLengthCalendar =
-    prod("packedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
+    prod("packedEndOfParentLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
       ConvertZonedCombinator(
         this,
         new PackedIntegerEndOfParentLength(this, packedSignCodes),
@@ -1125,8 +1128,6 @@ trait ElementBaseGrammarMixin
         ) byteOrderRaw // must have or SDE
 
         (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
-          case (BinaryNumberRep.Binary, LengthKind.EndOfParent, _) =>
-            SDE("lengthKind='endOfParent' is not allowed with binary number representation")
           case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) =>
             new BinaryDecimalPrefixedLength(this)
           case (BinaryNumberRep.Binary, _, -1) => new BinaryDecimalRuntimeLength(this)
@@ -1451,29 +1452,18 @@ trait ElementBaseGrammarMixin
     // non-explicit lengthKind
     val body = bodyArg
 
-    val eopSimpleTypeElementThatNeedsBitLimit =
-      (isSimpleType && lengthKind == LengthKind.EndOfParent)
-        && !this.isInstanceOf[Root]
-        && impliedRepresentation != Representation.Text
-        && !isNillable
-        && primType != PrimType.HexBinary
     // there are essentially two categories of processors that read/write data input/output
-    // stream: those that calculate lengths themselves (ex: binary numeric parsers) and those
-    // that expect another processor to calculate the length and set the bit limit which
-    // this processor will use as the length (such as text parsers). The following determines
-    // if this element requires another processor to calculate and set the bit limit, and if so
-    // adds the appropriate grammar to do that
-    val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited
-    // Note for non-root EndOfParent simple types, we don't wish to duplicate the length
-    // calculation efforts unless we know it needs the bit limit set by a parent
-      && !eopSimpleTypeElementThatNeedsBitLimit
-      && (
-        isSimpleType && impliedRepresentation == Representation.Text ||
-          isSimpleType && isNillable ||
-          isComplexType && lengthKind != LengthKind.Implicit ||
-          lengthKind == LengthKind.Prefixed ||
-          isSimpleType && primType == PrimType.HexBinary && lengthKind == LengthKind.Pattern
-      )
+    // stream: those that calculate lengths themselves and those that expect another
+    // processor to calculate the length and set the bit limit which this processor will use as
+    // the length. The following determines if this element requires another processor to
+    // calculate and set the bit limit, and if so adds the appropriate grammar to do that
+    val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited && (
+      isSimpleType && impliedRepresentation == Representation.Text ||
+        isSimpleType && isNillable ||
+        isComplexType && lengthKind != LengthKind.Implicit ||
+        lengthKind == LengthKind.Prefixed ||
+        isSimpleType && primType == PrimType.HexBinary && lengthKind == LengthKind.Pattern
+    )
     if (!bodyRequiresSpecifiedLengthBitLimit) {
       body
     } else {

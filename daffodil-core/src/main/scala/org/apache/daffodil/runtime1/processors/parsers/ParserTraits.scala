@@ -21,7 +21,6 @@ import java.lang.Long as JLong
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.infoset.DIComplex
@@ -173,7 +172,7 @@ trait PrefixedLengthParserMixin {
  * parsers to determine the length based on the bitLimit and position.
  *
  * For dfdl:lengthKind='endOfParent' parsers that need to scan to end-of-stream
- * when no bit limit is set, mix in [[EndOfParentBitLengthMixin]] instead.
+ * when no bit limit is set, use the end-of-parent variant of this trait instead.
  */
 trait BitLengthFromBitLimitMixin {
 
@@ -192,15 +191,14 @@ trait BitLengthFromBitLimitMixin {
 }
 
 /**
- * Extends [[BitLengthFromBitLimitMixin]] with dfdl:lengthKind='endOfParent' support.
+ * Extends the bit limit based length with dfdl:lengthKind='endOfParent' support.
  * When no bit limit is set (i.e., the parser is at the root or outermost EOP element),
- * falls back to [[org.apache.daffodil.io.InputSource#optEndOfDataPosition]] to locate
- * the end of the data stream.
+ * falls back to the end of the data stream.
  *
  * Only mix this in for parsers that are instantiated specifically for EOP elements.
- * Parsers for prefixed or explicitly-bounded elements should use the plain
- * [[BitLengthFromBitLimitMixin]]; mixing in this trait by mistake would silently
- * consume the entire remaining stream instead of failing at the missing bit limit.
+ * Parsers for prefixed or explicitly-bounded elements should use the plain bit limit
+ * version; mixing in this trait by mistake would silently consume the entire remaining
+ * stream instead of failing at the missing bit limit.
  */
 trait EndOfParentBitLengthMixin extends BitLengthFromBitLimitMixin {
 
@@ -213,15 +211,10 @@ trait EndOfParentBitLengthMixin extends BitLengthFromBitLimitMixin {
         case Some(endOfDataPosition) =>
           (endOfDataPosition * 8) - dis.bitPos0b
         case None =>
-          pstate.setFailed(
-            new ParseError(
-              One(pstate.schemaFileLocation),
-              One(pstate.currentLocation),
-              "Cannot determine end-of-data position for dfdl:lengthKind='endOfParent': " +
-                "data stream exceeds the maximum cache size. Consider increasing maxCacheSizeInBytes."
-            )
+          pstate.SDE(
+            "Cannot determine end-of-data position for dfdl:lengthKind='endOfParent': %s bytes read",
+            dis.knownBytesAvailable
           )
-          0L // callers check pstate.processorStatus before using this value
       }
     }
   }

@@ -269,6 +269,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     case SequenceKind.Ordered => true
     case SequenceKind.Unordered => false
   }
+
 }
 
 /**

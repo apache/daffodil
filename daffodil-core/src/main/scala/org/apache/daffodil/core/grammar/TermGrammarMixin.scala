@@ -30,7 +30,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 
 /////////////////////////////////////////////////////////////////
 // Common to all Terms (Elements and ModelGroups)
@@ -107,10 +106,22 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
         }
       case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit =>
         Some(LengthUnits.Bytes)
-      // Sequences are transparent — the ELU is inherited from the nearest enclosing box.
+      // Sequences are transparent: the ELU comes from the nearest enclosing non-EOP term.
       case _: SequenceTermBase => optLastNonEOPELU
       case _: ChoiceTermBase => None // implicit-length choice; SDE fires separately
     }
+  }
+
+  /**
+   * True if this term is an endOfParent element or contains one. A shared term is the same
+   * object wherever it is used, so this is worked out once for it, not once per use.
+   */
+  final lazy val containsEndOfParent: Boolean = {
+    val isEndOfParent = this match {
+      case e: ElementBase => e.lengthKind == LengthKind.EndOfParent
+      case _ => false
+    }
+    isEndOfParent || termChildren.exists(_.containsEndOfParent)
   }
 
   final lazy val childrenEndOfParent: Seq[ElementBase] = LV(Symbol("childrenEndOfParent")) {
@@ -128,7 +139,6 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
     val term = this
     lazy val eopChildren = this.childrenEndOfParent
     lazy val optParentELU = term.optEffectiveLengthUnits(lastNonEOPELU)
-    // checks
     term match {
       case rootElem: Root if rootElem.lengthKind == LengthKind.EndOfParent => {
         rootElem.checkEndOfParentRestrictionsOnCurrentElement(Some(LengthUnits.Characters))
@@ -148,7 +158,7 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
       case s: SequenceTermBase if eopChildren.nonEmpty => {
         eopChildren.foreach { child =>
           child.schemaDefinitionWhen(
-            s.separatorPosition == SeparatorPosition.Postfix,
+            s.hasSeparator && s.separatorPosition == SeparatorPosition.Postfix,
             "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with dfdl:separatorPosition defined as 'postfix'."
           )
           child.schemaDefinitionWhen(
@@ -160,7 +170,7 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
             "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with a dfdl:terminator."
           )
           child.schemaDefinitionWhen(
-            s.realElementChildren.exists(e => e.floating == YesNo.Yes),
+            s.elementChildrenThroughModelGroups.exists(_.isFloating),
             "element is specified as dfdl:lengthKind=\"endOfParent\", but is in a sequence with elements defining dfdl:floating='yes'."
           )
           child.schemaDefinitionWhen(
@@ -201,7 +211,6 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
       }
       case _ => // do nothing
     }
-    // end checks
     val sawEOP = term.termChildren.foldLeft(false) { case (sawEOP, child) =>
       if (sawEOP) {
         // Choice branches are alternatives, not sequential data — the after-EOP SDE must
@@ -219,19 +228,20 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
             )
         }
       }
-      val res = child.checkEndOfParentRestrictions(optParentELU)
+      val res = child.containsEndOfParent && child.checkEndOfParentRestrictions(optParentELU)
       term match {
-        // Branches of a choice are alternatives, so should never carry sawEOP from one branch to the next.
         case _: ChoiceTermBase => false
         case _ =>
           child match {
             case e: ElementBase if e.lengthKind == LengthKind.EndOfParent => true
-            // A non-EOP element forms a hard length boundary. EOP elements nested inside it are
-            // scoped to that element's length, so they must not affect sibling scanning here.
-            case _: ElementBase => false
+            // A non-EOP element has its own length, so EOP elements nested inside it are
+            // scoped to it and do not affect sibling scanning here.
+            // Unrepresented elements (e.g. dfdl:inputValueCalc) may follow an EOP element
+            // (spec 12.3.6), so carry the state through to catch a later represented one.
+            case _: ElementBase => sawEOP
             // An explicit-length choice owns a fixed byte span, so EOP elements inside it are
             // scoped to that span. After the choice ends the parent continues normally.
-            case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit => false
+            case c: ChoiceTermBase if c.choiceLengthKind == ChoiceLengthKind.Explicit => sawEOP
             // Sequences are transparent (no own length boundary),
             // so EOP state propagates through them.
             case _ => res

@@ -144,17 +144,18 @@ class SpecifiedLengthEndOfParent(e: ElementBase, eGram: => Gram)
   lazy val kind = "EndOfParent_" + e.lengthUnits.toString
 
   lazy val parser: Parser = {
-    if (eParser.isEmpty) eParser
-    else
+    if (eParser.isEmpty) {
+      eParser
+    } else {
       new SpecifiedLengthEndOfParentParser(
         eParser,
         e.elementRuntimeData
       )
+    }
   }
 
-  // No length-management wrapper needed: the enclosing element's
-  // unparser handles RightFill/ElementUnused for any space
-  // the EOP child doesn't fill
+  // No target length to enforce: an EOP element's extent is set by its enclosing
+  // explicit-length element or choice.
   lazy val unparser: Unparser = eUnparser
 
 }

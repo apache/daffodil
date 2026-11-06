@@ -126,6 +126,10 @@ class TestLengthKindEndOfParent extends TdmlTests {
   @Test def checks_01 = test
   @Test def checks_02 = test
   @Test def checks_03 = test
+  @Test def checks_04 = test
+  @Test def checks_05 = test
+  @Test def checks_06 = test
+  @Test def eop_choice_direct_dispatch_01 = test
 
   @Test def eop_not_byte_aligned_01 = test
   @Test def eop_not_byte_aligned_02 = test

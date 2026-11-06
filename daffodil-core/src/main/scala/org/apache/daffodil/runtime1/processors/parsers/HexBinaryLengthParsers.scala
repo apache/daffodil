@@ -87,7 +87,7 @@ final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
   extends HexBinaryLengthParser(erd),
     BitLengthFromBitLimitMixin {
 
-  override def runtimeDependencies = Vector()
+  override val runtimeDependencies = Array()
 }
 
 final class HexBinaryEndOfParentParser(erd: ElementRuntimeData)

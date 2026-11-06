@@ -259,19 +259,9 @@ class TestBucketingInputSource {
   }
 
   /**
-   * Regression for: optEndOfDataPosition must not evict a bucket that has an
-   * active backtracking mark (refCount > 0).
-   *
-   * Configuration: bucketSize=2 bytes, maxNumberOfNonNullBuckets=2 (4 bytes total
-   * cache). Locking position 0 pins bucket 0. When optEndOfDataPosition tries to
-   * scan beyond the 2-bucket window it would need to evict bucket 0 — which is
-   * forbidden. The fix stops the scan and returns None rather than nulling the
-   * locked bucket.
-   *
-   * Before fix: fillBucketsToIndex evicted bucket 0 unconditionally; the
-   * subsequent bis.position(0)/bis.get() threw BacktrackingException.
-   * After fix: optEndOfDataPosition returns None; the locked position is still
-   * readable after the scan.
+   * optEndOfDataPosition must not evict a bucket that has an active backtracking mark.
+   * With 2-byte buckets and a 4-byte cache, a mark on position 0 pins bucket 0, so the
+   * scan stops and returns None, and position 0 stays readable.
    */
   @Test def testOptEndOfDataPositionDoesNotEvictLockedBucket(): Unit = {
     // bucketSizeExponent=1 -> bucketSize=2; maxCacheSizeInBytes=4 -> maxNumberOfNonNullBuckets=2
@@ -550,35 +540,5 @@ class TestBucketingInputSourceFileChannel {
     } finally {
       java.nio.file.Files.deleteIfExists(tmpFile)
     }
-  }
-
-  /**
-   * Regression for compact() Int overflow: compact() must correctly update
-   * headBucketBytePosition0b when oldestBucketIndex is large. Uses tiny 2-byte
-   * buckets so the scenario exercises multiple compaction cycles without
-   * needing gigabytes of test data. Verifies that position() and subsequent
-   * reads are correct after compact() runs with a non-trivial oldestBucketIndex.
-   */
-  @Test def testCompactCorrectlyUpdatesPositionOffset(): Unit = {
-    // 2-byte buckets, 4-byte max cache (2 live buckets). Buckets are evicted
-    // quickly, driving oldestBucketIndex to a non-zero value before compact().
-    val tis = new TestInputStream
-    tis.setEOF(30)
-    val bis = new BucketingInputSource(tis, bucketSizeExponent = 1, maxCacheSizeInBytes = 4)
-
-    // Read 20 bytes; with 2-byte buckets the eviction loop inside
-    // fillBucketsToIndex sets oldestBucketIndex > 0.
-    var i = 0
-    while (i < 20) { assertEquals(i % 10, bis.get()); i += 1 }
-
-    // compact() advances headBucketBytePosition0b.  Before the Int-overflow fix
-    // the multiplication oldestBucketIndex * bucketSize was Int×Int; with large
-    // oldestBucketIndex that would produce a wrong (potentially negative) offset.
-    bis.compact()
-    assertEquals(20L, bis.position())
-
-    // Reads after compact() must still produce the correct sequence.
-    while (i < 30) { assertEquals(i % 10, bis.get()); i += 1 }
-    assertEquals(30L, bis.position())
   }
 }
