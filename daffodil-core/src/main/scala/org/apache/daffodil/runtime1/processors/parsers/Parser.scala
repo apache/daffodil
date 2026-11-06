@@ -23,6 +23,7 @@ import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.{ MaybeULong, Misc }
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
@@ -183,6 +184,53 @@ sealed trait Parser extends Processor {
       pstate.resetFormatInfoCaches()
       if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
       pstate.setMaybeProcessor(savedParser)
+    }
+  }
+
+  /**
+   * Whether this parser would succeed at the current position, without
+   * affecting parse state or firing debugger and trace events.
+   */
+  final private[parsers] def probe(pstate: PState): Boolean = {
+    val savedParser = pstate.maybeProcessor
+    pstate.setProcessor(this)
+    try {
+      probeImpl(pstate)
+    } finally {
+      pstate.setMaybeProcessor(savedParser)
+    }
+  }
+
+  /**
+   * Runs the parser under a point of uncertainty with the event handler off,
+   * then resets to it. Resetting discards the pending delimiter result and the
+   * event handler is not parse state, so both are saved and restored here, as
+   * are the format info caches, which must be recomputed for whatever parser
+   * follows.
+   */
+  protected def probeImpl(pstate: PState): Boolean = {
+    val savedDelimitedParseResult = pstate.delimitedParseResult
+    val savedDataProc = pstate.dataProc
+    try {
+      // This isn't actually a point of uncertainty, we just use the logic to
+      // undo whatever the probed parser did.
+      pstate.withPointOfUncertainty("probe", context) { pou =>
+        // A delimiter result left over from an earlier parser would be trusted
+        // by the probed parser instead of scanning the data at this position.
+        pstate.clearDelimitedParseResult()
+        pstate.dataProc = Nope
+        pstate.setSuccess()
+        try {
+          parse1(pstate)
+          pstate.isSuccess
+        } finally {
+          pstate.resetToPointOfUncertainty(pou)
+        }
+      }
+    } finally {
+      pstate.dataProc = savedDataProc
+      pstate.saveDelimitedParseResult(savedDelimitedParseResult)
+      pstate.resetFormatInfoCaches()
     }
   }
 }

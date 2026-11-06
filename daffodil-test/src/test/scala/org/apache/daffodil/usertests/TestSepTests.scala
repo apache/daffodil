@@ -49,6 +49,73 @@ class TestSepTests extends TdmlTests {
   @Test def test_sep_ssp_never_6 = test
   @Test def test_sep_ssp_never_7 = test
 
+  // DAFFODIL-3094
+  @Test def test_sep_ssp_never_8 = test
+  @Test def test_sep_ssp_never_9 = test
+  @Test def test_sep_unparse_positional_implicit_array_extra_seps = test
+  @Test def test_sep_parse_discriminated_group = test
+  @Test def test_sep_ssp_never_10 = test
+  @Test def test_sep_ssp_never_11 = test
+  @Test def test_sep_ssp_never_12 = test
+
+  @Test def test_sep_ssp_trailing_1 = test
+  @Test def test_sep_ssp_trailing_2 = test
+  @Test def test_sep_ssp_trailing_3 = test
+  @Test def test_sep_ssp_trailing_4 = test
+  @Test def test_sep_ssp_trailing_5 = test
+
+  @Test def test_sep_ssp_never_13 = test
+  @Test def test_sep_ssp_never_14 = test
+  @Test def test_sep_ssp_never_15 = test
+  @Test def test_sep_ssp_never_16 = test
+
+  @Test def test_sep_ssp_any_1 = test
+  @Test def test_sep_ssp_any_2 = test
+  @Test def test_sep_ssp_any_3 = test
+  @Test def test_sep_ssp_any_4 = test
+  @Test def test_sep_ssp_any_5 = test
+  @Test def test_sep_ssp_any_6 = test
+  @Test def test_sep_ssp_any_7 = test
+  @Test def test_sep_ssp_any_8 = test
+
+  @Test def test_sep_ssp_strict_1 = test
+  @Test def test_sep_ssp_strict_2 = test
+  @Test def test_sep_ssp_strict_3 = test
+  @Test def test_sep_ssp_strict_4 = test
+  @Test def test_sep_ssp_strict_5 = test
+  @Test def test_sep_ssp_strict_6 = test
+  @Test def test_sep_ssp_strict_7 = test
+  @Test def test_sep_ssp_strict_8 = test
+  @Test def test_sep_ssp_strict_9 = test
+  @Test def test_sep_ssp_strict_10 = test
+  @Test def test_sep_ssp_strict_11 = test
+  @Test def test_sep_ssp_strict_12 = test
+  @Test def test_sep_ssp_strict_13 = test
+  @Test def test_sep_ssp_strict_14 = test
+  @Test def test_sep_ssp_strict_15 = test
+  @Test def test_sep_ssp_strict_16 = test
+  @Test def test_sep_ssp_strict_17 = test
+  @Test def test_sep_ssp_strict_18 = test
+  @Test def test_sep_ssp_strict_19 = test
+  @Test def test_sep_ssp_strict_20 = test
+  @Test def test_sep_ssp_strict_21 = test
+  @Test def test_sep_ssp_strict_22 = test
+  @Test def test_sep_probe_stale_delimiter_1 = test
+  @Test def test_sep_probe_postfix_complex_1 = test
+  @Test def test_sep_probe_postfix_complex_2 = test
+  @Test def test_sep_probe_rewind_1 = test
+  @Test def test_sep_probe_end_of_data_1 = test
+  @Test def test_sep_probe_encoding_scope_1 = test
+  @Test def test_sep_discriminated_absent_1 = test
+  @Test def test_sep_unparse_discriminated_trailing_1 = test
+  @Test def test_sep_positional_optional_complex_1 = test
+  @Test def test_sep_positional_optional_complex_2 = test
+  @Test def test_sep_positional_optional_complex_3 = test
+  @Test def test_sep_absent_mid_optional_1 = test
+  @Test def test_sep_absent_mid_optional_2 = test
+  @Test def test_sep_absent_mid_optional_3 = test
+  @Test def test_sep_absent_mid_optional_4 = test
+
   // DAFFODIL-2205 - EmptyValueDelimiterPolicy only works with 'both'
   @Test def test_sep_evdp_1 = test
   @Ignore @Test def test_sep_evdp_2 = test

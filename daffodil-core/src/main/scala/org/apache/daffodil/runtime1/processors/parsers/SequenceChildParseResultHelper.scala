@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.lib.util.Maybe
@@ -66,7 +67,8 @@ trait SequenceChildParseResultHelper extends Serializable {
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus
 
   /**
@@ -84,7 +86,8 @@ trait SequenceChildParseResultHelper extends Serializable {
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus
 
 }
@@ -144,6 +147,18 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
   def emptyElementParsePolicy: EmptyElementParsePolicy
 
   /**
+   * Checks, without consuming data, whether one of the sequence's in-scope
+   * delimiters is present right where this complex type's content would
+   * begin. Used to verify whether a failed, zero-length-looking attempt at
+   * this occurrence genuinely represents a zero-length representation,
+   * rather than trusting bit-position bookkeeping alone, which nested
+   * backtracking within the complex type's own descent can corrupt.
+   *
+   * Always Nope for simple types and for model groups.
+   */
+  def zeroLengthComplexTypeDelimiterScanner: Maybe[Parser] = Maybe.Nope
+
+  /**
    * Compute the ParseAttemptStatus, given the state of the parse immediately after parsing
    * the item (which could be group or element).
    */
@@ -151,7 +166,8 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus = {
 
     val currentBitPosAfterChild = pstate.bitPos0b
@@ -195,7 +211,8 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
         prevBitPosBeforeChild,
         pstate,
         isZL,
-        requiredOptional
+        requiredOptional,
+        separatorWasFound
       )
     } // end if isSuccess/isFailed
   }
@@ -209,14 +226,30 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus = {
     Assert.usage(pstate.isFailure)
     val optPrimType = erd.optPrimType
     if (optPrimType.isDefined) {
-      simpleTypeFailedParseAttemptStatus(parser, pstate, isZL, erd, requiredOptional)
+      simpleTypeFailedParseAttemptStatus(
+        parser,
+        pstate,
+        isZL,
+        erd,
+        requiredOptional,
+        separatorWasFound
+      )
     } else {
-      complexTypeFailedParseAttemptStatus(parser, pstate, isZL, erd, requiredOptional)
+      complexTypeFailedParseAttemptStatus(
+        parser,
+        prevBitPosBeforeChild,
+        pstate,
+        isZL,
+        erd,
+        requiredOptional,
+        separatorWasFound
+      )
     }
   }
 
@@ -356,7 +389,8 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
   protected def anyTypeElementFailedParseAttemptStatus(
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus
 
   final protected def simpleTypeFailedParseAttemptStatus(
@@ -364,18 +398,39 @@ trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelp
     pstate: PState,
     isZL: Boolean,
     erd: ElementRuntimeData,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus =
-    anyTypeElementFailedParseAttemptStatus(pstate, isZL, requiredOptional)
+    anyTypeElementFailedParseAttemptStatus(pstate, isZL, requiredOptional, separatorWasFound)
 
   final protected def complexTypeFailedParseAttemptStatus(
     parser: SequenceChildParser,
+    prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
     erd: ElementRuntimeData,
-    requiredOptional: RequiredOptionalStatus
-  ): ParseAttemptStatus =
-    anyTypeElementFailedParseAttemptStatus(pstate, isZL, requiredOptional)
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
+  ): ParseAttemptStatus = {
+    val zl = if (zeroLengthComplexTypeDelimiterScanner.isDefined) {
+      // Peek, without consuming data, for one of the sequence's in-scope
+      // delimiters at the child's start. If that data can no longer be
+      // re-read, the bit position based answer is used instead.
+      val dis = pstate.dataInputStream
+      val posAtFailure = dis.markPos
+      try {
+        dis.setBitPos0b(prevBitPosBeforeChild)
+        zeroLengthComplexTypeDelimiterScanner.get.probe(pstate)
+      } catch {
+        case _: BacktrackingException => isZL
+      } finally {
+        dis.resetPos(posAtFailure)
+      }
+    } else {
+      isZL
+    }
+    anyTypeElementFailedParseAttemptStatus(pstate, zl, requiredOptional, separatorWasFound)
+  }
 }
 
 trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
@@ -414,7 +469,8 @@ trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultH
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus = {
     val currentBitPosAfterChild = pstate.bitPos0b
     val isZL = {
@@ -431,7 +487,8 @@ trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultH
         prevBitPosBeforeChild,
         pstate,
         isZL,
-        requiredOptional
+        requiredOptional,
+        separatorWasFound
       )
     } // end if isSuccess/isFailed
   }
@@ -463,7 +520,8 @@ trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultH
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus = {
     if (isZL) ParseAttemptStatus.MissingItem
     else ParseAttemptStatus.FailureUnspecified
@@ -501,9 +559,19 @@ trait NonPositionalLikeElementSequenceChildParseResultMixin
   override protected def anyTypeElementFailedParseAttemptStatus(
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus
+    requiredOptional: RequiredOptionalStatus,
+    separatorWasFound: Boolean
   ): ParseAttemptStatus = {
-    if (isZL)
+    // erd.isArray is excluded here: a repeating occurrence's own loop may
+    // still claim further separators for its own next iteration, so a
+    // separator found after this failed attempt isn't reliably this
+    // occurrence's to keep the way it is for a non-repeating optional.
+    if (
+      isZL && separatorWasFound && !erd.isArray &&
+      requiredOptional.isInstanceOf[RequiredOptionalStatus.Optional]
+    )
+      ParseAttemptStatus.AbsentRep
+    else if (isZL)
       ParseAttemptStatus.MissingItem
     else
       ParseAttemptStatus.FailureUnspecified

@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.grammar.EmptyGram
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.NamedGram
@@ -39,6 +40,7 @@ import org.apache.daffodil.runtime1.processors.parsers.ElementParser
 import org.apache.daffodil.runtime1.processors.parsers.ElementParserInputValueCalc
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.parsers.ZeroLengthComplexTypeDelimitedParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.unparsers.runtime1.CaptureEndOfContentLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.CaptureEndOfValueLengthUnparser
@@ -185,6 +187,28 @@ case class ElementUnused(ctxt: ElementBase)
     ctxt.maybeCharsetEv,
     ctxt.maybeLiteralNilEv
   )
+}
+
+/**
+ * Checks, without consuming data, whether one of the sequence's in-scope
+ * delimiters is present right where a complex type's content would begin.
+ * Used to determine whether this occurrence's representation is genuinely
+ * zero-length, independent of whatever bit-position bookkeeping the
+ * complex type's own (possibly backtracking) descent produces.
+ *
+ * The delimiters belong to the sequence, so the probe runs in the
+ * sequence's context, not the element's.
+ *
+ * Parse-only: never composed into the element's own parse sequence, only
+ * ever invoked on demand as a probe.
+ */
+case class ZeroLengthComplexTypeDelimiterScanner(ctxt: ElementBase, sq: SequenceTermBase)
+  extends Terminal(ctxt, true) {
+
+  override lazy val parser: Parser =
+    new ZeroLengthComplexTypeDelimitedParser(sq.termRuntimeData)
+
+  override def unparser: Unparser = hasNoUnparser
 }
 
 case class OnlyPadding(ctxt: ElementBase)

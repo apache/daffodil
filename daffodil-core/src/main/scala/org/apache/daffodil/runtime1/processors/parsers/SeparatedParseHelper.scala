@@ -153,6 +153,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         SeparatorParseStatus.SeparatorNotNeeded
 
     val prevBitPosBeforeChild = pstate.bitPos0b
+    val separatorWasFound = sepStatus eq SeparatorParseStatus.SeparatorFound
 
     sepStatus match {
       case _: SeparatorParseStatus.SeparatorSuccess => {
@@ -162,9 +163,24 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             scParser,
             prevBitPosBeforeChild,
             pstate,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound
           )
-        pas
+        pas match {
+          case ParseAttemptStatus.AbsentRep
+              if pstate.isFailure &&
+                separatorWasFound &&
+                (scParser.parseResultHelper.separatedSequenceChildBehavior eq
+                  SeparatedSequenceChildBehavior.NonPositional) &&
+                !sep.probe(pstate) =>
+            // Only for NonPositional (anyEmpty): a failed, zero-length
+            // attempt whose separator isn't followed by another one isn't
+            // a genuine zero-length occurrence of this item; release it
+            // (via the usual MissingItem backtrack) for the next item to
+            // claim instead.
+            ParseAttemptStatus.MissingItem
+          case _ => pas
+        }
       }
       case _ => {
         requiredOptional match {
@@ -254,7 +270,8 @@ final class PostfixSeparatorHelper(
           scParser,
           prevBitPosBeforeChild,
           pstate,
-          requiredOptional
+          requiredOptional,
+          separatorWasFound = false // separator not parsed yet at this point
         )
       sep.parse1(pstate)
       if (pstate.processorStatus eq Success) {
@@ -323,11 +340,13 @@ final class PostfixSeparatorHelper(
             prevBitPosBeforeChild,
             pstate,
             hasZLChildAttempt,
-            requiredOptional
+            requiredOptional,
+            separatorWasFound = true
           )
-          // For non-positional (anyEmpty) sequences, the child result helper returns
-          // MissingItem for optional ZL elements; since the postfix separator WAS
-          // found, a non-array element is AbsentRep per DFDL spec 9.2.4.
+          // Since the postfix separator WAS found, a non-array optional element
+          // is already AbsentRep per DFDL spec 9.2.4. An array occurrence ends
+          // its array instead, leaving the separator for the enclosing group,
+          // which may need it as its own.
           val isArrayOccurrence = scParser.trd match {
             case erd: ElementRuntimeData => erd.isArray
             case _ => false
@@ -336,11 +355,7 @@ final class PostfixSeparatorHelper(
           pas match {
             case ParseAttemptStatus.MissingItem | ParseAttemptStatus.AbsentRep
                 if isOptional && isArrayOccurrence =>
-              // The array ends here and the separator is left for the enclosing
-              // group, which may need it as its own.
               ParseAttemptStatus.MissingSeparator
-            case ParseAttemptStatus.MissingItem if isOptional =>
-              ParseAttemptStatus.AbsentRep
             case _ => pas
           }
         } else {
@@ -366,7 +381,8 @@ final class PostfixSeparatorHelper(
           prevBitPosBeforeChild,
           pstate,
           isZL,
-          requiredOptional
+          requiredOptional,
+          separatorWasFound = false
         )
       }
     }

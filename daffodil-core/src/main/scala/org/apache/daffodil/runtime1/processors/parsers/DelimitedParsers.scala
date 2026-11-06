@@ -25,10 +25,12 @@ import org.apache.daffodil.lib.util.PackedSignCodes
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockParserHelper
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextJustificationType
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
-import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock;
+import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock
+import org.apache.daffodil.runtime1.processors.dfa.TextParser
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 import java.math.{ BigDecimal as JBigDecimal, BigInteger as JBigInteger }
 import java.nio.charset.StandardCharsets
@@ -106,6 +108,52 @@ class StringDelimitedParser(
       }
     }
     processResult(result, start)
+  }
+}
+
+/**
+ * Checks whether one of the sequence's in-scope delimiters (separator or
+ * terminator) is present right at the current position, without consuming
+ * any data and without attempting to parse any field content or handle
+ * escape schemes.
+ *
+ * Used to determine whether a complex type's representation at this
+ * position is genuinely zero-length, independent of whatever bit-position
+ * bookkeeping the complex type's own (possibly backtracking) descent
+ * produces. Nothing is consumed or recorded. The context is the sequence
+ * that owns the delimiters, so they are decoded in its encoding.
+ */
+final class ZeroLengthComplexTypeDelimitedParser(
+  override val context: TermRuntimeData
+) extends TextPrimParser {
+
+  override val runtimeDependencies = context.encodingInfo.runtimeDependencies
+
+  private val textParser = new TextParser(context)
+
+  // The scan restores its own input position and changes no other parse state,
+  // so nothing needs saving. It does not go through parse1, so the format info
+  // caches that decoding the delimiters fills must be reset here.
+  override protected def probeImpl(start: PState): Boolean = {
+    val dis = start.dataInputStream
+    try {
+      // At the end of the data there is no representation at all, so whatever
+      // would be here is necessarily zero length.
+      !dis.isDefinedForLength(1) || {
+        val delimIter = new AllTerminatingMarkupDelimiterIterator(
+          start.mpstate.delimiters,
+          start.mpstate.delimitersLocalIndexStack.top
+        )
+        textParser.parse(start, dis, delimIter).isDefined
+      }
+    } finally {
+      start.resetFormatInfoCaches()
+    }
+  }
+
+  // This parser is only ever probed.
+  def parse(start: PState): Unit = {
+    Assert.invariantFailed("zero-length delimiter scanner is only probed, never parsed")
   }
 }
 
