@@ -189,7 +189,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   extends TermRuntimeValuedPropertiesMixin
   with RawDelimitedRuntimeValuedPropertiesMixin { decl: Term =>
 
-  private lazy val isLengthKindDelimited = {
+  final protected lazy val isLengthKindDelimited = {
     this match {
       case mg: ModelGroup => false
       case eb: ElementBase => eb.lengthKind == LengthKind.Delimited

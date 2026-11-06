@@ -502,7 +502,7 @@ trait MinMaxRepeatsMixin {
 
   final val ock = erd.maybeOccursCountKind.get
 
-  private val minRepeats_ = {
+  final val minRepeatsConst: Long = {
     val mr =
       if (ock eq OccursCountKind.Parsed) 0
       else erd.minOccurs
@@ -514,7 +514,7 @@ trait MinMaxRepeatsMixin {
    * For example, when occursCountKind is parsed, then minRepeats is 0, regardless
    * of the value of minOccurs.
    */
-  def minRepeats(state: ParseOrUnparseState): Long = minRepeats_
+  def minRepeats(state: ParseOrUnparseState): Long = minRepeatsConst
 
   /**
    * True if the loop has a finite upper bound on number of iterations.
@@ -522,7 +522,7 @@ trait MinMaxRepeatsMixin {
    * for speculative parsing cases, it's not OCK parsed, or OCK implicit with
    * maxOccurs unbounded.
    */
-  private val maxRepeats_ = {
+  final val maxRepeatsConst: Long = {
     if (ock eq OccursCountKind.Parsed) Long.MaxValue
     else if (erd.maxOccurs == -1) Long.MaxValue
     else erd.maxOccurs
@@ -533,9 +533,9 @@ trait MinMaxRepeatsMixin {
    * For example, when occursCountKind is parsed, then maxRepeats is -1 (meaning unbounded)
    * regardless of the value of maxOccurs.
    */
-  def maxRepeats(state: ParseOrUnparseState): Long = maxRepeats_
+  def maxRepeats(state: ParseOrUnparseState): Long = maxRepeatsConst
 
-  private val isBoundedMax_ = maxRepeats_ < Long.MaxValue
+  private val isBoundedMax_ = maxRepeatsConst < Long.MaxValue
 
   def isBoundedMax: Boolean = isBoundedMax_
 

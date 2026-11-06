@@ -43,7 +43,7 @@ object Dependencies {
   )
 
   lazy val cli = Seq(
-    "org.jline" % "jline" % "4.4.7",
+    "org.jline" % "jline" % "4.4.8",
     "org.rogach" %% "scallop" % "5.3.0",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "test"
   )
@@ -59,7 +59,7 @@ object Dependencies {
   )
 
   lazy val schematron = Seq(
-    "net.sf.saxon" % "Saxon-HE" % "13.0"
+    "net.sf.saxon" % "Saxon-HE" % "13.1"
   )
 
   lazy val exi = Seq(

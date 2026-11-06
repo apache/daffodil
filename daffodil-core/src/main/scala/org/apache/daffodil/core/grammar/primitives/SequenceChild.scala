@@ -29,6 +29,8 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.InfosetBuilder
+import org.apache.daffodil.runtime1.infoset.SequenceChildInfosetBuildInfo
 import org.apache.daffodil.runtime1.processors.parsers.*
 import org.apache.daffodil.unparsers.runtime1.*
 
@@ -91,6 +93,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
   protected lazy val childParser = child.termContentBody.parser
   protected lazy val childUnparser = child.termContentBody.unparser
+  protected lazy val childBuilder: InfosetBuilder = child.termContentBody.builder
 
   final override lazy val parser = sequenceChildParser
   final override lazy val unparser = sequenceChildUnparser
@@ -103,6 +106,9 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
 
   final lazy val optSequenceChildUnparser: Option[SequenceChildUnparser] =
     if (childUnparser.isEmpty) None else Some(unparser)
+
+  final lazy val sequenceChildBuildInfo: SequenceChildInfosetBuildInfo =
+    SequenceChildInfosetBuildInfo(unparser, childBuilder)
 
   /**
    * There's only parse result helpers here, so let's abbreviate
@@ -269,18 +275,6 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
         case mg if mg.isPotentiallyTrailing => (true, false)
         case mg => {
           val hasSyntax = mg.hasKnownRequiredSyntax
-          //
-          // This is coming out incorrect in one case
-          // (a) the format has a terminator which is an expression
-          // (b) the expression evaluates to say, %WSP*; or %ES; based on looking at other infoset information.
-          // (c) that delimiter matches zero length
-          // (d) the lengthKind is NOT delimited. So we're not scanning for this.
-          // This comes up in mil-std-2045 and other formats which have an optional
-          // final terminator after a string having lengthKind 'pattern'.
-          // In that case, hasKnownRequiredSyntax is incorrect.
-          //
-          // Bug DAFFODIL-2132 is why this is incorrect in the above case.
-          //
           (!hasSyntax, hasSyntax)
         }
       }
@@ -297,7 +291,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
     val res: (Boolean, Boolean) = childElement match {
       case _ if !childElement.isRepresented => (false, false)
       case eb if eb.isComplexType => {
-        val canBeZL = !eb.hasDelimiters &&
+        val canBeZL = !eb.isKnownNonZeroLengthDelimiters &&
           !eb.complexType.modelGroup.hasKnownRequiredSyntax
         (canBeZL, false)
       }

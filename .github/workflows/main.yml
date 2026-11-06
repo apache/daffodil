@@ -42,12 +42,12 @@ jobs:
         java_distribution: [ temurin ]
         java_version: [ 17, 21, 25 ]
         scala_version: [ 3.3.7 ]
-        os: [ ubuntu-22.04, windows-2022, macos-14 ]
+        os: [ ubuntu-22.04, windows-2022, macos-15 ]
         exclude:
           # only run macos on java 17
-          - os: macos-14
+          - os: macos-15
             java_version: 21
-          - os: macos-14
+          - os: macos-15
             java_version: 25
         include:
           # configure shell/cc/ar for all OSes
@@ -59,7 +59,7 @@ jobs:
             shell: msys2 {0}
             env_cc: clang
             env_ar: llvm-ar
-          - os: macos-14
+          - os: macos-15
             shell: bash
             env_cc: cc
             env_ar: ar
@@ -197,6 +197,14 @@ jobs:
       - name: Run Unit Tests
         run: $SBT test
 
+      # Build ahead is the default, so run the suite once more event driven to
+      # keep that unparse path tested.
+      - name: Run Unit Tests (event-driven unparse)
+        if: matrix.os == 'ubuntu-22.04' && matrix.java_version == '17'
+        env:
+          DAFFODIL_TDML_TUNABLES: infosetBuilderMode=eventDriven
+        run: $SBT test
+
       - name: Run Integration Tests
         run: $SBT daffodil-test-integration/test
 
@@ -207,7 +215,7 @@ jobs:
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 

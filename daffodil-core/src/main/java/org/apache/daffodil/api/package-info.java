@@ -39,6 +39,10 @@
  * {@link org.apache.daffodil.api.UnparseResult}, respectively. These contain information about the
  * parse/unparse, such as whether or not the processing succeeded with any diagnostic information.
  *
+ * <p>Compiling a DFDL schema is expensive and the compiled objects are large, so they are designed
+ * to be created once and shared. See <b>Thread Safety</b>, at the end of this document, for which
+ * of these objects may be shared by multiple threads and which must be unique to each thread.</p>
+ *
  * The {@link org.apache.daffodil.api.DataProcessor} also provides two functions that can be used to
  * perform parsing/unparsing via the SAX API. The first creates a
  * {@link org.apache.daffodil.api.DaffodilParseXMLReader} which is used for parsing, and the
@@ -300,7 +304,7 @@
  * <h3>Failures and Diagnostics</h3>
  *
  * It is possible that failures could occur during the creation of the
- * {@link org.apache.daffodil.api.ProcessorFactory}, {@link org.apache.daffodil.api.DataProcessor}, 
+ * {@link org.apache.daffodil.api.ProcessorFactory}, {@link org.apache.daffodil.api.DataProcessor},
  * {@link org.apache.daffodil.api.ParseResult}, or {@link org.apache.daffodil.api.UnparseResult}. However,
  * rather than throwing an exception on error (e.g. invalid DFDL schema, parse error, etc), these classes extend
  * {@link org.apache.daffodil.api.WithDiagnostics}, which is used to determine if an error occurred,
@@ -354,6 +358,134 @@
  * ... // setting appropriate handlers
  * xmlReader.parse(data);
  * ParseResult pr = xmlReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
+ * }</pre>
+ *
+ * <h2>Thread Safety</h2>
+ *
+ * A compiled DFDL schema typically has a far larger memory footprint than the data it parses, so
+ * it is usually worth compiling a schema once and sharing the result with as many threads as
+ * needed. In short, share the compiled schema, but do not share anything that belongs to a single
+ * parse or unparse.
+ *
+ * <p>The objects of this API fall into two groups: the immutable objects that describe the compiled
+ * schema, which may be shared by any number of threads, and the stateful objects that belong to a
+ * single parse or unparse, which must not be.
+ *
+ * <h3>Objects That May Be Shared Between Threads</h3>
+ *
+ * The following objects are immutable once created. Any number of threads may hold and call them at
+ * the same time, with no additional synchronization:
+ *
+ * <ul>
+ * <li>{@link org.apache.daffodil.api.Daffodil} - every static factory method of this class is
+ * thread safe and may be called from any thread.</li>
+ * <li>{@link org.apache.daffodil.api.Compiler}</li>
+ * <li>{@link org.apache.daffodil.api.ProcessorFactory}</li>
+ * <li>{@link org.apache.daffodil.api.DataProcessor}</li>
+ * <li>{@link org.apache.daffodil.api.ParseResult} and {@link org.apache.daffodil.api.UnparseResult}
+ * </ul>
+ *
+ * Because these objects are immutable, methods that appear to configure them do not change the
+ * object they were called on. {@link org.apache.daffodil.api.Compiler#withTunable(String, String)},
+ * {@link org.apache.daffodil.api.ProcessorFactory#withDistinguishedRootNode(String, String)},
+ * {@link org.apache.daffodil.api.DataProcessor#withValidation(String, java.net.URL)}, and every
+ * other {@code withX} method returns a new object. One thread may therefore create a new
+ * configuration while other threads keep using the original.
+ *
+ * The methods that do the actual work,
+ * {@link org.apache.daffodil.api.DataProcessor#parse(org.apache.daffodil.api.InputSourceDataInputStream, org.apache.daffodil.api.infoset.InfosetOutputter)}
+ * and
+ * {@link org.apache.daffodil.api.DataProcessor#unparse(org.apache.daffodil.api.infoset.InfosetInputter, java.nio.channels.WritableByteChannel)},
+ * may be called concurrently on a shared {@link org.apache.daffodil.api.DataProcessor}, mixing
+ * parses and unparses in any combination. Everything that belongs to a single run, such as the bit
+ * position in the data, the DFDL variables, the infoset being built, and the diagnostics, is created
+ * fresh for each call, so concurrent runs cannot see or change each other's state. The same is true
+ * of {@link org.apache.daffodil.api.DataProcessor#newXMLReaderInstance()},
+ * {@link org.apache.daffodil.api.DataProcessor#newContentHandlerInstance},
+ * {@link org.apache.daffodil.api.DataProcessor#save},
+ * {@link org.apache.daffodil.api.DataProcessor#walkMetadata},
+ * {@link org.apache.daffodil.api.ProcessorFactory#onPath(String)}, and the
+ * {@code compileX} and {@code reload} methods of {@link org.apache.daffodil.api.Compiler}. Each call
+ * to one of these creates independent state, so a single {@code DataProcessor} shared by a pool of
+ * threads is the normal, recommended way to use Daffodil.
+ *
+ * <h3>Objects That Must Be Unique To Each Thread</h3>
+ *
+ * The following objects hold state for the duration of a run. They are not thread safe; each thread
+ * must use its own instance, and an instance must not be given to another thread until every thread
+ * that used it is finished with it:
+ *
+ * <ul>
+ * <li>{@link org.apache.daffodil.api.InputSourceDataInputStream} - the current position in the data
+ * lives in this object, so each parse needs its own. One shared instance would also interleave reads
+ * of the underlying {@link java.io.InputStream}.</li>
+ * <li>{@link org.apache.daffodil.api.infoset.InfosetOutputter} and
+ * {@link org.apache.daffodil.api.infoset.InfosetInputter}, and therefore the infosets they build or
+ * read. An {@link org.apache.daffodil.api.infoset.InfosetOutputter} may be reused by a thread, one
+ * parse at a time, after calling {@link org.apache.daffodil.api.infoset.InfosetOutputter#reset()}.</li>
+ * <li>{@link org.apache.daffodil.api.DaffodilParseXMLReader} and the handlers, resolvers and
+ * properties registered on it. A thread that wants to parse data with SAX needs its own reader,
+ * which is why {@link org.apache.daffodil.api.DataProcessor#newXMLReaderInstance()} is thread safe.</li>
+ * <li>{@link org.apache.daffodil.api.DaffodilUnparseContentHandler}, for the same reason.</li>
+ * <li>{@link org.apache.daffodil.api.debugger.Debugger} - a debugger is interactive and keeps track
+ * of where the run it is attached to stopped, so a {@code DataProcessor} configured with a debugger
+ * should be confined to one thread.</li>
+ * <li>{@link org.apache.daffodil.api.CodeGenerator}</li>
+ * </ul>
+ *
+ * Objects provided by the caller for a single run are subject to the same rule. The
+ * {@link java.nio.channels.WritableByteChannel} given to
+ * {@link org.apache.daffodil.api.DataProcessor#unparse(org.apache.daffodil.api.infoset.InfosetInputter, java.nio.channels.WritableByteChannel)},
+ * or the {@link java.io.OutputStream} given to one of the infoset text outputters, must be unique to
+ * that call.
+ *
+ * <p>Objects that Daffodil calls back into have their own requirements, documented with them. The
+ * {@link org.apache.daffodil.api.validation.Validator} and
+ * {@link org.apache.daffodil.api.validation.ValidatorFactory} Service Provider Interface
+ * implementations must be thread safe, because a single validator is used by all of the concurrent
+ * parses that were configured with it. A {@link org.apache.daffodil.api.DaffodilEntityResolverProvider}
+ * must also be thread safe, but the resolvers it returns are only ever used by one thread at a time.</p>
+ *
+ * <h3>Sharing Results Between Threads</h3>
+ *
+ * A {@link org.apache.daffodil.api.ParseResult} or {@link org.apache.daffodil.api.UnparseResult} is
+ * only complete, and so only readable, once the call that returned it has finished. Passing the
+ * result to another thread therefore needs the usual handoff, for example an
+ * {@link java.util.concurrent.ExecutorService} and a {@link java.util.concurrent.Future}, which also
+ * provides the memory visibility that the reading thread needs. The same applies to any infoset
+ * built by an {@link org.apache.daffodil.api.infoset.InfosetOutputter}: build it on one thread, hand
+ * it off, then read it on another.
+ *
+ * <h3>Multi-threaded Example</h3>
+ *
+ * <pre>
+ * {@code
+ * // compile once, on the main thread, and share the compiled schema with all of the workers
+ * Compiler c = Daffodil.compiler();
+ * ProcessorFactory pf = c.compileFile(schemaFile);
+ * if (pf.isError()) { ... } // no other thread is running yet, so nothing waits on the compilation
+ * DataProcessor dp = pf.onPath("/");
+ *
+ * ExecutorService pool = Executors.newFixedThreadPool(4);
+ * for (final File dataFile : dataFiles) {
+ *   pool.submit(() -> {
+ *     // both of these belong to this parse alone and are never seen by another thread
+ *     try (InputSourceDataInputStream input =
+ *              Daffodil.newInputSourceDataInputStream(new FileInputStream(dataFile))) {
+ *       JDOMInfosetOutputter output = new JDOMInfosetOutputter();
+ *
+ *       ParseResult pr = dp.parse(input, output); // thread safe, dp is shared by all four threads
+ *       if (pr.isError()) {
+ *         ...
+ *       } else {
+ *         Document doc = output.getResult();
+ *         ...
+ *       }
+ *     } catch (IOException e) {
+ *       ...
+ *     }
+ *   });
+ * }
  * }</pre>
  *
  */

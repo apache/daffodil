@@ -118,9 +118,11 @@ object TestUtils {
     testSchema: scala.xml.Elem,
     infosetXML: Node,
     unparseTo: String,
-    areTracing: Boolean = false
+    areTracing: Boolean = false,
+    tunables: Map[String, String] = Map.empty
   ): java.util.List[api.Diagnostic] = {
-    val compiler = Compiler().withTunable("allowExternalPathExpressions", "true")
+    val compiler =
+      Compiler().withTunable("allowExternalPathExpressions", "true").withTunables(tunables)
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) throwDiagnostics(pf.getDiagnostics)
     var u = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])

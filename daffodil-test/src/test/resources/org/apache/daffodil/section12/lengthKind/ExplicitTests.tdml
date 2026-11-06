@@ -30,6 +30,12 @@
     </daf:tunables>
   </tdml:defineConfig>
 
+  <tdml:defineConfig name="smallMaxBinaryNumberLength">
+    <daf:tunables>
+      <daf:maxBinaryNumberLengthInBits>16</daf:maxBinaryNumberLengthInBits>
+    </daf:tunables>
+  </tdml:defineConfig>
+
   <tdml:defineSchema name="lengthKind_explicit">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="trimmed">
@@ -1487,6 +1493,94 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="invalidIntegerBitLengthExpr">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte"/>
+          <xs:element name="v" type="xs:integer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidIntegerBitLengthExpr" root="r" model="invalidIntegerBitLengthExpr"
+                       description="" config="smallMaxBinaryNumberLength">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        14
+        ff ff ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>20 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseInvalidIntegerBitLengthExpr" root="r" model="invalidIntegerBitLengthExpr"
+                       description="" config="smallMaxBinaryNumberLength">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <ex:len>20</ex:len>
+          <ex:v>32</ex:v>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>20 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="invalidDecimalBitLengthExpr">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" binaryDecimalVirtualPoint="0"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte"/>
+          <xs:element name="v" type="xs:decimal" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidDecimalBitLengthExpr" root="r" model="invalidDecimalBitLengthExpr"
+                       description="" config="smallMaxBinaryNumberLength">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        14
+        ff ff ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>20 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseInvalidDecimalBitLengthExpr" root="r" model="invalidDecimalBitLengthExpr"
+                       description="" config="smallMaxBinaryNumberLength">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <ex:len>20</ex:len>
+          <ex:v>5</ex:v>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>20 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:defineSchema name="insufficientBits">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
@@ -1794,7 +1888,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>0 out of range</tdml:error>
+      <tdml:error>greater than zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1806,7 +1900,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>0 out of range</tdml:error>
+      <tdml:error>greater than zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1818,7 +1912,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>0 out of range</tdml:error>
+      <tdml:error>greater than zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1830,7 +1924,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>0 out of range</tdml:error>
+      <tdml:error>greater than zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
