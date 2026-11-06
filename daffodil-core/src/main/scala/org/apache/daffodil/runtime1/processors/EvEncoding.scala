@@ -81,8 +81,11 @@ abstract class EncodingEvBase(
 final class EncodingEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EncodingEvBase(expr, tci)
 
-abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
-  extends Evaluatable[BitsCharset](tci)
+abstract class CharsetEvBase(
+  encodingEv: EncodingEvBase,
+  userCharsets: Map[String, BitsCharset],
+  tci: DPathCompileInfo
+) extends Evaluatable[BitsCharset](tci)
   with InfosetCachedEvaluatable[BitsCharset] {
 
   override val runtimeDependencies = Array(encodingEv)
@@ -100,21 +103,31 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
 
   override def compute(state: ParseOrUnparseState) = {
     val encString = encodingEv.evaluate(state)
-    val bc = CharsetUtils.getCharset(encString)
+    // first look for a registered (built-in or plugin) charset, then for a
+    // charset defined via a dfdlx:defineCharset statement in this schema set.
+    val bc = CharsetUtils.getCharset(encString, userCharsets)
     if (bc == null) {
       tci.schemaDefinitionError(
-        "Unsupported encoding: %s. Supported encodings: %s",
+        "Unsupported encoding: %s. Supported encodings: %s%s",
         encString,
-        BitsCharsetDefinitionRegistry.supportedEncodingsString
+        BitsCharsetDefinitionRegistry.supportedEncodingsString,
+        if (userDefinedCharsetsNameString.isEmpty) ""
+        else ", " + userDefinedCharsetsNameString
       )
     }
     if (!encodingEv.isConstant) checkCharset(state, bc)
     bc
   }
+
+  private lazy val userDefinedCharsetsNameString =
+    userCharsets.keys.toSeq.sorted.mkString(", ")
 }
 
-final class CharsetEv(encodingEv: EncodingEv, tci: DPathCompileInfo)
-  extends CharsetEvBase(encodingEv, tci)
+final class CharsetEv(
+  encodingEv: EncodingEv,
+  val userCharsets: Map[String, BitsCharset],
+  tci: DPathCompileInfo
+) extends CharsetEvBase(encodingEv, userCharsets, tci)
 
 class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, tci: DPathCompileInfo)
   extends Evaluatable[Integer](tci)

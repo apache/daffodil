@@ -42,6 +42,8 @@ class PropertyGenerator(arg: Node) {
 
   val excludedTypes = List(
     "AlignmentType",
+    "DefineCharsetType",
+    "defineCharset",
     "BinaryBooleanFalseRepType",
     "BinaryBooleanTrueRepType",
     "EmptyElementParsePolicy",

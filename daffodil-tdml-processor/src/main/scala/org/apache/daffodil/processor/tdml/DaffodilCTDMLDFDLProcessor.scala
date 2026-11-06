@@ -27,6 +27,7 @@ import scala.xml.XML
 import org.apache.daffodil.api
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.Diagnostic
@@ -297,6 +298,8 @@ final class DaffodilCTDMLUnparseResult(
 
   override def bitPos0b: Long = finalBitPos0b
   override def isScannable: Boolean = false // binary data is not scannable
+  override def userDefinedCharsets: Map[String, BitsCharset] =
+    Map.empty // encoding info needed only if scannable
   override def encodingName: String = "" // encoding needed only if scannable
   override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
   override def isProcessingError: Boolean = processorResult.isFailure

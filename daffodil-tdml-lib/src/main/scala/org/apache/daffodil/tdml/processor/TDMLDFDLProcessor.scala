@@ -20,6 +20,7 @@ package org.apache.daffodil.tdml.processor
 import java.nio.file.Path
 
 import org.apache.daffodil.api
+import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.DaffodilSchemaSource
 import org.apache.daffodil.lib.iapi.Diagnostic
@@ -110,5 +111,6 @@ trait TDMLUnparseResult extends TDMLResult {
 
   def finalBitPos0b: Long
   def isScannable: Boolean
+  def userDefinedCharsets: Map[String, BitsCharset]
   def encodingName: String
 }

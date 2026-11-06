@@ -168,4 +168,66 @@
     </xs:list>
   </xs:simpleType>
 
+  <xs:element name="defineCharset" type="dfdlx:DefineCharsetType"/>
+
+  <xs:complexType name="DefineCharsetType">
+
+    <xs:attribute name="name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation><![CDATA[
+          Name of the characterset. Must be unique within the schema and must
+          not match any predefined (or plugin-provided) charset name.
+        ]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="bitWidthOfACodeUnit" type="xs:positiveInteger" use="required">
+      <xs:annotation>
+        <xs:documentation><![CDATA[
+          Number of bits for each code unit/character
+        ]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="decodeString" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation><![CDATA[
+          Lists the characters corresponding to each code point, in code point
+          order, and must contain exactly 2^bitWidthOfACodeUnit characters. It
+          supports DFDL Character Entities (e.g. %NUL;) as well as oridinary
+          characters.
+        ]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="replacementChar" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation><![CDATA[
+          Character used when unparsing a character that cannot be represented
+          in this charset. replacementChar must be a single character (DFDL
+          Character Entities can be used) and must be present in the
+          decodeString.
+        ]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="bitOrder" type="dfdl:BitOrderEnum" use="required">
+      <xs:annotation>
+        <xs:documentation><![CDATA[
+          Specifies the bit order required for this charset.
+        ]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="alignment" type="xs:positiveInteger" use="required">
+      <xs:annotation>
+        <xs:documentation><![CDATA[
+          Specifies the bit alignement required for this charset.
+        ]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attributeGroup ref="dafint:daffodilAG"/>
+  </xs:complexType>
+
 </xs:schema>

@@ -34,6 +34,7 @@ import org.apache.daffodil.api
 import org.apache.daffodil.api.Daffodil
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.iapi.*
@@ -376,7 +377,13 @@ class DaffodilTDMLDFDLProcessor private[tdml] (
           dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray
         )
         if (actualDP.isScannable && actualSAX.isScannable) {
-          VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, None)
+          VerifyTestCase.verifyTextData(
+            dpis,
+            saxOutputStream,
+            actualSAX.encodingName,
+            actualSAX.userDefinedCharsets,
+            None
+          )
         } else {
           VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
         }
@@ -477,6 +484,8 @@ final class DaffodilTDMLUnparseResult(
   override def finalBitPos0b = ustate.getDataOutputStream.maybeAbsBitPos0b.get
 
   override def isScannable: Boolean = actual.isScannable
+
+  override def userDefinedCharsets: Map[String, BitsCharset] = actual.userDefinedCharsets
 
   override def encodingName: String = actual.encodingName
 

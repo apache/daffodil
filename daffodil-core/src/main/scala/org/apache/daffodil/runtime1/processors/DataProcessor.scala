@@ -772,6 +772,8 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
 
   override def isScannable = encodingInfo.isScannable
 
+  override def userDefinedCharsets = encodingInfo.userDefinedCharsets
+
   override def encodingName = {
     Assert.invariant(encodingInfo.isKnownEncoding)
     // we're not supporting runtime-calculated encodings yet so not
