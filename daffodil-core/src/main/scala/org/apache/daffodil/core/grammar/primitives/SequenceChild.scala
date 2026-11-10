@@ -24,6 +24,10 @@ import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolic
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetBuilder
 import org.apache.daffodil.runtime1.infoset.SequenceChildInfosetBuildInfo
@@ -68,6 +72,24 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
   import SeparatorSuppressionPolicy.*
 
   private lazy val sgtb = sq.asInstanceOf[SequenceGroupTermBase]
+
+  /**
+   * The probe that decides whether a failed complex element occurrence is
+   * zero length by looking for an adjacent in-scope delimiter, for the
+   * prefix and infix cases where the separator is ahead of the occurrence
+   * and would otherwise be lost. A postfix separator follows the occurrence
+   * and is not consumed when the occurrence fails, so there is nothing to
+   * retain and the probe does not apply.
+   */
+  protected final def zeroLengthComplexTypeScanner(e: ElementBase): Maybe[Parser] =
+    if (
+      e.isComplexType && (e.lengthKind eq LengthKind.Delimited) &&
+      (sq.separatorPosition ne SeparatorPosition.Postfix)
+    ) {
+      One(ZeroLengthComplexTypeDelimiterScanner(e, sq).parser)
+    } else {
+      Nope
+    }
 
   protected lazy val childParser = child.termContentBody.parser
   protected lazy val childUnparser = child.termContentBody.unparser
@@ -495,12 +517,14 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     Assert.invariant(e.isScalar)
     Assert.invariant(e.isRepresented)
     val isd = e.isSimpleType && (e.lengthKind eq LengthKind.Delimited)
+    val zls: Maybe[Parser] = zeroLengthComplexTypeScanner(e)
     this.sscb match {
       case PositionalTrailingLax | PositionalTrailingStrict =>
         new PositionalTrailingScalarElementSeparatedSequenceChildParseResultHelper(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -510,6 +534,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -519,6 +544,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -586,6 +612,7 @@ sealed abstract class RepElementSequenceChild(
     Assert.invariant(!e.isScalar)
     Assert.invariant(e.isRepresented)
     val isd = e.isSimpleType && (e.lengthKind eq LengthKind.Delimited)
+    val zls: Maybe[Parser] = zeroLengthComplexTypeScanner(e)
 
     this.sscb match {
       case PositionalTrailingLax | PositionalTrailingStrict =>
@@ -593,6 +620,7 @@ sealed abstract class RepElementSequenceChild(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -602,6 +630,7 @@ sealed abstract class RepElementSequenceChild(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength
@@ -611,6 +640,7 @@ sealed abstract class RepElementSequenceChild(
           sscb,
           erd,
           isd,
+          zls,
           eep,
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength

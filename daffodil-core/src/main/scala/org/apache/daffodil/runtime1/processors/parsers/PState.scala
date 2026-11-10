@@ -249,7 +249,7 @@ final class PState private (
 
   private val markPool = new PState.MarkPool
 
-  private def mark(requestorID: String, context: RuntimeData): PState.Mark = {
+  private[parsers] def mark(requestorID: String, context: RuntimeData): PState.Mark = {
     // threadCheck()
     val m = markPool.getFromPool(requestorID)
     m.captureFrom(this, requestorID, context)
@@ -263,7 +263,7 @@ final class PState private (
 
   def dataInputStreamIsValid = dataInputStream.inputSource.isValid
 
-  private def reset(m: PState.Mark): Unit = {
+  private[parsers] def reset(m: PState.Mark): Unit = {
     // threadCheck()
     m.element.infosetWalkerBlockCount -= 1
     m.restoreInto(this)
