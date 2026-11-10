@@ -105,6 +105,33 @@ abstract class SequenceParserBase(
        */
       var priorResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
 
+      /**
+       * Separate from priorResultOfTry, which a repeating child's own
+       * inner loop overwrites on its first iteration: this tracks the true
+       * previous sibling's final result, for the cross-sibling adjacency
+       * check below.
+       */
+      var priorSiblingResultOfTry: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+      /**
+       * Whether the last represented child was bounded to at most one
+       * occurrence. A multi-occurrence array's own final attempt is a
+       * deliberate probe expected to fail, so it says nothing about a
+       * wrongly-omitted occurrence.
+       */
+      var lastChildBoundedToAtMostOne = true
+
+      /**
+       * The previous sibling's result for the trailingEmptyStrict check at the
+       * end of the sequence. It is only set when that sibling was an optional
+       * element that consumed data, meaning its separator: a required child
+       * can be empty without being trailing, and the first child of an infix
+       * sequence has no separator to consume.
+       */
+      var priorSiblingForStrictCheck: ParseAttemptStatus = ParseAttemptStatus.Uninitialized
+
+      var lastChildIsOptionalWithData = false
+
       var child: SequenceChildParser = null
 
       var isDone = false
@@ -127,6 +154,7 @@ abstract class SequenceParserBase(
             val max = parser.maxRepeats(pstate)
             val isBounded = parser.isBoundedMax
             val erd = parser.trd.asInstanceOf[ElementRuntimeData]
+            val bitPosAtChildStart = pstate.bitPos0b
 
             parser.startArray(pstate)
 
@@ -137,6 +165,12 @@ abstract class SequenceParserBase(
             //
 
             priorResultOfTry = resultOfTry
+            priorSiblingResultOfTry =
+              if (lastChildBoundedToAtMostOne) priorResultOfTry
+              else ParseAttemptStatus.Uninitialized
+            priorSiblingForStrictCheck =
+              if (lastChildIsOptionalWithData) priorResultOfTry
+              else ParseAttemptStatus.Uninitialized
             resultOfTry = ParseAttemptStatus.Uninitialized
 
             var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
@@ -218,7 +252,14 @@ abstract class SequenceParserBase(
 
             } // end while for each repeat
             parser.endArray(pstate)
-            parser.arrayCompleteChecks(pstate, resultOfTry, priorResultOfTry)
+            parser.arrayCompleteChecks(
+              pstate,
+              resultOfTry,
+              priorSiblingResultOfTry
+            )
+            lastChildBoundedToAtMostOne = max <= 1
+            lastChildIsOptionalWithData =
+              (min == 0) && (max <= 1) && (pstate.bitPos0b > bitPosAtChildStart)
           } // end match case RepeatingChildParser
 
           case nonRepresentedParser: NonRepresentedSequenceChildParser => {
@@ -258,6 +299,8 @@ abstract class SequenceParserBase(
             val (_, nextResultOfTry) = parseOneInstance(scalarParser, pstate, roStatus)
             priorResultOfTry = resultOfTry
             resultOfTry = nextResultOfTry
+            lastChildBoundedToAtMostOne = true
+            lastChildIsOptionalWithData = false
             resultOfTry match {
               case AbsentRep => {
                 // An absent scalar element or model group only arises from
@@ -333,7 +376,21 @@ abstract class SequenceParserBase(
         pstate.walker.walk()
       }
 
-      if (child ne null) child.sequenceCompleteChecks(pstate, resultOfTry, priorResultOfTry)
+      if (child ne null) {
+        // A repeating last child that ran once has no prior iteration, so fall
+        // back to the previous sibling, but only when this child did not
+        // succeed: a successful last child means the sibling was not trailing.
+        val priorForCheck =
+          if (
+            (priorResultOfTry eq ParseAttemptStatus.Uninitialized) &&
+            !resultOfTry.isInstanceOf[ParseAttemptStatus.SuccessParseAttemptStatus]
+          ) {
+            priorSiblingForStrictCheck
+          } else {
+            priorResultOfTry
+          }
+        child.sequenceCompleteChecks(pstate, resultOfTry, priorForCheck)
+      }
       ()
     } finally {
       pstate.mpstate.groupIndexStack.pop()
@@ -380,7 +437,6 @@ abstract class SequenceParserBase(
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
 
     checkN(pstate, parser) // check if occursIndex exceeds tunable limit.
-    val priorPos = pstate.bitPos0b
 
     var resultOfTry = parser.parseOne(pstate, roStatus, maybePoU)
 
@@ -410,8 +466,14 @@ abstract class SequenceParserBase(
           ) // back out any side effects of the attempt to parse
         } else if (maybePoU.isDefined) {
           // A discriminator inside the element resolved the PoU, committing to
-          // the element, so it is kept as an empty occurrence.
-          resultOfTry = ParseAttemptStatus.EmptyRep
+          // the element, so it is kept as an empty occurrence, or is a hard
+          // failure if the attempt itself failed.
+          if (pstate.isFailure) {
+            resultOfTry = ParseAttemptStatus.FailureUnspecified
+            ais = Done // exits the while loop for the array
+          } else {
+            resultOfTry = ParseAttemptStatus.EmptyRep
+          }
         }
         pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
       }
