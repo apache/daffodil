@@ -1077,4 +1077,49 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(msg.contains("/this/does/not/exist.xml"))
   }
 
+  // Verifies that an expected infoset containing year 0000 (which is invalid
+  // in XSD 1.0 — no year zero exists) causes a TDMLException when the TDML
+  // runner tries to compare it against the actual parsed result using
+  // XMLGregorianCalendar. This is expected behavior — an invalid expected
+  // infoset value is a TDML test error, not a parse error.
+  @Test def testYearZeroThrows(): Unit = {
+    val inputValueCalc = "{ fn:year-from-dateTime(../ex:date) }"
+    val testSuite =
+      <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={xsd} xmlns:dfdl={
+        dfdl
+      } xmlns:ex={example} xmlns:fn="http://www.w3.org/2005/xpath-functions">
+        <ts:defineSchema name="dateTimeSchema">
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="ex:GeneralFormat"/>
+          <xs:element name="e_yearfromdatetime">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"
+                            dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd'T'HH:mm:ss G"/>
+                <xs:element name="year" type="xs:int" dfdl:inputValueCalc={inputValueCalc}/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </ts:defineSchema>
+        <ts:parserTestCase name="yearZeroThrows" root="e_yearfromdatetime" model="dateTimeSchema">
+          <ts:document>0001-01-01T23:00:00 BC</ts:document>
+          <ts:infoset>
+            <ts:dfdlInfoset>
+              <ex:e_yearfromdatetime>
+                <ex:date>0000-01-01T23:00:00</ex:date>
+                <ex:year>-1</ex:year>
+              </ex:e_yearfromdatetime>
+            </ts:dfdlInfoset>
+          </ts:infoset>
+        </ts:parserTestCase>
+      </ts:testSuite>
+    val runner = new Runner(testSuite)
+    val e = intercept[TDMLException] {
+      runner.runOneTest("yearZeroThrows")
+    }
+    runner.reset()
+    assertTrue(e.getMessage().contains("0000-01-01T23:00:00"))
+    assertTrue(e.getMessage().contains("not a valid representation"))
+    assertTrue(e.getMessage().contains("XML Gregorian Calendar"))
+  }
 }
