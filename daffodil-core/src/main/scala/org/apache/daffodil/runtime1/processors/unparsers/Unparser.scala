@@ -129,6 +129,72 @@ trait SuspendableUnparser extends PrimUnparser {
     // also forces capture of bitOrder value in case of suspension.
     suspendableOperation.run(state)
   }
+
+  /**
+   * Runs the given operation, which can have per-call state that the caller
+   * set up beforehand, instead of a newly created one.
+   */
+  final def unparseWithOperation(state: UState, op: SuspendableOperation): Unit = {
+    state.bitOrder // force checking of bitOrder changes on non-byte boundaries
+    // also forces capture of bitOrder value in case of suspension.
+    op.run(state)
+  }
+
+  /**
+   * Same as unparse1, but runs the given operation.
+   */
+  final def unparse1WithOperation(ustate: UState, op: SuspendableOperation): Unit = {
+    Assert.invariant(isInitialized)
+    val savedProc = ustate.maybeProcessor
+    ustate.setProcessor(this)
+    if (ustate.dataProc.isDefined) ustate.dataProc.get.before(ustate, this)
+    try {
+      unparseWithOperation(ustate, op)
+    } finally {
+      ustate.resetFormatInfoCaches()
+    }
+    if (ustate.dataProc.isDefined) ustate.dataProc.get.after(ustate, this)
+    ustate.setMaybeProcessor(savedProc)
+  }
+}
+
+/**
+ * A suspendable unparser that is shared and holds no per-call state, but whose
+ * operation does. Each operation gets its own state, created by
+ * newSuspensionState, which is passed to the test and continuation.
+ */
+trait StatefulDelegatedSuspendableUnparser[S] extends SuspendableUnparser {
+  def rd: RuntimeData
+
+  def newSuspensionState(): S
+
+  override def suspendableOperation: StatefulForwardingSuspendableOperation[S] =
+    new StatefulForwardingSuspendableOperation[S](this)
+
+  def suspensionTest(ustate: UState, state: S): Boolean
+
+  def suspensionContinuation(ustate: UState, state: S): Unit
+}
+
+/**
+ * A shared, stateless suspendable unparser whose operation has no state either.
+ */
+trait DelegatedSuspendableUnparser extends StatefulDelegatedSuspendableUnparser[Unit] {
+
+  override def suspendableOperation: ForwardingSuspendableOperation =
+    new ForwardingSuspendableOperation(this)
+
+  def suspensionTest(ustate: UState): Boolean
+
+  def suspensionContinuation(ustate: UState): Unit
+
+  final override def newSuspensionState(): Unit = ()
+
+  final override def suspensionTest(ustate: UState, state: Unit): Boolean =
+    suspensionTest(ustate)
+
+  final override def suspensionContinuation(ustate: UState, state: Unit): Unit =
+    suspensionContinuation(ustate)
 }
 
 final class ErrorUnparser(override val context: TermRuntimeData = null)
