@@ -138,6 +138,28 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
 
 }
 
+class SpecifiedLengthEndOfParent(e: ElementBase, eGram: => Gram)
+  extends SpecifiedLengthCombinatorBase(e, eGram) {
+
+  lazy val kind = "EndOfParent_" + e.lengthUnits.toString
+
+  lazy val parser: Parser = {
+    if (eParser.isEmpty) {
+      eParser
+    } else {
+      new SpecifiedLengthEndOfParentParser(
+        eParser,
+        e.elementRuntimeData
+      )
+    }
+  }
+
+  // No target length to enforce: an EOP element's extent is set by its enclosing
+  // explicit-length element or choice.
+  lazy val unparser: Unparser = eUnparser
+
+}
+
 class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
   extends SpecifiedLengthCombinatorBase(e, eGram)
   with SpecifiedLengthExplicitImplicitUnparserMixin {

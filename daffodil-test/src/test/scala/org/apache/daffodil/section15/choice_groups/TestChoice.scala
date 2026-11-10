@@ -133,6 +133,8 @@ class TestChoiceLengthExplicit extends TdmlTests {
   @Test def explicit_07 = test
   @Test def explicit_08 = test
   @Test def explicit_09 = test
+  @Test def explicit_10 = test
+  @Test def explicit_11 = test
 
   @Test def explicit_multiple_choices = test
 
