@@ -377,6 +377,28 @@ class DFDLCatalogResolver(userCatalogs: Boolean = true)
   }
 }
 
+object DFDLCatalogResolver {
+
+  /**
+   * Kept for backward compatibility with code that called DFDLCatalogResolver.get.
+   *
+   * Returns a new resolver that uses the built-in catalog and any catalogs the user
+   * configured. It is an XMLEntityResolver (Xerces), LSResourceResolver, EntityResolver,
+   * EntityResolver2 and URIResolver. A resolver is not shared, so callers get one per call
+   * and should keep it for one operation.
+   *
+   * This always returns the built-in default resolver. It does not go through a custom
+   * DaffodilEntityResolverProvider registered with SPI, so such a provider is never consulted
+   * by callers of this method. Use DaffodilXMLEntityResolver to honor a custom provider.
+   */
+  @deprecated(
+    "Use DaffodilXMLEntityResolver.getEntityResolver(), getXMLEntityResolver(), " +
+      "getLSResourceResolver() or getURIResolver() instead",
+    "4.3.0"
+  )
+  def get: DFDLCatalogResolver = new DFDLCatalogResolver()
+}
+
 /**
  * This LSInput implementation is tailored specifically for Daffodil's use with
  * Xerces and has implementation details to ensure XML data is read correctly
