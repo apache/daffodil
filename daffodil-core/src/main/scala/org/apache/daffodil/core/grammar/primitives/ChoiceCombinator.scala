@@ -82,18 +82,16 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
   private def branchKeyAttribute = "dfdl:choiceBranchKey"
   private def branchKeyRangeAttribute = "dfdlx:choiceBranchKeyRanges"
 
+  // an explicit length choice, however its branch is chosen, is limited to choiceLength
+  private def limitedToChoiceLength(cp: Parser): Parser = ch.choiceLengthKind match {
+    case ChoiceLengthKind.Implicit => cp
+    case ChoiceLengthKind.Explicit =>
+      new SpecifiedLengthChoiceParser(cp, ch.choiceRuntimeData, choiceLengthInBits.get.toLong)
+  }
+
   lazy val parser: Parser = {
     if (!ch.isDirectDispatch) {
-      val cp = new ChoiceParser(ch.termRuntimeData, parsers.toArray)
-      ch.choiceLengthKind match {
-        case ChoiceLengthKind.Implicit => cp
-        case ChoiceLengthKind.Explicit =>
-          new SpecifiedLengthChoiceParser(
-            cp,
-            ch.choiceRuntimeData,
-            choiceLengthInBits.get.toLong
-          )
-      }
+      limitedToChoiceLength(new ChoiceParser(ch.termRuntimeData, parsers.toArray))
     } else {
       // Verify that every alternative has some form of branch key
       alternatives.foreach { alt =>
@@ -264,11 +262,13 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       val serializableKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)] =
         dispatchBranchKeyRangeTuples.toVector.map(identity)
 
-      new ChoiceDispatchCombinatorParser(
-        ch.termRuntimeData,
-        ch.choiceDispatchKeyEv,
-        serializableMap,
-        serializableKeyRangeMap
+      limitedToChoiceLength(
+        new ChoiceDispatchCombinatorParser(
+          ch.termRuntimeData,
+          ch.choiceDispatchKeyEv,
+          serializableMap,
+          serializableKeyRangeMap
+        )
       )
     }
   }

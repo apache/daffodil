@@ -169,7 +169,10 @@ trait PrefixedLengthParserMixin {
  * Some parsers do not calculate their own length, but instead expect another parser
  * to set the bit limit, and then they use that bit limit as the length.
  * An example of this is prefix length parsers. This trait can be used by those
- * parsers to do determine the length based on the bitLimit and position.
+ * parsers to determine the length based on the bitLimit and position.
+ *
+ * For dfdl:lengthKind='endOfParent' parsers that need to scan to end-of-stream
+ * when no bit limit is set, use the end-of-parent variant of this trait instead.
  */
 trait BitLengthFromBitLimitMixin {
 
@@ -179,7 +182,40 @@ trait BitLengthFromBitLimitMixin {
   }
 
   def getLengthInBits(pstate: PState): Long = {
-    val len = pstate.bitLimit0b.get - pstate.bitPos0b
-    len
+    if (pstate.bitLimit0b.isDefined) {
+      pstate.bitLimit0b.get - pstate.bitPos0b
+    } else {
+      Assert.invariantFailed("BitLimit not set for parser.")
+    }
+  }
+}
+
+/**
+ * Extends the bit limit based length with dfdl:lengthKind='endOfParent' support.
+ * When no bit limit is set (i.e., the parser is at the root or outermost EOP element),
+ * falls back to the end of the data stream.
+ *
+ * Only mix this in for parsers that are instantiated specifically for EOP elements.
+ * Parsers for prefixed or explicitly-bounded elements should use the plain bit limit
+ * version; mixing in this trait by mistake would silently consume the entire remaining
+ * stream instead of failing at the missing bit limit.
+ */
+trait EndOfParentBitLengthMixin extends BitLengthFromBitLimitMixin {
+
+  override def getLengthInBits(pstate: PState): Long = {
+    if (pstate.bitLimit0b.isDefined) {
+      pstate.bitLimit0b.get - pstate.bitPos0b
+    } else {
+      val dis = pstate.dataInputStream
+      dis.optEndOfDataPosition match {
+        case Some(endOfDataPosition) =>
+          (endOfDataPosition * 8) - dis.bitPos0b
+        case None =>
+          pstate.SDE(
+            "Cannot determine end-of-data position for dfdl:lengthKind='endOfParent': %s bytes read",
+            dis.knownBytesAvailable
+          )
+      }
+    }
   }
 }

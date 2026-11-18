@@ -1401,6 +1401,9 @@ trait ElementBase
 
   private lazy val optionFloating = findPropertyOption("floating")
 
+  /** True only when dfdl:floating is defined as 'yes'; without the property it is not. */
+  final lazy val isFloating: Boolean = optionFloating.isDefined && (floating eq YesNo.Yes)
+
   private lazy val checkFloating =
     (optionFloating.isDefined, tunable.requireFloatingProperty) match {
       case (false, false) =>

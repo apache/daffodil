@@ -19,7 +19,7 @@ package org.apache.daffodil.io
 
 import java.io.InputStream
 import java.nio.ByteBuffer
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ArrayDeque
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
@@ -182,6 +182,12 @@ abstract class InputSource {
   def releasePosition(bytePos0b: Long): Unit
 
   /**
+   * Returns the 0-based exclusive byte position of the end of the data stream,
+   * or None if the end of data is not reachable within the implementation's cache size limit.
+   */
+  def optEndOfDataPosition: Option[Long]
+
+  /**
    * Alerts the implementation to attempt to free data that is no longer used,
    * if possible. If possible, this should free any unlocked bytes.
    */
@@ -214,11 +220,17 @@ abstract class InputSource {
  * @param inputStream the java.io.Inputstream to read data from
  * @param bucketSizeExponent the exponent used to calculate the size of a single bucket, defined as 2^buckeSizeExponent bytes
  * @param maxCacheSizeInBytes the max memory allowed to be used for bucket storage (num buckets * bucketSize)
+ * @param optSizeHint if the total number of bytes available from this stream is known in advance,
+ *                    supply it here so that optEndOfDataPosition can short-circuit the
+ *                    256 MiB scan. Must reflect the bytes remaining from the stream's current
+ *                    position at the time this BucketingInputSource is constructed. The
+ *                    InputSourceDataInputStream factories populate it for file-backed streams.
  */
 class BucketingInputSource(
   inputStream: java.io.InputStream,
   bucketSizeExponent: Int = 13,
-  maxCacheSizeInBytes: Int = 256 * (1 << 20)
+  maxCacheSizeInBytes: Int = 256 * (1 << 20),
+  optSizeHint: Option[Long] = None
 ) extends InputSource {
 
   private final val bucketSize: Int = 1 << bucketSizeExponent
@@ -245,11 +257,17 @@ class BucketingInputSource(
   */
   private val maxNumberOfNonNullBuckets = Math.max(maxCacheSizeInBytes / bucketSize, 2)
 
+  // Compact the null-entry spine of the buckets ArrayDeque after this many
+  // buckets have been freed, so that the ArrayDeque length stays proportional
+  // to live buckets rather than total bytes ever read.  256 × 8 KiB = 2 MiB
+  // freed between compactions; each compaction costs O(live buckets).
+  private val compactThresholdBuckets = 256
+
   /**
    * Array of buckets
    */
   private val buckets = {
-    val b = new ArrayBuffer[Bucket]()
+    val b = new ArrayDeque[Bucket]()
     // initialize with an empty bucket
     b += new Bucket()
     b
@@ -259,7 +277,7 @@ class BucketingInputSource(
    * Used to keep track of the oldest bucket stored in the bucket array. When a
    * bucket is released, this number will be incremented, allowing us to
    * quickly know which buckets have something in them. All indices in the
-   * buckets ArrayBuffer less than this index should have a value of null
+   * buckets ArrayDeque less than this index should have a value of null
    */
   private var oldestBucketIndex: Int = 0
 
@@ -278,7 +296,7 @@ class BucketingInputSource(
   /**
    * Stores the byte position represented by the 0th index of the 0th bucket.
    * This implementation will periodically throw away old unneeded buckets and
-   * move the remaining buckets to the front of the buckets ArrayBuffer. This
+   * move the remaining buckets to the front of the buckets ArrayDeque. This
    * value is used to determine which bucket to grab data from, essentially
    * acting as an offset of curBytePosition0b.
    */
@@ -303,9 +321,18 @@ class BucketingInputSource(
    * bytesFilledInLastBucket, which may be less than bucketSize if the last
    * bucket was not completely filled.
    *
+   * @param mayEvictPinnedBucket if true, a pinned oldest bucket (one with an active
+   *   backtracking mark) is evicted like any other, so the cache never exceeds its limit.
+   *   If false, the oldest bucket is only evicted when it has no mark and is before the
+   *   current byte position; otherwise filling stops and true is returned even though the
+   *   goal was not reached.
    * @return false if EOF was hit before filling in the necessary bytes. true otherwise.
    */
-  private def fillBucketsToIndex(goalBucketIndex: Int, bytesNeededInBucket: Int): Boolean = {
+  private def fillBucketsToIndex(
+    goalBucketIndex: Int,
+    bytesNeededInBucket: Int,
+    mayEvictPinnedBucket: Boolean
+  ): Boolean = {
     var lastBucketIndex = buckets.length - 1
 
     var needsMoreData =
@@ -350,9 +377,16 @@ class BucketingInputSource(
           bytesFilledInLastBucket = 0
           lastBucketIndex += 1
           if ((lastBucketIndex - oldestBucketIndex) >= maxNumberOfNonNullBuckets) {
-            // This frees the oldest bucket, allowing it to be garbage collected.
-            buckets(oldestBucketIndex) = null
-            oldestBucketIndex += 1
+            if (mayEvictPinnedBucket || canEvictOldestBucket) {
+              // This frees the oldest bucket, allowing it to be garbage collected.
+              buckets(oldestBucketIndex) = null
+              oldestBucketIndex += 1
+            } else {
+              // The oldest bucket has an active backtracking mark or holds the current
+              // byte position. Evicting it would break them, so stop this optional
+              // look-ahead here.
+              needsMoreData = false
+            }
           }
         }
 
@@ -378,6 +412,15 @@ class BucketingInputSource(
     // anymore data (i.e. we filled in at least needed bytes in the specified
     // goalBucketIndex).
     !needsMoreData
+  }
+
+  /**
+   * The oldest bucket has no backtracking mark and is before the one holding the current
+   * byte position, which must stay readable.
+   */
+  private def canEvictOldestBucket: Boolean = {
+    buckets(oldestBucketIndex).refCount == 0 &&
+    oldestBucketIndex < getBucketIndex(curBytePosition0b)
   }
 
   /**
@@ -410,7 +453,7 @@ class BucketingInputSource(
       val bucketIndex = getBucketIndex(finalBytePosition0b)
       val byteIndex = getByteIndex(finalBytePosition0b)
       Assert.invariant(bucketIndex >= oldestBucketIndex)
-      val filled = fillBucketsToIndex(bucketIndex, byteIndex)
+      val filled = fillBucketsToIndex(bucketIndex, byteIndex, mayEvictPinnedBucket = true)
       filled
     }
   }
@@ -529,6 +572,13 @@ class BucketingInputSource(
       // buckets as possible. Note that this might still not release anything
       // if the oldest bucket contains the current byte position.
       releaseBuckets()
+      // Periodically collapse the null-reference spine so that the ArrayDeque
+      // length stays bounded by the live bucket count, not the total number of
+      // bytes ever read. Only reachable when oldestBucketIndex has actually
+      // advanced (i.e. refCount was 0), so no live mark covers any removed entry.
+      if (oldestBucketIndex >= compactThresholdBuckets) {
+        removeNullBuckets()
+      }
     }
   }
 
@@ -553,17 +603,52 @@ class BucketingInputSource(
    * This should be called when at the end of a parse when all marks have been
    * released, or just called periodically to ensure the size of the
    * buckets arraybuffer does not grow too big. This will move all existing
-   * buckets to the front of the buckets ArrayBuffer and update offsets
+   * buckets to the front of the buckets ArrayDeque and update offsets
    * accordingly. This way, there are not a bunch of null empty buckets at the
    * front of the buckets array taking up space.
    */
   def compact(): Unit = {
     releaseBuckets()
+    removeNullBuckets()
+  }
+
+  /**
+   * Removes the null buckets before the oldest one and moves the head position and
+   * oldest index to match.
+   */
+  private def removeNullBuckets(): Unit = {
     buckets.remove(0, oldestBucketIndex)
-    val bytesRemoved = oldestBucketIndex * bucketSize
-    headBucketBytePosition0b += bytesRemoved
+    headBucketBytePosition0b += oldestBucketIndex.toLong * bucketSize
     oldestBucketIndex = 0
   }
+
+  /**
+   * Returns the 0-based exclusive byte position of the end of the data stream.
+   *
+   * When the total stream size was known at construction time (supplied via
+   * optSizeHint) this returns immediately without reading any additional
+   * data from the stream.
+   *
+   * Otherwise it falls back to the scan-based approach: reads and buckets data
+   * until EOF is found or the maxCacheSizeInBytes scan window is exhausted.
+   * The scan window extends maxCacheSizeInBytes bytes beyond the last
+   * already-filled bucket (not from the current read position), maximising
+   * coverage without invalidating backtracking state.
+   *
+   * Returns None if EOF is not reachable within the scan window.
+   */
+  override lazy val optEndOfDataPosition: Option[Long] =
+    optSizeHint.orElse {
+      val lastFilledBucketIndex = buckets.length - 1
+      val goalBucketIndex = lastFilledBucketIndex + maxNumberOfNonNullBuckets - 1
+      val endOfDataNotReached =
+        fillBucketsToIndex(goalBucketIndex, bucketSize, mayEvictPinnedBucket = false)
+      if (endOfDataNotReached) {
+        None
+      } else {
+        Some(totalBytesBucketed)
+      }
+    }
 }
 
 /**
@@ -644,5 +729,13 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer) extends InputSource {
 
   override def close(): Unit = {
     // do nothing. No resources to release.
+  }
+
+  /**
+   * Returns the 0-based exclusive byte position of the end of the buffer data.
+   */
+  override def optEndOfDataPosition: Option[Long] = {
+    val finalPosition = position() + bb.remaining
+    Some(finalPosition)
   }
 }

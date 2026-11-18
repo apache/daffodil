@@ -84,6 +84,45 @@
       </xs:complexType>
     </xs:element>
 
+
+    <xs:element name="ch4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="3">
+            <xs:element name="inty" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+            <xs:element name="stringp" dfdl:lengthKind="explicit" dfdl:length="3">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="stringx" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+                  <xs:element name="stringy" type="xs:string" dfdl:lengthKind="endOfParent"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ch5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice dfdl:choiceLengthKind="explicit" dfdl:choiceLength="3">
+            <xs:element name="inty" type="xs:int"
+                        dfdl:lengthKind="explicit" dfdl:length="1" />
+            <xs:element name="stringp" dfdl:lengthKind="endOfParent">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="stringx" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+                  <xs:element name="stringy" type="xs:string" dfdl:lengthKind="endOfParent"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="explicit_01" root="ch1"
@@ -368,6 +407,43 @@
             <ex:inty>777</ex:inty>
           </ex:a>
         </ex:ch1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="explicit_10" root="ch4"
+                       model="basic">
+
+    <tdml:document><![CDATA[ABC]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch4>
+          <ex:stringp>
+            <ex:stringx>A</ex:stringx>
+            <ex:stringy>BC</ex:stringy>
+          </ex:stringp>
+        </ex:ch4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="explicit_11" root="ch5"
+                       model="basic">
+
+    <tdml:document><![CDATA[ABC]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:ch5>
+          <ex:stringp>
+            <ex:stringx>A</ex:stringx>
+            <ex:stringy>BC</ex:stringy>
+          </ex:stringp>
+        </ex:ch5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

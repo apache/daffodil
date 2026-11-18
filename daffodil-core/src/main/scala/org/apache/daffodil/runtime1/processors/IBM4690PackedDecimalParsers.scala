@@ -65,6 +65,18 @@ class IBM4690PackedDecimalBitLimitLengthParser(
 
 }
 
+class IBM4690PackedDecimalEndOfParentLengthParser(
+  e: ElementRuntimeData,
+  binaryDecimalVirtualPoint: Int,
+  decimalSigned: YesNo
+) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, Some(decimalSigned))
+  with EndOfParentBitLengthMixin {
+
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, binaryDecimalVirtualPoint)
+
+}
+
 class IBM4690PackedIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
   val lengthEv: Evaluatable[JLong],
@@ -91,6 +103,15 @@ class IBM4690PackedIntegerKnownLengthParser(
 class IBM4690PackedIntegerBitLimitLengthParser(e: ElementRuntimeData)
   extends PackedBinaryIntegerBaseParser(e)
   with BitLengthFromBitLimitMixin {
+
+  override def toNumber(num: Array[Byte]): JBigInteger =
+    DecimalUtils.ibm4690ToBigInteger(num)
+
+}
+
+class IBM4690PackedIntegerEndOfParentLengthParser(e: ElementRuntimeData)
+  extends PackedBinaryIntegerBaseParser(e)
+  with EndOfParentBitLengthMixin {
 
   override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)

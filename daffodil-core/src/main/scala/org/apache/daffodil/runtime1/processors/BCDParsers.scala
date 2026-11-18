@@ -50,11 +50,17 @@ class BCDDecimalRuntimeLengthParser(
 
 }
 
-class BCDDecimalBitLimitLengthParser(
-  e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int
-) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, None)
+class BCDDecimalBitLimitLengthParser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
+  extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, None)
   with BitLengthFromBitLimitMixin {
+
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.bcdToBigDecimal(num, binaryDecimalVirtualPoint)
+}
+
+class BCDDecimalEndOfParentLengthParser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
+  extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint, None)
+  with EndOfParentBitLengthMixin {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
     DecimalUtils.bcdToBigDecimal(num, binaryDecimalVirtualPoint)
@@ -82,6 +88,13 @@ class BCDIntegerKnownLengthParser(e: ElementRuntimeData, val lengthInBits: Int)
 class BCDIntegerBitLimitLengthParser(e: ElementRuntimeData)
   extends PackedBinaryIntegerBaseParser(e)
   with BitLengthFromBitLimitMixin {
+
+  override def toNumber(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
+}
+
+class BCDIntegerEndOfParentLengthParser(e: ElementRuntimeData)
+  extends PackedBinaryIntegerBaseParser(e)
+  with EndOfParentBitLengthMixin {
 
   override def toNumber(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
 }

@@ -19,10 +19,13 @@ package org.apache.daffodil.core.grammar
 
 import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.grammar.primitives.UnicodeByteOrderMark
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 
 trait RootGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root
   { self: Root =>
+
+  requiredEvaluationsAlways(checkEndOfParentRestrictions(Some(LengthUnits.Characters)))
 
   final lazy val document = prod("document") {
     schemaDefinitionUnless(isScalar, "The document element cannot be an array.")
