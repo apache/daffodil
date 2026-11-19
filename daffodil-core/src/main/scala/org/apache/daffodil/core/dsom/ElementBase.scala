@@ -970,8 +970,6 @@ trait ElementBase
       (simpleType.primType =:= PrimType.String ||
         simpleType.primType =:= PrimType.HexBinary)
 
-  import org.apache.daffodil.runtime1.dsom.FacetTypes.*
-
   private lazy val hasPattern: Boolean = typeDef.optRestriction.exists(_.hasPattern)
   private lazy val hasEnumeration: Boolean = typeDef.optRestriction.exists(_.hasEnumeration)
   protected lazy val hasLength: Boolean = typeDef.optRestriction.exists(_.hasLength)
@@ -984,7 +982,7 @@ trait ElementBase
   private lazy val hasTotalDigits = typeDef.optRestriction.exists(_.hasTotalDigits)
   private lazy val hasFractionDigits = typeDef.optRestriction.exists(_.hasFractionDigits)
 
-  final lazy val patternValues: Seq[FacetValueR] = {
+  final lazy val patternValues: Seq[FacetPattern] = {
     Assert.invariant(hasPattern)
     typeDef.optRestriction.map { _.patternValues }.getOrElse(Nil)
   }

@@ -21,7 +21,6 @@ import java.lang.Double as JDouble
 import java.lang.Float as JFloat
 import java.lang.Long as JLong
 import java.util.regex.Matcher
-import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.api.DFDLPrimType
@@ -64,7 +63,7 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
-import org.apache.daffodil.runtime1.dsom.FacetTypes
+import org.apache.daffodil.runtime1.dsom.FacetPattern
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue
@@ -233,7 +232,7 @@ final class SimpleTypeRuntimeData(
   noPrefixNamespaceArg: NS,
   val primType: NodeInfo.PrimType,
   val noFacetChecks: Boolean,
-  val patternValues: Seq[FacetTypes.FacetValueR],
+  val patternValues: Seq[FacetPattern],
   val enumerationValues: Option[String],
   val length: Option[java.math.BigDecimal],
   val minLength: Option[java.math.BigDecimal],
@@ -266,8 +265,10 @@ final class SimpleTypeRuntimeData(
    */
   private lazy val matcherPool = new ThreadSafePool[(Seq[Matcher], Option[Matcher])] {
     protected final override def allocate() = {
-      val patternMatchers = patternValues.map { case (_, r) => r.pattern.matcher("") }
-      val optEnumMatcher = enumerationValues.map { en => en.r.pattern.matcher("") }
+      val patternMatchers = patternValues.map { p => p.regex.pattern.matcher("") }
+      val optEnumMatcher = enumerationValues.map { enumeration =>
+        enumeration.r.pattern.matcher("")
+      }
       (patternMatchers, optEnumMatcher)
     }
   }
@@ -342,7 +343,7 @@ final class SimpleTypeRuntimeData(
           if (!check) {
             // The escaping is important here as error messages were impossible to figure out when control chars were involved.
             val patternStrings = e.patternValues
-              .map { case (_, r: Regex) => XMLUtils.escape(r.pattern.pattern()) }
+              .map { pattern => XMLUtils.escape(pattern.regex.pattern.pattern()) }
               .mkString(",")
             return Error("facet pattern(s): %s".format(patternStrings))
           }
