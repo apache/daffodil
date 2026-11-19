@@ -145,6 +145,9 @@ class SpecifiedLengthPrefixedUnparser(
 
   override def childProcessors = Vector(prefixedLengthUnparser, eUnparser)
 
+  private val prefixLengthUnparser =
+    new PrefixLengthUnparser(erd, lengthUnits, prefixedLengthAdjustmentInUnits)
+
   override def unparse(state: UState): Unit = {
     // Create a "detached" DIDocument with a single child element that the
     // prefix length will be parsed to. This creates a completely new
@@ -177,13 +180,9 @@ class SpecifiedLengthPrefixedUnparser(
       // element is determined. Once determined, it will set the value of the
       // prefix length element, ultimately allowing the prefix length element
       // suspension to resume and unparse the value
-      val suspension = new PrefixLengthSuspendableOperation(
-        erd,
-        elem,
-        plElem,
-        lengthUnits,
-        prefixedLengthAdjustmentInUnits
-      )
+      val suspension = prefixLengthUnparser.suspendableOperation
+      suspension.state.elem = elem
+      suspension.state.plElem = plElem
 
       // Run the suspension--we know the suspension will not be able to succeed
       // since maybeLengthInBits is not defined, but this performs various

@@ -22,9 +22,13 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
+import org.apache.daffodil.runtime1.processors.RuntimeData
+import org.apache.daffodil.runtime1.processors.StatefulForwardingSuspendableOperation
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers.*
+
+type SuppressableSeparatorOperation =
+  StatefulForwardingSuspendableOperation[SuppressableSeparatorState]
 
 /**
  * Performance Note: This can be a very special purpose suspension. Unlike the
@@ -32,31 +36,22 @@ import org.apache.daffodil.runtime1.processors.unparsers.*
  * to data that is already known. Hence, we can evaluate the separator, and just cache it,
  * and when we decide to unsuspend this, we either blat out that cached data or not.
  * But we need none of the state needed to unparse or evaluate expressions.
+ *
+ * This is the per-call state of the suspension, which tracks the regions of data
+ * whose zero-length status decides whether the separator is suppressed.
  */
-final class SuppressableSeparatorUnparserSuspendableOperation(
-  sepMtaAlignmentMaybe: MaybeInt,
-  sepUnparser: Unparser,
-  override val rd: TermRuntimeData
-) extends SuspendableOperation
-  with StreamSplitter
-  with AlignmentFillUnparserSuspendableMixin {
-
-  override val alignmentInBits =
-    if (sepMtaAlignmentMaybe.isDefined) sepMtaAlignmentMaybe.get
-    else 0
-
-  private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
+final class SuppressableSeparatorState(splitter: RegionSplitUnparser)
+  extends ZeroLengthRegionMixin {
 
   private var maybeDOSAfterSeparatorRegion: Maybe[DataOutputStream] = Maybe.Nope
   private var maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator: Maybe[DataOutputStream] =
     Maybe.Nope
   private var maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator: Maybe[DataOutputStream] =
     Maybe.Nope
+  private var maybeDOSToCheck: Maybe[Seq[DataOutputStream]] = Maybe.Nope
 
   def captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(s: UState): Unit = {
-    val splitter = RegionSplitUnparser(rd)
-    splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
-    maybeDOSAfterSeparatorRegion = Maybe(splitter.dataOutputStream)
+    maybeDOSAfterSeparatorRegion = Maybe(splitRegion(splitter, s))
   }
 
   /**
@@ -69,41 +64,73 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * from unparsing.
    */
   def captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(s: UState): Unit = {
-    val splitter = RegionSplitUnparser(rd)
-    splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
     maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator = Maybe(
-      splitter.dataOutputStream.maybeNextInChain.get
+      splitRegion(splitter, s).maybeNextInChain.get
     )
   }
 
   def captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(s: UState): Unit = {
-    val splitter = RegionSplitUnparser(rd)
-    splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
-    maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator = Maybe(splitter.dataOutputStream)
+    maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator = Maybe(splitRegion(splitter, s))
   }
 
   /**
    * Get list of DOSs that we need to check to see if we know
    * they are nonZL or not.
    */
-  private lazy val dosToCheck_ = {
-    Assert.usage(maybeDOSAfterSeparatorRegion.isDefined)
-    val dosForStartOfSeparatedRegion = savedUstate.getDataOutputStream.maybeNextInChain.get
-    val dosForEndOfSeparatedRegion = maybeDOSAfterSeparatorRegion.get
-    val primaryDOSList =
-      getDOSFromAtoB(dosForStartOfSeparatedRegion, dosForEndOfSeparatedRegion)
-    val secondaryDOSList =
-      if (maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator.isDefined) {
-        Assert.usage(maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.isDefined)
-        getDOSFromAtoB(
-          maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator.get,
-          maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.get
-        )
-      } else
-        Seq()
-    val res = primaryDOSList ++ secondaryDOSList
-    res
+  private def dosToCheck(ustate: UState): Seq[DataOutputStream] = {
+    if (maybeDOSToCheck.isEmpty) {
+      Assert.usage(maybeDOSAfterSeparatorRegion.isDefined)
+      val dosForStartOfSeparatedRegion = ustate.getDataOutputStream.maybeNextInChain.get
+      val dosForEndOfSeparatedRegion = maybeDOSAfterSeparatorRegion.get
+      val primaryDOSList =
+        getDOSFromAtoB(dosForStartOfSeparatedRegion, dosForEndOfSeparatedRegion)
+      val secondaryDOSList =
+        if (maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator.isDefined) {
+          Assert.usage(maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.isDefined)
+          getDOSFromAtoB(
+            maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator.get,
+            maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.get
+          )
+        } else
+          Seq()
+      maybeDOSToCheck = Maybe(primaryDOSList ++ secondaryDOSList)
+    }
+    maybeDOSToCheck.get
   }
+
+  /**
+   * Updates the zero length status when the data output streams to examine
+   * are known. Until then the status remains unknown.
+   */
+  def updateZLStatusIfPossible(ustate: UState): Unit = {
+    if (maybeDOSAfterSeparatorRegion.isDefined) {
+      updateZLStatus(dosToCheck(ustate))
+    }
+  }
+}
+
+final class SuppressableSeparatorUnparser(
+  sepMtaAlignmentMaybe: MaybeInt,
+  sepUnparser: Unparser,
+  override val context: TermRuntimeData
+) extends PrimUnparser
+  with StatefulDelegatedSuspendableUnparser[SuppressableSeparatorState]
+  with AlignmentFillMixin {
+
+  override def childProcessors: Vector[Processor] = Vector(sepUnparser)
+
+  override val runtimeDependencies = Array()
+
+  override def rd: RuntimeData = context
+
+  override val alignmentInBits =
+    if (sepMtaAlignmentMaybe.isDefined) sepMtaAlignmentMaybe.get
+    else 0
+
+  private val regionSplitter = RegionSplitUnparser(context)
+
+  override def newSuspensionState(): SuppressableSeparatorState =
+    new SuppressableSeparatorState(regionSplitter)
 
   /**
    * Determine if the decision about whether to suppress or not can be taken.
@@ -125,19 +152,11 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * is Zero, no separator will be unparsed, and so MTA should also not be
    * unparsed.
    */
-  override def test(ustate: UState): Boolean = {
-
+  override def suspensionTest(ustate: UState, state: SuppressableSeparatorState): Boolean = {
     // mutate zlStatus state depending on dos associated with this suspension
-    if ((zlStatus_ ne ZeroLengthStatus.Unknown) || maybeDOSAfterSeparatorRegion.isEmpty) {
-      // no-op, we have either already calculated the zls or we don't have a
-      // final DOS yet so can't try to calculate
-    } else if (dosToCheck_.exists { _.zeroLengthStatus eq ZeroLengthStatus.NonZero }) {
-      zlStatus_ = ZeroLengthStatus.NonZero
-    } else if (dosToCheck_.forall { _.zeroLengthStatus eq ZeroLengthStatus.Zero }) {
-      zlStatus_ = ZeroLengthStatus.Zero
-    }
+    state.updateZLStatusIfPossible(ustate)
 
-    zlStatus_ match {
+    state.zlStatus match {
       case ZeroLengthStatus.Zero => {
         // zero length, so there is no separator, so there is nothing to do
         true
@@ -148,8 +167,8 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
         // for that separator to avoid nested suspensions. This suspension test
         // passes only if we have statically determined that mta alignment is
         // not needed because we are already aligned, or the alignment test
-        // passes (vai super.test)
-        sepMtaAlignmentMaybe.isEmpty || super.test(ustate)
+        // passes
+        sepMtaAlignmentMaybe.isEmpty || alignmentTest(ustate)
       }
       case ZeroLengthStatus.Unknown => {
         // we don't have an answer about the if the separator is needed yet,
@@ -170,9 +189,12 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
    * If we are unparsing a separator, we must also unparse associated MTA
    * alignment if we didn't statically determine that it wasn't needed
    */
-  override def continuation(state: UState): Unit = {
+  override def suspensionContinuation(
+    ustate: UState,
+    state: SuppressableSeparatorState
+  ): Unit = {
     import ZeroLengthStatus.*
-    zlStatus_ match {
+    state.zlStatus match {
       case Zero => {
         // zero length, so we suppress the separator
         //
@@ -184,40 +206,14 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
 
         // first unparse alignment bits if alignment is necessary
         if (sepMtaAlignmentMaybe.isDefined) {
-          super.continuation(state)
+          alignmentContinuation(ustate)
         }
 
         // then unparse the separator
-        sepUnparser.unparse1(savedUstate)
+        sepUnparser.unparse1(ustate)
       }
       case Unknown =>
         Assert.invariantFailed("Should be known zero or non-zero by here.")
     }
   }
-}
-
-final class SuppressableSeparatorUnparser private (
-  sepUnparser: Unparser,
-  override val context: TermRuntimeData,
-  override val suspendableOperation: SuspendableOperation
-) extends PrimUnparser
-  with SuspendableUnparser {
-
-  override def childProcessors: Vector[Processor] = Vector(sepUnparser)
-
-  override val runtimeDependencies = Array()
-}
-
-object SuppressableSeparatorUnparser {
-
-  def apply(
-    sepUnparser: Unparser,
-    context: TermRuntimeData,
-    suspendableOperation: SuspendableOperation
-  ) = {
-    val res = new SuppressableSeparatorUnparser(sepUnparser, context, suspendableOperation)
-    Processor.initialize(res)
-    res
-  }
-
 }

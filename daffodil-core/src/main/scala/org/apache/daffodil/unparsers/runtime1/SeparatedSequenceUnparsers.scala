@@ -28,6 +28,7 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
+import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers.*
@@ -130,6 +131,18 @@ class OrderedSeparatedSequenceUnparser(
   override def childProcessors = childUnparsers.toVector
 
   /**
+   * One per child, in the same order as the children. Each is shared by all
+   * unparses of the sequence.
+   */
+  private val suppressableSeparators: Array[SuppressableSeparatorUnparser] =
+    childUnparsers.map { child =>
+      val suppressableSeparator =
+        new SuppressableSeparatorUnparser(sepMtaAlignmentMaybe, sep, child.trd)
+      Processor.initialize(suppressableSeparator)
+      suppressableSeparator
+    }
+
+  /**
    * Unparses one occurrence with associated separator (non-suppressable).
    */
   protected def unparseOne(
@@ -193,7 +206,7 @@ class OrderedSeparatedSequenceUnparser(
 //private def unparseJustSeparatorWithTrailingSuppression(
 //  trd: TermRuntimeData,
 //  state: UState,
-//  trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Unit = {
+//  trailingSuspendedOps: Buffer[SuppressableSeparatorOperation]): Unit = {
 //
 //  // We don't know if the unparse will result in zero length or not. We have
 //  // to use a suspendable unparser here for the separator which suspends
@@ -209,7 +222,7 @@ class OrderedSeparatedSequenceUnparser(
 //  // TODO: merge these two objects. We can allocate just one thing here.
 //  val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
 //
-//  suppressableSep.unparse1(state)
+//  suppressableSep.unparse1WithOperation(state, suspendableOp)
 //  trailingSuspendedOps += suspendableOp
 //}
 
@@ -227,9 +240,9 @@ class OrderedSeparatedSequenceUnparser(
 
   private def unparseOneWithSuppression(
     unparser: SequenceChildUnparser,
-    trd: TermRuntimeData,
     state: UState,
-    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation],
+    trailingSuspendedOps: Buffer[SuppressableSeparatorOperation],
+    index: Int,
     onlySeparatorFlag: Boolean
   ): Unit = {
     val doUnparseChild = !onlySeparatorFlag
@@ -250,20 +263,19 @@ class OrderedSeparatedSequenceUnparser(
       // no separator possible; hence, no suppression
       if (doUnparseChild) unparser.unparse1(state)
     } else {
-      val suspendableOp =
-        new SuppressableSeparatorUnparserSuspendableOperation(sepMtaAlignmentMaybe, sep, trd)
-      // TODO: merge these two objects. We can allocate just one thing here.
-      val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
+      val suppressableSep = suppressableSeparators(index)
+      val suspendableOp = suppressableSep.suspendableOperation
 
       spos match {
         case Prefix | Infix => {
-          suppressableSep.unparse1(state)
+          suppressableSep.unparse1WithOperation(state, suspendableOp)
           if (doUnparseChild) unparser.unparse1(state)
           ssp match {
             case AnyEmpty => {
-              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
-                state
-              )
+              suspendableOp.state
+                .captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
+                  state
+                )
             }
             case TrailingEmpty | TrailingEmptyStrict => {
               trailingSuspendedOps += suspendableOp
@@ -274,19 +286,24 @@ class OrderedSeparatedSequenceUnparser(
         case Postfix => {
           ssp match {
             case AnyEmpty => {
-              suspendableOp.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(state)
-              if (doUnparseChild) unparser.unparse1(state)
-              suspendableOp.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
-              suppressableSep.unparse1(state)
-              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
+              suspendableOp.state.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(
                 state
               )
+              if (doUnparseChild) unparser.unparse1(state)
+              suspendableOp.state.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
+              suppressableSep.unparse1WithOperation(state, suspendableOp)
+              suspendableOp.state
+                .captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
+                  state
+                )
             }
             case TrailingEmpty | TrailingEmptyStrict => {
-              suspendableOp.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(state)
+              suspendableOp.state.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(
+                state
+              )
               if (doUnparseChild) unparser.unparse1(state)
-              suspendableOp.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
-              suppressableSep.unparse1(state)
+              suspendableOp.state.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
+              suppressableSep.unparse1WithOperation(state, suspendableOp)
               trailingSuspendedOps += suspendableOp
             }
             case Never => Assert.invariantFailed("Should not be ssp Never")
@@ -304,7 +321,7 @@ class OrderedSeparatedSequenceUnparser(
     var doUnparser = false
     val limit = childUnparsers.length
 
-    lazy val trailingSuspendedOps = Buffer[SuppressableSeparatorUnparserSuspendableOperation]()
+    lazy val trailingSuspendedOps = Buffer[SuppressableSeparatorOperation]()
 
     while (index < limit) {
       val childUnparser = childUnparsers(index)
@@ -384,9 +401,9 @@ class OrderedSeparatedSequenceUnparser(
                   } else {
                     unparseOneWithSuppression(
                       unparser,
-                      erd,
                       state,
                       trailingSuspendedOps,
+                      index,
                       onlySeparatorFlag = false
                     )
                   }
@@ -415,7 +432,8 @@ class OrderedSeparatedSequenceUnparser(
                   erd,
                   state,
                   numOccurrences,
-                  trailingSuspendedOps
+                  trailingSuspendedOps,
+                  index
                 )
                 unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
                   state,
@@ -435,7 +453,8 @@ class OrderedSeparatedSequenceUnparser(
                   erd,
                   state,
                   numOccurrences,
-                  trailingSuspendedOps
+                  trailingSuspendedOps,
+                  index
                 )
               }
 
@@ -453,7 +472,8 @@ class OrderedSeparatedSequenceUnparser(
                 erd,
                 state,
                 numOccurrences,
-                trailingSuspendedOps
+                trailingSuspendedOps,
+                index
               )
             } else {
               Assert.invariant(ev.isEnd && ev.erd.isComplexType)
@@ -469,7 +489,8 @@ class OrderedSeparatedSequenceUnparser(
                 erd,
                 state,
                 numOccurrences,
-                trailingSuspendedOps
+                trailingSuspendedOps,
+                index
               )
             }
           } else {
@@ -507,9 +528,9 @@ class OrderedSeparatedSequenceUnparser(
               } else {
                 unparseOneWithSuppression(
                   scalarUnparser,
-                  trd,
                   state,
                   trailingSuspendedOps,
+                  index,
                   onlySeparatorFlag = false
                 )
               }
@@ -537,7 +558,9 @@ class OrderedSeparatedSequenceUnparser(
         // optional fields near the end of a record. So the above may simply not matter.
         //
         for (suspendedOp <- trailingSuspendedOps.toSeq) {
-          suspendedOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(state)
+          suspendedOp.state.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
+            state
+          )
         }
       }
       case _ => // do nothing
@@ -550,7 +573,8 @@ class OrderedSeparatedSequenceUnparser(
     erd: ElementRuntimeData,
     state: UState,
     numOccurs: Int,
-    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]
+    trailingSuspendedOps: Buffer[SuppressableSeparatorOperation],
+    index: Int
   ): Int = {
     var numOccurrences = numOccurs
     unparserArg match {
@@ -569,9 +593,9 @@ class OrderedSeparatedSequenceUnparser(
           while (numOccurrences < maxReps) {
             unparseOneWithSuppression(
               unparser,
-              erd,
               state,
               trailingSuspendedOps,
+              index,
               onlySeparatorFlag = true
             )
             state.moveOverOneArrayIterationIndexOnly()

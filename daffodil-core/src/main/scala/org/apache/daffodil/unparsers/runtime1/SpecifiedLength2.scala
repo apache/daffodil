@@ -38,10 +38,11 @@ import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.processors.CharsetEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.processors.ForwardingSuspendableOperation
 import org.apache.daffodil.runtime1.processors.LengthEv
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
+import org.apache.daffodil.runtime1.processors.StatefulForwardingSuspendableOperation
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.unparsers.*
 
@@ -170,56 +171,44 @@ import passera.unsigned.ULong
  * the number of bits to characters.
  */
 
-class SimpleTypeRetryUnparserSuspendableOperation(
-  override val rd: ElementRuntimeData,
-  maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv],
-  vUnparser: Unparser
-) extends SuspendableOperation {
-
-  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
-    if (maybeUnparserTargetLengthInBitsEv.isDefined) {
-      // maybeUnparserTargetLengthInBitsEv should only be defined if we know at
-      // schema compile time that it will evaluate to a value, and that value
-      // will match the actual unparsed length (e.g. there will not be any
-      // padding/fill). Here we assert that if the target length evaluatable was
-      // passed into this class, then it must evaluate to a value. When we
-      // deliver buffered content, we will also assert that the starting bit
-      // position of the buffered DOS that results from this suspension matches
-      // the direct DOS (i.e. this length is used correctly)
-      val maybeLen = maybeUnparserTargetLengthInBitsEv.get.evaluate(ustate)
-      Assert.invariant(maybeLen.isDefined)
-      maybeLen.toMaybeULong
-    } else {
-      MaybeULong.Nope
-    }
-  }
-
-  protected def test(state: UState) = {
-    state.currentInfosetNode.asSimple.hasValue
-  }
-
-  protected def continuation(state: UState): Unit = {
-    vUnparser.unparse1(state)
-  }
-}
-
 class SimpleTypeRetryUnparser(
   override val context: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv],
   vUnparser: Unparser
 ) extends PrimUnparser
-  with SuspendableUnparser {
+  with DelegatedSuspendableUnparser {
 
   override final val runtimeDependencies = maybeUnparserTargetLengthInBitsEv.toArray
 
   final override def childProcessors = Vector(vUnparser)
 
-  def suspendableOperation = new SimpleTypeRetryUnparserSuspendableOperation(
-    context,
-    maybeUnparserTargetLengthInBitsEv,
-    vUnparser
-  )
+  override def rd: RuntimeData = context
 
+  override def suspendableOperation: ForwardingSuspendableOperation =
+    new ForwardingSuspendableOperation(this) {
+      override def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
+        if (maybeUnparserTargetLengthInBitsEv.isDefined) {
+          // maybeUnparserTargetLengthInBitsEv should only be defined if we know at
+          // schema compile time that it will evaluate to a value, and that value
+          // will match the actual unparsed length (e.g. there will not be any
+          // padding/fill). Here we assert that if the target length evaluatable was
+          // passed into this class, then it must evaluate to a value. When we
+          // deliver buffered content, we will also assert that the starting bit
+          // position of the buffered DOS that results from this suspension matches
+          // the direct DOS (i.e. this length is used correctly)
+          val maybeLen = maybeUnparserTargetLengthInBitsEv.get.evaluate(ustate)
+          Assert.invariant(maybeLen.isDefined)
+          maybeLen.toMaybeULong
+        } else {
+          MaybeULong.Nope
+        }
+      }
+    }
+
+  override def suspensionTest(ustate: UState): Boolean =
+    ustate.currentInfosetNode.asSimple.hasValue
+
+  override def suspensionContinuation(ustate: UState): Unit = vUnparser.unparse1(ustate)
 }
 
 class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeData)
@@ -312,24 +301,36 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
  * to retry this in order to get the target length used to compute the amount of
  * padding or the amount of unused space.
  */
-class TargetLengthOperation(
-  override val rd: ElementRuntimeData,
+class TargetLengthUnparser(
+  override val context: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv
-) extends SuspendableOperation {
+) extends PrimUnparser
+  with DelegatedSuspendableUnparser {
 
-  override val isReadOnly = true
+  override val runtimeDependencies = Array()
 
-  override def toString =
-    "target length for " + rd.diagnosticDebugName + " expr " + targetLengthEv.lengthInBitsEv.lengthEv
-      .toBriefXML()
+  override def childProcessors = Vector()
 
-  /**
-   * This override indicates that this operation itself doesn't correspond
-   * to any bits in the unparsed data stream. It's just a computation.
-   */
-  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
+  override def rd: RuntimeData = context
 
-  override def test(ustate: UState): Boolean = {
+  override def suspendableOperation: ForwardingSuspendableOperation =
+    new ForwardingSuspendableOperation(this) {
+
+      override val isReadOnly = true
+
+      override def toString =
+        "target length for " + context.diagnosticDebugName + " expr " +
+          targetLengthEv.lengthInBitsEv.lengthEv.toBriefXML()
+
+      /**
+       * This override indicates that this operation itself doesn't correspond
+       * to any bits in the unparsed data stream. It's just a computation.
+       */
+      override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong =
+        MaybeULong(0L)
+    }
+
+  override def suspensionTest(ustate: UState): Boolean = {
     //
     // regular evaluation - can only look backwards
     //
@@ -339,7 +340,7 @@ class TargetLengthOperation(
     true
   }
 
-  override def continuation(state: UState): Unit = {
+  override def suspensionContinuation(ustate: UState): Unit = {
     // once we have evaluated the targetLengthEv, nothing else to do
     // here
   }
@@ -361,7 +362,7 @@ sealed trait NeedValueAndTargetLengthMixin {
     true
   }
 
-  protected def test(ustate: UState): Boolean = {
+  def valueAndTargetLengthTest(ustate: UState): Boolean = {
     hasTargetLength(ustate) && {
       val e = ustate.currentInfosetNode.asInstanceOf[DIElement]
       val hasValueLength = e.valueLength.maybeLengthInBits().isDefined
@@ -424,9 +425,11 @@ sealed trait NeedValueAndTargetLengthMixin {
   }
 }
 
-trait SkipTheBits { self: SuspendableOperation =>
+trait SkipTheBits {
 
-  protected val rd: RuntimeData
+  def rd: RuntimeData
+
+  def UE(ustate: UState, s: String, args: Any*): Nothing
 
   protected final def skipTheBits(ustate: UState, skipInBits: Long): Unit = {
     if (skipInBits > 0) {
@@ -446,22 +449,29 @@ trait SkipTheBits { self: SuspendableOperation =>
   }
 }
 
-class ElementUnusedUnparserSuspendableOperation(
-  override val rd: ElementRuntimeData,
+class ElementUnusedUnparser(
+  override val context: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
   override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv]
-) extends SuspendableOperation
+) extends PrimUnparser
+  with DelegatedSuspendableUnparser
   with SkipTheBits
   with NeedValueAndTargetLengthMixin {
+
+  override val runtimeDependencies = Array(targetLengthEv)
+
+  override def rd: RuntimeData = context
+
+  override def suspensionTest(ustate: UState): Boolean = valueAndTargetLengthTest(ustate)
 
   /**
    * determine delta between value length and target length
    *
    * and skip that many bits.
    */
-  override def continuation(ustate: UState): Unit = {
+  override def suspensionContinuation(ustate: UState): Unit = {
     val skipInBits = getSkipBits(ustate)
     if (skipInBits < 0)
       UE(ustate, "Data too long by %s bits. Unable to truncate.", -skipInBits)
@@ -470,99 +480,61 @@ class ElementUnusedUnparserSuspendableOperation(
 
 }
 
-class ElementUnusedUnparser(
-  override val context: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
-  maybeLengthEv: Maybe[LengthEv],
-  maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv]
-) extends PrimUnparser
-  with SuspendableUnparser {
-
-  override val runtimeDependencies = Array(targetLengthEv)
-
-  override def suspendableOperation =
-    new ElementUnusedUnparserSuspendableOperation(
-      context,
-      targetLengthEv,
-      maybeLengthEv,
-      maybeCharsetEv,
-      maybeLiteralNilEv
-    )
-
-}
-
-class ChoiceUnusedUnparserSuspendableOperation(
-  override val rd: ModelGroupRuntimeData,
-  targetLengthInBits: Long
-) extends SuspendableOperation
-  with StreamSplitter
-  with SkipTheBits {
-
-  private var zlStatus_ : ZeroLengthStatus = ZeroLengthStatus.Unknown
+/**
+ * The per-call state of a choice unused suspension, which tracks the region of
+ * data unparsed for the chosen branch.
+ */
+final class ChoiceUnusedState(splitter: RegionSplitUnparser) extends ZeroLengthRegionMixin {
 
   private var maybeDOSStart: Maybe[DataOutputStream] = Maybe.Nope
   private var maybeDOSEnd: Maybe[DataOutputStream] = Maybe.Nope
 
   def captureDOSStartForChoiceUnused(state: UState): Unit = {
-    val splitter = new RegionSplitUnparser(rd)
-    splitter.unparse(state)
-    maybeDOSStart = Maybe(splitter.dataOutputStream)
+    maybeDOSStart = Maybe(splitRegion(splitter, state))
   }
 
   def captureDOSEndForChoiceUnused(state: UState): Unit = {
-    val splitter = new RegionSplitUnparser(rd)
-    splitter.unparse(state)
-    maybeDOSEnd = Maybe(splitter.dataOutputStream)
+    maybeDOSEnd = Maybe(splitRegion(splitter, state))
   }
 
-  private lazy val dosToCheck_ = {
+  lazy val dosToCheck: Seq[DataOutputStream] = {
     Assert.usage(maybeDOSStart.isDefined)
     val dosForStart = maybeDOSStart.get
     val dosForEnd = maybeDOSEnd.get
-    val primaryDOSList = getDOSFromAtoB(dosForStart, dosForEnd)
-
-    primaryDOSList
+    getDOSFromAtoB(dosForStart, dosForEnd)
   }
 
-  override def test(ustate: UState): Boolean = {
-    if (zlStatus_ ne ZeroLengthStatus.Unknown)
-      true
-    else if (maybeDOSStart.isEmpty)
-      false
-    else {
-      Assert.invariant(maybeDOSStart.isDefined)
-      if (
-        dosToCheck_.exists { dos =>
-          val dosZLStatus = dos.zeroLengthStatus
-          dosZLStatus eq ZeroLengthStatus.NonZero
-        }
-      ) {
-        zlStatus_ = ZeroLengthStatus.NonZero
-        true
-      } else if (
-        dosToCheck_.forall { dos =>
-          val dosZLStatus = dos.zeroLengthStatus
-          dosZLStatus eq ZeroLengthStatus.Zero
-        }
-      ) {
-        zlStatus_ = ZeroLengthStatus.Zero
-        true
-      } else {
-        Assert.invariant(zlStatus_ eq ZeroLengthStatus.Unknown)
-        false
-      }
-    }
-  }
+  def isZLStatusKnown: Boolean =
+    maybeDOSStart.isDefined && (updateZLStatus(dosToCheck) ne ZeroLengthStatus.Unknown)
+}
+
+class ChoiceUnusedUnparser(
+  override val context: ModelGroupRuntimeData,
+  targetLengthInBits: Long
+) extends PrimUnparser
+  with StatefulDelegatedSuspendableUnparser[ChoiceUnusedState]
+  with SkipTheBits {
+
+  override val runtimeDependencies = Array()
+
+  override def rd: RuntimeData = context
+
+  private val regionSplitter = RegionSplitUnparser(context)
+
+  override def newSuspensionState(): ChoiceUnusedState = new ChoiceUnusedState(regionSplitter)
+
+  override def suspensionTest(ustate: UState, state: ChoiceUnusedState): Boolean =
+    state.isZLStatusKnown
 
   /**
    * determine delta between value length and target length
    *
    * and skip that many bits.
    */
-  override def continuation(ustate: UState): Unit = {
-    val startPos0b = dosToCheck_(0).relBitPos0b
-    val endPos0b = dosToCheck_.last.relBitPos0b + startPos0b
+  override def suspensionContinuation(ustate: UState, state: ChoiceUnusedState): Unit = {
+    val dosToCheck = state.dosToCheck
+    val startPos0b = dosToCheck(0).relBitPos0b
+    val endPos0b = dosToCheck.last.relBitPos0b + startPos0b
     val vl = (endPos0b - startPos0b).toLong
     val skipInBits = targetLengthInBits - vl
     if (skipInBits < 0)
@@ -576,26 +548,16 @@ class ChoiceUnusedUnparserSuspendableOperation(
   }
 }
 
-class ChoiceUnusedUnparser(
-  override val context: ModelGroupRuntimeData,
-  targetLengthInBits: Long,
-  suspendableOp: SuspendableOperation
-) extends PrimUnparser
-  with SuspendableUnparser {
-
-  override val runtimeDependencies = Array()
-
-  override def suspendableOperation = suspendableOp
-}
-
-trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: SuspendableOperation =>
+trait PaddingUnparserMixin
+  extends DelegatedSuspendableUnparser
+  with NeedValueAndTargetLengthMixin {
 
   protected def charsKind = "pad"
 
   protected def maybePadChar: MaybeChar
 
-  override def test(ustate: UState): Boolean = {
-    super.test(ustate) && {
+  override def suspensionTest(ustate: UState): Boolean = {
+    valueAndTargetLengthTest(ustate) && {
       // we know there is a charset. We can't have a padChar without one
       val charsetEv = maybeCharsetEv.get
       charsetEv.evaluate(ustate)
@@ -614,7 +576,7 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
     res
   }
 
-  override def continuation(state: UState): Unit = {
+  override def suspensionContinuation(state: UState): Unit = {
     val skipInBits = getSkipBits(state)
     if (skipInBits <= 0)
       return // padding doesn't worry about data too long. RightFill and ElementUnused do.
@@ -633,7 +595,7 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
         } catch {
           case m: MalformedInputException => {
             UnparseError(
-              One(self.rd.schemaFileLocation),
+              One(rd.schemaFileLocation),
               One(state.currentLocation),
               "MalformedInputException: \n%s",
               m.getMessage()
@@ -641,7 +603,7 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
           }
           case u: UnmappableCharacterException => {
             UnparseError(
-              One(self.rd.schemaFileLocation),
+              One(rd.schemaFileLocation),
               One(state.currentLocation),
               "UnmappableCharacterException: \n%s",
               u.getMessage()
@@ -654,50 +616,38 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
   }
 }
 
-class OnlyPaddingUnparserSuspendableOperation(
-  override val rd: ElementRuntimeData,
-  override val targetLengthEv: Evaluatable[MaybeJULong],
-  override val maybeLengthEv: Maybe[LengthEv],
-  override val maybeCharsetEv: Maybe[CharsetEv],
-  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  override val maybePadChar: MaybeChar
-) extends SuspendableOperation
-  with PaddingUnparserMixin
-
 /**
  * Doesn't matter if we're left or right padding if we're the only padding
  */
 class OnlyPaddingUnparser(
   override val context: ElementRuntimeData,
-  targetLengthEv: Evaluatable[MaybeJULong],
-  maybeLengthEv: Maybe[LengthEv],
-  maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar
+  override val targetLengthEv: Evaluatable[MaybeJULong],
+  override val maybeLengthEv: Maybe[LengthEv],
+  override val maybeCharsetEv: Maybe[CharsetEv],
+  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
+  override val maybePadChar: MaybeChar
 ) extends TextPrimUnparser
-  with SuspendableUnparser {
+  with DelegatedSuspendableUnparser
+  with PaddingUnparserMixin {
 
   override val runtimeDependencies = Array(targetLengthEv)
 
-  override def suspendableOperation =
-    new OnlyPaddingUnparserSuspendableOperation(
-      context,
-      targetLengthEv,
-      maybeLengthEv,
-      maybeCharsetEv,
-      maybeLiteralNilEv,
-      maybePadChar
-    )
+  override def rd: RuntimeData = context
 }
 
-class NilLiteralCharacterUnparserSuspendableOperation(
-  override val rd: ElementRuntimeData,
+class NilLiteralCharacterUnparser(
+  override val context: ElementRuntimeData,
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
   literalNilChar: Char
-) extends SuspendableOperation
+) extends TextPrimUnparser
+  with DelegatedSuspendableUnparser
   with PaddingUnparserMixin {
+
+  override val runtimeDependencies = Array(targetLengthEv)
+
+  override def rd: RuntimeData = context
 
   override def maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv] = Nope
 
@@ -709,7 +659,7 @@ class NilLiteralCharacterUnparserSuspendableOperation(
   // We don't wait for the valueLength, because the unparsed
   // nil is part of the valueLength
   //
-  override def test(state: UState) =
+  override def suspensionTest(state: UState): Boolean =
     hasTargetLength(state) && {
       val e = state.currentInfosetNode.asInstanceOf[DISimple]
       val isNilled = e.isNilled
@@ -723,49 +673,6 @@ class NilLiteralCharacterUnparserSuspendableOperation(
     skipInBits
   }
 
-}
-
-class NilLiteralCharacterUnparser(
-  override val context: ElementRuntimeData,
-  val targetLengthEv: UnparseTargetLengthInBitsEv,
-  val maybeLengthEv: Maybe[LengthEv],
-  val maybeCharsetEv: Maybe[CharsetEv],
-  literalNilChar: Char
-) extends TextPrimUnparser
-  with SuspendableUnparser {
-
-  override val runtimeDependencies = Array(targetLengthEv)
-
-  override def suspendableOperation = new NilLiteralCharacterUnparserSuspendableOperation(
-    context,
-    targetLengthEv,
-    maybeLengthEv,
-    maybeCharsetEv,
-    literalNilChar
-  )
-
-}
-
-class RightCenteredPaddingUnparserSuspendaableOperation(
-  rd: ElementRuntimeData,
-  targetLengthEv: Evaluatable[MaybeJULong],
-  maybeLengthEv: Maybe[LengthEv],
-  maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar
-) extends OnlyPaddingUnparserSuspendableOperation(
-    rd,
-    targetLengthEv,
-    maybeLengthEv,
-    maybeCharsetEv,
-    maybeLiteralNilEv,
-    maybePadChar
-  ) {
-
-  override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
-    val numChars = super.numPadChars(skipInBits, charWidthInBits)
-    numChars / 2
-  }
 }
 
 class RightCenteredPaddingUnparser(
@@ -784,39 +691,9 @@ class RightCenteredPaddingUnparser(
     maybePadChar
   ) {
 
-  override def suspendableOperation =
-    new RightCenteredPaddingUnparserSuspendaableOperation(
-      rd,
-      targetLengthEv,
-      maybeLengthEv,
-      maybeCharsetEv,
-      maybeLiteralNilEv,
-      maybePadChar
-    )
-}
-
-class LeftCenteredPaddingUnparserSuspendableOperation(
-  override val rd: ElementRuntimeData,
-  targetLengthEv: Evaluatable[MaybeJULong],
-  maybeLengthEv: Maybe[LengthEv],
-  maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar
-) extends OnlyPaddingUnparserSuspendableOperation(
-    rd,
-    targetLengthEv,
-    maybeLengthEv,
-    maybeCharsetEv,
-    maybeLiteralNilEv,
-    maybePadChar
-  ) {
-
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
     val numChars = super.numPadChars(skipInBits, charWidthInBits)
-    if ((numChars & 1) == 0)
-      numChars / 2
-    else
-      (numChars / 2) + 1
+    numChars / 2
   }
 }
 
@@ -836,25 +713,23 @@ class LeftCenteredPaddingUnparser(
     maybePadChar
   ) {
 
-  override def suspendableOperation =
-    new LeftCenteredPaddingUnparserSuspendableOperation(
-      rd,
-      targetLengthEv,
-      maybeLengthEv,
-      maybeCharsetEv,
-      maybeLiteralNilEv,
-      maybePadChar
-    )
+  override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
+    val numChars = super.numPadChars(skipInBits, charWidthInBits)
+    if ((numChars & 1) == 0)
+      numChars / 2
+    else
+      (numChars / 2) + 1
+  }
 }
 
-class RightFillUnparserSuspendableOperation(
+class RightFillUnparser(
   rd: ElementRuntimeData,
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
   override val maybePadChar: MaybeChar
-) extends ElementUnusedUnparserSuspendableOperation(
+) extends ElementUnusedUnparser(
     rd,
     targetLengthEv,
     maybeLengthEv,
@@ -863,7 +738,9 @@ class RightFillUnparserSuspendableOperation(
   )
   with PaddingUnparserMixin {
 
-  override def continuation(state: UState): Unit = {
+  override def suspensionTest(ustate: UState) = super.suspensionTest(ustate)
+
+  override def suspensionContinuation(state: UState): Unit = {
     val skipInBits = getSkipBits(state)
     if (skipInBits == 0L) return
     if (skipInBits > 0) {
@@ -883,58 +760,51 @@ class RightFillUnparserSuspendableOperation(
 
 }
 
-class RightFillUnparser(
-  rd: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
-  maybeLengthEv: Maybe[LengthEv],
-  maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  val maybePadChar: MaybeChar
-) extends ElementUnusedUnparser(
-    rd,
-    targetLengthEv,
-    maybeLengthEv,
-    maybeCharsetEv,
-    maybeLiteralNilEv
-  ) {
-
-  override def suspendableOperation =
-    new RightFillUnparserSuspendableOperation(
-      rd,
-      targetLengthEv,
-      maybeLengthEv,
-      maybeCharsetEv,
-      maybeLiteralNilEv,
-      maybePadChar
-    )
-
+/**
+ * The per-call state of a prefix length suspension, which is the element whose
+ * content length is awaited and the element that receives the prefix length.
+ */
+final class PrefixLengthState {
+  var elem: DIElement = _
+  var plElem: DISimple = _
 }
 
-class PrefixLengthSuspendableOperation(
-  override val rd: ElementRuntimeData,
-  elem: DIElement,
-  plElem: DISimple,
+class PrefixLengthUnparser(
+  override val context: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
-) extends SuspendableOperation
+) extends PrimUnparser
+  with StatefulDelegatedSuspendableUnparser[PrefixLengthState]
   with CalculatedPrefixedLengthUnparserMixin {
 
-  override val isReadOnly = true
+  override val runtimeDependencies = Array()
 
-  override def toString = "prefix length for " + rd.diagnosticDebugName
+  override def childProcessors = Vector()
 
-  /**
-   * This override indicates that this operation itself doesn't correspond
-   * to any bits in the unparsed data stream. It's just a computation.
-   */
-  override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = MaybeULong(0L)
+  override def rd: RuntimeData = context
 
-  override def test(ustate: UState): Boolean = {
-    elem.contentLength.maybeLengthInBits().isDefined
+  override def newSuspensionState(): PrefixLengthState = new PrefixLengthState
+
+  override def suspendableOperation: StatefulForwardingSuspendableOperation[PrefixLengthState] =
+    new StatefulForwardingSuspendableOperation[PrefixLengthState](this) {
+
+      override val isReadOnly = true
+
+      override def toString = "prefix length for " + context.diagnosticDebugName
+
+      /**
+       * This override indicates that this operation itself doesn't correspond
+       * to any bits in the unparsed data stream. It's just a computation.
+       */
+      override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong =
+        MaybeULong(0L)
+    }
+
+  override def suspensionTest(ustate: UState, state: PrefixLengthState): Boolean = {
+    state.elem.contentLength.maybeLengthInBits().isDefined
   }
 
-  override def continuation(state: UState): Unit = {
-    val len = elem.contentLength.maybeLengthInBits().isDefined
-    assignPrefixLength(state, elem, plElem)
+  override def suspensionContinuation(ustate: UState, state: PrefixLengthState): Unit = {
+    assignPrefixLength(ustate, state.elem, state.plElem)
   }
 }
